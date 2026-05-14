@@ -85,6 +85,7 @@
     min-height: 100vh;
     color: var(--text-secondary);
     padding: 20px;
+    padding-bottom: 220px;
     transition: background 0.5s ease;
   }
 
@@ -102,19 +103,19 @@
   .header {
     background: var(--header-bg);
     color: var(--header-text);
-    padding: 30px 20px;
+    padding: 25px 20px;
     text-align: center;
     border-bottom: 4px solid var(--accent);
     position: relative;
   }
 
-  .header h1 { font-size: 36px; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-  .header p { font-size: 16px; opacity: 0.9; }
+  .header h1 { font-size: 32px; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+  .header p { font-size: 15px; opacity: 0.9; }
 
   .header-status {
-    margin-top: 10px; font-size: 15px; opacity: 0.9;
+    margin-top: 8px; font-size: 14px; opacity: 0.9;
     background: rgba(255,255,255,0.1); display: inline-block;
-    padding: 4px 16px; border-radius: 20px;
+    padding: 4px 14px; border-radius: 20px;
   }
 
   .header-status.active-hifdh {
@@ -124,139 +125,281 @@
   .theme-toggle {
     position: absolute; top: 20px; left: 20px;
     background: rgba(255,255,255,0.15); border: 2px solid var(--accent);
-    color: var(--header-text); width: 50px; height: 50px; border-radius: 50%;
-    cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center;
+    color: var(--header-text); width: 45px; height: 45px; border-radius: 50%;
+    cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;
     transition: all 0.3s ease;
   }
 
   .theme-toggle:hover { background: var(--accent); transform: rotate(180deg) scale(1.1); }
 
   .controls {
-    background: var(--controls-bg); padding: 20px;
+    background: var(--controls-bg); padding: 18px;
     border-bottom: 2px solid var(--accent);
-    display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: center;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center;
   }
 
   .control-group { display: flex; flex-direction: column; gap: 5px; }
-  .control-group label { font-size: 14px; font-weight: bold; color: var(--primary-light); }
+  .control-group label { font-size: 13px; font-weight: bold; color: var(--primary-light); }
   body.night-mode .control-group label { color: var(--accent); }
 
   .control-group select, .control-group input {
-    padding: 10px 15px; border: 2px solid var(--accent); border-radius: 10px;
-    background: var(--select-bg); font-size: 16px; font-family: inherit;
-    cursor: pointer; min-width: 220px; color: var(--text-secondary);
+    padding: 9px 14px; border: 2px solid var(--accent); border-radius: 10px;
+    background: var(--select-bg); font-size: 15px; font-family: inherit;
+    cursor: pointer; min-width: 200px; color: var(--text-secondary);
   }
 
-  .control-group input { min-width: 280px; cursor: text; }
+  .control-group input { min-width: 260px; cursor: text; }
 
-  .player {
-    background: var(--player-bg); padding: 25px 20px;
-    border-bottom: 2px solid var(--border-soft); text-align: center;
+  /* ===== المشغّل العائم السفلي ===== */
+  .floating-player {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(254, 253, 248, 0.97);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-top: 2px solid var(--accent);
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
+    z-index: 100;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 12px 20px 14px;
   }
 
-  .player-info {
-    font-size: 22px; color: var(--primary-light); margin-bottom: 15px; font-weight: bold;
+  body.night-mode .floating-player {
+    background: rgba(22, 26, 38, 0.97);
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
   }
 
-  body.night-mode .player-info { color: var(--accent); }
-
-  .player-info .reciter { font-size: 16px; color: var(--text-muted); font-weight: normal; margin-top: 5px; }
-  .player-info .current-ayah { font-size: 14px; color: var(--accent); margin-top: 8px; font-weight: bold; }
-
-  .repeat-info {
-    font-size: 15px; background: var(--repeat-bg); border: 2px solid var(--repeat-border);
-    border-radius: 10px; padding: 8px 16px; margin-top: 8px; font-weight: bold;
-    color: var(--text-secondary); display: none;
+  .floating-player.minimized {
+    transform: translateY(calc(100% - 35px));
   }
 
-  body.night-mode .repeat-info { color: #ffe066; }
+  .player-toggle {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    border: 2px solid var(--container-bg);
+    width: 60px;
+    height: 24px;
+    border-radius: 14px 14px 0 0;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    font-weight: bold;
+  }
 
-  audio { width: 100%; max-width: 700px; margin: 0 auto; border-radius: 50px; }
+  .player-toggle:hover {
+    background: var(--accent-dark);
+    height: 28px;
+    top: -26px;
+  }
+
+  .floating-player.minimized .player-toggle::before { content: '⌄ إظهار المشغّل'; }
+  .floating-player:not(.minimized) .player-toggle::before { content: '⌃ إخفاء'; }
+
+  .floating-player.minimized .player-toggle {
+    width: 130px;
+    font-size: 13px;
+  }
+
+  .player-info-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .player-info-left {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--primary);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.night-mode .player-info-left { color: var(--accent); }
+
+  .player-info-right {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .current-ayah-badge {
+    background: var(--accent);
+    color: #fff;
+    padding: 3px 11px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  audio {
+    width: 100%;
+    max-width: 100%;
+    height: 38px;
+    border-radius: 19px;
+    margin: 6px 0;
+  }
+
   body.night-mode audio { filter: invert(0.85) hue-rotate(180deg); }
 
-  .player-buttons { margin-top: 15px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .player-buttons-compact {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
 
   .btn {
-    padding: 10px 20px; background: var(--primary); color: #fff;
-    border: none; border-radius: 10px; cursor: pointer; font-size: 15px;
+    padding: 8px 14px; background: var(--primary); color: #fff;
+    border: none; border-radius: 8px; cursor: pointer; font-size: 14px;
     font-family: inherit; transition: all 0.2s; font-weight: bold;
   }
 
   .btn:hover { background: var(--primary-light); transform: translateY(-2px); }
   .btn-gold { background: var(--accent); color: #2c3e50; }
   .btn-gold:hover { background: var(--accent-dark); }
+  .btn-gold.active { background: var(--accent-dark); }
   .btn-repeat { background: #f59e0b; color: #1a1a1a; }
   .btn-repeat:hover { background: #d97706; }
-  .btn-repeat.active { background: #dc2626; color: #fff; box-shadow: 0 0 15px rgba(220,38,38,0.5); }
+  .btn-repeat.active { background: #dc2626; color: #fff; box-shadow: 0 0 12px rgba(220,38,38,0.5); }
   .btn-hifdh { background: #a0846c; color: #fff; }
   .btn-hifdh:hover { background: #8b6f5a; }
-  .btn-hifdh.active { background: #7c3aed; color: #fff; box-shadow: 0 0 15px rgba(124,58,237,0.5); }
+  .btn-hifdh.active { background: #7c3aed; color: #fff; box-shadow: 0 0 12px rgba(124,58,237,0.5); }
   .btn-tafsir { background: #8b5cf6; color: #fff; }
   .btn-tafsir:hover { background: #7c3aed; }
-  .btn-tafsir.active { background: #6d28d9; box-shadow: 0 0 15px rgba(109,40,217,0.5); }
+  .btn-tafsir.active { background: #6d28d9; box-shadow: 0 0 12px rgba(109,40,217,0.5); }
   .btn-retry { background: #22c55e; color: #fff; }
   .btn-retry:hover { background: #16a34a; }
 
-  .keyboard-hint {
-    text-align: center; padding: 10px 15px; margin-top: 12px;
-    font-size: 13px; color: var(--text-muted);
-    background: var(--controls-bg); border-radius: 8px;
-    border: 1px dashed var(--border-soft);
+  .floating-progress {
+    height: 4px;
+    background: var(--border-soft);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
   }
 
-  .progress-container {
-    display: flex; align-items: center; gap: 10px; margin-top: 12px;
-    padding: 8px 14px; background: var(--controls-bg); border-radius: 10px;
-    border: 1px solid var(--border-soft);
+  .floating-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+    transition: width 0.3s ease;
+    width: 0%;
   }
 
-  .progress-bar {
-    flex: 1; height: 8px; background: var(--border-soft); border-radius: 4px; overflow: hidden;
+  .repeat-info {
+    font-size: 13px;
+    background: var(--repeat-bg);
+    border: 1px solid var(--repeat-border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    margin-top: 6px;
+    font-weight: bold;
+    color: var(--text-secondary);
+    display: none;
+    text-align: center;
   }
 
-  .progress-bar-fill {
-    height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-dark));
-    border-radius: 4px; transition: width 0.3s ease; width: 0%;
+  body.night-mode .repeat-info { color: #ffe066; }
+
+  /* نافذة التكرار المنبثقة */
+  .repeat-modal {
+    position: fixed;
+    bottom: 200px;
+    right: 20px;
+    background: var(--container-bg);
+    border: 2px solid var(--accent);
+    border-radius: 15px;
+    padding: 18px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    z-index: 200;
+    display: none;
+    min-width: 290px;
+    animation: slideUp 0.3s ease;
   }
 
-  .progress-text { font-size: 13px; color: var(--text-muted); font-weight: bold; min-width: 130px; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .repeat-modal.open { display: block; }
+
+  .repeat-modal-title {
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 16px;
+  }
+  body.night-mode .repeat-modal-title { color: var(--accent); }
+
+  .repeat-modal-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .repeat-modal-row label { min-width: 65px; font-size: 14px; font-weight: bold; color: var(--text-secondary); }
+  body.night-mode .repeat-modal-row label { color: var(--text-muted); }
+
+  .repeat-modal select {
+    flex: 1;
+    padding: 7px 12px;
+    border: 2px solid var(--repeat-border);
+    border-radius: 8px;
+    background: var(--select-bg);
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-family: inherit;
+  }
 
   .goto-ayah {
-    display: flex; align-items: center; gap: 8px; margin-top: 10px;
+    display: flex; align-items: center; gap: 8px; margin-top: 8px;
     justify-content: center; flex-wrap: wrap;
   }
 
   .goto-ayah input {
     padding: 6px 12px; border: 2px solid var(--accent); border-radius: 8px;
-    background: var(--select-bg); font-size: 14px; width: 100px; text-align: center;
+    background: var(--select-bg); font-size: 13px; width: 90px; text-align: center;
     color: var(--text-secondary); font-family: inherit;
   }
 
-  .goto-ayah label { font-size: 14px; font-weight: bold; color: var(--primary-light); }
+  .goto-ayah label { font-size: 13px; font-weight: bold; color: var(--primary-light); }
   body.night-mode .goto-ayah label { color: var(--accent); }
 
-  .repeat-controls {
-    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
-    align-items: center; margin-top: 12px; padding-top: 12px;
-    border-top: 1px solid var(--border-soft);
-  }
-
-  .repeat-controls label { font-size: 14px; font-weight: bold; color: var(--primary-light); }
-  body.night-mode .repeat-controls label { color: var(--accent); }
-
-  .repeat-controls select {
-    padding: 8px 12px; border: 2px solid var(--repeat-border); border-radius: 8px;
-    background: var(--select-bg); font-size: 14px; font-family: inherit;
-    cursor: pointer; min-width: 100px; color: var(--text-secondary);
+  .keyboard-hint {
+    text-align: center; padding: 8px 12px; margin: 10px 20px 0;
+    font-size: 12px; color: var(--text-muted);
+    background: var(--controls-bg); border-radius: 8px;
+    border: 1px dashed var(--border-soft);
   }
 
   .search-results {
-    background: var(--controls-bg); padding: 18px;
+    background: var(--controls-bg); padding: 16px;
     border-bottom: 2px solid var(--border-soft); display: none;
   }
 
   .search-results-header {
-    font-size: 18px; font-weight: bold; color: var(--primary-light);
+    font-size: 17px; font-weight: bold; color: var(--primary-light);
     margin-bottom: 12px; text-align: center;
   }
   body.night-mode .search-results-header { color: var(--accent); }
@@ -268,25 +411,25 @@
   .search-count.zero { background: #dc2626; }
 
   .search-result-item {
-    padding: 14px; margin-bottom: 10px; background: var(--player-bg);
+    padding: 12px; margin-bottom: 8px; background: var(--player-bg);
     border: 1px solid var(--border-soft); border-right: 5px solid var(--accent);
-    border-radius: 12px; cursor: pointer; line-height: 2;
+    border-radius: 10px; cursor: pointer; line-height: 2;
     color: var(--text-primary); transition: all 0.2s ease;
   }
 
   .search-result-item:hover { background: var(--hover-bg); transform: translateX(-4px); }
-  .search-result-title { font-weight: bold; color: var(--primary-light); margin-bottom: 6px; }
+  .search-result-title { font-weight: bold; color: var(--primary-light); margin-bottom: 5px; }
   body.night-mode .search-result-title { color: var(--accent); }
   .search-mark { background: #ffe066; color: #6b4e3d; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
   body.night-mode .search-mark { background: #4a3d1a; color: #ffe066; }
-  .search-loading { text-align: center; padding: 15px; font-size: 17px; color: var(--primary-light); }
+  .search-loading { text-align: center; padding: 15px; font-size: 16px; color: var(--primary-light); }
   body.night-mode .search-loading { color: var(--accent); }
   .search-more-note { text-align: center; margin-top: 10px; color: var(--text-muted); font-size: 14px; }
 
   .main-layout { display: flex; flex-direction: row; gap: 0; position: relative; }
 
   .surah-content {
-    padding: 30px; background: var(--content-bg); min-height: 400px;
+    padding: 25px; background: var(--content-bg); min-height: 400px;
     flex: 2; transition: all 0.3s ease; position: relative;
   }
 
@@ -294,9 +437,9 @@
 
   .swipe-indicator {
     position: absolute; top: 50%; transform: translateY(-50%);
-    background: var(--accent); color: #fff; width: 50px; height: 50px;
+    background: var(--accent); color: #fff; width: 48px; height: 48px;
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 24px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 5;
+    font-size: 22px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 5;
   }
   .swipe-indicator.left { left: 10px; }
   .swipe-indicator.right { right: 10px; }
@@ -313,8 +456,8 @@
   .tafsir-panel.open { display: flex; }
 
   .tafsir-header {
-    font-size: 20px; font-weight: bold; color: var(--primary-light);
-    margin-bottom: 15px; text-align: center;
+    font-size: 19px; font-weight: bold; color: var(--primary-light);
+    margin-bottom: 14px; text-align: center;
     padding-bottom: 12px; border-bottom: 2px solid var(--tafsir-border);
   }
 
@@ -328,31 +471,31 @@
     font-family: inherit; cursor: pointer; color: var(--text-secondary);
   }
 
-  .tafsir-content { line-height: 2; font-size: 17px; color: var(--tafsir-text); padding: 10px 0; }
+  .tafsir-content { line-height: 2; font-size: 16px; color: var(--tafsir-text); padding: 10px 0; }
 
   .tafsir-ayah-title {
-    font-size: 17px; font-weight: bold; color: var(--accent-dark);
+    font-size: 16px; font-weight: bold; color: var(--accent-dark);
     margin: 5px 0 10px; padding-bottom: 5px;
     border-bottom: 1px dashed var(--tafsir-border);
   }
 
   body.night-mode .tafsir-ayah-title { color: var(--accent); }
 
-  .tafsir-loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 16px; }
+  .tafsir-loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 15px; }
   .tafsir-error { color: var(--error-text); text-align: center; padding: 15px; }
-  .tafsir-no-ayah { color: var(--text-muted); text-align: center; padding: 30px; font-size: 16px; }
+  .tafsir-no-ayah { color: var(--text-muted); text-align: center; padding: 30px; font-size: 15px; }
 
   .hifdh-hint {
-    text-align: center; padding: 15px; margin-bottom: 15px;
+    text-align: center; padding: 14px; margin-bottom: 15px;
     background: linear-gradient(135deg, #a0846c, #8b6f5a); color: #fff;
-    border-radius: 12px; font-size: 16px; font-weight: bold; display: none;
+    border-radius: 12px; font-size: 15px; font-weight: bold; display: none;
   }
 
   .hifdh-mode .hifdh-hint { display: block; }
 
   .bismillah {
-    text-align: center; font-size: 32px; color: var(--bismillah-color);
-    margin-bottom: 25px; padding-bottom: 20px;
+    text-align: center; font-size: 30px; color: var(--bismillah-color);
+    margin-bottom: 22px; padding-bottom: 18px;
     border-bottom: 2px dashed var(--accent); font-weight: bold;
     transition: all 0.5s ease;
   }
@@ -388,33 +531,33 @@
 
   .ayah-number {
     display: inline-block; background: var(--accent); color: #fff; border-radius: 50%;
-    width: 32px; height: 32px; line-height: 32px; text-align: center;
-    font-size: 14px; margin: 0 5px; font-weight: bold; font-family: Arial;
+    width: 30px; height: 30px; line-height: 30px; text-align: center;
+    font-size: 13px; margin: 0 5px; font-weight: bold; font-family: Arial;
     transition: all 0.3s ease;
   }
 
   .ayah.active .ayah-number { background: var(--primary); transform: scale(1.1); }
   body.night-mode .ayah.active .ayah-number { background: #1a1f2e; color: var(--accent); }
 
-  .loading { text-align: center; padding: 40px; font-size: 20px; color: var(--primary-light); }
+  .loading { text-align: center; padding: 40px; font-size: 18px; color: var(--primary-light); }
   body.night-mode .loading { color: var(--accent); }
 
   .error {
-    background: var(--error-bg); color: var(--error-text); padding: 20px;
-    border-radius: 10px; margin: 20px; text-align: center; font-size: 16px; line-height: 1.8;
+    background: var(--error-bg); color: var(--error-text); padding: 18px;
+    border-radius: 10px; margin: 20px; text-align: center; font-size: 15px; line-height: 1.8;
   }
 
   .toast {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    position: fixed; bottom: 230px; left: 50%; transform: translateX(-50%);
     background: var(--primary); color: #fff; padding: 12px 24px;
-    border-radius: 25px; font-size: 15px; font-weight: bold;
+    border-radius: 25px; font-size: 14px; font-weight: bold;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000;
     opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 
   .footer {
-    background: var(--footer-bg); color: #fff; text-align: center; padding: 15px; font-size: 14px;
+    background: var(--footer-bg); color: #fff; text-align: center; padding: 14px; font-size: 13px;
   }
 
   .footer a { color: var(--accent); }
@@ -445,14 +588,19 @@
   }
 
   @media (max-width: 600px) {
-    body { padding: 10px; }
-    .header h1 { font-size: 24px; }
+    body { padding: 8px; padding-bottom: 230px; }
+    .header h1 { font-size: 22px; }
     .ayat-container { font-size: 22px; line-height: 2.8; }
-    .control-group select, .control-group input { min-width: 180px; width: 100%; }
-    .theme-toggle { width: 40px; height: 40px; font-size: 18px; top: 15px; left: 15px; }
-    .repeat-controls select { min-width: 80px; }
-    .surah-content { padding: 20px; }
-    .progress-text { min-width: 100px; font-size: 12px; }
+    .control-group select, .control-group input { min-width: 170px; width: 100%; }
+    .theme-toggle { width: 38px; height: 38px; font-size: 17px; top: 15px; left: 15px; }
+    .surah-content { padding: 18px; }
+    .floating-player { padding: 10px 12px 12px; }
+    .player-info-left { font-size: 13px; }
+    .player-info-right { font-size: 11px; }
+    .player-buttons-compact .btn { padding: 6px 10px; font-size: 12px; }
+    audio { height: 34px; }
+    .repeat-modal { right: 10px; left: 10px; min-width: auto; bottom: 240px; }
+    .toast { bottom: 250px; }
   }
 </style>
 </head>
@@ -503,45 +651,13 @@
     </div>
   </div>
 
-  <div class="player">
-    <div class="player-info">
-      <div id="currentSurahName">اختر سورة للبدء</div>
-      <div class="reciter" id="currentReciter">—</div>
-      <div class="current-ayah" id="currentAyahInfo"></div>
-      <div class="repeat-info" id="repeatInfo"></div>
-    </div>
+  <div class="goto-ayah">
+    <label for="gotoAyahInput">انتقل لآية رقم:</label>
+    <input id="gotoAyahInput" type="number" min="1" placeholder="رقم"/>
+  </div>
 
-    <audio id="audioPlayer" controls></audio>
-
-    <div class="progress-container" id="progressContainer" style="display:none;">
-      <div class="progress-text" id="progressText">الآية 0 من 0</div>
-      <div class="progress-bar"><div class="progress-bar-fill" id="progressBarFill"></div></div>
-    </div>
-
-    <div class="player-buttons">
-      <button class="btn" id="prevBtn">⏮ السورة السابقة</button>
-      <button class="btn btn-gold" id="autoScrollBtn">📜 التمرير التلقائي: مفعّل</button>
-      <button class="btn btn-hifdh" id="hifdhToggle">🕋 حفظ</button>
-      <button class="btn btn-tafsir" id="tafsirToggle">📜 التفسير</button>
-      <button class="btn" id="nextBtn">السورة التالية ⏭</button>
-    </div>
-
-    <div class="goto-ayah">
-      <label for="gotoAyahInput">انتقل لآية رقم:</label>
-      <input id="gotoAyahInput" type="number" min="1" placeholder="رقم"/>
-    </div>
-
-    <div class="keyboard-hint">
-      💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار | على الموبايل: اسحب يمين/يسار للتنقل بين السور
-    </div>
-
-    <div class="repeat-controls">
-      <label for="repeatFrom">تكرار من:</label>
-      <select id="repeatFrom"><option value="">—</option></select>
-      <label for="repeatTo">إلى:</label>
-      <select id="repeatTo"><option value="">—</option></select>
-      <button class="btn btn-repeat" id="repeatToggleBtn">🔁 بدء التكرار</button>
-    </div>
+  <div class="keyboard-hint">
+    💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار | على الموبايل: اسحب يمين/يسار للتنقل بين السور
   </div>
 
   <div id="searchResults" class="search-results"></div>
@@ -578,13 +694,59 @@
 
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- المشغّل العائم السفلي -->
+<div class="floating-player" id="floatingPlayer">
+  <button class="player-toggle" id="playerToggle" title="إخفاء / إظهار المشغّل"></button>
 
+  <div class="player-info-compact">
+    <div class="player-info-left" id="currentSurahName">اختر سورة للبدء</div>
+    <div class="player-info-right">
+      <span class="current-ayah-badge" id="currentAyahInfo">— / —</span>
+      <span id="currentReciter">—</span>
+    </div>
+  </div>
+
+  <audio id="audioPlayer" controls></audio>
+
+  <div class="floating-progress">
+    <div class="floating-progress-fill" id="progressBarFill"></div>
+  </div>
+
+  <div class="repeat-info" id="repeatInfo"></div>
+
+  <div class="player-buttons-compact">
+    <button class="btn" id="prevBtn" title="السورة السابقة">⏮</button>
+    <button class="btn btn-gold" id="autoScrollBtn" title="التمرير التلقائي">📜</button>
+    <button class="btn btn-hifdh" id="hifdhToggle" title="وضع الحفظ">🕋</button>
+    <button class="btn btn-tafsir" id="tafsirToggle" title="التفسير">📖</button>
+    <button class="btn btn-repeat" id="openRepeatBtn" title="التكرار">🔁</button>
+    <button class="btn" id="nextBtn" title="السورة التالية">⏭</button>
+  </div>
+</div>
+
+<!-- نافذة التكرار المنبثقة -->
+<div class="repeat-modal" id="repeatModal">
+  <div class="repeat-modal-title">🔁 إعداد التكرار</div>
+  <div class="repeat-modal-row">
+    <label>من آية:</label>
+    <select id="repeatFrom"><option value="">—</option></select>
+  </div>
+  <div class="repeat-modal-row">
+    <label>إلى آية:</label>
+    <select id="repeatTo"><option value="">—</option></select>
+  </div>
+  <div style="display:flex; gap:8px; margin-top:12px;">
+    <button class="btn btn-repeat" id="repeatToggleBtn" style="flex:1;">🔁 بدء التكرار</button>
+    <button class="btn" id="closeRepeatBtn">إغلاق</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 <script>
 (function() {
   'use strict';
 
-  /* ===== تسجيل Service Worker للعمل أوفلاين ===== */
+  /* ===== تسجيل Service Worker ===== */
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('./service-worker.js')
@@ -603,7 +765,6 @@
   var currentSurahName = $('currentSurahName');
   var currentReciter   = $('currentReciter');
   var currentAyahInfo  = $('currentAyahInfo');
-  var repeatInfo       = $('repeatInfo');
   var headerStatus     = $('headerStatus');
   var prevBtn          = $('prevBtn');
   var nextBtn          = $('nextBtn');
@@ -621,14 +782,18 @@
   var searchBtn        = $('searchBtn');
   var clearSearchBtn   = $('clearSearchBtn');
   var searchResults    = $('searchResults');
-  var progressContainer = $('progressContainer');
   var progressBarFill  = $('progressBarFill');
-  var progressText     = $('progressText');
   var gotoAyahInput    = $('gotoAyahInput');
   var mainContainer    = $('mainContainer');
   var toast            = $('toast');
   var swipeLeft        = $('swipeLeft');
   var swipeRight       = $('swipeRight');
+  var floatingPlayer   = $('floatingPlayer');
+  var playerToggle     = $('playerToggle');
+  var openRepeatBtn    = $('openRepeatBtn');
+  var closeRepeatBtn   = $('closeRepeatBtn');
+  var repeatModal      = $('repeatModal');
+  var repeatInfo       = $('repeatInfo');
 
   /* ===== حالة التطبيق ===== */
   var state = {
@@ -701,6 +866,37 @@
     applyTheme(newTheme);
     localStorage.setItem('quran-theme', newTheme);
   });
+
+  /* ===== المشغّل العائم (إخفاء/إظهار) ===== */
+  if (localStorage.getItem('player-minimized') === 'true') {
+    floatingPlayer.classList.add('minimized');
+  }
+
+  playerToggle.addEventListener('click', function() {
+    var isMinimized = floatingPlayer.classList.toggle('minimized');
+    localStorage.setItem('player-minimized', isMinimized);
+  });
+
+  openRepeatBtn.addEventListener('click', function() {
+    repeatModal.classList.toggle('open');
+  });
+
+  closeRepeatBtn.addEventListener('click', function() {
+    repeatModal.classList.remove('open');
+  });
+
+  document.addEventListener('click', function(e) {
+    if (repeatModal.classList.contains('open') &&
+        !repeatModal.contains(e.target) &&
+        e.target !== openRepeatBtn) {
+      repeatModal.classList.remove('open');
+    }
+  });
+
+  repeatToggleBtn.addEventListener('click', function() {
+    setTimeout(function() { repeatModal.classList.remove('open'); }, 300);
+  });
+
   /* ===== حفظ / استرجاع الحالة ===== */
   function saveState() {
     try {
@@ -758,7 +954,7 @@
     return escapedText;
   }
 
-  /* ===== جلب البيانات مع مهلة زمنية وإعادة المحاولة ===== */
+  /* ===== جلب البيانات مع مهلة زمنية ===== */
   function fetchWithTimeout(url, timeoutMs) {
     timeoutMs = timeoutMs || 15000;
     return new Promise(function(resolve, reject) {
@@ -880,7 +1076,6 @@
     html += '<div class="ayat-container">';
     ayahs.forEach(function(a, i) {
       var ayahText = a.text;
-      // إزالة البسملة من بداية الآية الأولى (إن كانت السورة ليست الفاتحة أو التوبة)
       if (i === 0 && state.currentSurahNumber !== 1 && state.currentSurahNumber !== 9) {
         ayahText = ayahText.replace(/^[\u0628\u0633\u0645\u0020\u064E\u064F\u0650\u0651\u0652\u0670\u0627\u0644\u0647\u0631\u062D\u0646\u064A\u0645\u0670]+(?=[\u0625\u0623\u0627\u0641\u0642\u0648\u064A\u0647\u062D\u0645\u0646\u0631\u0644\u0628\u062A\u062B\u062C\u062E\u062F\u0630\u0632\u0633\u0634\u0635\u0636\u0637\u0638\u0639\u063A\u0643])/, '').trim();
       }
@@ -957,14 +1152,21 @@
     saveState();
   }
 
-  /* ===== تظليل الآية الحالية ===== */
+  /* ===== تظليل الآية الحالية (تمرير ذكي) ===== */
   function highlightCurrentAyah() {
     var ayahs = surahContent.querySelectorAll('.ayah');
     ayahs.forEach(function(el, i) {
       el.classList.remove('active');
       if (i === state.currentAyahIndex) {
         el.classList.add('active');
-        if (state.autoScroll) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (state.autoScroll) {
+          var rect = el.getBoundingClientRect();
+          var viewHeight = window.innerHeight || document.documentElement.clientHeight;
+          var isVisible = rect.top >= 100 && rect.bottom <= (viewHeight - 100);
+          if (!isVisible) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
         if (state.hifdhMode) el.classList.add('revealed');
       }
     });
@@ -982,15 +1184,13 @@
   }
 
   function updateAyahInfo() {
-    currentAyahInfo.textContent = '🔊 آية ' + (state.currentAyahIndex + 1) + ' من ' + state.totalAyahsInSurah;
+    currentAyahInfo.textContent = (state.currentAyahIndex + 1) + ' / ' + state.totalAyahsInSurah;
   }
 
   function updateProgress() {
-    if (state.totalAyahsInSurah === 0) { progressContainer.style.display = 'none'; return; }
-    progressContainer.style.display = 'flex';
+    if (state.totalAyahsInSurah === 0) return;
     var pct = ((state.currentAyahIndex + 1) / state.totalAyahsInSurah) * 100;
     progressBarFill.style.width = pct.toFixed(1) + '%';
-    progressText.textContent = 'الآية ' + (state.currentAyahIndex + 1) + ' من ' + state.totalAyahsInSurah + ' (' + pct.toFixed(0) + '%)';
   }
 
   /* ===== أحداث الصوت ===== */
@@ -1041,7 +1241,8 @@
 
   autoScrollBtn.addEventListener('click', function() {
     state.autoScroll = !state.autoScroll;
-    autoScrollBtn.textContent = state.autoScroll ? '📜 التمرير التلقائي: مفعّل' : '📜 التمرير التلقائي: متوقف';
+    autoScrollBtn.classList.toggle('active', state.autoScroll);
+    autoScrollBtn.title = state.autoScroll ? 'التمرير التلقائي: مفعّل' : 'التمرير التلقائي: متوقف';
     saveState();
   });
 
@@ -1062,7 +1263,7 @@
     if (state.repeatMode) {
       state.repeatMode = false;
       repeatToggleBtn.classList.remove('active');
-      repeatToggleBtn.textContent = '🔁 بدء التكرار';
+      repeatToggleBtn.textContent = '🔁 بدء';
       repeatInfo.style.display = 'none';
       updateRangeHighlight();
     } else {
@@ -1076,8 +1277,8 @@
       state.repeatStart = from;
       state.repeatEnd = to;
       repeatToggleBtn.classList.add('active');
-      repeatToggleBtn.textContent = '⏹ إيقاف التكرار';
-      repeatInfo.style.display = 'inline-block';
+      repeatToggleBtn.textContent = '⏹ إيقاف';
+      repeatInfo.style.display = 'block';
       repeatInfo.textContent = '🔁 تكرار من آية ' + from + ' إلى ' + to;
       playAyah(from - 1);
       updateRangeHighlight();
@@ -1120,13 +1321,13 @@
       tafsirPanel.classList.add('open');
       surahContent.classList.add('with-tafsir');
       tafsirToggle.classList.add('active');
-      tafsirToggle.textContent = '📜 إخفاء التفسير';
+      tafsirToggle.textContent = '📖 إخفاء';
       if (state.currentSurahNumber) loadTafsir(state.currentAyahIndex + 1);
     } else {
       tafsirPanel.classList.remove('open');
       surahContent.classList.remove('with-tafsir');
       tafsirToggle.classList.remove('active');
-      tafsirToggle.textContent = '📜 التفسير';
+      tafsirToggle.textContent = '📖 التفسير';
     }
     saveState();
   }
@@ -1178,7 +1379,7 @@
     tafsirContent.innerHTML = html;
   }
 
-  /* ===== البحث المُحسَّن (مع مهلة + API بديل) ===== */
+  /* ===== البحث المُحسَّن ===== */
   function performSearch() {
     var query = searchInput.value.trim();
     if (!query || query.length < 2) {
@@ -1341,7 +1542,7 @@
         toggleTafsirPanel(true);
         break;
       case 'r': case 'R':
-        repeatToggleBtn.click();
+        openRepeatBtn.click();
         break;
     }
   });
@@ -1404,7 +1605,8 @@
   if (saved) {
     if (saved.reciter) reciterSelect.value = saved.reciter;
     state.autoScroll = saved.autoScroll !== false;
-    autoScrollBtn.textContent = state.autoScroll ? '📜 التمرير التلقائي: مفعّل' : '📜 التمرير التلقائي: متوقف';
+    autoScrollBtn.classList.toggle('active', state.autoScroll);
+    autoScrollBtn.title = state.autoScroll ? 'التمرير التلقائي: مفعّل' : 'التمرير التلقائي: متوقف';
     state.repeatStart = saved.repeatStart || 0;
     state.repeatEnd = saved.repeatEnd || 0;
     if (saved.hifdhMode) enableHifdhMode(false);
