@@ -8,44 +8,34 @@ const ASSETS = [
   './azan.mp3'
 ];
 
-self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(ASSETS);
-    })
-  );
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)));
   self.skipWaiting();
 });
 
-self.addEventListener('activate', function(event) {
-  event.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(keys.map(function(k) {
-        if (k !== CACHE_NAME) return caches.delete(k);
-      }));
-    })
-  );
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => 
+    Promise.all(keys.map(k => k !== CACHE_NAME ? caches.delete(k) : null))
+  ));
   self.clients.claim();
 });
 
-self.addEventListener('fetch', function(event) {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then(function(cached) {
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    caches.match(e.request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request).then(function(response) {
-        if (!response || response.status !== 200 || response.type === 'opaque') return response;
-        var clone = response.clone();
-        caches.open(CACHE_NAME).then(function(cache) {
-          var url = event.request.url;
-          if (url.indexOf('alquran.cloud') === -1 && url.indexOf('aladhan.com') === -1) {
-            cache.put(event.request, clone);
-          }
-        });
-        return response;
-      }).catch(function() {
-        return caches.match('./index.html');
-      });
+      return fetch(e.request).then(res => {
+        if (!res || res.status !== 200 || res.type === 'opaque') return res;
+        const url = e.request.url;
+        if (url.indexOf('alquran.cloud') === -1 && 
+            url.indexOf('aladhan.com') === -1 &&
+            url.indexOf('islamic.network') === -1) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match('./index.html'));
     })
   );
 });
