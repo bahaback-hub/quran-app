@@ -2,10 +2,7 @@
 
 /* ============================================================
    تطبيق القرآن الكريم — عائلة السليماني
-   ملف JavaScript الرئيسي (app.js) — نسخة متكاملة
-   يشمل: البحث الدقيق محلياً (بدون API)، البحث الجذري بقاعدة بيانات،
-   التلاوة، التفسير، المواقيت، الأذان، الإعدادات، إلخ.
-   مع تحميل قاعدة القرآن في الخلفية.
+   ملف JavaScript الرئيسي (app.js) — نسخة متكاملة مع دعم البحث الجذري
 ============================================================ */
 
 /* ============================================================
@@ -419,7 +416,7 @@ function populateSurahSelect() {
 }
 
 /* ============================================================
-   10) تحويل الترقيم المطلق إلى (سورة، آية)
+   10) تحويل الترقيم المطلق إلى (سورة، آية) والعكس
 ============================================================ */
 var SURAH_OFFSETS = null;
 
@@ -451,6 +448,18 @@ function absToSurahAyah(absNum) {
         surahName: o.name,
         ayahNumInSurah: absNum - o.startAbs + 1
       };
+    }
+  }
+  return null;
+}
+
+function getAbsNumber(surah, ayah) {
+  if (!SURAH_OFFSETS) buildSurahOffsets();
+  if (!SURAH_OFFSETS) return null;
+  for (var i = 0; i < SURAH_OFFSETS.length; i++) {
+    var o = SURAH_OFFSETS[i];
+    if (o.surahNum === surah) {
+      return o.startAbs + ayah - 1;
     }
   }
   return null;
@@ -919,7 +928,7 @@ function loadTafsirForCurrentAyah() {
 }
 
 /* ============================================================
-   18) البحث المحلي (بدون API) — مع تحميل مسبق في الخلفية
+   18) البحث المحلي (بدون API)
 ============================================================ */
 function normalizeExactText(str) {
   if (!str) return '';
@@ -935,7 +944,6 @@ function normalizeExactText(str) {
 function loadFullQuranText() {
   if (state.fullQuranLoaded) return Promise.resolve();
 
-  // محاولة القراءة من IndexedDB أولاً
   return new Promise(function(resolve, reject) {
     var request = indexedDB.open('QuranAppDB', 1);
     request.onupgradeneeded = function(e) {
@@ -977,7 +985,6 @@ function loadFullQuranText() {
               }
               state.fullQuranText = ayahs;
               state.fullQuranLoaded = true;
-              // تخزين في IndexedDB
               var tx2 = db.transaction('fullText', 'readwrite');
               var store2 = tx2.objectStore('fullText');
               store2.put({ id: 'fullQuran', data: ayahs });
@@ -1050,7 +1057,7 @@ function renderLocalSearchResults(matches, query) {
 }
 
 /* ============================================================
-   19) البحث الجذري (Roots)
+   19) البحث الجذري (Roots) — تم إصلاحه للتعامل مع ملف quranRoots.json الحالي
 ============================================================ */
 function loadRootsData() {
   if (state.rootsLoaded) return Promise.resolve();
@@ -1060,11 +1067,49 @@ function loadRootsData() {
       return res.json();
     })
     .then(function(data) {
-      state.rootsData = data;
+      // تحويل المصفوفة إلى كائن (الجذر كمفتاح)
+      var rootsMap = {};
+      if (Array.isArray(data)) {
+        for (var i = 0; i < data.length; i++) {
+          var item = data[i];
+          var rootName = item.name;
+          var occurrences = item.occurences || [];
+          var positions = [];
+          for (var j = 0; j < occurrences.length; j++) {
+            var occ = occurrences[j];
+            // التحويل من صيغة "سورة:آية" أو "سورة:آية-آية" إلى أرقام مطلقة
+            if (typeof occ === 'string') {
+              var parts = occ.split(':');
+              if (parts.length === 2) {
+                var surah = parseInt(parts[0], 10);
+                var ayahPart = parts[1];
+                if (ayahPart.indexOf('-') !== -1) {
+                  var range = ayahPart.split('-');
+                  var startAyah = parseInt(range[0], 10);
+                  var endAyah = parseInt(range[1], 10);
+                  for (var a = startAyah; a <= endAyah; a++) {
+                    var abs = getAbsNumber(surah, a);
+                    if (abs) positions.push({ abs: abs, word: rootName });
+                  }
+                } else {
+                  var ayah = parseInt(ayahPart, 10);
+                  var abs = getAbsNumber(surah, ayah);
+                  if (abs) positions.push({ abs: abs, word: rootName });
+                }
+              }
+            }
+          }
+          if (positions.length) rootsMap[rootName] = positions;
+        }
+      } else {
+        rootsMap = data;
+      }
+      state.rootsData = rootsMap;
       state.rootsLoaded = true;
+      console.log('✅ تم تحميل قاعدة الجذور بنجاح');
     })
     .catch(function(err) {
-      console.warn('تعذّر تحميل ملف الجذور:', err);
+      console.warn('فشل تحميل الجذور:', err);
       state.rootsLoaded = false;
     });
 }
@@ -1100,7 +1145,7 @@ function renderRootResults(entries, root) {
   var max = Math.min(entries.length, 200);
   for (var i = 0; i < max; i++) {
     var e = entries[i];
-    var info = absToSurahAyah(e.abs || e.ayah);
+    var info = absToSurahAyah(e.abs);
     if (!info) continue;
     html += '<div class="search-result-item" data-surah="' + info.surahNum + '" data-ayah="' + info.ayahNumInSurah + '">'
           + '<div class="search-result-title"><strong>' + escapeHtml(info.surahName) + '</strong> — آية ' + info.ayahNumInSurah + '</div>'
