@@ -2,7 +2,7 @@
 
 /* ============================================================
    تطبيق القرآن الكريم — عائلة السليماني
-   ملف JavaScript الرئيسي (app.js) — نسخة متكاملة مع دعم البحث الجذري
+   ملف JavaScript الرئيسي (app.js) — النسخة النهائية مع إصلاح المشاركة
 ============================================================ */
 
 /* ============================================================
@@ -60,7 +60,6 @@ var state = {
   searchType: 'exact',
   pendingTafsirAfterLoad: null,
   playerCollapsed: false,
-  // متغيرات البحث المحلي
   fullQuranText: null,
   fullQuranLoaded: false,
   db: null
@@ -1057,7 +1056,7 @@ function renderLocalSearchResults(matches, query) {
 }
 
 /* ============================================================
-   19) البحث الجذري (Roots) — تم إصلاحه للتعامل مع ملف quranRoots.json الحالي
+   19) البحث الجذري (Roots)
 ============================================================ */
 function loadRootsData() {
   if (state.rootsLoaded) return Promise.resolve();
@@ -1067,7 +1066,6 @@ function loadRootsData() {
       return res.json();
     })
     .then(function(data) {
-      // تحويل المصفوفة إلى كائن (الجذر كمفتاح)
       var rootsMap = {};
       if (Array.isArray(data)) {
         for (var i = 0; i < data.length; i++) {
@@ -1077,7 +1075,6 @@ function loadRootsData() {
           var positions = [];
           for (var j = 0; j < occurrences.length; j++) {
             var occ = occurrences[j];
-            // التحويل من صيغة "سورة:آية" أو "سورة:آية-آية" إلى أرقام مطلقة
             if (typeof occ === 'string') {
               var parts = occ.split(':');
               if (parts.length === 2) {
@@ -1327,7 +1324,7 @@ function toggleBookmark() {
 }
 
 /* ============================================================
-   22) المشاركة
+   22) المشاركة — نسخة معدلة بالكامل وتعمل
 ============================================================ */
 function buildShareText() {
   if (!state.surahData) return '';
@@ -1338,18 +1335,22 @@ function buildShareText() {
 
 function toggleShareMenu() {
   if (!dom.shareMenu) return;
-  dom.shareMenu.classList.toggle('open');
+  dom.shareMenu.classList.toggle('show');
 }
 
 function shareNative() {
   var text = buildShareText();
-  if (!text) return;
+  if (!text) {
+    showToast('لا توجد آية للمشاركة', 'error');
+    return;
+  }
   if (navigator.share) {
     navigator.share({
       title: 'القرآن الكريم',
       text: text
     }).catch(function(err) {
       console.warn('Share canceled:', err);
+      showToast('تم إلغاء المشاركة', '');
     });
   } else {
     shareCopy();
@@ -1358,10 +1359,13 @@ function shareNative() {
 
 function shareCopy() {
   var text = buildShareText();
-  if (!text) return;
+  if (!text) {
+    showToast('لا توجد آية للمشاركة', 'error');
+    return;
+  }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text)
-      .then(function() { showToast('📋 تم نسخ الآية', 'success'); })
+      .then(function() { showToast('📋 تم نسخ الآية إلى الحافظة', 'success'); })
       .catch(function() { fallbackCopy(text); });
   } else {
     fallbackCopy(text);
@@ -1377,9 +1381,9 @@ function fallbackCopy(text) {
   ta.select();
   try {
     document.execCommand('copy');
-    showToast('📋 تم نسخ الآية', 'success');
+    showToast('📋 تم نسخ الآية (طريقة احتياطية)', 'success');
   } catch (e) {
-    showToast('تعذّر النسخ', 'error');
+    showToast('تعذّر النسخ، حاول يدوياً', 'error');
   }
   document.body.removeChild(ta);
 }
@@ -1395,6 +1399,13 @@ function shareTelegram() {
   var text = buildShareText();
   if (!text) return;
   var url = 'https://t.me/share/url?url=' + encodeURIComponent(' ') + '&text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
+}
+
+function shareTwitter() {
+  var text = buildShareText();
+  if (!text) return;
+  var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
   window.open(url, '_blank');
 }
 
@@ -1542,7 +1553,7 @@ function setupKeyboardShortcuts() {
         closeSettings();
         closeFavoritesPanel();
         if (dom.searchResults) dom.searchResults.style.display = 'none';
-        if (dom.shareMenu) dom.shareMenu.classList.remove('open');
+        if (dom.shareMenu) dom.shareMenu.classList.remove('show');
         break;
     }
   });
@@ -1602,18 +1613,27 @@ function bindEvents() {
     dom.bookmarkBtn.addEventListener('dblclick', gotoBookmark);
   }
   if (dom.favoriteBtn) dom.favoriteBtn.addEventListener('click', toggleFavoriteCurrentAyah);
-  if (dom.shareBtn) dom.shareBtn.addEventListener('click', toggleShareMenu);
+  if (dom.shareBtn) {
+    dom.shareBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleShareMenu();
+    });
+  }
   if (dom.fontBtn) dom.fontBtn.addEventListener('click', cycleFontSize);
 
+  // ربط أحداث قائمة المشاركة
   if (dom.shareMenu) {
     var shareNativeBtn = dom.shareMenu.querySelector('[data-share="native"]');
     var shareCopyBtn = dom.shareMenu.querySelector('[data-share="copy"]');
     var shareWaBtn = dom.shareMenu.querySelector('[data-share="whatsapp"]');
     var shareTgBtn = dom.shareMenu.querySelector('[data-share="telegram"]');
-    if (shareNativeBtn) shareNativeBtn.addEventListener('click', function() { shareNative(); toggleShareMenu(); });
-    if (shareCopyBtn) shareCopyBtn.addEventListener('click', function() { shareCopy(); toggleShareMenu(); });
-    if (shareWaBtn) shareWaBtn.addEventListener('click', function() { shareWhatsApp(); toggleShareMenu(); });
-    if (shareTgBtn) shareTgBtn.addEventListener('click', function() { shareTelegram(); toggleShareMenu(); });
+    var shareTwitterBtn = dom.shareMenu.querySelector('[data-share="twitter"]');
+    if (shareNativeBtn) shareNativeBtn.addEventListener('click', function(e) { e.preventDefault(); shareNative(); toggleShareMenu(); });
+    if (shareCopyBtn) shareCopyBtn.addEventListener('click', function(e) { e.preventDefault(); shareCopy(); toggleShareMenu(); });
+    if (shareWaBtn) shareWaBtn.addEventListener('click', function(e) { e.preventDefault(); shareWhatsApp(); toggleShareMenu(); });
+    if (shareTgBtn) shareTgBtn.addEventListener('click', function(e) { e.preventDefault(); shareTelegram(); toggleShareMenu(); });
+    if (shareTwitterBtn) shareTwitterBtn.addEventListener('click', function(e) { e.preventDefault(); shareTwitter(); toggleShareMenu(); });
   }
 
   if (dom.collapseBtn) dom.collapseBtn.addEventListener('click', togglePlayerCollapse);
@@ -1761,10 +1781,7 @@ function initApp() {
       scheduleMidnightRefresh();
     });
 
-  // تحميل النص القرآني الكامل في الخلفية (للبحث المحلي)
   loadFullQuranText().catch(console.warn);
-
-  // تحميل ملف الجذور في الخلفية
   loadRootsData().catch(console.warn);
 }
 
