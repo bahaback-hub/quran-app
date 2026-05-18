@@ -2,12 +2,9 @@
 
 /* ============================================================
    تطبيق القرآن الكريم — عائلة السليماني
-   ملف JavaScript الرئيسي (app.js) — النسخة النهائية مع إصلاح المشاركة
+   النسخة النهائية مع أزرار تفاعلية في نتائج البحث
 ============================================================ */
 
-/* ============================================================
-   1) الإعدادات والثوابت العامة
-============================================================ */
 var CONFIG = {
   API_BASE: 'https://api.alquran.cloud/v1',
   TAFSIR_API: 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir',
@@ -24,9 +21,6 @@ var CONFIG = {
   CACHE_LIMIT: 20
 };
 
-/* ============================================================
-   2) الحالة العامة (State)
-============================================================ */
 var state = {
   currentSurah: 1,
   currentAyahIndex: 0,
@@ -65,9 +59,6 @@ var state = {
   db: null
 };
 
-/* ============================================================
-   3) مرجع لعناصر DOM
-============================================================ */
 var dom = {};
 function cacheDom() {
   var ids = [
@@ -93,9 +84,6 @@ function cacheDom() {
   }
 }
 
-/* ============================================================
-   4) أدوات localStorage الآمنة
-============================================================ */
 var storage = {
   get: function(key, def) {
     if (def === undefined) def = null;
@@ -113,9 +101,6 @@ var storage = {
   }
 };
 
-/* ============================================================
-   5) أدوات مساعدة عامة
-============================================================ */
 function showToast(message, type) {
   if (!dom.toast) return;
   if (!type) type = '';
@@ -175,16 +160,11 @@ function fetchJSON(url, opts) {
     });
 }
 
-/* ============================================================
-   6) الساعة والتاريخ (ميلادي + هجري)
-============================================================ */
 function updateClocks() {
   var now = new Date();
   var timeStr = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
-
   if (dom.prayerBarClock) dom.prayerBarClock.textContent = timeStr;
   if (dom.bigClockTime) dom.bigClockTime.textContent = timeStr;
-
   if (dom.bigClockDate) {
     try {
       dom.bigClockDate.textContent = now.toLocaleDateString('ar-EG', {
@@ -192,7 +172,6 @@ function updateClocks() {
       });
     } catch (e) { dom.bigClockDate.textContent = now.toDateString(); }
   }
-
   if (dom.bigClockHijri) {
     try {
       var hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
@@ -205,9 +184,6 @@ function updateClocks() {
   }
 }
 
-/* ============================================================
-   7) مواقيت الصلاة (مع كاش يومي)
-============================================================ */
 var PRAYER_NAMES_AR = {
   Fajr: 'الفجر',
   Sunrise: 'الشروق',
@@ -222,7 +198,6 @@ function loadPrayerTimes() {
     + '?city=' + encodeURIComponent(state.city)
     + '&country=' + encodeURIComponent(state.country)
     + '&method=' + encodeURIComponent(state.method);
-
   return fetchJSON(url, { timeout: 12000 })
     .then(function(data) {
       if (data && data.code === 200 && data.data && data.data.timings) {
@@ -257,15 +232,12 @@ function loadPrayerTimes() {
 
 function renderPrayerTimes() {
   if (!state.prayerTimes) return;
-
   if (dom.prayerTimesTitle) {
     dom.prayerTimesTitle.textContent = '🕌 مواقيت الصلاة — ' + state.city;
   }
-
   if (dom.prayerBarCityName) {
     dom.prayerBarCityName.textContent = state.city;
   }
-
   if (dom.prayerTimesRows) {
     var order = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
     var next = getNextPrayerKey();
@@ -282,7 +254,6 @@ function renderPrayerTimes() {
     }
     dom.prayerTimesRows.innerHTML = html;
   }
-
   updatePrayerCountdown();
 }
 
@@ -313,7 +284,6 @@ function updatePrayerCountdown() {
   var h = Math.floor(diff / 60);
   var m = diff % 60;
   var s = 60 - now.getSeconds();
-
   var txt = PRAYER_NAMES_AR[next] + ' — بعد ' + pad2(h) + ':' + pad2(m) + ':' + pad2(s);
   if (dom.prayerCountdown) dom.prayerCountdown.textContent = txt;
   if (dom.prayerBarNext) {
@@ -322,9 +292,6 @@ function updatePrayerCountdown() {
   }
 }
 
-/* ============================================================
-   8) الأذان التلقائي
-============================================================ */
 function checkAzanTime() {
   if (!state.prayerTimes || !state.azanEnabled) return;
   var now = new Date();
@@ -376,9 +343,6 @@ function testAzan() {
   }
 }
 
-/* ============================================================
-   9) قائمة السور
-============================================================ */
 function loadSurahList() {
   var cached = storage.get('surah_list');
   if (cached && cached.length === CONFIG.SURAH_COUNT) {
@@ -414,9 +378,6 @@ function populateSurahSelect() {
   dom.surahSelect.value = state.currentSurah;
 }
 
-/* ============================================================
-   10) تحويل الترقيم المطلق إلى (سورة، آية) والعكس
-============================================================ */
 var SURAH_OFFSETS = null;
 
 function buildSurahOffsets() {
@@ -464,13 +425,9 @@ function getAbsNumber(surah, ayah) {
   return null;
 }
 
-/* ============================================================
-   11) تحميل السورة وعرضها
-============================================================ */
 function loadSurah(surahNum, opts) {
   if (!opts) opts = {};
   state.currentSurah = surahNum;
-
   var cacheKey = surahNum + '_' + state.currentReciter;
   if (state.surahCache.has(cacheKey)) {
     var cached = state.surahCache.get(cacheKey);
@@ -480,14 +437,11 @@ function loadSurah(surahNum, opts) {
     finalizeSurahLoad(opts);
     return Promise.resolve();
   }
-
   dom.surahContent.innerHTML = '<div style="text-align:center; padding:40px;">'
     + '<span class="loading-indicator"></span> جاري تحميل السورة...'
     + '</div>';
-
   var textUrl = CONFIG.API_BASE + '/surah/' + surahNum + '/quran-uthmani';
   var audioUrl = CONFIG.API_BASE + '/surah/' + surahNum + '/' + state.currentReciter;
-
   return Promise.all([
     fetchJSON(textUrl),
     fetchJSON(audioUrl)
@@ -495,14 +449,12 @@ function loadSurah(surahNum, opts) {
     var textData = results[0].data;
     var audioData = results[1].data;
     state.surahData = textData;
-
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
       var firstKey = state.surahCache.keys().next().value;
       state.surahCache.delete(firstKey);
     }
     state.surahCache.set(cacheKey, { text: textData, audio: audioData });
     state.audioCache.set(cacheKey, audioData);
-
     renderSurah(textData, audioData);
     finalizeSurahLoad(opts);
   }).catch(function(err) {
@@ -524,17 +476,14 @@ function finalizeSurahLoad(opts) {
   } else {
     state.currentAyahIndex = 0;
   }
-
   highlightCurrentAyah();
   updatePlayerInfo();
-
   if (state.repeatMode) {
     state.repeatFrom = 1;
     state.repeatTo = state.surahData.ayahs.length;
     if (dom.repeatFrom) dom.repeatFrom.value = state.repeatFrom;
     if (dom.repeatTo) dom.repeatTo.value = state.repeatTo;
   }
-
   if (state.autoSave) {
     var a = state.surahData.ayahs[state.currentAyahIndex];
     storage.set('last_position', {
@@ -545,11 +494,9 @@ function finalizeSurahLoad(opts) {
       timestamp: Date.now()
     });
   }
-
   if (opts.autoPlay) {
     setTimeout(function() { playCurrentAyah(); }, 200);
   }
-
   if (state.pendingTafsirAfterLoad) {
     var pa = state.pendingTafsirAfterLoad;
     state.pendingTafsirAfterLoad = null;
@@ -570,11 +517,9 @@ function renderSurah(textData, audioData) {
   var html = '';
   html += '<div class="surah-title">' + escapeHtml(textData.name)
         + ' — ' + escapeHtml(textData.englishName) + '</div>';
-
   if (textData.number !== 1 && textData.number !== 9) {
     html += '<div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
   }
-
   html += '<div class="ayahs-container" style="font-size:' + state.fontSize + 'px;">';
   for (var i = 0; i < textData.ayahs.length; i++) {
     var a = textData.ayahs[i];
@@ -589,7 +534,6 @@ function renderSurah(textData, audioData) {
   }
   html += '</div>';
   dom.surahContent.innerHTML = html;
-
   var ayahEls = dom.surahContent.querySelectorAll('.ayah');
   for (var k = 0; k < ayahEls.length; k++) {
     (function(el) {
@@ -621,15 +565,11 @@ function highlightCurrentAyah() {
     cur.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
   updatePlayerInfo();
-
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) {
     loadTafsirForCurrentAyah();
   }
 }
 
-/* ============================================================
-   12) معلومات المشغل (مع نص الآية الحالية)
-============================================================ */
 function updatePlayerInfo() {
   if (!state.surahData) return;
   var a = state.surahData.ayahs[state.currentAyahIndex];
@@ -639,7 +579,6 @@ function updatePlayerInfo() {
   }
   if (dom.playerSurahName) dom.playerSurahName.textContent = 'سورة ' + state.surahData.name;
   if (dom.playerReciterName) dom.playerReciterName.textContent = reciterText;
-
   if (dom.playerCurrentAyah && a) {
     var preview = a.text || '';
     if (preview.length > 80) {
@@ -647,7 +586,6 @@ function updatePlayerInfo() {
     }
     dom.playerCurrentAyah.textContent = '﴿' + preview + '﴾ — آية ' + a.numberInSurah;
   }
-
   if (dom.collapsedInfo && a) {
     var shortPreview = a.text || '';
     if (shortPreview.length > 50) {
@@ -657,9 +595,6 @@ function updatePlayerInfo() {
   }
 }
 
-/* ============================================================
-   13) تشغيل الصوت
-============================================================ */
 function playCurrentAyah() {
   if (!state.surahData) return;
   var a = state.surahData.ayahs[state.currentAyahIndex];
@@ -701,7 +636,6 @@ function togglePlayPause() {
 
 function onAudioEnded() {
   if (!state.surahData) return;
-
   if (state.repeatMode) {
     var currentNum = state.surahData.ayahs[state.currentAyahIndex].numberInSurah;
     if (currentNum >= state.repeatFrom && currentNum <= state.repeatTo) {
@@ -731,7 +665,6 @@ function onAudioEnded() {
       }
     }
   }
-
   if (state.currentAyahIndex < state.surahData.ayahs.length - 1) {
     state.currentAyahIndex++;
     highlightCurrentAyah();
@@ -748,9 +681,6 @@ function onAudioEnded() {
   }
 }
 
-/* ============================================================
-   14) التنقل بين الآيات والسور
-============================================================ */
 function nextAyah(autoFromRepeat) {
   if (!state.surahData) return;
   if (state.currentAyahIndex < state.surahData.ayahs.length - 1) {
@@ -797,9 +727,6 @@ function prevSurah() {
   }
 }
 
-/* ============================================================
-   15) وضع الحفظ (الإخفاء)
-============================================================ */
 function toggleHifdhMode() {
   state.hifdhMode = !state.hifdhMode;
   dom.hifdhBtn.classList.toggle('active', state.hifdhMode);
@@ -822,9 +749,6 @@ function toggleHifdhMode() {
   }
 }
 
-/* ============================================================
-   16) وضع التكرار
-============================================================ */
 function toggleRepeatMode() {
   state.repeatMode = !state.repeatMode;
   dom.repeatBtn.classList.toggle('active', state.repeatMode);
@@ -852,7 +776,6 @@ function toggleRepeatMode() {
     }
     if (dom.repeatTimes) dom.repeatTimes.value = 3;
     showToast('🔁 وضع التكرار مفعّل', 'success');
-
     if (dom.repeatFrom) {
       dom.repeatFrom.onchange = function() { state.repeatFrom = parseInt(dom.repeatFrom.value, 10); };
     }
@@ -867,9 +790,6 @@ function toggleRepeatMode() {
   }
 }
 
-/* ============================================================
-   17) ستارة التفسير
-============================================================ */
 function openTafsirCurtain() {
   dom.tafsirCurtain.classList.add('open');
   dom.tafsirCurtainHandle.classList.add('open');
@@ -898,18 +818,14 @@ function loadTafsirForCurrentAyah() {
   }
   var a = state.surahData.ayahs[state.currentAyahIndex];
   if (!a) return;
-
   var surahNum = state.currentSurah;
   var ayahNum = a.numberInSurah;
   var edition = state.currentTafsirEdition;
-
   dom.tafsirCurtainHeader.textContent = 'تفسير: ' + state.surahData.name + ' — آية ' + ayahNum;
   dom.tafsirCurtainBody.innerHTML = '<div class="tafsir-loading">'
     + '<span class="loading-indicator"></span> جاري تحميل التفسير...'
     + '</div>';
-
   var url = CONFIG.TAFSIR_API + '/' + edition + '/' + surahNum + '/' + ayahNum + '.json';
-
   fetchJSON(url, { timeout: 12000 })
     .then(function(data) {
       if (!data || !data.text) {
@@ -926,23 +842,19 @@ function loadTafsirForCurrentAyah() {
     });
 }
 
-/* ============================================================
-   18) البحث المحلي (بدون API)
-============================================================ */
 function normalizeExactText(str) {
   if (!str) return '';
   return str
-    .replace(/[\u064B-\u065F\u0670]/g, '')       // إزالة الحركات
-    .replace(/[إأآٱ]/g, 'ا')                     // توحيد الألف
-    .replace(/ى/g, 'ي')                          // توحيد الألف المقصورة
-    .replace(/ة/g, 'ه')                          // توحيد التاء المربوطة
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/[إأآٱ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه')
     .replace(/ؤ/g, 'و')
     .replace(/ئ/g, 'ي');
 }
 
 function loadFullQuranText() {
   if (state.fullQuranLoaded) return Promise.resolve();
-
   return new Promise(function(resolve, reject) {
     var request = indexedDB.open('QuranAppDB', 1);
     request.onupgradeneeded = function(e) {
@@ -1008,10 +920,8 @@ function performExactSearch(query) {
     showToast('⚠️ قاعدة القرآن لا تزال تُحمَّل، انتظر قليلاً ثم حاول مجدداً', 'error');
     return;
   }
-
   dom.searchResults.innerHTML = '<div class="search-loading"><span class="loading-indicator"></span> جاري البحث ...</div>';
   dom.searchResults.style.display = 'block';
-
   var normQuery = normalizeExactText(query.trim());
   var matches = [];
   var maxResults = 100;
@@ -1030,34 +940,58 @@ function renderLocalSearchResults(matches, query) {
     return;
   }
   var html = '<div class="search-results-header">✅ عدد النتائج: ' + matches.length + '</div>';
-  var re = new RegExp(escapeRegExp(query), 'gi');
   for (var i = 0; i < matches.length; i++) {
     var m = matches[i];
-    var highlighted = escapeHtml(m.text).replace(re, '<mark class="search-highlight">$&</mark>');
+    var highlighted = escapeHtml(m.text).replace(new RegExp(escapeRegExp(query), 'gi'), '<mark class="search-highlight">$&</mark>');
     html += '<div class="search-result-item" data-surah="' + m.surah + '" data-ayah="' + m.ayah + '">'
           + '<div class="search-result-title">' + escapeHtml(m.surahName) + ' — آية ' + m.ayah + '</div>'
           + '<div class="search-result-text">' + highlighted + '</div>'
+          + '<div class="search-result-actions">'
+          + '<button class="search-result-play" data-surah="' + m.surah + '" data-ayah="' + m.ayah + '">▶️ تشغيل</button>'
+          + '<button class="search-result-copy" data-surah="' + m.surah + '" data-ayah="' + m.ayah + '">📋 نسخ</button>'
+          + '<button class="search-result-share" data-surah="' + m.surah + '" data-ayah="' + m.ayah + '">📤 مشاركة</button>'
+          + '<button class="search-result-goto" data-surah="' + m.surah + '" data-ayah="' + m.ayah + '">📍 الذهاب</button>'
+          + '</div>'
           + '</div>';
   }
   dom.searchResults.innerHTML = html;
 
-  var items = dom.searchResults.querySelectorAll('.search-result-item');
-  for (var k = 0; k < items.length; k++) {
-    (function(el) {
-      el.addEventListener('click', function() {
-        var sNum = parseInt(el.getAttribute('data-surah'), 10);
-        var aNum = parseInt(el.getAttribute('data-ayah'), 10);
-        dom.surahSelect.value = sNum;
-        loadSurah(sNum, { startAyah: aNum });
-        dom.searchResults.style.display = 'none';
-      });
-    })(items[k]);
-  }
+  document.querySelectorAll('.search-result-play').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var surah = parseInt(btn.getAttribute('data-surah'), 10);
+      var ayah = parseInt(btn.getAttribute('data-ayah'), 10);
+      playSpecificAyah(surah, ayah);
+    });
+  });
+  document.querySelectorAll('.search-result-copy').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var surah = parseInt(btn.getAttribute('data-surah'), 10);
+      var ayah = parseInt(btn.getAttribute('data-ayah'), 10);
+      copySpecificAyah(surah, ayah);
+    });
+  });
+  document.querySelectorAll('.search-result-share').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var surah = parseInt(btn.getAttribute('data-surah'), 10);
+      var ayah = parseInt(btn.getAttribute('data-ayah'), 10);
+      shareSpecificAyah(surah, ayah);
+    });
+  });
+  document.querySelectorAll('.search-result-goto').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var surah = parseInt(btn.getAttribute('data-surah'), 10);
+      var ayah = parseInt(btn.getAttribute('data-ayah'), 10);
+      dom.surahSelect.value = surah;
+      loadSurah(surah, { startAyah: ayah });
+      dom.searchResults.style.display = 'none';
+    });
+  });
 }
 
-/* ============================================================
-   19) البحث الجذري (Roots)
-============================================================ */
 function loadRootsData() {
   if (state.rootsLoaded) return Promise.resolve();
   return fetch(CONFIG.ROOTS_FILE)
@@ -1120,7 +1054,6 @@ function performRootSearch(query) {
     + '<span class="loading-indicator"></span> جاري البحث الجذري...'
     + '</div>';
   dom.searchResults.style.display = 'block';
-
   loadRootsData().then(function() {
     if (!state.rootsData) {
       dom.searchResults.innerHTML = '<div class="search-empty">⚠️ ملف الجذور غير متوفر — استخدم البحث الدقيق</div>';
@@ -1147,6 +1080,12 @@ function renderRootResults(entries, root) {
     html += '<div class="search-result-item" data-surah="' + info.surahNum + '" data-ayah="' + info.ayahNumInSurah + '">'
           + '<div class="search-result-title"><strong>' + escapeHtml(info.surahName) + '</strong> — آية ' + info.ayahNumInSurah + '</div>'
           + (e.word ? '<div class="search-result-text">كلمة: <strong>' + escapeHtml(e.word) + '</strong></div>' : '')
+          + '<div class="search-result-actions">'
+          + '<button class="search-result-play" data-surah="' + info.surahNum + '" data-ayah="' + info.ayahNumInSurah + '">▶️ تشغيل</button>'
+          + '<button class="search-result-copy" data-surah="' + info.surahNum + '" data-ayah="' + info.ayahNumInSurah + '">📋 نسخ</button>'
+          + '<button class="search-result-share" data-surah="' + info.surahNum + '" data-ayah="' + info.ayahNumInSurah + '">📤 مشاركة</button>'
+          + '<button class="search-result-goto" data-surah="' + info.surahNum + '" data-ayah="' + info.ayahNumInSurah + '">📍 الذهاب</button>'
+          + '</div>'
           + '</div>';
   }
   if (entries.length > 200) {
@@ -1154,18 +1093,142 @@ function renderRootResults(entries, root) {
   }
   dom.searchResults.innerHTML = html;
 
-  var items = dom.searchResults.querySelectorAll('.search-result-item');
-  for (var k = 0; k < items.length; k++) {
-    (function(el) {
-      el.addEventListener('click', function() {
-        var sNum = parseInt(el.getAttribute('data-surah'), 10);
-        var aNum = parseInt(el.getAttribute('data-ayah'), 10);
-        dom.surahSelect.value = sNum;
-        loadSurah(sNum, { startAyah: aNum });
-        dom.searchResults.style.display = 'none';
-      });
-    })(items[k]);
+  document.querySelectorAll('.search-result-play').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var surah = parseInt(btn.getAttribute('data-surah'), 10);
+      var ayah = parseInt(btn.getAttribute('data-ayah'), 10);
+      playSpecificAyah(surah, ayah);
+    });
+  });
+  document.querySelectorAll('.search-result-copy').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var surah = parseInt(btn.getAttribute('data-surah'), 10);
+      var ayah = parseInt(btn.getAttribute('data-ayah'), 10);
+      copySpecificAyah(surah, ayah);
+    });
+  });
+  document.querySelectorAll('.search-result-share').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var surah = parseInt(btn.getAttribute('data-surah'), 10);
+      var ayah = parseInt(btn.getAttribute('data-ayah'), 10);
+      shareSpecificAyah(surah, ayah);
+    });
+  });
+  document.querySelectorAll('.search-result-goto').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var surah = parseInt(btn.getAttribute('data-surah'), 10);
+      var ayah = parseInt(btn.getAttribute('data-ayah'), 10);
+      dom.surahSelect.value = surah;
+      loadSurah(surah, { startAyah: ayah });
+      dom.searchResults.style.display = 'none';
+    });
+  });
+}
+
+function playSpecificAyah(surahNum, ayahNum) {
+  if (state.currentSurah !== surahNum || !state.surahData) {
+    loadSurah(surahNum, { startAyah: ayahNum, autoPlay: true });
+  } else {
+    for (var i = 0; i < state.surahData.ayahs.length; i++) {
+      if (state.surahData.ayahs[i].numberInSurah === ayahNum) {
+        state.currentAyahIndex = i;
+        highlightCurrentAyah();
+        playCurrentAyah();
+        break;
+      }
+    }
   }
+}
+
+function copySpecificAyah(surahNum, ayahNum) {
+  if (state.fullQuranLoaded) {
+    var ayah = state.fullQuranText.find(function(a) { return a.surah === surahNum && a.ayah === ayahNum; });
+    if (ayah) {
+      copyToClipboard(ayah.text);
+      showToast('📋 تم نسخ الآية', 'success');
+    } else {
+      showToast('الآية غير موجودة', 'error');
+    }
+  } else {
+    fetchJSON(CONFIG.API_BASE + '/ayah/' + surahNum + ':' + ayahNum + '/quran-uthmani')
+      .then(function(data) {
+        if (data && data.data && data.data.text) {
+          copyToClipboard(data.data.text);
+          showToast('📋 تم نسخ الآية', 'success');
+        } else {
+          showToast('فشل في الحصول على الآية', 'error');
+        }
+      })
+      .catch(function() { showToast('فشل الاتصال', 'error'); });
+  }
+}
+
+function shareSpecificAyah(surahNum, ayahNum) {
+  var surahName = getSurahDisplayName(surahNum);
+  if (state.fullQuranLoaded) {
+    var ayah = state.fullQuranText.find(function(a) { return a.surah === surahNum && a.ayah === ayahNum; });
+    if (ayah) {
+      var shareText = '﴿' + ayah.text + '﴾\n— سورة ' + surahName + ' — آية ' + ayahNum;
+      if (navigator.share) {
+        navigator.share({ title: 'القرآن الكريم', text: shareText }).catch(function() {});
+      } else {
+        copyToClipboard(shareText);
+        showToast('📋 تم نسخ الآية للمشاركة', 'success');
+      }
+    } else {
+      showToast('الآية غير موجودة', 'error');
+    }
+  } else {
+    fetchJSON(CONFIG.API_BASE + '/ayah/' + surahNum + ':' + ayahNum + '/quran-uthmani')
+      .then(function(data) {
+        if (data && data.data && data.data.text) {
+          var shareText = '﴿' + data.data.text + '﴾\n— سورة ' + surahName + ' — آية ' + ayahNum;
+          if (navigator.share) {
+            navigator.share({ title: 'القرآن الكريم', text: shareText }).catch(function() {});
+          } else {
+            copyToClipboard(shareText);
+            showToast('📋 تم نسخ الآية للمشاركة', 'success');
+          }
+        } else {
+          showToast('فشل في الحصول على الآية', 'error');
+        }
+      })
+      .catch(function() { showToast('فشل الاتصال', 'error'); });
+  }
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+  } catch (e) {
+    showToast('تعذّر النسخ', 'error');
+  }
+  document.body.removeChild(ta);
+}
+
+function getSurahDisplayName(surahNum) {
+  var found = state.surahList.find(function(s) { return s.number == surahNum; });
+  return found ? found.name : 'سورة ' + surahNum;
 }
 
 function executeSearch() {
@@ -1184,9 +1247,6 @@ function clearSearch() {
   dom.searchResults.style.display = 'none';
 }
 
-/* ============================================================
-   20) المفضلة
-============================================================ */
 function loadFavorites() {
   state.favorites = storage.get('favorites', []) || [];
 }
@@ -1257,7 +1317,6 @@ function renderFavorites() {
           + '</div>';
   }
   dom.favoritesList.innerHTML = html;
-
   var goBtns = dom.favoritesList.querySelectorAll('.fav-go');
   for (var k = 0; k < goBtns.length; k++) {
     (function(btn) {
@@ -1270,7 +1329,6 @@ function renderFavorites() {
       });
     })(goBtns[k]);
   }
-
   var rmBtns = dom.favoritesList.querySelectorAll('.fav-remove');
   for (var j = 0; j < rmBtns.length; j++) {
     (function(btn) {
@@ -1290,9 +1348,6 @@ function renderFavorites() {
   }
 }
 
-/* ============================================================
-   21) العلامة المرجعية (Bookmark)
-============================================================ */
 function setBookmark() {
   if (!state.surahData) return;
   var a = state.surahData.ayahs[state.currentAyahIndex];
@@ -1323,9 +1378,6 @@ function toggleBookmark() {
   setBookmark();
 }
 
-/* ============================================================
-   22) المشاركة — نسخة معدلة بالكامل وتعمل
-============================================================ */
 function buildShareText() {
   if (!state.surahData) return '';
   var a = state.surahData.ayahs[state.currentAyahIndex];
@@ -1350,7 +1402,6 @@ function shareNative() {
       text: text
     }).catch(function(err) {
       console.warn('Share canceled:', err);
-      showToast('تم إلغاء المشاركة', '');
     });
   } else {
     shareCopy();
@@ -1365,27 +1416,11 @@ function shareCopy() {
   }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text)
-      .then(function() { showToast('📋 تم نسخ الآية إلى الحافظة', 'success'); })
+      .then(function() { showToast('📋 تم نسخ الآية', 'success'); })
       .catch(function() { fallbackCopy(text); });
   } else {
     fallbackCopy(text);
   }
-}
-
-function fallbackCopy(text) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand('copy');
-    showToast('📋 تم نسخ الآية (طريقة احتياطية)', 'success');
-  } catch (e) {
-    showToast('تعذّر النسخ، حاول يدوياً', 'error');
-  }
-  document.body.removeChild(ta);
 }
 
 function shareWhatsApp() {
@@ -1409,9 +1444,6 @@ function shareTwitter() {
   window.open(url, '_blank');
 }
 
-/* ============================================================
-   23) حجم الخط والوضع الليلي
-============================================================ */
 function applyFontSize(size) {
   state.fontSize = size;
   var container = dom.surahContent.querySelector('.ayahs-container');
@@ -1442,9 +1474,6 @@ function toggleNightMode() {
   applyNightMode(!state.nightMode);
 }
 
-/* ============================================================
-   24) لوحة الإعدادات + المفضلة
-============================================================ */
 function openSettings() {
   if (dom.settingsPanel) dom.settingsPanel.classList.add('open');
 }
@@ -1489,9 +1518,6 @@ function resetSettings() {
   setTimeout(function() { location.reload(); }, 1200);
 }
 
-/* ============================================================
-   25) المشغل المطوي / الموسّع
-============================================================ */
 function togglePlayerCollapse() {
   state.playerCollapsed = !state.playerCollapsed;
   if (state.playerCollapsed) {
@@ -1501,9 +1527,6 @@ function togglePlayerCollapse() {
   }
 }
 
-/* ============================================================
-   26) اختصارات لوحة المفاتيح
-============================================================ */
 function setupKeyboardShortcuts() {
   document.addEventListener('keydown', function(e) {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
@@ -1559,9 +1582,6 @@ function setupKeyboardShortcuts() {
   });
 }
 
-/* ============================================================
-   27) ربط الأحداث
-============================================================ */
 function bindEvents() {
   if (dom.tafsirCurtainHandle) dom.tafsirCurtainHandle.addEventListener('click', toggleTafsirCurtain);
   if (dom.tafsirSelect) {
@@ -1573,7 +1593,6 @@ function bindEvents() {
       }
     });
   }
-
   if (dom.surahSelect) {
     dom.surahSelect.addEventListener('change', function() {
       var n = parseInt(dom.surahSelect.value, 10);
@@ -1587,7 +1606,6 @@ function bindEvents() {
       loadSurah(state.currentSurah, { startAyah: state.surahData ? state.surahData.ayahs[state.currentAyahIndex].numberInSurah : 1 });
     });
   }
-
   if (dom.searchType) {
     dom.searchType.addEventListener('change', function() {
       state.searchType = dom.searchType.value;
@@ -1600,7 +1618,6 @@ function bindEvents() {
       if (e.key === 'Enter') executeSearch();
     });
   }
-
   if (dom.audioPlayer) dom.audioPlayer.addEventListener('ended', onAudioEnded);
   if (dom.prevAyahBtn) dom.prevAyahBtn.addEventListener('click', prevAyah);
   if (dom.nextAyahBtn) dom.nextAyahBtn.addEventListener('click', nextAyah);
@@ -1621,8 +1638,6 @@ function bindEvents() {
     });
   }
   if (dom.fontBtn) dom.fontBtn.addEventListener('click', cycleFontSize);
-
-  // ربط أحداث قائمة المشاركة
   if (dom.shareMenu) {
     var shareNativeBtn = dom.shareMenu.querySelector('[data-share="native"]');
     var shareCopyBtn = dom.shareMenu.querySelector('[data-share="copy"]');
@@ -1635,18 +1650,15 @@ function bindEvents() {
     if (shareTgBtn) shareTgBtn.addEventListener('click', function(e) { e.preventDefault(); shareTelegram(); toggleShareMenu(); });
     if (shareTwitterBtn) shareTwitterBtn.addEventListener('click', function(e) { e.preventDefault(); shareTwitter(); toggleShareMenu(); });
   }
-
   if (dom.collapseBtn) dom.collapseBtn.addEventListener('click', togglePlayerCollapse);
   if (dom.collapsedExpandBtn) dom.collapsedExpandBtn.addEventListener('click', togglePlayerCollapse);
   if (dom.collapsedPlayBtn) dom.collapsedPlayBtn.addEventListener('click', togglePlayPause);
-
   if (dom.settingsToggleBtn) dom.settingsToggleBtn.addEventListener('click', openSettings);
   if (dom.settingsClose) dom.settingsClose.addEventListener('click', closeSettings);
   if (dom.themeToggle) dom.themeToggle.addEventListener('click', toggleNightMode);
   if (dom.saveLocationBtn) dom.saveLocationBtn.addEventListener('click', saveLocationSettings);
   if (dom.testAzanBtn) dom.testAzanBtn.addEventListener('click', testAzan);
   if (dom.resetSettingsBtn) dom.resetSettingsBtn.addEventListener('click', resetSettings);
-
   if (dom.azanToggle) {
     dom.azanToggle.addEventListener('change', function() {
       state.azanEnabled = dom.azanToggle.checked;
@@ -1682,45 +1694,33 @@ function bindEvents() {
       }
     });
   }
-
   if (dom.favoritesOpenBtn) dom.favoritesOpenBtn.addEventListener('click', openFavoritesPanel);
   if (dom.favoritesClose) dom.favoritesClose.addEventListener('click', closeFavoritesPanel);
 }
 
-/* ============================================================
-   28) استرجاع الإعدادات المحفوظة
-============================================================ */
 function restoreSavedSettings() {
   var fs = storage.get('font_size');
   if (fs) state.fontSize = fs;
-
   var nm = storage.get('night_mode');
   if (nm === true) applyNightMode(true);
-
   var city = storage.get('city');
   if (city) state.city = city;
   var country = storage.get('country');
   if (country) state.country = country;
   var method = storage.get('method');
   if (method) state.method = method;
-
   var azan = storage.get('azan_enabled');
   if (azan === false) state.azanEnabled = false;
   var azanFajr = storage.get('azan_fajr_enabled');
   if (azanFajr === false) state.azanFajrEnabled = false;
-
   var as = storage.get('auto_save');
   if (as === false) state.autoSave = false;
-
   var rec = storage.get('reciter');
   if (rec) state.currentReciter = rec;
-
   var taf = storage.get('tafsir_edition');
   if (taf) state.currentTafsirEdition = taf;
-
   var bm = storage.get('bookmark');
   if (bm) state.bookmark = bm;
-
   if (dom.cityInput) dom.cityInput.value = state.city;
   if (dom.countryInput) dom.countryInput.value = state.country;
   if (dom.methodSelect) dom.methodSelect.value = state.method;
@@ -1732,9 +1732,6 @@ function restoreSavedSettings() {
   if (dom.tafsirSelect) dom.tafsirSelect.value = state.currentTafsirEdition;
 }
 
-/* ============================================================
-   29) الموضع الأخير
-============================================================ */
 function restoreLastPosition() {
   var last = storage.get('last_position');
   if (last && last.surah) {
@@ -1745,30 +1742,22 @@ function restoreLastPosition() {
   return loadSurah(1);
 }
 
-/* ============================================================
-   30) تهيئة التطبيق (Init)
-============================================================ */
 function initApp() {
   cacheDom();
   loadFavorites();
   restoreSavedSettings();
   bindEvents();
   setupKeyboardShortcuts();
-
   if (dom.azanPlayer && !dom.azanPlayer.src) {
     dom.azanPlayer.src = CONFIG.AZAN_FILE;
     dom.azanPlayer.preload = 'auto';
   }
-
   updateClocks();
   setInterval(updateClocks, 1000);
-
   setInterval(function() {
     if (state.prayerTimes) updatePrayerCountdown();
   }, 1000);
-
   setInterval(checkAzanTime, 20000);
-
   loadSurahList()
     .then(function() {
       buildSurahOffsets();
@@ -1780,7 +1769,6 @@ function initApp() {
     .then(function() {
       scheduleMidnightRefresh();
     });
-
   loadFullQuranText().catch(console.warn);
   loadRootsData().catch(console.warn);
 }
