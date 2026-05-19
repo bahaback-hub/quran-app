@@ -2,8 +2,8 @@
 
 /* ============================================================
    تطبيق القرآن الكريم — عائلة السليماني
-   ملف JavaScript الرئيسي (app.js) — النسخة النهائية المعدلة
-   تم إصلاح مشكلة عدم انتقال الصوت للآية التالية
+   ملف JavaScript الرئيسي (app.js)
+   النسخة النهائية: تشمل التحميل المسبق وكل الإصلاحات
 ============================================================ */
 
 /* ============================================================
@@ -37,7 +37,7 @@ let state = {
   surahList: [],
   audioCache: new Map(),
   surahCache: new Map(),
-  ayahsAudios: [],      // هام: لتخزين روابط الصوت
+  ayahsAudios: [],
   rootsData: null,
   rootsLoaded: false,
   isPlaying: false,
@@ -65,7 +65,12 @@ let state = {
   fullQuranText: null,
   fullQuranLoaded: false,
   barCollapsed: false,
-  azanTestPlaying: false
+  azanTestPlaying: false,
+  // ===== خصائص التحميل المسبق =====
+  preloadAudio: null,
+  preloadedIndex: -1,
+  preloadedSurah: -1,
+  isTransitioning: false
 };
 
 /* ============================================================
@@ -78,11 +83,11 @@ function cacheDom() {
     'prayerTimesRows','prayerCountdown','bigClockTime','bigClockDate','bigClockHijri','settingsPanel','settingsCloseBtn','settingsToggleBtn',
     'themeToggle','surahSelect','reciterSelect','searchType','searchInput','searchBtn','clearSearchBtn','searchResults','surahContent',
     'cityInput','countryInput','methodSelect','cityQuickSelect','saveLocationBtn','azanToggle','azanFajrToggle','testAzanBtn',
-    'fontSizeSelect','autoSaveToggle','resetSettingsBtn','favoritesPanel','favoritesCloseBtn','favoritesList',
+    'fontSizeSelect','autoSaveToggle','resetSettingsBtn','favoritesPanel','favoritesCloseBtn','favoritesList','favoritesOpenBtn',
     'player','collapsePlayerBtn','collapsedExpandBtn','collapsedPlayBtn','playerSurahName','playerReciterName','playerCurrentAyah','collapsedInfo',
     'audioPlayer','prevAyahBtn','nextAyahBtn','prevSurahBtn','nextSurahBtn','hifdhBtn','repeatBtn','bookmarkBtn','favoriteBtn','shareBtn',
     'repeatControls','repeatFrom','repeatTo','repeatTimes','shareMenu','azanPlayer','toast','fontSizeDropdown','collapseBarBtn','expandBarBtn','prayerBar',
-    'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect'
+    'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','loadingProgress'
   ];
   for (const id of ids) {
     dom[id] = document.getElementById(id);
@@ -120,12 +125,12 @@ function showToast(msg, type = '') {
 
 function escapeHtml(str) {
   const div = document.createElement('div');
-  div.textContent = str;
+  div.textContent = str == null ? '' : String(str);
   return div.innerHTML;
 }
 
 function escapeRegExp(str) {
-  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(str).replace(/[.*+?^()|[\]\\]/g, '\\$&');
 }
 
 function pad2(n) { return String(n).padStart(2, '0'); }
@@ -136,7 +141,7 @@ function formatTime12(time24) {
   let hour = parseInt(h, 10);
   const period = hour >= 12 ? 'م' : 'ص';
   hour = hour % 12 || 12;
-  return `${pad2(hour)}:${pad2(m)} ${period}`;
+  return `${hour}:${m} ${period}`;
 }
 
 function timeStrToMinutes(t) {
@@ -178,13 +183,13 @@ async function loadPrayerTimes() {
   try {
     const res = await fetch(url);
     const data = await res.json();
-    if (data && data.data && data.data.timings) {
+    if (data?.data?.timings) {
       state.prayerTimes = data.data.timings;
       storage.set('cached_prayer_times', { date: new Date().toDateString(), timings: state.prayerTimes, city, country });
       renderPrayerTimes();
       return;
     }
-    throw new Error();
+    throw new Error('Invalid response');
   } catch {
     const cached = storage.get('cached_prayer_times');
     if (cached && cached.date === new Date().toDateString() && cached.city === city && cached.country === country) {
@@ -220,7 +225,10 @@ function renderPrayerTimes() {
     const raw = state.prayerTimes[key] || '';
     const time24 = raw.split(' ')[0];
     const isNext = (key === next);
-    html += `<div class="prayer-row${isNext ? ' next-prayer' : ''}"><span class="prayer-name">${PRAYER_NAMES_AR[key]}</span><span class="prayer-time">${formatTime12(time24)}</span></div>`;
+    html += `<div class="prayer-row ${isNext ? 'next-prayer' : ''}">
+      <span class="prayer-name">${PRAYER_NAMES_AR[key]}</span>
+      <span class="prayer-time">${formatTime12(time24)}</span>
+    </div>`;
   }
   if (dom.prayerTimesRows) dom.prayerTimesRows.innerHTML = html;
   updateCountdowns();
@@ -247,14 +255,13 @@ function updateCountdowns() {
   if (dom.nextPrayerTime) dom.nextPrayerTime.textContent = formatTime12(time24);
 }
 
-// أذان اختبار (تشغيل / إيقاف)
 function testAzan() {
   if (!dom.azanPlayer) return;
   if (state.azanTestPlaying) {
     dom.azanPlayer.pause();
     dom.azanPlayer.currentTime = 0;
     state.azanTestPlaying = false;
-    dom.testAzanBtn.textContent = '▶️ اختبار الأذان';
+    if (dom.testAzanBtn) dom.testAzanBtn.textContent = '▶️ اختبار الأذان';
     showToast('تم إيقاف الأذان', '');
   } else {
     dom.azanPlayer.src = CONFIG.AZAN_FILE;
@@ -262,9 +269,9 @@ function testAzan() {
     dom.azanPlayer.play()
       .then(() => {
         state.azanTestPlaying = true;
-        dom.testAzanBtn.textContent = '⏹️ إيقاف الأذان';
+        if (dom.testAzanBtn) dom.testAzanBtn.textContent = '⏹️ إيقاف الأذان';
       })
-      .catch(err => showToast('تعذّر تشغيل الأذان', 'error'));
+      .catch(() => showToast('تعذّر تشغيل الأذان', 'error'));
   }
 }
 
@@ -281,6 +288,7 @@ function checkAzanTime() {
       if (state.lastAzanFired === stamp) return;
       state.lastAzanFired = stamp;
       if (dom.azanPlayer) {
+        dom.azanPlayer.src = CONFIG.AZAN_FILE;
         dom.azanPlayer.currentTime = 0;
         dom.azanPlayer.play().catch(e => console.warn(e));
       }
@@ -303,7 +311,7 @@ async function loadSurahList() {
   try {
     const res = await fetch(`${CONFIG.API_BASE}/surah`);
     const data = await res.json();
-    if (data.data) {
+    if (data?.data) {
       state.surahList = data.data;
       storage.set('surah_list', data.data);
       populateSurahSelect();
@@ -315,7 +323,7 @@ async function loadSurahList() {
 
 function populateSurahSelect() {
   if (!dom.surahSelect) return;
-  dom.surahSelect.innerHTML = '<option value="">— اختر سورة —</option>';
+  dom.surahSelect.innerHTML = '<option value="">اختر السورة</option>';
   for (const s of state.surahList) {
     const opt = document.createElement('option');
     opt.value = s.number;
@@ -349,6 +357,7 @@ function absToSurahAyah(absNum) {
 
 function getAbsNumber(surah, ayah) {
   if (!surahOffsets) buildSurahOffsets();
+  if (!surahOffsets) return null;
   for (const o of surahOffsets) {
     if (o.surahNum === surah) return o.startAbs + ayah - 1;
   }
@@ -356,10 +365,18 @@ function getAbsNumber(surah, ayah) {
 }
 
 /* ============================================================
-   9) تحميل السورة وعرضها (مع الحفاظ على الصوت)
+   9) تحميل السورة وعرضها
 ============================================================ */
 async function loadSurah(surahNum, opts = {}) {
   if (!surahNum) return;
+
+  // إعادة تعيين التحميل المسبق عند تغيير السورة
+  if (state.preloadAudio) {
+    state.preloadAudio.src = '';
+    state.preloadedIndex = -1;
+    state.preloadedSurah = -1;
+  }
+
   state.currentSurah = surahNum;
   const cacheKey = `${surahNum}_${state.currentReciter}`;
   if (state.surahCache.has(cacheKey)) {
@@ -370,16 +387,21 @@ async function loadSurah(surahNum, opts = {}) {
     finalizeSurahLoad(opts);
     return;
   }
-  dom.surahContent.innerHTML = '<div class="loading">⏳ جاري تحميل السورة...</div>';
+  if (dom.surahContent) dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
   try {
     const [textRes, audioRes] = await Promise.all([
       fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`),
       fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`)
     ]);
-    const textData = (await textRes.json()).data;
-    const audioData = (await audioRes.json()).data;
+    const textJson = await textRes.json();
+    const audioJson = await audioRes.json();
+    const textData = textJson?.data;
+    const audioData = audioJson?.data;
+    if (!textData?.ayahs?.length || !audioData?.ayahs?.length) {
+      throw new Error('بيانات السورة غير صالحة');
+    }
     state.surahData = textData;
-    state.ayahsAudios = audioData.ayahs.map(a => a.audio);  // حفظ روابط الصوت
+    state.ayahsAudios = audioData.ayahs.map(a => a.audio);
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
       const firstKey = state.surahCache.keys().next().value;
       state.surahCache.delete(firstKey);
@@ -388,24 +410,25 @@ async function loadSurah(surahNum, opts = {}) {
     renderSurah(textData);
     finalizeSurahLoad(opts);
   } catch(e) {
-    dom.surahContent.innerHTML = '<div class="error">⚠️ تعذّر تحميل السورة</div>';
+    if (dom.surahContent) dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل السورة</p>';
     showToast('فشل تحميل السورة', 'error');
   }
 }
 
 function renderSurah(textData) {
-  let html = `<div class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}</div>`;
+  if (!dom.surahContent) return;
+  let html = `<h2 class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}</h2>`;
   if (textData.number !== 1 && textData.number !== 9) {
-    html += '<div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';
+    html += '<p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>';
   }
-  html += `<div class="ayahs-container" style="font-size:${state.fontSize}px;">`;
+  html += `<div class="ayahs-container" style="font-size:${state.fontSize}px">`;
   for (let i = 0; i < textData.ayahs.length; i++) {
     const a = textData.ayahs[i];
     let txt = a.text;
     if (textData.number !== 1 && a.numberInSurah === 1) {
       txt = txt.replace(/^بِسْمِ\s+اللَّهِ\s+الرَّحْمَٰنِ\s+الرَّحِيمِ\s*/, '');
     }
-    html += `<span class="ayah" data-index="${i}" data-number="${a.numberInSurah}">${escapeHtml(txt)} <span class="ayah-number">${a.numberInSurah}</span></span> `;
+    html += `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">${escapeHtml(txt)} <span class="ayah-number">${a.numberInSurah}</span></span> `;
   }
   html += '</div>';
   dom.surahContent.innerHTML = html;
@@ -427,7 +450,7 @@ function ayahClickHandler(e) {
 }
 
 function finalizeSurahLoad(opts) {
-  if (opts.startAyah) {
+  if (opts.startAyah && state.surahData) {
     const idx = state.surahData.ayahs.findIndex(a => a.numberInSurah === opts.startAyah);
     if (idx !== -1) state.currentAyahIndex = idx;
   } else {
@@ -440,11 +463,12 @@ function finalizeSurahLoad(opts) {
 }
 
 function highlightCurrentAyah() {
-  document.querySelectorAll('.ayah').forEach(el => el.classList.remove('current', 'revealed'));
+  document.querySelectorAll('.ayah').forEach(el => el.classList.remove('current'));
   const cur = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
   if (cur) {
     cur.classList.add('current');
     if (state.hifdhMode) {
+      document.querySelectorAll('.ayah').forEach(el => el.classList.remove('revealed'));
       for (let i = 0; i <= state.currentAyahIndex; i++) {
         const prev = document.querySelector(`.ayah[data-index="${i}"]`);
         if (prev) prev.classList.add('revealed');
@@ -485,10 +509,89 @@ function saveCurrentPosition() {
 }
 
 /* ============================================================
-   10) تشغيل الصوت (مع الحفاظ على الوظيفة الأصلية)
+   9.5) نظام التحميل المسبق (Smart Preloading)
+============================================================ */
+function initPreloadAudio() {
+  if (state.preloadAudio) return;
+  state.preloadAudio = new Audio();
+  state.preloadAudio.preload = 'auto';
+  state.preloadAudio.crossOrigin = 'anonymous';
+}
+
+function preloadNextAyah() {
+  if (!state.surahData || !state.ayahsAudios?.length) return;
+  initPreloadAudio();
+
+  let nextIdx = state.currentAyahIndex + 1;
+  let nextSurah = state.currentSurah;
+  let nextUrl = null;
+
+  // وضع التكرار: تحميل بداية النطاق إذا كنا في نهايته
+  if (state.repeatMode && state.surahData) {
+    const currentNum = state.surahData.ayahs[state.currentAyahIndex]?.numberInSurah;
+    if (currentNum === state.repeatTo && (state.repeatCounter + 1) < state.repeatTimes) {
+      const startIdx = state.surahData.ayahs.findIndex(a => a.numberInSurah === state.repeatFrom);
+      if (startIdx !== -1) {
+        nextIdx = startIdx;
+        nextUrl = state.ayahsAudios[startIdx];
+      }
+    }
+  }
+
+  // الحالة العادية: الآية التالية في نفس السورة
+  if (!nextUrl && nextIdx < state.ayahsAudios.length) {
+    nextUrl = state.ayahsAudios[nextIdx];
+  }
+
+  if (!nextUrl) {
+    state.preloadedIndex = -1;
+    return;
+  }
+
+  // تجنب إعادة التحميل لو كان نفس الرابط محمَّلاً مسبقاً
+  if (state.preloadedIndex === nextIdx &&
+      state.preloadedSurah === nextSurah &&
+      state.preloadAudio.src === nextUrl) {
+    return;
+  }
+
+  try {
+    state.preloadAudio.src = nextUrl;
+    state.preloadAudio.load();
+    state.preloadedIndex = nextIdx;
+    state.preloadedSurah = nextSurah;
+  } catch(e) {
+    console.warn('Preload failed:', e);
+  }
+}
+
+function isNextAyahReady() {
+  if (!state.preloadAudio || state.preloadedIndex === -1) return false;
+  return state.preloadAudio.readyState >= 3;
+}
+
+function swapToPreloadedAudio() {
+  if (!state.preloadAudio || !dom.audioPlayer) return false;
+  if (!isNextAyahReady()) return false;
+
+  const preloadedSrc = state.preloadAudio.src;
+  dom.audioPlayer.src = preloadedSrc;
+  dom.audioPlayer.currentTime = 0;
+  const playPromise = dom.audioPlayer.play();
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch(e => console.warn('Play after swap failed:', e));
+  }
+
+  state.preloadAudio.src = '';
+  state.preloadedIndex = -1;
+  return true;
+}
+
+/* ============================================================
+   10) تشغيل الصوت (مع التحميل المسبق)
 ============================================================ */
 function playCurrentAyah() {
-  if (!state.surahData || !state.ayahsAudios || !state.ayahsAudios.length) {
+  if (!state.surahData || !state.ayahsAudios?.length) {
     showToast('لا توجد روابط صوت لهذه السورة', 'error');
     return;
   }
@@ -497,58 +600,122 @@ function playCurrentAyah() {
     showToast('لا يوجد صوت لهذه الآية', 'error');
     return;
   }
+  if (!dom.audioPlayer) return;
+
+  // إذا كانت الآية الحالية جاهزة في عنصر التحميل المسبق، استخدمها فوراً
+  if (state.preloadedIndex === state.currentAyahIndex &&
+      state.preloadedSurah === state.currentSurah &&
+      isNextAyahReady()) {
+    if (swapToPreloadedAudio()) {
+      state.isPlaying = true;
+      setTimeout(preloadNextAyah, 100);
+      return;
+    }
+  }
+
+  // الحالة الافتراضية: تحميل عادي
   dom.audioPlayer.src = url;
-  dom.audioPlayer.play().catch(e => console.warn(e));
+  dom.audioPlayer.load();
+  const playPromise = dom.audioPlayer.play();
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch(e => console.warn('Play failed:', e));
+  }
   state.isPlaying = true;
+
+  // ابدأ تحميل الآية التالية فور بدء الحالية
+  setTimeout(preloadNextAyah, 200);
 }
 
 function togglePlayPause() {
-  if (!state.surahData) return;
+  if (!state.surahData || !dom.audioPlayer) return;
   if (dom.audioPlayer.paused) {
     if (!dom.audioPlayer.src) playCurrentAyah();
-    else dom.audioPlayer.play();
+    else dom.audioPlayer.play().catch(e => console.warn(e));
   } else {
     dom.audioPlayer.pause();
   }
 }
 
-// ربط حدث نهاية الصوت (هام جداً للانتقال للآية التالية)
 function bindAudioEvents() {
   if (dom.audioPlayer) {
     dom.audioPlayer.removeEventListener('ended', onAudioEnded);
     dom.audioPlayer.addEventListener('ended', onAudioEnded);
+    dom.audioPlayer.removeEventListener('play', onAudioPlay);
+    dom.audioPlayer.addEventListener('play', onAudioPlay);
+    dom.audioPlayer.removeEventListener('pause', onAudioPause);
+    dom.audioPlayer.addEventListener('pause', onAudioPause);
   }
 }
 
+function onAudioPlay() {
+  state.isPlaying = true;
+  // تحميل التالية فور بدء التشغيل (احتياط)
+  setTimeout(preloadNextAyah, 300);
+}
+function onAudioPause() { state.isPlaying = false; }
+
 function onAudioEnded() {
   if (!state.surahData || !state.ayahsAudios) return;
+  if (state.isTransitioning) return;
+  state.isTransitioning = true;
 
-  // وضع التكرار
-  if (state.repeatMode) {
-    const currentNum = state.surahData.ayahs[state.currentAyahIndex].numberInSurah;
-    if (currentNum === state.repeatTo) {
-      state.repeatCounter++;
-      if (state.repeatCounter >= state.repeatTimes) {
-        state.repeatMode = false;
-        dom.repeatBtn?.classList.remove('active');
-        if (dom.repeatControls) dom.repeatControls.style.display = 'none';
-        showToast('✅ انتهى التكرار', 'success');
-        return;
+  try {
+    // وضع التكرار
+    if (state.repeatMode) {
+      const currentNum = state.surahData.ayahs[state.currentAyahIndex].numberInSurah;
+      if (currentNum === state.repeatTo) {
+        state.repeatCounter++;
+        if (state.repeatCounter >= state.repeatTimes) {
+          state.repeatMode = false;
+          state.repeatCounter = 0;
+          dom.repeatBtn?.classList.remove('active');
+          if (dom.repeatControls) dom.repeatControls.style.display = 'none';
+          showToast('✅ انتهى التكرار', 'success');
+          return;
+        }
+        const startIdx = state.surahData.ayahs.findIndex(a => a.numberInSurah === state.repeatFrom);
+        if (startIdx !== -1) {
+          state.currentAyahIndex = startIdx;
+          highlightCurrentAyah();
+          if (state.preloadedIndex === startIdx && isNextAyahReady()) {
+            swapToPreloadedAudio();
+            setTimeout(preloadNextAyah, 100);
+          } else {
+            setTimeout(playCurrentAyah, 100);
+          }
+          return;
+        }
       }
-      const startIdx = state.surahData.ayahs.findIndex(a => a.numberInSurah === state.repeatFrom);
-      if (startIdx !== -1) {
-        state.currentAyahIndex = startIdx;
-        highlightCurrentAyah();
-        setTimeout(playCurrentAyah, 300);
-        return;
-      }
+      transitionToNextAyah();
+      return;
     }
-    nextAyah(true);
-    return;
-  }
 
-  // الانتقال العادي للآية التالية
-  nextAyah(true);
+    transitionToNextAyah();
+  } finally {
+    setTimeout(() => { state.isTransitioning = false; }, 300);
+  }
+}
+
+function transitionToNextAyah() {
+  if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
+    state.currentAyahIndex++;
+    highlightCurrentAyah();
+
+    // ✨ التشغيل الفوري إن كانت محمَّلة مسبقاً
+    if (state.preloadedIndex === state.currentAyahIndex &&
+        state.preloadedSurah === state.currentSurah &&
+        isNextAyahReady()) {
+      swapToPreloadedAudio();
+      setTimeout(preloadNextAyah, 100);
+    } else {
+      setTimeout(playCurrentAyah, 50);
+    }
+  } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
+    nextSurah();
+  } else {
+    state.isPlaying = false;
+    showToast('✅ انتهت تلاوة المصحف', 'success');
+  }
 }
 
 function nextAyah(autoFromRepeat) {
@@ -556,7 +723,17 @@ function nextAyah(autoFromRepeat) {
   if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
     state.currentAyahIndex++;
     highlightCurrentAyah();
-    if (autoFromRepeat || state.isPlaying) setTimeout(playCurrentAyah, 150);
+
+    if (autoFromRepeat || state.isPlaying) {
+      if (state.preloadedIndex === state.currentAyahIndex &&
+          state.preloadedSurah === state.currentSurah &&
+          isNextAyahReady()) {
+        swapToPreloadedAudio();
+        setTimeout(preloadNextAyah, 100);
+      } else {
+        setTimeout(playCurrentAyah, 100);
+      }
+    }
   } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
     nextSurah();
   }
@@ -567,7 +744,7 @@ function prevAyah() {
   if (state.currentAyahIndex > 0) {
     state.currentAyahIndex--;
     highlightCurrentAyah();
-    if (state.isPlaying) setTimeout(playCurrentAyah, 150);
+    if (state.isPlaying) setTimeout(playCurrentAyah, 100);
   } else if (state.currentSurah > 1) {
     prevSurah();
   }
@@ -592,15 +769,16 @@ function toggleHifdh() {
 
 function toggleRepeat() {
   state.repeatMode = !state.repeatMode;
+  state.repeatCounter = 0;
   dom.repeatBtn?.classList.toggle('active', state.repeatMode);
   if (dom.repeatControls) dom.repeatControls.style.display = state.repeatMode ? 'flex' : 'none';
   if (state.repeatMode && state.surahData) {
     state.repeatFrom = 1;
     state.repeatTo = state.surahData.ayahs.length;
     state.repeatTimes = 3;
-    if (dom.repeatFrom) {
-      dom.repeatFrom.innerHTML = '<option value="">—</option>';
-      dom.repeatTo.innerHTML = '<option value="">—</option>';
+    if (dom.repeatFrom && dom.repeatTo && dom.repeatTimes) {
+      dom.repeatFrom.innerHTML = '';
+      dom.repeatTo.innerHTML = '';
       for (let i = 1; i <= state.surahData.ayahs.length; i++) {
         dom.repeatFrom.innerHTML += `<option value="${i}">${i}</option>`;
         dom.repeatTo.innerHTML += `<option value="${i}">${i}</option>`;
@@ -622,86 +800,103 @@ function toggleRepeat() {
    12) ستارة التفسير
 ============================================================ */
 function openTafsir() {
+  if (!dom.tafsirCurtain) return;
   dom.tafsirCurtain.classList.add('open');
-  dom.tafsirCurtainHandle.classList.add('open');
+  dom.tafsirCurtainHandle?.classList.add('open');
   loadTafsirForCurrentAyah();
 }
 function closeTafsir() {
-  dom.tafsirCurtain.classList.remove('open');
-  dom.tafsirCurtainHandle.classList.remove('open');
+  dom.tafsirCurtain?.classList.remove('open');
+  dom.tafsirCurtainHandle?.classList.remove('open');
 }
 function toggleTafsir() {
+  if (!dom.tafsirCurtain) return;
   dom.tafsirCurtain.classList.contains('open') ? closeTafsir() : openTafsir();
 }
 
 async function loadTafsirForCurrentAyah() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
-  if (!a) return;
+  if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition;
   const url = `${CONFIG.TAFSIR_API}/${edition}/${state.currentSurah}/${a.numberInSurah}.json`;
   dom.tafsirCurtainHeader.textContent = `تفسير: ${state.surahData.name} — آية ${a.numberInSurah}`;
-  dom.tafsirCurtainBody.innerHTML = '<div class="tafsir-loading">⏳ جاري تحميل التفسير...</div>';
+  dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
   try {
     const res = await fetch(url);
     const data = await res.json();
-    dom.tafsirCurtainBody.innerHTML = `<div class="tafsir-ayah-title">﴿${escapeHtml(a.text)}﴾</div><div>${escapeHtml(data.text || 'لا يوجد تفسير')}</div>`;
+    dom.tafsirCurtainBody.replaceChildren();
+    const titleEl = document.createElement('div');
+    titleEl.className = 'tafsir-ayah-title';
+    titleEl.textContent = `﴿${a.text}﴾`;
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'tafsir-text';
+    bodyEl.textContent = data?.text || 'لا يوجد تفسير متاح';
+    dom.tafsirCurtainBody.appendChild(titleEl);
+    dom.tafsirCurtainBody.appendChild(bodyEl);
   } catch(e) {
-    dom.tafsirCurtainBody.innerHTML = '<div class="tafsir-error">⚠️ تعذّر تحميل التفسير</div>';
+    dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
   }
 }
 
 /* ============================================================
-   13) البحث المحلي (دقيق وجذري)
+   13) البحث المحلي
 ============================================================ */
 function normalizeExactText(str) {
-  return str.replace(/[\u064B-\u065F\u0670]/g, '').replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي');
+  return String(str).replace(/[\u064B-\u065F\u0670]/g, '').replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي');
 }
 
 async function loadFullQuranText() {
   if (state.fullQuranLoaded) return;
-  const request = indexedDB.open('QuranAppDB', 1);
-  request.onupgradeneeded = e => {
-    if (!e.target.result.objectStoreNames.contains('fullText')) e.target.result.createObjectStore('fullText', { keyPath: 'id' });
-  };
   return new Promise((resolve) => {
+    const request = indexedDB.open('QuranAppDB', 1);
+    request.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('fullText')) db.createObjectStore('fullText', { keyPath: 'id' });
+    };
     request.onsuccess = async (e) => {
       const db = e.target.result;
-      const tx = db.transaction('fullText', 'readonly');
-      const store = tx.objectStore('fullText');
-      const getReq = store.get('fullQuran');
-      getReq.onsuccess = async () => {
-        if (getReq.result && getReq.result.data) {
-          state.fullQuranText = getReq.result.data;
-          state.fullQuranLoaded = true;
-          console.log('✅ تم تحميل القرآن من IndexedDB');
-          resolve();
-        } else {
-          showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'info');
-          try {
-            const res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
-            const data = await res.json();
-            const ayahs = [];
-            for (const surah of data.data.surahs) {
-              for (const ayah of surah.ayahs) {
-                ayahs.push({
-                  surah: surah.number,
-                  surahName: surah.name,
-                  ayah: ayah.numberInSurah,
-                  text: ayah.text,
-                  normalized: normalizeExactText(ayah.text)
-                });
-              }
-            }
-            state.fullQuranText = ayahs;
+      try {
+        const tx = db.transaction('fullText', 'readonly');
+        const store = tx.objectStore('fullText');
+        const getReq = store.get('fullQuran');
+        getReq.onsuccess = async () => {
+          if (getReq.result && getReq.result.data) {
+            state.fullQuranText = getReq.result.data;
             state.fullQuranLoaded = true;
-            const tx2 = db.transaction('fullText', 'readwrite');
-            tx2.objectStore('fullText').put({ id: 'fullQuran', data: ayahs });
-            showToast('✅ قاعدة القرآن جاهزة', 'success');
+            console.log('✅ تم تحميل القرآن من IndexedDB');
             resolve();
-          } catch(err) { console.error(err); resolve(); }
-        }
-      };
+          } else {
+            showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
+            try {
+              const res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
+              const data = await res.json();
+              if (!data?.data?.surahs) throw new Error('بيانات غير صالحة');
+              const ayahs = [];
+              for (const surah of data.data.surahs) {
+                for (const ayah of surah.ayahs) {
+                  ayahs.push({
+                    surah: surah.number,
+                    surahName: surah.name,
+                    ayah: ayah.numberInSurah,
+                    text: ayah.text,
+                    normalized: normalizeExactText(ayah.text)
+                  });
+                }
+              }
+              state.fullQuranText = ayahs;
+              state.fullQuranLoaded = true;
+              try {
+                const tx2 = db.transaction('fullText', 'readwrite');
+                tx2.objectStore('fullText').put({ id: 'fullQuran', data: ayahs });
+              } catch(_) {}
+              showToast('✅ قاعدة القرآن جاهزة', 'success');
+              resolve();
+            } catch(err) { console.error(err); resolve(); }
+          }
+        };
+        getReq.onerror = () => resolve();
+      } catch(err) { resolve(); }
     };
     request.onerror = () => resolve();
   });
@@ -712,7 +907,7 @@ async function loadRootsData() {
   try {
     const res = await fetch(CONFIG.ROOTS_FILE);
     const data = await res.json();
-    const rootsMap = {};
+    let rootsMap = {};
     if (Array.isArray(data)) {
       for (const item of data) {
         const rootName = item.name;
@@ -740,7 +935,7 @@ async function loadRootsData() {
         }
         if (positions.length) rootsMap[rootName] = positions;
       }
-    } else {
+    } else if (data && typeof data === 'object') {
       rootsMap = data;
     }
     state.rootsData = rootsMap;
@@ -769,25 +964,39 @@ function performRootSearch(query) {
   renderSearchResults(results, query);
 }
 
+let lastSearchCloseHandler = null;
+
 function renderSearchResults(matches, query) {
   if (!dom.searchResults) return;
+
+  if (lastSearchCloseHandler) {
+    document.removeEventListener('click', lastSearchCloseHandler);
+    lastSearchCloseHandler = null;
+  }
+
+  dom.
   dom.searchResults.innerHTML = '';
   if (!matches.length) {
-    dom.searchResults.innerHTML = `<div class="search-empty">❌ لا توجد نتائج لـ "${escapeHtml(query)}"</div>`;
+    dom.searchResults.innerHTML = `<div class="search-empty">❌ لا توجد نتائج لـ ""</div>`;
     dom.searchResults.style.display = 'block';
     return;
   }
-  let html = `<div class="search-results-header"><span>✅ عدد النتائج: ${matches.length}</span><button class="search-results-close" id="closeSearchResultsBtn">✖</button></div>`;
+  let html = `<div class="search-results-header">
+    <span>✅ عدد النتائج: </span>
+    <button class="search-results-close" id="closeSearchResultsBtn" aria-label="إغلاق">✖</button>
+  </div>`;
   for (const m of matches) {
-    const highlighted = escapeHtml(m.text).replace(new RegExp(escapeRegExp(query), 'gi'), '<mark class="search-highlight">$&</mark>');
-    html += `<div class="search-result-item" data-surah="${m.surah}" data-ayah="${m.ayah}">
-      <div class="search-result-title">${escapeHtml(m.surahName)} — آية ${m.ayah}</div>
-      <div class="search-result-text">${highlighted}</div>
+    const safeText = escapeHtml(m.text);
+    const safeQuery = escapeRegExp(query);
+    const highlighted = safeText.replace(new RegExp(safeQuery, 'gi'), '<mark class="search-highlight">$&</mark>');
+    html += `<div class="search-result-item">
+      <div class="search-result-title"> — آية </div>
+      <div class="search-result-text"></div>
       <div class="search-result-actions">
-        <button class="search-play" data-surah="${m.surah}" data-ayah="${m.ayah}">▶️ تشغيل</button>
-        <button class="search-copy" data-surah="${m.surah}" data-ayah="${m.ayah}">📋 نسخ</button>
-        <button class="search-share" data-surah="${m.surah}" data-ayah="${m.ayah}">📤 مشاركة</button>
-        <button class="search-goto" data-surah="${m.surah}" data-ayah="${m.ayah}">📍 الذهاب</button>
+        <button class="search-play" data-surah="" data-ayah="">▶️ تشغيل</button>
+        <button class="search-copy" data-surah="" data-ayah="">📋 نسخ</button>
+        <button class="search-share" data-surah="" data-ayah="">📤 مشاركة</button>
+        <button class="search-goto" data-surah="" data-ayah="">📍 الذهاب</button>
       </div>
     </div>`;
   }
@@ -826,20 +1035,20 @@ function renderSearchResults(matches, query) {
       e.stopPropagation();
       const s = parseInt(btn.dataset.surah, 10);
       const a = parseInt(btn.dataset.ayah, 10);
-      dom.surahSelect.value = s;
+      if (dom.surahSelect) dom.surahSelect.value = s;
       loadSurah(s, { startAyah: a });
       dom.searchResults.style.display = 'none';
     });
   });
 
-  // إغلاق النقر خارج النتائج
-  const closeHandler = (e) => {
+  lastSearchCloseHandler = (e) => {
     if (!dom.searchResults.contains(e.target) && e.target !== dom.searchBtn && e.target !== dom.searchInput) {
       dom.searchResults.style.display = 'none';
-      document.removeEventListener('click', closeHandler);
+      document.removeEventListener('click', lastSearchCloseHandler);
+      lastSearchCloseHandler = null;
     }
   };
-  setTimeout(() => document.addEventListener('click', closeHandler), 100);
+  setTimeout(() => document.addEventListener('click', lastSearchCloseHandler), 100);
 }
 
 function playSpecificAyah(surah, ayah) {
@@ -863,9 +1072,9 @@ async function copySpecificAyah(surah, ayah) {
   }
   if (!text) {
     try {
-      const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
+      const res = await fetch(`/ayah/:/quran-uthmani`);
       const data = await res.json();
-      text = data.data?.text || '';
+      text = data?.data?.text || '';
     } catch(e) {}
   }
   if (text) {
@@ -877,8 +1086,8 @@ async function copySpecificAyah(surah, ayah) {
 }
 
 async function shareSpecificAyah(surah, ayah) {
-  const surahObj = state.surahList.find(s => s.number == surah);
-  const surahName = surahObj ? surahObj.name : `سورة ${surah}`;
+  const surahObj = state.surahList.find(s => s.number === Number(surah));
+  const surahName = surahObj ? surahObj.name : `سورة `;
   let text = '';
   if (state.fullQuranLoaded) {
     const ayahObj = state.fullQuranText.find(a => a.surah === surah && a.ayah === ayah);
@@ -886,12 +1095,13 @@ async function shareSpecificAyah(surah, ayah) {
   }
   if (!text) {
     try {
-      const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
+      const res = await fetch(`/ayah/:/quran-uthmani`);
       const data = await res.json();
-      text = data.data?.text || '';
+      text = data?.data?.text || '';
     } catch(e) {}
   }
-  const shareMsg = `﴿${text}﴾\n— سورة ${surahName} — آية ${ayah}`;
+  const shareMsg = `﴿﴾
+— سورة  — آية `;
   if (navigator.share) {
     navigator.share({ title: 'القرآن الكريم', text: shareMsg }).catch(() => {});
   } else {
@@ -914,7 +1124,7 @@ function fallbackCopy(text) {
   ta.style.opacity = '0';
   document.body.appendChild(ta);
   ta.select();
-  document.execCommand('copy');
+  try { document.execCommand('copy'); } catch(_) {}
   document.body.removeChild(ta);
 }
 
@@ -930,7 +1140,7 @@ function saveFavorites() {
 function toggleFavorite() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
-  const key = `${state.currentSurah}:${a.numberInSurah}`;
+  const key = `:`;
   const idx = state.favorites.findIndex(f => f.key === key);
   if (idx !== -1) {
     state.favorites.splice(idx, 1);
@@ -947,17 +1157,19 @@ function toggleFavorite() {
 function renderFavorites() {
   if (!dom.favoritesList) return;
   if (!state.favorites.length) {
-    dom.favoritesList.innerHTML = '<div class="favorites-empty">لا توجد آيات مفضلة بعد</div>';
+    dom.favoritesList.innerHTML = '<p class="favorites-empty">لا توجد آيات مفضلة بعد</p>';
     return;
   }
   let html = '';
   for (const f of state.favorites.slice().reverse()) {
-    html += `<div class="favorite-item" data-key="${escapeHtml(f.key)}">
-      <div class="favorite-meta"><strong>${escapeHtml(f.surahName)}</strong> — آية ${f.ayah}</div>
-      <div class="favorite-text">﴿${escapeHtml(f.text)}﴾</div>
+    const safeText = escapeHtml(f.text);
+    const safeName = escapeHtml(f.surahName);
+    html += `<div class="favorite-item">
+      <div class="favorite-meta"><strong></strong> — آية </div>
+      <div class="favorite-text">﴿﴾</div>
       <div class="favorite-actions">
-        <button class="fav-go" data-surah="${f.surah}" data-ayah="${f.ayah}">انتقال</button>
-        <button class="fav-remove" data-key="${escapeHtml(f.key)}">حذف</button>
+        <button class="favorite-action-btn fav-go" data-surah="" data-ayah="">انتقال</button>
+        <button class="favorite-action-btn favorite-remove-btn fav-remove" data-key="">حذف</button>
       </div>
     </div>`;
   }
@@ -966,7 +1178,7 @@ function renderFavorites() {
     btn.addEventListener('click', () => {
       const s = parseInt(btn.dataset.surah, 10);
       const a = parseInt(btn.dataset.ayah, 10);
-      dom.surahSelect.value = s;
+      if (dom.surahSelect) dom.surahSelect.value = s;
       loadSurah(s, { startAyah: a });
       closeFavorites();
     });
@@ -994,7 +1206,7 @@ function setBookmark() {
 function gotoBookmark() {
   const bm = state.bookmark || storage.get('bookmark');
   if (!bm) { showToast('لا توجد علامة محفوظة', 'error'); return; }
-  dom.surahSelect.value = bm.surah;
+  if (dom.surahSelect) dom.surahSelect.value = bm.surah;
   loadSurah(bm.surah, { startAyah: bm.ayah });
 }
 
@@ -1004,7 +1216,8 @@ function gotoBookmark() {
 function buildShareText() {
   if (!state.surahData) return '';
   const a = state.surahData.ayahs[state.currentAyahIndex];
-  return `﴿${a.text}﴾\n— سورة ${state.surahData.name} — آية ${a.numberInSurah}`;
+  return `﴿﴾
+— سورة  — آية `;
 }
 function toggleShareMenu() { dom.shareMenu?.classList.toggle('show'); }
 function shareNative() {
@@ -1017,11 +1230,11 @@ function shareNative() {
   }
 }
 function shareCopy() { copyToClipboard(buildShareText()); showToast('📋 تم نسخ الآية', 'success'); }
-function shareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(buildShareText())}`, '_blank'); }
-function shareTelegram() { window.open(`https://t.me/share/url?url=&text=${encodeURIComponent(buildShareText())}`, '_blank'); }
+function shareWhatsApp() { window.open(`https://wa.me/?text=`, '_blank'); }
+function shareTelegram() { window.open(`https://t.me/share/url?url=&text=`, '_blank'); }
 
 /* ============================================================
-   16) حجم الخط والقائمة المنسدلة
+   16) حجم الخط
 ============================================================ */
 function applyFontSize(size) {
   state.fontSize = size;
@@ -1071,7 +1284,7 @@ function saveLocationSettings() {
 }
 function resetSettings() {
   if (!confirm('هل تريد إعادة ضبط جميع الإعدادات؟')) return;
-  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed'];
+  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed'];
   keys.forEach(k => storage.remove(k));
   location.reload();
 }
@@ -1087,7 +1300,7 @@ function restoreSettings() {
   const as = storage.get('auto_save'); if (as === false) state.autoSave = false;
   const rec = storage.get('reciter'); if (rec) state.currentReciter = rec;
   const taf = storage.get('tafsir_edition'); if (taf) state.currentTafsirEdition = taf;
-  const bar = storage.get('bar_collapsed'); if (bar === true) togglePrayerBar();
+  const bar = storage.get('bar_collapsed'); if (bar === true) state.barCollapsed = true;
 
   if (dom.cityInput) dom.cityInput.value = state.city;
   if (dom.countryInput) dom.countryInput.value = state.country;
@@ -1098,12 +1311,18 @@ function restoreSettings() {
   if (dom.reciterSelect) dom.reciterSelect.value = state.currentReciter;
   if (dom.tafsirSelect) dom.tafsirSelect.value = state.currentTafsirEdition;
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = state.fontSize;
+  if (dom.fontSizeDropdown) dom.fontSizeDropdown.value = state.fontSize;
+  if (state.barCollapsed && dom.prayerBar) {
+    dom.prayerBar.classList.add('collapsed');
+    dom.prayerBar.classList.remove('expanded');
+  }
 }
 
 /* ============================================================
    18) شريط علوي قابل للطي
 ============================================================ */
 function togglePrayerBar() {
+  if (!dom.prayerBar) return;
   state.barCollapsed = !state.barCollapsed;
   if (state.barCollapsed) {
     dom.prayerBar.classList.add('collapsed');
@@ -1140,8 +1359,8 @@ async function initApp() {
   loadFullQuranText().catch(console.warn);
   loadRootsData().catch(console.warn);
 
-  // ربط أحداث الصوت (هام)
   bindAudioEvents();
+  initPreloadAudio(); // ✨ تهيئة عنصر التحميل المسبق
 
   dom.surahSelect?.addEventListener('change', () => { if (dom.surahSelect.value) loadSurah(parseInt(dom.surahSelect.value, 10)); });
   dom.reciterSelect?.addEventListener('change', () => {
@@ -1166,16 +1385,16 @@ async function initApp() {
   dom.testAzanBtn?.addEventListener('click', testAzan);
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
   dom.collapsePlayerBtn?.addEventListener('click', () => {
-    dom.player.classList.toggle('collapsed');
-    storage.set('player_collapsed', dom.player.classList.contains('collapsed'));
+    dom.player?.classList.toggle('collapsed');
+    storage.set('player_collapsed', dom.player?.classList.contains('collapsed'));
   });
-  dom.collapsedExpandBtn?.addEventListener('click', () => dom.player.classList.remove('collapsed'));
+  dom.collapsedExpandBtn?.addEventListener('click', () => dom.player?.classList.remove('collapsed'));
   dom.collapsedPlayBtn?.addEventListener('click', togglePlayPause);
   dom.tafsirCurtainHandle?.addEventListener('click', toggleTafsir);
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect.value;
     storage.set('tafsir_edition', state.currentTafsirEdition);
-    if (dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
+    if (dom.tafsirCurtain?.classList.contains('open')) loadTafsirForCurrentAyah();
   });
   dom.fontSizeSelect?.addEventListener('change', onFontSizeChange);
   dom.fontSizeDropdown?.addEventListener('change', onFontSizeChange);
@@ -1204,10 +1423,10 @@ async function initApp() {
   dom.collapseBarBtn?.addEventListener('click', togglePrayerBar);
   dom.expandBarBtn?.addEventListener('click', togglePrayerBar);
 
-  document.querySelectorAll('[data-share="native"]')?.forEach(btn => btn.addEventListener('click', () => { shareNative(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="copy"]')?.forEach(btn => btn.addEventListener('click', () => { shareCopy(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="whatsapp"]')?.forEach(btn => btn.addEventListener('click', () => { shareWhatsApp(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="telegram"]')?.forEach(btn => btn.addEventListener('click', () => { shareTelegram(); toggleShareMenu(); }));
+  document.querySelectorAll('[data-share="native"]').forEach(btn => btn.addEventListener('click', () => { shareNative(); toggleShareMenu(); }));
+  document.querySelectorAll('[data-share="copy"]').forEach(btn => btn.addEventListener('click', () => { shareCopy(); toggleShareMenu(); }));
+  document.querySelectorAll('[data-share="whatsapp"]').forEach(btn => btn.addEventListener('click', () => { shareWhatsApp(); toggleShareMenu(); }));
+  document.querySelectorAll('[data-share="telegram"]').forEach(btn => btn.addEventListener('click', () => { shareTelegram(); toggleShareMenu(); }));
 
   dom.searchBtn?.addEventListener('click', () => {
     const q = dom.searchInput?.value.trim();
@@ -1216,35 +1435,49 @@ async function initApp() {
     else performExactSearch(q);
   });
   dom.clearSearchBtn?.addEventListener('click', () => {
-    dom.searchResults.style.display = 'none';
-    dom.searchInput.value = '';
+    if (dom.searchResults) dom.searchResults.style.display = 'none';
+    if (dom.searchInput) dom.searchInput.value = '';
   });
   dom.searchType?.addEventListener('change', () => { state.searchType = dom.searchType.value; });
-  dom.searchInput?.addEventListener('keypress', e => { if (e.key === 'Enter') dom.searchBtn.click(); });
+  dom.searchInput?.addEventListener('keypress', e => { if (e.key === 'Enter') dom.searchBtn?.click(); });
 
   document.addEventListener('click', (e) => {
     if (!dom.shareMenu?.contains(e.target) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');
   });
+
+  // اختصارات لوحة المفاتيح (مطابقة لـ README)
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
     if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
-    else if (e.key === 'ArrowRight') prevAyah();
-    else if (e.key === 'ArrowLeft') nextAyah();
-    else if (e.key === 'ArrowUp') { e.preventDefault(); prevSurah(); }
-    else if (e.key === 'ArrowDown') { e.preventDefault(); nextSurah(); }
+    else if (e.key === 'ArrowLeft') prevAyah();
+    else if (e.key === 'ArrowRight') nextAyah();
+    else if (e.key === 's' || e.key === 'S') prevSurah();
+    else if (e.key === 'd' || e.key === 'D') nextSurah();
     else if (e.key === 'h' || e.key === 'H') toggleHifdh();
     else if (e.key === 'r' || e.key === 'R') toggleRepeat();
     else if (e.key === 'b' || e.key === 'B') setBookmark();
     else if (e.key === 'f' || e.key === 'F') toggleFavorite();
     else if (e.key === 't' || e.key === 'T') toggleTafsir();
     else if (e.key === 'n' || e.key === 'N') toggleNightMode();
-    else if (e.key === '+' || e.key === '=') { const newSize = Math.min(45, state.fontSize + 2); applyFontSize(newSize); }
-    else if (e.key === '-') { const newSize = Math.max(16, state.fontSize - 2); applyFontSize(newSize); }
-    else if (e.key === 'Escape') { closeSettings(); closeFavorites(); if (dom.searchResults) dom.searchResults.style.display = 'none'; if (dom.shareMenu) dom.shareMenu.classList.remove('show'); }
+    else if (e.key === '+' || e.key === '=') { applyFontSize(Math.min(45, state.fontSize + 2)); }
+    else if (e.key === '-') { applyFontSize(Math.max(16, state.fontSize - 2)); }
+    else if (e.key === 'Escape') {
+      closeSettings(); closeFavorites();
+      if (dom.searchResults) dom.searchResults.style.display = 'none';
+      if (dom.shareMenu) dom.shareMenu.classList.remove('show');
+      closeTafsir();
+    }
   });
 
   const savedPlayerCollapsed = storage.get('player_collapsed');
-  if (savedPlayerCollapsed) dom.player.classList.add('collapsed');
+  if (savedPlayerCollapsed && dom.player) dom.player.classList.add('collapsed');
+
+  // تسجيل Service Worker للعمل أوفلاين
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(err => console.warn('SW registration failed:', err));
+    });
+  }
 }
 
 initApp();
