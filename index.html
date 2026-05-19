@@ -1,340 +1,115 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<meta name="description" content="تطبيق القرآن الكريم لعائلة السليماني - تلاوة، تفسير، بحث جذري متقدم، مواقيت صلاة، وأذان."/>
-<meta name="theme-color" content="#8b6f5a"/>
-<meta property="og:title" content="القرآن الكريم - عائلة السليماني"/>
-<meta property="og:description" content="تطبيق متكامل للقرآن الكريم مع تلاوة وتفسير وبحث ومواقيت الصلاة"/>
-<meta property="og:type" content="website"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="تطبيق القرآن الكريم لعائلة السليماني - تلاوة، تفسير، بحث جذري، مواقيت صلاة، وأذان.">
+<meta name="theme-color" content="#8b6f5a">
 <title>القرآن الكريم - عائلة السليماني</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-<!-- رابط التخطي للوصول السريع -->
 <a href="#main-content" class="skip-link">تخطي إلى المحتوى الرئيسي</a>
 
-<!-- ============================================
-     مقبض ستارة التفسير
-============================================ -->
-<button id="tafsirCurtainHandle" class="tafsir-curtain-handle" aria-label="فتح/إغلاق التفسير" aria-expanded="false">
-  <span class="handle-icon">📖</span>
-  <span>التفسير</span>
-</button>
+<!-- ========== شريط الصلاة القابل للطي ========== -->
+<div class="prayer-bar expanded" id="prayerBar">
+  <div class="collapsed-preview">
+    <span class="clock-only" id="collapsedClock"></span>
+    <button class="collapse-bar-btn" id="expandBarBtn" aria-label="توسيع الشريط">▼</button>
+  </div>
+  <div class="prayer-bar-inner">
+    <div class="prayer-bar-items">
+      <div class="prayer-bar-item">📍 <span id="cityName">مكة المكرمة</span></div>
+      <div class="prayer-bar-item">🕌 <span id="nextPrayerName">--</span> <span id="nextPrayerTime">--:--</span></div>
+      <div class="prayer-bar-item">⏳ <span id="countdownDisplay">--:--:--</span></div>
+      <div class="prayer-bar-item">📅 <span id="hijriDateDisplay">--</span></div>
+      <div class="prayer-bar-item">📆 <span id="weekdayDisplay">--</span></div>
+      <div class="prayer-bar-item">📅 <span id="gregorianDateDisplay">--</span></div>
+    </div>
+    <div class="prayer-bar-actions">
+      <button class="collapse-bar-btn" id="collapseBarBtn" aria-label="طي الشريط">▲</button>
+      <button class="settings-toggle-btn" id="settingsToggleBtn">⚙️ الإعدادات</button>
+    </div>
+  </div>
+</div>
 
-<!-- ============================================
-     لوحة التفسير (الستارة)
-============================================ -->
-<aside id="tafsirCurtain" class="tafsir-curtain" role="complementary" aria-label="لوحة التفسير">
+<!-- ========== لوحة الإعدادات ========== -->
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-header"><h2>⚙️ الإعدادات</h2><button class="settings-close" id="settingsCloseBtn">✖</button></div>
+  <div class="big-clock"><div class="big-clock-time" id="bigClockTime">--:--:--</div><div class="big-clock-date" id="bigClockDate">---</div><div class="big-clock-hijri" id="bigClockHijri">---</div></div>
+  <div class="prayer-times-list"><div class="prayer-times-title">🕌 مواقيت الصلاة</div><div id="prayerTimesRows"></div><div class="countdown-box"><div class="countdown-label">الصلاة القادمة بعد</div><div class="countdown-value" id="prayerCountdown">--:--:--</div></div></div>
+  <div class="settings-section"><div class="settings-section-title">📍 الموقع وطريقة الحساب</div>
+    <div class="settings-row"><label for="cityInput">المدينة</label><input type="text" id="cityInput" placeholder="مثال: مكة"></div>
+    <div class="settings-row"><label for="countryInput">الدولة</label><input type="text" id="countryInput" placeholder="مثال: SA"></div>
+    <div class="settings-row"><label for="methodSelect">طريقة الحساب</label><select id="methodSelect"><option value="4">أم القرى — مكة</option><option value="3">رابطة العالم الإسلامي</option></select></div>
+    <div class="settings-row"><label for="cityQuickSelect">مدن شائعة</label><select id="cityQuickSelect"><option value="">— اختر مدينة —</option><option value="مكة|SA">مكة المكرمة</option><option value="المدينة|SA">المدينة المنورة</option><option value="الرياض|SA">الرياض</option><option value="جدة|SA">جدة</option><option value="القاهرة|EG">القاهرة</option><option value="دمشق|SY">دمشق</option><option value="بغداد|IQ">بغداد</option><option value="دبي|AE">دبي</option></select></div>
+    <button id="saveLocationBtn" class="btn btn-gold">💾 حفظ الموقع وتحديث المواقيت</button>
+  </div>
+  <div class="settings-section"><div class="settings-section-title">🔊 الأذان</div>
+    <div class="settings-row"><label>تفعيل الأذان عند دخول الوقت</label><div class="toggle-switch on" id="azanToggle" role="switch" aria-checked="true"></div></div>
+    <div class="settings-row"><label>تفعيل أذان الفجر</label><div class="toggle-switch on" id="azanFajrToggle" role="switch" aria-checked="true"></div></div>
+    <div class="settings-row"><button id="testAzanBtn" class="btn">▶️ اختبار الأذان</button></div>
+  </div>
+  <div class="settings-section"><div class="settings-section-title">🎨 العرض والقراءة</div>
+    <div class="settings-row"><label>حجم الخط</label><select id="fontSizeSelect"><option value="20">صغير (20)</option><option value="24">متوسط (24)</option><option value="28" selected>كبير (28)</option><option value="32">كبير جداً (32)</option><option value="36">ضخم (36)</option></select></div>
+    <div class="settings-row"><label>حفظ تلقائي للتقدم</label><div class="toggle-switch on" id="autoSaveToggle" role="switch" aria-checked="true"></div></div>
+    <button id="resetSettingsBtn" class="btn" style="background:#dc2626;">🗑️ إعادة ضبط الإعدادات</button>
+  </div>
+</div>
+
+<!-- ========== ستارة التفسير ========== -->
+<button id="tafsirCurtainHandle" class="tafsir-curtain-handle" aria-label="فتح/إغلاق التفسير"><span class="handle-icon">📖</span><span>التفسير</span></button>
+<aside id="tafsirCurtain" class="tafsir-curtain">
   <div class="tafsir-curtain-header" id="tafsirCurtainHeader">📖 التفسير</div>
-  <div class="tafsir-curtain-controls">
-    <select id="tafsirSelect" aria-label="اختيار التفسير">
-      <option value="ar-tafsir-muyassar">التفسير الميسّر</option>
-      <option value="ar-tafsir-ibn-katheer">تفسير ابن كثير</option>
-      <option value="ar-tafsir-al-tabari">تفسير الطبري</option>
-      <option value="ar-tafsir-al-saddi">تفسير السعدي</option>
-      <option value="ar-tafsir-al-baghawi">تفسير البغوي</option>
-      <option value="ar-tafsir-al-qurtubi">تفسير القرطبي</option>
-    </select>
-  </div>
-  <div id="tafsirCurtainBody" class="tafsir-curtain-body">
-    <div class="tafsir-no-ayah">
-      اضغط على آية في النص لعرض تفسيرها هنا.
-    </div>
-  </div>
+  <div class="tafsir-curtain-controls"><select id="tafsirSelect"><option value="ar-tafsir-muyassar">التفسير الميسّر</option><option value="ar-tafsir-ibn-katheer">تفسير ابن كثير</option><option value="ar-tafsir-al-tabari">تفسير الطبري</option><option value="ar-tafsir-al-saddi">تفسير السعدي</option></select></div>
+  <div id="tafsirCurtainBody" class="tafsir-curtain-body"><div class="tafsir-no-ayah">اضغط على آية لعرض تفسيرها</div></div>
 </aside>
 
-<!-- ============================================
-     شريط الصلاة العلوي
-============================================ -->
-<div class="prayer-bar" role="banner" aria-label="شريط مواقيت الصلاة">
-  <div class="prayer-bar-item prayer-bar-clock">
-    🕐 <span id="prayerBarClock">--:--:--</span>
-  </div>
-  <div class="prayer-bar-item prayer-bar-next">
-    🕌 <span id="prayerBarNext">— —</span>
-  </div>
-  <div class="prayer-bar-item prayer-bar-city" id="prayerBarCity" tabindex="0" role="button" aria-label="تغيير المدينة">
-    📍 <span id="prayerBarCityName">— —</span>
-  </div>
-  <button id="settingsToggleBtn" class="settings-toggle-btn" aria-label="فتح الإعدادات">⚙️ الإعدادات</button>
-</div>
-
-<!-- ============================================
-     الحاوية الرئيسية
-============================================ -->
+<!-- ========== الحاوية الرئيسية ========== -->
 <div class="container" id="main-content">
-
-  <!-- الترويسة -->
-  <header class="header">
-    <button id="themeToggle" class="theme-toggle" aria-label="تبديل الوضع الليلي">🌙</button>
-    <h1>📖 القرآن الكريم</h1>
-    <p>تطبيق تفاعلي مع التلاوة والتفسير والبحث الجذري — برمجة عائلة السليماني</p>
-  </header>
-
-  <!-- شريط الأدوات -->
+  <header class="header"><button id="themeToggle" class="theme-toggle">🌙</button><h1>📖 القرآن الكريم - عائلة السليماني</h1><p>تلاوة، تظليل، بحث كامل، وتفسير</p></header>
   <div class="controls">
-    <div class="right-group">
-      <div class="control-group">
-        <label for="surahSelect">السورة</label>
-        <select id="surahSelect" aria-label="اختر السورة"></select>
-      </div>
-      <div class="control-group">
-        <label for="reciterSelect">القارئ</label>
-        <select id="reciterSelect" aria-label="اختر القارئ">
-          <option value="ar.alafasy">مشاري العفاسي</option>
-          <option value="ar.abdulbasitmurattal">عبد الباسط (مرتل)</option>
-          <option value="ar.abdurrahmaansudais">عبد الرحمن السديس</option>
-          <option value="ar.husary">محمود الحصري</option>
-          <option value="ar.minshawi">محمد المنشاوي</option>
-          <option value="ar.muhammadayyoub">محمد أيوب</option>
-          <option value="ar.aliasshudaisy">علي الحذيفي</option>
-          <option value="ar.shaatree">أبو بكر الشاطري</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="search-group">
-      <div class="control-group">
-        <label for="searchType">نوع البحث</label>
-        <select id="searchType" aria-label="اختر نوع البحث">
-          <option value="exact">بحث دقيق (نصّي)</option>
-          <option value="root">بحث جذري</option>
-        </select>
-      </div>
-      <div class="control-group">
-        <label for="searchInput">ابحث في القرآن</label>
-        <input type="text" id="searchInput" placeholder="اكتب كلمة أو جذر..." aria-label="حقل البحث"/>
-      </div>
-      <button id="searchBtn" class="btn btn-gold" aria-label="بحث">🔍 بحث</button>
-      <button id="clearSearchBtn" class="btn" aria-label="مسح البحث" style="display:none;">✖️ مسح</button>
-    </div>
+    <div class="right-group"><div class="control-group"><label for="surahSelect">اختر السورة</label><select id="surahSelect"></select></div><div class="control-group"><label for="reciterSelect">اختر القارئ</label><select id="reciterSelect"><option value="ar.alafasy">مشاري العفاسي</option><option value="ar.abdulbasitmurattal">عبد الباسط</option><option value="ar.abdurrahmaansudais">عبد الرحمن السديس</option><option value="ar.husary">محمود الحصري</option><option value="ar.minshawi">محمد المنشاوي</option></select></div></div>
+    <div class="search-group"><div class="control-group"><label for="searchType">نوع البحث</label><select id="searchType"><option value="exact">بحث دقيق (نصّي)</option><option value="root">بحث جذري</option></select></div><div class="control-group"><label for="searchInput">ابحث في القرآن</label><input type="text" id="searchInput" placeholder="اكتب كلمة..."></div><button id="searchBtn" class="btn btn-gold">🔍 بحث</button><button id="clearSearchBtn" class="btn" style="display:none;">✖️ مسح</button></div>
   </div>
-
-  <!-- نتائج البحث -->
-  <section id="searchResults" class="search-results" aria-live="polite" aria-label="نتائج البحث"></section>
-
-  <!-- محتوى السورة -->
-  <main id="surahContent" class="surah-content" aria-live="polite">
-    <div style="text-align:center; padding:40px; color:#6b6b6b;">
-      جاري تحميل السورة...
-    </div>
-  </main>
-
-  <!-- التذييل -->
-  <footer class="footer">
-    🤲 اللهم اجعل هذا العمل في ميزان أعمال عائلة السليماني — برمجة بحبّ ❤️
-  </footer>
+  <div id="searchResults" class="search-results" style="display:none;"></div>
+  <div id="surahContent" class="surah-content"><div class="loading" style="text-align:center; padding:40px;">📿 اختر سورة من القائمة لعرض النص والاستماع</div></div>
+  <footer class="footer">🤲 اللهم اجعل هذا العمل في ميزان أعمال عائلة السليماني — برمجة بحبّ ❤️</footer>
 </div>
 
-<!-- ============================================
-     لوحة الإعدادات
-============================================ -->
-<aside id="settingsPanel" class="settings-panel" role="dialog" aria-label="لوحة الإعدادات">
-  <div class="settings-header">
-    <h2>⚙️ الإعدادات</h2>
-    <button id="settingsClose" class="settings-close" aria-label="إغلاق">×</button>
-  </div>
+<!-- ========== لوحة المفضلة ========== -->
+<aside id="favoritesPanel" class="favorites-panel"><div class="favorites-header"><h2>⭐ المفضلة</h2><button class="favorites-close" id="favoritesCloseBtn">✖</button></div><div id="favoritesList"><div class="favorites-empty">لا توجد آيات مفضلة بعد</div></div></aside>
 
-  <div class="big-clock">
-    <div class="big-clock-time" id="bigClockTime">--:--:--</div>
-    <div class="big-clock-date" id="bigClockDate">—</div>
-    <div class="big-clock-hijri" id="bigClockHijri">—</div>
-  </div>
-
-  <div class="prayer-times-list">
-    <div class="prayer-times-title" id="prayerTimesTitle">🕌 مواقيت الصلاة — —</div>
-    <div id="prayerTimesRows"></div>
-    <div class="countdown-box">
-      <div class="countdown-label">الصلاة القادمة:</div>
-      <div class="countdown-value" id="prayerCountdown">—</div>
-    </div>
-  </div>
-
-  <div class="settings-section">
-    <div class="settings-section-title">📍 الموقع وطريقة الحساب</div>
-    <div class="settings-row">
-      <label for="cityInput">المدينة</label>
-      <input type="text" id="cityInput" placeholder="مثال: مكة" />
-    </div>
-    <div class="settings-row">
-      <label for="countryInput">الدولة</label>
-      <input type="text" id="countryInput" placeholder="مثال: SA" />
-    </div>
-    <div class="settings-row">
-      <label for="methodSelect">طريقة الحساب</label>
-      <select id="methodSelect">
-        <option value="4">أم القرى — مكة المكرمة</option>
-        <option value="3">رابطة العالم الإسلامي</option>
-      </select>
-    </div>
-    <div class="settings-row">
-      <label for="cityQuickSelect">مدن شائعة</label>
-      <select id="cityQuickSelect">
-        <option value="">— اختر مدينة —</option>
-        <option value="مكة|SA">مكة المكرمة</option>
-        <option value="المدينة|SA">المدينة المنورة</option>
-        <option value="الرياض|SA">الرياض</option>
-        <option value="جدة|SA">جدة</option>
-        <option value="القاهرة|EG">القاهرة</option>
-        <option value="عمان|JO">عمان</option>
-        <option value="بغداد|IQ">بغداد</option>
-        <option value="دمشق|SY">دمشق</option>
-        <option value="بيروت|LB">بيروت</option>
-        <option value="تونس|TN">تونس</option>
-        <option value="الجزائر|DZ">الجزائر</option>
-        <option value="الرباط|MA">الرباط</option>
-        <option value="الخرطوم|SD">الخرطوم</option>
-        <option value="صنعاء|YE">صنعاء</option>
-        <option value="مسقط|OM">مسقط</option>
-        <option value="الدوحة|QA">الدوحة</option>
-        <option value="الكويت|KW">الكويت</option>
-        <option value="المنامة|BH">المنامة</option>
-        <option value="أبوظبي|AE">أبوظبي</option>
-        <option value="دبي|AE">دبي</option>
-        <option value="إسطنبول|TR">إسطنبول</option>
-        <option value="لندن|GB">لندن</option>
-        <option value="باريس|FR">باريس</option>
-        <option value="برلين|DE">برلين</option>
-        <option value="نيويورك|US">نيويورك</option>
-      </select>
-    </div>
-    <div class="settings-row">
-      <button id="saveLocationBtn" class="btn btn-gold">💾 حفظ الموقع وتحديث المواقيت</button>
-    </div>
-  </div>
-
-  <div class="settings-section">
-    <div class="settings-section-title">🔊 الأذان</div>
-    <div class="settings-row">
-      <label>تفعيل الأذان عند دخول الوقت</label>
-      <div class="toggle-switch on" id="azanToggle" role="switch" aria-checked="true" tabindex="0"></div>
-    </div>
-    <div class="settings-row">
-      <label>تفعيل أذان الفجر</label>
-      <div class="toggle-switch on" id="azanFajrToggle" role="switch" aria-checked="true" tabindex="0"></div>
-    </div>
-    <div class="settings-row">
-      <button id="testAzanBtn" class="btn">▶️ اختبار صوت الأذان</button>
-    </div>
-  </div>
-
-  <div class="settings-section">
-    <div class="settings-section-title">🎨 العرض والقراءة</div>
-    <div class="settings-row">
-      <label for="fontSizeSelect">حجم الخط</label>
-      <select id="fontSizeSelect">
-        <option value="22">صغير</option>
-        <option value="26" selected>متوسط</option>
-        <option value="30">كبير</option>
-        <option value="34">كبير جداً</option>
-      </select>
-    </div>
-    <div class="settings-row">
-      <label>حفظ تلقائي للتقدم</label>
-      <div class="toggle-switch on" id="autoSaveToggle" role="switch" aria-checked="true" tabindex="0"></div>
-    </div>
-    <div class="settings-row">
-      <button id="favoritesOpenBtn" class="btn btn-favorite">⭐ فتح المفضلة</button>
-    </div>
-    <div class="settings-row">
-      <button id="resetSettingsBtn" class="btn" style="background:#dc2626;">🗑️ إعادة ضبط الإعدادات</button>
-    </div>
-  </div>
-</aside>
-
-<!-- ============================================
-     لوحة المفضلة
-============================================ -->
-<aside id="favoritesPanel" class="favorites-panel" role="dialog" aria-label="المفضلة">
-  <div class="favorites-header">
-    <h2>⭐ المفضلة</h2>
-    <button id="favoritesClose" class="favorites-close" aria-label="إغلاق">×</button>
-  </div>
-  <div id="favoritesList">
-    <div class="favorites-empty">لا توجد آيات مفضّلة بعد.</div>
-  </div>
-</aside>
-
-<!-- ============================================
-     المشغل السفلي
-============================================ -->
-<div id="player" class="player expanded" role="region" aria-label="مشغل التلاوة">
-  <button id="collapseBtn" class="collapse-btn" aria-label="طيّ المشغل" title="طيّ">▼</button>
-
+<!-- ========== المشغل السفلي ========== -->
+<div id="player" class="player expanded">
+  <button id="collapsePlayerBtn" class="collapse-btn" aria-label="طي المشغل">▼</button>
   <div class="expanded-content">
-    <div class="player-info">
-      <span id="playerSurahName">—</span>
-      <span class="reciter" id="playerReciterName">—</span>
-      <span class="current-ayah" id="playerCurrentAyah"></span>
-    </div>
+    <div class="player-info"><span id="playerSurahName">—</span><span class="reciter" id="playerReciterName">—</span><span class="current-ayah" id="playerCurrentAyah"></span></div>
     <audio id="audioPlayer" controls preload="none"></audio>
     <div class="player-buttons">
-      <button id="prevAyahBtn" class="btn" aria-label="الآية السابقة">⏮️ السابقة</button>
-      <button id="nextAyahBtn" class="btn" aria-label="الآية التالية">التالية ⏭️</button>
-      <button id="prevSurahBtn" class="btn btn-gold" aria-label="السورة السابقة">📖 السابقة</button>
-      <button id="nextSurahBtn" class="btn btn-gold" aria-label="السورة التالية">السورة التالية</button>
-      <button id="hifdhBtn" class="btn btn-hifdh" aria-pressed="false">🕋 وضع الحفظ</button>
-      <button id="repeatBtn" class="btn btn-repeat" aria-pressed="false">🔁 تكرار</button>
-      <button id="bookmarkBtn" class="btn btn-bookmark" aria-label="إضافة علامة">🔖 علامة</button>
-      <button id="favoriteBtn" class="btn btn-favorite" aria-label="إضافة للمفضلة">⭐ مفضلة</button>
-      <button id="shareBtn" class="btn" aria-label="مشاركة">🔗 مشاركة</button>
-      <button id="fontBtn" class="btn btn-font" aria-label="حجم الخط">🔠 الخط</button>
+      <button id="prevAyahBtn" class="btn">⏮️ السابقة</button>
+      <button id="nextAyahBtn" class="btn">التالية ⏭️</button>
+      <button id="prevSurahBtn" class="btn btn-gold">📖 السابقة</button>
+      <button id="nextSurahBtn" class="btn btn-gold">السورة التالية</button>
+      <button id="hifdhBtn" class="btn btn-hifdh">🕋 حفظ</button>
+      <button id="repeatBtn" class="btn btn-repeat">🔁 تكرار</button>
+      <button id="bookmarkBtn" class="btn btn-bookmark">🔖 علامة</button>
+      <button id="favoriteBtn" class="btn btn-favorite">⭐ مفضلة</button>
+      <button id="shareBtn" class="btn">🔗 مشاركة</button>
+      <select id="fontSizeDropdown" class="font-size-select" style="display:inline-block; width:auto;"><option value="20">20</option><option value="24">24</option><option value="28" selected>28</option><option value="32">32</option><option value="36">36</option></select>
     </div>
-
-    <div class="repeat-controls" id="repeatControls" style="display:none;">
-      <label for="repeatFrom">من الآية:</label>
-      <select id="repeatFrom"></select>
-      <label for="repeatTo">إلى الآية:</label>
-      <select id="repeatTo"></select>
-      <label for="repeatTimes">عدد التكرار:</label>
-      <select id="repeatTimes">
-        <option value="2">2</option>
-        <option value="3" selected>3</option>
-        <option value="5">5</option>
-        <option value="7">7</option>
-        <option value="10">10</option>
-        <option value="999">∞</option>
-      </select>
-    </div>
-
-    <div class="keyboard-hint">
-      💡 اختصارات: مسطار = تشغيل/إيقاف · الأسهم = الآيات · S/D = السور · H = حفظ · T = تفسير · R = تكرار
-    </div>
+    <div class="repeat-controls" id="repeatControls" style="display:none;"><label for="repeatFrom">من الآية:</label><select id="repeatFrom"></select><label for="repeatTo">إلى الآية:</label><select id="repeatTo"></select><label for="repeatTimes">عدد التكرار:</label><select id="repeatTimes"><option value="2">2</option><option value="3" selected>3</option><option value="5">5</option><option value="10">10</option></select></div>
+    <div class="keyboard-hint">💡 اختصارات: مسطار = تشغيل/إيقاف · الأسهم = الآيات · S/D = السور · H = حفظ · T = تفسير · R = تكرار</div>
   </div>
-
-  <div class="collapsed-content">
-    <button id="collapsedExpandBtn" class="collapsed-control-btn collapsed-expand-btn" aria-label="توسيع">▲ توسيع</button>
-    <div class="collapsed-info" id="collapsedInfo">— لم يتم اختيار آية —</div>
-    <button id="collapsedPlayBtn" class="collapsed-control-btn" aria-label="تشغيل/إيقاف">▶️</button>
-  </div>
-
-  <div id="shareMenu" class="share-menu" role="menu">
-    <button data-share="copy">📋 نسخ النص</button>
-    <button data-share="whatsapp">💬 واتساب</button>
-    <button data-share="twitter">🐦 تويتر/X</button>
-    <button data-share="telegram">✈️ تيليجرام</button>
-    <button data-share="native">📤 مشاركة عامة</button>
-  </div>
+  <div class="collapsed-content"><button id="collapsedExpandBtn" class="collapsed-control-btn collapsed-expand-btn">▲ توسيع</button><div class="collapsed-info" id="collapsedInfo">— لم يتم اختيار آية —</div><button id="collapsedPlayBtn" class="collapsed-control-btn">▶️</button></div>
 </div>
 
-<!-- مشغل صوت الأذان (مخفي) -->
-<audio id="azanPlayer" preload="none">
-  <source src="azan.mp3" type="audio/mpeg">
-</audio>
+<div id="shareMenu" class="share-menu"><button data-share="copy">📋 نسخ النص</button><button data-share="whatsapp">💬 واتساب</button><button data-share="telegram">✈️ تيليجرام</button><button data-share="native">📤 مشاركة عامة</button></div>
+<audio id="azanPlayer" preload="none"><source src="azan.mp3" type="audio/mpeg"></audio>
+<div id="toast" class="toast"></div>
 
-<!-- إشعار Toast -->
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-<!-- ============================================
-     ربط ملف JavaScript
-============================================ -->
 <script src="app.js"></script>
 </body>
 </html>
