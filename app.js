@@ -999,24 +999,49 @@ function renderFavorites() {
     dom.favoritesList.innerHTML = '<p class="favorites-empty">لا توجد آيات مفضلة بعد</p>';
     return;
   }
-  let html = '';
+
+  const fragment = document.createDocumentFragment();
   for (const f of state.favorites.slice().reverse()) {
-    const safeText = escapeHtml(f.text);
-    const safeName = escapeHtml(f.surahName);
-    html += `<div class="favorite-item">
-      <div class="favorite-meta"><strong></strong> — آية </div>
-      <div class="favorite-text">﴿﴾</div>
-      <div class="favorite-actions">
-        <button class="favorite-action-btn fav-go" data-surah="" data-ayah="">انتقال</button>
-        <button class="favorite-action-btn favorite-remove-btn fav-remove" data-key="">حذف</button>
-      </div>
-    </div>`;
+    const item = document.createElement('div');
+    item.className = 'favorite-item';
+
+    const meta = document.createElement('div');
+    meta.className = 'favorite-meta';
+    meta.innerHTML = `<strong>${escapeHtml(f.surahName || '')}</strong> — آية ${escapeHtml(String(f.ayah || ''))}`;
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'favorite-text';
+    textDiv.textContent = f.text || '';
+
+    const actions = document.createElement('div');
+    actions.className = 'favorite-actions';
+
+    const goBtn = document.createElement('button');
+    goBtn.className = 'favorite-action-btn fav-go';
+    goBtn.dataset.surah = String(f.surah || '');
+    goBtn.dataset.ayah = String(f.ayah || '');
+    goBtn.textContent = 'انتقال';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'favorite-action-btn favorite-remove-btn fav-remove';
+    removeBtn.dataset.key = String(f.key || '');
+    removeBtn.textContent = 'حذف';
+
+    actions.appendChild(goBtn);
+    actions.appendChild(removeBtn);
+    item.appendChild(meta);
+    item.appendChild(textDiv);
+    item.appendChild(actions);
+    fragment.appendChild(item);
   }
-  dom.favoritesList.innerHTML = html;
+
+  dom.favoritesList.replaceChildren(fragment);
+
   document.querySelectorAll('.fav-go').forEach(btn => {
     btn.addEventListener('click', () => {
       const s = parseInt(btn.dataset.surah, 10);
       const a = parseInt(btn.dataset.ayah, 10);
+      if (isNaN(s) || isNaN(a)) return;
       if (dom.surahSelect) dom.surahSelect.value = s;
       loadSurah(s, { startAyah: a });
       closeFavorites();
@@ -1025,6 +1050,7 @@ function renderFavorites() {
   document.querySelectorAll('.fav-remove').forEach(btn => {
     btn.addEventListener('click', () => {
       const key = btn.dataset.key;
+      if (!key) return;
       state.favorites = state.favorites.filter(f => f.key !== key);
       saveFavorites();
       renderFavorites();
@@ -1055,7 +1081,11 @@ function gotoBookmark() {
 function buildShareText() {
   if (!state.surahData) return '';
   const a = state.surahData.ayahs[state.currentAyahIndex];
-  return `﴿﴾\n— سورة  — آية `;
+  if (!a) return '';
+  const surahName = state.surahData.name || '';
+  const ayahNum = a.numberInSurah || '';
+  const text = a.text || '';
+  return `﴿${text}﴾\n— ${surahName} — آية ${ayahNum}`;
 }
 function toggleShareMenu() { dom.shareMenu?.classList.toggle('show'); }
 function shareNative() {
