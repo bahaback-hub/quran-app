@@ -2,8 +2,7 @@
 
 /* ============================================================
    تطبيق القرآن الكريم — عائلة السليماني
-   ملف JavaScript الرئيسي (app.js)
-   النسخة النهائية: تشمل التحميل المسبق وكل الإصلاحات
+   ملف JavaScript الرئيسي (app.js) — النسخة المُصححة والمحسّنة
 ============================================================ */
 
 /* ============================================================
@@ -65,12 +64,7 @@ let state = {
   fullQuranText: null,
   fullQuranLoaded: false,
   barCollapsed: false,
-  azanTestPlaying: false,
-  // ===== خصائص التحميل المسبق =====
-  preloadAudio: null,
-  preloadedIndex: -1,
-  preloadedSurah: -1,
-  isTransitioning: false
+  azanTestPlaying: false
 };
 
 /* ============================================================
@@ -130,7 +124,7 @@ function escapeHtml(str) {
 }
 
 function escapeRegExp(str) {
-  return String(str).replace(/[.*+?^()|[\]\\]/g, '\\$&');
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function pad2(n) { return String(n).padStart(2, '0'); }
@@ -179,7 +173,7 @@ async function loadPrayerTimes() {
   const city = dom.cityInput?.value.trim() || state.city;
   const country = dom.countryInput?.value.trim() || state.country;
   const method = dom.methodSelect?.value || state.method;
-  const url = `${CONFIG.PRAYER_API}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${method}`;
+  const url = `${CONFIG.PRAYER_API}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
   try {
     const res = await fetch(url);
     const data = await res.json();
@@ -226,7 +220,7 @@ function renderPrayerTimes() {
     const time24 = raw.split(' ')[0];
     const isNext = (key === next);
     html += `<div class="prayer-row ${isNext ? 'next-prayer' : ''}">
-      <span class="prayer-name">${PRAYER_NAMES_AR[key]}</span>
+      <span class="prayer-name">${PRAYER_NAMES_AR[key] || key}</span>
       <span class="prayer-time">${formatTime12(time24)}</span>
     </div>`;
   }
@@ -247,7 +241,7 @@ function updateCountdowns() {
   const h = Math.floor(diff / 60);
   const m = diff % 60;
   const s = 60 - now.getSeconds();
-  const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+  const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s % 60)}`;
   if (dom.countdownDisplay) dom.countdownDisplay.textContent = countdownText;
   if (dom.prayerCountdown) dom.prayerCountdown.textContent = `${PRAYER_NAMES_AR[nextKey]} — بعد ${countdownText}`;
   const time24 = (state.prayerTimes[nextKey] || '').split(' ')[0];
@@ -369,14 +363,6 @@ function getAbsNumber(surah, ayah) {
 ============================================================ */
 async function loadSurah(surahNum, opts = {}) {
   if (!surahNum) return;
-
-  // إعادة تعيين التحميل المسبق عند تغيير السورة
-  if (state.preloadAudio) {
-    state.preloadAudio.src = '';
-    state.preloadedIndex = -1;
-    state.preloadedSurah = -1;
-  }
-
   state.currentSurah = surahNum;
   const cacheKey = `${surahNum}_${state.currentReciter}`;
   if (state.surahCache.has(cacheKey)) {
@@ -509,86 +495,7 @@ function saveCurrentPosition() {
 }
 
 /* ============================================================
-   9.5) نظام التحميل المسبق (Smart Preloading)
-============================================================ */
-function initPreloadAudio() {
-  if (state.preloadAudio) return;
-  state.preloadAudio = new Audio();
-  state.preloadAudio.preload = 'auto';
-  state.preloadAudio.crossOrigin = 'anonymous';
-}
-
-function preloadNextAyah() {
-  if (!state.surahData || !state.ayahsAudios?.length) return;
-  initPreloadAudio();
-
-  let nextIdx = state.currentAyahIndex + 1;
-  let nextSurah = state.currentSurah;
-  let nextUrl = null;
-
-  // وضع التكرار: تحميل بداية النطاق إذا كنا في نهايته
-  if (state.repeatMode && state.surahData) {
-    const currentNum = state.surahData.ayahs[state.currentAyahIndex]?.numberInSurah;
-    if (currentNum === state.repeatTo && (state.repeatCounter + 1) < state.repeatTimes) {
-      const startIdx = state.surahData.ayahs.findIndex(a => a.numberInSurah === state.repeatFrom);
-      if (startIdx !== -1) {
-        nextIdx = startIdx;
-        nextUrl = state.ayahsAudios[startIdx];
-      }
-    }
-  }
-
-  // الحالة العادية: الآية التالية في نفس السورة
-  if (!nextUrl && nextIdx < state.ayahsAudios.length) {
-    nextUrl = state.ayahsAudios[nextIdx];
-  }
-
-  if (!nextUrl) {
-    state.preloadedIndex = -1;
-    return;
-  }
-
-  // تجنب إعادة التحميل لو كان نفس الرابط محمَّلاً مسبقاً
-  if (state.preloadedIndex === nextIdx &&
-      state.preloadedSurah === nextSurah &&
-      state.preloadAudio.src === nextUrl) {
-    return;
-  }
-
-  try {
-    state.preloadAudio.src = nextUrl;
-    state.preloadAudio.load();
-    state.preloadedIndex = nextIdx;
-    state.preloadedSurah = nextSurah;
-  } catch(e) {
-    console.warn('Preload failed:', e);
-  }
-}
-
-function isNextAyahReady() {
-  if (!state.preloadAudio || state.preloadedIndex === -1) return false;
-  return state.preloadAudio.readyState >= 3;
-}
-
-function swapToPreloadedAudio() {
-  if (!state.preloadAudio || !dom.audioPlayer) return false;
-  if (!isNextAyahReady()) return false;
-
-  const preloadedSrc = state.preloadAudio.src;
-  dom.audioPlayer.src = preloadedSrc;
-  dom.audioPlayer.currentTime = 0;
-  const playPromise = dom.audioPlayer.play();
-  if (playPromise && typeof playPromise.catch === 'function') {
-    playPromise.catch(e => console.warn('Play after swap failed:', e));
-  }
-
-  state.preloadAudio.src = '';
-  state.preloadedIndex = -1;
-  return true;
-}
-
-/* ============================================================
-   10) تشغيل الصوت (مع التحميل المسبق)
+   10) تشغيل الصوت
 ============================================================ */
 function playCurrentAyah() {
   if (!state.surahData || !state.ayahsAudios?.length) {
@@ -601,29 +508,9 @@ function playCurrentAyah() {
     return;
   }
   if (!dom.audioPlayer) return;
-
-  // إذا كانت الآية الحالية جاهزة في عنصر التحميل المسبق، استخدمها فوراً
-  if (state.preloadedIndex === state.currentAyahIndex &&
-      state.preloadedSurah === state.currentSurah &&
-      isNextAyahReady()) {
-    if (swapToPreloadedAudio()) {
-      state.isPlaying = true;
-      setTimeout(preloadNextAyah, 100);
-      return;
-    }
-  }
-
-  // الحالة الافتراضية: تحميل عادي
   dom.audioPlayer.src = url;
-  dom.audioPlayer.load();
-  const playPromise = dom.audioPlayer.play();
-  if (playPromise && typeof playPromise.catch === 'function') {
-    playPromise.catch(e => console.warn('Play failed:', e));
-  }
+  dom.audioPlayer.play().catch(e => console.warn(e));
   state.isPlaying = true;
-
-  // ابدأ تحميل الآية التالية فور بدء الحالية
-  setTimeout(preloadNextAyah, 200);
 }
 
 function togglePlayPause() {
@@ -647,75 +534,37 @@ function bindAudioEvents() {
   }
 }
 
-function onAudioPlay() {
-  state.isPlaying = true;
-  // تحميل التالية فور بدء التشغيل (احتياط)
-  setTimeout(preloadNextAyah, 300);
-}
+function onAudioPlay() { state.isPlaying = true; }
 function onAudioPause() { state.isPlaying = false; }
 
 function onAudioEnded() {
   if (!state.surahData || !state.ayahsAudios) return;
-  if (state.isTransitioning) return;
-  state.isTransitioning = true;
 
-  try {
-    // وضع التكرار
-    if (state.repeatMode) {
-      const currentNum = state.surahData.ayahs[state.currentAyahIndex].numberInSurah;
-      if (currentNum === state.repeatTo) {
-        state.repeatCounter++;
-        if (state.repeatCounter >= state.repeatTimes) {
-          state.repeatMode = false;
-          state.repeatCounter = 0;
-          dom.repeatBtn?.classList.remove('active');
-          if (dom.repeatControls) dom.repeatControls.style.display = 'none';
-          showToast('✅ انتهى التكرار', 'success');
-          return;
-        }
-        const startIdx = state.surahData.ayahs.findIndex(a => a.numberInSurah === state.repeatFrom);
-        if (startIdx !== -1) {
-          state.currentAyahIndex = startIdx;
-          highlightCurrentAyah();
-          if (state.preloadedIndex === startIdx && isNextAyahReady()) {
-            swapToPreloadedAudio();
-            setTimeout(preloadNextAyah, 100);
-          } else {
-            setTimeout(playCurrentAyah, 100);
-          }
-          return;
-        }
+  if (state.repeatMode) {
+    const currentNum = state.surahData.ayahs[state.currentAyahIndex].numberInSurah;
+    if (currentNum === state.repeatTo) {
+      state.repeatCounter++;
+      if (state.repeatCounter >= state.repeatTimes) {
+        state.repeatMode = false;
+        state.repeatCounter = 0;
+        dom.repeatBtn?.classList.remove('active');
+        if (dom.repeatControls) dom.repeatControls.style.display = 'none';
+        showToast('✅ انتهى التكرار', 'success');
+        return;
       }
-      transitionToNextAyah();
-      return;
+      const startIdx = state.surahData.ayahs.findIndex(a => a.numberInSurah === state.repeatFrom);
+      if (startIdx !== -1) {
+        state.currentAyahIndex = startIdx;
+        highlightCurrentAyah();
+        setTimeout(playCurrentAyah, 300);
+        return;
+      }
     }
-
-    transitionToNextAyah();
-  } finally {
-    setTimeout(() => { state.isTransitioning = false; }, 300);
+    nextAyah(true);
+    return;
   }
-}
 
-function transitionToNextAyah() {
-  if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
-    state.currentAyahIndex++;
-    highlightCurrentAyah();
-
-    // ✨ التشغيل الفوري إن كانت محمَّلة مسبقاً
-    if (state.preloadedIndex === state.currentAyahIndex &&
-        state.preloadedSurah === state.currentSurah &&
-        isNextAyahReady()) {
-      swapToPreloadedAudio();
-      setTimeout(preloadNextAyah, 100);
-    } else {
-      setTimeout(playCurrentAyah, 50);
-    }
-  } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
-    nextSurah();
-  } else {
-    state.isPlaying = false;
-    showToast('✅ انتهت تلاوة المصحف', 'success');
-  }
+  nextAyah(true);
 }
 
 function nextAyah(autoFromRepeat) {
@@ -723,17 +572,7 @@ function nextAyah(autoFromRepeat) {
   if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
     state.currentAyahIndex++;
     highlightCurrentAyah();
-
-    if (autoFromRepeat || state.isPlaying) {
-      if (state.preloadedIndex === state.currentAyahIndex &&
-          state.preloadedSurah === state.currentSurah &&
-          isNextAyahReady()) {
-        swapToPreloadedAudio();
-        setTimeout(preloadNextAyah, 100);
-      } else {
-        setTimeout(playCurrentAyah, 100);
-      }
-    }
+    if (autoFromRepeat || state.isPlaying) setTimeout(playCurrentAyah, 150);
   } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
     nextSurah();
   }
@@ -744,7 +583,7 @@ function prevAyah() {
   if (state.currentAyahIndex > 0) {
     state.currentAyahIndex--;
     highlightCurrentAyah();
-    if (state.isPlaying) setTimeout(playCurrentAyah, 100);
+    if (state.isPlaying) setTimeout(playCurrentAyah, 150);
   } else if (state.currentSurah > 1) {
     prevSurah();
   }
@@ -825,6 +664,7 @@ async function loadTafsirForCurrentAyah() {
   try {
     const res = await fetch(url);
     const data = await res.json();
+    // استخدام textContent بدل innerHTML لمنع XSS
     dom.tafsirCurtainBody.replaceChildren();
     const titleEl = document.createElement('div');
     titleEl.className = 'tafsir-ayah-title';
@@ -840,7 +680,7 @@ async function loadTafsirForCurrentAyah() {
 }
 
 /* ============================================================
-   13) البحث المحلي
+   13) البحث المحلي (دقيق وجذري)
 ============================================================ */
 function normalizeExactText(str) {
   return String(str).replace(/[\u064B-\u065F\u0670]/g, '').replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي');
@@ -969,20 +809,20 @@ let lastSearchCloseHandler = null;
 function renderSearchResults(matches, query) {
   if (!dom.searchResults) return;
 
+  // إزالة المستمع السابق لتجنب التراكم
   if (lastSearchCloseHandler) {
     document.removeEventListener('click', lastSearchCloseHandler);
     lastSearchCloseHandler = null;
   }
 
-  dom.
   dom.searchResults.innerHTML = '';
   if (!matches.length) {
-    dom.searchResults.innerHTML = `<div class="search-empty">❌ لا توجد نتائج لـ ""</div>`;
+    dom.searchResults.innerHTML = `<div class="search-empty">❌ لا توجد نتائج لـ "${escapeHtml(query)}"</div>`;
     dom.searchResults.style.display = 'block';
     return;
   }
   let html = `<div class="search-results-header">
-    <span>✅ عدد النتائج: </span>
+    <span>✅ عدد النتائج: ${matches.length}</span>
     <button class="search-results-close" id="closeSearchResultsBtn" aria-label="إغلاق">✖</button>
   </div>`;
   for (const m of matches) {
@@ -990,13 +830,13 @@ function renderSearchResults(matches, query) {
     const safeQuery = escapeRegExp(query);
     const highlighted = safeText.replace(new RegExp(safeQuery, 'gi'), '<mark class="search-highlight">$&</mark>');
     html += `<div class="search-result-item">
-      <div class="search-result-title"> — آية </div>
-      <div class="search-result-text"></div>
+      <div class="search-result-title">${escapeHtml(m.surahName || '')} — آية ${m.ayah}</div>
+      <div class="search-result-text">${highlighted}</div>
       <div class="search-result-actions">
-        <button class="search-play" data-surah="" data-ayah="">▶️ تشغيل</button>
-        <button class="search-copy" data-surah="" data-ayah="">📋 نسخ</button>
-        <button class="search-share" data-surah="" data-ayah="">📤 مشاركة</button>
-        <button class="search-goto" data-surah="" data-ayah="">📍 الذهاب</button>
+        <button class="search-play" data-surah="${m.surah}" data-ayah="${m.ayah}">▶️ تشغيل</button>
+        <button class="search-copy" data-surah="${m.surah}" data-ayah="${m.ayah}">📋 نسخ</button>
+        <button class="search-share" data-surah="${m.surah}" data-ayah="${m.ayah}">📤 مشاركة</button>
+        <button class="search-goto" data-surah="${m.surah}" data-ayah="${m.ayah}">📍 الذهاب</button>
       </div>
     </div>`;
   }
@@ -1072,7 +912,7 @@ async function copySpecificAyah(surah, ayah) {
   }
   if (!text) {
     try {
-      const res = await fetch(`/ayah/:/quran-uthmani`);
+      const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
       const data = await res.json();
       text = data?.data?.text || '';
     } catch(e) {}
@@ -1100,8 +940,7 @@ async function shareSpecificAyah(surah, ayah) {
       text = data?.data?.text || '';
     } catch(e) {}
   }
-  const shareMsg = `﴿﴾
-— سورة  — آية `;
+  const shareMsg = `﴿﴾\n— سورة  — آية `;
   if (navigator.share) {
     navigator.share({ title: 'القرآن الكريم', text: shareMsg }).catch(() => {});
   } else {
@@ -1216,8 +1055,7 @@ function gotoBookmark() {
 function buildShareText() {
   if (!state.surahData) return '';
   const a = state.surahData.ayahs[state.currentAyahIndex];
-  return `﴿﴾
-— سورة  — آية `;
+  return `﴿﴾\n— سورة  — آية `;
 }
 function toggleShareMenu() { dom.shareMenu?.classList.toggle('show'); }
 function shareNative() {
@@ -1360,7 +1198,6 @@ async function initApp() {
   loadRootsData().catch(console.warn);
 
   bindAudioEvents();
-  initPreloadAudio(); // ✨ تهيئة عنصر التحميل المسبق
 
   dom.surahSelect?.addEventListener('change', () => { if (dom.surahSelect.value) loadSurah(parseInt(dom.surahSelect.value, 10)); });
   dom.reciterSelect?.addEventListener('change', () => {
@@ -1445,12 +1282,12 @@ async function initApp() {
     if (!dom.shareMenu?.contains(e.target) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');
   });
 
-  // اختصارات لوحة المفاتيح (مطابقة لـ README)
+  // اختصارات لوحة المفاتيح (مُصححة لتطابق README)
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
     if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
-    else if (e.key === 'ArrowLeft') prevAyah();
-    else if (e.key === 'ArrowRight') nextAyah();
+    else if (e.key === 'ArrowLeft') prevAyah();      // ← الآية السابقة
+    else if (e.key === 'ArrowRight') nextAyah();     // → الآية التالية
     else if (e.key === 's' || e.key === 'S') prevSurah();
     else if (e.key === 'd' || e.key === 'D') nextSurah();
     else if (e.key === 'h' || e.key === 'H') toggleHifdh();
