@@ -363,6 +363,10 @@ function getAbsNumber(surah, ayah) {
 ============================================================ */
 async function loadSurah(surahNum, opts = {}) {
   if (!surahNum) return;
+  // إيقاف الصوت الحالي ومسح مصدره قبل تبديل السورة
+  if (state.isPlaying) {
+    prepareAudioForNewSurah();
+  }
   state.currentSurah = surahNum;
   const cacheKey = `${surahNum}_${state.currentReciter}`;
   if (state.surahCache.has(cacheKey)) {
@@ -398,6 +402,14 @@ async function loadSurah(surahNum, opts = {}) {
   } catch(e) {
     if (dom.surahContent) dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل السورة</p>';
     showToast('فشل تحميل السورة', 'error');
+  }
+}
+
+function prepareAudioForNewSurah() {
+  if (dom.audioPlayer) {
+    dom.audioPlayer.pause();
+    dom.audioPlayer.removeAttribute('src');
+    dom.audioPlayer.load();
   }
 }
 
