@@ -81,7 +81,7 @@ function cacheDom() {
     'player','collapsePlayerBtn','collapsedExpandBtn','playPauseBtn','collapsedPlayBtn','playerSurahName','playerReciterName','playerCurrentAyah','collapsedInfo',
     'audioPlayer','prevAyahBtn','nextAyahBtn','prevSurahBtn','nextSurahBtn','hifdhBtn','repeatBtn','bookmarkBtn','favoriteBtn','shareBtn',
     'repeatControls','repeatFrom','repeatTo','repeatTimes','shareMenu','azanPlayer','toast','fontSizeDropdown','collapseBarBtn','expandBarBtn','prayerBar',
-    'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','loadingProgress'
+    'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','bgSelect','loadingProgress'
   ];
   for (const id of ids) {
     dom[id] = document.getElementById(id);
@@ -1218,9 +1218,60 @@ function saveLocationSettings() {
 }
 function resetSettings() {
   if (!confirm('هل تريد إعادة ضبط جميع الإعدادات؟')) return;
-  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed'];
+  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id'];
   keys.forEach(k => storage.remove(k));
   location.reload();
+}
+
+/* ============================================================
+   18) الخلفيات الزخرفية
+============================================================ */
+let backgroundsList = [];
+
+async function loadBackgrounds() {
+  try {
+    const res = await fetch('data/backgrounds.json');
+    backgroundsList = await res.json();
+    if (dom.bgSelect) {
+      dom.bgSelect.innerHTML = '';
+      backgroundsList.forEach(bg => {
+        const opt = document.createElement('option');
+        opt.value = bg.id;
+        opt.textContent = bg.name;
+        dom.bgSelect.appendChild(opt);
+      });
+      const savedBg = storage.get('bg_id');
+      if (savedBg) applyBackground(savedBg);
+    }
+  } catch(e) { console.warn('فشل تحميل قائمة الخلفيات', e); }
+}
+
+function applyBackground(bgId) {
+  if (!bgId || bgId === 'none') {
+    document.body.style.backgroundImage = '';
+    document.body.classList.remove('bg-css');
+    let style = document.getElementById('dynamic-bg-style');
+    if (style) style.remove();
+    storage.remove('bg_id');
+    if (dom.bgSelect) dom.bgSelect.value = 'none';
+    return;
+  }
+  const bg = backgroundsList.find(b => b.id === bgId);
+  if (!bg) return;
+  if (bg.type === 'css' && bg.css) {
+    document.body.style.backgroundImage = '';
+    document.body.classList.add('bg-css');
+    document.body.setAttribute('data-bg-css', bg.css);
+    // تطبيق الـ CSS كمتغير لتجنب مشاكل الخصوصية
+    const style = document.createElement('style');
+    style.id = 'dynamic-bg-style';
+    style.textContent = `body[data-bg-css] { --bg-css-value: ${bg.css} !important; }`;
+    let existing = document.getElementById('dynamic-bg-style');
+    if (existing) existing.remove();
+    document.head.appendChild(style);
+  }
+  storage.set('bg_id', bgId);
+  if (dom.bgSelect) dom.bgSelect.value = bgId;
 }
 
 function restoreSettings() {
@@ -1292,6 +1343,7 @@ async function initApp() {
   loadPrayerTimes();
   loadFullQuranText().catch(console.warn);
   loadRootsData().catch(console.warn);
+  loadBackgrounds().catch(console.warn);
 
   bindAudioEvents();
 
@@ -1317,6 +1369,7 @@ async function initApp() {
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
   dom.testAzanBtn?.addEventListener('click', testAzan);
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
+  dom.bgSelect?.addEventListener('change', () => { applyBackground(dom.bgSelect.value); });
   dom.collapsePlayerBtn?.addEventListener('click', () => {
     dom.player?.classList.toggle('collapsed');
     storage.set('player_collapsed', dom.player?.classList.contains('collapsed'));
