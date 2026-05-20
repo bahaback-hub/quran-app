@@ -1,0 +1,43 @@
+[
+  {
+    "id": "none",
+    "name": "بدون",
+    "type": "none"
+  },
+  {
+    "id": "geometric-gold",
+    "name": "ذهبي هندسي",
+    "type": "css",
+    "css": "repeating-conic-gradient(from 0deg at 50% 50%, #8b6f5a 0deg 10deg, #d4af37 10deg 20deg, #8b6f5a 20deg 30deg)"
+  },
+  {
+    "id": "arabic-calligraphy",
+    "name": "خط عربي",
+    "type": "css",
+    "css": "linear-gradient(135deg, #f5f0e1 0%, #e8dcc8 50%, #d4c4a8 100%)"
+  },
+  {
+    "id": "floral-blue",
+    "name": "زخارف زرقاء",
+    "type": "css",
+    "css": "repeating-radial-gradient(circle at 50% 50%, #1a3a5c 0px, #2e6fa0 20px, #1a3a5c 40px)"
+  },
+  {
+    "id": "dark-night",
+    "name": "ليل مظلم",
+    "type": "css",
+    "css": "linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #232838 100%)"
+  },
+  {
+    "id": "emerald-green",
+    "name": "زمردي",
+    "type": "css",
+    "css": "repeating-linear-gradient(45deg, #0a3d2e 0px, #0e5c42 20px, #0a3d2e 40px)"
+  },
+  {
+    "id": "burgundy",
+    "name": "نبيذي",
+    "type": "css",
+    "css": "linear-gradient(135deg, #3a0e0e 0%, #6b1515 50%, #8b2020 100%)"
+  }
+]
