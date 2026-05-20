@@ -107,7 +107,36 @@ const storage = {
 };
 
 /* ============================================================
-   5) أدوات مساعدة عامة
+   5) شريط التحميل
+============================================================ */
+const loadingBar = {
+  el: null,
+  timer: null,
+  init() {
+    this.el = document.getElementById('loadingProgress');
+    if (!this.el) {
+      this.el = document.createElement('div');
+      this.el.id = 'loadingProgress';
+      this.el.className = 'loading-bar';
+      document.body.prepend(this.el);
+    }
+  },
+  show(msg) {
+    if (!this.el) this.init();
+    this.el.classList.add('active');
+    this.el.textContent = msg || '';
+    clearTimeout(this.timer);
+  },
+  hide() {
+    if (!this.el) return;
+    this.el.classList.remove('active');
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => { if (this.el) this.el.textContent = ''; }, 300);
+  }
+};
+
+/* ============================================================
+   6) أدوات مساعدة عامة
 ============================================================ */
 function showToast(msg, type = '') {
   if (!dom.toast) return;
@@ -379,7 +408,8 @@ async function loadSurah(surahNum, opts = {}) {
     finalizeSurahLoad(opts);
     return;
   }
-  if (dom.surahContent) dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
+  loadingBar.show(`⏳ جاري تحميل سورة ${state.surahList.find(s => s.number === surahNum)?.name || surahNum}...`);
+  if (dom.surahContent) dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
   try {
     const [textRes, audioRes] = await Promise.all([
       fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`),
@@ -401,9 +431,11 @@ async function loadSurah(surahNum, opts = {}) {
     state.surahCache.set(cacheKey, { text: textData, audio: audioData });
     renderSurah(textData);
     finalizeSurahLoad(opts);
+    loadingBar.hide();
   } catch(e) {
     if (dom.surahContent) dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل السورة</p>';
     showToast('فشل تحميل السورة', 'error');
+    loadingBar.hide();
   }
 }
 
@@ -697,25 +729,81 @@ function toggleTafsir() {
   dom.tafsirCurtain.classList.contains('open') ? closeTafsir() : openTafsir();
 }
 
+function renderTafsirContent(text, ayahText, surahName, ayahNum) {
+  dom.tafsirCurtainHeader.textContent = `تفسير: ${surahName} — آية ${ayahNum}`;
+  dom.tafsirCurtainBody.replaceChildren();
+  const titleEl = document.createElement('div');
+  titleEl.className = 'tafsir-ayah-title';
+  titleEl.textContent = `﴿${ayahText}﴾`;
+  const bodyEl = document.createElement('div');
+  bodyEl.className = 'tafsir-text';
+  bodyEl.textContent = text;
+  dom.tafsirCurtainBody.appendChild(titleEl);
+  dom.tafsirCurtainBody.appendChild(bodyEl);
+}
+
+const tafsirCacheDB = {
+  async get(key) {
+    try {
+      const cached = storage.get(key);
+      if (cached) return cached;
+      return new Promise((resolve) => {
+        const req = indexedDB.open('QuranAppDB', 1);
+        req.onsuccess = (e) => {
+          try {
+            const tx = e.target.result.transaction('tafsirCache', 'readonly');
+            const store = tx.objectStore('tafsirCache');
+            const getReq = store.get(key);
+            getReq.onsuccess = () => resolve(getReq.result?.text || null);
+            getReq.onerror = () => resolve(null);
+          } catch { resolve(null); }
+        };
+        req.onerror = () => resolve(null);
+        if (!req.result && !req.onsuccess) resolve(null);
+      });
+    } catch { return null; }
+  },
+  async set(key, text) {
+    try {
+      storage.set(key, text);
+      const req = indexedDB.open('QuranAppDB', 1);
+      req.onsuccess = (e) => {
+        try {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('tafsirCache')) return;
+          const tx = db.transaction('tafsirCache', 'readwrite');
+          const store = tx.objectStore('tafsirCache');
+          store.put({ id: key, text });
+          const countReq = store.count();
+          countReq.onsuccess = () => {
+            if (countReq.result > 500) {
+              const cursorReq = store.openCursor();
+              let deleted = 0;
+              cursorReq.onsuccess = (ev) => {
+                const cursor = ev.target.result;
+                if (cursor && deleted < 100) {
+                  store.delete(cursor.primaryKey);
+                  deleted++;
+                  cursor.continue();
+                }
+              };
+            }
+          };
+        } catch {}
+      };
+    } catch {}
+  }
+};
+
 async function loadTafsirForCurrentAyah() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
   if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition;
   const cacheKey = `tafsir_${edition}_${state.currentSurah}_${a.numberInSurah}`;
-  // فحص الكاش المحلي أولاً
-  const cached = storage.get(cacheKey);
+  const cached = await tafsirCacheDB.get(cacheKey);
   if (cached) {
-    dom.tafsirCurtainHeader.textContent = `تفسير: ${state.surahData.name} — آية ${a.numberInSurah}`;
-    dom.tafsirCurtainBody.replaceChildren();
-    const titleEl = document.createElement('div');
-    titleEl.className = 'tafsir-ayah-title';
-    titleEl.textContent = `﴿${a.text}﴾`;
-    const bodyEl = document.createElement('div');
-    bodyEl.className = 'tafsir-text';
-    bodyEl.textContent = cached;
-    dom.tafsirCurtainBody.appendChild(titleEl);
-    dom.tafsirCurtainBody.appendChild(bodyEl);
+    renderTafsirContent(cached, a.text, state.surahData.name, a.numberInSurah);
     return;
   }
   const url = `${CONFIG.TAFSIR_API}/${edition}/${state.currentSurah}/${a.numberInSurah}.json`;
@@ -725,18 +813,8 @@ async function loadTafsirForCurrentAyah() {
     const res = await fetch(url);
     const data = await res.json();
     const text = data?.text || 'لا يوجد تفسير متاح';
-    // حفظ في الكاش
-    storage.set(cacheKey, text);
-    // استخدام textContent بدل innerHTML لمنع XSS
-    dom.tafsirCurtainBody.replaceChildren();
-    const titleEl = document.createElement('div');
-    titleEl.className = 'tafsir-ayah-title';
-    titleEl.textContent = `﴿${a.text}﴾`;
-    const bodyEl = document.createElement('div');
-    bodyEl.className = 'tafsir-text';
-    bodyEl.textContent = text;
-    dom.tafsirCurtainBody.appendChild(titleEl);
-    dom.tafsirCurtainBody.appendChild(bodyEl);
+    tafsirCacheDB.set(cacheKey, text);
+    renderTafsirContent(text, a.text, state.surahData.name, a.numberInSurah);
   } catch(e) {
     dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
   }
@@ -756,6 +834,7 @@ async function loadFullQuranText() {
     request.onupgradeneeded = e => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains('fullText')) db.createObjectStore('fullText', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('tafsirCache')) db.createObjectStore('tafsirCache', { keyPath: 'id' });
     };
     request.onsuccess = async (e) => {
       const db = e.target.result;
@@ -1330,6 +1409,8 @@ function togglePrayerBar() {
    19) تهيئة التطبيق وربط الأحداث
 ============================================================ */
 async function initApp() {
+  loadingBar.init();
+  loadingBar.hide();
   cacheDom();
   restoreSettings();
   loadFavorites();

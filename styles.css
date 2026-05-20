@@ -1218,6 +1218,82 @@ noscript > div {
   .ayah-number { min-width: 28px; height: 28px; line-height: 28px; font-size: 12px; }
 }
 
+/* ========== شريط التحميل ========== */
+.loading-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
+  height: 3px; background: var(--accent);
+  transform: scaleX(0); transform-origin: right;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+.loading-bar.active {
+  transform: scaleX(1);
+  opacity: 1;
+  animation: loadingBarShimmer 1.5s ease-in-out infinite;
+}
+@keyframes loadingBarShimmer {
+  0%, 100% { box-shadow: 0 0 6px var(--accent), 0 0 12px var(--accent); }
+  50% { box-shadow: 0 0 12px var(--accent), 0 0 24px var(--accent); }
+}
+
+/* ========== Skeleton Loading ========== */
+.skeleton-loading {
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.skeleton-line {
+  height: 24px;
+  background: linear-gradient(90deg, var(--border-soft) 25%, var(--hover-bg) 50%, var(--border-soft) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+.skeleton-line:nth-child(1) { width: 75%; }
+.skeleton-line:nth-child(2) { width: 60%; }
+.skeleton-line:nth-child(3) { width: 85%; }
+.skeleton-line:nth-child(4) { width: 50%; }
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ========== تحسينات حركية ========== */
+.ayah {
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+.ayah:hover {
+  transform: translateY(-1px);
+}
+.ayah.current {
+  animation: ayahPop 0.4s ease;
+}
+@keyframes ayahPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.prayer-bar {
+  transition: all 0.4s ease;
+}
+.prayer-bar.collapsed .expanded-content { display: none; }
+.prayer-bar.collapsed .collapsed-preview { display: flex; }
+.prayer-bar .collapsed-preview { display: none; }
+
+.btn {
+  transition: all 0.2s ease;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.btn:active {
+  transform: translateY(0);
+}
+
 /* ========== شاشات صغيرة جداً ========== */
 @media (max-width: 380px) {
   .header h1 { font-size: 19px; }
