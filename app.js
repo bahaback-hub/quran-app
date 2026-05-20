@@ -545,11 +545,18 @@ function bindAudioEvents() {
     dom.audioPlayer.addEventListener('play', onAudioPlay);
     dom.audioPlayer.removeEventListener('pause', onAudioPause);
     dom.audioPlayer.addEventListener('pause', onAudioPause);
+    dom.audioPlayer.removeEventListener('error', onAudioError);
+    dom.audioPlayer.addEventListener('error', onAudioError);
   }
 }
 
 function onAudioPlay() { state.isPlaying = true; updatePlayPauseBtn(); }
 function onAudioPause() { state.isPlaying = false; updatePlayPauseBtn(); }
+function onAudioError() {
+  state.isPlaying = false;
+  updatePlayPauseBtn();
+  showToast('⚠️ تعذّر تشغيل الصوت، حاول آية أخرى', 'error');
+}
 
 function updatePlayPauseBtn() {
   if (dom.playPauseBtn) {
@@ -991,12 +998,12 @@ async function shareSpecificAyah(surah, ayah) {
   }
   if (!text) {
     try {
-      const res = await fetch(`/ayah/:/quran-uthmani`);
+      const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
       const data = await res.json();
       text = data?.data?.text || '';
     } catch(e) {}
   }
-  const shareMsg = `﴿﴾\n— سورة  — آية `;
+  const shareMsg = text ? `﴿${text}﴾\n— ${surahName.trim()} — آية ${ayah}` : `الآية ${ayah} من سورة ${surahName.trim()}`;
   if (navigator.share) {
     navigator.share({ title: 'القرآن الكريم', text: shareMsg }).catch(() => {});
   } else {
@@ -1035,7 +1042,7 @@ function saveFavorites() {
 function toggleFavorite() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
-  const key = `:`;
+  const key = `${state.currentSurah}:${a.numberInSurah}`;
   const idx = state.favorites.findIndex(f => f.key === key);
   if (idx !== -1) {
     state.favorites.splice(idx, 1);
