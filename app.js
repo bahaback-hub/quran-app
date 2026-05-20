@@ -78,7 +78,7 @@ function cacheDom() {
     'themeToggle','surahSelect','reciterSelect','searchType','searchInput','searchBtn','clearSearchBtn','searchResults','surahContent',
     'cityInput','countryInput','methodSelect','cityQuickSelect','saveLocationBtn','azanToggle','azanFajrToggle','testAzanBtn',
     'fontSizeSelect','autoSaveToggle','resetSettingsBtn','favoritesPanel','favoritesCloseBtn','favoritesList','favoritesOpenBtn',
-    'player','collapsePlayerBtn','collapsedExpandBtn','collapsedPlayBtn','playerSurahName','playerReciterName','playerCurrentAyah','collapsedInfo',
+    'player','collapsePlayerBtn','collapsedExpandBtn','playPauseBtn','collapsedPlayBtn','playerSurahName','playerReciterName','playerCurrentAyah','collapsedInfo',
     'audioPlayer','prevAyahBtn','nextAyahBtn','prevSurahBtn','nextSurahBtn','hifdhBtn','repeatBtn','bookmarkBtn','favoriteBtn','shareBtn',
     'repeatControls','repeatFrom','repeatTo','repeatTimes','shareMenu','azanPlayer','toast','fontSizeDropdown','collapseBarBtn','expandBarBtn','prayerBar',
     'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','loadingProgress'
@@ -302,6 +302,7 @@ async function loadSurahList() {
     populateSurahSelect();
     return;
   }
+  if (dom.surahSelect) dom.surahSelect.innerHTML = '<option value="">⏳ جاري تحميل قائمة السور...</option>';
   try {
     const res = await fetch(`${CONFIG.API_BASE}/surah`);
     const data = await res.json();
@@ -311,6 +312,7 @@ async function loadSurahList() {
       populateSurahSelect();
     }
   } catch(e) {
+    if (dom.surahSelect) dom.surahSelect.innerHTML = '<option value="">⚠️ تعذّر التحميل</option>';
     showToast('تعذّر تحميل قائمة السور', 'error');
   }
 }
@@ -546,8 +548,14 @@ function bindAudioEvents() {
   }
 }
 
-function onAudioPlay() { state.isPlaying = true; }
-function onAudioPause() { state.isPlaying = false; }
+function onAudioPlay() { state.isPlaying = true; updatePlayPauseBtn(); }
+function onAudioPause() { state.isPlaying = false; updatePlayPauseBtn(); }
+
+function updatePlayPauseBtn() {
+  if (dom.playPauseBtn) {
+    dom.playPauseBtn.textContent = state.isPlaying ? '⏸ إيقاف' : '⏯ تشغيل';
+  }
+}
 
 function onAudioEnded() {
   if (!state.surahData || !state.ayahsAudios) return;
@@ -574,6 +582,11 @@ function onAudioEnded() {
     }
     nextAyah(true);
     return;
+  }
+
+  // إشعار عند انتهاء السورة كاملة
+  if (state.currentAyahIndex === state.ayahsAudios.length - 1) {
+    showToast(`✅ انتهت سورة ${state.surahData.name}`, 'success');
   }
 
   nextAyah(true);
@@ -637,8 +650,20 @@ function toggleRepeat() {
       dom.repeatFrom.value = state.repeatFrom;
       dom.repeatTo.value = state.repeatTo;
       dom.repeatTimes.value = state.repeatTimes;
-      dom.repeatFrom.onchange = () => { state.repeatFrom = parseInt(dom.repeatFrom.value, 10); };
-      dom.repeatTo.onchange = () => { state.repeatTo = parseInt(dom.repeatTo.value, 10); };
+      dom.repeatFrom.onchange = () => {
+        state.repeatFrom = parseInt(dom.repeatFrom.value, 10);
+        if (state.repeatFrom > state.repeatTo) {
+          state.repeatTo = state.repeatFrom;
+          dom.repeatTo.value = state.repeatTo;
+        }
+      };
+      dom.repeatTo.onchange = () => {
+        state.repeatTo = parseInt(dom.repeatTo.value, 10);
+        if (state.repeatTo < state.repeatFrom) {
+          state.repeatFrom = state.repeatTo;
+          dom.repeatFrom.value = state.repeatFrom;
+        }
+      };
       dom.repeatTimes.onchange = () => { state.repeatTimes = parseInt(dom.repeatTimes.value, 10); };
     }
     showToast('🔁 وضع التكرار مفعّل', 'success');
@@ -670,12 +695,31 @@ async function loadTafsirForCurrentAyah() {
   const a = state.surahData.ayahs[state.currentAyahIndex];
   if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition;
+  const cacheKey = `tafsir_${edition}_${state.currentSurah}_${a.numberInSurah}`;
+  // فحص الكاش المحلي أولاً
+  const cached = storage.get(cacheKey);
+  if (cached) {
+    dom.tafsirCurtainHeader.textContent = `تفسير: ${state.surahData.name} — آية ${a.numberInSurah}`;
+    dom.tafsirCurtainBody.replaceChildren();
+    const titleEl = document.createElement('div');
+    titleEl.className = 'tafsir-ayah-title';
+    titleEl.textContent = `﴿${a.text}﴾`;
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'tafsir-text';
+    bodyEl.textContent = cached;
+    dom.tafsirCurtainBody.appendChild(titleEl);
+    dom.tafsirCurtainBody.appendChild(bodyEl);
+    return;
+  }
   const url = `${CONFIG.TAFSIR_API}/${edition}/${state.currentSurah}/${a.numberInSurah}.json`;
   dom.tafsirCurtainHeader.textContent = `تفسير: ${state.surahData.name} — آية ${a.numberInSurah}`;
   dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
   try {
     const res = await fetch(url);
     const data = await res.json();
+    const text = data?.text || 'لا يوجد تفسير متاح';
+    // حفظ في الكاش
+    storage.set(cacheKey, text);
     // استخدام textContent بدل innerHTML لمنع XSS
     dom.tafsirCurtainBody.replaceChildren();
     const titleEl = document.createElement('div');
@@ -683,7 +727,7 @@ async function loadTafsirForCurrentAyah() {
     titleEl.textContent = `﴿${a.text}﴾`;
     const bodyEl = document.createElement('div');
     bodyEl.className = 'tafsir-text';
-    bodyEl.textContent = data?.text || 'لا يوجد تفسير متاح';
+    bodyEl.textContent = text;
     dom.tafsirCurtainBody.appendChild(titleEl);
     dom.tafsirCurtainBody.appendChild(bodyEl);
   } catch(e) {
@@ -1110,8 +1154,18 @@ function shareNative() {
   }
 }
 function shareCopy() { copyToClipboard(buildShareText()); showToast('📋 تم نسخ الآية', 'success'); }
-function shareWhatsApp() { window.open(`https://wa.me/?text=`, '_blank'); }
-function shareTelegram() { window.open(`https://t.me/share/url?url=&text=`, '_blank'); }
+function shareWhatsApp() {
+  const text = buildShareText();
+  if (!text) return;
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+function shareTelegram() {
+  const text = buildShareText();
+  if (!text) return;
+  const url = `https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
 
 /* ============================================================
    16) حجم الخط
@@ -1268,7 +1322,8 @@ async function initApp() {
     storage.set('player_collapsed', dom.player?.classList.contains('collapsed'));
   });
   dom.collapsedExpandBtn?.addEventListener('click', () => dom.player?.classList.remove('collapsed'));
-  dom.collapsedPlayBtn?.addEventListener('click', togglePlayPause);
+  dom.playPauseBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
+  dom.collapsedPlayBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
   dom.tafsirCurtainHandle?.addEventListener('click', toggleTafsir);
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect.value;
