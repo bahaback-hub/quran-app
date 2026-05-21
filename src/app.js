@@ -306,6 +306,8 @@ export async function loadSurahList() {
   const cached = storage.get('surah_list');
   if (cached && cached.length === CONFIG.SURAH_COUNT) {
     state.surahList = cached;
+    surahOffsets = null;
+    buildSurahOffsets();
     populateSurahSelect();
     return;
   }
@@ -315,6 +317,7 @@ export async function loadSurahList() {
     const data = await res.json();
     if (data?.data) {
       state.surahList = data.data;
+      surahOffsets = null;
       storage.set('surah_list', data.data);
       populateSurahSelect();
     }
@@ -708,6 +711,45 @@ export function prevAyah() {
 function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) loadSurah(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
 function prevSurah() { if (state.currentSurah > 1) loadSurah(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
 
+/* ===================== INDEXEDDB FOR TAFSIR ===================== */
+
+function openTafsirDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('QuranTafsirDB', 1);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('tafsir')) {
+        db.createObjectStore('tafsir', { keyPath: 'key' });
+      }
+    };
+    request.onsuccess = (e) => resolve(e.target.result);
+    request.onerror = (e) => reject(e.target.error);
+  });
+}
+
+async function getTafsirFromDB(key) {
+  try {
+    const db = await openTafsirDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('tafsir', 'readonly');
+      const store = tx.objectStore('tafsir');
+      const req = store.get(key);
+      req.onsuccess = () => resolve(req.result ? req.result.text : null);
+      req.onerror = () => resolve(null);
+    });
+  } catch (e) {
+    return null;
+  }
+}
+
+async function saveTafsirToDB(key, text) {
+  try {
+    const db = await openTafsirDB();
+    const tx = db.transaction('tafsir', 'readwrite');
+    tx.objectStore('tafsir').put({ key, text });
+  } catch (e) { }
+}
+
 /* ===================== HIFDH & REPEAT ===================== */
 
 export function toggleHifdh() {
@@ -796,7 +838,7 @@ async function loadTafsirForCurrentAyah() {
   if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition;
   const cacheKey = `tafsir_${edition}_${state.currentSurah}_${a.numberInSurah}`;
-  const cached = storage.get(cacheKey);
+  const cached = await getTafsirFromDB(cacheKey);
   if (cached) {
     renderTafsirContent(cached, a.text, state.surahData.name, a.numberInSurah);
     return;
@@ -808,7 +850,7 @@ async function loadTafsirForCurrentAyah() {
     const res = await fetch(url);
     const data = await res.json();
     const text = data?.text || 'لا يوجد تفسير متاح';
-    storage.set(cacheKey, text);
+    await saveTafsirToDB(cacheKey, text);
     renderTafsirContent(text, a.text, state.surahData.name, a.numberInSurah);
   } catch (e) {
     dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
@@ -819,7 +861,7 @@ async function loadTafsirForSurahAyah(surahNum, ayahNum) {
   if (!dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition || CONFIG.DEFAULT_TAFSIR;
   const cacheKey = `tafsir_${edition}_${surahNum}_${ayahNum}`;
-  const cached = storage.get(cacheKey);
+  const cached = await getTafsirFromDB(cacheKey);
   const surahInfo = state.surahList.find(s => s.number === surahNum);
   const surahName = surahInfo ? surahInfo.name : `سورة ${surahNum}`;
   dom.tafsirCurtainHeader.textContent = `تفسير: ${surahName} — آية ${toArabicNumeral(ayahNum)}`;
@@ -834,7 +876,7 @@ async function loadTafsirForSurahAyah(surahNum, ayahNum) {
     const res = await fetch(`${CONFIG.TAFSIR_API}/${edition}/${surahNum}/${ayahNum}.json`);
     const data = await res.json();
     const text = data?.tafsir?.text || data?.text || 'لا يوجد تفسير متاح';
-    storage.set(cacheKey, text);
+    await saveTafsirToDB(cacheKey, text);
     dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(text)}</p>`;
   } catch (e) {
     dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
@@ -1224,7 +1266,7 @@ function gotoBookmark() {
 
 /* ===================== SHARE ===================== */
 
-function buildShareText() {
+export function buildShareText() {
   if (!state.surahData) return '';
   const a = state.surahData.ayahs[state.currentAyahIndex];
   if (!a) return '';
