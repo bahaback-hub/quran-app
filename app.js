@@ -515,7 +515,7 @@ async function loadPage(pageNum) {
   try {
     const res = await fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`);
     const json = await res.json();
-    if (!json?.data?.surahs) throw new Error('بيانات غير صالحة');
+    if (!json?.data?.ayahs) throw new Error('بيانات غير صالحة');
     renderMushafPage(json.data, pageNum);
     loadingBar.hide();
   } catch(e) {
@@ -551,6 +551,14 @@ function renderMushafPage(data, pageNum) {
   const juz = getJuzForPage(pageNum);
   const quarter = getQuarterForPage(pageNum);
 
+  // تجميع الآيات حسب رقم السورة
+  const surahGroups = {};
+  for (const ayah of data.ayahs) {
+    const sn = ayah.surah.number;
+    if (!surahGroups[sn]) surahGroups[sn] = { surah: ayah.surah, ayahs: [] };
+    surahGroups[sn].ayahs.push(ayah);
+  }
+
   let html = `<div class="mushaf-container">
     <div class="mushaf-header">
       <div class="mushaf-page-num">صفحة ${pageNum}</div>
@@ -558,19 +566,20 @@ function renderMushafPage(data, pageNum) {
     </div>
     <div class="mushaf-two-columns">`;
 
-  for (let si = 0; si < data.surahs.length; si++) {
-    const surah = data.surahs[si];
+  const surahKeys = Object.keys(surahGroups);
+  for (const sn of surahKeys) {
+    const group = surahGroups[sn];
+    const surah = group.surah;
     const surahInfo = state.surahList.find(s => s.number === surah.number);
-    const surahName = surahInfo ? surahInfo.name : `سورة ${surah.number}`;
+    const surahName = surahInfo ? surahInfo.name : surah.name;
 
     html += `<div class="mushaf-surah-title">${surahName}`;
-    if (surah.number !== 1 && surah.number !== 9 && surah.ayahs[0]?.numberInSurah === 1) {
+    if (surah.number !== 1 && surah.number !== 9 && group.ayahs[0]?.numberInSurah === 1) {
       html += `<span class="bismillah-mushaf">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>`;
     }
     html += `</div>`;
 
-    for (let ai = 0; ai < surah.ayahs.length; ai++) {
-      const ayah = surah.ayahs[ai];
+    for (const ayah of group.ayahs) {
       let txt = ayah.text;
       if (surah.number !== 1 && ayah.numberInSurah === 1) {
         txt = txt.replace(/^بِسْمِ\s+اللَّهِ\s+الرَّحْمَٰنِ\s+الرَّحِيمِ\s*/, '');
