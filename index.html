@@ -74,6 +74,8 @@
         <select id="pageSelect" aria-label="اختيار صفحة المصحف"></select>
         <button class="btn btn-sm" id="prevPageBtn" aria-label="الصفحة السابقة">◀</button>
         <button class="btn btn-sm" id="nextPageBtn" aria-label="الصفحة التالية">▶</button>
+        <button class="btn btn-sm" id="mushafSurahListBtn" aria-label="قائمة السور">📖 السور</button>
+        <input type="range" id="pageSlider" min="1" max="604" value="1" aria-label="شريط تمرير الصفحات" class="page-slider">
       </div>
       <div class="control-group">
         <label for="reciterSelect">اختر القارئ:</label>
@@ -358,6 +360,17 @@
     <p style="text-align:center;color:#888;">لا توجد آيات مفضلة بعد</p>
   </div>
 </aside>
+
+<!-- ========== قائمة السور في وضع المصحف ========== -->
+<div class="mushaf-surah-overlay" id="mushafSurahOverlay" role="dialog" aria-label="قائمة السور" style="display:none;">
+  <div class="mushaf-surah-overlay-inner">
+    <div class="mushaf-surah-overlay-header">
+      <h3>📖 اختر السورة</h3>
+      <button class="btn" id="mushafSurahOverlayClose">✖</button>
+    </div>
+    <div class="mushaf-surah-overlay-list" id="mushafSurahOverlayList"></div>
+  </div>
+</div>
 
 <!-- ========== مشغل الأذان (مخفي) ========== -->
 <audio id="azanPlayer" preload="none"></audio>
