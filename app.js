@@ -64,7 +64,9 @@ let state = {
   fullQuranText: null,
   fullQuranLoaded: false,
   barCollapsed: false,
-  azanTestPlaying: false
+  azanTestPlaying: false,
+  mus-hafMode: false,
+  currentPage: 1
 };
 
 /* ============================================================
@@ -81,7 +83,8 @@ function cacheDom() {
     'player','collapsePlayerBtn','collapsedExpandBtn','playPauseBtn','collapsedPlayBtn','playerSurahName','playerReciterName','playerCurrentAyah','collapsedInfo',
     'audioPlayer','prevAyahBtn','nextAyahBtn','prevSurahBtn','nextSurahBtn','hifdhBtn','repeatBtn','bookmarkBtn','favoriteBtn','shareBtn',
     'repeatControls','repeatFrom','repeatTo','repeatTimes','shareMenu','azanPlayer','toast','fontSizeDropdown','collapseBarBtn','expandBarBtn','prayerBar',
-    'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','bgSelect','loadingProgress'
+    'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','bgSelect','loadingProgress',
+    'modeToggleBtn','pageSelect','mushafControls','surahModeControls'
   ];
   for (const id of ids) {
     dom[id] = document.getElementById(id);
@@ -465,6 +468,148 @@ function renderSurah(textData) {
   html += '</div>';
   dom.surahContent.innerHTML = html;
   attachAyahEvents();
+}
+
+/* ============================================================
+   9.5) وضع المصحف
+============================================================ */
+function toggleMushafMode() {
+  state.mushafMode = !state.mushafMode;
+  if (state.mushafMode) {
+    dom.modeToggleBtn.textContent = '📖 وضع السورة';
+    dom.modeToggleBtn.classList.add('mushaf-active');
+    dom.surahModeControls.style.display = 'none';
+    dom.mushafControls.style.display = 'flex';
+    populatePageSelect();
+    if (dom.pageSelect.value) loadPage(parseInt(dom.pageSelect.value, 10));
+    else loadPage(state.currentPage);
+  } else {
+    dom.modeToggleBtn.textContent = '📄 وضع المصحف';
+    dom.modeToggleBtn.classList.remove('mushaf-active');
+    dom.surahModeControls.style.display = 'flex';
+    dom.mushafControls.style.display = 'none';
+    loadSurah(state.currentSurah);
+  }
+  storage.set('mushaf_mode', state.mushafMode);
+}
+
+function populatePageSelect() {
+  if (!dom.pageSelect) return;
+  if (dom.pageSelect.options.length > 0) return;
+  for (let i = 1; i <= 604; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `صفحة ${i}`;
+    dom.pageSelect.appendChild(opt);
+  }
+  dom.pageSelect.value = state.currentPage;
+}
+
+async function loadPage(pageNum) {
+  if (!pageNum) return;
+  state.currentPage = pageNum;
+  loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
+  dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
+  try {
+    const res = await fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`);
+    const json = await res.json();
+    if (!json?.data?.surahs) throw new Error('بيانات غير صالحة');
+    renderMushafPage(json.data, pageNum);
+    loadingBar.hide();
+  } catch(e) {
+    dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل الصفحة</p>';
+    showToast('فشل تحميل الصفحة', 'error');
+    loadingBar.hide();
+  }
+}
+
+function getJuzForPage(pageNum) {
+  const juzPages = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30];
+  const juzStarts = [1,22,42,62,82,102,122,142,162,182,202,222,242,262,282,302,322,342,362,382,402,422,442,462,482,502,522,542,562,582];
+  let juz = 1;
+  for (let i = juzStarts.length - 1; i >= 0; i--) {
+    if (pageNum >= juzStarts[i]) { juz = juzPages[i]; break; }
+  }
+  return juz;
+}
+
+function getQuarterForPage(pageNum) {
+  const quarters = [
+    { page: 1, label: 'الحزب 1' }, { page: 3, label: 'ربع' }, { page: 5, label: 'نصف' }, { page: 7, label: 'ثلاثة أرباع' },
+    { page: 9, label: 'الحزب 2' }, { page: 11, label: 'ربع' }, { page: 13, label: 'نصف' }, { page: 15, label: 'ثلاثة أرباع' },
+  ];
+  for (const q of quarters) {
+    if (pageNum === q.page) return q.label;
+  }
+  return '';
+}
+
+function renderMushafPage(data, pageNum) {
+  if (!dom.surahContent) return;
+  const juz = getJuzForPage(pageNum);
+  const quarter = getQuarterForPage(pageNum);
+
+  let html = `<div class="mushaf-container">
+    <div class="mushaf-header">
+      <div class="mushaf-page-num">صفحة ${pageNum}</div>
+      <div class="mushaf-juz">الجزء ${juz}${quarter ? ' — ' + quarter : ''}</div>
+    </div>
+    <div class="mushaf-two-columns">`;
+
+  for (let si = 0; si < data.surahs.length; si++) {
+    const surah = data.surahs[si];
+    const surahInfo = state.surahList.find(s => s.number === surah.number);
+    const surahName = surahInfo ? surahInfo.name : `سورة ${surah.number}`;
+
+    html += `<div class="mushaf-surah-title">${surahName}`;
+    if (surah.number !== 1 && surah.number !== 9 && surah.ayahs[0]?.numberInSurah === 1) {
+      html += `<span class="bismillah-mushaf">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>`;
+    }
+    html += `</div>`;
+
+    for (let ai = 0; ai < surah.ayahs.length; ai++) {
+      const ayah = surah.ayahs[ai];
+      let txt = ayah.text;
+      if (surah.number !== 1 && ayah.numberInSurah === 1) {
+        txt = txt.replace(/^بِسْمِ\s+اللَّهِ\s+الرَّحْمَٰنِ\s+الرَّحِيمِ\s*/, '');
+      }
+      const isSajda = txt.includes('۩') || txt.includes('۝');
+      html += `<span class="mushaf-ayah" data-surah="${surah.number}" data-ayah="${ayah.numberInSurah}" data-page="${pageNum}">`;
+      html += escapeHtml(txt);
+      html += `<span class="mushaf-ayah-num">${ayah.numberInSurah}</span>`;
+      if (isSajda) html += `<span class="mushaf-sajda">۩</span>`;
+      html += `</span> `;
+    }
+  }
+
+  html += `</div>
+    <div class="mushaf-footer">صفحة ${pageNum} — الجزء ${juz} — القرآن الكريم</div>
+  </div>`;
+
+  dom.surahContent.innerHTML = html;
+
+  document.querySelectorAll('.mushaf-ayah').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('.mushaf-ayah').forEach(a => a.classList.remove('current'));
+      this.classList.add('current');
+      const surah = parseInt(this.dataset.surah, 10);
+      const ayah = parseInt(this.dataset.ayah, 10);
+      playMushafAyah(surah, ayah);
+    });
+  });
+}
+
+function playMushafAyah(surahNum, ayahNum) {
+  if (state.currentSurah !== surahNum || !state.surahData) {
+    loadSurah(surahNum, { startAyah: ayahNum, autoPlay: true });
+  } else {
+    const idx = state.surahData.ayahs.findIndex(a => a.numberInSurah === ayahNum);
+    if (idx !== -1) {
+      state.currentAyahIndex = idx;
+      highlightCurrentAyah();
+      playCurrentAyah();
+    }
+  }
 }
 
 function attachAyahEvents() {
@@ -1466,6 +1611,16 @@ async function initApp() {
     if (!dom.shareMenu?.contains(e.target) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');
   });
 
+  /* ========== وضع المصحف ========== */
+  dom.modeToggleBtn?.addEventListener('click', toggleMushafMode);
+  dom.pageSelect?.addEventListener('change', () => {
+    if (dom.pageSelect.value) loadPage(parseInt(dom.pageSelect.value, 10));
+  });
+
+  // استعادة وضع المصحف إن كان مفعّلاً سابقاً
+  const savedMushaf = storage.get('mushaf_mode');
+  if (savedMushaf && dom.modeToggleBtn) toggleMushafMode();
+
   // اختصارات لوحة المفاتيح (مُصححة لتطابق README)
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
@@ -1480,6 +1635,7 @@ async function initApp() {
     else if (e.key === 'f' || e.key === 'F') toggleFavorite();
     else if (e.key === 't' || e.key === 'T') toggleTafsir();
     else if (e.key === 'n' || e.key === 'N') toggleNightMode();
+    else if (e.key === 'm' || e.key === 'M') toggleMushafMode();
     else if (e.key === '+' || e.key === '=') { applyFontSize(Math.min(45, state.fontSize + 2)); }
     else if (e.key === '-') { applyFontSize(Math.max(16, state.fontSize - 2)); }
     else if (e.key === 'Escape') {
