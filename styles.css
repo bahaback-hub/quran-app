@@ -1372,14 +1372,13 @@ noscript > div {
   font-family: 'Traditional Arabic', 'Amiri', serif;
 }
 
-/* ===== الأعمدة ===== */
+/* ===== عمود واحد ممتلئ ===== */
 .mushaf-two-columns {
-  column-count: 2;
-  column-gap: 40px;
-  column-rule: 1px dashed var(--border-soft);
   direction: rtl;
-  padding: 5px 0;
+  padding: 5px 15px;
   text-align: justify;
+  text-justify: auto;
+  word-spacing: 0.5px;
 }
 
 /* ===== كتلة السورة ===== */
@@ -1390,7 +1389,6 @@ noscript > div {
 
 /* عنوان السورة */
 .mushaf-surah-title {
-  column-span: all;
   text-align: center;
   padding: 14px 0 8px;
   margin: 6px 0 10px;
@@ -1446,7 +1444,6 @@ noscript > div {
   margin: 8px 0 12px;
   padding: 4px 0;
   font-weight: bold;
-  column-span: all;
 }
 
 /* ===== الآيات ===== */
@@ -1528,7 +1525,6 @@ noscript > div {
   color: var(--text-muted);
   font-size: 15px;
   font-family: 'Traditional Arabic', 'Amiri', serif;
-  column-span: all;
   position: relative;
 }
 
@@ -1559,17 +1555,15 @@ noscript > div {
 }
 
 @media (max-width: 600px) {
-  .mushaf-two-columns {
-    column-count: 1;
-    column-rule: none;
-    column-gap: 0;
-  }
   .mushaf-container {
     padding: 10px 8px;
   }
   .mushaf-ayah {
     font-size: calc(var(--mushaf-font-size, 24px) - 2px);
     line-height: 2.1;
+  }
+  .mushaf-two-columns {
+    padding: 5px 5px;
   }
   .mushaf-page-num { font-size: 22px; }
   .mushaf-surah-name { font-size: 20px; }
