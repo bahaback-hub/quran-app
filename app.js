@@ -662,9 +662,8 @@ function renderMushafPageFromLayout(layoutData, pageNum) {
 
   for (const line of layoutData.lines) {
     if (line.type === 'surah-header') {
-      const surahInfo = state.surahList.find(s => s.number === parseInt(line.surah, 10));
-      const surahName = surahInfo ? surahInfo.name : line.text;
-      html += `<div class="mushaf-line-suhead">﴿ ${escapeHtml(surahName)} ﴾</div>`;
+      const surahName = line.text || `سورة ${line.surah}`;
+      html += `<div class="mushaf-line-suhead"><span class="suhead-ornament">﴿</span> ${escapeHtml(surahName)} <span class="suhead-ornament">﴾</span></div>`;
     } else if (line.type === 'basmala') {
       html += `<div class="mushaf-line-basmala">﷽</div>`;
     } else if (line.type === 'text') {
@@ -688,7 +687,25 @@ function renderMushafPageFromLayout(layoutData, pageNum) {
       for (const group of ayahGroups) {
         const [surahNum, ayahNum] = group.ayah.split(':').map(Number);
         lineHtml += `<span class="mushaf-ayah" data-surah="${surahNum}" data-ayah="${ayahNum}" data-page="${pageNum}">`;
-        lineHtml += group.words.map(w => escapeHtml(w.word)).join(' ');
+        for (let wi = 0; wi < group.words.length; wi++) {
+          const w = group.words[wi];
+          let wt = w.word;
+          const isLastInAyah = (wi === group.words.length - 1);
+          if (isLastInAyah) {
+            const numMatch = wt.match(/\s*([٠١٢٣٤٥٦٧٨٩]+)$/u);
+            if (numMatch) {
+              const textPart = wt.slice(0, -numMatch[0].length);
+              const numPart = numMatch[1];
+              lineHtml += escapeHtml(textPart);
+              lineHtml += `<span class="ayah-num-marker">۝${toArabicNumeral(parseInt(numPart, 10) || numPart)}</span>`;
+            } else {
+              lineHtml += escapeHtml(wt);
+            }
+          } else {
+            lineHtml += escapeHtml(wt);
+          }
+          if (wi < group.words.length - 1) lineHtml += ' ';
+        }
         lineHtml += `</span> `;
       }
       html += `<div class="mushaf-line">${lineHtml}</div>`;

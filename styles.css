@@ -1319,9 +1319,9 @@ noscript > div {
 
 /* ===== حاوية المصحف الرئيسية ===== */
 .mushaf-container {
-  max-width: 920px;
+  max-width: 750px;
   margin: 0 auto;
-  padding: 25px 20px 20px;
+  padding: 30px 25px 20px;
   background: var(--container-bg);
   box-shadow: var(--shadow);
   position: relative;
@@ -1334,7 +1334,7 @@ noscript > div {
   top: 10px; left: 10px; right: 10px; bottom: 10px;
   border: 2px solid var(--accent);
   pointer-events: none;
-  opacity: 0.25;
+  opacity: 0.2;
   border-radius: 2px;
 }
 
@@ -1369,49 +1369,67 @@ noscript > div {
   font-size: 16px;
   color: var(--text-muted);
   margin-top: 6px;
-  font-family: 'Traditional Arabic', 'Amiri', serif;
-}
-
-/* ===== 15 سطراً كالمصحف الحقيقي — تخطيط مسبق ===== */
-.mushaf-page-body {
-  direction: rtl;
-  text-align: justify;
-  text-justify: auto;
-  word-spacing: 0.5px;
-  font-size: var(--mushaf-font-size, 22px);
-  line-height: 2.2;
-  padding: 0 15px;
-  font-family: 'Amiri', 'Traditional Arabic', serif;
-}
-
-/* كل سطر يمثل سطراً من المصحف */
-.mushaf-line {
-  line-height: 2.2;
-  min-height: 2.2em;
-  text-align: justify;
-  text-justify: auto;
-  direction: rtl;
+  font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
 }
 
 /* رأس السورة */
 .mushaf-line-suhead {
   text-align: center;
-  font-size: 1.1em;
+  font-size: 1.15em;
   color: var(--accent-dark);
   font-weight: bold;
-  line-height: 2.2;
-  min-height: 2.2em;
-  font-family: 'Traditional Arabic', 'Amiri', serif;
+  font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.suhead-ornament {
+  color: var(--accent);
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+
+.mushaf-line-suhead::before,
+.mushaf-line-suhead::after {
+  content: '';
+  display: inline-block;
+  width: 30px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.3;
 }
 
 /* البسملة */
 .mushaf-line-basmala {
   text-align: center;
-  font-size: 1em;
+  font-size: 1.1em;
   color: var(--bismillah-color);
   font-weight: bold;
-  line-height: 2.2;
-  min-height: 2.2em;
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* علامة نهاية الآية ۝ */
+.ayah-num-marker {
+  display: inline-block;
+  font-size: 0.7em;
+  color: var(--accent-dark);
+  font-weight: bold;
+  margin: 0 2px;
+  vertical-align: middle;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 50%;
+  width: 1.6em;
+  height: 1.6em;
+  line-height: 1.6em;
+  text-align: center;
+  font-family: 'Traditional Arabic', 'Arial', sans-serif;
 }
 
 /* الآية داخل السطر */
@@ -1614,15 +1632,7 @@ noscript > div {
     padding: 0 5px;
     font-size: calc(var(--mushaf-font-size, 22px) - 2px);
     line-height: 2.1;
-  }
-  .mushaf-line {
-    line-height: 2.1;
-    min-height: 2.1em;
-  }
-  .mushaf-line-suhead,
-  .mushaf-line-basmala {
-    line-height: 2.1;
-    min-height: 2.1em;
+    min-height: 450px;
   }
   .mushaf-page-num { font-size: 22px; }
   .mushaf-surah-name { font-size: 20px; }
