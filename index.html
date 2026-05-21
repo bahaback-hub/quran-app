@@ -351,6 +351,18 @@
 <!-- ========== مشغل الأذان (مخفي) ========== -->
 <audio id="azanPlayer" preload="none"></audio>
 
+<!-- ========== إشعار الأذان ========== -->
+<div class="azan-notification" id="azanNotification" role="alert" aria-live="assertive" style="display:none;">
+  <div class="azan-notification-inner">
+    <div class="azan-notification-icon">🕌</div>
+    <div class="azan-notification-title">حان الآن وقت الصلاة</div>
+    <div class="azan-notification-prayer" id="azanNotifPrayer">---</div>
+    <div class="azan-notification-actions">
+      <button class="btn btn-gold" id="azanNotifStopBtn">⏹️ إيقاف الأذان</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========== رسائل Toast ========== -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
