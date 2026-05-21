@@ -1408,6 +1408,81 @@ noscript > div {
   margin: 0 6px;
 }
 
+/* ===== شريط الآيات التفاعلي ===== */
+.mushaf-ayah-bar {
+  max-width: 750px;
+  margin: 16px auto 0;
+  background: var(--container-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+}
+
+.mushaf-ayah-bar-title {
+  text-align: center;
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  font-family: 'Traditional Arabic', 'Arial', sans-serif;
+}
+
+.mushaf-ayah-bar-loading {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 10px;
+}
+
+.mushaf-ayah-bar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  direction: rtl;
+}
+
+.mushaf-ayah-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Traditional Arabic', 'Arial', sans-serif;
+  direction: rtl;
+}
+
+.mushaf-ayah-btn:hover {
+  background: rgba(212, 175, 55, 0.1);
+  transform: translateY(-1px);
+}
+
+.mushaf-ayah-btn.current {
+  background: var(--accent);
+  color: #2c3e50;
+  border-color: var(--accent-dark);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.mushaf-ayah-btn-surah {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.mushaf-ayah-btn-num {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--accent-dark);
+}
+
+.mushaf-ayah-btn.current .mushaf-ayah-btn-num {
+  color: #2c3e50;
+}
+
 /* ===== التجاوب ===== */
 @media (max-width: 768px) {
   .mushaf-container {
