@@ -559,13 +559,13 @@ function renderMushafPageImage(pageNum) {
            src="${imgUrl}"
            alt="صفحة ${pageNum} من المصحف"
            loading="eager"
-           onerror="this.onerror=null; this.src='${fallbackUrl}';">
+           onerror="this.onerror=null; this.src='${fallbackUrl}'; this.classList.add('loaded'); (function(){var e=document.getElementById('loadingProgress');if(e)e.classList.remove('active');})()"
+           onload="this.classList.add('loaded'); (function(){var e=document.getElementById('loadingProgress');if(e)e.classList.remove('active');})()">
     </div>
     <div class="mushaf-footer"><span class="mushaf-footer-ornament">۞</span> صفحة ${toArabicNumeral(pageNum)} — القرآن الكريم <span class="mushaf-footer-ornament">۞</span></div>
   </div>`;
 
   dom.surahContent.innerHTML = html;
-  loadingBar.hide();
 
   // التحميل المسبق للصفحة التالية
   const nextNum = pageNum + 1;
