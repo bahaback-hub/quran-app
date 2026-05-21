@@ -155,6 +155,11 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function toArabicNumeral(num) {
+  const digits = '٠١٢٣٤٥٦٧٨٩';
+  return String(num).replace(/\d/g, d => digits[d]);
+}
+
 function escapeRegExp(str) {
   return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -549,7 +554,6 @@ function getQuarterForPage(pageNum) {
 function renderMushafPage(data, pageNum) {
   if (!dom.surahContent) return;
   const juz = getJuzForPage(pageNum);
-  const quarter = getQuarterForPage(pageNum);
 
   // تجميع الآيات حسب رقم السورة
   const surahGroups = {};
@@ -561,8 +565,8 @@ function renderMushafPage(data, pageNum) {
 
   let html = `<div class="mushaf-container">
     <div class="mushaf-header">
-      <div class="mushaf-page-num">صفحة ${pageNum}</div>
-      <div class="mushaf-juz">الجزء ${juz}${quarter ? ' — ' + quarter : ''}</div>
+      <div class="mushaf-page-num">صفحة ${toArabicNumeral(pageNum)}</div>
+      <div class="mushaf-juz">الجزء ${toArabicNumeral(juz)}</div>
     </div>
     <div class="mushaf-two-columns">`;
 
@@ -572,29 +576,39 @@ function renderMushafPage(data, pageNum) {
     const surah = group.surah;
     const surahInfo = state.surahList.find(s => s.number === surah.number);
     const surahName = surahInfo ? surahInfo.name : surah.name;
+    const revelationType = surahInfo ? surahInfo.revelationType : '';
+    const totalAyahs = surahInfo ? surahInfo.numberOfAyahs : group.ayahs.length;
 
-    html += `<div class="mushaf-surah-title">${surahName}`;
+    html += `<div class="mushaf-surah-block">
+      <div class="mushaf-surah-title">
+        <span class="mushaf-surah-ornament">﴿</span>
+        <span class="mushaf-surah-name">${escapeHtml(surahName)}</span>
+        <span class="mushaf-surah-ornament">﴾</span>
+        <span class="mushaf-surah-meta">${revelationType === 'Meccan' ? 'مكية' : revelationType === 'Medinan' ? 'مدنية' : ''} — ${toArabicNumeral(totalAyahs)} آية</span>
+      </div>`;
+
     if (surah.number !== 1 && surah.number !== 9 && group.ayahs[0]?.numberInSurah === 1) {
-      html += `<span class="bismillah-mushaf">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>`;
+      html += `<div class="bismillah-mushaf">﷽</div>`;
     }
-    html += `</div>`;
 
     for (const ayah of group.ayahs) {
       let txt = ayah.text;
       if (surah.number !== 1 && ayah.numberInSurah === 1) {
         txt = txt.replace(/^بِسْمِ\s+[ٱا]للَّهِ\s+[ٱا]لرَّحْمَٰنِ\s+[ٱا]لرَّحِيمِ\s*/u, '');
       }
-      const isSajda = txt.includes('۩') || txt.includes('۝');
+      const isSajda = txt.includes('۩');
       html += `<span class="mushaf-ayah" data-surah="${surah.number}" data-ayah="${ayah.numberInSurah}" data-page="${pageNum}">`;
       html += escapeHtml(txt);
-      html += `<span class="mushaf-ayah-num">${ayah.numberInSurah}</span>`;
+      html += `<span class="mushaf-ayah-num"><span class="mushaf-ayah-num-char">۝</span>${toArabicNumeral(ayah.numberInSurah)}</span>`;
       if (isSajda) html += `<span class="mushaf-sajda">۩</span>`;
       html += `</span> `;
     }
+
+    html += `</div>`;
   }
 
   html += `</div>
-    <div class="mushaf-footer">صفحة ${pageNum} — الجزء ${juz} — القرآن الكريم</div>
+    <div class="mushaf-footer"><span class="mushaf-footer-ornament">۞</span> صفحة ${toArabicNumeral(pageNum)} — القرآن الكريم <span class="mushaf-footer-ornament">۞</span></div>
   </div>`;
 
   dom.surahContent.innerHTML = html;
