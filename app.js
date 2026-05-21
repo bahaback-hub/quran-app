@@ -545,9 +545,9 @@ function renderMushafPageImage(pageNum) {
   const juz = getJuzForPage(pageNum);
   const padded = String(pageNum).padStart(3, '0');
 
-  // روابط صور المصحف — الأولى من شبكة القرآن، الثانية من مجمع الملك فهد
-  const imgUrl = `https://cdn.islamic.network/quran/images/webp/page${padded}.webp`;
-  const fallbackUrl = `https://android.quran.com/data/images_1920/page${padded}.png`;
+  // صور المصحف مستضافة على GitHub مع CDN من jsDelivr (نسخة GovarJabbar/Quran-PNG)
+  const imgUrl = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${padded}.png`;
+  const fallbackUrl = `https://cdn.jsdelivr.net/gh/Miftah-Fentaw/Quran_webp@main/${padded}.webp`;
 
   const html = `<div class="mushaf-container">
     <div class="mushaf-header">
@@ -573,7 +573,7 @@ function renderMushafPageImage(pageNum) {
     const nextPadded = String(nextNum).padStart(3, '0');
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = `https://cdn.islamic.network/quran/images/webp/page${nextPadded}.webp`;
+    link.href = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${nextPadded}.png`;
     link.as = 'image';
     document.head.appendChild(link);
   }
