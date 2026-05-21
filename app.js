@@ -64,6 +64,7 @@ let state = {
   fullQuranLoaded: false,
   barCollapsed: false,
   azanPlaying: false,
+  loadingSurah: null,
   mushafMode: false,
   currentPage: 1
 };
@@ -80,7 +81,7 @@ function cacheDom() {
     'cityInput','countryInput','methodSelect','cityQuickSelect','saveLocationBtn','azanToggle','azanFajrToggle','testAzanBtn',
     'fontSizeSelect','autoSaveToggle','resetSettingsBtn','favoritesPanel','favoritesCloseBtn','favoritesList','favoritesOpenBtn',
     'player','collapsePlayerBtn','collapsedExpandBtn','playPauseBtn','collapsedPlayBtn','playerSurahName','playerReciterName','playerCurrentAyah','collapsedInfo',
-    'audioPlayer','prevAyahBtn','nextAyahBtn','prevSurahBtn','nextSurahBtn','hifdhBtn','repeatBtn','bookmarkBtn','favoriteBtn','shareBtn',
+    'audioPlayer','speedSelect','prevAyahBtn','nextAyahBtn','prevSurahBtn','nextSurahBtn','hifdhBtn','repeatBtn','bookmarkBtn','favoriteBtn','shareBtn',
     'repeatControls','repeatFrom','repeatTo','repeatTimes','shareMenu','azanPlayer','toast','fontSizeDropdown','collapseBarBtn','expandBarBtn','prayerBar',
     'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','bgSelect','loadingProgress',
     'modeToggleBtn','pageSelect','prevPageBtn','nextPageBtn','mushafControls','surahModeControls',
@@ -277,8 +278,8 @@ function updateCountdowns() {
   const diff = nextMin - nowMin;
   const h = Math.floor(diff / 60);
   const m = diff % 60;
-  const s = 60 - now.getSeconds();
-  const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s % 60)}`;
+  const s = (60 - now.getSeconds()) % 60;
+  const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
   if (dom.countdownDisplay) dom.countdownDisplay.textContent = countdownText;
   if (dom.prayerCountdown) dom.prayerCountdown.textContent = `${PRAYER_NAMES_AR[nextKey]} — بعد ${countdownText}`;
   const time24 = (state.prayerTimes[nextKey] || '').split(' ')[0];
@@ -425,6 +426,8 @@ function getAbsNumber(surah, ayah) {
 ============================================================ */
 async function loadSurah(surahNum, opts = {}) {
   if (!surahNum) return;
+  if (state.loadingSurah === surahNum) return;
+  state.loadingSurah = surahNum;
   // إيقاف الصوت الحالي ومسح مصدره قبل تبديل السورة
   if (state.isPlaying) {
     prepareAudioForNewSurah();
@@ -437,6 +440,7 @@ async function loadSurah(surahNum, opts = {}) {
     state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
     renderSurah(cached.text);
     finalizeSurahLoad(opts);
+    state.loadingSurah = null;
     return;
   }
   loadingBar.show(`⏳ جاري تحميل سورة ${state.surahList.find(s => s.number === surahNum)?.name || surahNum}...`);
@@ -467,6 +471,8 @@ async function loadSurah(surahNum, opts = {}) {
     if (dom.surahContent) dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل السورة</p>';
     showToast('فشل تحميل السورة', 'error');
     loadingBar.hide();
+  } finally {
+    state.loadingSurah = null;
   }
 }
 
@@ -1460,7 +1466,7 @@ function saveLocationSettings() {
 }
 function resetSettings() {
   if (!confirm('هل تريد إعادة ضبط جميع الإعدادات؟')) return;
-  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id'];
+  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed'];
   keys.forEach(k => storage.remove(k));
   location.reload();
 }
@@ -1539,6 +1545,7 @@ function restoreSettings() {
   if (dom.tafsirSelect) dom.tafsirSelect.value = state.currentTafsirEdition;
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = state.fontSize;
   if (dom.fontSizeDropdown) dom.fontSizeDropdown.value = state.fontSize;
+  const speed = storage.get('playback_speed'); if (speed && dom.speedSelect && dom.audioPlayer) { dom.speedSelect.value = speed; dom.audioPlayer.playbackRate = parseFloat(speed); }
   if (state.barCollapsed && dom.prayerBar) {
     dom.prayerBar.classList.add('collapsed');
     dom.prayerBar.classList.remove('expanded');
@@ -1571,8 +1578,7 @@ async function initApp() {
   restoreSettings();
   loadFavorites();
   updateDates();
-  setInterval(updateDates, 1000);
-  setInterval(() => { if (state.prayerTimes) updateCountdowns(); }, 1000);
+  setInterval(() => { updateDates(); if (state.prayerTimes) updateCountdowns(); }, 1000);
   setInterval(checkAzanTime, 20000);
 
   await loadSurahList();
@@ -1628,6 +1634,11 @@ async function initApp() {
   dom.collapsedExpandBtn?.addEventListener('click', () => dom.player?.classList.remove('collapsed'));
   dom.playPauseBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
   dom.collapsedPlayBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
+  dom.speedSelect?.addEventListener('change', () => {
+    const rate = parseFloat(dom.speedSelect.value);
+    if (dom.audioPlayer) dom.audioPlayer.playbackRate = rate;
+    storage.set('playback_speed', rate);
+  });
   dom.tafsirCurtainHandle?.addEventListener('click', toggleTafsir);
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect.value;

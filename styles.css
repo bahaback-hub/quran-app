@@ -696,6 +696,25 @@ audio {
   display: block;
 }
 
+.speed-control {
+  margin: 6px 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.speed-control select {
+  padding: 4px 8px;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: var(--select-bg);
+  color: var(--text-secondary);
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .player-buttons {
   margin-top: 8px;
   display: flex;
