@@ -563,14 +563,15 @@ function renderMushafPage(data, pageNum) {
     surahGroups[sn].ayahs.push(ayah);
   }
 
+  const surahKeys = Object.keys(surahGroups);
+
   let html = `<div class="mushaf-container">
     <div class="mushaf-header">
       <div class="mushaf-page-num">صفحة ${toArabicNumeral(pageNum)}</div>
       <div class="mushaf-juz">الجزء ${toArabicNumeral(juz)}</div>
-    </div>
-    <div class="mushaf-two-columns">`;
+    </div>`;
 
-  const surahKeys = Object.keys(surahGroups);
+  // عناوين السور خارج جسم الـ 15 سطر
   for (const sn of surahKeys) {
     const group = surahGroups[sn];
     const surah = group.surah;
@@ -578,18 +579,27 @@ function renderMushafPage(data, pageNum) {
     const surahName = surahInfo ? surahInfo.name : surah.name;
     const revelationType = surahInfo ? surahInfo.revelationType : '';
     const totalAyahs = surahInfo ? surahInfo.numberOfAyahs : group.ayahs.length;
+    const revText = revelationType === 'Meccan' ? 'مكية' : revelationType === 'Medinan' ? 'مدنية' : '';
 
     html += `<div class="mushaf-surah-block">
       <div class="mushaf-surah-title">
         <span class="mushaf-surah-ornament">﴿</span>
         <span class="mushaf-surah-name">${escapeHtml(surahName)}</span>
         <span class="mushaf-surah-ornament">﴾</span>
-        <span class="mushaf-surah-meta">${revelationType === 'Meccan' ? 'مكية' : revelationType === 'Medinan' ? 'مدنية' : ''} — ${toArabicNumeral(totalAyahs)} آية</span>
+        <span class="mushaf-surah-meta">${revText}${revText ? ' — ' : ''}${toArabicNumeral(totalAyahs)} آية</span>
       </div>`;
-
     if (surah.number !== 1 && surah.number !== 9 && group.ayahs[0]?.numberInSurah === 1) {
       html += `<div class="bismillah-mushaf">﷽</div>`;
     }
+    html += `</div>`;
+  }
+
+  // جسم الـ 15 سطر
+  html += `<div class="mushaf-page-body">`;
+
+  for (const sn of surahKeys) {
+    const group = surahGroups[sn];
+    const surah = group.surah;
 
     for (const ayah of group.ayahs) {
       let txt = ayah.text;
@@ -603,8 +613,6 @@ function renderMushafPage(data, pageNum) {
       if (isSajda) html += `<span class="mushaf-sajda">۩</span>`;
       html += `</span> `;
     }
-
-    html += `</div>`;
   }
 
   html += `</div>
