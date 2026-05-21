@@ -1,0 +1,37 @@
+export const dom = {};
+
+const DOM_IDS = [
+  'cityName', 'nextPrayerName', 'nextPrayerTime', 'countdownDisplay',
+  'hijriDateDisplay', 'weekdayDisplay', 'gregorianDateDisplay',
+  'prayerTimesRows', 'prayerCountdown', 'bigClockTime', 'bigClockDate',
+  'bigClockHijri', 'settingsPanel', 'settingsCloseBtn', 'settingsToggleBtn',
+  'themeToggle', 'surahSelect', 'reciterSelect', 'searchType', 'searchInput',
+  'searchBtn', 'clearSearchBtn', 'searchResults', 'surahContent',
+  'cityInput', 'countryInput', 'methodSelect', 'cityQuickSelect',
+  'saveLocationBtn', 'azanToggle', 'azanFajrToggle', 'testAzanBtn',
+  'fontSizeSelect', 'autoSaveToggle', 'resetSettingsBtn',
+  'favoritesPanel', 'favoritesCloseBtn', 'favoritesList', 'favoritesOpenBtn',
+  'player', 'collapsePlayerBtn', 'collapsedExpandBtn', 'playPauseBtn',
+  'collapsedPlayBtn', 'playerSurahName', 'playerReciterName',
+  'playerCurrentAyah', 'collapsedInfo',
+  'audioPlayer', 'speedSelect', 'prevAyahBtn', 'nextAyahBtn',
+  'prevSurahBtn', 'nextSurahBtn', 'hifdhBtn', 'repeatBtn', 'bookmarkBtn',
+  'favoriteBtn', 'shareBtn',
+  'repeatControls', 'repeatFrom', 'repeatTo', 'repeatTimes', 'shareMenu',
+  'azanPlayer', 'toast', 'fontSizeDropdown', 'collapseBarBtn', 'expandBarBtn',
+  'prayerBar',
+  'tafsirCurtainHandle', 'tafsirCurtain', 'tafsirCurtainHeader',
+  'tafsirCurtainBody', 'tafsirSelect', 'bgSelect', 'loadingProgress',
+  'modeToggleBtn', 'pageSelect', 'prevPageBtn', 'nextPageBtn',
+  'mushafControls', 'surahModeControls',
+  'azanNotification', 'azanNotifStopBtn',
+  'mushafSurahListBtn', 'mushafSurahOverlay', 'mushafSurahOverlayClose',
+  'mushafSurahOverlayList', 'pageSlider',
+  'langSelect'
+];
+
+export function cacheDom() {
+  for (const id of DOM_IDS) {
+    dom[id] = document.getElementById(id);
+  }
+}

@@ -1634,6 +1634,29 @@ body.night-mode .mushaf-surah-overlay-inner { background: #1e2330; }
   .mushaf-page-num { font-size: 22px; }
 }
 
+/* ========== Word-by-Word Highlighting ========== */
+.word {
+  transition: background 0.15s ease, color 0.15s ease;
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+.word.current-word {
+  background: #fde047;
+  color: #1a1a1a;
+  box-shadow: 0 0 6px rgba(253, 224, 71, 0.5);
+}
+
+body.night-mode .word.current-word {
+  background: #facc15;
+  color: #0a0e1a;
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+}
+
+.ayah.current .word.current-word:last-child {
+  background: #fbbf24;
+}
+
 /* ========== شاشات صغيرة جداً ========== */
 @media (max-width: 380px) {
   .header h1 { font-size: 19px; }
