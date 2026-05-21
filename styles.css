@@ -1127,6 +1127,40 @@ body.night-mode .settings-section-title { color: var(--accent); }
 .toast.success { background: var(--success-bg); }
 .toast.error { background: #dc2626; }
 
+/* ========== إشعار الأذان ========== */
+.azan-notification {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.azan-notification-inner {
+  background: var(--container-bg);
+  border: 2px solid var(--accent);
+  border-radius: 20px;
+  padding: 40px 50px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: scaleIn 0.3s ease;
+}
+@keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+body.night-mode .azan-notification-inner { background: #1e2330; }
+.azan-notification-icon { font-size: 60px; margin-bottom: 10px; }
+.azan-notification-title { font-size: 22px; font-weight: bold; color: var(--text-primary); margin-bottom: 5px; }
+.azan-notification-prayer { font-size: 28px; color: var(--accent); font-weight: bold; margin-bottom: 25px; }
+.azan-notification-actions { display: flex; gap: 10px; justify-content: center; }
+.azan-notification-actions .btn { padding: 12px 30px; font-size: 16px; }
+
 /* ========== تأثيرات الوضع الليلي الخلفية ========== */
 body.night-mode::before {
   content: '';

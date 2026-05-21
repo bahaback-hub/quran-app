@@ -64,7 +64,7 @@ let state = {
   fullQuranText: null,
   fullQuranLoaded: false,
   barCollapsed: false,
-  azanTestPlaying: false,
+  azanPlaying: false,
   mushafMode: false,
   currentPage: 1
 };
@@ -84,7 +84,8 @@ function cacheDom() {
     'audioPlayer','prevAyahBtn','nextAyahBtn','prevSurahBtn','nextSurahBtn','hifdhBtn','repeatBtn','bookmarkBtn','favoriteBtn','shareBtn',
     'repeatControls','repeatFrom','repeatTo','repeatTimes','shareMenu','azanPlayer','toast','fontSizeDropdown','collapseBarBtn','expandBarBtn','prayerBar',
     'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','bgSelect','loadingProgress',
-    'modeToggleBtn','pageSelect','prevPageBtn','nextPageBtn','mushafControls','surahModeControls'
+    'modeToggleBtn','pageSelect','prevPageBtn','nextPageBtn','mushafControls','surahModeControls',
+    'azanNotification','azanNotifStopBtn'
   ];
   for (const id of ids) {
     dom[id] = document.getElementById(id);
@@ -286,24 +287,42 @@ function updateCountdowns() {
   if (dom.nextPrayerTime) dom.nextPrayerTime.textContent = formatTime12(time24);
 }
 
+function hideAzanNotification() {
+  if (dom.azanNotification) dom.azanNotification.style.display = 'none';
+}
+
+function stopAzan() {
+  if (!dom.azanPlayer) return;
+  dom.azanPlayer.pause();
+  dom.azanPlayer.currentTime = 0;
+  dom.azanPlayer.removeAttribute('src');
+  dom.azanPlayer.load();
+  state.azanPlaying = false;
+  if (dom.testAzanBtn) dom.testAzanBtn.textContent = '▶️ اختبار الأذان';
+  hideAzanNotification();
+}
+
 function testAzan() {
   if (!dom.azanPlayer) return;
-  if (state.azanTestPlaying) {
-    dom.azanPlayer.pause();
-    dom.azanPlayer.currentTime = 0;
-    state.azanTestPlaying = false;
-    if (dom.testAzanBtn) dom.testAzanBtn.textContent = '▶️ اختبار الأذان';
+  if (state.azanPlaying) {
+    stopAzan();
     showToast('تم إيقاف الأذان', '');
   } else {
     dom.azanPlayer.src = CONFIG.AZAN_FILE;
     dom.azanPlayer.load();
     dom.azanPlayer.play()
       .then(() => {
-        state.azanTestPlaying = true;
+        state.azanPlaying = true;
         if (dom.testAzanBtn) dom.testAzanBtn.textContent = '⏹️ إيقاف الأذان';
       })
       .catch(() => showToast('تعذّر تشغيل الأذان', 'error'));
   }
+}
+
+function showAzanNotification(prayerKey) {
+  if (!dom.azanNotification || !dom.azanNotifPrayer) return;
+  dom.azanNotifPrayer.textContent = `🕋 صلاة ${PRAYER_NAMES_AR[prayerKey]}`;
+  dom.azanNotification.style.display = 'flex';
 }
 
 function checkAzanTime() {
@@ -321,9 +340,14 @@ function checkAzanTime() {
       if (dom.azanPlayer) {
         dom.azanPlayer.src = CONFIG.AZAN_FILE;
         dom.azanPlayer.currentTime = 0;
-        dom.azanPlayer.play().catch(e => console.warn(e));
+        dom.azanPlayer.play()
+          .then(() => {
+            state.azanPlaying = true;
+            if (dom.testAzanBtn) dom.testAzanBtn.textContent = '⏹️ إيقاف الأذان';
+            showAzanNotification(key);
+          })
+          .catch(e => console.warn(e));
       }
-      showToast(`🕌 حان الآن وقت صلاة ${PRAYER_NAMES_AR[key]}`, 'success');
       return;
     }
   }
@@ -1431,12 +1455,7 @@ function toggleNightMode() { applyNightMode(!state.nightMode); }
 function openSettings() { dom.settingsPanel?.classList.add('open'); }
 function closeSettings() {
   dom.settingsPanel?.classList.remove('open');
-  if (state.azanTestPlaying && dom.azanPlayer) {
-    dom.azanPlayer.pause();
-    dom.azanPlayer.currentTime = 0;
-    state.azanTestPlaying = false;
-    if (dom.testAzanBtn) dom.testAzanBtn.textContent = '▶️ اختبار الأذان';
-  }
+  if (state.azanPlaying) stopAzan();
 }
 function saveLocationSettings() {
   const city = dom.cityInput?.value.trim();
@@ -1605,6 +1624,13 @@ async function initApp() {
   dom.settingsCloseBtn?.addEventListener('click', closeSettings);
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
   dom.testAzanBtn?.addEventListener('click', testAzan);
+  dom.azanNotifStopBtn?.addEventListener('click', stopAzan);
+  dom.azanNotification?.addEventListener('click', (e) => { if (e.target === dom.azanNotification) stopAzan(); });
+  dom.azanPlayer?.addEventListener('ended', () => {
+    state.azanPlaying = false;
+    if (dom.testAzanBtn) dom.testAzanBtn.textContent = '▶️ اختبار الأذان';
+    hideAzanNotification();
+  });
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
   dom.bgSelect?.addEventListener('change', () => { applyBackground(dom.bgSelect.value); });
   dom.collapsePlayerBtn?.addEventListener('click', () => {
