@@ -65,7 +65,7 @@ let state = {
   fullQuranLoaded: false,
   barCollapsed: false,
   azanTestPlaying: false,
-  mus-hafMode: false,
+  mushafMode: false,
   currentPage: 1
 };
 
