@@ -486,9 +486,11 @@ function toggleMushafMode() {
   } else {
     dom.modeToggleBtn.textContent = '📄 وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
-    dom.surahModeControls.style.display = 'flex';
+    dom.surahModeControls.style.display = '';
     dom.mushafControls.style.display = 'none';
-    loadSurah(state.currentSurah);
+    const surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
+    dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
+    setTimeout(() => loadSurah(surahToLoad), 50);
   }
   storage.set('mushaf_mode', state.mushafMode);
 }
