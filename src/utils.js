@@ -42,6 +42,17 @@ export function normalizeExactText(str) {
     .replace(/ئ/g, 'ي');
 }
 
+export function stripTashkeel(str) {
+  return String(str)
+    .replace(/[\u064B-\u065F\u0670\u0610-\u061A\u06D6-\u06ED\u08D0-\u08E3]/g, '')
+    .replace(/[إأآٱ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه')
+    .replace(/ؤ/g, 'و')
+    .replace(/ئ/g, 'ي')
+    .replace(/ۖ|ۗ|ۘ|ۙ|ۚ|ۛ|ۜ|۟|۠|ۡ|ۢ|ۣ|ۤ|ۥ|ۦ|ۧ|ۨ|۩|۪|۫|۬|ۭ/g, '');
+}
+
 export function getArabicNumeral(digit) {
   const digits = '٠١٢٣٤٥٦٧٨٩';
   return digits[digit] || digit;
