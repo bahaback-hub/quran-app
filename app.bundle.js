@@ -156,6 +156,17 @@ function normalizeExactText(str) {
     .replace(/ئ/g, 'ي');
 }
 
+function stripTashkeel(str) {
+  return String(str)
+    .replace(/[\u064B-\u065F\u0670\u0610-\u061A\u06D6-\u06ED\u08D0-\u08E3]/g, '')
+    .replace(/[إأآٱ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه')
+    .replace(/ؤ/g, 'و')
+    .replace(/ئ/g, 'ي')
+    .replace(/ۖ|ۗ|ۘ|ۙ|ۚ|ۛ|ۜ|۟|۠|ۡ|ۢ|ۣ|ۤ|ۥ|ۦ|ۧ|ۨ|۩|۪|۫|۬|ۭ/g, '');
+}
+
 function getArabicNumeral(digit) {
   const digits = '٠١٢٣٤٥٦٧٨٩';
   return digits[digit] || digit;
@@ -1914,6 +1925,14 @@ function shareNative() {
 }
 
 function shareCopy() { copyToClipboard(buildShareText()); showToast('📋 تم نسخ الآية', 'success'); }
+function shareCopySimple() {
+  if (!state.surahData) return;
+  const a = state.surahData.ayahs[state.currentAyahIndex];
+  if (!a) return;
+  const text = `﴿${stripTashkeel(a.text)}﴾\n— ${state.surahData.name} — آية ${a.numberInSurah}`;
+  copyToClipboard(text);
+  showToast('📋 تم نسخ النص المبسط', 'success');
+}
 function shareWhatsApp() {
   const text = buildShareText();
   if (!text) return;
@@ -2430,6 +2449,7 @@ async function initApp() {
 
   document.querySelectorAll('[data-share="native"]').forEach(btn => btn.addEventListener('click', () => { shareNative(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="copy"]').forEach(btn => btn.addEventListener('click', () => { shareCopy(); toggleShareMenu(); }));
+  document.querySelectorAll('[data-share="copy-simple"]').forEach(btn => btn.addEventListener('click', () => { shareCopySimple(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="whatsapp"]').forEach(btn => btn.addEventListener('click', () => { shareWhatsApp(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="telegram"]').forEach(btn => btn.addEventListener('click', () => { shareTelegram(); toggleShareMenu(); }));
 

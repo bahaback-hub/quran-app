@@ -4,7 +4,8 @@ import { dom, cacheDom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
 import {
   escapeHtml, escapeRegExp, pad2, toArabicNumeral,
-  formatTime12, timeStrToMinutes, normalizeExactText
+  formatTime12, timeStrToMinutes, normalizeExactText,
+  stripTashkeel
 } from './utils.js';
 import { __, getLang, setLang } from './i18n.js';
 
@@ -1243,6 +1244,14 @@ function shareNative() {
 }
 
 function shareCopy() { copyToClipboard(buildShareText()); showToast('📋 تم نسخ الآية', 'success'); }
+function shareCopySimple() {
+  if (!state.surahData) return;
+  const a = state.surahData.ayahs[state.currentAyahIndex];
+  if (!a) return;
+  const text = `﴿${stripTashkeel(a.text)}﴾\n— ${state.surahData.name} — آية ${a.numberInSurah}`;
+  copyToClipboard(text);
+  showToast('📋 تم نسخ النص المبسط', 'success');
+}
 function shareWhatsApp() {
   const text = buildShareText();
   if (!text) return;
@@ -1759,6 +1768,7 @@ export async function initApp() {
 
   document.querySelectorAll('[data-share="native"]').forEach(btn => btn.addEventListener('click', () => { shareNative(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="copy"]').forEach(btn => btn.addEventListener('click', () => { shareCopy(); toggleShareMenu(); }));
+  document.querySelectorAll('[data-share="copy-simple"]').forEach(btn => btn.addEventListener('click', () => { shareCopySimple(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="whatsapp"]').forEach(btn => btn.addEventListener('click', () => { shareWhatsApp(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="telegram"]').forEach(btn => btn.addEventListener('click', () => { shareTelegram(); toggleShareMenu(); }));
 
