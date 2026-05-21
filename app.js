@@ -39,7 +39,6 @@ let state = {
   ayahsAudios: [],
   rootsData: null,
   rootsLoaded: false,
-  layoutCache: new Map(),
   isPlaying: false,
   hifdhMode: false,
   repeatMode: false,
@@ -85,7 +84,7 @@ function cacheDom() {
     'audioPlayer','prevAyahBtn','nextAyahBtn','prevSurahBtn','nextSurahBtn','hifdhBtn','repeatBtn','bookmarkBtn','favoriteBtn','shareBtn',
     'repeatControls','repeatFrom','repeatTo','repeatTimes','shareMenu','azanPlayer','toast','fontSizeDropdown','collapseBarBtn','expandBarBtn','prayerBar',
     'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','bgSelect','loadingProgress',
-    'modeToggleBtn','pageSelect','mushafControls','surahModeControls'
+    'modeToggleBtn','pageSelect','prevPageBtn','nextPageBtn','mushafControls','surahModeControls'
   ];
   for (const id of ids) {
     dom[id] = document.getElementById(id);
@@ -517,35 +516,7 @@ async function loadPage(pageNum) {
   state.currentPage = pageNum;
   storage.set('current_page', pageNum);
   loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
-  dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
-  try {
-    // استخدام بيانات تخطيط المصحف (15 سطراً لكل صفحة مطابقة للمصحف الحقيقي)
-    const padded = String(pageNum).padStart(3, '0');
-    let layoutData = state.layoutCache.get(pageNum);
-    if (!layoutData) {
-      const res = await fetch(`https://raw.githubusercontent.com/zonetecde/mushaf-layout/main/mushaf/page-${padded}.json`);
-      if (res.ok) {
-        layoutData = await res.json();
-        state.layoutCache.set(pageNum, layoutData);
-      } else {
-        throw new Error('مكتبة التخطيط غير متوفرة');
-      }
-    }
-    renderMushafPageFromLayout(layoutData, pageNum);
-    loadingBar.hide();
-  } catch(e) {
-    // الرجوع إلى API القديم كخطة بديلة
-    try {
-      const res = await fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`);
-      const json = await res.json();
-      if (!json?.data?.ayahs) throw new Error('بيانات غير صالحة');
-      renderMushafPage(json.data, pageNum);
-    } catch(e2) {
-      dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل الصفحة</p>';
-      showToast('فشل تحميل الصفحة', 'error');
-    }
-    loadingBar.hide();
-  }
+  renderMushafPageImage(pageNum);
 }
 
 function getJuzForPage(pageNum) {
@@ -569,164 +540,43 @@ function getQuarterForPage(pageNum) {
   return '';
 }
 
-function renderMushafPage(data, pageNum) {
+function renderMushafPageImage(pageNum) {
   if (!dom.surahContent) return;
   const juz = getJuzForPage(pageNum);
+  const padded = String(pageNum).padStart(3, '0');
 
-  // تجميع الآيات حسب رقم السورة
-  const surahGroups = {};
-  for (const ayah of data.ayahs) {
-    const sn = ayah.surah.number;
-    if (!surahGroups[sn]) surahGroups[sn] = { surah: ayah.surah, ayahs: [] };
-    surahGroups[sn].ayahs.push(ayah);
-  }
+  // روابط صور المصحف — الأولى من شبكة القرآن، الثانية من مجمع الملك فهد
+  const imgUrl = `https://cdn.islamic.network/quran/images/webp/page${padded}.webp`;
+  const fallbackUrl = `https://android.quran.com/data/images_1920/page${padded}.png`;
 
-  const surahKeys = Object.keys(surahGroups);
-
-  let html = `<div class="mushaf-container">
-    <div class="mushaf-header">
-      <div class="mushaf-page-num">صفحة ${toArabicNumeral(pageNum)}</div>
-      <div class="mushaf-juz">الجزء ${toArabicNumeral(juz)}</div>
-    </div>`;
-
-  // عناوين السور خارج جسم الـ 15 سطر
-  for (const sn of surahKeys) {
-    const group = surahGroups[sn];
-    const surah = group.surah;
-    const surahInfo = state.surahList.find(s => s.number === surah.number);
-    const surahName = surahInfo ? surahInfo.name : surah.name;
-    const revelationType = surahInfo ? surahInfo.revelationType : '';
-    const totalAyahs = surahInfo ? surahInfo.numberOfAyahs : group.ayahs.length;
-    const revText = revelationType === 'Meccan' ? 'مكية' : revelationType === 'Medinan' ? 'مدنية' : '';
-
-    html += `<div class="mushaf-surah-block">
-      <div class="mushaf-surah-title">
-        <span class="mushaf-surah-ornament">﴿</span>
-        <span class="mushaf-surah-name">${escapeHtml(surahName)}</span>
-        <span class="mushaf-surah-ornament">﴾</span>
-        <span class="mushaf-surah-meta">${revText}${revText ? ' — ' : ''}${toArabicNumeral(totalAyahs)} آية</span>
-      </div>`;
-    if (surah.number !== 1 && surah.number !== 9 && group.ayahs[0]?.numberInSurah === 1) {
-      html += `<div class="bismillah-mushaf">﷽</div>`;
-    }
-    html += `</div>`;
-  }
-
-  // جسم الـ 15 سطر
-  html += `<div class="mushaf-page-body">`;
-
-  for (const sn of surahKeys) {
-    const group = surahGroups[sn];
-    const surah = group.surah;
-
-    for (const ayah of group.ayahs) {
-      let txt = ayah.text;
-      if (surah.number !== 1 && ayah.numberInSurah === 1) {
-        txt = txt.replace(/^بِسْمِ\s+[ٱا]للَّهِ\s+[ٱا]لرَّحْمَٰنِ\s+[ٱا]لرَّحِيمِ\s*/u, '');
-      }
-      const isSajda = txt.includes('۩');
-      html += `<span class="mushaf-ayah" data-surah="${surah.number}" data-ayah="${ayah.numberInSurah}" data-page="${pageNum}">`;
-      html += escapeHtml(txt);
-      html += `<span class="mushaf-ayah-num"><span class="mushaf-ayah-num-char">۝</span>${toArabicNumeral(ayah.numberInSurah)}</span>`;
-      if (isSajda) html += `<span class="mushaf-sajda">۩</span>`;
-      html += `</span> `;
-    }
-  }
-
-  html += `</div>
-    <div class="mushaf-footer"><span class="mushaf-footer-ornament">۞</span> صفحة ${toArabicNumeral(pageNum)} — القرآن الكريم <span class="mushaf-footer-ornament">۞</span></div>
-  </div>`;
-
-  dom.surahContent.innerHTML = html;
-
-  document.querySelectorAll('.mushaf-ayah').forEach(el => {
-    el.addEventListener('click', function() {
-      document.querySelectorAll('.mushaf-ayah').forEach(a => a.classList.remove('current'));
-      this.classList.add('current');
-      const surah = parseInt(this.dataset.surah, 10);
-      const ayah = parseInt(this.dataset.ayah, 10);
-      playMushafAyah(surah, ayah);
-    });
-  });
-}
-
-function renderMushafPageFromLayout(layoutData, pageNum) {
-  if (!dom.surahContent) return;
-  const juz = getJuzForPage(pageNum);
-  let html = `<div class="mushaf-container">
+  const html = `<div class="mushaf-container">
     <div class="mushaf-header">
       <div class="mushaf-page-num">صفحة ${toArabicNumeral(pageNum)}</div>
       <div class="mushaf-juz">الجزء ${toArabicNumeral(juz)}</div>
     </div>
-    <div class="mushaf-page-body">`;
-
-  for (const line of layoutData.lines) {
-    if (line.type === 'surah-header') {
-      const surahName = line.text || `سورة ${line.surah}`;
-      html += `<div class="mushaf-line-suhead"><span class="suhead-ornament">﴿</span> ${escapeHtml(surahName)} <span class="suhead-ornament">﴾</span></div>`;
-    } else if (line.type === 'basmala') {
-      html += `<div class="mushaf-line-basmala">﷽</div>`;
-    } else if (line.type === 'text') {
-      const ayahGroups = [];
-      let currentGroup = [];
-      let currentAyah = null;
-      for (const word of line.words || []) {
-        const parts = word.location.split(':');
-        const ayahKey = `${parts[0]}:${parts[1]}`;
-        if (currentAyah !== ayahKey && currentAyah !== null) {
-          ayahGroups.push({ ayah: currentAyah, words: currentGroup });
-          currentGroup = [];
-        }
-        currentAyah = ayahKey;
-        currentGroup.push(word);
-      }
-      if (currentGroup.length > 0) {
-        ayahGroups.push({ ayah: currentAyah, words: currentGroup });
-      }
-      let lineHtml = '';
-      for (const group of ayahGroups) {
-        const [surahNum, ayahNum] = group.ayah.split(':').map(Number);
-        lineHtml += `<span class="mushaf-ayah" data-surah="${surahNum}" data-ayah="${ayahNum}" data-page="${pageNum}">`;
-        for (let wi = 0; wi < group.words.length; wi++) {
-          const w = group.words[wi];
-          let wt = w.word;
-          const isLastInAyah = (wi === group.words.length - 1);
-          if (isLastInAyah) {
-            const numMatch = wt.match(/\s*([٠١٢٣٤٥٦٧٨٩]+)$/u);
-            if (numMatch) {
-              const textPart = wt.slice(0, -numMatch[0].length);
-              const numPart = numMatch[1];
-              lineHtml += escapeHtml(textPart);
-              lineHtml += `<span class="ayah-num-marker">۝${toArabicNumeral(parseInt(numPart, 10) || numPart)}</span>`;
-            } else {
-              lineHtml += escapeHtml(wt);
-            }
-          } else {
-            lineHtml += escapeHtml(wt);
-          }
-          if (wi < group.words.length - 1) lineHtml += ' ';
-        }
-        lineHtml += `</span> `;
-      }
-      html += `<div class="mushaf-line">${lineHtml}</div>`;
-    }
-  }
-
-  html += `</div>
+    <div class="mushaf-image-wrapper">
+      <img class="mushaf-page-img"
+           src="${imgUrl}"
+           alt="صفحة ${pageNum} من المصحف"
+           loading="eager"
+           onerror="this.onerror=null; this.src='${fallbackUrl}';">
+    </div>
     <div class="mushaf-footer"><span class="mushaf-footer-ornament">۞</span> صفحة ${toArabicNumeral(pageNum)} — القرآن الكريم <span class="mushaf-footer-ornament">۞</span></div>
   </div>`;
 
   dom.surahContent.innerHTML = html;
+  loadingBar.hide();
 
-  document.querySelectorAll('.mushaf-ayah').forEach(el => {
-    el.addEventListener('click', function() {
-      document.querySelectorAll('.mushaf-ayah').forEach(a => a.classList.remove('current'));
-      this.classList.add('current');
-      const surah = parseInt(this.dataset.surah, 10);
-      const ayah = parseInt(this.dataset.ayah, 10);
-      playMushafAyah(surah, ayah);
-    });
-  });
+  // التحميل المسبق للصفحة التالية
+  const nextNum = pageNum + 1;
+  if (nextNum <= 604) {
+    const nextPadded = String(nextNum).padStart(3, '0');
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = `https://cdn.islamic.network/quran/images/webp/page${nextPadded}.webp`;
+    link.as = 'image';
+    document.head.appendChild(link);
+  }
 }
 
 function playMushafAyah(surahNum, ayahNum) {
@@ -1762,6 +1612,14 @@ async function initApp() {
   dom.modeToggleBtn?.addEventListener('click', toggleMushafMode);
   dom.pageSelect?.addEventListener('change', () => {
     if (dom.pageSelect.value) loadPage(parseInt(dom.pageSelect.value, 10));
+  });
+  dom.prevPageBtn?.addEventListener('click', () => {
+    const p = state.currentPage - 1;
+    if (p >= 1) { dom.pageSelect.value = p; loadPage(p); }
+  });
+  dom.nextPageBtn?.addEventListener('click', () => {
+    const p = state.currentPage + 1;
+    if (p <= 604) { dom.pageSelect.value = p; loadPage(p); }
   });
 
   // استعادة وضع المصحف إن كان مفعّلاً سابقاً
