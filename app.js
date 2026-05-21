@@ -600,15 +600,32 @@ function renderMushafPage(data, pageNum) {
 }
 
 function playMushafAyah(surahNum, ayahNum) {
-  if (state.currentSurah !== surahNum || !state.surahData) {
-    loadSurah(surahNum, { startAyah: ayahNum, autoPlay: true });
-  } else {
+  if (state.isPlaying) prepareAudioForNewSurah();
+  const loadAndPlay = () => {
     const idx = state.surahData.ayahs.findIndex(a => a.numberInSurah === ayahNum);
     if (idx !== -1) {
       state.currentAyahIndex = idx;
-      highlightCurrentAyah();
+      updatePlayerInfo();
       playCurrentAyah();
     }
+  };
+  if (state.currentSurah !== surahNum || !state.surahData) {
+    const tempSurahList = state.surahList;
+    fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`)
+      .then(res => res.json())
+      .then(json => {
+        if (json?.data?.ayahs) {
+          state.ayahsAudios = json.data.ayahs.map(a => a.audio);
+          if (tempSurahList.length) {
+            const s = tempSurahList.find(s => s.number === surahNum);
+            if (s) state.surahData = { name: s.name, englishName: s.englishName, number: surahNum, ayahs: json.data.ayahs };
+          }
+          loadAndPlay();
+        }
+      })
+      .catch(() => showToast('تعذّر تحميل الصوت', 'error'));
+  } else {
+    loadAndPlay();
   }
 }
 
