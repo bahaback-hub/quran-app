@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Scheherazade+New:wght@400;700&display=swap">
   <link rel="preconnect" href="https://api.alquran.cloud">
   <link rel="preconnect" href="https://cdn.islamic.network">
-  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -122,7 +121,7 @@
 
   <!-- ========== محتوى السورة ========== -->
   <main class="surah-content" id="surahContent" role="main" aria-label="نص السورة">
-    <p class="loading">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
+    <p class="loading" id="surahSelectHint">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
   </main>
 
   <!-- ========== التذييل ========== -->
@@ -168,7 +167,7 @@
       <button class="btn" id="nextAyahBtn" aria-label="الآية التالية">تالية ▶</button>
       <button class="btn" id="nextSurahBtn" aria-label="السورة التالية">السورة التالية ⏭</button>
     </div>
-    <div class="keyboard-hint">
+    <div class="keyboard-hint" id="keyboardHint">
       💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار | M = مصحف
     </div>
     <div class="repeat-controls" id="repeatControls" style="display:none;">
@@ -308,6 +307,17 @@
   </div>
 
   <div class="settings-section">
+    <div class="settings-section-title">🌐 Language / اللغة</div>
+    <div class="settings-row">
+      <label for="langSelect">اللغة / Language:</label>
+      <select id="langSelect">
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="settings-section">
     <div class="settings-section-title">🎨 العرض</div>
     <div class="settings-row">
       <label for="fontSizeSelect">حجم الخط:</label>
@@ -390,6 +400,6 @@
 <!-- ========== رسائل Toast ========== -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="app.js"></script>
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>

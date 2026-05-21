@@ -1,0 +1,29 @@
+{
+  "name": "quran-app",
+  "version": "1.0.0",
+  "description": "> تطبيق ويب احترافي للقرآن الكريم يعمل على جميع الأجهزة، قابل للتثبيت كتطبيق (PWA)، ويعمل أوفلاين.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bahaback-hub/quran-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bahaback-hub/quran-app/issues"
+  },
+  "homepage": "https://github.com/bahaback-hub/quran-app#readme",
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "vite": "^8.0.14",
+    "vitest": "^4.1.7"
+  }
+}
