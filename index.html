@@ -59,9 +59,16 @@
   <!-- ========== أدوات التحكم ========== -->
   <section class="controls" aria-label="أدوات التحكم">
     <div class="right-group">
-      <div class="control-group">
+      <div class="control-group mode-toggle-group">
+        <button class="btn mode-btn" id="modeToggleBtn" aria-label="تبديل وضع العرض">📄 وضع السورة</button>
+      </div>
+      <div class="control-group surah-mode-controls" id="surahModeControls">
         <label for="surahSelect">اختر السورة:</label>
         <select id="surahSelect" aria-label="اختيار السورة"></select>
+      </div>
+      <div class="control-group mus-haf-controls" id="mushafControls" style="display:none;">
+        <label for="pageSelect">رقم الصفحة:</label>
+        <select id="pageSelect" aria-label="اختيار صفحة المصحف"></select>
       </div>
       <div class="control-group">
         <label for="reciterSelect">اختر القارئ:</label>
@@ -144,7 +151,7 @@
       <button class="btn" id="nextSurahBtn" aria-label="السورة التالية">السورة التالية ⏭</button>
     </div>
     <div class="keyboard-hint">
-      💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار
+      💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار | M = مصحف
     </div>
     <div class="repeat-controls" id="repeatControls" style="display:none;">
       <label>من: <select id="repeatFrom"></select></label>

@@ -1294,6 +1294,144 @@ noscript > div {
   transform: translateY(0);
 }
 
+/* ========== وضع المصحف ========== */
+.mode-btn {
+  background: var(--primary);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid var(--accent);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.mode-btn.mushaf-active {
+  background: var(--accent-dark);
+  border-color: var(--accent);
+}
+.mode-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mushaf-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--container-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.mushaf-header {
+  text-align: center;
+  padding: 10px 0 15px;
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: 20px;
+}
+
+.mushaf-page-num {
+  font-size: 20px;
+  color: var(--accent-dark);
+  font-weight: bold;
+}
+
+.mushaf-juz {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.mushaf-two-columns {
+  column-count: 2;
+  column-gap: 30px;
+  column-rule: 1px solid var(--border-soft);
+  direction: rtl;
+  padding: 10px 0;
+}
+
+.mushaf-surah-title {
+  column-span: all;
+  text-align: center;
+  font-size: 22px;
+  color: var(--accent-dark);
+  padding: 10px 0 6px;
+  margin: 10px 0;
+  border-bottom: 1px dashed var(--border-soft);
+  font-weight: bold;
+}
+
+.mushaf-surah-title .bismillah-mushaf {
+  display: block;
+  font-size: 18px;
+  color: var(--bismillah-color);
+  margin-top: 4px;
+  font-weight: normal;
+}
+
+.mushaf-ayah {
+  display: inline;
+  font-size: var(--mushaf-font-size, 24px);
+  line-height: 2.2;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  padding: 2px 0;
+  border-radius: 3px;
+  break-inside: avoid;
+}
+
+.mushaf-ayah:hover {
+  background: var(--hover-bg);
+}
+
+.mushaf-ayah.current {
+  background: var(--highlight-bg);
+  color: var(--highlight-text);
+  box-shadow: 0 0 8px var(--highlight-shadow);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.mushaf-ayah-num {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--text-muted);
+  vertical-align: super;
+  margin: 0 2px;
+  font-family: 'Arial', sans-serif;
+}
+
+.mushaf-footer {
+  text-align: center;
+  padding: 15px 0 5px;
+  border-top: 2px solid var(--accent);
+  margin-top: 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+  column-span: all;
+}
+
+.mushaf-sajda {
+  display: inline;
+  color: var(--accent-dark);
+  font-size: 14px;
+  margin: 0 2px;
+}
+
+@media (max-width: 600px) {
+  .mushaf-two-columns {
+    column-count: 1;
+    column-rule: none;
+  }
+  .mushaf-container {
+    padding: 10px;
+  }
+  .mushaf-ayah {
+    font-size: calc(var(--mushaf-font-size, 24px) - 2px);
+  }
+}
+
 /* ========== شاشات صغيرة جداً ========== */
 @media (max-width: 380px) {
   .header h1 { font-size: 19px; }
