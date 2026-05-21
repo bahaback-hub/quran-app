@@ -432,6 +432,18 @@ async function loadSurah(surahNum, opts = {}) {
   if (state.isPlaying) {
     prepareAudioForNewSurah();
   }
+  // إيقاف وضع الحفظ والتكرار عند تغيير السورة
+  if (state.hifdhMode) {
+    state.hifdhMode = false;
+    dom.hifdhBtn?.classList.remove('active');
+    document.querySelectorAll('.ayah').forEach(el => el.classList.remove('hifdh-mode', 'revealed'));
+  }
+  if (state.repeatMode) {
+    state.repeatMode = false;
+    state.repeatCounter = 0;
+    dom.repeatBtn?.classList.remove('active');
+    if (dom.repeatControls) dom.repeatControls.style.display = 'none';
+  }
   state.currentSurah = surahNum;
   const cacheKey = `${surahNum}_${state.currentReciter}`;
   if (state.surahCache.has(cacheKey)) {
@@ -916,6 +928,7 @@ function toggleRepeat() {
           state.repeatTo = state.repeatFrom;
           dom.repeatTo.value = state.repeatTo;
         }
+        state.repeatCounter = 0;
       };
       dom.repeatTo.onchange = () => {
         state.repeatTo = parseInt(dom.repeatTo.value, 10);
@@ -923,8 +936,9 @@ function toggleRepeat() {
           state.repeatFrom = state.repeatTo;
           dom.repeatFrom.value = state.repeatFrom;
         }
+        state.repeatCounter = 0;
       };
-      dom.repeatTimes.onchange = () => { state.repeatTimes = parseInt(dom.repeatTimes.value, 10); };
+      dom.repeatTimes.onchange = () => { state.repeatTimes = parseInt(dom.repeatTimes.value, 10); state.repeatCounter = 0; };
     }
     showToast('🔁 وضع التكرار مفعّل', 'success');
   } else {
