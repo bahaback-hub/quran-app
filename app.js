@@ -742,66 +742,13 @@ function renderTafsirContent(text, ayahText, surahName, ayahNum) {
   dom.tafsirCurtainBody.appendChild(bodyEl);
 }
 
-const tafsirCacheDB = {
-  async get(key) {
-    try {
-      const cached = storage.get(key);
-      if (cached) return cached;
-      return new Promise((resolve) => {
-        const req = indexedDB.open('QuranAppDB', 1);
-        req.onsuccess = (e) => {
-          try {
-            const tx = e.target.result.transaction('tafsirCache', 'readonly');
-            const store = tx.objectStore('tafsirCache');
-            const getReq = store.get(key);
-            getReq.onsuccess = () => resolve(getReq.result?.text || null);
-            getReq.onerror = () => resolve(null);
-          } catch { resolve(null); }
-        };
-        req.onerror = () => resolve(null);
-        if (!req.result && !req.onsuccess) resolve(null);
-      });
-    } catch { return null; }
-  },
-  async set(key, text) {
-    try {
-      storage.set(key, text);
-      const req = indexedDB.open('QuranAppDB', 1);
-      req.onsuccess = (e) => {
-        try {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains('tafsirCache')) return;
-          const tx = db.transaction('tafsirCache', 'readwrite');
-          const store = tx.objectStore('tafsirCache');
-          store.put({ id: key, text });
-          const countReq = store.count();
-          countReq.onsuccess = () => {
-            if (countReq.result > 500) {
-              const cursorReq = store.openCursor();
-              let deleted = 0;
-              cursorReq.onsuccess = (ev) => {
-                const cursor = ev.target.result;
-                if (cursor && deleted < 100) {
-                  store.delete(cursor.primaryKey);
-                  deleted++;
-                  cursor.continue();
-                }
-              };
-            }
-          };
-        } catch {}
-      };
-    } catch {}
-  }
-};
-
 async function loadTafsirForCurrentAyah() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
   if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition;
   const cacheKey = `tafsir_${edition}_${state.currentSurah}_${a.numberInSurah}`;
-  const cached = await tafsirCacheDB.get(cacheKey);
+  const cached = storage.get(cacheKey);
   if (cached) {
     renderTafsirContent(cached, a.text, state.surahData.name, a.numberInSurah);
     return;
@@ -813,7 +760,7 @@ async function loadTafsirForCurrentAyah() {
     const res = await fetch(url);
     const data = await res.json();
     const text = data?.text || 'لا يوجد تفسير متاح';
-    tafsirCacheDB.set(cacheKey, text);
+    storage.set(cacheKey, text);
     renderTafsirContent(text, a.text, state.surahData.name, a.numberInSurah);
   } catch(e) {
     dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
@@ -834,7 +781,6 @@ async function loadFullQuranText() {
     request.onupgradeneeded = e => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains('fullText')) db.createObjectStore('fullText', { keyPath: 'id' });
-      if (!db.objectStoreNames.contains('tafsirCache')) db.createObjectStore('tafsirCache', { keyPath: 'id' });
     };
     request.onsuccess = async (e) => {
       const db = e.target.result;
