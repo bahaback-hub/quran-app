@@ -481,8 +481,7 @@ function toggleMushafMode() {
     dom.surahModeControls.style.display = 'none';
     dom.mushafControls.style.display = 'flex';
     populatePageSelect();
-    if (dom.pageSelect.value) loadPage(parseInt(dom.pageSelect.value, 10));
-    else loadPage(state.currentPage);
+    loadPage(state.currentPage);
   } else {
     dom.modeToggleBtn.textContent = '📄 وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
@@ -497,7 +496,7 @@ function toggleMushafMode() {
 
 function populatePageSelect() {
   if (!dom.pageSelect) return;
-  if (dom.pageSelect.options.length > 0) return;
+  dom.pageSelect.innerHTML = '';
   for (let i = 1; i <= 604; i++) {
     const opt = document.createElement('option');
     opt.value = i;
@@ -510,6 +509,7 @@ function populatePageSelect() {
 async function loadPage(pageNum) {
   if (!pageNum) return;
   state.currentPage = pageNum;
+  storage.set('current_page', pageNum);
   loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
   dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
   try {
@@ -1638,6 +1638,8 @@ async function initApp() {
 
   // استعادة وضع المصحف إن كان مفعّلاً سابقاً
   const savedMushaf = storage.get('mushaf_mode');
+  const savedPage = storage.get('current_page');
+  if (savedPage) state.currentPage = savedPage;
   if (savedMushaf && dom.modeToggleBtn) toggleMushafMode();
 
   // اختصارات لوحة المفاتيح (مُصححة لتطابق README)
