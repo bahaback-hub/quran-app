@@ -1298,87 +1298,168 @@ noscript > div {
 .mode-btn {
   background: var(--primary);
   color: #fff;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
   cursor: pointer;
   border: 2px solid var(--accent);
-  font-size: 13px;
+  font-size: 14px;
   white-space: nowrap;
+  transition: all 0.3s ease;
 }
 .mode-btn.mushaf-active {
   background: var(--accent-dark);
   border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.3);
 }
 .mode-toggle-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
+/* ===== حاوية المصحف الرئيسية ===== */
 .mushaf-container {
-  max-width: 900px;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 25px 20px 20px;
   background: var(--container-bg);
-  border-radius: 12px;
   box-shadow: var(--shadow);
+  position: relative;
 }
 
+/* إطار زخرفي */
+.mushaf-container::before {
+  content: '';
+  position: absolute;
+  top: 10px; left: 10px; right: 10px; bottom: 10px;
+  border: 2px solid var(--accent);
+  pointer-events: none;
+  opacity: 0.25;
+  border-radius: 2px;
+}
+
+/* ===== رأس الصفحة ===== */
 .mushaf-header {
   text-align: center;
-  padding: 10px 0 15px;
-  border-bottom: 2px solid var(--accent);
-  margin-bottom: 20px;
+  padding: 10px 0 14px;
+  margin-bottom: 18px;
+  border-bottom: 3px double var(--accent);
+  position: relative;
+}
+
+.mushaf-header::after {
+  content: '۞';
+  display: block;
+  font-size: 14px;
+  color: var(--accent);
+  opacity: 0.5;
+  margin-top: 4px;
 }
 
 .mushaf-page-num {
-  font-size: 20px;
+  font-size: 26px;
   color: var(--accent-dark);
   font-weight: bold;
+  font-family: 'Traditional Arabic', 'Amiri', serif;
+  text-shadow: 1px 1px 0 rgba(212, 175, 55, 0.15);
+  letter-spacing: 2px;
 }
 
 .mushaf-juz {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: 6px;
+  font-family: 'Traditional Arabic', 'Amiri', serif;
 }
 
+/* ===== الأعمدة ===== */
 .mushaf-two-columns {
   column-count: 2;
-  column-gap: 30px;
-  column-rule: 1px solid var(--border-soft);
+  column-gap: 40px;
+  column-rule: 1px dashed var(--border-soft);
   direction: rtl;
-  padding: 10px 0;
+  padding: 5px 0;
+  text-align: justify;
 }
 
+/* ===== كتلة السورة ===== */
+.mushaf-surah-block {
+  break-inside: avoid;
+  margin-bottom: 6px;
+}
+
+/* عنوان السورة */
 .mushaf-surah-title {
   column-span: all;
   text-align: center;
-  font-size: 22px;
-  color: var(--accent-dark);
-  padding: 10px 0 6px;
-  margin: 10px 0;
-  border-bottom: 1px dashed var(--border-soft);
-  font-weight: bold;
+  padding: 14px 0 8px;
+  margin: 6px 0 10px;
+  position: relative;
 }
 
-.mushaf-surah-title .bismillah-mushaf {
+.mushaf-surah-title::before,
+.mushaf-surah-title::after {
+  content: '';
   display: block;
-  font-size: 18px;
-  color: var(--bismillah-color);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  width: 60%;
+  margin: 0 auto;
+}
+
+.mushaf-surah-title::before {
+  margin-bottom: 10px;
+}
+
+.mushaf-surah-title::after {
+  margin-top: 10px;
+}
+
+.mushaf-surah-ornament {
+  font-size: 22px;
+  color: var(--accent);
+  opacity: 0.7;
+  margin: 0 6px;
+}
+
+.mushaf-surah-name {
+  font-size: 24px;
+  color: var(--accent-dark);
+  font-weight: bold;
+  font-family: 'Traditional Arabic', 'Amiri', serif;
+}
+
+.mushaf-surah-meta {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
   margin-top: 4px;
   font-weight: normal;
+  font-family: 'Arial', sans-serif;
 }
 
+/* ===== البسملة ===== */
+.bismillah-mushaf {
+  text-align: center;
+  font-size: 22px;
+  color: var(--bismillah-color);
+  margin: 8px 0 12px;
+  padding: 4px 0;
+  font-weight: bold;
+  column-span: all;
+}
+
+/* ===== الآيات ===== */
 .mushaf-ayah {
   display: inline;
   font-size: var(--mushaf-font-size, 24px);
-  line-height: 2.2;
+  line-height: 2.3;
   cursor: pointer;
   transition: background 0.2s ease;
   padding: 2px 0;
   border-radius: 3px;
-  break-inside: avoid;
+  color: var(--text-primary);
+  font-family: 'Amiri', 'Traditional Arabic', serif;
 }
 
 .mushaf-ayah:hover {
@@ -1388,48 +1469,115 @@ noscript > div {
 .mushaf-ayah.current {
   background: var(--highlight-bg);
   color: var(--highlight-text);
-  box-shadow: 0 0 8px var(--highlight-shadow);
+  box-shadow: 0 0 12px var(--highlight-shadow);
   border-radius: 4px;
   padding: 2px 4px;
 }
 
+/* رقم الآية — دائرة ذهبية */
 .mushaf-ayah-num {
   display: inline-block;
-  font-size: 12px;
-  color: var(--text-muted);
-  vertical-align: super;
-  margin: 0 2px;
-  font-family: 'Arial', sans-serif;
+  font-size: 11px;
+  color: var(--accent-dark);
+  vertical-align: middle;
+  margin: 0 3px;
+  font-family: 'Traditional Arabic', 'Scheherazade', 'Amiri', serif;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  line-height: 26px;
+  text-align: center;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  font-size: 11px;
 }
 
+.mushaf-ayah-num-char {
+  font-size: 9px;
+  margin-left: 1px;
+}
+
+.mushaf-ayah:hover .mushaf-ayah-num {
+  background: rgba(212, 175, 55, 0.25);
+  border-color: var(--accent);
+}
+
+/* ===== علامة السجدة ===== */
+.mushaf-sajda {
+  display: inline-block;
+  color: var(--accent-dark);
+  font-size: 18px;
+  margin: 0 3px;
+  vertical-align: middle;
+  animation: sajdaPulse 2s ease-in-out infinite;
+}
+
+@keyframes sajdaPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ===== تذييل الصفحة ===== */
 .mushaf-footer {
   text-align: center;
-  padding: 15px 0 5px;
-  border-top: 2px solid var(--accent);
-  margin-top: 20px;
+  padding: 16px 0 8px;
+  border-top: 3px double var(--accent);
+  margin-top: 18px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 15px;
+  font-family: 'Traditional Arabic', 'Amiri', serif;
   column-span: all;
+  position: relative;
 }
 
-.mushaf-sajda {
-  display: inline;
-  color: var(--accent-dark);
+.mushaf-footer::before {
+  content: '۞';
+  display: block;
   font-size: 14px;
-  margin: 0 2px;
+  color: var(--accent);
+  opacity: 0.4;
+  margin-bottom: 4px;
+}
+
+.mushaf-footer-ornament {
+  font-size: 14px;
+  color: var(--accent);
+  opacity: 0.5;
+  margin: 0 6px;
+}
+
+/* ===== التجاوب ===== */
+@media (max-width: 768px) {
+  .mushaf-container {
+    padding: 15px 10px;
+  }
+  .mushaf-container::before {
+    top: 6px; left: 6px; right: 6px; bottom: 6px;
+  }
 }
 
 @media (max-width: 600px) {
   .mushaf-two-columns {
     column-count: 1;
     column-rule: none;
+    column-gap: 0;
   }
   .mushaf-container {
-    padding: 10px;
+    padding: 10px 8px;
   }
   .mushaf-ayah {
     font-size: calc(var(--mushaf-font-size, 24px) - 2px);
+    line-height: 2.1;
   }
+  .mushaf-page-num { font-size: 22px; }
+  .mushaf-surah-name { font-size: 20px; }
+  .mushaf-surah-ornament { font-size: 18px; }
+  .bismillah-mushaf { font-size: 18px; }
+  .mushaf-ayah-num { width: 22px; height: 22px; line-height: 22px; font-size: 10px; }
+  .mushaf-surah-title::before,
+  .mushaf-surah-title::after { width: 80%; }
 }
 
 /* ========== شاشات صغيرة جداً ========== */
