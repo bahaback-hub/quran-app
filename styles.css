@@ -1399,16 +1399,6 @@ noscript > div {
   color: var(--text-muted);
   font-size: 15px;
   font-family: 'Traditional Arabic', 'Amiri', serif;
-  position: relative;
-}
-
-.mushaf-footer::before {
-  content: '۞';
-  display: block;
-  font-size: 14px;
-  color: var(--accent);
-  opacity: 0.4;
-  margin-bottom: 4px;
 }
 
 .mushaf-footer-ornament {
