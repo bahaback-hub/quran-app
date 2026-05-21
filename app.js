@@ -461,7 +461,7 @@ function renderSurah(textData) {
     const a = textData.ayahs[i];
     let txt = a.text;
     if (textData.number !== 1 && a.numberInSurah === 1) {
-      txt = txt.replace(/^بِسْمِ\s+اللَّهِ\s+الرَّحْمَٰنِ\s+الرَّحِيمِ\s*/, '');
+      txt = txt.replace(/^بِسْمِ\s+[ٱا]للَّهِ\s+[ٱا]لرَّحْمَٰنِ\s+[ٱا]لرَّحِيمِ\s*/u, '');
     }
     html += `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">${escapeHtml(txt)} <span class="ayah-number">${a.numberInSurah}</span></span> `;
   }
@@ -582,7 +582,7 @@ function renderMushafPage(data, pageNum) {
     for (const ayah of group.ayahs) {
       let txt = ayah.text;
       if (surah.number !== 1 && ayah.numberInSurah === 1) {
-        txt = txt.replace(/^بِسْمِ\s+اللَّهِ\s+الرَّحْمَٰنِ\s+الرَّحِيمِ\s*/, '');
+        txt = txt.replace(/^بِسْمِ\s+[ٱا]للَّهِ\s+[ٱا]لرَّحْمَٰنِ\s+[ٱا]لرَّحِيمِ\s*/u, '');
       }
       const isSajda = txt.includes('۩') || txt.includes('۝');
       html += `<span class="mushaf-ayah" data-surah="${surah.number}" data-ayah="${ayah.numberInSurah}" data-page="${pageNum}">`;
