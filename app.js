@@ -545,7 +545,6 @@ function renderMushafPageImage(pageNum) {
   const juz = getJuzForPage(pageNum);
   const padded = String(pageNum).padStart(3, '0');
 
-  // صور المصحف مستضافة على GitHub مع CDN من jsDelivr (نسخة GovarJabbar/Quran-PNG)
   const imgUrl = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${padded}.png`;
   const fallbackUrl = `https://cdn.jsdelivr.net/gh/Miftah-Fentaw/Quran_webp@main/${padded}.webp`;
 
@@ -563,7 +562,8 @@ function renderMushafPageImage(pageNum) {
            onload="this.classList.add('loaded'); (function(){var e=document.getElementById('loadingProgress');if(e)e.classList.remove('active');})()">
     </div>
     <div class="mushaf-footer"><span class="mushaf-footer-ornament">۞</span> صفحة ${toArabicNumeral(pageNum)} — القرآن الكريم <span class="mushaf-footer-ornament">۞</span></div>
-  </div>`;
+  </div>
+  <div class="mushaf-ayah-bar" id="mushafAyahBar"><div class="mushaf-ayah-bar-title">🎯 اختر آية للاستماع أو التفسير</div><div class="mushaf-ayah-bar-loading">جاري تحميل الآيات...</div></div>`;
 
   dom.surahContent.innerHTML = html;
 
@@ -576,6 +576,67 @@ function renderMushafPageImage(pageNum) {
     link.href = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${nextPadded}.png`;
     link.as = 'image';
     document.head.appendChild(link);
+  }
+
+  // جلب قائمة الآيات في هذه الصفحة من API
+  fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`)
+    .then(res => res.json())
+    .then(json => {
+      const ayahs = json?.data?.ayahs;
+      if (!ayahs?.length) return;
+      const bar = document.getElementById('mushafAyahBar');
+      if (!bar) return;
+      let itemsHtml = '<div class="mushaf-ayah-bar-title">🎯 اختر آية للاستماع أو التفسير</div><div class="mushaf-ayah-bar-grid">';
+      for (const ayah of ayahs) {
+        const sn = ayah.surah.number;
+        const an = ayah.numberInSurah;
+        const surahInfo = state.surahList.find(s => s.number === sn);
+        const surahName = surahInfo ? surahInfo.name : `سورة ${sn}`;
+        itemsHtml += `<button class="mushaf-ayah-btn" data-surah="${sn}" data-ayah="${an}">
+          <span class="mushaf-ayah-btn-surah">${escapeHtml(surahName)}</span>
+          <span class="mushaf-ayah-btn-num">${toArabicNumeral(an)}</span>
+        </button>`;
+      }
+      itemsHtml += '</div>';
+      bar.innerHTML = itemsHtml;
+
+      bar.querySelectorAll('.mushaf-ayah-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          bar.querySelectorAll('.mushaf-ayah-btn').forEach(b => b.classList.remove('current'));
+          this.classList.add('current');
+          const surah = parseInt(this.dataset.surah, 10);
+          const ayah = parseInt(this.dataset.ayah, 10);
+          playMushafAyah(surah, ayah);
+          loadTafsirForSurahAyah(surah, ayah);
+        });
+      });
+    })
+    .catch(() => {});
+}
+
+async function loadTafsirForSurahAyah(surahNum, ayahNum) {
+  if (!dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
+  const edition = state.currentTafsirEdition || CONFIG.DEFAULT_TAFSIR;
+  const cacheKey = `tafsir_${edition}_${surahNum}_${ayahNum}`;
+  const cached = storage.get(cacheKey);
+  const surahInfo = state.surahList.find(s => s.number === surahNum);
+  const surahName = surahInfo ? surahInfo.name : `سورة ${surahNum}`;
+  dom.tafsirCurtainHeader.textContent = `تفسير: ${surahName} — آية ${toArabicNumeral(ayahNum)}`;
+  if (cached) {
+    dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(cached)}</p>`;
+    dom.tafsirCurtain?.classList.add('open');
+    return;
+  }
+  dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
+  dom.tafsirCurtain?.classList.add('open');
+  try {
+    const res = await fetch(`${CONFIG.TAFSIR_API}/${edition}/${surahNum}/${ayahNum}.json`);
+    const data = await res.json();
+    const text = data?.tafsir?.text || data?.text || 'لا يوجد تفسير متاح';
+    storage.set(cacheKey, text);
+    dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(text)}</p>`;
+  } catch(e) {
+    dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
   }
 }
 
