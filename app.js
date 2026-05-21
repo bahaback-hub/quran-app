@@ -39,6 +39,7 @@ let state = {
   ayahsAudios: [],
   rootsData: null,
   rootsLoaded: false,
+  layoutCache: new Map(),
   isPlaying: false,
   hifdhMode: false,
   repeatMode: false,
@@ -518,14 +519,31 @@ async function loadPage(pageNum) {
   loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
   dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
   try {
-    const res = await fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`);
-    const json = await res.json();
-    if (!json?.data?.ayahs) throw new Error('بيانات غير صالحة');
-    renderMushafPage(json.data, pageNum);
+    // استخدام بيانات تخطيط المصحف (15 سطراً لكل صفحة مطابقة للمصحف الحقيقي)
+    const padded = String(pageNum).padStart(3, '0');
+    let layoutData = state.layoutCache.get(pageNum);
+    if (!layoutData) {
+      const res = await fetch(`https://raw.githubusercontent.com/zonetecde/mushaf-layout/main/mushaf/page-${padded}.json`);
+      if (res.ok) {
+        layoutData = await res.json();
+        state.layoutCache.set(pageNum, layoutData);
+      } else {
+        throw new Error('مكتبة التخطيط غير متوفرة');
+      }
+    }
+    renderMushafPageFromLayout(layoutData, pageNum);
     loadingBar.hide();
   } catch(e) {
-    dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل الصفحة</p>';
-    showToast('فشل تحميل الصفحة', 'error');
+    // الرجوع إلى API القديم كخطة بديلة
+    try {
+      const res = await fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`);
+      const json = await res.json();
+      if (!json?.data?.ayahs) throw new Error('بيانات غير صالحة');
+      renderMushafPage(json.data, pageNum);
+    } catch(e2) {
+      dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل الصفحة</p>';
+      showToast('فشل تحميل الصفحة', 'error');
+    }
     loadingBar.hide();
   }
 }
@@ -612,6 +630,68 @@ function renderMushafPage(data, pageNum) {
       html += `<span class="mushaf-ayah-num"><span class="mushaf-ayah-num-char">۝</span>${toArabicNumeral(ayah.numberInSurah)}</span>`;
       if (isSajda) html += `<span class="mushaf-sajda">۩</span>`;
       html += `</span> `;
+    }
+  }
+
+  html += `</div>
+    <div class="mushaf-footer"><span class="mushaf-footer-ornament">۞</span> صفحة ${toArabicNumeral(pageNum)} — القرآن الكريم <span class="mushaf-footer-ornament">۞</span></div>
+  </div>`;
+
+  dom.surahContent.innerHTML = html;
+
+  document.querySelectorAll('.mushaf-ayah').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('.mushaf-ayah').forEach(a => a.classList.remove('current'));
+      this.classList.add('current');
+      const surah = parseInt(this.dataset.surah, 10);
+      const ayah = parseInt(this.dataset.ayah, 10);
+      playMushafAyah(surah, ayah);
+    });
+  });
+}
+
+function renderMushafPageFromLayout(layoutData, pageNum) {
+  if (!dom.surahContent) return;
+  const juz = getJuzForPage(pageNum);
+  let html = `<div class="mushaf-container">
+    <div class="mushaf-header">
+      <div class="mushaf-page-num">صفحة ${toArabicNumeral(pageNum)}</div>
+      <div class="mushaf-juz">الجزء ${toArabicNumeral(juz)}</div>
+    </div>
+    <div class="mushaf-page-body">`;
+
+  for (const line of layoutData.lines) {
+    if (line.type === 'surah-header') {
+      const surahInfo = state.surahList.find(s => s.number === parseInt(line.surah, 10));
+      const surahName = surahInfo ? surahInfo.name : line.text;
+      html += `<div class="mushaf-line-suhead">﴿ ${escapeHtml(surahName)} ﴾</div>`;
+    } else if (line.type === 'basmala') {
+      html += `<div class="mushaf-line-basmala">﷽</div>`;
+    } else if (line.type === 'text') {
+      const ayahGroups = [];
+      let currentGroup = [];
+      let currentAyah = null;
+      for (const word of line.words || []) {
+        const parts = word.location.split(':');
+        const ayahKey = `${parts[0]}:${parts[1]}`;
+        if (currentAyah !== ayahKey && currentAyah !== null) {
+          ayahGroups.push({ ayah: currentAyah, words: currentGroup });
+          currentGroup = [];
+        }
+        currentAyah = ayahKey;
+        currentGroup.push(word);
+      }
+      if (currentGroup.length > 0) {
+        ayahGroups.push({ ayah: currentAyah, words: currentGroup });
+      }
+      let lineHtml = '';
+      for (const group of ayahGroups) {
+        const [surahNum, ayahNum] = group.ayah.split(':').map(Number);
+        lineHtml += `<span class="mushaf-ayah" data-surah="${surahNum}" data-ayah="${ayahNum}" data-page="${pageNum}">`;
+        lineHtml += group.words.map(w => escapeHtml(w.word)).join(' ');
+        lineHtml += `</span> `;
+      }
+      html += `<div class="mushaf-line">${lineHtml}</div>`;
     }
   }
 

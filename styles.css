@@ -1372,7 +1372,7 @@ noscript > div {
   font-family: 'Traditional Arabic', 'Amiri', serif;
 }
 
-/* ===== 15 سطراً كالمصحف الحقيقي ===== */
+/* ===== 15 سطراً كالمصحف الحقيقي — تخطيط مسبق ===== */
 .mushaf-page-body {
   direction: rtl;
   text-align: justify;
@@ -1381,25 +1381,60 @@ noscript > div {
   font-size: var(--mushaf-font-size, 22px);
   line-height: 2.2;
   padding: 0 15px;
-  position: relative;
-  height: calc(15 * 2.2 * 1em);
-  overflow: hidden;
   font-family: 'Amiri', 'Traditional Arabic', serif;
 }
 
-/* خطوط 15 سطر الخفيفة */
-.mushaf-page-body::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-image: repeating-linear-gradient(
-    180deg,
-    transparent,
-    transparent calc(2.2em - 1px),
-    rgba(212, 175, 55, 0.08) calc(2.2em - 1px),
-    rgba(212, 175, 55, 0.08) 2.2em
-  );
-  pointer-events: none;
+/* كل سطر يمثل سطراً من المصحف */
+.mushaf-line {
+  line-height: 2.2;
+  min-height: 2.2em;
+  text-align: justify;
+  text-justify: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+}
+
+/* رأس السورة */
+.mushaf-line-suhead {
+  text-align: center;
+  font-size: 1.1em;
+  color: var(--accent-dark);
+  font-weight: bold;
+  line-height: 2.2;
+  min-height: 2.2em;
+  font-family: 'Traditional Arabic', 'Amiri', serif;
+}
+
+/* البسملة */
+.mushaf-line-basmala {
+  text-align: center;
+  font-size: 1em;
+  color: var(--bismillah-color);
+  font-weight: bold;
+  line-height: 2.2;
+  min-height: 2.2em;
+}
+
+/* الآية داخل السطر */
+.mushaf-line .mushaf-ayah {
+  display: inline;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+.mushaf-line .mushaf-ayah:hover {
+  background: var(--hover-bg);
+}
+
+.mushaf-line .mushaf-ayah.current {
+  background: var(--highlight-bg);
+  color: var(--highlight-text);
+  box-shadow: 0 0 8px var(--highlight-shadow);
+  border-radius: 3px;
 }
 
 /* ===== كتلة السورة ===== */
@@ -1582,7 +1617,15 @@ noscript > div {
     padding: 0 5px;
     font-size: calc(var(--mushaf-font-size, 22px) - 2px);
     line-height: 2.1;
-    height: calc(15 * 2.1 * 1em);
+  }
+  .mushaf-line {
+    line-height: 2.1;
+    min-height: 2.1em;
+  }
+  .mushaf-line-suhead,
+  .mushaf-line-basmala {
+    line-height: 2.1;
+    min-height: 2.1em;
   }
   .mushaf-page-num { font-size: 22px; }
   .mushaf-surah-name { font-size: 20px; }
