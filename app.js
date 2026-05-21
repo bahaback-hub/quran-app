@@ -34,7 +34,6 @@ let state = {
   currentTafsirEdition: CONFIG.DEFAULT_TAFSIR,
   surahData: null,
   surahList: [],
-  audioCache: new Map(),
   surahCache: new Map(),
   ayahsAudios: [],
   rootsData: null,
@@ -551,17 +550,6 @@ function getJuzForPage(pageNum) {
     if (pageNum >= juzStarts[i]) { juz = juzPages[i]; break; }
   }
   return juz;
-}
-
-function getQuarterForPage(pageNum) {
-  const quarters = [
-    { page: 1, label: 'الحزب 1' }, { page: 3, label: 'ربع' }, { page: 5, label: 'نصف' }, { page: 7, label: 'ثلاثة أرباع' },
-    { page: 9, label: 'الحزب 2' }, { page: 11, label: 'ربع' }, { page: 13, label: 'نصف' }, { page: 15, label: 'ثلاثة أرباع' },
-  ];
-  for (const q of quarters) {
-    if (pageNum === q.page) return q.label;
-  }
-  return '';
 }
 
 function renderMushafPageImage(pageNum) {
