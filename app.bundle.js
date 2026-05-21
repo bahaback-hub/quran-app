@@ -1909,7 +1909,7 @@ function buildShareText() {
   if (!state.surahData) return '';
   const a = state.surahData.ayahs[state.currentAyahIndex];
   if (!a) return '';
-  return `﴿${a.text}﴾\n— ${state.surahData.name} — آية ${a.numberInSurah}`;
+  return `${a.text} — ${state.surahData.name} — آية ${a.numberInSurah}`;
 }
 
 function toggleShareMenu() { dom.shareMenu?.classList.toggle('show'); }
@@ -1929,7 +1929,7 @@ function shareCopySimple() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
   if (!a) return;
-  const text = `﴿${stripTashkeel(a.text)}﴾\n— ${state.surahData.name} — آية ${a.numberInSurah}`;
+  const text = `${stripTashkeel(a.text)} — ${state.surahData.name} — آية ${a.numberInSurah}`;
   copyToClipboard(text);
   showToast('📋 تم نسخ النص المبسط', 'success');
 }
