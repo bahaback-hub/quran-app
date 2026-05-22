@@ -1844,6 +1844,50 @@ body.night-mode .word.current-word {
   border-left-color: var(--highlight-shadow);
 }
 
+/* ========== زر البحث الصوتي ========== */
+.search-input-group {
+  position: relative;
+}
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.search-input-wrapper input {
+  flex: 1;
+}
+.voice-search-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.voice-search-btn:hover {
+  background: var(--primary-light);
+  transform: scale(1.05);
+}
+.voice-search-btn.listening {
+  background: #dc2626;
+  animation: pulseMic 1s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(220,38,38,0.5);
+}
+@keyframes pulseMic {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+body.night-mode .voice-search-btn.listening {
+  box-shadow: 0 0 16px rgba(220,38,38,0.7);
+}
+
 /* ========== شاشة الترحيب ========== */
 .welcome-screen {
   position: fixed;

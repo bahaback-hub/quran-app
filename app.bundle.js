@@ -75,8 +75,8 @@ const DOM_IDS = [
   'modeToggleBtn', 'pageSelect', 'prevPageBtn', 'nextPageBtn',
   'mushafControls', 'surahModeControls',
   'azanNotification', 'azanNotifStopBtn',
-  'mushafSurahListBtn', 'mushafSurahOverlay', 'mushafSurahOverlayClose',
-  'mushafSurahOverlayList', 'pageSlider',
+  'mushafSurahListBtn', 'mushafSurahOverlay',   'mushafSurahOverlayClose',
+  'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn',
   'langSelect',
   'translationSelect', 'translationToggle', 'translationPanel',
   'welcomeScreen', 'welcomeDismissBtn'
@@ -1650,6 +1650,7 @@ function toggleTafsir() {
 function renderTafsirContent(text, ayahText, surahName, ayahNum) {
   dom.tafsirCurtainHeader.textContent = `تفسير: ${surahName} — آية ${ayahNum}`;
   dom.tafsirCurtainBody.replaceChildren();
+  dom.tafsirCurtainBody.scrollTop = 0;
   const titleEl = document.createElement('div');
   titleEl.className = 'tafsir-ayah-title';
   titleEl.textContent = `﴿${ayahText}﴾`;
@@ -1666,10 +1667,12 @@ function setTafsirHeader(surahName, ayahNum) {
 
 function showTafsirLoading() {
   dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
+  dom.tafsirCurtainBody.scrollTop = 0;
 }
 
 function showTafsirError() {
   dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
+  dom.tafsirCurtainBody.scrollTop = 0;
 }
 
 async function loadTafsirForCurrentAyah() {
@@ -1847,6 +1850,48 @@ function performRootSearch(query) {
     return { surah: info.surahNum, surahName: info.surahName, ayah: info.ayahNumInSurah, text: `كلمة: ${e.word}` };
   }).filter(r => r);
   renderSearchResults(results, query);
+}
+
+/* ===================== VOICE SEARCH ===================== */
+
+function startVoiceSearch() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('البحث الصوتي غير مدعوم في هذا المتصفح', 'error');
+    return;
+  }
+  if (state._voiceListening) return;
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'ar-SA';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  state._voiceListening = true;
+  dom.voiceSearchBtn?.classList.add('listening');
+  showToast('🎤 تحدّث الآن...', 'success');
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    if (dom.searchInput) dom.searchInput.value = transcript;
+    dom.searchBtn?.click();
+    stopVoiceSearch();
+  };
+  recognition.onerror = () => {
+    showToast('🎤 لم يتم التعرف على الصوت، حاول مرة أخرى', 'error');
+    stopVoiceSearch();
+  };
+  recognition.onend = () => {
+    stopVoiceSearch();
+  };
+  recognition.start();
+  state._voiceRecognition = recognition;
+}
+
+function stopVoiceSearch() {
+  state._voiceListening = false;
+  dom.voiceSearchBtn?.classList.remove('listening');
+  if (state._voiceRecognition) {
+    try { state._voiceRecognition.stop(); } catch (e) { }
+    state._voiceRecognition = null;
+  }
 }
 
 function renderSearchResults(matches, query) {
@@ -2691,6 +2736,8 @@ async function initApp() {
   });
   dom.searchType?.addEventListener('change', () => { state.searchType = dom.searchType.value; });
   dom.searchInput?.addEventListener('keypress', e => { if (e.key === 'Enter') dom.searchBtn?.click(); });
+
+  dom.voiceSearchBtn?.addEventListener('click', startVoiceSearch);
 
   document.addEventListener('click', (e) => {
     if (!dom.shareMenu?.contains(e.target) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');

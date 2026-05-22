@@ -101,9 +101,12 @@
           <option value="root">بحث بالجذر</option>
         </select>
       </div>
-      <div class="control-group">
+      <div class="control-group search-input-group">
         <label for="searchInput">البحث في القرآن كاملًا:</label>
-        <input id="searchInput" type="text" placeholder="اكتب كلمة أو جذراً..." aria-label="مربع البحث">
+        <div class="search-input-wrapper">
+          <input id="searchInput" type="text" placeholder="اكتب كلمة أو جذراً..." aria-label="مربع البحث">
+          <button class="voice-search-btn" id="voiceSearchBtn" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
+        </div>
       </div>
       <button class="btn btn-gold" id="searchBtn" aria-label="بدء البحث">🔎 بحث</button>
       <button class="btn" id="clearSearchBtn" aria-label="مسح النتائج">مسح النتائج</button>
