@@ -597,7 +597,7 @@ body.night-mode .surah-title { color: var(--accent); }
 .player .collapse-btn {
   position: absolute;
   top: 8px;
-  left: 12px;
+  right: 12px;
   background: var(--accent);
   border: none;
   border-radius: 20px;
