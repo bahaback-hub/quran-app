@@ -63,6 +63,7 @@ const DOM_IDS = [
   'favoritesPanel', 'favoritesCloseBtn', 'favoritesList', 'favoritesOpenBtn',
   'player', 'collapsePlayerBtn', 'collapsedExpandBtn', 'playPauseBtn',
   'collapsedPlayBtn', 'playerSurahName', 'playerReciterName',
+  'expandedOverlay', 'expandedBackdrop', 'collapsedContent',
   'playerCurrentAyah', 'collapsedInfo',
   'audioPlayer', 'speedSelect', 'prevAyahBtn', 'nextAyahBtn',
   'prevSurahBtn', 'nextSurahBtn', 'hifdhBtn', 'repeatBtn', 'bookmarkBtn',
@@ -1433,6 +1434,11 @@ function onSeeking() {
 
 /* ===================== AUDIO EVENTS ===================== */
 
+function expandPlayer() {
+  dom.player?.classList.remove('collapsed');
+  storage.set('player_collapsed', false);
+}
+
 function togglePlayPause() {
   if (!state.surahData || !dom.audioPlayer) return;
   if (dom.audioPlayer.paused) {
@@ -2666,10 +2672,18 @@ async function initApp() {
   dom.bgSelect?.addEventListener('change', () => { applyBackground(dom.bgSelect.value); });
 
   dom.collapsePlayerBtn?.addEventListener('click', () => {
-    dom.player?.classList.toggle('collapsed');
-    storage.set('player_collapsed', dom.player?.classList.contains('collapsed'));
+    dom.player?.classList.add('collapsed');
+    storage.set('player_collapsed', true);
   });
-  dom.collapsedExpandBtn?.addEventListener('click', () => dom.player?.classList.remove('collapsed'));
+  dom.collapsedExpandBtn?.addEventListener('click', () => expandPlayer());
+  dom.collapsedContent?.addEventListener('click', (e) => {
+    if (e.target.closest('#collapsedPlayBtn')) return;
+    expandPlayer();
+  });
+  dom.expandedBackdrop?.addEventListener('click', () => {
+    dom.player?.classList.add('collapsed');
+    storage.set('player_collapsed', true);
+  });
   dom.playPauseBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
   dom.collapsedPlayBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
 
@@ -2828,6 +2842,10 @@ async function initApp() {
         if (dom.searchResults) dom.searchResults.style.display = 'none';
         if (dom.shareMenu) dom.shareMenu.classList.remove('show');
         closeTafsir();
+        if (dom.player && !dom.player.classList.contains('collapsed')) {
+          dom.player.classList.add('collapsed');
+          storage.set('player_collapsed', true);
+        }
         break;
     }
   });
@@ -2845,7 +2863,7 @@ async function initApp() {
 
   // Restore player state
   const savedPlayerCollapsed = storage.get('player_collapsed');
-  if (savedPlayerCollapsed && dom.player) dom.player.classList.add('collapsed');
+  if (savedPlayerCollapsed === false && dom.player) dom.player.classList.remove('collapsed');
 
   // Show welcome screen on first visit
   showWelcomeScreen();
