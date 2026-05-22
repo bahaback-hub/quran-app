@@ -25,6 +25,14 @@ const ARABIC_WEEKDAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'ا
 
 const JUZ_PAGES = [1, 22, 42, 62, 82, 102, 122, 142, 162, 182, 202, 222, 242, 262, 282, 302, 322, 342, 362, 382, 402, 422, 442, 462, 482, 502, 522, 542, 562, 582];
 
+const TRANSLATION_EDITIONS = {
+  'en.sahih': { lang: 'en', name: 'Sahih International' },
+  'en.pickthall': { lang: 'en', name: 'Pickthall' },
+  'en.yusufali': { lang: 'en', name: 'Yusuf Ali' },
+  'fr.hamidullah': { lang: 'fr', name: 'Hamidullah' },
+  'ur.jalandhry': { lang: 'ur', name: 'Jalandhry' }
+};
+
 const storage = {
   get(key, def = null) {
     try {
@@ -69,7 +77,9 @@ const DOM_IDS = [
   'azanNotification', 'azanNotifStopBtn',
   'mushafSurahListBtn', 'mushafSurahOverlay', 'mushafSurahOverlayClose',
   'mushafSurahOverlayList', 'pageSlider',
-  'langSelect'
+  'langSelect',
+  'translationSelect', 'translationToggle', 'translationPanel',
+  'welcomeScreen', 'welcomeDismissBtn'
 ];
 
 function cacheDom() {
@@ -388,6 +398,23 @@ const ar = {
   search_copy: '📋 نسخ',
   search_share: '📤 مشاركة',
   search_goto: '📍 الذهاب',
+
+  // Translation
+  translation: '🌐 الترجمة',
+  translation_select: 'اختيار الترجمة',
+  translation_on: 'الترجمة مفعّلة',
+  translation_off: 'الترجمة مغلقة',
+
+  // Welcome screen
+  welcome_title: 'القرآن الكريم',
+  welcome_subtitle: 'برمجة عائلة السليماني',
+  welcome_feature_audio: '🎧 استمع لتلاوات 8 قرّاء',
+  welcome_feature_search: '🔎 ابحث في القرآن كاملًا',
+  welcome_feature_tafsir: '📜 تفسير 6 تفاسير معتمدة',
+  welcome_feature_translation: '🌐 ترجمة المعاني (إنجليزية، فرنسية، أردو)',
+  welcome_feature_mushaf: '📄 تصفّح المصحف كاملًا',
+  welcome_feature_prayer: '🕌 مواقيت الصلاة والأذان',
+  welcome_dismiss: '✌️ البدء',
 };
 
 ar;
@@ -608,6 +635,23 @@ const en = {
   search_copy: '📋 Copy',
   search_share: '📤 Share',
   search_goto: '📍 Go',
+
+  // Translation
+  translation: '🌐 Translation',
+  translation_select: 'Select Translation',
+  translation_on: 'Translation enabled',
+  translation_off: 'Translation disabled',
+
+  // Welcome screen
+  welcome_title: 'The Noble Quran',
+  welcome_subtitle: 'Al-Sulaimani Family',
+  welcome_feature_audio: '🎧 Listen to 8 reciters',
+  welcome_feature_search: '🔎 Search the entire Quran',
+  welcome_feature_tafsir: '📜 6 authoritative tafsir works',
+  welcome_feature_translation: '🌐 Translation (English, French, Urdu)',
+  welcome_feature_mushaf: '📄 Browse the mushaf',
+  welcome_feature_prayer: '🕌 Prayer times & azan',
+  welcome_dismiss: '✌️ Get Started',
 };
 
 en;
@@ -800,7 +844,10 @@ function initState() {
     azanPlaying: false, loadingSurah: null,
     mushafMode: false, currentPage: 1,
     fullQuranText: null, fullQuranLoaded: false,
-    ayahWordElements: null
+    ayahWordElements: null,
+    translationEnabled: false,
+    currentTranslation: null,
+    translationData: null
   };
 }
 
@@ -1098,11 +1145,12 @@ async function loadSurah(surahNum, opts = {}) {
   }
   state.currentSurah = surahNum;
 
-  const cacheKey = `${surahNum}_${state.currentReciter}`;
+  const cacheKey = `${surahNum}_${state.currentReciter}_${state.currentTranslation || 'notr'}`;
   if (state.surahCache.has(cacheKey)) {
     const cached = state.surahCache.get(cacheKey);
     state.surahData = cached.text;
     state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
+    state.translationData = cached.translation || null;
     renderSurah(cached.text);
     finalizeSurahLoad(opts);
     state.loadingSurah = null;
@@ -1113,10 +1161,14 @@ async function loadSurah(surahNum, opts = {}) {
   if (dom.surahContent) dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
 
   try {
-    const [textRes, audioRes] = await Promise.all([
+    const fetches = [
       fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`),
       fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`)
-    ]);
+    ];
+    if (state.translationEnabled && state.currentTranslation) {
+      fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`));
+    }
+    const [textRes, audioRes, transRes] = await Promise.all(fetches);
     const textJson = await textRes.json();
     const audioJson = await audioRes.json();
     const textData = textJson?.data;
@@ -1127,11 +1179,18 @@ async function loadSurah(surahNum, opts = {}) {
     state.surahData = textData;
     state.ayahsAudios = audioData.ayahs.map(a => a.audio);
 
+    if (transRes) {
+      const transJson = await transRes.json();
+      state.translationData = transJson?.data || null;
+    } else {
+      state.translationData = null;
+    }
+
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
       const firstKey = state.surahCache.keys().next().value;
       state.surahCache.delete(firstKey);
     }
-    state.surahCache.set(cacheKey, { text: textData, audio: audioData });
+    state.surahCache.set(cacheKey, { text: textData, audio: audioData, translation: state.translationData });
 
     renderSurah(textData);
     finalizeSurahLoad(opts);
@@ -1180,6 +1239,7 @@ function renderSurah(textData) {
   }
   html += `<div class="ayahs-container" style="font-size:${state.fontSize}px">`;
 
+  const isRtlTranslation = state.currentTranslation && (state.currentTranslation.startsWith('ur.'));
   for (let i = 0; i < textData.ayahs.length; i++) {
     const a = textData.ayahs[i];
     let txt = a.text;
@@ -1189,6 +1249,11 @@ function renderSurah(textData) {
     html += `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
     html += buildAyahWordsHtml(txt, i);
     html += ` <span class="ayah-number">${a.numberInSurah}</span>`;
+    if (state.translationEnabled && state.translationData?.ayahs?.[i]) {
+      const transText = escapeHtml(state.translationData.ayahs[i].text);
+      const rtlClass = isRtlTranslation ? ' rtl-lang' : '';
+      html += `<span class="translation-text${rtlClass}">${transText}</span>`;
+    }
     html += `</span> `;
   }
   html += '</div>';
@@ -1636,6 +1701,35 @@ async function loadTafsirForSurahAyah(surahNum, ayahNum) {
   const text = await fetchTafsirFromAPI(edition, surahNum, ayahNum);
   if (text) dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(text)}</p>`;
   else showTafsirError();
+}
+
+/* ===================== TRANSLATION ===================== */
+
+function toggleTranslation() {
+  state.translationEnabled = !state.translationEnabled;
+  dom.translationToggle?.classList.toggle('on', state.translationEnabled);
+  if (dom.translationSelect) dom.translationSelect.style.display = state.translationEnabled ? '' : 'none';
+  storage.set('translation_enabled', state.translationEnabled);
+  if (state.translationEnabled && !state.currentTranslation) {
+    state.currentTranslation = dom.translationSelect?.value || 'en.sahih';
+    storage.set('translation_edition', state.currentTranslation);
+  }
+  showToast(state.translationEnabled ? '🌐 الترجمة مفعّلة' : 'الترجمة مغلقة', 'success');
+  if (state.currentSurah) loadSurah(state.currentSurah);
+}
+
+/* ===================== WELCOME SCREEN ===================== */
+
+function showWelcomeScreen() {
+  if (!dom.welcomeScreen) return;
+  const dismissed = storage.get('welcome_dismissed');
+  if (dismissed) return;
+  dom.welcomeScreen.style.display = 'flex';
+}
+
+function dismissWelcomeScreen() {
+  if (dom.welcomeScreen) dom.welcomeScreen.style.display = 'none';
+  storage.set('welcome_dismissed', true);
 }
 
 /* ===================== SEARCH ===================== */
@@ -2158,6 +2252,8 @@ function restoreSettings() {
   const rec = storage.get('reciter'); if (rec) state.currentReciter = rec;
   const taf = storage.get('tafsir_edition'); if (taf) state.currentTafsirEdition = taf;
   const bar = storage.get('bar_collapsed'); if (bar === true) state.barCollapsed = true;
+  const transEnabled = storage.get('translation_enabled'); if (transEnabled) state.translationEnabled = true;
+  const transEdition = storage.get('translation_edition'); if (transEdition) state.currentTranslation = transEdition;
 
   if (dom.cityInput) dom.cityInput.value = state.city;
   if (dom.countryInput) dom.countryInput.value = state.country;
@@ -2167,6 +2263,11 @@ function restoreSettings() {
   if (dom.autoSaveToggle) dom.autoSaveToggle.classList.toggle('on', state.autoSave);
   if (dom.reciterSelect) dom.reciterSelect.value = state.currentReciter;
   if (dom.tafsirSelect) dom.tafsirSelect.value = state.currentTafsirEdition;
+  if (dom.translationToggle) dom.translationToggle.classList.toggle('on', state.translationEnabled);
+  if (dom.translationSelect) {
+    dom.translationSelect.style.display = state.translationEnabled ? '' : 'none';
+    if (state.currentTranslation) dom.translationSelect.value = state.currentTranslation;
+  }
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = state.fontSize;
   if (dom.fontSizeDropdown) dom.fontSizeDropdown.value = state.fontSize;
   const speed = storage.get('playback_speed');
@@ -2487,6 +2588,7 @@ async function initApp() {
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
   dom.testAzanBtn?.addEventListener('click', testAzan);
   dom.azanNotifStopBtn?.addEventListener('click', stopAzan);
+  dom.welcomeDismissBtn?.addEventListener('click', dismissWelcomeScreen);
   dom.azanNotification?.addEventListener('click', (e) => {
     if (e.target === dom.azanNotification) stopAzan();
   });
@@ -2517,6 +2619,13 @@ async function initApp() {
     state.currentTafsirEdition = dom.tafsirSelect.value;
     storage.set('tafsir_edition', state.currentTafsirEdition);
     if (dom.tafsirCurtain?.classList.contains('open')) loadTafsirForCurrentAyah();
+  });
+
+  dom.translationToggle?.addEventListener('click', toggleTranslation);
+  dom.translationSelect?.addEventListener('change', () => {
+    state.currentTranslation = dom.translationSelect.value;
+    storage.set('translation_edition', state.currentTranslation);
+    if (state.currentSurah) loadSurah(state.currentSurah);
   });
 
   dom.fontSizeSelect?.addEventListener('change', (e) => applyFontSize(parseInt(e.target.value, 10)));
@@ -2670,6 +2779,9 @@ async function initApp() {
   // Restore player state
   const savedPlayerCollapsed = storage.get('player_collapsed');
   if (savedPlayerCollapsed && dom.player) dom.player.classList.add('collapsed');
+
+  // Show welcome screen on first visit
+  showWelcomeScreen();
 
   // Pause clock when tab hidden (save battery)
   document.addEventListener('visibilitychange', handleVisibilityChange);

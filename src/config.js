@@ -24,3 +24,11 @@ export const PRAYER_ORDER = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 export const ARABIC_WEEKDAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
 export const JUZ_PAGES = [1, 22, 42, 62, 82, 102, 122, 142, 162, 182, 202, 222, 242, 262, 282, 302, 322, 342, 362, 382, 402, 422, 442, 462, 482, 502, 522, 542, 562, 582];
+
+export const TRANSLATION_EDITIONS = {
+  'en.sahih': { lang: 'en', name: 'Sahih International' },
+  'en.pickthall': { lang: 'en', name: 'Pickthall' },
+  'en.yusufali': { lang: 'en', name: 'Yusuf Ali' },
+  'fr.hamidullah': { lang: 'fr', name: 'Hamidullah' },
+  'ur.jalandhry': { lang: 'ur', name: 'Jalandhry' }
+};

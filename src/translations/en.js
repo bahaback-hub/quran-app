@@ -214,6 +214,23 @@ const en = {
   search_copy: '📋 Copy',
   search_share: '📤 Share',
   search_goto: '📍 Go',
+
+  // Translation
+  translation: '🌐 Translation',
+  translation_select: 'Select Translation',
+  translation_on: 'Translation enabled',
+  translation_off: 'Translation disabled',
+
+  // Welcome screen
+  welcome_title: 'The Noble Quran',
+  welcome_subtitle: 'Al-Sulaimani Family',
+  welcome_feature_audio: '🎧 Listen to 8 reciters',
+  welcome_feature_search: '🔎 Search the entire Quran',
+  welcome_feature_tafsir: '📜 6 authoritative tafsir works',
+  welcome_feature_translation: '🌐 Translation (English, French, Urdu)',
+  welcome_feature_mushaf: '📄 Browse the mushaf',
+  welcome_feature_prayer: '🕌 Prayer times & azan',
+  welcome_dismiss: '✌️ Get Started',
 };
 
 export default en;

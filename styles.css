@@ -1665,6 +1665,171 @@ body.night-mode .word.current-word {
   .btn { padding: 5px 8px; font-size: 11px; }
 }
 
+/* ========== الترجمة ========== */
+.translation-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border-soft);
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.translation-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  user-select: none;
+}
+
+.translation-toggle-switch {
+  width: 36px;
+  height: 20px;
+  background: #aaa;
+  border-radius: 10px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.translation-toggle-switch.active {
+  background: var(--accent);
+}
+
+.translation-toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left 0.2s;
+}
+
+.translation-toggle-switch.active::after {
+  left: 18px;
+}
+
+.translation-toggle-text {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+#translationSelect {
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-soft);
+  background: var(--select-bg);
+  color: var(--text-primary);
+  max-width: 160px;
+}
+
+.ayah .translation-text {
+  display: block;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: var(--tafsir-bg);
+  border-radius: 6px;
+  border-right: 3px solid var(--accent);
+  direction: ltr;
+  text-align: left;
+}
+
+.ayah .translation-text.rtl-lang {
+  direction: rtl;
+  text-align: right;
+  border-right: none;
+  border-left: 3px solid var(--accent);
+}
+
+/* ========== شاشة الترحيب ========== */
+.welcome-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.welcome-screen-inner {
+  background: var(--container-bg);
+  border: 2px solid var(--accent);
+  border-radius: 20px;
+  padding: 40px 30px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+  animation: welcomeFadeIn 0.4s ease;
+}
+
+@keyframes welcomeFadeIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.welcome-logo {
+  font-size: 64px;
+  margin-bottom: 8px;
+}
+
+.welcome-title {
+  font-size: 28px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.welcome-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.welcome-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  background: var(--tafsir-bg);
+  border-radius: 10px;
+}
+
+.welcome-feature span {
+  text-align: right;
+}
+
+.welcome-dismiss-btn {
+  font-size: 18px;
+  padding: 12px 40px;
+}
+
+body.night-mode .welcome-screen-inner {
+  border-color: var(--accent-dark);
+}
+
 /* ========== الطباعة ========== */
 @media print {
   body { background: #fff; padding: 0; padding-bottom: 0; }
