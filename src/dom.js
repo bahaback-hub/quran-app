@@ -25,8 +25,8 @@ const DOM_IDS = [
   'modeToggleBtn', 'pageSelect', 'prevPageBtn', 'nextPageBtn',
   'mushafControls', 'surahModeControls',
   'azanNotification', 'azanNotifStopBtn',
-  'mushafSurahListBtn', 'mushafSurahOverlay', 'mushafSurahOverlayClose',
-  'mushafSurahOverlayList', 'pageSlider',
+  'mushafSurahListBtn', 'mushafSurahOverlay',   'mushafSurahOverlayClose',
+  'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn',
   'langSelect',
   'translationSelect', 'translationToggle', 'translationPanel',
   'welcomeScreen', 'welcomeDismissBtn'
