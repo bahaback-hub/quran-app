@@ -1058,7 +1058,6 @@ function renderSearchResults(matches, query) {
       const a = parseInt(btn.dataset.ayah, 10);
       if (dom.surahSelect) dom.surahSelect.value = s;
       loadSurah(s, { startAyah: a });
-      dom.searchResults.style.display = 'none';
     });
   });
 
