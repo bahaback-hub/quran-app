@@ -116,12 +116,7 @@ body.night-mode.bg-css::after {
 }
 
 body:not(.bg-css) {
-  animation: bgGradientShift 30s ease-in-out infinite alternate;
-}
-@keyframes bgGradientShift {
-  0% { filter: brightness(1); }
-  50% { filter: brightness(1.05); }
-  100% { filter: brightness(1); }
+  background: var(--bg-gradient);
 }
 
 
