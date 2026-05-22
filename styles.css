@@ -617,31 +617,46 @@ body.night-mode .surah-title { color: var(--accent); }
   font-size: 16px;
 }
 
-/* ========== المشغل السفلي ========== */
+/* ========== المشغل العائم ========== */
 .player {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--player-bg);
-  border-top: 4px solid var(--accent);
-  box-shadow: 0 -8px 30px rgba(0,0,0,0.2);
   z-index: 500;
-  transition: padding 0.35s ease, height 0.35s ease, box-shadow 0.35s ease;
   text-align: center;
-  overflow: hidden;
 }
-.player.expanded { padding: 12px 18px; }
-.player.collapsed { padding: 6px 12px; height: 55px; }
-.player .collapse-btn {
-  position: absolute;
-  top: 8px;
-  right: 12px;
+
+/* ===== الحالة المطوية (الكارت العائم) ===== */
+.collapsed-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: fixed;
+  bottom: 90px;
+  left: 20px;
+  background: var(--player-bg);
+  border: 2px solid var(--accent);
+  border-radius: 30px;
+  padding: 8px 16px 8px 8px;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+  z-index: 501;
+  cursor: pointer;
+  direction: ltr;
+  transition: all 0.25s ease;
+  max-width: 260px;
+}
+.collapsed-content:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.floating-play-btn {
   background: var(--accent);
   border: none;
-  border-radius: 20px;
-  width: 30px;
-  height: 30px;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
   font-size: 16px;
   cursor: pointer;
   display: flex;
@@ -649,95 +664,117 @@ body.night-mode .surah-title { color: var(--accent); }
   justify-content: center;
   color: #2c3e50;
   transition: all 0.2s;
-  z-index: 10;
+  flex-shrink: 0;
   font-weight: bold;
 }
-.player.collapsed .collapse-btn { display: none; }
-
-.expanded-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  opacity: 1;
-  max-height: 600px;
-  transition: opacity 0.3s ease, max-height 0.35s ease, margin 0.3s ease;
-  overflow: hidden;
-}
-.player.collapsed .expanded-content {
-  opacity: 0;
-  max-height: 0;
-  margin: 0;
-  pointer-events: none;
+.floating-play-btn:hover {
+  transform: scale(1.1);
+  background: var(--accent-dark);
 }
 
-.collapsed-content {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  height: 100%;
-  padding: 0 10px;
-}
-.player.collapsed .collapsed-content { display: flex; }
-
-.collapsed-info {
-  font-size: 14px;
+.floating-info {
+  font-size: 13px;
   font-weight: bold;
   color: var(--text-primary);
-  background: rgba(0,0,0,0.05);
-  padding: 4px 12px;
-  border-radius: 20px;
-  flex: 1;
-  text-align: center;
+  direction: rtl;
+  text-align: right;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
 }
-body.night-mode .collapsed-info { background: rgba(255,255,255,0.08); }
 
-.collapsed-control-btn {
-  background: var(--primary);
-  border: none;
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 13px;
-  cursor: pointer;
-  display: inline-flex;
+.player:not(.collapsed) .collapsed-content {
+  display: none;
+}
+
+/* ===== الحالة الموسعة (الطبقة المنبثقة) ===== */
+.expanded-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 998;
+  align-items: flex-end;
+  justify-content: center;
+}
+.player:not(.collapsed) .expanded-overlay {
+  display: flex;
+}
+
+.expanded-overlay-backdrop {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  animation: fadeInBackdrop 0.25s ease;
+}
+@keyframes fadeInBackdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.expanded-content {
+  position: relative;
+  width: 100%;
+  max-width: 550px;
+  max-height: 85vh;
+  background: var(--player-bg);
+  border-radius: 20px 20px 0 0;
+  padding: 16px 20px 22px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.3);
+  direction: rtl;
+  overflow-y: auto;
+  animation: slideUpSheet 0.3s ease;
+  z-index: 999;
+}
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.expanded-header {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  color: white;
-  font-family: inherit;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 16px;
   font-weight: bold;
+  color: var(--text-primary);
+}
+.expanded-header #playerReciterName {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+.collapse-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 8px;
   transition: all 0.2s;
 }
-.collapsed-control-btn:hover { transform: scale(1.05); background: var(--primary-light); }
-.collapsed-expand-btn { background: var(--accent-dark); color: #2c3e50; }
-
-.player-info {
-  font-size: 16px;
-  color: var(--primary-light);
-  margin-bottom: 8px;
-  font-weight: bold;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  align-items: center;
+.collapse-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
-body.night-mode .player-info { color: var(--accent); }
-.player-info .current-ayah {
+
+.current-ayah {
   font-size: 16px;
   color: var(--accent-dark);
   font-weight: bold;
-  display: block;
-  width: 100%;
   text-align: center;
-  margin-top: 6px;
+  margin-bottom: 10px;
   padding: 8px 14px;
   background: rgba(212, 175, 55, 0.12);
   border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: 10px;
   line-height: 1.8;
+  word-break: break-word;
 }
 
 audio {
@@ -842,6 +879,14 @@ body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
   font-family: inherit;
   cursor: pointer;
   min-width: 70px;
+}
+
+body.night-mode .collapsed-content {
+  background: #1a1f2e;
+  border-color: var(--accent-dark);
+}
+body.night-mode .expanded-content {
+  background: #1a1f2e;
 }
 
 /* ========== قائمة المشاركة ========== */

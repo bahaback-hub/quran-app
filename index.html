@@ -139,69 +139,71 @@
   </footer>
 </div>
 
-<!-- ========== المشغل السفلي ========== -->
-<div class="player expanded" id="player" role="region" aria-label="مشغل التلاوة">
-  <button class="collapse-btn" id="collapsePlayerBtn" aria-label="طي المشغل">⌄</button>
+<!-- ========== المشغل العائم ========== -->
+<div class="player collapsed" id="player" role="region" aria-label="مشغل التلاوة">
 
-  <div class="expanded-content">
-    <div class="player-info">
-      <span id="playerSurahName">—</span>
-      <span id="playerReciterName">—</span>
-      <span class="current-ayah" id="playerCurrentAyah">—</span>
-    </div>
-    <audio id="audioPlayer" controls preload="metadata"></audio>
-    <div class="speed-control">
-      <label for="speedSelect">السرعة:</label>
-      <select id="speedSelect" aria-label="سرعة التلاوة">
-        <option value="0.5">0.5x</option>
-        <option value="0.75">0.75x</option>
-        <option value="1" selected>1x</option>
-        <option value="1.25">1.25x</option>
-        <option value="1.5">1.5x</option>
-        <option value="2">2x</option>
-      </select>
-    </div>
-    <div class="player-buttons">
-      <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف">⏯ تشغيل</button>
-      <button class="btn" id="prevSurahBtn" aria-label="السورة السابقة">⏮ السورة السابقة</button>
-      <button class="btn" id="prevAyahBtn" aria-label="الآية السابقة">◀ سابقة</button>
-      <button class="btn btn-hifdh" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
-      <button class="btn btn-repeat" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
-      <button class="btn btn-bookmark" id="bookmarkBtn" aria-label="إشارة مرجعية" title="نقرة: حفظ — نقرتان: انتقال">🔖 علامة</button>
-      <button class="btn btn-favorite" id="favoriteBtn" aria-label="إضافة للمفضلة">❤️ مفضلة</button>
-      <button class="btn btn-gold" id="shareBtn" aria-label="مشاركة الآية">📤 مشاركة</button>
-      <button class="btn" id="nextAyahBtn" aria-label="الآية التالية">تالية ▶</button>
-      <button class="btn" id="nextSurahBtn" aria-label="السورة التالية">السورة التالية ⏭</button>
-    </div>
-    <div class="keyboard-hint" id="keyboardHint">
-      💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار | M = مصحف
-    </div>
-    <div class="repeat-controls" id="repeatControls" style="display:none;">
-      <label>من: <select id="repeatFrom"></select></label>
-      <label>إلى: <select id="repeatTo"></select></label>
-      <label>عدد المرات:
-        <select id="repeatTimes">
-          <option value="2">2</option>
-          <option value="3" selected>3</option>
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="20">20</option>
-        </select>
-      </label>
-    </div>
-    <div class="share-menu" id="shareMenu" role="menu">
-      <button data-share="native">📲 مشاركة عامة</button>
-      <button data-share="copy">📋 نسخ النص</button>
-      <button data-share="copy-simple">📋 نسخ مبسط (بدون تشكيل)</button>
-      <button data-share="whatsapp">💬 واتساب</button>
-      <button data-share="telegram">✈️ تيليجرام</button>
-    </div>
+  <div class="collapsed-content" id="collapsedContent">
+    <button class="floating-play-btn" id="collapsedPlayBtn" aria-label="تشغيل/إيقاف">⏯</button>
+    <div class="floating-info" id="collapsedInfo">—</div>
   </div>
 
-  <div class="collapsed-content">
-    <button class="collapsed-control-btn collapsed-expand-btn" id="collapsedExpandBtn" aria-label="توسيع المشغل">⌃</button>
-    <div class="collapsed-info" id="collapsedInfo">—</div>
-    <button class="collapsed-control-btn" id="collapsedPlayBtn" aria-label="تشغيل/إيقاف">⏯</button>
+  <div class="expanded-overlay" id="expandedOverlay">
+    <div class="expanded-overlay-backdrop" id="expandedBackdrop"></div>
+    <div class="expanded-content">
+      <div class="expanded-header">
+        <span id="playerSurahName">—</span>
+        <span id="playerReciterName">—</span>
+        <button class="collapse-btn" id="collapsePlayerBtn" aria-label="إغلاق المشغل">✖</button>
+      </div>
+      <div class="current-ayah" id="playerCurrentAyah">—</div>
+      <audio id="audioPlayer" controls preload="metadata"></audio>
+      <div class="speed-control">
+        <label for="speedSelect">السرعة:</label>
+        <select id="speedSelect" aria-label="سرعة التلاوة">
+          <option value="0.5">0.5x</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x</option>
+        </select>
+      </div>
+      <div class="player-buttons">
+        <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف">⏯ تشغيل</button>
+        <button class="btn" id="prevSurahBtn" aria-label="السورة السابقة">⏮ السورة السابقة</button>
+        <button class="btn" id="prevAyahBtn" aria-label="الآية السابقة">◀ سابقة</button>
+        <button class="btn btn-hifdh" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
+        <button class="btn btn-repeat" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
+        <button class="btn btn-bookmark" id="bookmarkBtn" aria-label="إشارة مرجعية" title="نقرة: حفظ — نقرتان: انتقال">🔖 علامة</button>
+        <button class="btn btn-favorite" id="favoriteBtn" aria-label="إضافة للمفضلة">❤️ مفضلة</button>
+        <button class="btn btn-gold" id="shareBtn" aria-label="مشاركة الآية">📤 مشاركة</button>
+        <button class="btn" id="nextAyahBtn" aria-label="الآية التالية">تالية ▶</button>
+        <button class="btn" id="nextSurahBtn" aria-label="السورة التالية">السورة التالية ⏭</button>
+      </div>
+      <div class="keyboard-hint" id="keyboardHint">
+        💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار | M = مصحف
+      </div>
+      <div class="repeat-controls" id="repeatControls" style="display:none;">
+        <label>من: <select id="repeatFrom"></select></label>
+        <label>إلى: <select id="repeatTo"></select></label>
+        <label>عدد المرات:
+          <select id="repeatTimes">
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+          </select>
+        </label>
+      </div>
+      <div class="share-menu" id="shareMenu" role="menu">
+        <button data-share="native">📲 مشاركة عامة</button>
+        <button data-share="copy">📋 نسخ النص</button>
+        <button data-share="copy-simple">📋 نسخ مبسط (بدون تشكيل)</button>
+        <button data-share="whatsapp">💬 واتساب</button>
+        <button data-share="telegram">✈️ تيليجرام</button>
+      </div>
+    </div>
   </div>
 </div>
 
