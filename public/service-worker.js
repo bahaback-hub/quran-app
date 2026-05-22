@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quran-app-v12';
+const CACHE_NAME = 'quran-app-v13';
 const API_CACHE = 'quran-api-cache-v3';
 const AUDIO_CACHE = 'quran-audio-cache-v1';
 const MUSHARAF_CACHE = 'quran-mushaf-v1';
@@ -23,7 +23,20 @@ self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(c =>
       c.addAll(STATIC_ASSETS).catch(err => console.warn('Some assets failed:', err))
-    )
+    ).then(() => {
+      // Pre-cache first 10 mushaf pages
+      const pages = [];
+      for (let i = 1; i <= 10; i++) {
+        const padded = String(i).padStart(3, '0');
+        pages.push(`https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${padded}.png`);
+        pages.push(`https://cdn.jsdelivr.net/gh/Miftah-Fentaw/Quran_webp@main/${padded}.webp`);
+      }
+      return caches.open(MUSHARAF_CACHE).then(cache =>
+        Promise.allSettled(pages.map(url =>
+          cache.add(url).catch(() => {})
+        ))
+      );
+    })
   );
   self.skipWaiting();
 });
