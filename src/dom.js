@@ -27,7 +27,9 @@ const DOM_IDS = [
   'azanNotification', 'azanNotifStopBtn',
   'mushafSurahListBtn', 'mushafSurahOverlay', 'mushafSurahOverlayClose',
   'mushafSurahOverlayList', 'pageSlider',
-  'langSelect'
+  'langSelect',
+  'translationSelect', 'translationToggle', 'translationPanel',
+  'welcomeScreen', 'welcomeDismissBtn'
 ];
 
 export function cacheDom() {

@@ -214,6 +214,23 @@ const ar = {
   search_copy: '📋 نسخ',
   search_share: '📤 مشاركة',
   search_goto: '📍 الذهاب',
+
+  // Translation
+  translation: '🌐 الترجمة',
+  translation_select: 'اختيار الترجمة',
+  translation_on: 'الترجمة مفعّلة',
+  translation_off: 'الترجمة مغلقة',
+
+  // Welcome screen
+  welcome_title: 'القرآن الكريم',
+  welcome_subtitle: 'برمجة عائلة السليماني',
+  welcome_feature_audio: '🎧 استمع لتلاوات 8 قرّاء',
+  welcome_feature_search: '🔎 ابحث في القرآن كاملًا',
+  welcome_feature_tafsir: '📜 تفسير 6 تفاسير معتمدة',
+  welcome_feature_translation: '🌐 ترجمة المعاني (إنجليزية، فرنسية، أردو)',
+  welcome_feature_mushaf: '📄 تصفّح المصحف كاملًا',
+  welcome_feature_prayer: '🕌 مواقيت الصلاة والأذان',
+  welcome_dismiss: '✌️ البدء',
 };
 
 export default ar;

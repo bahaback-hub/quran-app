@@ -213,6 +213,19 @@
       <option value="ar-tafsir-al-baghawi">تفسير البغوي</option>
       <option value="ar-tafsir-al-qurtubi">تفسير القرطبي</option>
     </select>
+    <div class="translation-controls">
+      <label class="translation-toggle-label">
+        <span class="translation-toggle-switch" id="translationToggle" role="switch" aria-label="إظهار الترجمة" tabindex="0"></span>
+        <span class="translation-toggle-text" id="translationToggleText">🌐 الترجمة</span>
+      </label>
+      <select id="translationSelect" aria-label="اختيار الترجمة" style="display:none;">
+        <option value="en.sahih">Sahih International</option>
+        <option value="en.pickthall">Pickthall</option>
+        <option value="en.yusufali">Yusuf Ali</option>
+        <option value="fr.hamidullah">Hamidullah (Français)</option>
+        <option value="ur.jalandhry">Jalandhry (اردو)</option>
+      </select>
+    </div>
   </div>
   <div class="tafsir-curtain-body" id="tafsirCurtainBody">
     <p class="tafsir-no-ayah">📖 اختر سورة وآية لعرض التفسير</p>
@@ -401,6 +414,24 @@
 
 <!-- ========== رسائل Toast ========== -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ========== شاشة الترحيب ========== -->
+<div class="welcome-screen" id="welcomeScreen" role="dialog" aria-label="شاشة الترحيب" style="display:none;">
+  <div class="welcome-screen-inner">
+    <div class="welcome-logo">📖</div>
+    <h1 class="welcome-title">القرآن الكريم</h1>
+    <p class="welcome-subtitle">برمجة عائلة السليماني</p>
+    <div class="welcome-features">
+      <div class="welcome-feature">🎧 <span>استمع لتلاوات 8 قرّاء</span></div>
+      <div class="welcome-feature">🔎 <span>ابحث في القرآن كاملًا</span></div>
+      <div class="welcome-feature">📜 <span>تفسير 6 تفاسير معتمدة</span></div>
+      <div class="welcome-feature">🌐 <span>ترجمة المعاني (إنجليزية، فرنسية، أردو)</span></div>
+      <div class="welcome-feature">📄 <span>تصفّح المصحف كاملًا</span></div>
+      <div class="welcome-feature">🕌 <span>مواقيت الصلاة والأذان</span></div>
+    </div>
+    <button class="btn btn-gold welcome-dismiss-btn" id="welcomeDismissBtn">✌️ البدء</button>
+  </div>
+</div>
 
 <script src="app.bundle.js"></script>
 </body>
