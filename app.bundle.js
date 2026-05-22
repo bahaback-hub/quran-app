@@ -1137,6 +1137,24 @@ async function loadSurah(surahNum, opts = {}) {
     finalizeSurahLoad(opts);
     loadingBar.hide();
   } catch (e) {
+    if (state.fullQuranLoaded && state.fullQuranText) {
+      const ayahs = state.fullQuranText.filter(a => a.surah === surahNum);
+      if (ayahs.length) {
+        state.surahData = {
+          number: surahNum,
+          name: ayahs[0].surahName,
+          englishName: state.surahList.find(s => s.number === surahNum)?.englishName || '',
+          ayahs: ayahs.map(a => ({ numberInSurah: a.ayah, text: a.text }))
+        };
+        state.ayahsAudios = [];
+        renderSurah(state.surahData);
+        finalizeSurahLoad(opts);
+        loadingBar.hide();
+        showToast('📖 وضع عدم الاتصال — الصوت غير متاح', '');
+        state.loadingSurah = null;
+        return;
+      }
+    }
     if (dom.surahContent) dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل السورة</p>';
     showToast('فشل تحميل السورة', 'error');
     loadingBar.hide();
@@ -1280,6 +1298,22 @@ function playCurrentAyah() {
   dom.audioPlayer.play().catch(e => console.warn(e));
   state.isPlaying = true;
   startWordTracking();
+  preloadNextAyah();
+}
+
+function preloadNextAyah() {
+  if (!state.ayahsAudios) return;
+  const nextIdx = state.currentAyahIndex + 1;
+  if (nextIdx < state.ayahsAudios.length) {
+    const nextUrl = state.ayahsAudios[nextIdx];
+    if (nextUrl) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'audio';
+      link.href = nextUrl;
+      document.head.appendChild(link);
+    }
+  }
 }
 
 /* ===================== WORD-BY-WORD TRACKING ===================== */
@@ -1383,7 +1417,7 @@ function onAudioEnded() {
       if (startIdx !== -1) {
         state.currentAyahIndex = startIdx;
         highlightCurrentAyah();
-        setTimeout(playCurrentAyah, 300);
+        setTimeout(playCurrentAyah, 50);
         return;
       }
     }
@@ -1402,7 +1436,7 @@ function nextAyah(autoFromRepeat) {
   if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
     state.currentAyahIndex++;
     highlightCurrentAyah();
-    if (autoFromRepeat || state.isPlaying) setTimeout(playCurrentAyah, 150);
+    if (autoFromRepeat || state.isPlaying) setTimeout(playCurrentAyah, 50);
   } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
     nextSurah();
   }
@@ -2143,6 +2177,16 @@ function restoreSettings() {
   }
 }
 
+/* ===================== VISIBILITY ===================== */
+
+function handleVisibilityChange() {
+  if (document.hidden) {
+    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+  } else {
+    startClock();
+  }
+}
+
 /* ===================== PRAYER BAR TOGGLE ===================== */
 
 function togglePrayerBar() {
@@ -2626,6 +2670,9 @@ async function initApp() {
   // Restore player state
   const savedPlayerCollapsed = storage.get('player_collapsed');
   if (savedPlayerCollapsed && dom.player) dom.player.classList.add('collapsed');
+
+  // Pause clock when tab hidden (save battery)
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 
   // Register service worker
   if ('serviceWorker' in navigator) {
