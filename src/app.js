@@ -1952,10 +1952,6 @@ export async function initApp() {
     if (e.target.closest('#collapsedPlayBtn')) return;
     expandPlayer();
   });
-  dom.expandedBackdrop?.addEventListener('click', () => {
-    dom.player?.classList.add('collapsed');
-    storage.set('player_collapsed', true);
-  });
   dom.playPauseBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
   dom.collapsedPlayBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
 

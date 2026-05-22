@@ -13,7 +13,7 @@ const DOM_IDS = [
   'favoritesPanel', 'favoritesCloseBtn', 'favoritesList', 'favoritesOpenBtn',
   'player', 'collapsePlayerBtn', 'collapsedExpandBtn', 'playPauseBtn',
   'collapsedPlayBtn', 'playerSurahName', 'playerReciterName',
-  'expandedOverlay', 'expandedBackdrop', 'collapsedContent',
+  'collapsedContent',
   'playerCurrentAyah', 'collapsedInfo',
   'audioPlayer', 'speedSelect', 'prevAyahBtn', 'nextAyahBtn',
   'prevSurahBtn', 'nextSurahBtn', 'hifdhBtn', 'repeatBtn', 'bookmarkBtn',

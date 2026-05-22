@@ -63,7 +63,7 @@ const DOM_IDS = [
   'favoritesPanel', 'favoritesCloseBtn', 'favoritesList', 'favoritesOpenBtn',
   'player', 'collapsePlayerBtn', 'collapsedExpandBtn', 'playPauseBtn',
   'collapsedPlayBtn', 'playerSurahName', 'playerReciterName',
-  'expandedOverlay', 'expandedBackdrop', 'collapsedContent',
+  'collapsedContent',
   'playerCurrentAyah', 'collapsedInfo',
   'audioPlayer', 'speedSelect', 'prevAyahBtn', 'nextAyahBtn',
   'prevSurahBtn', 'nextSurahBtn', 'hifdhBtn', 'repeatBtn', 'bookmarkBtn',
@@ -2679,10 +2679,6 @@ async function initApp() {
   dom.collapsedContent?.addEventListener('click', (e) => {
     if (e.target.closest('#collapsedPlayBtn')) return;
     expandPlayer();
-  });
-  dom.expandedBackdrop?.addEventListener('click', () => {
-    dom.player?.classList.add('collapsed');
-    storage.set('player_collapsed', true);
   });
   dom.playPauseBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
   dom.collapsedPlayBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
