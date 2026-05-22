@@ -1000,14 +1000,8 @@ function performRootSearch(query) {
   renderSearchResults(results, query);
 }
 
-let lastSearchCloseHandler = null;
-
 function renderSearchResults(matches, query) {
   if (!dom.searchResults) return;
-  if (lastSearchCloseHandler) {
-    document.removeEventListener('click', lastSearchCloseHandler);
-    lastSearchCloseHandler = null;
-  }
   dom.searchResults.innerHTML = '';
   if (!matches.length) {
     dom.searchResults.innerHTML = `<div class="search-empty">❌ لا توجد نتائج لـ "${escapeHtml(query)}"</div>`;
@@ -1068,14 +1062,6 @@ function renderSearchResults(matches, query) {
     });
   });
 
-  lastSearchCloseHandler = (e) => {
-    if (!dom.searchResults.contains(e.target) && e.target !== dom.searchBtn && e.target !== dom.searchInput) {
-      dom.searchResults.style.display = 'none';
-      document.removeEventListener('click', lastSearchCloseHandler);
-      lastSearchCloseHandler = null;
-    }
-  };
-  setTimeout(() => document.addEventListener('click', lastSearchCloseHandler), 100);
 }
 
 function playSpecificAyah(surah, ayah) {
