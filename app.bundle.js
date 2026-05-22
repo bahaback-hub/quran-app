@@ -2375,6 +2375,10 @@ function renderMushafPageImage(pageNum) {
 
   const imgWrapper = document.createElement('div');
   imgWrapper.className = 'mushaf-image-wrapper';
+
+  const skeleton = document.createElement('div');
+  skeleton.className = 'mushaf-image-skeleton';
+
   const img = new Image();
   img.className = 'mushaf-page-img';
   img.alt = `صفحة ${pageNum} من المصحف`;
@@ -2384,14 +2388,17 @@ function renderMushafPageImage(pageNum) {
     img.onerror = null;
     img.src = fallbackUrl;
     img.classList.add('loaded');
+    skeleton.remove();
     loadingBar.hide();
   };
   img.onload = () => {
     img.classList.add('loaded');
+    skeleton.remove();
     loadingBar.hide();
   };
   img.src = imgUrl;
 
+  imgWrapper.appendChild(skeleton);
   imgWrapper.appendChild(img);
 
   const footer = document.createElement('div');
@@ -2782,6 +2789,20 @@ async function initApp() {
 
   // Show welcome screen on first visit
   showWelcomeScreen();
+
+  // Network state banner
+  function updateNetworkBanner() {
+    if (!dom.networkBanner) return;
+    if (!navigator.onLine) {
+      dom.networkBanner.classList.add('show');
+      dom.networkBanner.classList.remove('online');
+    } else {
+      dom.networkBanner.classList.remove('show');
+    }
+  }
+  window.addEventListener('online', updateNetworkBanner);
+  window.addEventListener('offline', updateNetworkBanner);
+  updateNetworkBanner();
 
   // Pause clock when tab hidden (save battery)
   document.addEventListener('visibilitychange', handleVisibilityChange);
