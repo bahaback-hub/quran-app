@@ -158,7 +158,8 @@ function timeStrToMinutes(t) {
 
 function normalizeExactText(str) {
   return String(str)
-    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/[\u064B-\u065F]/g, '')
+    .replace(/\u0670/g, 'ا')
     .replace(/[إأآٱ]/g, 'ا')
     .replace(/ى/g, 'ي')
     .replace(/ة/g, 'ه')
@@ -168,7 +169,8 @@ function normalizeExactText(str) {
 
 function stripTashkeel(str) {
   return String(str)
-    .replace(/[\u064B-\u065F\u0670\u0610-\u061A\u06D6-\u06ED\u08D0-\u08E3]/g, '')
+    .replace(/[\u064B-\u065F\u0610-\u061A\u06D6-\u06ED\u08D0-\u08E3]/g, '')
+    .replace(/\u0670/g, 'ا')
     .replace(/[إأآٱ]/g, 'ا')
     .replace(/ى/g, 'ي')
     .replace(/ة/g, 'ه')

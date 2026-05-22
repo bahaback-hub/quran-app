@@ -1029,6 +1029,7 @@ async function loadFullQuranText() {
         getReq.onsuccess = async () => {
           if (getReq.result && getReq.result.data) {
             state.fullQuranText = getReq.result.data;
+            state.fullQuranText.forEach(a => { a.normalized = normalizeExactText(a.text); });
             state.fullQuranLoaded = true;
             resolve();
           } else {
