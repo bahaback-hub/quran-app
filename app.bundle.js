@@ -1338,7 +1338,7 @@ function updatePlayerInfo() {
   }
   if (dom.collapsedInfo && a) {
     const short = a.text.length > 50 ? a.text.substring(0, 50) + '...' : a.text;
-    dom.collapsedInfo.textContent = `${state.surahData.name} (${a.numberInSurah}): ${short}`;
+    dom.collapsedInfo.innerHTML = `<span class="fi-surah">${state.surahData.name} — آية ${a.numberInSurah}</span><span>${short}</span>`;
   }
 }
 
