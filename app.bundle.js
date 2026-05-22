@@ -1230,6 +1230,11 @@ function prepareAudioForNewSurah() {
     dom.audioPlayer.removeAttribute('src');
     dom.audioPlayer.load();
   }
+  if (dom.audioPlayer2) {
+    dom.audioPlayer2.pause();
+    dom.audioPlayer2.removeAttribute('src');
+    dom.audioPlayer2.load();
+  }
 }
 
 function renderSurah(textData) {
@@ -1374,11 +1379,16 @@ function preloadNextAyah() {
   if (nextIdx < state.ayahsAudios.length) {
     const nextUrl = state.ayahsAudios[nextIdx];
     if (nextUrl) {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'audio';
-      link.href = nextUrl;
-      document.head.appendChild(link);
+      if (!dom.audioPlayer2) {
+        const a2 = document.createElement('audio');
+        a2.id = 'audioPlayer2';
+        a2.preload = 'auto';
+        a2.style.display = 'none';
+        document.body.appendChild(a2);
+        dom.audioPlayer2 = a2;
+      }
+      dom.audioPlayer2.src = nextUrl;
+      dom.audioPlayer2.load();
     }
   }
 }
@@ -1484,7 +1494,7 @@ function onAudioEnded() {
       if (startIdx !== -1) {
         state.currentAyahIndex = startIdx;
         highlightCurrentAyah();
-        setTimeout(playCurrentAyah, 50);
+        playCurrentAyah();
         return;
       }
     }
@@ -1503,7 +1513,7 @@ function nextAyah(autoFromRepeat) {
   if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
     state.currentAyahIndex++;
     highlightCurrentAyah();
-    if (autoFromRepeat || state.isPlaying) setTimeout(playCurrentAyah, 50);
+    if (autoFromRepeat || state.isPlaying) playCurrentAyah();
   } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
     nextSurah();
   }
@@ -1514,7 +1524,7 @@ function prevAyah() {
   if (state.currentAyahIndex > 0) {
     state.currentAyahIndex--;
     highlightCurrentAyah();
-    if (state.isPlaying) setTimeout(playCurrentAyah, 150);
+    if (state.isPlaying) playCurrentAyah();
   } else if (state.currentSurah > 1) {
     prevSurah();
   }
@@ -1756,6 +1766,7 @@ async function loadFullQuranText() {
         getReq.onsuccess = async () => {
           if (getReq.result && getReq.result.data) {
             state.fullQuranText = getReq.result.data;
+            state.fullQuranText.forEach(a => { a.normalized = normalizeExactText(a.text); });
             state.fullQuranLoaded = true;
             resolve();
           } else {
