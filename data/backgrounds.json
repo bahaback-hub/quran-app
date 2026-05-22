@@ -26,7 +26,7 @@
     "id": "dark-night",
     "name": "ليل مظلم",
     "type": "css",
-    "css": "linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #232838 100%)"
+    "css": "linear-gradient(135deg, #020408 0%, #080d1a 50%, #111827 100%)"
   },
   {
     "id": "emerald-green",
@@ -38,6 +38,6 @@
     "id": "burgundy",
     "name": "نبيذي",
     "type": "css",
-    "css": "linear-gradient(135deg, #3a0e0e 0%, #6b1515 50%, #8b2020 100%)"
+    "css": "linear-gradient(135deg, #2d0412 0%, #4a0f28 50%, #6e1a3a 100%)"
   }
 ]
