@@ -820,6 +820,7 @@ async function loadPrayerTimes() {
       state.prayerTimes = data.data.timings;
       storage.set('cached_prayer_times', { date: new Date().toDateString(), timings: state.prayerTimes, city, country });
       renderPrayerTimes();
+      scheduleNextAzanCheck();
       return;
     }
     throw new Error('Invalid response');
@@ -828,6 +829,7 @@ async function loadPrayerTimes() {
     if (cached && cached.date === new Date().toDateString() && cached.city === city && cached.country === country) {
       state.prayerTimes = cached.timings;
       renderPrayerTimes();
+      scheduleNextAzanCheck();
       showToast('عرض المواقيت من الكاش المحلي', 'success');
     } else {
       showToast('تعذّر تحميل مواقيت الصلاة', 'error');
@@ -979,6 +981,30 @@ function checkAzanTime() {
       return;
     }
   }
+}
+
+let azanTimer = null;
+
+function scheduleNextAzanCheck() {
+  if (azanTimer) clearTimeout(azanTimer);
+  if (!state.prayerTimes || !state.azanEnabled) {
+    azanTimer = setTimeout(scheduleNextAzanCheck, 60000);
+    return;
+  }
+  const now = new Date();
+  const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  let nextSec = null;
+  for (const key of PRAYER_ORDER) {
+    if (key === 'Fajr' && !state.azanFajrEnabled) continue;
+    const raw = (state.prayerTimes[key] || '').split(' ')[0];
+    if (!raw) continue;
+    const [h, m] = raw.split(':');
+    const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
+    if (prayerSec > nowSec) { nextSec = prayerSec; break; }
+  }
+  if (nextSec === null) return;
+  const delayMs = (nextSec - nowSec) * 1000;
+  azanTimer = setTimeout(() => { checkAzanTime(); scheduleNextAzanCheck(); }, delayMs);
 }
 
 /* ===================== SURAH LIST ===================== */
@@ -1148,7 +1174,11 @@ function renderSurah(textData) {
     html += `</span> `;
   }
   html += '</div>';
-  dom.surahContent.innerHTML = html;
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  const fragment = document.createDocumentFragment();
+  while (temp.firstChild) fragment.appendChild(temp.firstChild);
+  dom.surahContent.replaceChildren(fragment);
   attachAyahEvents();
 }
 
@@ -1408,6 +1438,10 @@ function openTafsirDB() {
   });
 }
 
+function getTafsirCacheKey(edition, surahNum, ayahNum) {
+  return `tafsir_${edition}_${surahNum}_${ayahNum}`;
+}
+
 async function getTafsirFromDB(key) {
   try {
     const db = await openTafsirDB();
@@ -1429,6 +1463,20 @@ async function saveTafsirToDB(key, text) {
     const tx = db.transaction('tafsir', 'readwrite');
     tx.objectStore('tafsir').put({ key, text });
   } catch (e) { }
+}
+
+async function fetchTafsirFromAPI(edition, surahNum, ayahNum) {
+  const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
+  const url = `${CONFIG.TAFSIR_API}/${edition}/${surahNum}/${ayahNum}.json`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const text = data?.tafsir?.text || data?.text || 'لا يوجد تفسير متاح';
+    await saveTafsirToDB(cacheKey, text);
+    return text;
+  } catch {
+    return null;
+  }
 }
 
 /* ===================== HIFDH & REPEAT ===================== */
@@ -1513,55 +1561,47 @@ function renderTafsirContent(text, ayahText, surahName, ayahNum) {
   dom.tafsirCurtainBody.appendChild(bodyEl);
 }
 
+function setTafsirHeader(surahName, ayahNum) {
+  dom.tafsirCurtainHeader.textContent = `تفسير: ${surahName} — آية ${ayahNum}`;
+}
+
+function showTafsirLoading() {
+  dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
+}
+
+function showTafsirError() {
+  dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
+}
+
 async function loadTafsirForCurrentAyah() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
   if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition;
-  const cacheKey = `tafsir_${edition}_${state.currentSurah}_${a.numberInSurah}`;
+  const cacheKey = getTafsirCacheKey(edition, state.currentSurah, a.numberInSurah);
+  setTafsirHeader(state.surahData.name, a.numberInSurah);
   const cached = await getTafsirFromDB(cacheKey);
-  if (cached) {
-    renderTafsirContent(cached, a.text, state.surahData.name, a.numberInSurah);
-    return;
-  }
-  const url = `${CONFIG.TAFSIR_API}/${edition}/${state.currentSurah}/${a.numberInSurah}.json`;
-  dom.tafsirCurtainHeader.textContent = `تفسير: ${state.surahData.name} — آية ${a.numberInSurah}`;
-  dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    const text = data?.text || 'لا يوجد تفسير متاح';
-    await saveTafsirToDB(cacheKey, text);
-    renderTafsirContent(text, a.text, state.surahData.name, a.numberInSurah);
-  } catch (e) {
-    dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
-  }
+  if (cached) { renderTafsirContent(cached, a.text, state.surahData.name, a.numberInSurah); return; }
+  showTafsirLoading();
+  const text = await fetchTafsirFromAPI(edition, state.currentSurah, a.numberInSurah);
+  if (text) renderTafsirContent(text, a.text, state.surahData.name, a.numberInSurah);
+  else showTafsirError();
 }
 
 async function loadTafsirForSurahAyah(surahNum, ayahNum) {
   if (!dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition || CONFIG.DEFAULT_TAFSIR;
-  const cacheKey = `tafsir_${edition}_${surahNum}_${ayahNum}`;
-  const cached = await getTafsirFromDB(cacheKey);
   const surahInfo = state.surahList.find(s => s.number === surahNum);
   const surahName = surahInfo ? surahInfo.name : `سورة ${surahNum}`;
-  dom.tafsirCurtainHeader.textContent = `تفسير: ${surahName} — آية ${toArabicNumeral(ayahNum)}`;
-  if (cached) {
-    dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(cached)}</p>`;
-    dom.tafsirCurtain?.classList.add('open');
-    return;
-  }
-  dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
+  const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
+  setTafsirHeader(surahName, ayahNum);
+  const cached = await getTafsirFromDB(cacheKey);
+  if (cached) { dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(cached)}</p>`; dom.tafsirCurtain?.classList.add('open'); return; }
+  showTafsirLoading();
   dom.tafsirCurtain?.classList.add('open');
-  try {
-    const res = await fetch(`${CONFIG.TAFSIR_API}/${edition}/${surahNum}/${ayahNum}.json`);
-    const data = await res.json();
-    const text = data?.tafsir?.text || data?.text || 'لا يوجد تفسير متاح';
-    await saveTafsirToDB(cacheKey, text);
-    dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(text)}</p>`;
-  } catch (e) {
-    dom.tafsirCurtainBody.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
-  }
+  const text = await fetchTafsirFromAPI(edition, surahNum, ayahNum);
+  if (text) dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(text)}</p>`;
+  else showTafsirError();
 }
 
 /* ===================== SEARCH ===================== */
@@ -2354,8 +2394,7 @@ async function initApp() {
   loadFavorites();
   startClock();
 
-  // Azan check every 20s
-  setInterval(checkAzanTime, 20000);
+  scheduleNextAzanCheck();
 
   await loadSurahList();
   buildSurahOffsets();
