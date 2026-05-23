@@ -56,16 +56,16 @@
 
   <!-- ========== رأس الصفحة ========== -->
   <header class="header">
-    <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع الليلي" title="الوضع الليلي">🌙</button>
+    <div class="header-buttons">
+      <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع الليلي" title="الوضع الليلي">🌙</button>
+      <button class="mode-btn mode-toggle" id="modeToggleBtn" aria-label="تبديل وضع العرض">📄 وضع المصحف</button>
+    </div>
     <h1>📖 القرآن الكريم</h1>
   </header>
 
   <!-- ========== أدوات التحكم ========== -->
   <section class="controls" aria-label="أدوات التحكم">
     <div class="right-group">
-      <div class="control-group mode-toggle-group">
-        <button class="btn mode-btn" id="modeToggleBtn" aria-label="تبديل وضع العرض">📄 وضع المصحف</button>
-      </div>
       <div class="control-group surah-mode-controls" id="surahModeControls">
         <label for="surahSelect">اختر السورة:</label>
         <select id="surahSelect" aria-label="اختيار السورة"></select>

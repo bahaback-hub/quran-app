@@ -347,21 +347,19 @@ body:not(.bg-css) {
 .header h1 { font-size: 32px; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
 .header p { font-size: 15px; opacity: 0.9; }
 .theme-toggle {
-  position: absolute;
-  top: 20px;
-  left: 20px;
   background: rgba(255,255,255,0.15);
   border: 2px solid var(--accent);
   color: var(--header-text);
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 .theme-toggle:hover { background: var(--accent); transform: rotate(180deg) scale(1.1); }
 
@@ -1295,7 +1293,9 @@ noscript > div {
   .header { padding: 22px 15px; }
   .header h1 { font-size: 22px; }
   .header p { font-size: 13px; }
-  .theme-toggle { width: 38px; height: 38px; font-size: 16px; top: 12px; left: 12px; }
+  .theme-toggle { width: 36px; height: 36px; font-size: 15px; }
+  .header-buttons { top: 10px; left: 10px; gap: 6px; }
+  .mode-btn.mode-toggle { padding: 4px 8px; font-size: 10px; }
   .surah-content { padding: 16px; min-height: 300px; }
   .surah-title { font-size: 22px; }
   .bismillah { font-size: 24px; }
@@ -1398,26 +1398,37 @@ noscript > div {
 }
 
 /* ========== وضع المصحف ========== */
-.mode-btn {
-  background: var(--primary);
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  border: 2px solid var(--accent);
-  font-size: 14px;
-  white-space: nowrap;
-  transition: all 0.3s ease;
-}
-.mode-btn.mushaf-active {
-  background: var(--accent-dark);
-  border-color: var(--accent);
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.3);
-}
-.mode-toggle-group {
+.header-buttons {
+  position: absolute;
+  top: 16px;
+  left: 16px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
+  z-index: 10;
+}
+.mode-btn.mode-toggle {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  font-size: 12px;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-weight: bold;
+}
+.mode-btn.mode-toggle:hover {
+  background: rgba(255,255,255,0.25);
+}
+.mode-btn.mode-toggle.mushaf-active {
+  background: var(--accent-dark);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+  color: #2c3e50;
 }
 
 /* ===== حاوية المصحف الرئيسية ===== */
