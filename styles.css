@@ -199,14 +199,6 @@ body:not(.bg-css) {
   font-weight: 500;
   white-space: nowrap;
 }
-.prayer-bar-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-}
 .collapse-bar-btn {
   background: var(--accent);
   color: #2c3e50;
