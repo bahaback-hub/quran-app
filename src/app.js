@@ -1721,26 +1721,16 @@ function toggleMushafMode() {
   if (state.mushafMode) {
     dom.modeToggleBtn.textContent = '📖 وضع السورة';
     dom.modeToggleBtn.classList.add('mushaf-active');
-    dom.pageNavControls.style.display = 'flex';
     populatePageSelect();
-    updatePageDisplay(state.currentPage);
     loadPage(state.currentPage);
   } else {
     dom.modeToggleBtn.textContent = '📄 وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
-    dom.pageNavControls.style.display = 'none';
     const surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
     dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
     setTimeout(() => loadSurah(surahToLoad), 50);
   }
   storage.set('mushaf_mode', state.mushafMode);
-}
-
-function updatePageDisplay(pageNum) {
-  if (dom.pageDisplay) {
-    const arabicNum = pageNum.toLocaleString('ar-SA');
-    dom.pageDisplay.textContent = `صفحة ${arabicNum}`;
-  }
 }
 
 function populatePageSelect() {
@@ -2124,19 +2114,6 @@ export async function initApp() {
   dom.modeToggleBtn?.addEventListener('click', toggleMushafMode);
   dom.pageSelect?.addEventListener('change', () => {
     if (dom.pageSelect.value) { const p = parseInt(dom.pageSelect.value, 10); if (dom.pageSlider) dom.pageSlider.value = p; loadPage(p); }
-  });
-  dom.prevPageBtn?.addEventListener('click', () => {
-    const p = state.currentPage - 1;
-    if (p >= 1) { updatePageDisplay(p); loadPage(p); }
-  });
-  dom.nextPageBtn?.addEventListener('click', () => {
-    const p = state.currentPage + 1;
-    if (p <= 604) { updatePageDisplay(p); loadPage(p); }
-  });
-  dom.mushafSurahListBtn?.addEventListener('click', () => {
-    if (!state.surahList.length) { showToast('قائمة السور غير متاحة', 'error'); return; }
-    populateSurahOverlay();
-    if (dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'flex';
   });
   dom.mushafSurahOverlayClose?.addEventListener('click', () => { if (dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
   dom.mushafSurahOverlay?.addEventListener('click', (e) => { if (e.target === dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });

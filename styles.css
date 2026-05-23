@@ -1529,26 +1529,6 @@ noscript > div {
   font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
 }
 
-/* ===== تصفّح الصفحات (وضع المصحف) ===== */
-.page-nav-controls {
-  display: none;
-  align-items: center;
-  gap: 4px;
-}
-.page-nav-controls .btn {
-  padding: 4px 8px;
-  font-size: 13px;
-  min-width: 30px;
-}
-.page-display {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--accent-dark);
-  min-width: 60px;
-  text-align: center;
-  white-space: nowrap;
-}
-
 /* ===== قائمة السور المنبثقة ===== */
 .mushaf-surah-overlay {
   position: fixed;
