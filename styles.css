@@ -1529,19 +1529,8 @@ noscript > div {
   font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
 }
 
-body.night-mode .mushaf-page-num {
-  color: #e8d9a8;
-  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
-}
-body.night-mode .mushaf-surah-names {
-  color: #e8d9a8;
-}
-body.night-mode .mushaf-surah-name {
-  background: rgba(212, 175, 55, 0.18);
-  color: #e8d9a8;
-}
 body.night-mode .mushaf-container {
-  background: #5a4a32;
+  background: #FAF6EE;
 }
 
 /* ===== مؤشر رقم الصفحة (وضع المصحف) ===== */
