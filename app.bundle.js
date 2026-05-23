@@ -77,7 +77,7 @@ const DOM_IDS = [
   'mushafControls', 'surahModeControls',
   'azanNotification', 'azanNotifStopBtn',
   'mushafSurahListBtn', 'mushafSurahOverlay',   'mushafSurahOverlayClose',
-  'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn',
+   'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn', 'kbdToggleBtn',
   'langSelect',
   'translationSelect', 'translationToggle', 'translationPanel',
   'welcomeScreen', 'welcomeDismissBtn'
@@ -1913,6 +1913,83 @@ function stopVoiceSearch() {
   }
 }
 
+/* ===================== ARABIC KEYBOARD ===================== */
+
+let _shiftActive = false;
+
+function toggleKeyboard() {
+  const kbd = document.getElementById('arabicKeyboard');
+  if (!kbd) return;
+  kbd.classList.toggle('open');
+  dom.kbdToggleBtn?.classList.toggle('active');
+}
+
+function handleKeyClick(e) {
+  const key = e.currentTarget.dataset.key;
+  const input = dom.searchInput;
+  if (!input) return;
+  const start = input.selectionStart || input.value.length;
+  const end = input.selectionEnd || input.value.length;
+
+  if (key === 'space') {
+    input.value = input.value.slice(0, start) + ' ' + input.value.slice(end);
+    input.selectionStart = input.selectionEnd = start + 1;
+  } else if (key === 'backspace') {
+    if (start > 0 && start === end) {
+      input.value = input.value.slice(0, start - 1) + input.value.slice(start);
+      input.selectionStart = input.selectionEnd = start - 1;
+    } else if (start !== end) {
+      input.value = input.value.slice(0, start) + input.value.slice(end);
+      input.selectionStart = input.selectionEnd = start;
+    }
+  } else if (key === 'clear') {
+    input.value = '';
+  } else if (key === 'shift') {
+    _shiftActive = !_shiftActive;
+    document.querySelectorAll('.kbd-key[data-key]').forEach(k => {
+      const val = k.dataset.key;
+      if (val && val.length === 1 && /[اأإبتثجحخدذرزسشصضطظعغفقكلمنهويةىء]/.test(val)) {
+        const upper = {
+          'ا':'أ','د':'ذ','ر':'ز','س':'ش','ص':'ض','ط':'ظ','ع':'غ',
+          'أ':'ا','ذ':'د','ز':'ر','ش':'س','ض':'ص','ظ':'ط','غ':'ع',
+          'ة':'ه'
+        };
+        if (_shiftActive) {
+          k.textContent = upper[val] || val;
+          k.dataset.key = upper[val] || val;
+        } else {
+          const reverse = {};
+          for (const [k2, v] of Object.entries(upper)) reverse[v] = k2;
+          k.textContent = reverse[val] || val;
+          k.dataset.key = reverse[val] || val;
+        }
+      }
+    });
+    return;
+  } else {
+    input.value = input.value.slice(0, start) + key + input.value.slice(end);
+    input.selectionStart = input.selectionEnd = start + key.length;
+  }
+  input.focus();
+}
+
+function initKeyboard() {
+  dom.kbdToggleBtn = document.getElementById('kbdToggleBtn');
+  dom.kbdToggleBtn?.addEventListener('click', toggleKeyboard);
+  document.querySelectorAll('.kbd-key').forEach(btn => {
+    btn.addEventListener('click', handleKeyClick);
+  });
+  document.addEventListener('click', (e) => {
+    const kbd = document.getElementById('arabicKeyboard');
+    const toggle = dom.kbdToggleBtn;
+    if (!kbd || !toggle) return;
+    if (!kbd.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
+      kbd.classList.remove('open');
+      toggle.classList.remove('active');
+    }
+  });
+}
+
 function renderSearchResults(matches, query) {
   if (!dom.searchResults) return;
   dom.searchResults.innerHTML = '';
@@ -2761,6 +2838,7 @@ async function initApp() {
   dom.searchInput?.addEventListener('keypress', e => { if (e.key === 'Enter') dom.searchBtn?.click(); });
 
   dom.voiceSearchBtn?.addEventListener('click', startVoiceSearch);
+  initKeyboard();
 
   document.addEventListener('click', (e) => {
     if (!dom.shareMenu?.contains(e.target) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');

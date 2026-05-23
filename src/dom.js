@@ -27,7 +27,7 @@ const DOM_IDS = [
   'mushafControls', 'surahModeControls',
   'azanNotification', 'azanNotifStopBtn',
   'mushafSurahListBtn', 'mushafSurahOverlay',   'mushafSurahOverlayClose',
-  'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn',
+   'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn', 'kbdToggleBtn',
   'langSelect',
   'translationSelect', 'translationToggle', 'translationPanel',
   'welcomeScreen', 'welcomeDismissBtn'
