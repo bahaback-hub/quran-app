@@ -2532,8 +2532,26 @@ function renderMushafPageImage(pageNum) {
   };
   img.src = imgUrl;
 
+  const navRight = document.createElement('div');
+  navRight.className = 'mushaf-page-nav mushaf-page-nav-right';
+  navRight.setAttribute('aria-label', 'الصفحة التالية');
+  navRight.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (state.currentPage < 604) loadPage(state.currentPage + 1);
+  });
+
+  const navLeft = document.createElement('div');
+  navLeft.className = 'mushaf-page-nav mushaf-page-nav-left';
+  navLeft.setAttribute('aria-label', 'الصفحة السابقة');
+  navLeft.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (state.currentPage > 1) loadPage(state.currentPage - 1);
+  });
+
   imgWrapper.appendChild(skeleton);
   imgWrapper.appendChild(img);
+  imgWrapper.appendChild(navRight);
+  imgWrapper.appendChild(navLeft);
 
   const footer = document.createElement('div');
   footer.className = 'mushaf-footer';

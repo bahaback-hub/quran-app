@@ -1598,107 +1598,57 @@ body.night-mode .mushaf-surah-overlay-inner { background: #1e2330; }
   object-fit: contain;
   border-radius: 2px;
 }
-
-/* ===== تذييل الصفحة ===== */
-.mushaf-footer {
-  text-align: center;
-  padding: 16px 0 8px;
-  border-top: 3px double var(--accent);
-  margin-top: 18px;
-  color: var(--text-muted);
-  font-size: 15px;
-  font-family: 'Traditional Arabic', 'Amiri', serif;
-}
-
-.mushaf-footer-ornament {
-  font-size: 14px;
-  color: var(--accent);
-  opacity: 0.5;
-  margin: 0 6px;
-}
-
-/* ===== شريط الآيات التفاعلي ===== */
-.mushaf-ayah-bar {
-  max-width: 750px;
-  margin: 16px auto 0;
-  background: var(--container-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 16px;
-  box-shadow: var(--shadow);
-}
-
-.mushaf-ayah-bar-title {
-  text-align: center;
-  font-size: 15px;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-  font-family: 'Traditional Arabic', 'Arial', sans-serif;
-}
-
-.mushaf-ayah-bar-loading {
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 14px;
-  padding: 10px;
-}
-
-.mushaf-ayah-bar-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  direction: rtl;
-}
-
-.mushaf-ayah-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid var(--accent);
-  border-radius: 20px;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Traditional Arabic', 'Arial', sans-serif;
-  direction: rtl;
-}
-
-.mushaf-ayah-btn:hover {
-  background: rgba(212, 175, 55, 0.1);
-  transform: translateY(-1px);
-}
-
-.mushaf-ayah-btn.current {
-  background: var(--accent);
-  color: #2c3e50;
-  border-color: var(--accent-dark);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
-}
-
-.mushaf-ayah-btn-surah {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.mushaf-ayah-btn-num {
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--accent-dark);
-}
-
-.mushaf-ayah-btn.current .mushaf-ayah-btn-num {
-  color: #2c3e50;
-}
-
-/* ===== صورة المصحف مع تحميل متدرج ===== */
-.mushaf-page-img {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
 .mushaf-page-img.loaded {
   opacity: 1;
+}
+
+/* ===== أزرار التنقل على جانبي الصفحة ===== */
+.mushaf-image-wrapper {
+  position: relative;
+}
+.mushaf-page-nav {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 35%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease, background 0.25s ease;
+}
+.mushaf-page-nav:hover {
+  opacity: 1;
+}
+.mushaf-page-nav:active {
+  background: rgba(212, 175, 55, 0.12);
+}
+.mushaf-page-nav::after {
+  font-size: 32px;
+  color: var(--accent);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.mushaf-page-nav:hover::after {
+  transform: scale(1.25);
+}
+.mushaf-page-nav-right {
+  right: 0;
+  background: linear-gradient(to left, rgba(0,0,0,0.06), transparent);
+}
+.mushaf-page-nav-right::after {
+  content: '▶';
+  margin-right: 10px;
+}
+.mushaf-page-nav-left {
+  left: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.06), transparent);
+}
+.mushaf-page-nav-left::after {
+  content: '◀';
+  margin-left: 10px;
 }
 
 .mushaf-image-skeleton {
