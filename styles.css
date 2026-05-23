@@ -1841,25 +1841,44 @@ body.night-mode .word.current-word {
   border-left-color: var(--highlight-shadow);
 }
 
-/* ========== زر البحث الصوتي ========== */
+/* ========== زر البحث الصوتي (داخل حقل الإدخال) ========== */
 .search-input-group {
   position: relative;
 }
 .search-input-wrapper {
   display: flex;
   align-items: center;
-  gap: 4px;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  background: var(--select-bg);
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input-wrapper:focus-within {
+  border-color: var(--accent-dark);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 .search-input-wrapper input {
   flex: 1;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 10px 14px;
+  min-width: 0;
+  outline: none;
+}
+.search-input-wrapper input:focus {
+  box-shadow: none !important;
+  border-color: transparent !important;
 }
 .voice-search-btn {
-  background: var(--primary);
-  color: #fff;
+  background: transparent !important;
+  color: var(--primary);
   border: none;
-  border-radius: 8px;
-  width: 34px;
-  height: 34px;
+  border-radius: 0;
+  width: 38px;
+  height: 100%;
+  min-height: 42px;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.2s;
@@ -1867,22 +1886,21 @@ body.night-mode .word.current-word {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin: 0;
 }
 .voice-search-btn:hover {
-  background: var(--primary-light);
-  transform: scale(1.05);
+  color: var(--accent-dark);
+  background: transparent !important;
+  transform: scale(1.1);
 }
 .voice-search-btn.listening {
-  background: #dc2626;
+  color: #dc2626 !important;
+  background: transparent !important;
   animation: pulseMic 1s ease-in-out infinite;
-  box-shadow: 0 0 12px rgba(220,38,38,0.5);
 }
 @keyframes pulseMic {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
-}
-body.night-mode .voice-search-btn.listening {
-  box-shadow: 0 0 16px rgba(220,38,38,0.7);
 }
 
 /* ========== شاشة الترحيب ========== */
