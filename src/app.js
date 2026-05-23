@@ -1807,18 +1807,18 @@ function renderMushafPageImage(pageNum) {
 
   const navRight = document.createElement('div');
   navRight.className = 'mushaf-page-nav mushaf-page-nav-right';
-  navRight.setAttribute('aria-label', 'الصفحة التالية');
+  navRight.setAttribute('aria-label', 'الصفحة السابقة');
   navRight.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (state.currentPage < 604) loadPage(state.currentPage + 1);
+    if (state.currentPage > 1) loadPage(state.currentPage - 1);
   });
 
   const navLeft = document.createElement('div');
   navLeft.className = 'mushaf-page-nav mushaf-page-nav-left';
-  navLeft.setAttribute('aria-label', 'الصفحة السابقة');
+  navLeft.setAttribute('aria-label', 'الصفحة التالية');
   navLeft.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (state.currentPage > 1) loadPage(state.currentPage - 1);
+    if (state.currentPage < 604) loadPage(state.currentPage + 1);
   });
 
   imgWrapper.appendChild(skeleton);
