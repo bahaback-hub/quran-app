@@ -1721,11 +1721,14 @@ function toggleMushafMode() {
   if (state.mushafMode) {
     dom.modeToggleBtn.textContent = '📖 وضع السورة';
     dom.modeToggleBtn.classList.add('mushaf-active');
+    dom.pageInputGroup.style.display = 'flex';
     populatePageSelect();
+    if (dom.pageInput) dom.pageInput.value = state.currentPage;
     loadPage(state.currentPage);
   } else {
     dom.modeToggleBtn.textContent = '📄 وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
+    dom.pageInputGroup.style.display = 'none';
     const surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
     dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
     setTimeout(() => loadSurah(surahToLoad), 50);
@@ -1750,6 +1753,7 @@ async function loadPage(pageNum) {
   if (!pageNum) return;
   state.currentPage = pageNum;
   storage.set('current_page', pageNum);
+  if (dom.pageInput) dom.pageInput.value = pageNum;
   loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
   renderMushafPageImage(pageNum);
 }
@@ -2130,6 +2134,14 @@ export async function initApp() {
 
   /* ========== MUSHAF MODE ========== */
   dom.modeToggleBtn?.addEventListener('click', toggleMushafMode);
+  dom.pageInput?.addEventListener('change', () => {
+    const p = parseInt(dom.pageInput.value, 10);
+    if (p && p >= 1 && p <= 604) { loadPage(p); }
+    else { dom.pageInput.value = state.currentPage; }
+  });
+  dom.pageInput?.addEventListener('keypress', e => {
+    if (e.key === 'Enter') dom.pageInput.dispatchEvent(new Event('change'));
+  });
   dom.pageSelect?.addEventListener('change', () => {
     if (dom.pageSelect.value) { const p = parseInt(dom.pageSelect.value, 10); if (dom.pageSlider) dom.pageSlider.value = p; loadPage(p); }
   });
