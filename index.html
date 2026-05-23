@@ -65,21 +65,21 @@
 
   <!-- ========== أدوات التحكم ========== -->
   <section class="controls" aria-label="أدوات التحكم">
-    <div class="right-group">
+    <div class="controls-row">
       <div class="control-group surah-mode-controls" id="surahModeControls">
-        <label for="surahSelect">اختر السورة:</label>
+        <label for="surahSelect">السورة:</label>
         <select id="surahSelect" aria-label="اختيار السورة"></select>
       </div>
       <div class="control-group mus-haf-controls" id="mushafControls" style="display:none;">
-        <label for="pageSelect">رقم الصفحة:</label>
+        <label for="pageSelect">صفحة:</label>
         <select id="pageSelect" aria-label="اختيار صفحة المصحف"></select>
         <button class="btn btn-sm" id="prevPageBtn" aria-label="الصفحة السابقة">◀</button>
         <button class="btn btn-sm" id="nextPageBtn" aria-label="الصفحة التالية">▶</button>
-        <button class="btn btn-sm" id="mushafSurahListBtn" aria-label="قائمة السور">📖 السور</button>
+        <button class="btn btn-sm" id="mushafSurahListBtn" aria-label="قائمة السور">📖</button>
         <input type="range" id="pageSlider" min="1" max="604" value="1" aria-label="شريط تمرير الصفحات" class="page-slider">
       </div>
       <div class="control-group">
-        <label for="reciterSelect">اختر القارئ:</label>
+        <label for="reciterSelect">القارئ:</label>
         <select id="reciterSelect" aria-label="اختيار القارئ">
           <option value="ar.alafasy">مشاري العفاسي</option>
           <option value="ar.abdulbasitmurattal">عبد الباسط عبد الصمد</option>
@@ -91,24 +91,21 @@
           <option value="ar.shaatree">أبو بكر الشاطري</option>
         </select>
       </div>
-    </div>
-    <div class="search-group">
       <div class="control-group">
-        <label for="searchType">نوع البحث:</label>
+        <label for="searchType">بحث:</label>
         <select id="searchType">
-          <option value="exact">بحث دقيق</option>
-          <option value="root">بحث بالجذر</option>
+          <option value="exact">دقيق</option>
+          <option value="root">جذر</option>
         </select>
       </div>
       <div class="control-group search-input-group">
-        <label for="searchInput">البحث في القرآن كاملًا:</label>
         <div class="search-input-wrapper">
-          <input id="searchInput" type="text" placeholder="اكتب كلمة أو جذراً..." aria-label="مربع البحث">
+          <input id="searchInput" type="text" placeholder="ابحث..." aria-label="مربع البحث">
           <button class="voice-search-btn" id="voiceSearchBtn" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
         </div>
       </div>
-      <button class="btn btn-gold" id="searchBtn" aria-label="بدء البحث">🔎 بحث</button>
-      <button class="btn" id="clearSearchBtn" aria-label="مسح النتائج">مسح النتائج</button>
+      <button class="btn btn-gold btn-sm" id="searchBtn" aria-label="بدء البحث">🔎 بحث</button>
+      <button class="btn btn-sm" id="clearSearchBtn" aria-label="مسح النتائج">✖ مسح</button>
       <select class="font-size-select" id="fontSizeDropdown" aria-label="حجم الخط">
         <option value="20">20</option>
         <option value="24">24</option>
