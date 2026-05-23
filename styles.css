@@ -1616,11 +1616,14 @@ body.night-mode .mushaf-surah-overlay-inner { background: #1e2330; }
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
+  opacity: 0.35;
   transition: opacity 0.25s ease, background 0.25s ease;
 }
 .mushaf-page-nav:hover {
   opacity: 1;
+}
+@media (hover: none) {
+  .mushaf-page-nav { opacity: 0.5; }
 }
 .mushaf-page-nav:active {
   background: rgba(212, 175, 55, 0.12);
