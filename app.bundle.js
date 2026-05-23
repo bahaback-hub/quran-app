@@ -73,7 +73,7 @@ const DOM_IDS = [
   'prayerBar',
   'tafsirCurtainHandle', 'tafsirCurtain', 'tafsirCurtainHeader',
   'tafsirCurtainBody', 'tafsirSelect', 'bgSelect', 'loadingProgress',
-  'modeToggleBtn', 'pageSelect', 'pageInputGroup', 'pageInput', 'surahModeControls',
+  'modeToggleBtn', 'pageSelect', 'pageInputGroup', 'pageInput', 'pageIndicator', 'surahModeControls',
   'azanNotification', 'azanNotifStopBtn',
   'mushafSurahOverlay', 'mushafSurahOverlayClose',
    'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn', 'kbdToggleBtn',
@@ -2449,13 +2449,16 @@ function toggleMushafMode() {
     dom.modeToggleBtn.textContent = '📖 وضع السورة';
     dom.modeToggleBtn.classList.add('mushaf-active');
     dom.pageInputGroup.style.display = 'flex';
+    if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
     if (dom.pageInput) dom.pageInput.value = state.currentPage;
+    updatePageIndicator(state.currentPage);
     loadPage(state.currentPage);
   } else {
     dom.modeToggleBtn.textContent = '📄 وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
     dom.pageInputGroup.style.display = 'none';
+    if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
     const surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
     dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
     setTimeout(() => loadSurah(surahToLoad), 50);
@@ -2476,11 +2479,19 @@ function populatePageSelect() {
   if (dom.pageSlider) dom.pageSlider.value = state.currentPage;
 }
 
+function updatePageIndicator(pageNum) {
+  if (dom.pageIndicator) {
+    const arabic = pageNum.toLocaleString('ar-SA');
+    dom.pageIndicator.textContent = `صفحة ${arabic} من ٦٠٤`;
+  }
+}
+
 async function loadPage(pageNum) {
   if (!pageNum) return;
   state.currentPage = pageNum;
   storage.set('current_page', pageNum);
   if (dom.pageInput) dom.pageInput.value = pageNum;
+  updatePageIndicator(pageNum);
   loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
   renderMushafPageImage(pageNum);
 }
