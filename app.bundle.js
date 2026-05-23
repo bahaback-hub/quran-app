@@ -1946,23 +1946,21 @@ function handleKeyClick(e) {
     input.value = '';
   } else if (key === 'shift') {
     _shiftActive = !_shiftActive;
+    const shiftMap = {
+      'ذ':'ّ', '١':'!', '٢':'@', '٣':'#', '٤':'$', '٥':'%', '٦':'^', '٧':'&', '٨':'*', '٩':'(', '٠':')',
+      '-':'_', '=':'+'
+    };
+    const reverseMap = {};
+    for (const [k2, v] of Object.entries(shiftMap)) reverseMap[v] = k2;
     document.querySelectorAll('.kbd-key[data-key]').forEach(k => {
       const val = k.dataset.key;
-      if (val && val.length === 1 && /[اأإبتثجحخدذرزسشصضطظعغفقكلمنهويةىء]/.test(val)) {
-        const upper = {
-          'ا':'أ','د':'ذ','ر':'ز','س':'ش','ص':'ض','ط':'ظ','ع':'غ',
-          'أ':'ا','ذ':'د','ز':'ر','ش':'س','ض':'ص','ظ':'ط','غ':'ع',
-          'ة':'ه'
-        };
-        if (_shiftActive) {
-          k.textContent = upper[val] || val;
-          k.dataset.key = upper[val] || val;
-        } else {
-          const reverse = {};
-          for (const [k2, v] of Object.entries(upper)) reverse[v] = k2;
-          k.textContent = reverse[val] || val;
-          k.dataset.key = reverse[val] || val;
-        }
+      if (!val || val === 'space' || val === 'backspace' || val === 'clear' || val === 'shift') return;
+      if (_shiftActive) {
+        const shifted = shiftMap[val];
+        if (shifted) { k.textContent = shifted; k.dataset.key = shifted; }
+      } else {
+        const unshifted = reverseMap[val];
+        if (unshifted) { k.textContent = unshifted; k.dataset.key = unshifted; }
       }
     });
     return;

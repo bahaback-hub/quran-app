@@ -2020,6 +2020,14 @@ body.night-mode .word.current-word {
   color: var(--accent-dark);
   font-weight: bold;
 }
+.kbd-key-fixed {
+  min-width: 36px;
+  flex: 0.5;
+}
+.kbd-key-clear {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+}
 .kbd-key-backspace {
   background: rgba(220, 38, 38, 0.08);
   color: #dc2626;
@@ -2036,6 +2044,12 @@ body.night-mode .kbd-key:active {
 }
 body.night-mode .kbd-key-shift {
   background: rgba(212, 175, 55, 0.2);
+}
+body.night-mode .kbd-key-fixed {
+  background: rgba(255,255,255,0.04);
+}
+body.night-mode .kbd-key-clear {
+  background: rgba(220, 38, 38, 0.15);
 }
 body.night-mode .kbd-key-backspace {
   background: rgba(220, 38, 38, 0.15);
