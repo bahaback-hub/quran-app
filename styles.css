@@ -1540,6 +1540,9 @@ body.night-mode .mushaf-surah-name {
   background: rgba(212, 175, 55, 0.18);
   color: #e8d9a8;
 }
+body.night-mode .mushaf-container {
+  background: #1e1a14;
+}
 
 /* ===== مؤشر رقم الصفحة (وضع المصحف) ===== */
 .page-indicator {
