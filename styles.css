@@ -751,14 +751,22 @@ audio {
   display: block;
 }
 
-.speed-control {
-  margin: 6px 0 4px;
+.player-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 10px;
+}
+.player-row audio {
+  flex: 1;
+  min-width: 0;
+}
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 .speed-control select {
   padding: 4px 8px;
