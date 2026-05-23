@@ -1529,6 +1529,15 @@ noscript > div {
   font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
 }
 
+/* ===== مؤشر رقم الصفحة (وضع المصحف) ===== */
+.page-indicator {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
 /* ===== حقل إدخال رقم الصفحة (وضع المصحف) ===== */
 .page-input-group {
   align-items: center;
