@@ -73,7 +73,7 @@ const DOM_IDS = [
   'prayerBar',
   'tafsirCurtainHandle', 'tafsirCurtain', 'tafsirCurtainHeader',
   'tafsirCurtainBody', 'tafsirSelect', 'bgSelect', 'loadingProgress',
-  'modeToggleBtn', 'pageSelect', 'pageInputGroup', 'pageInput', 'pageIndicator', 'surahModeControls',
+  'modeToggleBtn', 'pageSelect', 'pageIndicator', 'surahModeControls',
   'azanNotification', 'azanNotifStopBtn',
   'mushafSurahOverlay', 'mushafSurahOverlayClose',
    'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn', 'kbdToggleBtn',
@@ -2448,16 +2448,13 @@ function toggleMushafMode() {
   if (state.mushafMode) {
     dom.modeToggleBtn.textContent = '📖 وضع السورة';
     dom.modeToggleBtn.classList.add('mushaf-active');
-    dom.pageInputGroup.style.display = 'flex';
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
-    if (dom.pageInput) dom.pageInput.value = state.currentPage;
     updatePageIndicator(state.currentPage);
     loadPage(state.currentPage);
   } else {
     dom.modeToggleBtn.textContent = '📄 وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
-    dom.pageInputGroup.style.display = 'none';
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
     const surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
     dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
@@ -2490,7 +2487,6 @@ async function loadPage(pageNum) {
   if (!pageNum) return;
   state.currentPage = pageNum;
   storage.set('current_page', pageNum);
-  if (dom.pageInput) dom.pageInput.value = pageNum;
   updatePageIndicator(pageNum);
   loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
   renderMushafPageImage(pageNum);
@@ -2872,14 +2868,6 @@ async function initApp() {
 
   /* ========== MUSHAF MODE ========== */
   dom.modeToggleBtn?.addEventListener('click', toggleMushafMode);
-  dom.pageInput?.addEventListener('change', () => {
-    const p = parseInt(dom.pageInput.value, 10);
-    if (p && p >= 1 && p <= 604) { loadPage(p); }
-    else { dom.pageInput.value = state.currentPage; }
-  });
-  dom.pageInput?.addEventListener('keypress', e => {
-    if (e.key === 'Enter') dom.pageInput.dispatchEvent(new Event('change'));
-  });
   dom.pageSelect?.addEventListener('change', () => {
     if (dom.pageSelect.value) { const p = parseInt(dom.pageSelect.value, 10); if (dom.pageSlider) dom.pageSlider.value = p; loadPage(p); }
   });
