@@ -23,7 +23,7 @@ const DOM_IDS = [
   'prayerBar',
   'tafsirCurtainHandle', 'tafsirCurtain', 'tafsirCurtainHeader',
   'tafsirCurtainBody', 'tafsirSelect', 'bgSelect', 'loadingProgress',
-  'modeToggleBtn', 'pageSelect', 'surahModeControls',
+  'modeToggleBtn', 'pageSelect', 'pageInputGroup', 'pageInput', 'surahModeControls',
   'azanNotification', 'azanNotifStopBtn',
   'mushafSurahOverlay', 'mushafSurahOverlayClose',
    'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn', 'kbdToggleBtn',
