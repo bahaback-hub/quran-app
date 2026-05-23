@@ -1844,6 +1844,7 @@ body.night-mode .word.current-word {
 /* ========== زر البحث الصوتي (داخل حقل الإدخال) ========== */
 .search-input-group {
   position: relative;
+  max-width: 320px;
 }
 .search-input-wrapper {
   display: flex;
