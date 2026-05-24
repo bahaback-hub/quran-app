@@ -1663,22 +1663,53 @@ function togglePrayerBar() {
 
 /* ===================== MUSHARAF MODE ===================== */
 
-function toggleMushafMode() {
+async function toggleMushafMode() {
   state.mushafMode = !state.mushafMode;
   if (state.mushafMode) {
     dom.modeToggleBtn.textContent = '📖 وضع السورة';
     dom.modeToggleBtn.classList.add('mushaf-active');
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
+    
+    if (state.currentSurah && state.surahData?.ayahs?.length) {
+      const currentAyah = state.surahData.ayahs[state.currentAyahIndex]?.numberInSurah || 1;
+      try {
+        const res = await fetch(`${CONFIG.API_BASE}/ayah/${state.currentSurah}:${currentAyah}/quran-uthmani`);
+        const data = await res.json();
+        const page = data?.data?.page;
+        if (page && page >= 1 && page <= 604) {
+          state.currentPage = page;
+        }
+      } catch (e) {
+        console.warn('Failed to get page for ayah:', e);
+      }
+    }
+    
     updatePageIndicator(state.currentPage);
     loadPage(state.currentPage);
   } else {
     dom.modeToggleBtn.textContent = '📄 وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
-    const surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
+    
+    let surahToLoad = 1;
+    let ayahToStart = 1;
+    
+    try {
+      const res = await fetch(`${CONFIG.API_BASE}/page/${state.currentPage}/quran-uthmani`);
+      const data = await res.json();
+      const ayahs = data?.data?.ayahs;
+      if (ayahs?.length) {
+        surahToLoad = ayahs[0].surah.number;
+        ayahToStart = ayahs[0].numberInSurah;
+      }
+    } catch (e) {
+      console.warn('Failed to get ayahs for page:', e);
+      surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
+    }
+    
     dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
-    setTimeout(() => loadSurah(surahToLoad), 50);
+    setTimeout(() => loadSurah(surahToLoad, { startAyah: ayahToStart }), 50);
   }
   storage.set('mushaf_mode', state.mushafMode);
 }
