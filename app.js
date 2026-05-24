@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /* ============================================================
    تطبيق القرآن الكريم — عائلة السليماني
@@ -66,7 +66,9 @@ let state = {
   azanPlaying: false,
   loadingSurah: null,
   mushafMode: false,
-  currentPage: 1
+  currentPage: 1,
+  _smartTvState: 0,
+  _smartTvAudioSrc: ''
 };
 
 /* ============================================================
@@ -94,7 +96,17 @@ function cacheDom() {
 }
 
 /* ============================================================
-   4) أدوات التخزين المحلي
+   4) كشف الشاشات الذكية (Smart TV / Google TV / Android TV)
+============================================================ */
+function isSmartTv() {
+  try {
+    const ua = navigator.userAgent.toLowerCase();
+    return /smart.?tv|googletv|android.?tv|tcl|bravia|web0s|netcast|viera|roku|apple.?tv|samsung.?tv/i.test(ua);
+  } catch(e) { return false; }
+}
+
+/* ============================================================
+   5) أدوات التخزين المحلي
 ============================================================ */
 const storage = {
   get(key, def = null) {
@@ -855,6 +867,10 @@ function bindAudioEvents() {
     dom.audioPlayer.removeEventListener('error', onAudioError);
     dom.audioPlayer.addEventListener('error', onAudioError);
   }
+  if (state._isSmartTv && dom.audioPlayer) {
+    dom.audioPlayer.removeEventListener('timeupdate', onSmartTvTimeUpdate);
+    dom.audioPlayer.addEventListener('timeupdate', onSmartTvTimeUpdate);
+  }
 }
 
 function onAudioPlay() { state.isPlaying = true; updatePlayPauseBtn(); }
@@ -865,6 +881,20 @@ function onAudioError() {
   showToast('⚠️ تعذّر تشغيل الصوت، حاول آية أخرى', 'error');
 }
 
+function onSmartTvTimeUpdate() {
+  const audio = dom.audioPlayer;
+  if (!audio || !audio.duration || !isFinite(audio.duration) || !audio.src) return;
+  if (state._smartTvAudioSrc !== audio.src) {
+    state._smartTvAudioSrc = audio.src;
+    state._smartTvState = 0;
+  }
+  if (state._smartTvState !== 0) return;
+  if (audio.currentTime >= audio.duration - 0.3 && audio.currentTime > 0.5) {
+    state._smartTvState = 1;
+    onAudioEnded();
+  }
+}
+
 function updatePlayPauseBtn() {
   if (dom.playPauseBtn) {
     dom.playPauseBtn.textContent = state.isPlaying ? '⏸ إيقاف' : '⏯ تشغيل';
@@ -873,6 +903,13 @@ function updatePlayPauseBtn() {
 
 function onAudioEnded() {
   if (!state.surahData || !state.ayahsAudios) return;
+
+  if (state._smartTvState === 1) {
+    state._smartTvState = 2;
+  } else if (state._smartTvState === 2) {
+    state._smartTvState = 0;
+    return;
+  }
 
   if (state.repeatMode) {
     const currentNum = state.surahData.ayahs[state.currentAyahIndex].numberInSurah;
@@ -1651,6 +1688,7 @@ async function initApp() {
   loadRootsData().catch(console.warn);
   loadBackgrounds().catch(console.warn);
 
+  state._isSmartTv = isSmartTv();
   bindAudioEvents();
 
   dom.surahSelect?.addEventListener('change', () => { if (dom.surahSelect.value) loadSurah(parseInt(dom.surahSelect.value, 10)); });
