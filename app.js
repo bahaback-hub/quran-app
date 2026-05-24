@@ -1802,6 +1802,7 @@ async function initApp() {
 
   // اختصارات لوحة المفاتيح (مُصححة لتطابق README)
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.azanPlaying) { stopAzan(); return; }
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
     if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
     else if (e.key === 'ArrowLeft') prevAyah();      // ← الآية السابقة

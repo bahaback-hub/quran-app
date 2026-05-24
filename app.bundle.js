@@ -2858,6 +2858,7 @@ async function initApp() {
 
   /* ========== KEYBOARD SHORTCUTS ========== */
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.azanPlaying) { stopAzan(); return; }
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
       if (e.key === 'Escape') {
         e.target.blur();
