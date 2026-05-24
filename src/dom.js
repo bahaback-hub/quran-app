@@ -19,7 +19,7 @@ const DOM_IDS = [
   'prevSurahBtn', 'nextSurahBtn', 'hifdhBtn', 'repeatBtn', 'bookmarkBtn',
   'favoriteBtn', 'shareBtn',
   'repeatControls', 'repeatFrom', 'repeatTo', 'repeatTimes', 'shareMenu',
-  'azanPlayer', 'toast', 'fontSizeDropdown', 'collapseBarBtn', 'expandBarBtn',
+  'azanPlayer', 'toast', 'collapseBarBtn', 'expandBarBtn',
   'prayerBar',
   'tafsirCurtainHandle', 'tafsirCurtain', 'tafsirCurtainHeader',
   'tafsirCurtainBody', 'tafsirSelect', 'bgSelect', 'loadingProgress',
