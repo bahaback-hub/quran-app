@@ -1535,8 +1535,25 @@ function prevAyah() {
   }
 }
 
-function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) loadSurah(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
-function prevSurah() { if (state.currentSurah > 1) loadSurah(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
+function navigateToSurahPage(surahNum, opts = {}) {
+  if (state.mushafMode) {
+    fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
+      .then(res => res.json())
+      .then(data => {
+        const page = data?.data?.page || 1;
+        if (dom.pageSelect) dom.pageSelect.value = page;
+        if (dom.pageSlider) dom.pageSlider.value = page;
+        state.currentPage = page;
+        loadPage(page);
+      })
+      .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
+  } else {
+    loadSurah(surahNum, opts);
+  }
+}
+
+function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) navigateToSurahPage(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
+function prevSurah() { if (state.currentSurah > 1) navigateToSurahPage(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
 
 /* ===================== INDEXEDDB FOR TAFSIR ===================== */
 
@@ -2733,7 +2750,22 @@ async function initApp() {
   /* ========== EVENT BINDINGS ========== */
 
   dom.surahSelect?.addEventListener('change', () => {
-    if (dom.surahSelect.value) loadSurah(parseInt(dom.surahSelect.value, 10));
+    if (!dom.surahSelect.value) return;
+    const surahNum = parseInt(dom.surahSelect.value, 10);
+    if (state.mushafMode) {
+      fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
+        .then(res => res.json())
+        .then(data => {
+          const page = data?.data?.page || 1;
+          if (dom.pageSelect) dom.pageSelect.value = page;
+          if (dom.pageSlider) dom.pageSlider.value = page;
+          state.currentPage = page;
+          loadPage(page);
+        })
+        .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
+    } else {
+      loadSurah(surahNum);
+    }
   });
 
   dom.reciterSelect?.addEventListener('change', () => {
