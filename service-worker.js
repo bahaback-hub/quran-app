@@ -3,7 +3,7 @@ const API_CACHE = 'quran-api-cache-v3';
 const AUDIO_CACHE = 'quran-audio-cache-v1';
 const MUSHARAF_CACHE = 'quran-mushaf-v1';
 const AUDIO_CACHE_LIMIT = 300;
-const MUSHARAF_CACHE_LIMIT = 30;
+const MUSHARAF_CACHE_LIMIT = 604;
 
 const STATIC_ASSETS = [
   './',
@@ -17,19 +17,17 @@ const STATIC_ASSETS = [
 const API_HOSTS = ['alquran.cloud', 'aladhan.com'];
 const CDN_HOSTS = ['cdn.jsdelivr.net'];
 const AUDIO_HOST = 'cdn.islamic.network';
-const MUSHARAF_HOSTS = ['GovarJabbar', 'Miftah-Fentaw'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(c =>
       c.addAll(STATIC_ASSETS).catch(err => console.warn('Some assets failed:', err))
     ).then(() => {
-      // Pre-cache first 10 mushaf pages
+      // Pre-cache first 10 mushaf pages from local
       const pages = [];
       for (let i = 1; i <= 10; i++) {
         const padded = String(i).padStart(3, '0');
-        pages.push(`https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${padded}.png`);
-        pages.push(`https://cdn.jsdelivr.net/gh/Miftah-Fentaw/Quran_webp@main/${padded}.webp`);
+        pages.push(`./pages/page${padded}.png`);
       }
       return caches.open(MUSHARAF_CACHE).then(cache =>
         Promise.allSettled(pages.map(url =>
@@ -86,8 +84,7 @@ self.addEventListener('fetch', e => {
   }
 
   // Mushaf page images: Cache First
-  const isMushaf = MUSHARAF_HOSTS.some(host => url.hostname.includes(host));
-  if (isMushaf) {
+  if (url.pathname.includes('/pages/page') && url.pathname.endsWith('.png')) {
     e.respondWith(
       caches.open(MUSHARAF_CACHE).then(async cache => {
         const cached = await cache.match(e.request);
