@@ -1672,6 +1672,7 @@ async function toggleMushafMode() {
   if (state.mushafMode) {
     dom.modeToggleBtn.textContent = '📖 وضع السورة';
     dom.modeToggleBtn.classList.add('mushaf-active');
+    if (dom.surahModeControls) dom.surahModeControls.style.display = 'none';
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
     
@@ -1694,6 +1695,7 @@ async function toggleMushafMode() {
   } else {
     dom.modeToggleBtn.textContent = '📄 وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
+    if (dom.surahModeControls) dom.surahModeControls.style.display = '';
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
     
     let surahToLoad = 1;
@@ -1984,7 +1986,22 @@ export async function initApp() {
   /* ========== EVENT BINDINGS ========== */
 
   dom.surahSelect?.addEventListener('change', () => {
-    if (dom.surahSelect.value) loadSurah(parseInt(dom.surahSelect.value, 10));
+    if (!dom.surahSelect.value) return;
+    const surahNum = parseInt(dom.surahSelect.value, 10);
+    if (state.mushafMode) {
+      fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
+        .then(res => res.json())
+        .then(data => {
+          const page = data?.data?.page || 1;
+          if (dom.pageSelect) dom.pageSelect.value = page;
+          if (dom.pageSlider) dom.pageSlider.value = page;
+          state.currentPage = page;
+          loadPage(page);
+        })
+        .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
+    } else {
+      loadSurah(surahNum);
+    }
   });
 
   dom.reciterSelect?.addEventListener('change', () => {
