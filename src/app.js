@@ -1759,7 +1759,7 @@ function renderMushafPageImage(pageNum) {
   if (!dom.surahContent) return;
   const juz = getJuzForPage(pageNum);
   const padded = String(pageNum).padStart(3, '0');
-  const imgUrl = `./pages/page${padded}.png`;
+  const imgUrl = `./public/pages/page${padded}.png`;
 
   const container = document.createElement('div');
   container.className = 'mushaf-container';
@@ -1885,7 +1885,7 @@ function preloadAdjacentPages(pageNum) {
     const padded = String(p).padStart(3, '0');
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = `./pages/page${padded}.png`;
+    link.href = `./public/pages/page${padded}.png`;
     link.as = 'image';
     document.head.appendChild(link);
   }

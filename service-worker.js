@@ -27,7 +27,7 @@ self.addEventListener('install', e => {
       const pages = [];
       for (let i = 1; i <= 10; i++) {
         const padded = String(i).padStart(3, '0');
-        pages.push(`./pages/page${padded}.png`);
+        pages.push(`./public/pages/page${padded}.png`);
       }
       return caches.open(MUSHARAF_CACHE).then(cache =>
         Promise.allSettled(pages.map(url =>

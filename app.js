@@ -651,7 +651,7 @@ function renderMushafPageImage(pageNum) {
   const juz = getJuzForPage(pageNum);
   const padded = String(pageNum).padStart(3, '0');
 
-  const imgUrl = `./pages/page${padded}.png`;
+  const imgUrl = `./public/pages/page${padded}.png`;
 
   const html = `<div class="mushaf-container">
     <div class="mushaf-header">
@@ -678,7 +678,7 @@ function renderMushafPageImage(pageNum) {
     const nextPadded = String(nextNum).padStart(3, '0');
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = `./pages/page${nextPadded}.png`;
+    link.href = `./public/pages/page${nextPadded}.png`;
     link.as = 'image';
     document.head.appendChild(link);
   }
