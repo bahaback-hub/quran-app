@@ -2397,8 +2397,8 @@ async function toggleMushafMode() {
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
     
-    if (state.currentSurah && state.surahData?.ayahs?.length) {
-      const currentAyah = state.surahData.ayahs[state.currentAyahIndex]?.numberInSurah || 1;
+    if (state.currentSurah) {
+      const currentAyah = (state.surahData?.number === state.currentSurah && state.surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
       try {
         const res = await fetch(`${CONFIG.API_BASE}/ayah/${state.currentSurah}:${currentAyah}/quran-uthmani`);
         const data = await res.json();
