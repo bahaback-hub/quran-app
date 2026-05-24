@@ -523,7 +523,7 @@ export function renderSurah(textData) {
     const a = textData.ayahs[i];
     let txt = a.text;
     if (textData.number !== 1 && a.numberInSurah === 1) {
-      txt = txt.replace(/^بِسْمِ\s+[ٱا]للَّهِ\s+[ٱا]لرَّحْمَٰنِ\s+[ٱا]لرَّحِيمِ\s*/u, '');
+      txt = txt.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
     }
     html += `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
     html += buildAyahWordsHtml(txt, i);
@@ -1052,16 +1052,20 @@ async function loadFullQuranText() {
               const res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
               const data = await res.json();
               if (!data?.data?.surahs) throw new Error('بيانات غير صالحة');
-              const ayahs = [];
-              for (const surah of data.data.surahs) {
-                for (const ayah of surah.ayahs) {
-                  ayahs.push({
-                    surah: surah.number, surahName: surah.name,
-                    ayah: ayah.numberInSurah, text: ayah.text,
-                    normalized: normalizeExactText(ayah.text)
-                  });
-                }
-              }
+               const ayahs = [];
+               for (const surah of data.data.surahs) {
+                 for (const ayah of surah.ayahs) {
+                   let ayahText = ayah.text;
+                   if (surah.number !== 1 && surah.number !== 9 && ayah.numberInSurah === 1) {
+                     ayahText = ayahText.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
+                   }
+                   ayahs.push({
+                     surah: surah.number, surahName: surah.name,
+                     ayah: ayah.numberInSurah, text: ayahText,
+                     normalized: normalizeExactText(ayahText)
+                   });
+                 }
+               }
               state.fullQuranText = ayahs;
               state.fullQuranLoaded = true;
               try {
