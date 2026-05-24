@@ -1640,6 +1640,9 @@ body.night-mode .mushaf-surah-overlay-inner { background: #1e2330; }
 .mushaf-page-img.loaded {
   opacity: 1;
 }
+body.night-mode .mushaf-page-img {
+  filter: invert(1);
+}
 
 /* ===== أزرار التنقل على جانبي الصفحة ===== */
 .mushaf-image-wrapper {
