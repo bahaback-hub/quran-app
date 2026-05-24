@@ -651,8 +651,7 @@ function renderMushafPageImage(pageNum) {
   const juz = getJuzForPage(pageNum);
   const padded = String(pageNum).padStart(3, '0');
 
-  const imgUrl = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${padded}.png`;
-  const fallbackUrl = `https://cdn.jsdelivr.net/gh/Miftah-Fentaw/Quran_webp@main/${padded}.webp`;
+  const imgUrl = `./pages/page${padded}.png`;
 
   const html = `<div class="mushaf-container">
     <div class="mushaf-header">
@@ -665,7 +664,6 @@ function renderMushafPageImage(pageNum) {
            src="${imgUrl}"
            alt="صفحة ${pageNum} من المصحف"
            loading="eager"
-           onerror="this.onerror=null; this.src='${fallbackUrl}'; this.classList.add('loaded'); (function(){var e=document.getElementById('loadingProgress');if(e)e.classList.remove('active');})()"
            onload="this.classList.add('loaded'); (function(){var e=document.getElementById('loadingProgress');if(e)e.classList.remove('active');})()">
     </div>
     <div class="mushaf-footer"><span class="mushaf-footer-ornament">۞</span> صفحة ${toArabicNumeral(pageNum)} — القرآن الكريم <span class="mushaf-footer-ornament">۞</span></div>
@@ -680,7 +678,7 @@ function renderMushafPageImage(pageNum) {
     const nextPadded = String(nextNum).padStart(3, '0');
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${nextPadded}.png`;
+    link.href = `./pages/page${nextPadded}.png`;
     link.as = 'image';
     document.head.appendChild(link);
   }

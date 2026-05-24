@@ -1759,8 +1759,7 @@ function renderMushafPageImage(pageNum) {
   if (!dom.surahContent) return;
   const juz = getJuzForPage(pageNum);
   const padded = String(pageNum).padStart(3, '0');
-  const imgUrl = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${padded}.png`;
-  const fallbackUrl = `https://cdn.jsdelivr.net/gh/Miftah-Fentaw/Quran_webp@main/${padded}.webp`;
+  const imgUrl = `./pages/page${padded}.png`;
 
   const container = document.createElement('div');
   container.className = 'mushaf-container';
@@ -1785,8 +1784,6 @@ function renderMushafPageImage(pageNum) {
   img.loading = 'eager';
 
   img.onerror = () => {
-    img.onerror = null;
-    img.src = fallbackUrl;
     img.classList.add('loaded');
     skeleton.remove();
     loadingBar.hide();
@@ -1888,7 +1885,7 @@ function preloadAdjacentPages(pageNum) {
     const padded = String(p).padStart(3, '0');
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${padded}.png`;
+    link.href = `./pages/page${padded}.png`;
     link.as = 'image';
     document.head.appendChild(link);
   }

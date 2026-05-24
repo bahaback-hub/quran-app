@@ -1533,25 +1533,8 @@ function prevAyah() {
   }
 }
 
-function navigateToSurahPage(surahNum, opts = {}) {
-  if (state.mushafMode) {
-    fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
-      .then(res => res.json())
-      .then(data => {
-        const page = data?.data?.page || 1;
-        if (dom.pageSelect) dom.pageSelect.value = page;
-        if (dom.pageSlider) dom.pageSlider.value = page;
-        state.currentPage = page;
-        loadPage(page);
-      })
-      .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
-  } else {
-    loadSurah(surahNum, opts);
-  }
-}
-
-function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) navigateToSurahPage(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
-function prevSurah() { if (state.currentSurah > 1) navigateToSurahPage(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
+function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) loadSurah(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
+function prevSurah() { if (state.currentSurah > 1) loadSurah(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
 
 /* ===================== INDEXEDDB FOR TAFSIR ===================== */
 
@@ -1795,20 +1778,20 @@ async function loadFullQuranText() {
               const res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
               const data = await res.json();
               if (!data?.data?.surahs) throw new Error('بيانات غير صالحة');
-              const ayahs = [];
-              for (const surah of data.data.surahs) {
-                for (const ayah of surah.ayahs) {
-                  let ayahText = ayah.text;
-                  if (surah.number !== 1 && surah.number !== 9 && ayah.numberInSurah === 1) {
-                    ayahText = ayahText.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
-                  }
-                  ayahs.push({
-                    surah: surah.number, surahName: surah.name,
-                    ayah: ayah.numberInSurah, text: ayahText,
-                    normalized: normalizeExactText(ayahText)
-                  });
-                }
-              }
+               const ayahs = [];
+               for (const surah of data.data.surahs) {
+                 for (const ayah of surah.ayahs) {
+                   let ayahText = ayah.text;
+                   if (surah.number !== 1 && surah.number !== 9 && ayah.numberInSurah === 1) {
+                     ayahText = ayahText.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
+                   }
+                   ayahs.push({
+                     surah: surah.number, surahName: surah.name,
+                     ayah: ayah.numberInSurah, text: ayahText,
+                     normalized: normalizeExactText(ayahText)
+                   });
+                 }
+               }
               state.fullQuranText = ayahs;
               state.fullQuranLoaded = true;
               try {
@@ -2422,8 +2405,6 @@ async function toggleMushafMode() {
         const page = data?.data?.page;
         if (page && page >= 1 && page <= 604) {
           state.currentPage = page;
-          if (dom.pageSelect) dom.pageSelect.value = page;
-          if (dom.pageSlider) dom.pageSlider.value = page;
         }
       } catch (e) {
         console.warn('Failed to get page for ayah:', e);
@@ -2500,8 +2481,7 @@ function renderMushafPageImage(pageNum) {
   if (!dom.surahContent) return;
   const juz = getJuzForPage(pageNum);
   const padded = String(pageNum).padStart(3, '0');
-  const imgUrl = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${padded}.png`;
-  const fallbackUrl = `https://cdn.jsdelivr.net/gh/Miftah-Fentaw/Quran_webp@main/${padded}.webp`;
+  const imgUrl = `./pages/page${padded}.png`;
 
   const container = document.createElement('div');
   container.className = 'mushaf-container';
@@ -2526,8 +2506,6 @@ function renderMushafPageImage(pageNum) {
   img.loading = 'eager';
 
   img.onerror = () => {
-    img.onerror = null;
-    img.src = fallbackUrl;
     img.classList.add('loaded');
     skeleton.remove();
     loadingBar.hide();
@@ -2629,7 +2607,7 @@ function preloadAdjacentPages(pageNum) {
     const padded = String(p).padStart(3, '0');
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = `https://cdn.jsdelivr.net/gh/GovarJabbar/Quran-PNG@master/${padded}.png`;
+    link.href = `./pages/page${padded}.png`;
     link.as = 'image';
     document.head.appendChild(link);
   }
@@ -2728,22 +2706,7 @@ async function initApp() {
   /* ========== EVENT BINDINGS ========== */
 
   dom.surahSelect?.addEventListener('change', () => {
-    if (!dom.surahSelect.value) return;
-    const surahNum = parseInt(dom.surahSelect.value, 10);
-    if (state.mushafMode) {
-      fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
-        .then(res => res.json())
-        .then(data => {
-          const page = data?.data?.page || 1;
-          if (dom.pageSelect) dom.pageSelect.value = page;
-          if (dom.pageSlider) dom.pageSlider.value = page;
-          state.currentPage = page;
-          loadPage(page);
-        })
-        .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
-    } else {
-      loadSurah(surahNum);
-    }
+    if (dom.surahSelect.value) loadSurah(parseInt(dom.surahSelect.value, 10));
   });
 
   dom.reciterSelect?.addEventListener('change', () => {
