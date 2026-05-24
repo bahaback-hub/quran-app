@@ -395,22 +395,30 @@ body.night-mode .control-group label { color: var(--accent); }
   align-items: flex-end;
   width: 100%;
 }
+.controls-row .control-group {
+  min-width: 180px;
+  max-width: 220px;
+  flex: 1;
+}
 .controls-row .control-group select {
-  min-width: auto;
+  min-width: 100%;
   padding: 6px 8px;
   font-size: 13px;
+  height: 34px;
 }
 .controls-row .control-group label {
   font-size: 12px;
   white-space: nowrap;
 }
+.controls-row .search-input-group {
+  min-width: 180px;
+  max-width: 220px;
+  flex: 1;
+}
 .controls-row .btn-sm {
   padding: 4px 8px;
   font-size: 12px;
   min-height: 34px;
-}
-.controls-row .control-group select {
-  height: 34px;
 }
 
 /* ========== قائمة منسدلة حجم الخط ========== */
