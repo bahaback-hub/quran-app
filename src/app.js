@@ -1672,7 +1672,6 @@ async function toggleMushafMode() {
   if (state.mushafMode) {
     dom.modeToggleBtn.textContent = '📖 وضع السورة';
     dom.modeToggleBtn.classList.add('mushaf-active');
-    if (dom.surahModeControls) dom.surahModeControls.style.display = 'none';
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
     
@@ -1695,7 +1694,6 @@ async function toggleMushafMode() {
   } else {
     dom.modeToggleBtn.textContent = '📄 وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
-    if (dom.surahModeControls) dom.surahModeControls.style.display = '';
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
     
     let surahToLoad = 1;
