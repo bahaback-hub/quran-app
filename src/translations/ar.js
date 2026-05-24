@@ -9,9 +9,7 @@ const ar = {
   select_surah: 'اختر السورة',
   select_reciter: 'اختر القارئ',
   select_tafsir: 'اختر التفسير',
-  search_placeholder: 'اكتب كلمة أو جذراً...',
-  search_type_exact: 'بحث دقيق',
-  search_type_root: 'بحث بالجذر',
+  search_placeholder: 'اكتب كلمة...',
 
   // Player
   play: '⏯ تشغيل',

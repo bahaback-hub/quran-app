@@ -2,7 +2,6 @@ const CONFIG = {
   API_BASE: 'https://api.alquran.cloud/v1',
   TAFSIR_API: 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir',
   PRAYER_API: 'https://api.aladhan.com/v1/timingsByCity',
-  ROOTS_FILE: 'data/quranRoots.json',
   AZAN_FILE: 'azan.mp3',
   SURAH_COUNT: 114,
   STORAGE_PREFIX: 'quran_app_',
@@ -55,7 +54,7 @@ const DOM_IDS = [
   'hijriDateDisplay', 'weekdayDisplay', 'gregorianDateDisplay',
   'prayerTimesRows', 'prayerCountdown', 'bigClockTime', 'bigClockDate',
   'bigClockHijri', 'settingsPanel', 'settingsCloseBtn', 'settingsToggleBtn',
-  'themeToggle', 'surahSelect', 'reciterSelect', 'searchType', 'searchInput',
+  'themeToggle', 'surahSelect', 'reciterSelect', 'searchInput',
   'searchBtn', 'clearSearchBtn', 'searchResults', 'surahContent',
   'cityInput', 'countryInput', 'methodSelect', 'cityQuickSelect',
   'saveLocationBtn', 'azanToggle', 'azanFajrToggle', 'testAzanBtn',
@@ -195,9 +194,7 @@ const ar = {
   select_surah: 'اختر السورة',
   select_reciter: 'اختر القارئ',
   select_tafsir: 'اختر التفسير',
-  search_placeholder: 'اكتب كلمة أو جذراً...',
-  search_type_exact: 'بحث دقيق',
-  search_type_root: 'بحث بالجذر',
+  search_placeholder: 'اكتب كلمة...',
 
   // Player
   play: '⏯ تشغيل',
@@ -432,9 +429,7 @@ const en = {
   select_surah: 'Select Surah',
   select_reciter: 'Select Reciter',
   select_tafsir: 'Select Tafsir',
-  search_placeholder: 'Enter a word or root...',
-  search_type_exact: 'Exact Search',
-  search_type_root: 'Root Search',
+  search_placeholder: 'Enter a word...',
 
   // Player
   play: '⏯ Play',
@@ -831,17 +826,16 @@ function initState() {
     currentReciter: CONFIG.DEFAULT_RECITER,
     currentTafsirEdition: CONFIG.DEFAULT_TAFSIR,
     surahData: null, surahList: [], surahCache: new Map(),
-    ayahsAudios: [],
-    rootsData: null, rootsLoaded: false,
-    isPlaying: false, hifdhMode: false,
+     ayahsAudios: [],
+     isPlaying: false, hifdhMode: false,
     repeatMode: false, repeatFrom: 1, repeatTo: 1, repeatTimes: 3, repeatCounter: 0,
     fontSize: 28, nightMode: false, autoSave: true,
     azanEnabled: true, azanFajrEnabled: true,
     city: CONFIG.DEFAULT_CITY, country: CONFIG.DEFAULT_COUNTRY,
     method: CONFIG.DEFAULT_METHOD,
     prayerTimes: null, lastAzanFired: null,
-    favorites: [], bookmark: null,
-    searchType: 'exact', pendingTafsirAfterLoad: null,
+     favorites: [], bookmark: null,
+     pendingTafsirAfterLoad: null,
     playerCollapsed: false, barCollapsed: false,
     azanPlaying: false, loadingSurah: null,
     mushafMode: false, currentPage: 1,
@@ -1825,66 +1819,12 @@ async function loadFullQuranText() {
   });
 }
 
-async function loadRootsData() {
-  if (state.rootsLoaded) return;
-  try {
-    const res = await fetch(CONFIG.ROOTS_FILE);
-    const data = await res.json();
-    let rootsMap = {};
-    if (Array.isArray(data)) {
-      for (const item of data) {
-        const rootName = item.name;
-        const occ = item.occurences || [];
-        const positions = [];
-        for (const o of occ) {
-          if (typeof o === 'string') {
-            const parts = o.split(':');
-            if (parts.length === 2) {
-              const surah = parseInt(parts[0], 10);
-              const ayahPart = parts[1];
-              if (ayahPart.includes('-')) {
-                const [startA, endA] = ayahPart.split('-').map(n => parseInt(n, 10));
-                for (let a = startA; a <= endA; a++) {
-                  const abs = getAbsNumber(surah, a);
-                  if (abs) positions.push({ abs, word: rootName });
-                }
-              } else {
-                const ayah = parseInt(ayahPart, 10);
-                const abs = getAbsNumber(surah, ayah);
-                if (abs) positions.push({ abs, word: rootName });
-              }
-            }
-          }
-        }
-        if (positions.length) rootsMap[rootName] = positions;
-      }
-    } else if (data && typeof data === 'object') {
-      rootsMap = data;
-    }
-    state.rootsData = rootsMap;
-    state.rootsLoaded = true;
-  } catch (e) { console.warn('فشل تحميل الجذور', e); }
-}
-
 function performExactSearch(query) {
   if (!query.trim() || query.length < 2) { showToast('أدخل حرفين على الأقل', 'error'); return; }
   if (!state.fullQuranLoaded) { showToast('⚠️ قاعدة القرآن تُحمَّل، انتظر قليلاً', 'error'); return; }
   const normQuery = normalizeExactText(query.trim());
   const matches = state.fullQuranText.filter(ayah => ayah.normalized.includes(normQuery)).slice(0, 100);
   renderSearchResults(matches, query);
-}
-
-function performRootSearch(query) {
-  if (!query.trim() || query.length < 2) { showToast('أدخل جذراً (حرفان على الأقل)', 'error'); return; }
-  if (!state.rootsLoaded) { showToast('⚠️ قاعدة الجذور تُحمَّل، انتظر', 'error'); return; }
-  const entries = state.rootsData[query.trim()];
-  if (!entries || !entries.length) { showToast('لا توجد نتائج للجذر', 'error'); return; }
-  const results = entries.slice(0, 200).map(e => {
-    const info = absToSurahAyah(e.abs);
-    if (!info) return null;
-    return { surah: info.surahNum, surahName: info.surahName, ayah: info.ayahNumInSurah, text: `كلمة: ${e.word}` };
-  }).filter(r => r);
-  renderSearchResults(results, query);
 }
 
 /* ===================== VOICE SEARCH ===================== */
@@ -2742,7 +2682,6 @@ async function initApp() {
 
   loadPrayerTimes();
   loadFullQuranText().catch(console.warn);
-  loadRootsData().catch(console.warn);
   loadBackgrounds().catch(console.warn);
 
   bindAudioEvents();
@@ -2881,14 +2820,12 @@ async function initApp() {
   dom.searchBtn?.addEventListener('click', () => {
     const q = dom.searchInput?.value.trim();
     if (!q) return;
-    if (state.searchType === 'root') performRootSearch(q);
-    else performExactSearch(q);
+    performExactSearch(q);
   });
   dom.clearSearchBtn?.addEventListener('click', () => {
     if (dom.searchResults) dom.searchResults.style.display = 'none';
     if (dom.searchInput) dom.searchInput.value = '';
   });
-  dom.searchType?.addEventListener('change', () => { state.searchType = dom.searchType.value; });
   dom.searchInput?.addEventListener('keypress', e => { if (e.key === 'Enter') dom.searchBtn?.click(); });
 
   dom.voiceSearchBtn?.addEventListener('click', startVoiceSearch);

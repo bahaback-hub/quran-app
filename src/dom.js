@@ -5,7 +5,7 @@ const DOM_IDS = [
   'hijriDateDisplay', 'weekdayDisplay', 'gregorianDateDisplay',
   'prayerTimesRows', 'prayerCountdown', 'bigClockTime', 'bigClockDate',
   'bigClockHijri', 'settingsPanel', 'settingsCloseBtn', 'settingsToggleBtn',
-  'themeToggle', 'surahSelect', 'reciterSelect', 'searchType', 'searchInput',
+  'themeToggle', 'surahSelect', 'reciterSelect', 'searchInput',
   'searchBtn', 'clearSearchBtn', 'searchResults', 'surahContent',
   'cityInput', 'countryInput', 'methodSelect', 'cityQuickSelect',
   'saveLocationBtn', 'azanToggle', 'azanFajrToggle', 'testAzanBtn',

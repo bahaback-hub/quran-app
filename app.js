@@ -12,7 +12,6 @@ const CONFIG = {
   API_BASE: 'https://api.alquran.cloud/v1',
   TAFSIR_API: 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir',
   PRAYER_API: 'https://api.aladhan.com/v1/timingsByCity',
-  ROOTS_FILE: 'data/quranRoots.json',
   AZAN_FILE: 'azan.mp3',
   SURAH_COUNT: 114,
   STORAGE_PREFIX: 'quran_app_',
@@ -36,8 +35,6 @@ let state = {
   surahList: [],
   surahCache: new Map(),
   ayahsAudios: [],
-  rootsData: null,
-  rootsLoaded: false,
   isPlaying: false,
   hifdhMode: false,
   repeatMode: false,
@@ -57,7 +54,6 @@ let state = {
   lastAzanFired: null,
   favorites: [],
   bookmark: null,
-  searchType: 'exact',
   pendingTafsirAfterLoad: null,
   playerCollapsed: false,
   fullQuranText: null,
@@ -79,7 +75,7 @@ function cacheDom() {
   const ids = [
     'cityName','nextPrayerName','nextPrayerTime','countdownDisplay','hijriDateDisplay','weekdayDisplay','gregorianDateDisplay',
     'prayerTimesRows','prayerCountdown','bigClockTime','bigClockDate','bigClockHijri','settingsPanel','settingsCloseBtn','settingsToggleBtn',
-    'themeToggle','surahSelect','reciterSelect','searchType','searchInput','searchBtn','clearSearchBtn','searchResults','surahContent',
+    'themeToggle','surahSelect','reciterSelect','searchInput','searchBtn','clearSearchBtn','searchResults','surahContent',
     'cityInput','countryInput','methodSelect','cityQuickSelect','saveLocationBtn','azanToggle','azanFajrToggle','testAzanBtn',
     'fontSizeSelect','autoSaveToggle','resetSettingsBtn','favoritesPanel','favoritesCloseBtn','favoritesList','favoritesOpenBtn',
     'player','collapsePlayerBtn','collapsedExpandBtn','playPauseBtn','collapsedPlayBtn','playerSurahName','playerReciterName','playerCurrentAyah','collapsedInfo',
@@ -1099,7 +1095,7 @@ async function loadTafsirForCurrentAyah() {
 }
 
 /* ============================================================
-   13) البحث المحلي (دقيق وجذري)
+   13) البحث المحلي
 ============================================================ */
 function normalizeExactText(str) {
   return String(str).replace(/[\u064B-\u065F\u0670]/g, '').replace(/[إأآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/ؤ/g, 'و').replace(/ئ/g, 'ي');
@@ -1157,49 +1153,11 @@ async function loadFullQuranText() {
         getReq.onerror = () => resolve();
       } catch(err) { resolve(); }
     };
-    request.onerror = () => resolve();
-  });
-}
-
-async function loadRootsData() {
-  if (state.rootsLoaded) return;
-  try {
-    const res = await fetch(CONFIG.ROOTS_FILE);
-    const data = await res.json();
-    let rootsMap = {};
-    if (Array.isArray(data)) {
-      for (const item of data) {
-        const rootName = item.name;
-        const occ = item.occurences || [];
-        const positions = [];
-        for (const o of occ) {
-          if (typeof o === 'string') {
-            const parts = o.split(':');
-            if (parts.length === 2) {
-              const surah = parseInt(parts[0], 10);
-              const ayahPart = parts[1];
-              if (ayahPart.includes('-')) {
-                const [startA, endA] = ayahPart.split('-').map(n => parseInt(n, 10));
-                for (let a = startA; a <= endA; a++) {
-                  const abs = getAbsNumber(surah, a);
-                  if (abs) positions.push({ abs, word: rootName });
-                }
-              } else {
-                const ayah = parseInt(ayahPart, 10);
-                const abs = getAbsNumber(surah, ayah);
-                if (abs) positions.push({ abs, word: rootName });
-              }
-            }
-          }
-        }
-        if (positions.length) rootsMap[rootName] = positions;
-      }
-    } else if (data && typeof data === 'object') {
-      rootsMap = data;
-    }
-    state.rootsData = rootsMap;
-    state.rootsLoaded = true;
-  } catch(e) { console.warn('فشل تحميل الجذور', e); }
+     request.onerror = () => resolve();
+     }
+   };
+   request.onerror = () => resolve();
+ });
 }
 
 function performExactSearch(query) {
@@ -1208,19 +1166,6 @@ function performExactSearch(query) {
   const normQuery = normalizeExactText(query.trim());
   const matches = state.fullQuranText.filter(ayah => ayah.normalized.includes(normQuery)).slice(0, 100);
   renderSearchResults(matches, query);
-}
-
-function performRootSearch(query) {
-  if (!query.trim() || query.length < 2) { showToast('أدخل جذراً (حرفان على الأقل)', 'error'); return; }
-  if (!state.rootsLoaded) { showToast('⚠️ قاعدة الجذور تُحمَّل، انتظر', 'error'); return; }
-  const entries = state.rootsData[query.trim()];
-  if (!entries || !entries.length) { showToast('لا توجد نتائج للجذر', 'error'); return; }
-  const results = entries.slice(0, 200).map(e => {
-    const info = absToSurahAyah(e.abs);
-    if (!info) return null;
-    return { surah: info.surahNum, surahName: info.surahName, ayah: info.ayahNumInSurah, text: `كلمة: ${e.word}` };
-  }).filter(r => r);
-  renderSearchResults(results, query);
 }
 
 let lastSearchCloseHandler = null;
@@ -1702,7 +1647,6 @@ async function initApp() {
   }
   loadPrayerTimes();
   loadFullQuranText().catch(console.warn);
-  loadRootsData().catch(console.warn);
   loadBackgrounds().catch(console.warn);
 
   state._isSmartTv = isSmartTv();
@@ -1810,14 +1754,12 @@ async function initApp() {
   dom.searchBtn?.addEventListener('click', () => {
     const q = dom.searchInput?.value.trim();
     if (!q) return;
-    if (state.searchType === 'root') performRootSearch(q);
-    else performExactSearch(q);
+    performExactSearch(q);
   });
   dom.clearSearchBtn?.addEventListener('click', () => {
     if (dom.searchResults) dom.searchResults.style.display = 'none';
     if (dom.searchInput) dom.searchInput.value = '';
   });
-  dom.searchType?.addEventListener('change', () => { state.searchType = dom.searchType.value; });
   dom.searchInput?.addEventListener('keypress', e => { if (e.key === 'Enter') dom.searchBtn?.click(); });
 
   document.addEventListener('click', (e) => {
