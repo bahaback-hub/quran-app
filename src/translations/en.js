@@ -9,9 +9,7 @@ const en = {
   select_surah: 'Select Surah',
   select_reciter: 'Select Reciter',
   select_tafsir: 'Select Tafsir',
-  search_placeholder: 'Enter a word or root...',
-  search_type_exact: 'Exact Search',
-  search_type_root: 'Root Search',
+  search_placeholder: 'Enter a word...',
 
   // Player
   play: '⏯ Play',
