@@ -988,6 +988,10 @@ function testAzan() {
       .then(() => {
         state.azanPlaying = true;
         if (dom.testAzanBtn) dom.testAzanBtn.textContent = '⏹️ إيقاف الأذان';
+        if (dom.azanNotification && dom.azanNotifPrayer) {
+          dom.azanNotifPrayer.textContent = '🕋 اختبار الأذان';
+          dom.azanNotification.style.display = 'flex';
+        }
       })
       .catch(() => showToast('تعذّر تشغيل الأذان', 'error'));
   }
