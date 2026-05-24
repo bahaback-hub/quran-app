@@ -80,7 +80,7 @@ function cacheDom() {
     'fontSizeSelect','autoSaveToggle','resetSettingsBtn','favoritesPanel','favoritesCloseBtn','favoritesList','favoritesOpenBtn',
     'player','collapsePlayerBtn','collapsedExpandBtn','playPauseBtn','collapsedPlayBtn','playerSurahName','playerReciterName','playerCurrentAyah','collapsedInfo',
     'audioPlayer','speedSelect','prevAyahBtn','nextAyahBtn','prevSurahBtn','nextSurahBtn','hifdhBtn','repeatBtn','bookmarkBtn','favoriteBtn','shareBtn',
-    'repeatControls','repeatFrom','repeatTo','repeatTimes','shareMenu','azanPlayer','toast','fontSizeDropdown','collapseBarBtn','expandBarBtn','prayerBar',
+    'repeatControls','repeatFrom','repeatTo','repeatTimes','shareMenu','azanPlayer','toast','collapseBarBtn','expandBarBtn','prayerBar',
     'tafsirCurtainHandle','tafsirCurtain','tafsirCurtainHeader','tafsirCurtainBody','tafsirSelect','bgSelect','loadingProgress',
     'modeToggleBtn','pageSelect','prevPageBtn','nextPageBtn','mushafControls','surahModeControls',
     'azanNotification','azanNotifStopBtn',
@@ -1488,7 +1488,6 @@ function applyFontSize(size) {
   if (container) container.style.fontSize = size + 'px';
   storage.set('font_size', size);
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = size;
-  if (dom.fontSizeDropdown) dom.fontSizeDropdown.value = size;
 }
 function onFontSizeChange(e) {
   applyFontSize(parseInt(e.target.value, 10));
@@ -1603,7 +1602,6 @@ function restoreSettings() {
   if (dom.reciterSelect) dom.reciterSelect.value = state.currentReciter;
   if (dom.tafsirSelect) dom.tafsirSelect.value = state.currentTafsirEdition;
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = state.fontSize;
-  if (dom.fontSizeDropdown) dom.fontSizeDropdown.value = state.fontSize;
   const speed = storage.get('playback_speed'); if (speed && dom.speedSelect && dom.audioPlayer) { dom.speedSelect.value = speed; dom.audioPlayer.playbackRate = parseFloat(speed); }
   if (state.barCollapsed && dom.prayerBar) {
     dom.prayerBar.classList.add('collapsed');
@@ -1724,7 +1722,6 @@ async function initApp() {
     if (dom.tafsirCurtain?.classList.contains('open')) loadTafsirForCurrentAyah();
   });
   dom.fontSizeSelect?.addEventListener('change', onFontSizeChange);
-  dom.fontSizeDropdown?.addEventListener('change', onFontSizeChange);
   dom.azanToggle?.addEventListener('click', () => {
     state.azanEnabled = dom.azanToggle.classList.toggle('on');
     storage.set('azan_enabled', state.azanEnabled);

@@ -68,7 +68,7 @@ const DOM_IDS = [
   'prevSurahBtn', 'nextSurahBtn', 'hifdhBtn', 'repeatBtn', 'bookmarkBtn',
   'favoriteBtn', 'shareBtn',
   'repeatControls', 'repeatFrom', 'repeatTo', 'repeatTimes', 'shareMenu',
-  'azanPlayer', 'toast', 'fontSizeDropdown', 'collapseBarBtn', 'expandBarBtn',
+  'azanPlayer', 'toast', 'collapseBarBtn', 'expandBarBtn',
   'prayerBar',
   'tafsirCurtainHandle', 'tafsirCurtain', 'tafsirCurtainHeader',
   'tafsirCurtainBody', 'tafsirSelect', 'bgSelect', 'loadingProgress',
@@ -2246,7 +2246,6 @@ function applyFontSize(size) {
   if (container) container.style.fontSize = size + 'px';
   storage.set('font_size', size);
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = size;
-  if (dom.fontSizeDropdown) dom.fontSizeDropdown.value = size;
 }
 
 /* ===================== NIGHT MODE ===================== */
@@ -2368,7 +2367,6 @@ function restoreSettings() {
     if (state.currentTranslation) dom.translationSelect.value = state.currentTranslation;
   }
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = state.fontSize;
-  if (dom.fontSizeDropdown) dom.fontSizeDropdown.value = state.fontSize;
   const speed = storage.get('playback_speed');
   if (speed && dom.speedSelect && dom.audioPlayer) { dom.speedSelect.value = speed; dom.audioPlayer.playbackRate = parseFloat(speed); }
   if (state.barCollapsed && dom.prayerBar) {
@@ -2778,7 +2776,6 @@ async function initApp() {
   });
 
   dom.fontSizeSelect?.addEventListener('change', (e) => applyFontSize(parseInt(e.target.value, 10)));
-  dom.fontSizeDropdown?.addEventListener('change', (e) => applyFontSize(parseInt(e.target.value, 10)));
 
   dom.azanToggle?.addEventListener('click', () => {
     state.azanEnabled = dom.azanToggle.classList.toggle('on');
