@@ -82,6 +82,7 @@ const DOM_IDS = [
   'adhkarBtn', 'adhkarPanel', 'adhkarCloseBtn', 'adhkarTabs', 'adhkarContent',
   'adhkarEnabledToggle', 'adhkarSoundToggle', 'adhkarSettingsList',
   'adhkarNotification', 'adhkarNotifIcon', 'adhkarNotifTitle',
+  'adhkarNotifText', 'adhkarNotifProgress', 'adhkarNotifCountBtn',
   'adhkarNotifOpenBtn', 'adhkarNotifDismissBtn',
   'adhkarAddOverlay', 'adhkarAddCloseBtn', 'adhkarAddText',
   'adhkarAddCount', 'adhkarAddTime', 'adhkarAddDuration', 'adhkarAddSaveBtn'
@@ -1270,7 +1271,8 @@ function initState() {
     translationEnabled: false,
     currentTranslation: null,
     translationData: null,
-    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null
+    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
+    adhkarNotifCategory: null, adhkarNotifItemIndex: 0, adhkarNotifPersonalId: null
   };
 }
 
@@ -3414,7 +3416,7 @@ function checkAdhkarNotifications() {
     const fireKey = 'personal_' + p.id + '_' + today;
     if (curMin >= pMin && state.lastAdhkarFired !== fireKey) {
       state.lastAdhkarFired = fireKey;
-      showAdhkarNotification({ id: 'personal', icon: '📝', name: p.text, duration: p.duration || 1 });
+      showAdhkarNotification({ id: 'personal', _personalId: p.id, icon: '📝', name: p.text, duration: p.duration || 1 });
       return;
     }
   }
@@ -3426,6 +3428,10 @@ function showAdhkarNotification(cat, notifDuration) {
   dom.adhkarNotifTitle.textContent = `🕌 ${cat.name}`;
   dom.adhkarNotification.dataset.category = cat.id || 'personal';
   dom.adhkarNotification.style.display = 'flex';
+
+  state.adhkarNotifCategory = cat.id;
+  state.adhkarNotifItemIndex = 0;
+  state.adhkarNotifPersonalId = cat.id === 'personal' ? (cat._personalId || null) : null;
 
   if (state.adhkarSettings.adhkar_sound) {
     try {
@@ -3439,6 +3445,72 @@ function showAdhkarNotification(cat, notifDuration) {
   state.adhkarNotificationTimer = setTimeout(() => {
     dom.adhkarNotification.style.display = 'none';
   }, duration);
+
+  renderNotifAdhkarItem();
+}
+
+function renderNotifAdhkarItem() {
+  if (!dom.adhkarNotifText) return;
+  const catId = state.adhkarNotifCategory;
+  if (catId === 'personal') {
+    const personal = state.adhkarSettings.personal_adhkar || [];
+    const p = personal.find(x => x.id === state.adhkarNotifPersonalId);
+    if (p) {
+      dom.adhkarNotifText.textContent = p.text;
+      dom.adhkarNotifProgress.textContent = `🔄 ${p.count} مرة`;
+      dom.adhkarNotifCountBtn.style.display = 'inline-block';
+      dom.adhkarNotifCountBtn.onclick = null;
+      dom.adhkarNotifCountBtn.onclick = () => {
+        const key = `item_personal_${p.id}`;
+        const curr = state.adhkarSettings[key] || 0;
+        if (curr < p.count) {
+          state.adhkarSettings[key] = curr + 1;
+        } else {
+          state.adhkarSettings[key] = 0;
+        }
+        saveAdhkarSettings();
+        const remaining = Math.max(0, p.count - (state.adhkarSettings[key] || 0));
+        dom.adhkarNotifProgress.textContent = `🔄 ${p.count} مرة — متبقي ${remaining}`;
+      };
+    }
+    return;
+  }
+
+  const cat = ADHKAR_DATA.categories.find(c => c.id === catId);
+  if (!cat) return;
+  const items = cat.items.filter(item => {
+    const key = `item_${item.id}`;
+    const counter = state.adhkarSettings[key] || 0;
+    return counter < item.count;
+  });
+
+  if (items.length === 0) {
+    dom.adhkarNotifText.textContent = '✅ تم إكمال جميع الأذكار لهذا الوقت';
+    dom.adhkarNotifProgress.textContent = '';
+    dom.adhkarNotifCountBtn.style.display = 'none';
+    return;
+  }
+
+  const idx = Math.min(state.adhkarNotifItemIndex, items.length - 1);
+  const item = items[idx];
+  const key = `item_${item.id}`;
+  const counter = state.adhkarSettings[key] || 0;
+  const remaining = item.count - counter;
+
+  dom.adhkarNotifText.textContent = item.text;
+  dom.adhkarNotifProgress.textContent = `🔄 ${item.count} مرة — متبقي ${remaining} — 📚 ${item.reference}`;
+  dom.adhkarNotifCountBtn.style.display = 'inline-block';
+  dom.adhkarNotifCountBtn.onclick = null;
+  dom.adhkarNotifCountBtn.onclick = () => {
+    const cur = state.adhkarSettings[key] || 0;
+    if (cur < item.count) {
+      state.adhkarSettings[key] = cur + 1;
+    } else {
+      state.adhkarSettings[key] = 0;
+    }
+    saveAdhkarSettings();
+    renderNotifAdhkarItem();
+  };
 }
 
 function dismissAdhkarNotification() {
