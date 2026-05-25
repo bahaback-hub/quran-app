@@ -121,7 +121,8 @@ function initState() {
     ayahWordElements: null,
     translationEnabled: false,
     currentTranslation: null,
-    translationData: null
+    translationData: null,
+    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null
   };
 }
 
@@ -1638,6 +1639,13 @@ function restoreSettings() {
     dom.prayerBar.classList.add('collapsed');
     dom.prayerBar.classList.remove('expanded');
   }
+
+  /* Restore adhkar settings */
+  if (state.adhkarSettings) {
+    if (dom.adhkarEnabledToggle) dom.adhkarEnabledToggle.classList.toggle('on', !!state.adhkarSettings.adhkar_enabled);
+    if (dom.adhkarSoundToggle) dom.adhkarSoundToggle.classList.toggle('on', !!state.adhkarSettings.adhkar_sound);
+    renderAdhkarSettingsList();
+  }
 }
 
 /* ===================== VISIBILITY ===================== */
@@ -1950,6 +1958,356 @@ function playMushafAyah(surahNum, ayahNum) {
   }
 }
 
+/* ===================== ADHKAR ===================== */
+
+function loadAdhkarSettings() {
+  state.adhkarSettings = storage.get('adhkar_settings') || getDefaultAdhkarSettings();
+}
+
+function saveAdhkarSettings() {
+  storage.set('adhkar_settings', state.adhkarSettings);
+}
+
+function toggleAdhkarPanel() {
+  state.adhkarPanelOpen = !state.adhkarPanelOpen;
+  dom.adhkarPanel?.classList.toggle('open', state.adhkarPanelOpen);
+  if (state.adhkarPanelOpen) {
+    renderAdhkarTabs();
+    if (!state.adhkarActiveTab) state.adhkarActiveTab = ADHKAR_DATA.categories[0].id;
+    switchAdhkarTab(state.adhkarActiveTab);
+  }
+}
+
+function closeAdhkarPanel() {
+  state.adhkarPanelOpen = false;
+  dom.adhkarPanel?.classList.remove('open');
+}
+
+function renderAdhkarTabs() {
+  if (!dom.adhkarTabs) return;
+  let html = '';
+  for (const cat of ADHKAR_DATA.categories) {
+    html += `<button class="adhkar-tab${state.adhkarActiveTab === cat.id ? ' active' : ''}" data-category="${cat.id}">${cat.icon} ${cat.name}</button>`;
+  }
+  const personalLabel = '📝 أذكاري';
+  html += `<button class="adhkar-tab${state.adhkarActiveTab === 'personal' ? ' active' : ''}" data-category="personal">📝 أذكاري</button>`;
+  dom.adhkarTabs.innerHTML = html;
+  dom.adhkarTabs.querySelectorAll('.adhkar-tab').forEach(btn => {
+    btn.addEventListener('click', () => switchAdhkarTab(btn.dataset.category));
+  });
+}
+
+function switchAdhkarTab(categoryId) {
+  state.adhkarActiveTab = categoryId;
+  document.querySelectorAll('.adhkar-tab').forEach(t => t.classList.toggle('active', t.dataset.category === categoryId));
+  renderAdhkarCategory(categoryId);
+}
+
+function renderAdhkarCategory(categoryId) {
+  if (!dom.adhkarContent) return;
+  if (categoryId === 'personal') {
+    renderPersonalAdhkar();
+    return;
+  }
+  const cat = ADHKAR_DATA.categories.find(c => c.id === categoryId);
+  if (!cat) return;
+  const settings = state.adhkarSettings;
+  let html = `<div class="adhkar-category-title">${cat.icon} ${cat.name}</div>`;
+  for (const item of cat.items) {
+    const counter = settings[`item_${item.id}`] || 0;
+    const remaining = Math.max(0, item.count - counter);
+    const completed = counter >= item.count;
+    const pct = Math.min(100, (counter / item.count) * 100);
+    html += `<div class="adhkar-item${completed ? ' completed' : ''}" data-item-id="${item.id}" data-category="${categoryId}">
+      <div class="adhkar-item-text">${item.text}</div>
+      <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
+      <div class="adhkar-item-meta">
+        <span class="adhkar-item-count">🔄 ${item.count} مرة — متبقي ${remaining}</span>
+        <span class="adhkar-item-reference">📚 ${item.reference}</span>
+        <div class="adhkar-counter">
+          <button class="adhkar-counter-btn${completed ? ' completed' : ''}" data-action="increment" data-item-id="${item.id}" data-category="${categoryId}">✓</button>
+          <span class="adhkar-counter-text">${counter}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+  html += `<button class="adhkar-add-btn" data-action="reset" data-category="${categoryId}">🔄 إعادة تعيين الكل</button>`;
+  dom.adhkarContent.innerHTML = html;
+
+  dom.adhkarContent.querySelectorAll('[data-action="increment"]').forEach(btn => {
+    btn.addEventListener('click', () => handleAdhkarCounter(btn.dataset.itemId, btn.dataset.category));
+  });
+  dom.adhkarContent.querySelectorAll('[data-action="reset"]').forEach(btn => {
+    btn.addEventListener('click', () => resetAdhkarCounters(btn.dataset.category));
+  });
+}
+
+function handleAdhkarCounter(itemId, categoryId) {
+  const cat = ADHKAR_DATA.categories.find(c => c.id === categoryId);
+  if (!cat) return;
+  const item = cat.items.find(i => i.id === itemId);
+  if (!item) return;
+  const key = `item_${item.id}`;
+  const current = state.adhkarSettings[key] || 0;
+  if (current >= item.count) {
+    state.adhkarSettings[key] = 0;
+  } else {
+    state.adhkarSettings[key] = current + 1;
+  }
+  saveAdhkarSettings();
+  renderAdhkarCategory(categoryId);
+}
+
+function resetAdhkarCounters(categoryId) {
+  const cat = ADHKAR_DATA.categories.find(c => c.id === categoryId);
+  if (!cat) return;
+  for (const item of cat.items) {
+    state.adhkarSettings[`item_${item.id}`] = 0;
+  }
+  saveAdhkarSettings();
+  renderAdhkarCategory(categoryId);
+  showToast('🔄 تم إعادة تعيين الأذكار', 'success');
+}
+
+/* ===== الأذكار الشخصية ===== */
+
+function renderPersonalAdhkar() {
+  if (!dom.adhkarContent) return;
+  const personal = state.adhkarSettings.personal_adhkar || [];
+  let html = '<div class="adhkar-category-title">📝 أذكاري</div>';
+  html += '<button class="adhkar-add-btn" id="openAddAdhkarBtn">➕ إضافة ذكر جديد</button>';
+  if (!personal.length) {
+    html += '<p style="text-align:center;color:#888;padding:20px;">📝 لم تضف أي ذكر شخصي بعد</p>';
+  } else {
+    for (const p of personal) {
+      const counter = state.adhkarSettings[`item_personal_${p.id}`] || 0;
+      const remaining = Math.max(0, p.count - counter);
+      const completed = counter >= p.count;
+      const pct = Math.min(100, (counter / p.count) * 100);
+      html += `<div class="adhkar-item${completed ? ' completed' : ''}" data-item-id="personal_${p.id}">
+        <div class="adhkar-item-text">${escapeHtml(p.text)}</div>
+        <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
+        <div class="adhkar-item-meta">
+          <span class="adhkar-item-count">🔄 ${p.count} مرة — متبقي ${remaining}</span>
+          <span class="adhkar-item-reference">${p.time ? '⏰ ' + p.time : ''}</span>
+          <div class="adhkar-personal-actions">
+            <button class="adhkar-personal-btn edit" data-action="edit-personal" data-id="${p.id}">✏️</button>
+            <button class="adhkar-personal-btn delete" data-action="delete-personal" data-id="${p.id}">🗑️</button>
+          </div>
+          <div class="adhkar-counter">
+            <button class="adhkar-counter-btn${completed ? ' completed' : ''}" data-action="increment-personal" data-id="${p.id}">✓</button>
+            <span class="adhkar-counter-text">${counter}</span>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+  dom.adhkarContent.innerHTML = html;
+
+  document.getElementById('openAddAdhkarBtn')?.addEventListener('click', openAdhkarAddDialog);
+  dom.adhkarContent.querySelectorAll('[data-action="increment-personal"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const personal = state.adhkarSettings.personal_adhkar || [];
+      const p = personal.find(x => x.id === btn.dataset.id);
+      if (!p) return;
+      const key = `item_personal_${p.id}`;
+      const current = state.adhkarSettings[key] || 0;
+      if (current >= p.count) {
+        state.adhkarSettings[key] = 0;
+      } else {
+        state.adhkarSettings[key] = current + 1;
+      }
+      saveAdhkarSettings();
+      renderPersonalAdhkar();
+    });
+  });
+  dom.adhkarContent.querySelectorAll('[data-action="edit-personal"]').forEach(btn => {
+    btn.addEventListener('click', () => editPersonalAdhkar(btn.dataset.id));
+  });
+  dom.adhkarContent.querySelectorAll('[data-action="delete-personal"]').forEach(btn => {
+    btn.addEventListener('click', () => deletePersonalAdhkar(btn.dataset.id));
+  });
+}
+
+function openAdhkarAddDialog() {
+  if (!dom.adhkarAddOverlay) return;
+  dom.adhkarAddOverlay.style.display = 'flex';
+  dom.adhkarAddText.value = '';
+  dom.adhkarAddCount.value = 1;
+  dom.adhkarAddTime.value = '';
+  dom.adhkarAddDuration.value = 1;
+  dom.adhkarAddOverlay.dataset.editId = '';
+}
+
+function closeAdhkarAddDialog() {
+  if (dom.adhkarAddOverlay) dom.adhkarAddOverlay.style.display = 'none';
+}
+
+function savePersonalAdhkar() {
+  const text = dom.adhkarAddText?.value.trim();
+  if (!text) { showToast('📝 أدخل نص الذكر', 'error'); return; }
+  const count = parseInt(dom.adhkarAddCount?.value, 10) || 1;
+  const time = dom.adhkarAddTime?.value || null;
+  const duration = parseInt(dom.adhkarAddDuration?.value, 10) || 1;
+  const editId = dom.adhkarAddOverlay?.dataset.editId || '';
+  if (!state.adhkarSettings.personal_adhkar) state.adhkarSettings.personal_adhkar = [];
+
+  if (editId) {
+    const p = state.adhkarSettings.personal_adhkar.find(x => x.id === editId);
+    if (p) {
+      p.text = text;
+      p.count = count;
+      p.time = time;
+      p.duration = duration;
+    }
+  } else {
+    const newItem = { id: 'pa_' + Date.now(), text, count, time, duration };
+    state.adhkarSettings.personal_adhkar.push(newItem);
+  }
+  saveAdhkarSettings();
+  closeAdhkarAddDialog();
+  renderPersonalAdhkar();
+  showToast(editId ? '✏️ تم تعديل الذكر' : '✅ تم إضافة الذكر', 'success');
+}
+
+function editPersonalAdhkar(id) {
+  const p = state.adhkarSettings.personal_adhkar?.find(x => x.id === id);
+  if (!p) return;
+  if (!dom.adhkarAddOverlay) return;
+  dom.adhkarAddOverlay.style.display = 'flex';
+  dom.adhkarAddOverlay.dataset.editId = id;
+  dom.adhkarAddText.value = p.text;
+  dom.adhkarAddCount.value = p.count;
+  dom.adhkarAddTime.value = p.time || '';
+  dom.adhkarAddDuration.value = p.duration || 1;
+}
+
+function deletePersonalAdhkar(id) {
+  if (!confirm('🗑️ هل تريد حذف هذا الذكر؟')) return;
+  state.adhkarSettings.personal_adhkar = (state.adhkarSettings.personal_adhkar || []).filter(x => x.id !== id);
+  delete state.adhkarSettings[`item_personal_${id}`];
+  saveAdhkarSettings();
+  renderPersonalAdhkar();
+  showToast('🗑️ تم حذف الذكر', '');
+}
+
+/* ===== إشعارات الأذكار ===== */
+
+function checkAdhkarNotifications() {
+  if (!state.adhkarSettings?.adhkar_enabled) return;
+  const now = new Date();
+  const curMin = now.getHours() * 60 + now.getMinutes();
+
+  for (const cat of ADHKAR_DATA.categories) {
+    const catSettings = state.adhkarSettings[cat.id];
+    if (!catSettings?.enabled || !cat.time) continue;
+    const [h, m] = cat.time.split(':').map(Number);
+    const catMin = h * 60 + m;
+    if (curMin === catMin && state.lastAdhkarFired !== cat.id + '_' + now.toDateString()) {
+      state.lastAdhkarFired = cat.id + '_' + now.toDateString();
+      showAdhkarNotification(cat);
+      return;
+    }
+  }
+
+  for (const p of (state.adhkarSettings.personal_adhkar || [])) {
+    if (!p.time) continue;
+    const [h, m] = p.time.split(':').map(Number);
+    const pMin = h * 60 + m;
+    if (curMin === pMin && state.lastAdhkarFired !== 'personal_' + p.id + '_' + now.toDateString()) {
+      state.lastAdhkarFired = 'personal_' + p.id + '_' + now.toDateString();
+      showAdhkarNotification({ id: 'personal', icon: '📝', name: p.text, duration: p.duration || 1 });
+      return;
+    }
+  }
+}
+
+function showAdhkarNotification(cat) {
+  if (!dom.adhkarNotification) return;
+  dom.adhkarNotifIcon.textContent = cat.icon || '🕌';
+  dom.adhkarNotifTitle.textContent = `🕌 ${cat.name}`;
+  dom.adhkarNotification.dataset.category = cat.id || 'personal';
+  dom.adhkarNotification.style.display = 'flex';
+
+  if (state.adhkarSettings.adhkar_sound) {
+    try {
+      const audio = new Audio('data/notification.mp3');
+      audio.play().catch(() => {});
+    } catch (e) {}
+  }
+
+  const duration = (cat.duration || 1) * 60 * 1000;
+  if (state.adhkarNotificationTimer) clearTimeout(state.adhkarNotificationTimer);
+  state.adhkarNotificationTimer = setTimeout(() => {
+    dom.adhkarNotification.style.display = 'none';
+  }, duration);
+}
+
+function dismissAdhkarNotification() {
+  if (dom.adhkarNotification) dom.adhkarNotification.style.display = 'none';
+  if (state.adhkarNotificationTimer) {
+    clearTimeout(state.adhkarNotificationTimer);
+    state.adhkarNotificationTimer = null;
+  }
+  openAdhkarPanelFromNotif();
+}
+
+function openAdhkarPanelFromNotif() {
+  const catId = dom.adhkarNotification?.dataset.category;
+  if (!state.adhkarPanelOpen) toggleAdhkarPanel();
+  if (catId) switchAdhkarTab(catId);
+}
+
+/* ===== إعدادات الأذكار في لوحة الإعدادات ===== */
+
+function renderAdhkarSettingsList() {
+  if (!dom.adhkarSettingsList) return;
+  let html = '';
+  for (const cat of ADHKAR_DATA.categories) {
+    const s = state.adhkarSettings[cat.id] || {};
+    html += `<div class="adhkar-setting-row">
+      <div class="adhkar-setting-header">
+        <span class="adhkar-setting-label">${cat.icon} ${cat.name}</span>
+        <div class="adhkar-setting-toggle">
+          <div class="toggle-switch${s.enabled ? ' on' : ''}" data-adhkar-toggle="${cat.id}" role="switch"></div>
+        </div>
+      </div>
+      <div class="adhkar-setting-time">
+        ⏰ <input type="time" data-adhkar-time="${cat.id}" value="${s.time || ''}">
+        <span>🔔</span>
+        <input type="number" data-adhkar-duration="${cat.id}" value="${s.duration ?? cat.defaultDuration ?? 1}" min="1" max="60" style="width:50px;"> دقيقة
+      </div>
+    </div>`;
+  }
+  dom.adhkarSettingsList.innerHTML = html;
+
+  dom.adhkarSettingsList.querySelectorAll('[data-adhkar-toggle]').forEach(el => {
+    el.addEventListener('click', () => {
+      const catId = el.dataset.adhkarToggle;
+      const on = el.classList.toggle('on');
+      if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
+      state.adhkarSettings[catId].enabled = on;
+      saveAdhkarSettings();
+    });
+  });
+  dom.adhkarSettingsList.querySelectorAll('[data-adhkar-time]').forEach(el => {
+    el.addEventListener('change', () => {
+      const catId = el.dataset.adhkarTime;
+      if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
+      state.adhkarSettings[catId].time = el.value;
+      saveAdhkarSettings();
+    });
+  });
+  dom.adhkarSettingsList.querySelectorAll('[data-adhkar-duration]').forEach(el => {
+    el.addEventListener('change', () => {
+      const catId = el.dataset.adhkarDuration;
+      if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
+      state.adhkarSettings[catId].duration = parseInt(el.value, 10) || 1;
+      saveAdhkarSettings();
+    });
+  });
+}
+
 /* ===================== INIT ===================== */
 
 export async function initApp() {
@@ -1957,6 +2315,7 @@ export async function initApp() {
   loadingBar.init();
   loadingBar.hide();
   cacheDom();
+  loadAdhkarSettings();
   restoreSettings();
   loadFavorites();
   startClock();
@@ -1980,6 +2339,8 @@ export async function initApp() {
   loadBackgrounds().catch(console.warn);
 
   bindAudioEvents();
+
+  setInterval(checkAdhkarNotifications, 30000);
 
   /* ========== EVENT BINDINGS ========== */
 
@@ -2148,6 +2509,35 @@ export async function initApp() {
   const savedPage = storage.get('current_page');
   if (savedPage) state.currentPage = savedPage;
   if (savedMushaf && dom.modeToggleBtn) toggleMushafMode();
+
+  /* ========== ADHKAR ========== */
+  dom.adhkarBtn?.addEventListener('click', toggleAdhkarPanel);
+  dom.adhkarCloseBtn?.addEventListener('click', closeAdhkarPanel);
+  dom.adhkarNotifOpenBtn?.addEventListener('click', () => {
+    dismissAdhkarNotification();
+    if (!state.adhkarPanelOpen) toggleAdhkarPanel();
+    const catId = dom.adhkarNotification?.dataset.category;
+    if (catId) switchAdhkarTab(catId);
+  });
+  dom.adhkarNotifDismissBtn?.addEventListener('click', dismissAdhkarNotification);
+  dom.adhkarAddCloseBtn?.addEventListener('click', closeAdhkarAddDialog);
+  dom.adhkarAddSaveBtn?.addEventListener('click', savePersonalAdhkar);
+  dom.adhkarAddOverlay?.addEventListener('click', (e) => {
+    if (e.target === dom.adhkarAddOverlay) closeAdhkarAddDialog();
+  });
+  dom.adhkarEnabledToggle?.addEventListener('click', () => {
+    const on = dom.adhkarEnabledToggle.classList.toggle('on');
+    state.adhkarSettings.adhkar_enabled = on;
+    saveAdhkarSettings();
+  });
+  dom.adhkarSoundToggle?.addEventListener('click', () => {
+    const on = dom.adhkarSoundToggle.classList.toggle('on');
+    state.adhkarSettings.adhkar_sound = on;
+    saveAdhkarSettings();
+  });
+  dom.adhkarPanel?.addEventListener('click', (e) => {
+    if (e.target === dom.adhkarPanel) closeAdhkarPanel();
+  });
 
   /* ========== KEYBOARD SHORTCUTS ========== */
   document.addEventListener('keydown', (e) => {

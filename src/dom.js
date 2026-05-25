@@ -29,7 +29,13 @@ const DOM_IDS = [
    'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn', 'kbdToggleBtn',
   'langSelect',
   'translationSelect', 'translationToggle', 'translationPanel',
-  'welcomeScreen', 'welcomeDismissBtn'
+  'welcomeScreen', 'welcomeDismissBtn',
+  'adhkarBtn', 'adhkarPanel', 'adhkarCloseBtn', 'adhkarTabs', 'adhkarContent',
+  'adhkarEnabledToggle', 'adhkarSoundToggle', 'adhkarSettingsList',
+  'adhkarNotification', 'adhkarNotifIcon', 'adhkarNotifTitle',
+  'adhkarNotifOpenBtn', 'adhkarNotifDismissBtn',
+  'adhkarAddOverlay', 'adhkarAddCloseBtn', 'adhkarAddText',
+  'adhkarAddCount', 'adhkarAddTime', 'adhkarAddDuration', 'adhkarAddSaveBtn'
 ];
 
 export function cacheDom() {

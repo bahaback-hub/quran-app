@@ -57,6 +57,7 @@
     <div class="header-buttons">
       <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع الليلي" title="الوضع الليلي">🌙</button>
       <button class="mode-btn mode-toggle" id="modeToggleBtn" aria-label="تبديل وضع العرض">📄 وضع المصحف</button>
+      <button class="mode-btn" id="adhkarBtn" aria-label="فتح الأذكار" title="الأذكار">🕌 الأذكار</button>
     </div>
     <h1>📖 القرآن الكريم</h1>
   </header>
@@ -375,6 +376,19 @@
   </div>
 
   <div class="settings-section">
+    <div class="settings-section-title">🕌 الأذكار</div>
+    <div class="settings-row">
+      <label>تفعيل التذكير العام:</label>
+      <div class="toggle-switch on" id="adhkarEnabledToggle" role="switch" aria-label="تفعيل التذكير"></div>
+    </div>
+    <div class="settings-row">
+      <label>🔔 صوت التنبيه:</label>
+      <div class="toggle-switch on" id="adhkarSoundToggle" role="switch" aria-label="صوت التنبيه"></div>
+    </div>
+    <div id="adhkarSettingsList"></div>
+  </div>
+
+  <div class="settings-section">
     <div class="settings-section-title">🎨 العرض</div>
     <div class="settings-row">
       <label for="fontSizeSelect">حجم الخط:</label>
@@ -416,6 +430,59 @@
     </div>
   </div>
 </aside>
+
+<!-- ========== لوحة الأذكار ========== -->
+<aside class="adhkar-panel" id="adhkarPanel" aria-label="الأذكار">
+  <div class="adhkar-header">
+    <h2>🕌 الأذكار</h2>
+    <button class="adhkar-close" id="adhkarCloseBtn" aria-label="إغلاق الأذكار">✖</button>
+  </div>
+  <div class="adhkar-tabs" id="adhkarTabs"></div>
+  <div class="adhkar-content" id="adhkarContent">
+    <p style="text-align:center;color:#888;">🕌 اختر تبويباً لبدء الأذكار</p>
+  </div>
+</aside>
+
+<!-- ========== إشعار الأذكار ========== -->
+<div class="adhkar-notification" id="adhkarNotification" role="alert" aria-live="assertive" style="display:none;">
+  <div class="adhkar-notification-inner">
+    <div class="adhkar-notification-icon" id="adhkarNotifIcon">🌅</div>
+    <div class="adhkar-notification-title" id="adhkarNotifTitle">حان وقت الأذكار</div>
+    <div class="adhkar-notification-actions">
+      <button class="btn btn-gold" id="adhkarNotifOpenBtn">🕌 فتح الأذكار</button>
+      <button class="btn" id="adhkarNotifDismissBtn">⏰ لاحقاً</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== إضافة ذكر شخصي ========== -->
+<div class="adhkar-add-overlay" id="adhkarAddOverlay" aria-label="إضافة ذكر جديد" style="display:none;">
+  <div class="adhkar-add-inner">
+    <div class="adhkar-add-header">
+      <h3>📝 إضافة ذكر جديد</h3>
+      <button class="btn" id="adhkarAddCloseBtn">✖</button>
+    </div>
+    <div class="adhkar-add-body">
+      <div class="settings-row">
+        <label for="adhkarAddText">نص الذكر:</label>
+        <textarea id="adhkarAddText" rows="3" placeholder="اكتب الذكر هنا..."></textarea>
+      </div>
+      <div class="settings-row">
+        <label for="adhkarAddCount">عدد التكرار:</label>
+        <input type="number" id="adhkarAddCount" value="1" min="1" max="999">
+      </div>
+      <div class="settings-row">
+        <label for="adhkarAddTime">وقت التذكير (اختياري):</label>
+        <input type="time" id="adhkarAddTime">
+      </div>
+      <div class="settings-row">
+        <label for="adhkarAddDuration">مدة الإشعار (دقائق):</label>
+        <input type="number" id="adhkarAddDuration" value="1" min="1" max="60">
+      </div>
+      <button class="btn btn-gold" id="adhkarAddSaveBtn">💾 حفظ الذكر</button>
+    </div>
+  </div>
+</div>
 
 <!-- ========== لوحة المفضلة ========== -->
 <aside class="favorites-panel" id="favoritesPanel" aria-label="الآيات المفضلة">

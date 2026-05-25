@@ -12,6 +12,7 @@ const files = [
   'src/translations/ar.js',
   'src/translations/en.js',
   'src/i18n.js',
+  'src/adhkar-data.js',
   'src/app.js',
   'src/main.js'
 ];
