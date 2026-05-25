@@ -1901,7 +1901,11 @@ function prepareAudioForNewSurah() {
 function renderSurah(textData) {
   if (!dom.surahContent) return;
 
-  let html = `<h2 class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}</h2>`;
+  let html = `<h2 class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}`;
+  if (SURAH_SECRETS[textData.number]) {
+    html += ` <button class="surah-secret-title-btn" data-surah="${textData.number}" data-surahname="${escapeHtml(textData.name)}" title="سرّ السورة" aria-label="سرّ السورة">🌟</button>`;
+  }
+  html += `</h2>`;
   if (textData.number !== 1 && textData.number !== 9) {
     html += '<p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>';
   }
@@ -1931,6 +1935,13 @@ function renderSurah(textData) {
   while (temp.firstChild) fragment.appendChild(temp.firstChild);
   dom.surahContent.replaceChildren(fragment);
   attachAyahEvents();
+  const secretBtn = dom.surahContent.querySelector('.surah-secret-title-btn');
+  if (secretBtn) {
+    secretBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showSurahSecret(parseInt(secretBtn.dataset.surah, 10), secretBtn.dataset.surahname);
+    });
+  }
 }
 
 function buildAyahWordsHtml(text, ayahIdx) {
