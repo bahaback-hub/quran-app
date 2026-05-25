@@ -739,8 +739,8 @@ body.night-mode .floating-info { background: rgba(255,255,255,0.08); }
   font-weight: bold;
   color: var(--text-primary);
 }
-.expanded-header #playerReciterName {
-  font-size: 13px;
+.expanded-header #playerSurahName {
+  font-size: 15px;
   color: var(--text-muted);
   font-weight: normal;
 }
