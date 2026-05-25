@@ -8,6 +8,7 @@ import {
   stripTashkeel
 } from './utils.js';
 import { __, getLang, setLang } from './i18n.js';
+import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 
 /* Continue Reading Widget Styles - injected once */
 const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
@@ -1903,9 +1904,12 @@ function populateSurahOverlay() {
   if (!dom.mushafSurahOverlayList || !state.surahList.length) return;
   dom.mushafSurahOverlayList.innerHTML = '';
   for (const s of state.surahList) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;';
     const btn = document.createElement('button');
     btn.className = 'mushaf-surah-overlay-btn';
     btn.textContent = `${s.number}. ${s.name} (${s.englishName})`;
+    btn.style.flex = '1';
     btn.dataset.surah = s.number;
     btn.addEventListener('click', async () => {
       dom.mushafSurahOverlay.style.display = 'none';
@@ -1924,8 +1928,41 @@ function populateSurahOverlay() {
         loadingBar.hide();
       }
     });
-    dom.mushafSurahOverlayList.appendChild(btn);
+    row.appendChild(btn);
+    if (SURAH_SECRETS[s.number]) {
+      const secretBtn = document.createElement('button');
+      secretBtn.className = 'surah-secret-btn';
+      secretBtn.textContent = '🌟';
+      secretBtn.title = 'سرّ السورة';
+      secretBtn.setAttribute('aria-label', `سرّ سورة ${s.name}`);
+      secretBtn.dataset.surah = s.number;
+      secretBtn.dataset.surahName = s.name;
+      secretBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showSurahSecret(parseInt(secretBtn.dataset.surah, 10), secretBtn.dataset.surahName);
+      });
+      row.appendChild(secretBtn);
+    }
+    dom.mushafSurahOverlayList.appendChild(row);
   }
+}
+
+function showSurahSecret(surahNum, surahName) {
+  if (!dom.surahSecretsOverlay || !dom.surahSecretsBody || !dom.surahSecretsTitle || !dom.surahSecretsSurahName) return;
+  const secret = SURAH_SECRETS[surahNum];
+  if (!secret) {
+    showToast('لا يوجد سر مسجل لهذه السورة', 'error');
+    return;
+  }
+  dom.surahSecretsSurahName.textContent = `🌟 ${surahNum}. ${surahName}`;
+  dom.surahSecretsTitle.textContent = `🌟 سرّ السورة`;
+  let html = `<p>${secret}</p>`;
+  const authKeys = SURAH_SECRETS_AUTH_KEYS[surahNum];
+  if (authKeys && authKeys.length) {
+    html += `<div class="secret-source">📚 المصادر: ${authKeys.map(k => `<span>${k}</span>`).join(' ')}</div>`;
+  }
+  dom.surahSecretsBody.innerHTML = html;
+  dom.surahSecretsOverlay.style.display = 'flex';
 }
 
 function playMushafAyah(surahNum, ayahNum) {
@@ -2633,6 +2670,9 @@ export async function initApp() {
   });
   dom.mushafSurahOverlayClose?.addEventListener('click', () => { if (dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
   dom.mushafSurahOverlay?.addEventListener('click', (e) => { if (e.target === dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
+  dom.surahSecretsCloseBtn?.addEventListener('click', () => { if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none'; });
+  dom.surahSecretsOverlay?.addEventListener('click', (e) => { if (e.target === dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none'; });
+
   dom.pageSlider?.addEventListener('input', () => {
     const p = parseInt(dom.pageSlider.value, 10);
     if (dom.pageSelect) dom.pageSelect.value = p;
@@ -2712,6 +2752,7 @@ export async function initApp() {
       case '0': applyFontSize(28); break;
       case 'Escape':
         closeSettings(); closeFavorites();
+        if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none';
         if (dom.searchResults) dom.searchResults.style.display = 'none';
         if (dom.shareMenu) dom.shareMenu.classList.remove('show');
         closeTafsir();
