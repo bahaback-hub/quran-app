@@ -24,7 +24,7 @@ const DOM_IDS = [
   'tafsirCurtainHandle', 'tafsirCurtain', 'tafsirCurtainHeader',
   'tafsirCurtainBody', 'tafsirSelect', 'bgSelect', 'loadingProgress',
   'modeToggleBtn', 'pageSelect', 'pageIndicator', 'surahModeControls',
-  'azanNotification', 'azanNotifStopBtn',
+  'azanNotification', 'azanNotifPrayer', 'azanNotifStopBtn',
   'mushafSurahOverlay', 'mushafSurahOverlayClose',
    'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn', 'kbdToggleBtn',
   'langSelect',
