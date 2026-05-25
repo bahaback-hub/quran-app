@@ -1430,9 +1430,9 @@ noscript > div {
   top: 16px;
   left: 16px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   z-index: 10;
 }
 .mode-btn.mode-toggle {
