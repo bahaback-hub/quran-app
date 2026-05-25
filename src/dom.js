@@ -33,6 +33,7 @@ const DOM_IDS = [
   'adhkarBtn', 'adhkarPanel', 'adhkarCloseBtn', 'adhkarTabs', 'adhkarContent',
   'adhkarEnabledToggle', 'adhkarSoundToggle', 'adhkarSettingsList',
   'adhkarNotification', 'adhkarNotifIcon', 'adhkarNotifTitle',
+  'adhkarNotifText', 'adhkarNotifProgress', 'adhkarNotifCountBtn',
   'adhkarNotifOpenBtn', 'adhkarNotifDismissBtn',
   'adhkarAddOverlay', 'adhkarAddCloseBtn', 'adhkarAddText',
   'adhkarAddCount', 'adhkarAddTime', 'adhkarAddDuration', 'adhkarAddSaveBtn'
