@@ -1435,26 +1435,31 @@ noscript > div {
   gap: 6px;
   z-index: 10;
 }
-.mode-btn.mode-toggle {
-  background: rgba(255,255,255,0.12);
-  color: #fff;
-  padding: 6px 12px;
+.mode-toggle-control {
+  background: var(--controls-bg);
+  color: var(--text-secondary);
+  padding: 6px 10px;
   border-radius: 8px;
   cursor: pointer;
-  border: 1.5px solid rgba(255,255,255,0.25);
+  border: 1.5px solid var(--border-soft);
   font-size: 12px;
   white-space: nowrap;
   transition: all 0.3s ease;
   font-family: inherit;
   font-weight: bold;
+  height: 34px;
+  display: flex;
+  align-items: center;
 }
-.mode-btn.mode-toggle:hover {
-  background: rgba(255,255,255,0.25);
-}
-.mode-btn.mode-toggle.mushaf-active {
-  background: var(--accent-dark);
+.mode-toggle-control:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+  color: var(--accent-dark);
+}
+.mode-toggle-control.mushaf-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #2c3e50;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
   color: #2c3e50;
 }
 
