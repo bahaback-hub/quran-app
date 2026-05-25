@@ -1690,7 +1690,7 @@ function togglePrayerBar() {
 async function toggleMushafMode() {
   state.mushafMode = !state.mushafMode;
   if (state.mushafMode) {
-    dom.modeToggleBtn.innerHTML = '<img src="mushaf-icon.png" alt="" class="mode-toggle-icon"> وضع السورة';
+    dom.modeToggleBtn.innerHTML = '📖 وضع السورة';
     dom.modeToggleBtn.classList.add('mushaf-active');
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
