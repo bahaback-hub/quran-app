@@ -143,6 +143,7 @@ export async function loadPrayerTimes() {
       state.prayerTimes = data.data.timings;
       storage.set('cached_prayer_times', { date: new Date().toDateString(), timings: state.prayerTimes, city, country });
       renderPrayerTimes();
+      checkAzanTime();
       scheduleNextAzanCheck();
       return;
     }
@@ -152,6 +153,7 @@ export async function loadPrayerTimes() {
     if (cached && cached.date === new Date().toDateString() && cached.city === city && cached.country === country) {
       state.prayerTimes = cached.timings;
       renderPrayerTimes();
+      checkAzanTime();
       scheduleNextAzanCheck();
       showToast('عرض المواقيت من الكاش المحلي', 'success');
     } else {
@@ -2503,6 +2505,7 @@ export async function initApp() {
   loadFavorites();
   startClock();
 
+  checkAzanTime();
   scheduleNextAzanCheck();
 
   await loadSurahList();
