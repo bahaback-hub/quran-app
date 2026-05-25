@@ -122,8 +122,7 @@ function initState() {
     translationEnabled: false,
     currentTranslation: null,
     translationData: null,
-    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
-    adhkarNotifCategory: null, adhkarNotifItemIndex: 0, adhkarNotifPersonalId: null
+    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null
   };
 }
 
@@ -2280,10 +2279,6 @@ function showAdhkarNotification(cat, notifDuration) {
   dom.adhkarNotification.dataset.category = cat.id || 'personal';
   dom.adhkarNotification.style.display = 'flex';
 
-  state.adhkarNotifCategory = cat.id;
-  state.adhkarNotifItemIndex = 0;
-  state.adhkarNotifPersonalId = cat.id === 'personal' ? (cat._personalId || null) : null;
-
   if (state.adhkarSettings.adhkar_sound) {
     try {
       const audio = new Audio('data/notification.mp3');
@@ -2297,71 +2292,42 @@ function showAdhkarNotification(cat, notifDuration) {
     dom.adhkarNotification.style.display = 'none';
   }, duration);
 
-  renderNotifAdhkarItem();
+  renderNotifAdhkarText(cat);
 }
 
-function renderNotifAdhkarItem() {
+function renderNotifAdhkarText(cat) {
   if (!dom.adhkarNotifText) return;
-  const catId = state.adhkarNotifCategory;
-  if (catId === 'personal') {
-    const personal = state.adhkarSettings.personal_adhkar || [];
-    const p = personal.find(x => x.id === state.adhkarNotifPersonalId);
-    if (p) {
-      dom.adhkarNotifText.textContent = p.text;
-      dom.adhkarNotifProgress.textContent = `🔄 ${p.count} مرة`;
-      dom.adhkarNotifCountBtn.style.display = 'inline-block';
-      dom.adhkarNotifCountBtn.onclick = null;
-      dom.adhkarNotifCountBtn.onclick = () => {
-        const key = `item_personal_${p.id}`;
-        const curr = state.adhkarSettings[key] || 0;
-        if (curr < p.count) {
-          state.adhkarSettings[key] = curr + 1;
-        } else {
-          state.adhkarSettings[key] = 0;
-        }
-        saveAdhkarSettings();
-        const remaining = Math.max(0, p.count - (state.adhkarSettings[key] || 0));
-        dom.adhkarNotifProgress.textContent = `🔄 ${p.count} مرة — متبقي ${remaining}`;
-      };
-    }
+
+  if (cat.id === 'personal') {
+    dom.adhkarNotifText.textContent = cat.name || '';
+    dom.adhkarNotifProgress.textContent = '';
     return;
   }
 
-  const cat = ADHKAR_DATA.categories.find(c => c.id === catId);
-  if (!cat) return;
-  const items = cat.items.filter(item => {
+  const category = ADHKAR_DATA.categories.find(c => c.id === cat.id);
+  if (!category) return;
+
+  let text = '';
+  let count = 0;
+  let total = 0;
+  for (const item of category.items) {
+    total++;
     const key = `item_${item.id}`;
     const counter = state.adhkarSettings[key] || 0;
-    return counter < item.count;
-  });
-
-  if (items.length === 0) {
-    dom.adhkarNotifText.textContent = '✅ تم إكمال جميع الأذكار لهذا الوقت';
-    dom.adhkarNotifProgress.textContent = '';
-    dom.adhkarNotifCountBtn.style.display = 'none';
-    return;
+    if (counter < item.count) {
+      if (text) text += '\n\n';
+      text += item.text;
+      count++;
+    }
   }
 
-  const idx = Math.min(state.adhkarNotifItemIndex, items.length - 1);
-  const item = items[idx];
-  const key = `item_${item.id}`;
-  const counter = state.adhkarSettings[key] || 0;
-  const remaining = item.count - counter;
-
-  dom.adhkarNotifText.textContent = item.text;
-  dom.adhkarNotifProgress.textContent = `🔄 ${item.count} مرة — متبقي ${remaining} — 📚 ${item.reference}`;
-  dom.adhkarNotifCountBtn.style.display = 'inline-block';
-  dom.adhkarNotifCountBtn.onclick = null;
-  dom.adhkarNotifCountBtn.onclick = () => {
-    const cur = state.adhkarSettings[key] || 0;
-    if (cur < item.count) {
-      state.adhkarSettings[key] = cur + 1;
-    } else {
-      state.adhkarSettings[key] = 0;
-    }
-    saveAdhkarSettings();
-    renderNotifAdhkarItem();
-  };
+  if (!text) {
+    dom.adhkarNotifText.textContent = '✅ تم إكمال جميع الأذكار لهذا الوقت';
+    dom.adhkarNotifProgress.textContent = '';
+  } else {
+    dom.adhkarNotifText.textContent = text;
+    dom.adhkarNotifProgress.textContent = `📖 ${count} ذكر من ${total}`;
+  }
 }
 
 function dismissAdhkarNotification() {
