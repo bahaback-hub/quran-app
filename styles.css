@@ -2309,7 +2309,7 @@ body.night-mode .adhkar-header h2 { color: var(--accent); }
 }
 
 /* ===== زر الأذكار في الرأس ===== */
-.adhkar-header-btn {
+.adhkar-header-btn, .favorites-header-btn {
   background: none;
   border: none;
   font-size: 22px;
@@ -2324,7 +2324,7 @@ body.night-mode .adhkar-header h2 { color: var(--accent); }
   transition: background 0.2s, transform 0.2s;
   line-height: 1;
 }
-.adhkar-header-btn:hover {
+.adhkar-header-btn:hover, .favorites-header-btn:hover {
   background: rgba(255,255,255,0.15);
   transform: scale(1.15);
 }
