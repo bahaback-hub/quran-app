@@ -64,98 +64,90 @@
   <!-- ========== أدوات التحكم ========== -->
   <section class="controls" aria-label="أدوات التحكم">
     <div class="controls-row">
-      <div class="control-group surah-mode-controls" id="surahModeControls">
-        <label for="surahSelect">السورة:</label>
-        <select id="surahSelect" aria-label="اختيار السورة"></select>
-      </div>
-      <select id="pageSelect" aria-label="اختيار صفحة المصحف" style="display:none;"></select>
-      <input type="range" id="pageSlider" min="1" max="604" value="1" style="display:none;">
-      <div class="control-group">
-        <label for="reciterSelect">القارئ:</label>
-        <select id="reciterSelect" aria-label="اختيار القارئ">
-          <option value="ar.alafasy">مشاري العفاسي</option>
-          <option value="ar.abdulbasitmurattal">عبد الباسط عبد الصمد</option>
-          <option value="ar.abdurrahmaansudais">عبد الرحمن السديس</option>
-          <option value="ar.husary">محمود خليل الحصري</option>
-          <option value="ar.minshawi">محمد صديق المنشاوي</option>
-          <option value="ar.muhammadayyoub">محمد أيوب</option>
-          <option value="ar.aliabdurrahmanalhuthaify">علي الحذيفي</option>
-          <option value="ar.shaatree">أبو بكر الشاطري</option>
-        </select>
-       </div>
-      <div class="control-group search-input-group">
-        <div class="search-input-wrapper">
-          <input id="searchInput" type="text" placeholder="ابحث..." aria-label="مربع البحث" autocomplete="off">
-          <button class="kbd-toggle-btn" id="kbdToggleBtn" aria-label="إظهار لوحة المفاتيح" title="لوحة المفاتيح">⌨</button>
-          <button class="voice-search-btn" id="voiceSearchBtn" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
+      <div class="controls-right">
+        <div class="control-group surah-mode-controls" id="surahModeControls">
+          <label for="surahSelect">السورة:</label>
+          <select id="surahSelect" aria-label="اختيار السورة"></select>
         </div>
-        <div class="arabic-keyboard" id="arabicKeyboard" dir="ltr">
-          <div class="kbd-row">
-            <button class="kbd-key" data-key="ذ">ذ</button>
-            <button class="kbd-key" data-key="١">١</button>
-            <button class="kbd-key" data-key="٢">٢</button>
-            <button class="kbd-key" data-key="٣">٣</button>
-            <button class="kbd-key" data-key="٤">٤</button>
-            <button class="kbd-key" data-key="٥">٥</button>
-            <button class="kbd-key" data-key="٦">٦</button>
-            <button class="kbd-key" data-key="٧">٧</button>
-            <button class="kbd-key" data-key="٨">٨</button>
-            <button class="kbd-key" data-key="٩">٩</button>
-            <button class="kbd-key" data-key="٠">٠</button>
-            <button class="kbd-key" data-key="-">-</button>
-            <button class="kbd-key" data-key="=">=</button>
-          </div>
-          <div class="kbd-row">
-            <button class="kbd-key" data-key="ض">ض</button>
-            <button class="kbd-key" data-key="ص">ص</button>
-            <button class="kbd-key" data-key="ث">ث</button>
-            <button class="kbd-key" data-key="ق">ق</button>
-            <button class="kbd-key" data-key="ف">ف</button>
-            <button class="kbd-key" data-key="غ">غ</button>
-            <button class="kbd-key" data-key="ع">ع</button>
-            <button class="kbd-key" data-key="ه">ه</button>
-            <button class="kbd-key" data-key="خ">خ</button>
-            <button class="kbd-key" data-key="ح">ح</button>
-            <button class="kbd-key" data-key="ج">ج</button>
-            <button class="kbd-key" data-key="د">د</button>
-          </div>
-          <div class="kbd-row">
-            <button class="kbd-key" data-key="ش">ش</button>
-            <button class="kbd-key" data-key="س">س</button>
-            <button class="kbd-key" data-key="ي">ي</button>
-            <button class="kbd-key" data-key="ب">ب</button>
-            <button class="kbd-key" data-key="ل">ل</button>
-            <button class="kbd-key" data-key="ا">ا</button>
-            <button class="kbd-key" data-key="ت">ت</button>
-            <button class="kbd-key" data-key="ن">ن</button>
-            <button class="kbd-key" data-key="م">م</button>
-            <button class="kbd-key" data-key="ك">ك</button>
-            <button class="kbd-key" data-key="ط">ط</button>
-          </div>
-          <div class="kbd-row">
-            <button class="kbd-key" data-key="ئ">ئ</button>
-            <button class="kbd-key" data-key="ء">ء</button>
-            <button class="kbd-key" data-key="ؤ">ؤ</button>
-            <button class="kbd-key" data-key="ر">ر</button>
-            <button class="kbd-key" data-key="لا">لا</button>
-            <button class="kbd-key" data-key="ى">ى</button>
-            <button class="kbd-key" data-key="ة">ة</button>
-            <button class="kbd-key" data-key="و">و</button>
-            <button class="kbd-key" data-key="ز">ز</button>
-            <button class="kbd-key" data-key="ظ">ظ</button>
-          </div>
-          <div class="kbd-row">
-            <button class="kbd-key kbd-key-shift kbd-key-fixed" data-key="shift">⇧</button>
-            <button class="kbd-key kbd-key-fixed" data-key="space">⎵</button>
-            <button class="kbd-key kbd-key-backspace" data-key="backspace">⌫</button>
-            <button class="kbd-key kbd-key-clear" data-key="clear">مسح</button>
-          </div>
-        </div>
+        <select id="pageSelect" aria-label="اختيار صفحة المصحف" style="display:none;"></select>
+        <input type="range" id="pageSlider" min="1" max="604" value="1" style="display:none;">
+        <div class="control-group">
+          <label for="reciterSelect">القارئ:</label>
+          <select id="reciterSelect" aria-label="اختيار القارئ">
+            <option value="ar.alafasy">مشاري العفاسي</option>
+            <option value="ar.abdulbasitmurattal">عبد الباسط عبد الصمد</option>
+            <option value="ar.abdurrahmaansudais">عبد الرحمن السديس</option>
+            <option value="ar.husary">محمود خليل الحصري</option>
+            <option value="ar.minshawi">محمد صديق المنشاوي</option>
+            <option value="ar.muhammadayyoub">محمد أيوب</option>
+            <option value="ar.aliabdurrahmanalhuthaify">علي الحذيفي</option>
+            <option value="ar.shaatree">أبو بكر الشاطري</option>
+          </select>
+         </div>
       </div>
-      <button class="btn btn-gold btn-sm" id="searchBtn" aria-label="بدء البحث">🔎 بحث</button>
-      <button class="btn btn-sm" id="clearSearchBtn" aria-label="مسح النتائج">✖ مسح</button>
-      <span class="page-indicator" id="pageIndicator" style="display:none;">صفحة ١ من ٦٠٤</span>
       <button class="mode-toggle-control" id="modeToggleBtn" aria-label="تبديل وضع العرض">📄 وضع المصحف</button>
+      <div class="controls-left">
+        <span class="page-indicator" id="pageIndicator" style="display:none;">صفحة ١ من ٦٠٤</span>
+        <div class="control-group search-input-group">
+          <div class="search-input-wrapper">
+            <input id="searchInput" type="text" placeholder="ابحث..." aria-label="مربع البحث" autocomplete="off">
+            <button class="kbd-toggle-btn" id="kbdToggleBtn" aria-label="إظهار لوحة المفاتيح" title="لوحة المفاتيح">⌨</button>
+            <button class="voice-search-btn" id="voiceSearchBtn" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
+          </div>
+          <div class="arabic-keyboard" id="arabicKeyboard" dir="ltr">
+            <div class="kbd-row">
+              <button class="kbd-key" data-key="ذ">ذ</button>
+              <button class="kbd-key" data-key="١">١</button>
+              <button class="kbd-key" data-key="٢">٢</button>
+              <button class="kbd-key" data-key="٣">٣</button>
+              <button class="kbd-key" data-key="٤">٤</button>
+              <button class="kbd-key" data-key="٥">٥</button>
+              <button class="kbd-key" data-key="٦">٦</button>
+              <button class="kbd-key" data-key="٧">٧</button>
+              <button class="kbd-key" data-key="٨">٨</button>
+              <button class="kbd-key" data-key="٩">٩</button>
+              <button class="kbd-key" data-key="٠">٠</button>
+              <button class="kbd-key" data-key="-">-</button>
+              <button class="kbd-key" data-key="=">=</button>
+            </div>
+            <div class="kbd-row">
+              <button class="kbd-key" data-key="ض">ض</button>
+              <button class="kbd-key" data-key="ص">ص</button>
+              <button class="kbd-key" data-key="ث">ث</button>
+              <button class="kbd-key" data-key="ق">ق</button>
+              <button class="kbd-key" data-key="ف">ف</button>
+              <button class="kbd-key" data-key="غ">غ</button>
+              <button class="kbd-key" data-key="ع">ع</button>
+              <button class="kbd-key" data-key="ه">ه</button>
+              <button class="kbd-key" data-key="خ">خ</button>
+              <button class="kbd-key" data-key="ح">ح</button>
+              <button class="kbd-key" data-key="ج">ج</button>
+              <button class="kbd-key" data-key="د">د</button>
+            </div>
+            <div class="kbd-row">
+              <button class="kbd-key" data-key="ش">ش</button>
+              <button class="kbd-key" data-key="س">س</button>
+              <button class="kbd-key" data-key="ي">ي</button>
+              <button class="kbd-key" data-key="ب">ب</button>
+              <button class="kbd-key" data-key="ل">ل</button>
+              <button class="kbd-key" data-key="ا">ا</button>
+              <button class="kbd-key" data-key="ت">ت</button>
+              <button class="kbd-key" data-key="ن">ن</button>
+              <button class="kbd-key" data-key="م">م</button>
+              <button class="kbd-key" data-key="ك">ك</button>
+              <button class="kbd-key" data-key="ط">ط</button>
+            </div>
+            <div class="kbd-row">
+              <button class="kbd-key kbd-key-shift kbd-key-fixed" data-key="shift">⇧</button>
+              <button class="kbd-key kbd-key-fixed" data-key="space">⎵</button>
+              <button class="kbd-key kbd-key-backspace" data-key="backspace">⌫</button>
+              <button class="kbd-key kbd-key-clear" data-key="clear">مسح</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-gold btn-sm" id="searchBtn" aria-label="بدء البحث">🔎 بحث</button>
+        <button class="btn btn-sm" id="clearSearchBtn" aria-label="مسح النتائج">✖ مسح</button>
+      </div>
     </div>
   </section>
 
