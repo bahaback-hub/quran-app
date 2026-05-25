@@ -2244,12 +2244,15 @@ function checkAdhkarNotifications() {
 
   for (const cat of ADHKAR_DATA.categories) {
     const catSettings = state.adhkarSettings[cat.id];
-    if (!catSettings?.enabled || !cat.time) continue;
-    const [h, m] = cat.time.split(':').map(Number);
+    if (!catSettings?.enabled) continue;
+    const notifTime = catSettings.time || cat.defaultTime;
+    if (!notifTime) continue;
+    const [h, m] = notifTime.split(':').map(Number);
     const catMin = h * 60 + m;
     if (curMin === catMin && state.lastAdhkarFired !== cat.id + '_' + now.toDateString()) {
       state.lastAdhkarFired = cat.id + '_' + now.toDateString();
-      showAdhkarNotification(cat);
+      const notifDuration = catSettings.duration ?? cat.defaultDuration ?? 1;
+      showAdhkarNotification(cat, notifDuration);
       return;
     }
   }
@@ -2266,7 +2269,7 @@ function checkAdhkarNotifications() {
   }
 }
 
-function showAdhkarNotification(cat) {
+function showAdhkarNotification(cat, notifDuration) {
   if (!dom.adhkarNotification) return;
   dom.adhkarNotifIcon.textContent = cat.icon || '🕌';
   dom.adhkarNotifTitle.textContent = `🕌 ${cat.name}`;
@@ -2280,7 +2283,7 @@ function showAdhkarNotification(cat) {
     } catch (e) {}
   }
 
-  const duration = (cat.duration || 1) * 60 * 1000;
+  const duration = (notifDuration || cat.duration || 1) * 60 * 1000;
   if (state.adhkarNotificationTimer) clearTimeout(state.adhkarNotificationTimer);
   state.adhkarNotificationTimer = setTimeout(() => {
     dom.adhkarNotification.style.display = 'none';
