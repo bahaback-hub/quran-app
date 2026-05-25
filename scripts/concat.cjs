@@ -4,6 +4,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 const files = [
+  'src/surahs-data.js',
   'src/config.js',
   'src/storage.js',
   'src/dom.js',
