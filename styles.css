@@ -684,7 +684,7 @@ body.night-mode .surah-title { color: var(--accent); }
   text-align: center;
   overflow: hidden;
 }
-.player.expanded { padding: 12px 18px; }
+.player:not(.collapsed) { padding: 12px 18px; }
 .player.collapsed { padding: 6px 12px; height: 55px; }
 
 .expanded-content { display: flex; flex-direction: column; gap: 8px; }
@@ -1374,7 +1374,7 @@ noscript > div {
   .favorites-panel { left: -100%; }
   .tafsir-curtain { width: 92vw; left: -100vw; }
   .big-clock-time { font-size: 32px; }
-  .player.expanded { padding: 8px 10px; }
+  .player:not(.collapsed) { padding: 8px 10px; }
   .btn { padding: 6px 10px; font-size: 12px; }
   .player-buttons { gap: 5px; }
   .prayer-bar-item { padding: 3px 8px; font-size: 11px; }
