@@ -402,10 +402,23 @@ body.night-mode .control-group label { color: var(--accent); }
 .control-group input { min-width: 220px; cursor: text; }
 .controls-row {
   display: flex;
+  justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
   align-items: flex-end;
   width: 100%;
+}
+.controls-right {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.controls-left {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
 }
 .controls-row .control-group {
   min-width: 180px;
