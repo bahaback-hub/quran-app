@@ -1575,6 +1575,11 @@ body.night-mode .surah-secrets-overlay-inner { background: #1e2330; }
   display: flex;
   align-items: center;
 }
+.mode-toggle-icon {
+  width: 20px;
+  height: 20px;
+  margin-left: 5px;
+}
 .mode-toggle-control:hover {
   border-color: var(--accent);
   color: var(--accent-dark);
