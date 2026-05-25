@@ -2241,6 +2241,7 @@ function checkAdhkarNotifications() {
   if (!state.adhkarSettings?.adhkar_enabled) return;
   const now = new Date();
   const curMin = now.getHours() * 60 + now.getMinutes();
+  const today = now.toDateString();
 
   for (const cat of ADHKAR_DATA.categories) {
     const catSettings = state.adhkarSettings[cat.id];
@@ -2249,8 +2250,9 @@ function checkAdhkarNotifications() {
     if (!notifTime) continue;
     const [h, m] = notifTime.split(':').map(Number);
     const catMin = h * 60 + m;
-    if (curMin === catMin && state.lastAdhkarFired !== cat.id + '_' + now.toDateString()) {
-      state.lastAdhkarFired = cat.id + '_' + now.toDateString();
+    const fireKey = cat.id + '_' + today;
+    if (curMin >= catMin && state.lastAdhkarFired !== fireKey) {
+      state.lastAdhkarFired = fireKey;
       const notifDuration = catSettings.duration ?? cat.defaultDuration ?? 1;
       showAdhkarNotification(cat, notifDuration);
       return;
@@ -2261,8 +2263,9 @@ function checkAdhkarNotifications() {
     if (!p.time) continue;
     const [h, m] = p.time.split(':').map(Number);
     const pMin = h * 60 + m;
-    if (curMin === pMin && state.lastAdhkarFired !== 'personal_' + p.id + '_' + now.toDateString()) {
-      state.lastAdhkarFired = 'personal_' + p.id + '_' + now.toDateString();
+    const fireKey = 'personal_' + p.id + '_' + today;
+    if (curMin >= pMin && state.lastAdhkarFired !== fireKey) {
+      state.lastAdhkarFired = fireKey;
       showAdhkarNotification({ id: 'personal', icon: '📝', name: p.text, duration: p.duration || 1 });
       return;
     }
@@ -2387,7 +2390,8 @@ export async function initApp() {
 
   bindAudioEvents();
 
-  setInterval(checkAdhkarNotifications, 30000);
+  checkAdhkarNotifications();
+  setInterval(checkAdhkarNotifications, 15000);
 
   /* ========== EVENT BINDINGS ========== */
 
