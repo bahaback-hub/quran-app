@@ -177,7 +177,18 @@ body:not(.bg-css) {
   border-bottom: 3px solid var(--accent);
   transition: all 0.3s ease;
   overflow: hidden;
+  position: relative;
 }
+.prayer-bar #collapseBarBtn,
+.prayer-bar #expandBarBtn {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.prayer-bar.expanded #expandBarBtn { display: none; }
+.prayer-bar.collapsed #collapseBarBtn { display: none; }
 .prayer-bar.collapsed { height: 48px; }
 .prayer-bar.expanded { height: auto; }
 .prayer-bar-inner { padding: 12px 20px; }
