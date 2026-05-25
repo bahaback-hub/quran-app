@@ -1690,7 +1690,7 @@ function togglePrayerBar() {
 async function toggleMushafMode() {
   state.mushafMode = !state.mushafMode;
   if (state.mushafMode) {
-    dom.modeToggleBtn.textContent = '📖 وضع السورة';
+    dom.modeToggleBtn.innerHTML = '<img src="mushaf-icon.png" alt="" class="mode-toggle-icon"> وضع السورة';
     dom.modeToggleBtn.classList.add('mushaf-active');
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
@@ -1712,7 +1712,7 @@ async function toggleMushafMode() {
     updatePageIndicator(state.currentPage);
     loadPage(state.currentPage);
   } else {
-    dom.modeToggleBtn.textContent = '📄 وضع المصحف';
+    dom.modeToggleBtn.innerHTML = '<img src="mushaf-icon.png" alt="" class="mode-toggle-icon"> وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
     
