@@ -2012,7 +2012,24 @@ function renderAdhkarCategory(categoryId) {
   const cat = ADHKAR_DATA.categories.find(c => c.id === categoryId);
   if (!cat) return;
   const settings = state.adhkarSettings;
-  let html = `<div class="adhkar-category-title">${cat.icon} ${cat.name}</div>`;
+  const catSettings = settings[cat.id] || {};
+  const enabled = !!catSettings.enabled;
+  const notifTime = catSettings.time || cat.defaultTime || '';
+  const notifDur = catSettings.duration ?? cat.defaultDuration ?? 1;
+  let html = `<div class="adhkar-category-title">${cat.icon} ${cat.name}</div>
+    <div class="adhkar-category-options" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding:8px 12px;background:var(--controls-bg);border-radius:8px;">
+      <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;">
+        <div class="adhkar-cat-toggle toggle-switch${enabled ? ' on' : ''}" data-category="${cat.id}" role="switch" style="transform:scale(0.85);"></div>
+        تذكير
+      </label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
+        ⏰ <input type="time" class="adhkar-cat-time" data-category="${cat.id}" value="${notifTime}" style="border:1px solid var(--border-soft);border-radius:6px;padding:2px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);width:80px;">
+      </label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
+        🔔 <input type="number" class="adhkar-cat-duration" data-category="${cat.id}" value="${notifDur}" min="1" max="60" style="border:1px solid var(--border-soft);border-radius:6px;padding:2px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);width:50px;"> دقيقة
+      </label>
+      <span style="font-size:11px;color:var(--text-muted);">${enabled ? '✅ التنبيه مفعّل' : '⏸ التنبيه متوقف'}</span>
+    </div>`;
   for (const item of cat.items) {
     const counter = settings[`item_${item.id}`] || 0;
     const remaining = Math.max(0, item.count - counter);
@@ -2039,6 +2056,33 @@ function renderAdhkarCategory(categoryId) {
   });
   dom.adhkarContent.querySelectorAll('[data-action="reset"]').forEach(btn => {
     btn.addEventListener('click', () => resetAdhkarCounters(btn.dataset.category));
+  });
+
+  /* Category options (toggle, time, duration) */
+  dom.adhkarContent.querySelectorAll('.adhkar-cat-toggle').forEach(el => {
+    el.addEventListener('click', () => {
+      const catId = el.dataset.category;
+      if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
+      state.adhkarSettings[catId].enabled = el.classList.toggle('on');
+      saveAdhkarSettings();
+      renderAdhkarCategory(catId);
+    });
+  });
+  dom.adhkarContent.querySelectorAll('.adhkar-cat-time').forEach(el => {
+    el.addEventListener('change', () => {
+      const catId = el.dataset.category;
+      if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
+      state.adhkarSettings[catId].time = el.value;
+      saveAdhkarSettings();
+    });
+  });
+  dom.adhkarContent.querySelectorAll('.adhkar-cat-duration').forEach(el => {
+    el.addEventListener('change', () => {
+      const catId = el.dataset.category;
+      if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
+      state.adhkarSettings[catId].duration = parseInt(el.value, 10) || 1;
+      saveAdhkarSettings();
+    });
   });
 }
 
