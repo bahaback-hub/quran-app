@@ -618,7 +618,7 @@ function updatePlayerInfo() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
   const reciterText = dom.reciterSelect?.options[dom.reciterSelect.selectedIndex]?.text || '';
-  if (dom.playerSurahName) dom.playerSurahName.textContent = `سورة ${state.surahData.name}`;
+  if (dom.playerSurahName) dom.playerSurahName.textContent = state.surahData.name;
   if (dom.playerReciterName) dom.playerReciterName.textContent = reciterText;
   if (dom.playerCurrentAyah && a) {
     const preview = a.text.length > 80 ? a.text.substring(0, 80) + '...' : a.text;
