@@ -82,7 +82,7 @@ const DOM_IDS = [
   'adhkarBtn', 'adhkarPanel', 'adhkarCloseBtn', 'adhkarTabs', 'adhkarContent',
   'adhkarEnabledToggle', 'adhkarSoundToggle', 'adhkarSettingsList',
   'adhkarNotification', 'adhkarNotifIcon', 'adhkarNotifTitle',
-  'adhkarNotifText', 'adhkarNotifProgress',
+  'adhkarNotifText', 'adhkarNotifProgress', 'adhkarNotifShareBtn',
   'adhkarNotifOpenBtn', 'adhkarNotifDismissBtn',
   'adhkarAddOverlay', 'adhkarAddCloseBtn', 'adhkarAddText',
   'adhkarAddCount', 'adhkarAddTime', 'adhkarAddDuration', 'adhkarAddSaveBtn'
@@ -3110,7 +3110,29 @@ function playMushafAyah(surahNum, ayahNum) {
 /* ===================== ADHKAR ===================== */
 
 function loadAdhkarSettings() {
-  state.adhkarSettings = storage.get('adhkar_settings') || getDefaultAdhkarSettings();
+  const saved = storage.get('adhkar_settings');
+  const defaults = getDefaultAdhkarSettings();
+  if (saved) {
+    for (const key of Object.keys(defaults)) {
+      if (saved[key] === undefined) saved[key] = defaults[key];
+    }
+    state.adhkarSettings = saved;
+  } else {
+    state.adhkarSettings = defaults;
+  }
+  /* Auto-reset counters on new day */
+  const today = new Date().toDateString();
+  if (state.adhkarSettings._resetDate !== today) {
+    for (const key of Object.keys(state.adhkarSettings)) {
+      if (key.startsWith('item_')) state.adhkarSettings[key] = 0;
+    }
+    state.adhkarSettings._resetDate = today;
+    saveAdhkarSettings();
+  }
+}
+
+function saveAdhkarSettings() {
+  storage.set('adhkar_settings', state.adhkarSettings);
 }
 
 function saveAdhkarSettings() {
@@ -3421,6 +3443,25 @@ function checkAdhkarNotifications() {
   }
 }
 
+function playNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.15);
+      osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+    });
+  } catch (e) {}
+}
+
 function showAdhkarNotification(cat, notifDuration) {
   if (!dom.adhkarNotification) return;
   dom.adhkarNotifIcon.textContent = cat.icon || '🕌';
@@ -3428,12 +3469,7 @@ function showAdhkarNotification(cat, notifDuration) {
   dom.adhkarNotification.dataset.category = cat.id || 'personal';
   dom.adhkarNotification.style.display = 'flex';
 
-  if (state.adhkarSettings.adhkar_sound) {
-    try {
-      const audio = new Audio('data/notification.mp3');
-      audio.play().catch(() => {});
-    } catch (e) {}
-  }
+  if (state.adhkarSettings.adhkar_sound) playNotificationSound();
 
   const duration = (notifDuration || cat.duration || 1) * 60 * 1000;
   if (state.adhkarNotificationTimer) clearTimeout(state.adhkarNotificationTimer);
@@ -3450,6 +3486,10 @@ function renderNotifAdhkarText(cat) {
   if (cat.id === 'personal') {
     dom.adhkarNotifText.textContent = cat.name || '';
     dom.adhkarNotifProgress.textContent = '';
+    if (dom.adhkarNotifShareBtn) dom.adhkarNotifShareBtn.onclick = () => {
+      copyToClipboard(cat.name || '');
+      showToast('📋 تم نسخ الذكر', 'success');
+    };
     return;
   }
 
@@ -3473,9 +3513,17 @@ function renderNotifAdhkarText(cat) {
   if (!text) {
     dom.adhkarNotifText.textContent = '✅ تم إكمال جميع الأذكار لهذا الوقت';
     dom.adhkarNotifProgress.textContent = '';
+    if (dom.adhkarNotifShareBtn) dom.adhkarNotifShareBtn.style.display = 'none';
   } else {
     dom.adhkarNotifText.textContent = text;
     dom.adhkarNotifProgress.textContent = `📖 ${count} ذكر من ${total}`;
+    if (dom.adhkarNotifShareBtn) {
+      dom.adhkarNotifShareBtn.style.display = 'inline-block';
+      dom.adhkarNotifShareBtn.onclick = () => {
+        copyToClipboard(text);
+        showToast('📋 تم نسخ الأذكار', 'success');
+      };
+    }
   }
 }
 
