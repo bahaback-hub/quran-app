@@ -2303,6 +2303,27 @@ body.night-mode .adhkar-header h2 { color: var(--accent); }
   transition: width 0.3s ease;
 }
 
+/* ===== زر الأذكار في الرأس ===== */
+.adhkar-header-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  line-height: 1;
+}
+.adhkar-header-btn:hover {
+  background: rgba(255,255,255,0.15);
+  transform: scale(1.15);
+}
+
 /* ===== أزرار الأذكار الشخصية ===== */
 .adhkar-personal-actions {
   display: flex;
