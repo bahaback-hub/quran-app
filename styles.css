@@ -378,29 +378,6 @@ body:not(.bg-css) {
   align-items: flex-end;
   justify-content: space-between;
 }
-.controls-extras {
-  background: var(--controls-bg);
-  border-bottom: 2px solid var(--border-soft);
-  padding: 0 18px 12px;
-  animation: slideDown 0.25s ease;
-}
-@keyframes slideDown {
-  from { max-height: 0; opacity: 0; }
-  to { max-height: 300px; opacity: 1; }
-}
-.controls-extras-inner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-end;
-  padding-top: 10px;
-  border-top: 1px solid var(--border-soft);
-}
-.controls-extras-actions {
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
 .control-group { display: flex; flex-direction: column; gap: 5px; }
 .control-group label { font-size: 13px; font-weight: bold; color: var(--primary-light); }
 body.night-mode .control-group label { color: var(--accent); }
