@@ -2656,35 +2656,11 @@ export async function initApp() {
   document.querySelectorAll('[data-share="whatsapp"]').forEach(btn => btn.addEventListener('click', () => { shareWhatsApp(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="telegram"]').forEach(btn => btn.addEventListener('click', () => { shareTelegram(); toggleShareMenu(); }));
 
-  const extras = document.getElementById('controlsExtras');
   dom.searchBtn?.addEventListener('click', () => {
-    if (extras && extras.style.display !== 'block') {
-      extras.style.display = 'block';
-      setTimeout(() => dom.searchInput?.focus(), 100);
-      return;
-    }
     const q = dom.searchInput?.value.trim();
     if (!q) return;
-    if (state.searchType === 'root') performRootSearch(q);
-    else performExactSearch(q);
+    performExactSearch(q);
   });
-  const extrasToggle = document.getElementById('extrasToggleBtn');
-  if (extrasToggle && extras) {
-    extrasToggle.addEventListener('click', () => {
-      const shown = extras.style.display === 'block';
-      extras.style.display = shown ? 'none' : 'block';
-    });
-  }
-  const searchBtn2 = document.getElementById('searchBtn2');
-  if (searchBtn2) {
-    searchBtn2.addEventListener('click', () => {
-      const q = dom.searchInput?.value.trim();
-      if (!q) return;
-      if (state.searchType === 'root') performRootSearch(q);
-      else performExactSearch(q);
-    });
-  }
-
   dom.clearSearchBtn?.addEventListener('click', () => {
     if (dom.searchResults) dom.searchResults.style.display = 'none';
     if (dom.searchInput) dom.searchInput.value = '';
