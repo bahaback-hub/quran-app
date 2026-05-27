@@ -1,3 +1,4 @@
+import { copyToClipboard } from './share.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';

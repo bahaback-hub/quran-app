@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { dom } from '../dom.js';
-import { state, renderSurah, buildShareText } from '../app.js';
+import { state, renderSurah } from '../app.js';
+import { buildShareText } from '../share.js';
 
 const sampleAyahs = [
   { numberInSurah: 1, text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ' },
