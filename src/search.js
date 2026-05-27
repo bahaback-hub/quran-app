@@ -202,6 +202,52 @@ export function initKeyboard() {
   });
 }
 
+/**
+ * Highlight search keyword in original Uthmani text by mapping match positions
+ * from normalized text back to original character positions.
+ */
+function buildSearchHighlight(text, query) {
+  const normQuery = normalizeExactText(query);
+  if (!normQuery) return escapeHtml(text);
+  const normText = normalizeExactText(text);
+  const diacriticRE = /[\u064B-\u065F\u0670\u0610-\u061A\u06D6-\u06ED\u08D0-\u08E3]/;
+  const map = [];
+  let normIdx = 0;
+  for (let i = 0; i < text.length; i++) {
+    if (diacriticRE.test(text[i])) {
+      map.push(-1);
+    } else {
+      map.push(normIdx);
+      normIdx++;
+    }
+  }
+  const matches = [];
+  const re = new RegExp(escapeRegExp(normQuery), 'gi');
+  let m;
+  while ((m = re.exec(normText)) !== null) {
+    matches.push({ start: m.index, end: m.index + normQuery.length });
+  }
+  if (!matches.length) return escapeHtml(text);
+  const origRanges = matches.map(match => {
+    let origStart = -1, origEnd = -1;
+    for (let i = 0; i < map.length; i++) {
+      if (map[i] === match.start && origStart === -1) origStart = i;
+      if (map[i] === match.end - 1) origEnd = i;
+    }
+    if (origEnd === -1) origEnd = text.length - 1;
+    return { start: origStart, end: origEnd + 1 };
+  }).filter(r => r.start !== -1);
+  let result = '';
+  let lastEnd = 0;
+  for (const range of origRanges) {
+    result += escapeHtml(text.slice(lastEnd, range.start));
+    result += '<mark class="search-highlight">' + escapeHtml(text.slice(range.start, range.end)) + '</mark>';
+    lastEnd = range.end;
+  }
+  result += escapeHtml(text.slice(lastEnd));
+  return result;
+}
+
 function renderSearchResults(matches, query) {
   if (!dom.searchResults) return;
   dom.searchResults.innerHTML = '';
@@ -215,10 +261,7 @@ function renderSearchResults(matches, query) {
     <button class="search-results-close" id="closeSearchResultsBtn" aria-label="إغلاق">✖</button>
   </div>`;
   for (const m of matches) {
-    const normText = normalizeExactText(m.text);
-    const safeText = escapeHtml(normText);
-    const safeQuery = escapeRegExp(normalizeExactText(query));
-    const highlighted = safeText.replace(new RegExp(safeQuery, 'gi'), '<mark class="search-highlight">$&</mark>');
+    const highlighted = buildSearchHighlight(m.text, query);
     html += `<div class="search-result-item">
       <div class="search-result-title">${escapeHtml(m.surahName || '')} — آية ${m.ayah}</div>
       <div class="search-result-text">${highlighted}</div>
