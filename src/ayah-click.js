@@ -42,7 +42,7 @@ export async function handlePageClick(pageNum, clickX, clickY, imgWidth, imgHeig
   if (lineIndex < 0 || lineIndex >= totalLines) return null;
 
   const line = layout.lines[lineIndex];
-  if (!line || line.type !== 'text') return null;
+  if (!line || (line.type !== 'text' && line.type !== 'basmalah')) return null;
 
   const words = line.words || [];
   if (words.length === 0) return null;
@@ -92,7 +92,7 @@ export async function getAyahHighlightRects(pageNum, surah, ayah, imgWidth, imgH
 
   for (let lineIndex = 0; lineIndex < totalLines; lineIndex++) {
     const line = layout.lines[lineIndex];
-    if (!line || line.type !== 'text') continue;
+    if (!line || (line.type !== 'text' && line.type !== 'basmalah')) continue;
 
     const words = line.words || [];
     if (words.length === 0) continue;
