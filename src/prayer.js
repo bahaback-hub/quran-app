@@ -4,10 +4,6 @@ import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
 
-export function initPrayerState(s) {
-  state = s;
-}
-
 let countdownInterval = null;
 
 /* ===================== CLOCK ===================== */

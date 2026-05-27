@@ -9,11 +9,11 @@ import {
 import { __, getLang, setLang } from './i18n.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 /* modules */
-import { initPrayerState, loadPrayerTimes, startClock, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar } from './prayer.js';
-import { initTafsirState, loadTafsirForCurrentAyah, loadTafsirForSurahAyah, toggleTafsir } from './tafsir.js';
-import { initFavState, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark, loadFavorites, renderFavorites, setLoadSurahCallback } from './favorites.js';
-import { initShareState, buildShareText, toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
-import { initSettingsState, applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
+import { loadPrayerTimes, startClock, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar } from './prayer.js';
+import { loadTafsirForCurrentAyah, loadTafsirForSurahAyah, toggleTafsir } from './tafsir.js';
+import { toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark, loadFavorites, renderFavorites, setLoadSurahCallback } from './favorites.js';
+import { buildShareText, toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
+import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
 
 /* Continue Reading Widget Styles - injected once */
@@ -1012,27 +1012,6 @@ async function shareSpecificAyah(surah, ayah) {
     showToast('📋 تم نسخ الآية للمشاركة', 'success');
   }
 }
-
-function copyToClipboard(text) {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); } catch (_) { }
-  document.body.removeChild(ta);
-}
-
-/* ===================== SHARE ===================== */
 
 /* ===================== VISIBILITY ===================== */
 

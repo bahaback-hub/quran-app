@@ -5,10 +5,6 @@ import { showToast } from './ui.js';
 import { stopAzan, loadPrayerTimes } from './prayer.js';
 import { renderAdhkarSettingsList } from './adhkar.js';
 
-export function initSettingsState(s) {
-  state = s;
-}
-
 /* ===================== FONT SIZE ===================== */
 
 export function applyFontSize(size) {
