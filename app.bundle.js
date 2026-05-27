@@ -1987,6 +1987,7 @@ async function initApp() {
     const surahNum = parseInt(dom.surahSelect.value, 10);
     if (state.mushafMode) {
       state.currentSurah = surahNum;
+      state.currentAyahIndex = 0;
       fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
         .then(res => res.json())
         .then(data => {
@@ -4593,6 +4594,9 @@ function populateSurahOverlay() {
     btn.dataset.surah = String(s.number);
     btn.addEventListener('click', async () => {
       dom.mushafSurahOverlay.style.display = 'none';
+      state.currentSurah = s.number;
+state.currentAyahIndex = 0;
+
       loadingBar.show(`⏳ البحث عن أول صفحة لسورة ${s.name}...`);
       try {
         const res = await fetch(`${CONFIG.API_BASE}/ayah/${s.number}:1`);
@@ -4655,6 +4659,8 @@ async function highlightMushafAyah() {
   const surah = state.surahData?.number;
   const ayah = state.surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah;
   if (!surah || !ayah) return;
+  if (surah !== state.currentSurah) return;
+
 
   // Check if current ayah is on the displayed page
   const layout = await getPageLayout(state.currentPage);
