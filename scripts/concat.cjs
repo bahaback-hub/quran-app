@@ -21,6 +21,9 @@ const files = [
   'src/share.js',
   'src/settings.js',
   'src/adhkar.js',
+  'src/audio.js',
+  'src/search.js',
+  'src/mushaf.js',
   'src/main.js'
 ];
 
