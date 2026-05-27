@@ -1,3 +1,4 @@
+import { state } from "./state.js";
 import { CONFIG, JUZ_PAGES } from "./config.js";
 import { dom } from "./dom.js";
 import { storage } from "./storage.js";
@@ -5,6 +6,7 @@ import { showToast, loadingBar } from "./ui.js";
 import { escapeHtml, toArabicNumeral } from "./utils.js";
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from "./surahs-data.js";
 
+/** Toggle between mushaf mode and surah mode. */
 export async function toggleMushafMode() {
   state.mushafMode = !state.mushafMode;
   if (state.mushafMode) {
@@ -76,6 +78,7 @@ function updatePageIndicator(pageNum) {
   }
 }
 
+/** Load and render a mushaf page image. */
 export async function loadPage(pageNum) {
   if (!pageNum) return;
   state.currentPage = pageNum;

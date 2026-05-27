@@ -8,10 +8,7 @@ import {
 } from './utils.js';
 import { __, getLang, setLang } from './i18n.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
-/* modules */
-import { loadPrayerTimes, startClock, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar } from './prayer.js';
-import { loadTafsirForCurrentAyah, loadTafsirForSurahAyah, toggleTafsir } from './tafsir.js';
-import { toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark, loadFavorites, renderFavorites, setLoadSurahCallback } from './favorites.js';
+import { state } from './state.js';
 import { buildShareText, toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
@@ -106,8 +103,6 @@ function showContinueWidget(info) {
   }, 8000);
 }
 
-export let state = {};
-
 function initState() {
   state = {
     currentSurah: 1, currentAyahIndex: 0,
@@ -140,6 +135,7 @@ let surahOffsets = null;
 
 /* ===================== SURAH LIST ===================== */
 
+/** Load surah list from API or cache, then populate dropdown. */
 export async function loadSurahList() {
   const cached = storage.get('surah_list');
   if (cached && cached.length === CONFIG.SURAH_COUNT) {
@@ -209,6 +205,11 @@ function getAbsNumber(surah, ayah) {
 
 /* ===================== LOAD & RENDER SURAH ===================== */
 
+/**
+ * Load a surah (text + audio + translation), render it, finalize.
+ * @param {number} surahNum
+ * @param {{ startAyah?: number, autoPlay?: boolean }} [opts]
+ */
 export async function loadSurah(surahNum, opts = {}) {
   if (!surahNum) return;
   if (state.loadingSurah === surahNum) return;
@@ -308,6 +309,7 @@ export async function loadSurah(surahNum, opts = {}) {
 
 /* ===================== LOAD & RENDER SURAH ===================== */
 
+/** Render surah content into dom.surahContent. */
 export function renderSurah(textData) {
   if (!dom.surahContent) return;
 
@@ -389,6 +391,7 @@ function finalizeSurahLoad(opts) {
   if (state.autoSave) saveCurrentPosition();
 }
 
+/** Scroll to and highlight the current ayah. */
 export function highlightCurrentAyah() {
   document.querySelectorAll('.ayah').forEach(el => el.classList.remove('current'));
   const cur = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
@@ -480,6 +483,7 @@ function handleVisibilityChange() {
 
 /* ===================== INIT ===================== */
 
+/** Initialize the application: load state, data, bind events. */
 export async function initApp() {
   initState();
   loadingBar.init();

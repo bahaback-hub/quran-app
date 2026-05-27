@@ -1,7 +1,7 @@
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { stripTashkeel } from './utils.js';
-import { state } from './app.js';
+import { state } from './state.js';
 
 export function copyToClipboard(text) {
   if (navigator.clipboard) {

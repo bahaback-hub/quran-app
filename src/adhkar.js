@@ -1,3 +1,4 @@
+import { state } from './state.js';
 import { copyToClipboard } from './share.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';

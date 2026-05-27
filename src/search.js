@@ -1,3 +1,4 @@
+import { state } from "./state.js";
 import { copyToClipboard } from "./share.js";
 import { CONFIG } from "./config.js";
 import { dom } from "./dom.js";
@@ -5,6 +6,7 @@ import { storage } from "./storage.js";
 import { showToast, loadingBar } from "./ui.js";
 import { escapeHtml, escapeRegExp, normalizeExactText } from "./utils.js";
 
+/** Load full Quran text into IndexedDB for offline search. */
 export async function loadFullQuranText() {
   if (state.fullQuranLoaded) return;
   return new Promise((resolve) => {
@@ -63,6 +65,7 @@ export async function loadFullQuranText() {
   });
 }
 
+/** Search full Quran text for exact matches. */
 export function performExactSearch(query) {
   if (!query.trim() || query.length < 2) { showToast('أدخل حرفين على الأقل', 'error'); return; }
   if (!state.fullQuranLoaded) { showToast('⚠️ قاعدة القرآن تُحمَّل، انتظر قليلاً', 'error'); return; }
@@ -73,6 +76,7 @@ export function performExactSearch(query) {
 
 /* ===================== VOICE SEARCH ===================== */
 
+/** Start voice search (webkitSpeechRecognition). */
 export function startVoiceSearch() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
@@ -171,6 +175,7 @@ function handleKeyClick(e) {
   input.focus();
 }
 
+/** Build and attach the on-screen Arabic keyboard. */
 export function initKeyboard() {
   dom.kbdToggleBtn = document.getElementById('kbdToggleBtn');
   dom.kbdToggleBtn?.addEventListener('click', toggleKeyboard);

@@ -14,14 +14,15 @@
 
 ## Code Conventions
 - All functions must be `function` declarations (not arrow/const) — hoisting needed across concat boundaries
-- `state` is a single global object: `export let state = {}` in `src/app.js`, shared via script scope
+- `state` is a single global object in `src/state.js`: `export let state = {}` — imported by all modules
 - No `initXxxState` pattern — modules reference `state` directly
 - Cross-module functions used in concat scope (no imports needed at runtime)
 
 ## Module Files (`src/`)
 | File | Purpose |
 |------|---------|
-| `app.js` | Main orchestrator: state, initApp, loadSurah, renderSurah, event bindings |
+| `app.js` | Main orchestrator: initApp, loadSurah, renderSurah, event bindings |
+| `state.js` | Global state object shared by all modules |
 | `audio.js` | Audio player, word tracking, hifdh/repeat modes |
 | `search.js` | Full Quran text search, voice search, Arabic keyboard |
 | `mushaf.js` | Mushaf/pages mode, page navigation, surah overlay |
@@ -41,9 +42,10 @@
 
 ## Concat File Order (`scripts/concat.cjs`)
 1. Utility files (config, storage, dom, ui, utils, i18n, adhkar-data)
-2. `app.js` (defines `state`)
-3. Module files (prayer, tafsir, favorites, share, settings, adhkar, audio, search, mushaf)
-4. `main.js`
+2. `state.js` (defines `state`)
+3. `app.js` (imports state from state.js)
+4. Module files (prayer, tafsir, favorites, share, settings, adhkar, audio, search, mushaf)
+5. `main.js`
 
 ## DOM
 - All DOM references cached in `dom` object via `cacheDom()` in `src/dom.js`

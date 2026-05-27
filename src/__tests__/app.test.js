@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { state } from '../state.js';
 import { dom } from '../dom.js';
-import { state, renderSurah } from '../app.js';
+import { renderSurah } from '../app.js';
 import { buildShareText } from '../share.js';
 
 const sampleAyahs = [
