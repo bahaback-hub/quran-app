@@ -14,9 +14,10 @@
 
 ## Code Conventions
 - All functions must be `function` declarations (not arrow/const) — hoisting needed across concat boundaries
+- Every module has explicit imports for all cross-module functions it uses (no relying on concat hoisting)
 - `state` is a single global object in `src/state.js`: `export let state = {}` — imported by all modules
+- `initState()` uses `Object.assign(state, {...})` not `state = {...}` (imported binding is read-only in ES modules)
 - No `initXxxState` pattern — modules reference `state` directly
-- Cross-module functions used in concat scope (no imports needed at runtime)
 
 ## Module Files (`src/`)
 | File | Purpose |
@@ -60,6 +61,16 @@
 - Base URL: `https://cdn.jsdelivr.net/gh/bahaback-hub/quran-app@main/public/pages/`
 
 ## TypeScript
-- `tsconfig.json` with `allowJs: true`, `checkJs: false`
-- Global type declarations in `src/global.d.ts`
-- Type check with `npm run typecheck`
+- `tsconfig.json` with `allowJs: true`, **`checkJs: true`**
+- Global type declarations in `src/global.d.ts` (also extends DOM types like Element.dataset, EventTarget.result)
+- All JSDoc types in `src/state.js` define the 50+ properties of the global `state` object
+- Type check with `npm run typecheck` (must pass 0 errors)
+
+## Type Fixes for `checkJs: true`
+When adding new code that triggers TS errors:
+1. **`Element` DOM props** (`dataset`, `style`): already declared in `global.d.ts`
+2. **`EventTarget` props** (`result`): already declared in `global.d.ts`
+3. **IndexedDB events**: use `/** @type {IDBRequest} */ (e.target).result`
+4. **`contains(e.target)`**: use `/** @type {Node} */ (e.target)`
+5. **`select.value = number`**: use `String(number)`
+6. **New state props**: add JSDoc property to `src/state.js`
