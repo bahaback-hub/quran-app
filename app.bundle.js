@@ -4653,6 +4653,32 @@ async function highlightMushafAyah() {
   const ayah = state.surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah;
   if (!surah || !ayah) return;
 
+  // Check if current ayah is on the displayed page
+  const layout = await getPageLayout(state.currentPage);
+  if (layout) {
+    const isOnPage = layout.lines.some(line =>
+      (line.type === 'text' || line.type === 'basmalah') &&
+      line.words?.some(w => {
+        const parts = w.location.split(':');
+        return parts.length >= 2 && parseInt(parts[0], 10) === surah && parseInt(parts[1], 10) === ayah;
+      })
+    );
+    if (!isOnPage) {
+      try {
+        const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
+        const data = await res.json();
+        const page = data?.data?.page;
+        if (page && page !== state.currentPage) {
+          state.currentPage = page;
+          loadPage(page);
+          return;
+        }
+      } catch (e) {
+        console.warn('Failed to find page for ayah:', e);
+      }
+    }
+  }
+
   const rect = img.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
 

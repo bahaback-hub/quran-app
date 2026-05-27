@@ -8,7 +8,7 @@ import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from "./surahs-data.js";
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from "./app.js";
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from "./audio.js";
 import { loadTafsirForSurahAyah } from "./tafsir.js";
-import { handlePageClick, getAyahHighlightRects } from "./ayah-click.js";
+import { handlePageClick, getAyahHighlightRects, getPageLayout } from "./ayah-click.js";
 
 /** Toggle between mushaf mode and surah mode. */
 export async function toggleMushafMode() {
@@ -335,6 +335,32 @@ export async function highlightMushafAyah() {
   const surah = state.surahData?.number;
   const ayah = state.surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah;
   if (!surah || !ayah) return;
+
+  // Check if current ayah is on the displayed page
+  const layout = await getPageLayout(state.currentPage);
+  if (layout) {
+    const isOnPage = layout.lines.some(line =>
+      (line.type === 'text' || line.type === 'basmalah') &&
+      line.words?.some(w => {
+        const parts = w.location.split(':');
+        return parts.length >= 2 && parseInt(parts[0], 10) === surah && parseInt(parts[1], 10) === ayah;
+      })
+    );
+    if (!isOnPage) {
+      try {
+        const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
+        const data = await res.json();
+        const page = data?.data?.page;
+        if (page && page !== state.currentPage) {
+          state.currentPage = page;
+          loadPage(page);
+          return;
+        }
+      } catch (e) {
+        console.warn('Failed to find page for ayah:', e);
+      }
+    }
+  }
 
   const rect = img.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
