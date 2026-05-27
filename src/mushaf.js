@@ -35,6 +35,7 @@ export async function toggleMushafMode() {
     }
     
     updatePageIndicator(state.currentPage);
+    populateSurahOverlay();
     loadPage(state.currentPage);
     if (wasPlaying && dom.audioPlayer?.paused) {
       dom.audioPlayer.play().catch(() => {});
