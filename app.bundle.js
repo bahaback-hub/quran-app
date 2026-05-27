@@ -4341,7 +4341,7 @@ function renderMushafPageImage(pageNum) {
 
   const footer = document.createElement('div');
   footer.className = 'mushaf-footer';
-  footer.innerHTML = `<span class="mushaf-footer-ornament">۞</span> صفحة ${toArabicNumeral(pageNum)} — القرآن الكريم <span class="mushaf-footer-ornament">۞</span>`;
+  footer.innerHTML = `${toArabicNumeral(pageNum)}`;
 
   container.appendChild(header);
   container.appendChild(imgWrapper);
