@@ -530,6 +530,7 @@ export async function initApp() {
     if (!dom.surahSelect.value) return;
     const surahNum = parseInt(dom.surahSelect.value, 10);
     if (state.mushafMode) {
+      state.currentSurah = surahNum;
       fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
         .then(res => res.json())
         .then(data => {
