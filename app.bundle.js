@@ -4362,13 +4362,16 @@ async function toggleMushafMode() {
     dom.modeToggleBtn.innerHTML = '<img src="mushaf-icon.png" alt="" class="mode-toggle-icon"> وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
-    
-    let surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
-    let ayahToStart = (state.surahData?.number === surahToLoad && state.surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
-    
-    dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
-    if (wasPlaying && state.isPlaying) state.isPlaying = false;
-    setTimeout(() => loadSurah(surahToLoad, { startAyah: ayahToStart, autoPlay: wasPlaying }), 50);
+
+    if (state.surahData && state.surahData.number === state.currentSurah) {
+      renderSurah(state.surahData);
+      highlightCurrentAyah();
+      updatePlayerInfo();
+    } else {
+      let surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
+      dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
+      setTimeout(() => loadSurah(surahToLoad), 50);
+    }
   }
   storage.set('mushaf_mode', state.mushafMode);
 }
