@@ -1,133 +1,136 @@
-const CACHE_NAME = 'quran-app-v13';
-const API_CACHE = 'quran-api-cache-v3';
-const AUDIO_CACHE = 'quran-audio-cache-v1';
-const MUSHARAF_CACHE = 'quran-mushaf-v1';
-const AUDIO_CACHE_LIMIT = 300;
-const MUSHARAF_CACHE_LIMIT = 604;
+const CACHE = {
+  APP: 'quran-app-v14',
+  API: 'quran-api-cache-v4',
+  AUDIO: 'quran-audio-cache-v2',
+  MUSHARAF: 'quran-mushaf-v2',
+  QURAN_DATA: 'quran-full-text-v1'
+};
 
-const STATIC_ASSETS = [
+const AUDIO_LIMIT = 300;
+const MUSHARAF_LIMIT = 604;
+
+const ASSETS = [
   './',
   './index.html',
+  './app.bundle.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './azan.mp3',
+  './azan.mp3'
 ];
 
-const API_HOSTS = ['alquran.cloud', 'aladhan.com'];
-const CDN_HOSTS = ['cdn.jsdelivr.net'];
-const AUDIO_HOST = 'cdn.islamic.network';
+const CDN_BASE = 'https://cdn.jsdelivr.net/gh/bahaback-hub/quran-app@main/public/pages/';
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(c =>
-      c.addAll(STATIC_ASSETS).catch(err => console.warn('Some assets failed:', err))
-    ).then(() => {
-      // Pre-cache first 10 mushaf pages from local
-      const pages = [];
-      for (let i = 1; i <= 10; i++) {
-        const padded = String(i).padStart(3, '0');
-        pages.push(`./public/pages/page${padded}.png`);
-      }
-      return caches.open(MUSHARAF_CACHE).then(cache =>
-        Promise.allSettled(pages.map(url =>
-          cache.add(url).catch(() => {})
-        ))
-      );
-    })
+    caches.open(CACHE.APP).then(c => c.addAll(ASSETS).catch(() => {}))
+    .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
+  const valid = Object.values(CACHE);
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.map(k =>
-        ![CACHE_NAME, API_CACHE, AUDIO_CACHE, MUSHARAF_CACHE].includes(k) ? caches.delete(k) : null
-      ))
-    )
+      Promise.all(keys.map(k => valid.includes(k) ? null : caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-async function trimCache(cacheName, limit) {
+async function trim(cacheName, limit) {
   const cache = await caches.open(cacheName);
   const keys = await cache.keys();
   if (keys.length > limit) {
-    const toDelete = keys.slice(0, keys.length - limit);
-    await Promise.all(toDelete.map(k => cache.delete(k)));
+    await Promise.all(keys.slice(0, keys.length - limit).map(k => cache.delete(k)));
   }
+}
+
+function isCDNPage(url) {
+  return url.href.includes('pages/page') && url.href.endsWith('.png');
+}
+
+function isAudio(url) {
+  return url.hostname.includes('cdn.islamic.network');
+}
+
+function isAPI(url) {
+  return url.hostname.includes('alquran.cloud') || url.hostname.includes('aladhan.com');
+}
+
+function isQuranData(url) {
+  return url.pathname.includes('/quran/quran-uthmani');
 }
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
 
-  // Audio files: Cache First
-  if (url.hostname.includes(AUDIO_HOST)) {
+  // Full Quran text: cache-first, never expire
+  if (isQuranData(url)) {
     e.respondWith(
-      caches.open(AUDIO_CACHE).then(async cache => {
+      caches.open(CACHE.QURAN_DATA).then(async cache => {
         const cached = await cache.match(e.request);
         if (cached) return cached;
-        try {
-          const res = await fetch(e.request);
-          if (res && res.status === 200) {
-            cache.put(e.request, res.clone()).then(() => trimCache(AUDIO_CACHE, AUDIO_CACHE_LIMIT)).catch(() => {});
-          }
-          return res;
-        } catch {
-          return new Response('', { status: 503 });
-        }
-      })
+        const res = await fetch(e.request);
+        if (res.ok) cache.put(e.request, res.clone());
+        return res;
+      }).catch(() => caches.match(e.request))
     );
     return;
   }
 
-  // Mushaf page images: Cache First
-  if (url.pathname.includes('/pages/page') && url.pathname.endsWith('.png')) {
+  // CDN mushaf pages: cache-first
+  if (isCDNPage(url)) {
     e.respondWith(
-      caches.open(MUSHARAF_CACHE).then(async cache => {
+      caches.open(CACHE.MUSHARAF).then(async cache => {
         const cached = await cache.match(e.request);
         if (cached) return cached;
-        try {
-          const res = await fetch(e.request);
-          if (res && res.status === 200) {
-            cache.put(e.request, res.clone()).then(() => trimCache(MUSHARAF_CACHE, MUSHARAF_CACHE_LIMIT)).catch(() => {});
-          }
-          return res;
-        } catch {
-          return caches.match('./icon-512.png');
+        const res = await fetch(e.request);
+        if (res.ok) {
+          cache.put(e.request, res.clone()).then(() => trim(CACHE.MUSHARAF, MUSHARAF_LIMIT));
         }
-      })
+        return res;
+      }).catch(() => caches.match(CACHE.APP + '/icon-512.png'))
     );
     return;
   }
 
-  // API: Stale-While-Revalidate
-  const isApi = API_HOSTS.some(host => url.hostname.includes(host));
-  if (isApi) {
+  // Audio: cache-first
+  if (isAudio(url)) {
     e.respondWith(
-      caches.open(API_CACHE).then(async cache => {
+      caches.open(CACHE.AUDIO).then(async cache => {
         const cached = await cache.match(e.request);
-        const networkPromise = fetch(e.request).then(res => {
-          if (res && res.status === 200 && res.type !== 'opaque') {
-            cache.put(e.request, res.clone()).catch(() => {});
-          }
+        if (cached) return cached;
+        const res = await fetch(e.request);
+        if (res.ok) {
+          cache.put(e.request, res.clone()).then(() => trim(CACHE.AUDIO, AUDIO_LIMIT));
+        }
+        return res;
+      }).catch(() => new Response('', { status: 503 }))
+    );
+    return;
+  }
+
+  // API calls: stale-while-revalidate
+  if (isAPI(url)) {
+    e.respondWith(
+      caches.open(CACHE.API).then(async cache => {
+        const cached = await cache.match(e.request);
+        const net = fetch(e.request).then(res => {
+          if (res.ok && res.type !== 'opaque') cache.put(e.request, res.clone());
           return res;
         }).catch(() => cached);
-        return cached || networkPromise;
+        return cached || net;
       })
     );
     return;
   }
 
-  // Everything else (including Vite-built assets): Network First,
-  // fallback to cache then index.html
+  // Everything else: network-first, fallback to cache then index.html
   e.respondWith(
     fetch(e.request).then(res => {
-      if (res && res.status === 200 && res.type !== 'opaque') {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(c => c.put(e.request, clone)).catch(() => {});
+      if (res.ok && res.type !== 'opaque') {
+        caches.open(CACHE.APP).then(c => c.put(e.request, res.clone()));
       }
       return res;
     }).catch(async () => {
