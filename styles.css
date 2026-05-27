@@ -2031,6 +2031,39 @@ body.night-mode .word.current-word {
   box-shadow: none !important;
   border-color: transparent !important;
 }
+
+.search-autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--select-bg, #fff);
+  border: 1px solid var(--accent, #d4af37);
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.search-autocomplete-item {
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-color, #333);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.15s;
+}
+.search-autocomplete-item:hover,
+.search-autocomplete-item.active {
+  background: var(--hover-bg, rgba(212,175,55,0.15));
+}
+.search-autocomplete-item .count {
+  font-size: 11px;
+  color: var(--text-muted, #999);
+}
+
 .voice-search-btn {
   background: transparent !important;
   color: var(--primary);

@@ -16,7 +16,7 @@ import { buildShareText, toggleShareMenu, shareNative, shareCopy, shareCopySimpl
 import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
 import { playCurrentAyah, togglePlayPause, nextAyah, prevAyah, toggleHifdh, toggleRepeat, bindAudioEvents } from './audio.js';
-import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard } from './search.js';
+import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
 import { toggleMushafMode, loadPage } from './mushaf.js';
 
 /* Continue Reading Widget Styles - injected once */
@@ -665,6 +665,7 @@ export async function initApp() {
 
   dom.voiceSearchBtn?.addEventListener('click', startVoiceSearch);
   initKeyboard();
+  initSearchAutocomplete();
 
   document.addEventListener('click', (e) => {
     if (!dom.shareMenu?.contains(e.target) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');
