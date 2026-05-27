@@ -91,6 +91,7 @@ function showTafsirError() {
   dom.tafsirCurtainBody.scrollTop = 0;
 }
 
+/** Load & render tafsir for the currently-selected ayah. @returns {Promise<void>} */
 export async function loadTafsirForCurrentAyah() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
@@ -106,6 +107,7 @@ export async function loadTafsirForCurrentAyah() {
   else showTafsirError();
 }
 
+/** @param {number} surahNum @param {number} ayahNum @returns {Promise<void>} */
 export async function loadTafsirForSurahAyah(surahNum, ayahNum) {
   if (!dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition || CONFIG.DEFAULT_TAFSIR;
@@ -122,6 +124,7 @@ export async function loadTafsirForSurahAyah(surahNum, ayahNum) {
   else showTafsirError();
 }
 
+/** Open the tafsir curtain and load tafsir for current ayah. */
 export function openTafsir() {
   if (!dom.tafsirCurtain) return;
   dom.tafsirCurtain.classList.add('open');
@@ -129,11 +132,13 @@ export function openTafsir() {
   loadTafsirForCurrentAyah();
 }
 
+/** Close the tafsir curtain. */
 export function closeTafsir() {
   dom.tafsirCurtain?.classList.remove('open');
   dom.tafsirCurtainHandle?.classList.remove('open');
 }
 
+/** Toggle the tafsir curtain open/closed. */
 export function toggleTafsir() {
   if (!dom.tafsirCurtain) return;
   dom.tafsirCurtain.classList.contains('open') ? closeTafsir() : openTafsir();

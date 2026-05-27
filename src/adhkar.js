@@ -6,6 +6,7 @@ import { showToast } from './ui.js';
 import { escapeHtml } from './utils.js';
 import { ADHKAR_DATA } from './adhkar-data.js';
 
+/** Initialize adhkar state. */
 export function initAdhkarState() {
   // state is already imported from ./state.js
 }
@@ -24,6 +25,7 @@ function getDefaultAdhkarSettings() {
 
 /* ===================== LOAD / SAVE ===================== */
 
+/** Load adhkar settings from storage or set defaults; reset daily counters. */
 export function loadAdhkarSettings() {
   const saved = storage.get('adhkar_settings');
   const defaults = getDefaultAdhkarSettings();
@@ -51,6 +53,7 @@ function saveAdhkarSettings() {
 
 /* ===================== PANEL ===================== */
 
+/** Toggle the adhkar panel open/closed. */
 export function toggleAdhkarPanel() {
   state.adhkarPanelOpen = !state.adhkarPanelOpen;
   dom.adhkarPanel?.classList.toggle('open', state.adhkarPanelOpen);
@@ -61,6 +64,7 @@ export function toggleAdhkarPanel() {
   }
 }
 
+/** Close the adhkar panel. */
 export function closeAdhkarPanel() {
   state.adhkarPanelOpen = false;
   dom.adhkarPanel?.classList.remove('open');
@@ -410,6 +414,7 @@ function dismissAdhkarNotification() {
   }
 }
 
+/** Check all adhkar categories and personal adhkar for pending notifications. */
 export function checkAdhkarNotifications() {
   if (!state.adhkarSettings?.adhkar_enabled) return;
   const now = new Date();
@@ -453,6 +458,7 @@ function openAdhkarPanelFromNotif() {
 
 /* ===== Settings list in settings panel ===== */
 
+/** Render adhkar toggle/time/duration rows inside the settings panel. */
 export function renderAdhkarSettingsList() {
   if (!dom.adhkarSettingsList) return;
   let html = '';
@@ -502,6 +508,7 @@ export function renderAdhkarSettingsList() {
 }
 
 /* Wire up event listeners that need access to adhkar functions */
+/** Bind all adhkar-related DOM event listeners. */
 export function wireAdhkarEvents() {
   dom.adhkarBtn?.addEventListener('click', toggleAdhkarPanel);
   dom.adhkarCloseBtn?.addEventListener('click', closeAdhkarPanel);
