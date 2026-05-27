@@ -208,6 +208,11 @@ export function nextAyah(autoFromRepeat) {
     highlightCurrentAyah();
     if (autoFromRepeat || state.isPlaying) setTimeout(playCurrentAyah, 0);
   } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
+    if (state.mushafMode) {
+      state.isPlaying = false;
+      updatePlayPauseBtn();
+      return;
+    }
     nextSurah();
   }
 }

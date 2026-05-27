@@ -3650,6 +3650,11 @@ function nextAyah(autoFromRepeat) {
     highlightCurrentAyah();
     if (autoFromRepeat || state.isPlaying) setTimeout(playCurrentAyah, 0);
   } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
+    if (state.mushafMode) {
+      state.isPlaying = false;
+      updatePlayPauseBtn();
+      return;
+    }
     nextSurah();
   }
 }
@@ -4257,6 +4262,7 @@ async function handlePageClick(pageNum, clickX, clickY, imgWidth, imgHeight) {
 
 /** Toggle between mushaf mode and surah mode. */
 async function toggleMushafMode() {
+  const wasPlaying = state.isPlaying;
   state.mushafMode = !state.mushafMode;
   if (state.mushafMode) {
     dom.modeToggleBtn.innerHTML = '📖 وضع السورة';
@@ -4280,6 +4286,11 @@ async function toggleMushafMode() {
     
     updatePageIndicator(state.currentPage);
     loadPage(state.currentPage);
+    if (wasPlaying && dom.audioPlayer?.paused && dom.audioPlayer?.src) {
+      dom.audioPlayer.play().catch(() => {});
+      state.isPlaying = true;
+      updatePlayPauseBtn();
+    }
   } else {
     dom.modeToggleBtn.innerHTML = '<img src="mushaf-icon.png" alt="" class="mode-toggle-icon"> وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
