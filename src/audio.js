@@ -1,3 +1,4 @@
+import { state } from "./state.js";
 import { CONFIG } from "./config.js";
 import { dom } from "./dom.js";
 import { storage } from "./storage.js";
@@ -17,6 +18,7 @@ function prepareAudioForNewSurah() {
 }
 
 /* ===================== PLAYER ===================== */
+/** Play the current ayah audio. */
 export function playCurrentAyah() {
   if (!state.surahData || !state.ayahsAudios?.length) {
     showToast('لا توجد روابط صوت لهذه السورة', 'error');
@@ -100,6 +102,7 @@ function expandPlayer() {
   storage.set('player_collapsed', false);
 }
 
+/** Toggle play/pause. */
 export function togglePlayPause() {
   if (!state.surahData || !dom.audioPlayer) return;
   if (dom.audioPlayer.paused) {
@@ -110,6 +113,7 @@ export function togglePlayPause() {
   }
 }
 
+/** Bind audio player events (ended, play, pause, error). */
 export function bindAudioEvents() {
   if (dom.audioPlayer) {
     dom.audioPlayer.removeEventListener('ended', onAudioEnded);
@@ -175,6 +179,7 @@ function onAudioEnded() {
   nextAyah(true);
 }
 
+/** Go to next ayah (or next surah). */
 export function nextAyah(autoFromRepeat) {
   if (!state.surahData || !state.ayahsAudios) return;
   if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
@@ -186,6 +191,7 @@ export function nextAyah(autoFromRepeat) {
   }
 }
 
+/** Go to previous ayah (or previous surah). */
 export function prevAyah() {
   if (!state.surahData) return;
   if (state.currentAyahIndex > 0) {
@@ -202,6 +208,7 @@ function prevSurah() { if (state.currentSurah > 1) loadSurah(state.currentSurah 
 
 
 /* ===================== HIFDH & REPEAT ===================== */
+/** Toggle hifdh (memorization) mode. */
 export function toggleHifdh() {
   state.hifdhMode = !state.hifdhMode;
   dom.hifdhBtn?.classList.toggle('active', state.hifdhMode);
@@ -213,6 +220,7 @@ export function toggleHifdh() {
   showToast(state.hifdhMode ? '🧠 وضع الحفظ مفعّل' : 'وضع الحفظ مغلق', state.hifdhMode ? 'success' : '');
 }
 
+/** Toggle repeat mode. */
 export function toggleRepeat() {
   state.repeatMode = !state.repeatMode;
   state.repeatCounter = 0;

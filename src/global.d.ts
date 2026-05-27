@@ -1,4 +1,4 @@
-// Global state - defined in app.js, shared via concat scope
+// Global state — defined in state.js, shared via concat scope
 declare var state: Record<string, any>;
 
 // Cross-module functions - hoisted in concat build

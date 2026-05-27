@@ -14,6 +14,7 @@ const files = [
   'src/translations/en.js',
   'src/i18n.js',
   'src/adhkar-data.js',
+  'src/state.js',
   'src/app.js',
   'src/prayer.js',
   'src/tafsir.js',

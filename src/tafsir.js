@@ -1,3 +1,4 @@
+import { state } from './state.js';
 import { CONFIG } from './config.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';

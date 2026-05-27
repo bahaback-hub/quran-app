@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { state } from '../state.js';
 import { dom } from '../dom.js';
-import { state } from '../app.js';
 
 function toggleHifdh() {
   state.hifdhMode = !state.hifdhMode;
