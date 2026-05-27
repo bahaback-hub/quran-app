@@ -4380,7 +4380,7 @@ async function toggleMushafMode() {
     }
     
     dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
-    setTimeout(() => loadSurah(surahToLoad, { startAyah: ayahToStart }), 50);
+    setTimeout(() => loadSurah(surahToLoad, { startAyah: ayahToStart, autoPlay: wasPlaying }), 50);
   }
   storage.set('mushaf_mode', state.mushafMode);
 }
