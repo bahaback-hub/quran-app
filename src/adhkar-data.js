@@ -349,17 +349,3 @@ const ADHKAR_DATA = {
 };
 
 const ADHKAR_STORAGE_KEY = 'adhkar_settings';
-
-function getDefaultAdhkarSettings() {
-  const settings = {};
-  for (const cat of ADHKAR_DATA.categories) {
-    settings[cat.id] = { enabled: false, time: cat.defaultTime, duration: cat.defaultDuration };
-    for (const item of cat.items) {
-      settings[`item_${item.id}`] = 0;
-    }
-  }
-  settings.adhkar_enabled = false;
-  settings.adhkar_sound = true;
-  settings.personal_adhkar = [];
-  return settings;
-}
