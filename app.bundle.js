@@ -3525,9 +3525,29 @@ function onTimeUpdate() {
   const words = ayahEl.querySelectorAll('.word');
   if (words.length === 0) return;
 
-  const wordDuration = duration / words.length;
-  const wordIndex = Math.min(Math.floor(currentTime / wordDuration), words.length - 1);
-
+  // Weight each word by Arabic letter count (ignore diacritics)
+  const weights = [];
+  for (const w of words) {
+    const letters = (w.textContent.match(/[\u0621-\u064A\u0660-\u0669]/g) || []);
+    // Ensure every word has at least weight 1
+    weights.push(Math.max(1, letters.length));
+  }
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  // Reserve 4% pause between words
+  const pauseRatio = 0.04;
+  const speechRatio = 1 - pauseRatio * (words.length - 1);
+  // Compute start time for each word
+  let cumTime = 0;
+  const startTimes = [];
+  for (let i = 0; i < words.length; i++) {
+    startTimes.push(cumTime);
+    cumTime += (weights[i] / totalWeight) * speechRatio * duration + pauseRatio * duration;
+  }
+  // Find current word index
+  let wordIndex = words.length - 1;
+  for (let i = words.length - 1; i >= 0; i--) {
+    if (currentTime >= startTimes[i]) { wordIndex = i; break; }
+  }
   words.forEach((w, i) => {
     w.classList.toggle('current-word', i <= wordIndex);
   });
