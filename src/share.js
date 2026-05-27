@@ -2,8 +2,6 @@ import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { stripTashkeel } from './utils.js';
 
-export let state = {};
-
 export function initShareState(s) {
   state = s;
 }

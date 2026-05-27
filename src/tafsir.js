@@ -3,8 +3,6 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { escapeHtml } from './utils.js';
 
-export let state = {};
-
 export function initTafsirState(s) {
   state = s;
 }
