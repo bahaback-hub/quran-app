@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   escapeHtml, escapeRegExp, pad2, toArabicNumeral,
-  formatTime12, timeStrToMinutes, normalizeExactText, getArabicNumeral
+  formatTime12, timeStrToMinutes, normalizeExactText, normalizeRelaxed, getArabicNumeral
 } from '../utils.js';
 
 describe('escapeHtml', () => {
@@ -86,6 +86,41 @@ describe('normalizeExactText', () => {
   it('should normalize ya and taa marbuta', () => {
     expect(normalizeExactText('على')).toContain('علي');
     expect(normalizeExactText('رحمة')).toContain('رحمه');
+  });
+
+  it('should match standard spelling for common Uthmani words', () => {
+    // الرَّحْمَٰنِ → same normal form as الرحمن
+    expect(normalizeExactText('الرَّحْمَٰنِ').includes('الرحمن')).toBe(true);
+    // هَٰذَا → هذا
+    expect(normalizeExactText('هَٰذَا').includes('هذا')).toBe(true);
+    // ذَٰلِكَ → ذلك
+    expect(normalizeExactText('ذَٰلِكَ').includes('ذلك')).toBe(true);
+  });
+
+  it('should normalize the waw-dagger-alif pattern (صلاة)', () => {
+    // الصَّلَوٰة → الصلاة → matches user query الصلاة
+    const normalized = normalizeExactText('الصَّلَوٰة');
+    expect(normalized.includes('الصلاه')).toBe(true);
+
+    // الزَّكَوٰة → الزكاة
+    const normalized2 = normalizeExactText('الزَّكَوٰة');
+    expect(normalized2.includes('الزكاه')).toBe(true);
+
+    // الْحَيَوٰة → الحياة
+    const normalized3 = normalizeExactText('الْحَيَوٰة');
+    expect(normalized3.includes('الحياه')).toBe(true);
+  });
+});
+
+describe('normalizeRelaxed', () => {
+  it('should convert dagger alif to regular alif for words like السماوات', () => {
+    expect(normalizeRelaxed('الرَّحْمَٰنِ').includes('الرحمان')).toBe(true);
+    expect(normalizeRelaxed('هَٰذَا').includes('هاذا')).toBe(true);
+    expect(normalizeRelaxed('إِنسَٰن').includes('انسان')).toBe(true);
+  });
+
+  it('should remove extra waw in الصلاة pattern', () => {
+    expect(normalizeRelaxed('الصَّلَوٰة').includes('الصلاه')).toBe(true);
   });
 });
 

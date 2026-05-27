@@ -398,15 +398,52 @@ function timeStrToMinutes(t) {
   return parseInt(h, 10) * 60 + parseInt(m, 10);
 }
 
+/** Normalize Arabic text for search comparison.
+ *  Strips diacritics, unifies alef variants, normalizes Uthmani-specific patterns
+ *  so that standard Arabic query matches Uthmani Quran text.
+ */
 function normalizeExactText(str) {
-  return String(str)
-    .replace(/[\u064B-\u065F]/g, '')
-    .replace(/\u0670/g, 'ا')
-    .replace(/[إأآٱ]/g, 'ا')
+  let s = String(str);
+  // 1. Remove all tashkeel (harakat), dagger alif, and Uthmani marks
+  s = s.replace(/[\u064B-\u065F\u0670\u0610-\u061A\u06D6-\u06ED\u08D0-\u08E3]/g, '');
+  // 2. Normalize alef variants
+  s = s.replace(/[إأآٱٲٳٵ]/g, 'ا');
+  // 3. Alif maqsura → ya
+  s = s.replace(/ى/g, 'ي');
+  // 4. Ta marbuta → ha (standard Arabic ↔ Uthmani bridge)
+  s = s.replace(/ة/g, 'ه');
+  // 5. Hamza on waw → waw, hamza on ya → ya
+  s = s.replace(/ؤ/g, 'و');
+  s = s.replace(/ئ/g, 'ي');
+  s = s.replace(/ء/g, '');
+  // 6. Uthmani: و before word-final ه → ا (الصلاة ← الصلواة)
+  s = s.replace(/و(\S*ه(?!\S))/g, 'ا$1');
+  // 7. Final ت → ه (رحمت ← رحمة pattern in Uthmani)
+  s = s.replace(/ت(?!\S)/g, 'ه');
+  return s;
+}
+
+/** More aggressive normalizer for fuzzy fallback when exact search yields 0 results.
+ *  Converts dagger alif (U+0670) to ا instead of removing it, keeping alifs
+ *  for words like السماوات, الإنسان where the alif is written as dagger alif.
+ */
+function normalizeRelaxed(str) {
+  let s = normalizeExactText(str);
+  // Additional: convert any remaining dagger alif → ا (some Uthmani words keep alifs this way)
+  // Since step 1 in normalizeExactText removes U+0670, the "relaxed" version is different:
+  // we re-process from scratch with a different strategy
+  s = String(str)
+    .replace(/[\u064B-\u065F\u0610-\u061A\u06D6-\u06ED\u08D0-\u08E3]/g, '')  // remove tashkeel but KEEP U+0670
+    .replace(/\u0670/g, 'ا')  // convert dagger alif to regular alif
+    .replace(/[إأآٱٲٳٵ]/g, 'ا')
     .replace(/ى/g, 'ي')
     .replace(/ة/g, 'ه')
     .replace(/ؤ/g, 'و')
-    .replace(/ئ/g, 'ي');
+    .replace(/ئ/g, 'ي')
+    .replace(/ء/g, '')
+    .replace(/و(\S*ه(?!\S))/g, '$1')
+    .replace(/ت(?!\S)/g, 'ه');
+  return s;
 }
 
 function stripTashkeel(str) {
@@ -3722,12 +3759,18 @@ async function loadFullQuranText() {
   });
 }
 
-/** Search full Quran text for exact matches. */
+/** Search full Quran text for exact matches. Falls back to relaxed if no results. */
 function performExactSearch(query) {
   if (!query.trim() || query.length < 2) { showToast('أدخل حرفين على الأقل', 'error'); return; }
   if (!state.fullQuranLoaded) { showToast('⚠️ قاعدة القرآن تُحمَّل، انتظر قليلاً', 'error'); return; }
-  const normQuery = normalizeExactText(query.trim());
-  const matches = state.fullQuranText.filter(ayah => ayah.normalized.includes(normQuery)).slice(0, 100);
+  let normQuery = normalizeExactText(query.trim());
+  let matches = state.fullQuranText.filter(ayah => ayah.normalized.includes(normQuery)).slice(0, 100);
+  if (!matches.length) {
+    const relaxedQuery = normalizeRelaxed(query.trim());
+    if (relaxedQuery !== normQuery) {
+      matches = state.fullQuranText.filter(ayah => normalizeRelaxed(ayah.text).includes(relaxedQuery)).slice(0, 100);
+    }
+  }
   renderSearchResults(matches, query);
 }
 

@@ -4,7 +4,7 @@ import { CONFIG } from "./config.js";
 import { dom } from "./dom.js";
 import { storage } from "./storage.js";
 import { showToast, loadingBar } from "./ui.js";
-import { escapeHtml, escapeRegExp, normalizeExactText } from "./utils.js";
+import { escapeHtml, escapeRegExp, normalizeExactText, normalizeRelaxed } from "./utils.js";
 import { loadSurah, highlightCurrentAyah } from "./app.js";
 import { playCurrentAyah } from "./audio.js";
 
@@ -67,12 +67,18 @@ export async function loadFullQuranText() {
   });
 }
 
-/** Search full Quran text for exact matches. */
+/** Search full Quran text for exact matches. Falls back to relaxed if no results. */
 export function performExactSearch(query) {
   if (!query.trim() || query.length < 2) { showToast('أدخل حرفين على الأقل', 'error'); return; }
   if (!state.fullQuranLoaded) { showToast('⚠️ قاعدة القرآن تُحمَّل، انتظر قليلاً', 'error'); return; }
-  const normQuery = normalizeExactText(query.trim());
-  const matches = state.fullQuranText.filter(ayah => ayah.normalized.includes(normQuery)).slice(0, 100);
+  let normQuery = normalizeExactText(query.trim());
+  let matches = state.fullQuranText.filter(ayah => ayah.normalized.includes(normQuery)).slice(0, 100);
+  if (!matches.length) {
+    const relaxedQuery = normalizeRelaxed(query.trim());
+    if (relaxedQuery !== normQuery) {
+      matches = state.fullQuranText.filter(ayah => normalizeRelaxed(ayah.text).includes(relaxedQuery)).slice(0, 100);
+    }
+  }
   renderSearchResults(matches, query);
 }
 
