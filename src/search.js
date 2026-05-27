@@ -28,6 +28,7 @@ export async function loadFullQuranText() {
             state.fullQuranText = getReq.result.data;
             state.fullQuranText.forEach(a => { a.normalized = normalizeExactText(a.text); });
             state.fullQuranLoaded = true;
+            buildSearchWords();
             resolve();
           } else {
             showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
@@ -51,6 +52,7 @@ export async function loadFullQuranText() {
                }
               state.fullQuranText = ayahs;
               state.fullQuranLoaded = true;
+              buildSearchWords();
               try {
                 const tx2 = db.transaction('fullText', 'readwrite');
                 tx2.objectStore('fullText').put({ id: 'fullQuran', data: ayahs });
@@ -80,6 +82,108 @@ export function performExactSearch(query) {
     }
   }
   renderSearchResults(matches, query);
+}
+
+/* ===================== SEARCH AUTOCOMPLETE ===================== */
+
+export function buildSearchWords() {
+  if (!state.fullQuranText || state.searchWords?.length) return;
+  const freq = new Map();
+  for (const ayah of state.fullQuranText) {
+    const words = ayah.normalized.split(/\s+/);
+    for (const w of words) {
+      if (w.length < 2) continue;
+      freq.set(w, (freq.get(w) || 0) + 1);
+    }
+  }
+  state.searchWords = [...freq.entries()]
+    .map(([word, count]) => ({ word, count }))
+    .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word));
+}
+
+let _acIndex = -1;
+
+export function initSearchAutocomplete() {
+  const input = dom.searchInput;
+  const dropdown = document.getElementById('searchAutocomplete');
+  if (!input || !dropdown) return;
+
+  input.addEventListener('input', () => {
+    const val = input.value.trim();
+    if (!val || !state.searchWords?.length) {
+      dropdown.style.display = 'none';
+      _acIndex = -1;
+      return;
+    }
+    const normVal = normalizeExactText(val);
+    const suggestions = [];
+    for (const w of state.searchWords) {
+      if (suggestions.length >= 8) break;
+      if (w.word.startsWith(normVal)) suggestions.push(w);
+    }
+    if (!suggestions.length) {
+      dropdown.style.display = 'none';
+      _acIndex = -1;
+      return;
+    }
+    let html = '';
+    for (let i = 0; i < suggestions.length; i++) {
+      html += '<div class="search-autocomplete-item" data-index="' + i + '">'
+        + '<span>' + escapeHtml(suggestions[i].word) + '</span>'
+        + '<span class="count">' + suggestions[i].count + '</span>'
+        + '</div>';
+    }
+    dropdown.innerHTML = html;
+    dropdown.style.display = 'block';
+    _acIndex = -1;
+
+    dropdown.querySelectorAll('.search-autocomplete-item').forEach(el => {
+      el.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        input.value = el.querySelector('span').textContent;
+        dropdown.style.display = 'none';
+        performExactSearch(input.value);
+      });
+      el.addEventListener('mouseenter', () => {
+        dropdown.querySelectorAll('.search-autocomplete-item').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        _acIndex = parseInt(el.dataset.index, 10);
+      });
+    });
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (dropdown.style.display === 'none') return;
+    const items = dropdown.querySelectorAll('.search-autocomplete-item');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      _acIndex = Math.min(_acIndex + 1, items.length - 1);
+      items.forEach((c, i) => c.classList.toggle('active', i === _acIndex));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      _acIndex = Math.max(_acIndex - 1, 0);
+      items.forEach((c, i) => c.classList.toggle('active', i === _acIndex));
+    } else if (e.key === 'Enter' && _acIndex >= 0) {
+      e.preventDefault();
+      const sel = items[_acIndex];
+      if (sel) {
+        input.value = sel.querySelector('span').textContent;
+        dropdown.style.display = 'none';
+        performExactSearch(input.value);
+      }
+    } else if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+      _acIndex = -1;
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(/** @type {Node} */(e.target)) && e.target !== input) {
+      dropdown.style.display = 'none';
+      _acIndex = -1;
+    }
+  });
 }
 
 /* ===================== VOICE SEARCH ===================== */

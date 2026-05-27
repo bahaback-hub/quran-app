@@ -36,6 +36,7 @@
  *   currentPage: number,
  *   fullQuranText: Array<{surah: number, surahName: string, ayah: number, text: string, normalized: string}>|null,
  *   fullQuranLoaded: boolean,
+ *   searchWords: Array<{word: string, count: number}>,
  *   ayahWordElements: HTMLElement[]|null,
  *   translationEnabled: boolean,
  *   currentTranslation: string|null,
