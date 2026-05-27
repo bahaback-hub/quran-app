@@ -1,0 +1,18 @@
+// Global state - defined in app.js, shared via concat scope
+declare var state: Record<string, any>;
+
+// Cross-module functions - hoisted in concat build
+declare function loadSurah(surahNum: number, opts?: Record<string, any>): Promise<void>;
+declare function highlightCurrentAyah(): void;
+declare function playCurrentAyah(): void;
+declare function updatePlayerInfo(): void;
+declare function prepareAudioForNewSurah(): void;
+declare function updatePlayPauseBtn(): void;
+declare function expandPlayer(): void;
+declare function prevSurah(): void;
+declare function nextSurah(): void;
+declare function closeTafsir(): void;
+declare function hideAzanNotification(): void;
+declare function stopClock(): void;
+declare function loadTafsirForSurahAyah(surahNum: number, ayahNum: number): Promise<void>;
+declare function showSurahSecret(surahNum: number, surahName: string): void;
