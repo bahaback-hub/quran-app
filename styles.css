@@ -1620,53 +1620,37 @@ body.night-mode .surah-secrets-overlay-inner { background: #1e2330; }
 
 /* ===== رأس الصفحة ===== */
 .mushaf-header {
-  text-align: center;
-  padding: 10px 0 14px;
-  margin-bottom: 18px;
-  border-bottom: 3px double var(--accent);
-  position: relative;
+  padding: 6px 0 10px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--accent);
 }
-
-.mushaf-header::after {
-  content: '۞';
-  display: block;
-  font-size: 14px;
-  color: var(--accent);
-  opacity: 0.5;
-  margin-top: 4px;
-}
-
-.mushaf-page-num {
-  font-size: 26px;
-  color: var(--accent-dark);
-  font-weight: bold;
-  font-family: 'Traditional Arabic', 'Amiri', serif;
-  text-shadow: 1px 1px 0 rgba(212, 175, 55, 0.15);
-  letter-spacing: 2px;
-}
-
-.mushaf-surah-names {
-  font-size: 18px;
-  color: var(--accent-dark);
-  margin: 6px 0;
-  font-weight: bold;
+.mushaf-header-row {
   display: flex;
-  gap: 10px;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+}
+.mushaf-header-row .mushaf-surah-names {
+  font-size: 20px;
+  color: var(--accent-dark);
+  font-weight: bold;
+  margin: 0;
+  display: flex;
+  gap: 8px;
   flex-wrap: wrap;
 }
-.mushaf-surah-name {
+.mushaf-header-row .mushaf-surah-name {
   background: rgba(212, 175, 55, 0.1);
-  padding: 3px 12px;
-  border-radius: 15px;
-  font-size: 15px;
-}
-.mushaf-juz {
+  padding: 2px 10px;
+  border-radius: 12px;
   font-size: 16px;
-  color: var(--text-muted);
-  margin-top: 6px;
-  font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
 }
+.mushaf-header-row .mushaf-juz {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
+  white-space: nowrap;
+}
+
 
 body.night-mode .mushaf-container {
   background: #1e2330;

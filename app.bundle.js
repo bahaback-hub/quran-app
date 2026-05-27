@@ -4287,9 +4287,10 @@ function renderMushafPageImage(pageNum) {
   const header = document.createElement('div');
   header.className = 'mushaf-header';
   header.innerHTML = `
-    <div class="mushaf-page-num">صفحة ${toArabicNumeral(pageNum)}</div>
-    <div class="mushaf-surah-names" id="mushafSurahNames"></div>
-    <div class="mushaf-juz">الجزء ${toArabicNumeral(juz)}</div>
+    <div class="mushaf-header-row">
+      <div class="mushaf-surah-names" id="mushafSurahNames"></div>
+      <div class="mushaf-juz">الجزء ${toArabicNumeral(juz)}</div>
+    </div>
   `;
 
   const imgWrapper = document.createElement('div');
@@ -4367,7 +4368,7 @@ function renderMushafPageImage(pageNum) {
       if (surahNamesEl) {
         const seen = {};
         ayahs.forEach(a => { if (!seen[a.surah.number]) seen[a.surah.number] = a.surah.name; });
-        surahNamesEl.innerHTML = Object.values(seen).map(n => `<span class="mushaf-surah-name">📖 ${escapeHtml(n)}</span>`).join(' ');
+        surahNamesEl.innerHTML = Object.values(seen).map(n => `<span class="mushaf-surah-name">${escapeHtml(n)}</span>`).join(' ');
       }
 
       const bar = document.getElementById('mushafAyahBar');
