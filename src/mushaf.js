@@ -8,6 +8,7 @@ import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from "./surahs-data.js";
 import { loadSurah, updatePlayerInfo } from "./app.js";
 import { prepareAudioForNewSurah, playCurrentAyah } from "./audio.js";
 import { loadTafsirForSurahAyah } from "./tafsir.js";
+import { handlePageClick } from "./ayah-click.js";
 
 /** Toggle between mushaf mode and surah mode. */
 export async function toggleMushafMode() {
@@ -162,6 +163,25 @@ function renderMushafPageImage(pageNum) {
   imgWrapper.appendChild(img);
   imgWrapper.appendChild(navRight);
   imgWrapper.appendChild(navLeft);
+
+  imgWrapper.addEventListener('click', async function (e) {
+    const target = /** @type {Element} */ (e.target);
+    if (target.closest('.mushaf-page-nav')) return;
+    const rect = img.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const result = await handlePageClick(pageNum, x, y, rect.width, rect.height);
+    if (result) {
+      const bar = document.getElementById('mushafAyahBar');
+      if (bar) {
+        bar.querySelectorAll('.mushaf-ayah-btn').forEach(b => {
+          b.classList.toggle('current', parseInt(b.dataset.surah, 10) === result.surah && parseInt(b.dataset.ayah, 10) === result.ayah);
+        });
+      }
+      playMushafAyah(result.surah, result.ayah);
+      loadTafsirForSurahAyah(result.surah, result.ayah);
+    }
+  });
 
   const footer = document.createElement('div');
   footer.className = 'mushaf-footer';
