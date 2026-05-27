@@ -17,7 +17,7 @@ import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSett
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
 import { playCurrentAyah, togglePlayPause, nextAyah, prevAyah, toggleHifdh, toggleRepeat, bindAudioEvents } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
-import { toggleMushafMode, loadPage } from './mushaf.js';
+import { toggleMushafMode, loadPage, highlightMushafAyah } from './mushaf.js';
 
 /* Continue Reading Widget Styles - injected once */
 const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
@@ -411,6 +411,7 @@ export function highlightCurrentAyah() {
   }
   updatePlayerInfo();
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
+  if (state.mushafMode) highlightMushafAyah();
 }
 
 export function updatePlayerInfo() {

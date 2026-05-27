@@ -1867,6 +1867,7 @@ function highlightCurrentAyah() {
   }
   updatePlayerInfo();
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
+  if (state.mushafMode) highlightMushafAyah();
 }
 
 function updatePlayerInfo() {
@@ -4260,6 +4261,72 @@ async function handlePageClick(pageNum, clickX, clickY, imgWidth, imgHeight) {
   return null;
 }
 
+/**
+ * Get highlight rectangles for a given ayah on a mushaf page.
+ * @param {number} pageNum - Mushaf page number (1-604)
+ * @param {number} surah - Surah number
+ * @param {number} ayah - Ayah number
+ * @param {number} imgWidth - Displayed image width (px)
+ * @param {number} imgHeight - Displayed image height (px)
+ * @returns {Promise<Array<{top:number,left:number,width:number,height:number}>>}
+ */
+async function getAyahHighlightRects(pageNum, surah, ayah, imgWidth, imgHeight) {
+  const layout = await getPageLayout(pageNum);
+  if (!layout) return [];
+
+  const totalLines = layout.lines.length;
+  if (totalLines === 0) return [];
+  const lineHeight = imgHeight / totalLines;
+
+  /** @type {Array<{top:number,left:number,width:number,height:number}>} */
+  const rects = [];
+
+  for (let lineIndex = 0; lineIndex < totalLines; lineIndex++) {
+    const line = layout.lines[lineIndex];
+    if (!line || line.type !== 'text') continue;
+
+    const words = line.words || [];
+    if (words.length === 0) continue;
+
+    const ayahWordIndices = [];
+    for (let i = 0; i < words.length; i++) {
+      const parts = words[i].location.split(':');
+      if (parts.length >= 2 && parseInt(parts[0], 10) === surah && parseInt(parts[1], 10) === ayah) {
+        ayahWordIndices.push(i);
+      }
+    }
+    if (ayahWordIndices.length === 0) continue;
+
+    const charCounts = words.map(w => Math.max(1, arabicCharCount(w.word)));
+    const totalChars = charCounts.reduce((a, b) => a + b, 0);
+
+    let minRtl = Infinity;
+    let maxRtl = -Infinity;
+    let cumWidth = 0;
+    for (let i = 0; i < words.length; i++) {
+      const wordWidth = (charCounts[i] / totalChars) * imgWidth;
+      const wordStart = cumWidth;
+      const wordEnd = cumWidth + wordWidth;
+      if (ayahWordIndices.includes(i)) {
+        if (wordStart < minRtl) minRtl = wordStart;
+        if (wordEnd > maxRtl) maxRtl = wordEnd;
+      }
+      cumWidth += wordWidth;
+    }
+
+    if (maxRtl <= minRtl) continue;
+
+    rects.push({
+      left: imgWidth - maxRtl,
+      top: lineIndex * lineHeight,
+      width: maxRtl - minRtl,
+      height: lineHeight,
+    });
+  }
+
+  return rects;
+}
+
 /** Toggle between mushaf mode and surah mode. */
 async function toggleMushafMode() {
   const wasPlaying = state.isPlaying;
@@ -4396,6 +4463,7 @@ function renderMushafPageImage(pageNum) {
     img.classList.add('loaded');
     skeleton.remove();
     loadingBar.hide();
+    if (state.mushafMode) highlightMushafAyah();
   };
   img.src = imgUrl;
 
@@ -4436,6 +4504,7 @@ function renderMushafPageImage(pageNum) {
       }
       playMushafAyah(result.surah, result.ayah);
       loadTafsirForSurahAyah(result.surah, result.ayah);
+      highlightMushafAyah();
     }
   });
 
@@ -4580,6 +4649,48 @@ function showSurahSecret(surahNum, surahName) {
   }
   dom.surahSecretsBody.innerHTML = html;
   dom.surahSecretsOverlay.style.display = 'flex';
+}
+
+/** Update the mushaf page highlight overlay to mark the current ayah. */
+async function highlightMushafAyah() {
+  if (!state.mushafMode) return;
+  const wrapper = dom.surahContent?.querySelector('.mushaf-image-wrapper');
+  const img = wrapper?.querySelector('.mushaf-page-img');
+  if (!wrapper || !img || !img.complete || !img.naturalWidth) return;
+
+  const surah = state.surahData?.number;
+  const ayah = state.surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah;
+  if (!surah || !ayah) return;
+
+  const rect = img.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  const rects = await getAyahHighlightRects(state.currentPage, surah, ayah, rect.width, rect.height);
+  if (!rects.length) return;
+
+  const wrapperRect = wrapper.getBoundingClientRect();
+  const imgLeft = rect.left - wrapperRect.left;
+  const imgTop = rect.top - wrapperRect.top;
+
+  let overlay = wrapper.querySelector('.mushaf-highlight-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'mushaf-highlight-overlay';
+    overlay.style.cssText = 'position:absolute;pointer-events:none;z-index:5;';
+    wrapper.appendChild(overlay);
+  }
+  overlay.style.left = `${imgLeft}px`;
+  overlay.style.top = `${imgTop}px`;
+  overlay.style.width = `${rect.width}px`;
+  overlay.style.height = `${rect.height}px`;
+
+  overlay.innerHTML = '';
+  for (const r of rects) {
+    const bar = document.createElement('div');
+    bar.className = 'mushaf-ayah-highlight';
+    bar.style.cssText = `position:absolute;top:${r.top}px;left:${r.left}px;width:${r.width}px;height:${r.height}px;`;
+    overlay.appendChild(bar);
+  }
 }
 
 function playMushafAyah(surahNum, ayahNum) {
