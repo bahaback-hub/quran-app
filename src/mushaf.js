@@ -97,7 +97,7 @@ function renderMushafPageImage(pageNum) {
   if (!dom.surahContent) return;
   const juz = getJuzForPage(pageNum);
   const padded = String(pageNum).padStart(3, '0');
-  const imgUrl = `./public/pages/page${padded}.png`;
+  const imgUrl = `https://cdn.jsdelivr.net/gh/bahaback-hub/quran-app@main/public/pages/page${padded}.png`;
 
   const container = document.createElement('div');
   container.className = 'mushaf-container';
@@ -228,7 +228,7 @@ function preloadAdjacentPages(pageNum) {
     const padded = String(p).padStart(3, '0');
     const link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = `./public/pages/page${padded}.png`;
+    link.href = `https://cdn.jsdelivr.net/gh/bahaback-hub/quran-app@main/public/pages/page${padded}.png`;
     link.as = 'image';
     document.head.appendChild(link);
   }
