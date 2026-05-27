@@ -16,6 +16,7 @@
 - All functions must be `function` declarations (not arrow/const) — hoisting needed across concat boundaries
 - Every module has explicit imports for all cross-module functions it uses (no relying on concat hoisting)
 - `state` is a single global object in `src/state.js`: `export let state = {}` — imported by all modules
+- All module‑level mutable state is a property of `state` (e.g. `surahOffsets` moved from `app.js` to `state.surahOffsets`)
 - `initState()` uses `Object.assign(state, {...})` not `state = {...}` (imported binding is read-only in ES modules)
 - No `initXxxState` pattern — modules reference `state` directly
 
@@ -63,7 +64,8 @@
 ## TypeScript
 - `tsconfig.json` with `allowJs: true`, **`checkJs: true`**
 - Global type declarations in `src/global.d.ts` (also extends DOM types like Element.dataset, EventTarget.result)
-- All JSDoc types in `src/state.js` define the 50+ properties of the global `state` object
+- All JSDoc types in `src/state.js` define the 51 properties of the global `state` object (including `surahOffsets`)
+- **All exported functions across all 11 modules have JSDoc descriptions**
 - Type check with `npm run typecheck` (must pass 0 errors)
 
 ## Type Fixes for `checkJs: true`
