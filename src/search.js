@@ -215,8 +215,9 @@ function renderSearchResults(matches, query) {
     <button class="search-results-close" id="closeSearchResultsBtn" aria-label="إغلاق">✖</button>
   </div>`;
   for (const m of matches) {
-    const safeText = escapeHtml(m.text);
-    const safeQuery = escapeRegExp(query);
+    const normText = normalizeExactText(m.text);
+    const safeText = escapeHtml(normText);
+    const safeQuery = escapeRegExp(normalizeExactText(query));
     const highlighted = safeText.replace(new RegExp(safeQuery, 'gi'), '<mark class="search-highlight">$&</mark>');
     html += `<div class="search-result-item">
       <div class="search-result-title">${escapeHtml(m.surahName || '')} — آية ${m.ayah}</div>
