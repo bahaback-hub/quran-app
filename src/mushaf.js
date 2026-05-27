@@ -36,7 +36,7 @@ export async function toggleMushafMode() {
     
     updatePageIndicator(state.currentPage);
     loadPage(state.currentPage);
-    if (wasPlaying && dom.audioPlayer?.paused && dom.audioPlayer?.src) {
+    if (wasPlaying && dom.audioPlayer?.paused) {
       dom.audioPlayer.play().catch(() => {});
       state.isPlaying = true;
       updatePlayPauseBtn();
@@ -46,23 +46,11 @@ export async function toggleMushafMode() {
     dom.modeToggleBtn.classList.remove('mushaf-active');
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
     
-    let surahToLoad = 1;
-    let ayahToStart = 1;
-    
-    try {
-      const res = await fetch(`${CONFIG.API_BASE}/page/${state.currentPage}/quran-uthmani`);
-      const data = await res.json();
-      const ayahs = data?.data?.ayahs;
-      if (ayahs?.length) {
-        surahToLoad = ayahs[0].surah.number;
-        ayahToStart = ayahs[0].numberInSurah;
-      }
-    } catch (e) {
-      console.warn('Failed to get ayahs for page:', e);
-      surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
-    }
+    let surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
+    let ayahToStart = (state.surahData?.number === surahToLoad && state.surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
     
     dom.surahContent.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
+    if (wasPlaying && state.isPlaying) state.isPlaying = false;
     setTimeout(() => loadSurah(surahToLoad, { startAyah: ayahToStart, autoPlay: wasPlaying }), 50);
   }
   storage.set('mushaf_mode', state.mushafMode);
