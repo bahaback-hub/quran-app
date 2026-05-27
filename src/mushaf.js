@@ -6,12 +6,13 @@ import { showToast, loadingBar } from "./ui.js";
 import { escapeHtml, toArabicNumeral } from "./utils.js";
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from "./surahs-data.js";
 import { loadSurah, updatePlayerInfo } from "./app.js";
-import { prepareAudioForNewSurah, playCurrentAyah } from "./audio.js";
+import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from "./audio.js";
 import { loadTafsirForSurahAyah } from "./tafsir.js";
 import { handlePageClick } from "./ayah-click.js";
 
 /** Toggle between mushaf mode and surah mode. */
 export async function toggleMushafMode() {
+  const wasPlaying = state.isPlaying;
   state.mushafMode = !state.mushafMode;
   if (state.mushafMode) {
     dom.modeToggleBtn.innerHTML = '📖 وضع السورة';
@@ -35,6 +36,11 @@ export async function toggleMushafMode() {
     
     updatePageIndicator(state.currentPage);
     loadPage(state.currentPage);
+    if (wasPlaying && dom.audioPlayer?.paused && dom.audioPlayer?.src) {
+      dom.audioPlayer.play().catch(() => {});
+      state.isPlaying = true;
+      updatePlayPauseBtn();
+    }
   } else {
     dom.modeToggleBtn.innerHTML = '<img src="mushaf-icon.png" alt="" class="mode-toggle-icon"> وضع المصحف';
     dom.modeToggleBtn.classList.remove('mushaf-active');
