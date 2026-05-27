@@ -3,7 +3,8 @@ const CACHE = {
   API: 'quran-api-cache-v4',
   AUDIO: 'quran-audio-cache-v2',
   MUSHARAF: 'quran-mushaf-v2',
-  QURAN_DATA: 'quran-full-text-v1'
+  QURAN_DATA: 'quran-full-text-v1',
+  LAYOUT: 'quran-layout-v1'
 };
 
 const AUDIO_LIMIT = 300;
@@ -61,6 +62,10 @@ function isQuranData(url) {
   return url.pathname.includes('/quran/quran-uthmani');
 }
 
+function isLayoutData(url) {
+  return url.hostname === 'raw.githubusercontent.com' && url.pathname.includes('mushaf-layout') && url.pathname.endsWith('.json');
+}
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
@@ -69,6 +74,20 @@ self.addEventListener('fetch', e => {
   if (isQuranData(url)) {
     e.respondWith(
       caches.open(CACHE.QURAN_DATA).then(async cache => {
+        const cached = await cache.match(e.request);
+        if (cached) return cached;
+        const res = await fetch(e.request);
+        if (res.ok) cache.put(e.request, res.clone());
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Layout data from mushaf-layout: cache-first
+  if (isLayoutData(url)) {
+    e.respondWith(
+      caches.open(CACHE.LAYOUT).then(async cache => {
         const cached = await cache.match(e.request);
         if (cached) return cached;
         const res = await fetch(e.request);
