@@ -3,8 +3,9 @@ import { CONFIG } from "./config.js";
 import { dom } from "./dom.js";
 import { storage } from "./storage.js";
 import { showToast } from "./ui.js";
+import { loadSurah, highlightCurrentAyah } from "./app.js";
 
-function prepareAudioForNewSurah() {
+export function prepareAudioForNewSurah() {
   if (dom.audioPlayer) {
     dom.audioPlayer.pause();
     dom.audioPlayer.removeAttribute('src');
@@ -97,7 +98,7 @@ function onSeeking() {
 
 
 /* ===================== AUDIO EVENTS ===================== */
-function expandPlayer() {
+export function expandPlayer() {
   dom.player?.classList.remove('collapsed');
   storage.set('player_collapsed', false);
 }
@@ -139,7 +140,7 @@ function onAudioError() {
   showToast('⚠️ تعذّر تشغيل الصوت، حاول آية أخرى', 'error');
 }
 
-function updatePlayPauseBtn() {
+export function updatePlayPauseBtn() {
   if (dom.playPauseBtn) {
     dom.playPauseBtn.textContent = state.isPlaying ? '⏸ إيقاف' : '⏯ تشغيل';
   }
@@ -203,8 +204,8 @@ export function prevAyah() {
   }
 }
 
-function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) loadSurah(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
-function prevSurah() { if (state.currentSurah > 1) loadSurah(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
+export function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) loadSurah(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
+export function prevSurah() { if (state.currentSurah > 1) loadSurah(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
 
 
 /* ===================== HIFDH & REPEAT ===================== */

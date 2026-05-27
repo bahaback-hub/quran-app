@@ -1407,8 +1407,8 @@ const ADHKAR_STORAGE_KEY = 'adhkar_settings';
  *   method: string,
  *   prayerTimes: object|null,
  *   lastAzanFired: string|null,
- *   favorites: Array<{surah: number, ayah: number, text: string}>,
- *   bookmark: {surah: number, ayah: number}|null,
+ *   favorites: Array<{key: string, surah: number, surahName: string, ayah: number, text: string, timestamp: number}>,
+ *   bookmark: {surah: number, surahName: string, ayah: number, text: string, timestamp: number}|null,
  *   pendingTafsirAfterLoad: string|null,
  *   playerCollapsed: boolean,
  *   barCollapsed: boolean,
@@ -1426,11 +1426,14 @@ const ADHKAR_STORAGE_KEY = 'adhkar_settings';
  *   adhkarPanelOpen: boolean,
  *   adhkarActiveTab: string|null,
  *   lastAdhkarFired: string|null,
+ *   adhkarNotificationTimer: number|null,
+ *   _voiceListening: boolean,
+ *   _voiceRecognition: object|null,
  *   _smartTvState: number,
  *   _smartTvAudioSrc: string
  * }}
  */
-let state = {};
+let state = /** @type {any} */ ({});
 
 /* Continue Reading Widget Styles - injected once */
 const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
@@ -1502,7 +1505,7 @@ function showContinueWidget(info) {
   widget.appendChild(closeBtn);
 
   widget.addEventListener('click', (e) => {
-    if (e.target === closeBtn || closeBtn.contains(e.target)) {
+    if (e.target === closeBtn || closeBtn.contains(/** @type {Node} */ (e.target))) {
       widget.remove();
       return;
     }
@@ -1520,21 +1523,21 @@ function showContinueWidget(info) {
 }
 
 function initState() {
-  state = {
+  Object.assign(state, {
     currentSurah: 1, currentAyahIndex: 0,
     currentReciter: CONFIG.DEFAULT_RECITER,
     currentTafsirEdition: CONFIG.DEFAULT_TAFSIR,
     surahData: null, surahList: [], surahCache: new Map(),
-     ayahsAudios: [],
-     isPlaying: false, hifdhMode: false,
+    ayahsAudios: [],
+    isPlaying: false, hifdhMode: false,
     repeatMode: false, repeatFrom: 1, repeatTo: 1, repeatTimes: 3, repeatCounter: 0,
     fontSize: 28, nightMode: false, autoSave: true,
     azanEnabled: true, azanFajrEnabled: true,
     city: CONFIG.DEFAULT_CITY, country: CONFIG.DEFAULT_COUNTRY,
     method: CONFIG.DEFAULT_METHOD,
     prayerTimes: null, lastAzanFired: null,
-     favorites: [], bookmark: null,
-     pendingTafsirAfterLoad: null,
+    favorites: [], bookmark: null,
+    pendingTafsirAfterLoad: null,
     playerCollapsed: false, barCollapsed: false,
     azanPlaying: false, loadingSurah: null,
     mushafMode: false, currentPage: 1,
@@ -1544,7 +1547,7 @@ function initState() {
     currentTranslation: null,
     translationData: null,
     adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null
-  };
+  });
 }
 
 let surahOffsets = null;
@@ -1582,7 +1585,7 @@ function populateSurahSelect() {
   dom.surahSelect.innerHTML = '<option value="">اختر السورة</option>';
   for (const s of state.surahList) {
     const opt = document.createElement('option');
-    opt.value = s.number;
+    opt.value = String(s.number);
     opt.textContent = `${s.number}. ${s.name} (${s.englishName})`;
     dom.surahSelect.appendChild(opt);
   }
@@ -1905,7 +1908,7 @@ async function initApp() {
   loadingBar.init();
   loadingBar.hide();
   cacheDom();
-  initAdhkarState(state);
+  initAdhkarState();
   loadAdhkarSettings();
   restoreSettings();
   loadFavorites();
@@ -2443,8 +2446,8 @@ function openTafsirDB() {
         db.createObjectStore('tafsir', { keyPath: 'key' });
       }
     };
-    request.onsuccess = (e) => resolve(e.target.result);
-    request.onerror = (e) => reject(e.target.error);
+    request.onsuccess = (e) => resolve(/** @type {IDBRequest} */ (e.target).result);
+    request.onerror = (e) => reject(/** @type {IDBRequest} */ (e.target).error);
   });
 }
 
@@ -2655,14 +2658,7 @@ function gotoBookmark() {
   const bm = state.bookmark || storage.get('bookmark');
   if (!bm) { showToast('لا توجد علامة محفوظة', 'error'); return; }
   if (dom.surahSelect) dom.surahSelect.value = bm.surah;
-  if (typeof loadSurahExternal === 'function') {
-    loadSurahExternal(bm.surah, { startAyah: bm.ayah });
-  }
-}
-
-let loadSurahExternal = null;
-function setLoadSurahCallback(fn) {
-  loadSurahExternal = fn;
+  loadSurah(bm.surah, { startAyah: bm.ayah });
 }
 
 function copyToClipboard(text) {
@@ -2865,8 +2861,8 @@ function restoreSettings() {
   }
 }
 
-function initAdhkarState(s) {
-  state = s;
+function initAdhkarState() {
+  // state is already imported from ./state.js
 }
 
 function getDefaultAdhkarSettings() {
@@ -3652,11 +3648,11 @@ async function loadFullQuranText() {
   return new Promise((resolve) => {
     const request = indexedDB.open('QuranAppDB', 1);
     request.onupgradeneeded = e => {
-      const db = e.target.result;
+      const db = /** @type {IDBDatabase} */ (/** @type {IDBOpenDBRequest} */ (e.target).result);
       if (!db.objectStoreNames.contains('fullText')) db.createObjectStore('fullText', { keyPath: 'id' });
     };
     request.onsuccess = async (e) => {
-      const db = e.target.result;
+      const db = /** @type {IDBDatabase} */ (/** @type {IDBOpenDBRequest} */ (e.target).result);
       try {
         const tx = db.transaction('fullText', 'readonly');
         const store = tx.objectStore('fullText');
@@ -3826,7 +3822,8 @@ function initKeyboard() {
     const kbd = document.getElementById('arabicKeyboard');
     const toggle = dom.kbdToggleBtn;
     if (!kbd || !toggle) return;
-    if (!kbd.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
+    const target = /** @type {Node} */ (e.target);
+    if (!kbd.contains(target) && target !== toggle && !toggle.contains(target)) {
       kbd.classList.remove('open');
       toggle.classList.remove('active');
     }
@@ -4011,11 +4008,11 @@ function populatePageSelect() {
   dom.pageSelect.innerHTML = '';
   for (let i = 1; i <= 604; i++) {
     const opt = document.createElement('option');
-    opt.value = i;
+    opt.value = String(i);
     opt.textContent = `صفحة ${i}`;
     dom.pageSelect.appendChild(opt);
   }
-  dom.pageSelect.value = state.currentPage;
+  dom.pageSelect.value = String(state.currentPage);
   if (dom.pageSlider) dom.pageSlider.value = state.currentPage;
 }
 
@@ -4195,7 +4192,7 @@ function populateSurahOverlay() {
     btn.className = 'mushaf-surah-overlay-btn';
     btn.textContent = `${s.number}. ${s.name} (${s.englishName})`;
     btn.style.flex = '1';
-    btn.dataset.surah = s.number;
+    btn.dataset.surah = String(s.number);
     btn.addEventListener('click', async () => {
       dom.mushafSurahOverlay.style.display = 'none';
       loadingBar.show(`⏳ البحث عن أول صفحة لسورة ${s.name}...`);
@@ -4220,7 +4217,7 @@ function populateSurahOverlay() {
       secretBtn.textContent = '🌟';
       secretBtn.title = 'سرّ السورة';
       secretBtn.setAttribute('aria-label', `سرّ سورة ${s.name}`);
-      secretBtn.dataset.surah = s.number;
+      secretBtn.dataset.surah = String(s.number);
       secretBtn.dataset.surahName = s.name;
       secretBtn.addEventListener('click', (e) => {
         e.stopPropagation();

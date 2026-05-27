@@ -15,8 +15,8 @@ function openTafsirDB() {
         db.createObjectStore('tafsir', { keyPath: 'key' });
       }
     };
-    request.onsuccess = (e) => resolve(e.target.result);
-    request.onerror = (e) => reject(e.target.error);
+    request.onsuccess = (e) => resolve(/** @type {IDBRequest} */ (e.target).result);
+    request.onerror = (e) => reject(/** @type {IDBRequest} */ (e.target).error);
   });
 }
 

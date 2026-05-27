@@ -1,6 +1,29 @@
 // Global state — defined in state.js, shared via concat scope
 declare var state: Record<string, any>;
 
+// Window extensions (non-standard browser APIs)
+interface Window {
+  toastTimeout?: ReturnType<typeof setTimeout>;
+  SpeechRecognition?: new () => SpeechRecognition;
+  webkitSpeechRecognition?: new () => SpeechRecognition;
+  webkitAudioContext?: typeof AudioContext;
+}
+interface Navigator {
+  connection?: { effectiveType?: string; saveData?: boolean };
+  userLanguage?: string;
+}
+
+// DOM type widening — querySelector returns Element, but we use HTMLElement properties
+interface Element {
+  dataset: DOMStringMap;
+  style: CSSStyleDeclaration;
+}
+interface EventTarget {
+  result?: any;
+  tagName?: string;
+  blur?(): void;
+}
+
 // Cross-module functions - hoisted in concat build
 declare function loadSurah(surahNum: number, opts?: Record<string, any>): Promise<void>;
 declare function highlightCurrentAyah(): void;

@@ -5,6 +5,9 @@ import { storage } from "./storage.js";
 import { showToast, loadingBar } from "./ui.js";
 import { escapeHtml, toArabicNumeral } from "./utils.js";
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from "./surahs-data.js";
+import { loadSurah, updatePlayerInfo } from "./app.js";
+import { prepareAudioForNewSurah, playCurrentAyah } from "./audio.js";
+import { loadTafsirForSurahAyah } from "./tafsir.js";
 
 /** Toggle between mushaf mode and surah mode. */
 export async function toggleMushafMode() {
@@ -63,11 +66,11 @@ function populatePageSelect() {
   dom.pageSelect.innerHTML = '';
   for (let i = 1; i <= 604; i++) {
     const opt = document.createElement('option');
-    opt.value = i;
+    opt.value = String(i);
     opt.textContent = `صفحة ${i}`;
     dom.pageSelect.appendChild(opt);
   }
-  dom.pageSelect.value = state.currentPage;
+  dom.pageSelect.value = String(state.currentPage);
   if (dom.pageSlider) dom.pageSlider.value = state.currentPage;
 }
 
@@ -247,7 +250,7 @@ function populateSurahOverlay() {
     btn.className = 'mushaf-surah-overlay-btn';
     btn.textContent = `${s.number}. ${s.name} (${s.englishName})`;
     btn.style.flex = '1';
-    btn.dataset.surah = s.number;
+    btn.dataset.surah = String(s.number);
     btn.addEventListener('click', async () => {
       dom.mushafSurahOverlay.style.display = 'none';
       loadingBar.show(`⏳ البحث عن أول صفحة لسورة ${s.name}...`);
@@ -272,7 +275,7 @@ function populateSurahOverlay() {
       secretBtn.textContent = '🌟';
       secretBtn.title = 'سرّ السورة';
       secretBtn.setAttribute('aria-label', `سرّ سورة ${s.name}`);
-      secretBtn.dataset.surah = s.number;
+      secretBtn.dataset.surah = String(s.number);
       secretBtn.dataset.surahName = s.name;
       secretBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -284,7 +287,7 @@ function populateSurahOverlay() {
   }
 }
 
-function showSurahSecret(surahNum, surahName) {
+export function showSurahSecret(surahNum, surahName) {
   if (!dom.surahSecretsOverlay || !dom.surahSecretsBody || !dom.surahSecretsTitle || !dom.surahSecretsSurahName) return;
   const secret = SURAH_SECRETS[surahNum];
   if (!secret) {

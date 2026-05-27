@@ -9,6 +9,9 @@ import {
 import { __, getLang, setLang } from './i18n.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 import { state } from './state.js';
+import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification } from './prayer.js';
+import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
+import { loadTafsirForCurrentAyah, loadTafsirForSurahAyah, toggleTafsir, closeTafsir } from './tafsir.js';
 import { buildShareText, toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
@@ -86,7 +89,7 @@ function showContinueWidget(info) {
   widget.appendChild(closeBtn);
 
   widget.addEventListener('click', (e) => {
-    if (e.target === closeBtn || closeBtn.contains(e.target)) {
+    if (e.target === closeBtn || closeBtn.contains(/** @type {Node} */ (e.target))) {
       widget.remove();
       return;
     }
@@ -104,21 +107,21 @@ function showContinueWidget(info) {
 }
 
 function initState() {
-  state = {
+  Object.assign(state, {
     currentSurah: 1, currentAyahIndex: 0,
     currentReciter: CONFIG.DEFAULT_RECITER,
     currentTafsirEdition: CONFIG.DEFAULT_TAFSIR,
     surahData: null, surahList: [], surahCache: new Map(),
-     ayahsAudios: [],
-     isPlaying: false, hifdhMode: false,
+    ayahsAudios: [],
+    isPlaying: false, hifdhMode: false,
     repeatMode: false, repeatFrom: 1, repeatTo: 1, repeatTimes: 3, repeatCounter: 0,
     fontSize: 28, nightMode: false, autoSave: true,
     azanEnabled: true, azanFajrEnabled: true,
     city: CONFIG.DEFAULT_CITY, country: CONFIG.DEFAULT_COUNTRY,
     method: CONFIG.DEFAULT_METHOD,
     prayerTimes: null, lastAzanFired: null,
-     favorites: [], bookmark: null,
-     pendingTafsirAfterLoad: null,
+    favorites: [], bookmark: null,
+    pendingTafsirAfterLoad: null,
     playerCollapsed: false, barCollapsed: false,
     azanPlaying: false, loadingSurah: null,
     mushafMode: false, currentPage: 1,
@@ -128,7 +131,7 @@ function initState() {
     currentTranslation: null,
     translationData: null,
     adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null
-  };
+  });
 }
 
 let surahOffsets = null;
@@ -166,7 +169,7 @@ function populateSurahSelect() {
   dom.surahSelect.innerHTML = '<option value="">اختر السورة</option>';
   for (const s of state.surahList) {
     const opt = document.createElement('option');
-    opt.value = s.number;
+    opt.value = String(s.number);
     opt.textContent = `${s.number}. ${s.name} (${s.englishName})`;
     dom.surahSelect.appendChild(opt);
   }
@@ -410,7 +413,7 @@ export function highlightCurrentAyah() {
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
 }
 
-function updatePlayerInfo() {
+export function updatePlayerInfo() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
   const reciterText = dom.reciterSelect?.options[dom.reciterSelect.selectedIndex]?.text || '';
@@ -489,7 +492,7 @@ export async function initApp() {
   loadingBar.init();
   loadingBar.hide();
   cacheDom();
-  initAdhkarState(state);
+  initAdhkarState();
   loadAdhkarSettings();
   restoreSettings();
   loadFavorites();

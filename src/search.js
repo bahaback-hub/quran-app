@@ -5,6 +5,8 @@ import { dom } from "./dom.js";
 import { storage } from "./storage.js";
 import { showToast, loadingBar } from "./ui.js";
 import { escapeHtml, escapeRegExp, normalizeExactText } from "./utils.js";
+import { loadSurah, highlightCurrentAyah } from "./app.js";
+import { playCurrentAyah } from "./audio.js";
 
 /** Load full Quran text into IndexedDB for offline search. */
 export async function loadFullQuranText() {
@@ -12,11 +14,11 @@ export async function loadFullQuranText() {
   return new Promise((resolve) => {
     const request = indexedDB.open('QuranAppDB', 1);
     request.onupgradeneeded = e => {
-      const db = e.target.result;
+      const db = /** @type {IDBDatabase} */ (/** @type {IDBOpenDBRequest} */ (e.target).result);
       if (!db.objectStoreNames.contains('fullText')) db.createObjectStore('fullText', { keyPath: 'id' });
     };
     request.onsuccess = async (e) => {
-      const db = e.target.result;
+      const db = /** @type {IDBDatabase} */ (/** @type {IDBOpenDBRequest} */ (e.target).result);
       try {
         const tx = db.transaction('fullText', 'readonly');
         const store = tx.objectStore('fullText');
@@ -186,7 +188,8 @@ export function initKeyboard() {
     const kbd = document.getElementById('arabicKeyboard');
     const toggle = dom.kbdToggleBtn;
     if (!kbd || !toggle) return;
-    if (!kbd.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
+    const target = /** @type {Node} */ (e.target);
+    if (!kbd.contains(target) && target !== toggle && !toggle.contains(target)) {
       kbd.classList.remove('open');
       toggle.classList.remove('active');
     }

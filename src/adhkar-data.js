@@ -1,4 +1,4 @@
-const ADHKAR_DATA = {
+export const ADHKAR_DATA = {
   categories: [
     {
       id: 'morning',
