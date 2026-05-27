@@ -2055,6 +2055,9 @@ body.night-mode .word.current-word {
   align-items: center;
   transition: background 0.15s;
 }
+body.night-mode .search-autocomplete-item {
+  color: var(--text-primary);
+}
 .search-autocomplete-item:hover,
 .search-autocomplete-item.active {
   background: var(--hover-bg, rgba(212,175,55,0.15));
