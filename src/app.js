@@ -130,11 +130,10 @@ function initState() {
     translationEnabled: false,
     currentTranslation: null,
     translationData: null,
-    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null
+    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
+    surahOffsets: null
   });
 }
-
-let surahOffsets = null;
 
 /* ===================== SURAH LIST ===================== */
 
@@ -143,7 +142,7 @@ export async function loadSurahList() {
   const cached = storage.get('surah_list');
   if (cached && cached.length === CONFIG.SURAH_COUNT) {
     state.surahList = cached;
-    surahOffsets = null;
+    state.surahOffsets = null;
     buildSurahOffsets();
     populateSurahSelect();
     return;
@@ -154,7 +153,7 @@ export async function loadSurahList() {
     const data = await res.json();
     if (data?.data) {
       state.surahList = data.data;
-      surahOffsets = null;
+      state.surahOffsets = null;
       storage.set('surah_list', data.data);
       populateSurahSelect();
     }
@@ -177,19 +176,19 @@ function populateSurahSelect() {
 }
 
 export function buildSurahOffsets() {
-  if (surahOffsets || !state.surahList.length) return;
-  surahOffsets = [];
+  if (state.surahOffsets || !state.surahList.length) return;
+  state.surahOffsets = [];
   let cum = 1;
   for (const s of state.surahList) {
-    surahOffsets.push({ surahNum: s.number, startAbs: cum, count: s.numberOfAyahs, name: s.name });
+    state.surahOffsets.push({ surahNum: s.number, startAbs: cum, count: s.numberOfAyahs, name: s.name });
     cum += s.numberOfAyahs;
   }
 }
 
 function absToSurahAyah(absNum) {
-  if (!surahOffsets) buildSurahOffsets();
-  if (!surahOffsets) return null;
-  for (const o of surahOffsets) {
+  if (!state.surahOffsets) buildSurahOffsets();
+  if (!state.surahOffsets) return null;
+  for (const o of state.surahOffsets) {
     if (absNum >= o.startAbs && absNum < o.startAbs + o.count) {
       return { surahNum: o.surahNum, surahName: o.name, ayahNumInSurah: absNum - o.startAbs + 1 };
     }
@@ -198,9 +197,9 @@ function absToSurahAyah(absNum) {
 }
 
 function getAbsNumber(surah, ayah) {
-  if (!surahOffsets) buildSurahOffsets();
-  if (!surahOffsets) return null;
-  for (const o of surahOffsets) {
+  if (!state.surahOffsets) buildSurahOffsets();
+  if (!state.surahOffsets) return null;
+  for (const o of state.surahOffsets) {
     if (o.surahNum === surah) return o.startAbs + ayah - 1;
   }
   return null;

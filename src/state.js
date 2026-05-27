@@ -48,7 +48,8 @@
  *   _voiceListening: boolean,
  *   _voiceRecognition: object|null,
  *   _smartTvState: number,
- *   _smartTvAudioSrc: string
+ *   _smartTvAudioSrc: string,
+ *   surahOffsets: Array<{surahNum: number, startAbs: number, count: number, name: string}>|null
  * }}
  */
 export let state = /** @type {any} */ ({});

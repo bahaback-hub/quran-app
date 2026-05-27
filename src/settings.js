@@ -8,6 +8,7 @@ import { renderAdhkarSettingsList } from './adhkar.js';
 
 /* ===================== FONT SIZE ===================== */
 
+/** @param {number} size */
 export function applyFontSize(size) {
   state.fontSize = size;
   const container = document.querySelector('.ayahs-container');
@@ -18,6 +19,7 @@ export function applyFontSize(size) {
 
 /* ===================== NIGHT MODE ===================== */
 
+/** @param {boolean} enabled */
 export function applyNightMode(enabled) {
   state.nightMode = enabled;
   if (enabled) document.body.classList.add('night-mode');
@@ -29,16 +31,19 @@ export function toggleNightMode() { applyNightMode(!state.nightMode); }
 
 /* ===================== SETTINGS PANEL ===================== */
 
+/** Open the settings panel and render adhkar settings list. */
 export function openSettings() {
   dom.settingsPanel?.classList.add('open');
   renderAdhkarSettingsList();
 }
 
+/** Close the settings panel and stop azan if playing. */
 export function closeSettings() {
   dom.settingsPanel?.classList.remove('open');
   if (state.azanPlaying) stopAzan();
 }
 
+/** Save city/country/method and reload prayer times. */
 export function saveLocationSettings() {
   const city = dom.cityInput?.value.trim();
   const country = dom.countryInput?.value.trim();
@@ -53,6 +58,7 @@ export function saveLocationSettings() {
   showToast('✅ تم حفظ الموقع وتحديث المواقيت', 'success');
 }
 
+/** Reset all settings to defaults and reload the page. */
 export function resetSettings() {
   if (!confirm('هل تريد إعادة ضبط جميع الإعدادات؟')) return;
   const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed'];
@@ -64,6 +70,7 @@ export function resetSettings() {
 
 let backgroundsList = [];
 
+/** @returns {Promise<void>} */
 export async function loadBackgrounds() {
   try {
     const res = await fetch('data/backgrounds.json');
@@ -82,6 +89,7 @@ export async function loadBackgrounds() {
   } catch (e) { console.warn('فشل تحميل قائمة الخلفيات', e); }
 }
 
+/** @param {string} bgId */
 export function applyBackground(bgId) {
   if (!bgId || bgId === 'none') {
     document.body.style.backgroundImage = '';
@@ -111,6 +119,7 @@ export function applyBackground(bgId) {
 
 /* ===================== RESTORE SETTINGS ===================== */
 
+/** Restore all settings from localStorage into the state object and update UI. */
 export function restoreSettings() {
   const fs = storage.get('font_size'); if (fs) applyFontSize(fs);
   const nm = storage.get('night_mode'); if (nm === true) applyNightMode(true);

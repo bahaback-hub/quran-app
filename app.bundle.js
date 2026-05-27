@@ -1430,7 +1430,8 @@ const ADHKAR_STORAGE_KEY = 'adhkar_settings';
  *   _voiceListening: boolean,
  *   _voiceRecognition: object|null,
  *   _smartTvState: number,
- *   _smartTvAudioSrc: string
+ *   _smartTvAudioSrc: string,
+ *   surahOffsets: Array<{surahNum: number, startAbs: number, count: number, name: string}>|null
  * }}
  */
 let state = /** @type {any} */ ({});
@@ -1546,11 +1547,10 @@ function initState() {
     translationEnabled: false,
     currentTranslation: null,
     translationData: null,
-    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null
+    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
+    surahOffsets: null
   });
 }
-
-let surahOffsets = null;
 
 /* ===================== SURAH LIST ===================== */
 
@@ -1559,7 +1559,7 @@ async function loadSurahList() {
   const cached = storage.get('surah_list');
   if (cached && cached.length === CONFIG.SURAH_COUNT) {
     state.surahList = cached;
-    surahOffsets = null;
+    state.surahOffsets = null;
     buildSurahOffsets();
     populateSurahSelect();
     return;
@@ -1570,7 +1570,7 @@ async function loadSurahList() {
     const data = await res.json();
     if (data?.data) {
       state.surahList = data.data;
-      surahOffsets = null;
+      state.surahOffsets = null;
       storage.set('surah_list', data.data);
       populateSurahSelect();
     }
@@ -1593,19 +1593,19 @@ function populateSurahSelect() {
 }
 
 function buildSurahOffsets() {
-  if (surahOffsets || !state.surahList.length) return;
-  surahOffsets = [];
+  if (state.surahOffsets || !state.surahList.length) return;
+  state.surahOffsets = [];
   let cum = 1;
   for (const s of state.surahList) {
-    surahOffsets.push({ surahNum: s.number, startAbs: cum, count: s.numberOfAyahs, name: s.name });
+    state.surahOffsets.push({ surahNum: s.number, startAbs: cum, count: s.numberOfAyahs, name: s.name });
     cum += s.numberOfAyahs;
   }
 }
 
 function absToSurahAyah(absNum) {
-  if (!surahOffsets) buildSurahOffsets();
-  if (!surahOffsets) return null;
-  for (const o of surahOffsets) {
+  if (!state.surahOffsets) buildSurahOffsets();
+  if (!state.surahOffsets) return null;
+  for (const o of state.surahOffsets) {
     if (absNum >= o.startAbs && absNum < o.startAbs + o.count) {
       return { surahNum: o.surahNum, surahName: o.name, ayahNumInSurah: absNum - o.startAbs + 1 };
     }
@@ -1614,9 +1614,9 @@ function absToSurahAyah(absNum) {
 }
 
 function getAbsNumber(surah, ayah) {
-  if (!surahOffsets) buildSurahOffsets();
-  if (!surahOffsets) return null;
-  for (const o of surahOffsets) {
+  if (!state.surahOffsets) buildSurahOffsets();
+  if (!state.surahOffsets) return null;
+  for (const o of state.surahOffsets) {
     if (o.surahNum === surah) return o.startAbs + ayah - 1;
   }
   return null;
@@ -2522,6 +2522,7 @@ function showTafsirError() {
   dom.tafsirCurtainBody.scrollTop = 0;
 }
 
+/** Load & render tafsir for the currently-selected ayah. @returns {Promise<void>} */
 async function loadTafsirForCurrentAyah() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
@@ -2537,6 +2538,7 @@ async function loadTafsirForCurrentAyah() {
   else showTafsirError();
 }
 
+/** @param {number} surahNum @param {number} ayahNum @returns {Promise<void>} */
 async function loadTafsirForSurahAyah(surahNum, ayahNum) {
   if (!dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition || CONFIG.DEFAULT_TAFSIR;
@@ -2553,6 +2555,7 @@ async function loadTafsirForSurahAyah(surahNum, ayahNum) {
   else showTafsirError();
 }
 
+/** Open the tafsir curtain and load tafsir for current ayah. */
 function openTafsir() {
   if (!dom.tafsirCurtain) return;
   dom.tafsirCurtain.classList.add('open');
@@ -2560,11 +2563,13 @@ function openTafsir() {
   loadTafsirForCurrentAyah();
 }
 
+/** Close the tafsir curtain. */
 function closeTafsir() {
   dom.tafsirCurtain?.classList.remove('open');
   dom.tafsirCurtainHandle?.classList.remove('open');
 }
 
+/** Toggle the tafsir curtain open/closed. */
 function toggleTafsir() {
   if (!dom.tafsirCurtain) return;
   dom.tafsirCurtain.classList.contains('open') ? closeTafsir() : openTafsir();
@@ -2721,6 +2726,7 @@ function shareTelegram() {
 
 /* ===================== FONT SIZE ===================== */
 
+/** @param {number} size */
 function applyFontSize(size) {
   state.fontSize = size;
   const container = document.querySelector('.ayahs-container');
@@ -2731,6 +2737,7 @@ function applyFontSize(size) {
 
 /* ===================== NIGHT MODE ===================== */
 
+/** @param {boolean} enabled */
 function applyNightMode(enabled) {
   state.nightMode = enabled;
   if (enabled) document.body.classList.add('night-mode');
@@ -2742,16 +2749,19 @@ function toggleNightMode() { applyNightMode(!state.nightMode); }
 
 /* ===================== SETTINGS PANEL ===================== */
 
+/** Open the settings panel and render adhkar settings list. */
 function openSettings() {
   dom.settingsPanel?.classList.add('open');
   renderAdhkarSettingsList();
 }
 
+/** Close the settings panel and stop azan if playing. */
 function closeSettings() {
   dom.settingsPanel?.classList.remove('open');
   if (state.azanPlaying) stopAzan();
 }
 
+/** Save city/country/method and reload prayer times. */
 function saveLocationSettings() {
   const city = dom.cityInput?.value.trim();
   const country = dom.countryInput?.value.trim();
@@ -2766,6 +2776,7 @@ function saveLocationSettings() {
   showToast('✅ تم حفظ الموقع وتحديث المواقيت', 'success');
 }
 
+/** Reset all settings to defaults and reload the page. */
 function resetSettings() {
   if (!confirm('هل تريد إعادة ضبط جميع الإعدادات؟')) return;
   const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed'];
@@ -2777,6 +2788,7 @@ function resetSettings() {
 
 let backgroundsList = [];
 
+/** @returns {Promise<void>} */
 async function loadBackgrounds() {
   try {
     const res = await fetch('data/backgrounds.json');
@@ -2795,6 +2807,7 @@ async function loadBackgrounds() {
   } catch (e) { console.warn('فشل تحميل قائمة الخلفيات', e); }
 }
 
+/** @param {string} bgId */
 function applyBackground(bgId) {
   if (!bgId || bgId === 'none') {
     document.body.style.backgroundImage = '';
@@ -2824,6 +2837,7 @@ function applyBackground(bgId) {
 
 /* ===================== RESTORE SETTINGS ===================== */
 
+/** Restore all settings from localStorage into the state object and update UI. */
 function restoreSettings() {
   const fs = storage.get('font_size'); if (fs) applyFontSize(fs);
   const nm = storage.get('night_mode'); if (nm === true) applyNightMode(true);
@@ -2861,6 +2875,7 @@ function restoreSettings() {
   }
 }
 
+/** Initialize adhkar state. */
 function initAdhkarState() {
   // state is already imported from ./state.js
 }
@@ -2879,6 +2894,7 @@ function getDefaultAdhkarSettings() {
 
 /* ===================== LOAD / SAVE ===================== */
 
+/** Load adhkar settings from storage or set defaults; reset daily counters. */
 function loadAdhkarSettings() {
   const saved = storage.get('adhkar_settings');
   const defaults = getDefaultAdhkarSettings();
@@ -2906,6 +2922,7 @@ function saveAdhkarSettings() {
 
 /* ===================== PANEL ===================== */
 
+/** Toggle the adhkar panel open/closed. */
 function toggleAdhkarPanel() {
   state.adhkarPanelOpen = !state.adhkarPanelOpen;
   dom.adhkarPanel?.classList.toggle('open', state.adhkarPanelOpen);
@@ -2916,6 +2933,7 @@ function toggleAdhkarPanel() {
   }
 }
 
+/** Close the adhkar panel. */
 function closeAdhkarPanel() {
   state.adhkarPanelOpen = false;
   dom.adhkarPanel?.classList.remove('open');
@@ -3265,6 +3283,7 @@ function dismissAdhkarNotification() {
   }
 }
 
+/** Check all adhkar categories and personal adhkar for pending notifications. */
 function checkAdhkarNotifications() {
   if (!state.adhkarSettings?.adhkar_enabled) return;
   const now = new Date();
@@ -3308,6 +3327,7 @@ function openAdhkarPanelFromNotif() {
 
 /* ===== Settings list in settings panel ===== */
 
+/** Render adhkar toggle/time/duration rows inside the settings panel. */
 function renderAdhkarSettingsList() {
   if (!dom.adhkarSettingsList) return;
   let html = '';
@@ -3357,6 +3377,7 @@ function renderAdhkarSettingsList() {
 }
 
 /* Wire up event listeners that need access to adhkar functions */
+/** Bind all adhkar-related DOM event listeners. */
 function wireAdhkarEvents() {
   dom.adhkarBtn?.addEventListener('click', toggleAdhkarPanel);
   dom.adhkarCloseBtn?.addEventListener('click', closeAdhkarPanel);
