@@ -119,7 +119,9 @@ function renderMushafPageImage(pageNum) {
   const img = new Image();
   img.className = 'mushaf-page-img';
   img.alt = `صفحة ${pageNum} من المصحف`;
-  img.loading = 'eager';
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.fetchPriority = 'low';
 
   img.onerror = () => {
     img.classList.add('loaded');
@@ -215,6 +217,9 @@ function renderMushafPageImage(pageNum) {
 }
 
 function preloadAdjacentPages(pageNum) {
+  const conn = navigator.connection;
+  if (conn && (conn.saveData || conn.effectiveType?.startsWith('2g'))) return;
+
   const toPreload = [];
   if (pageNum > 1) toPreload.push(pageNum - 1);
   if (pageNum < 604) toPreload.push(pageNum + 1);
