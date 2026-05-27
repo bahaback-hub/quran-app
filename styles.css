@@ -1651,6 +1651,15 @@ body.night-mode .surah-secrets-overlay-inner { background: #1e2330; }
   white-space: nowrap;
 }
 
+.mushaf-footer {
+  text-align: center;
+  font-size: 22px;
+  color: var(--accent-dark);
+  font-weight: bold;
+  font-family: 'Traditional Arabic', 'Amiri', serif;
+  padding: 10px 0 4px;
+  letter-spacing: 3px;
+}
 
 body.night-mode .mushaf-container {
   background: #1e2330;
