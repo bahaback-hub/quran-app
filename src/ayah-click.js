@@ -3,7 +3,7 @@ import { state } from "./state.js";
 const LAYOUT_BASE = 'https://raw.githubusercontent.com/zonetecde/mushaf-layout/refs/heads/main/mushaf/page-';
 const layoutCache = new Map();
 
-async function getPageLayout(pageNum) {
+export async function getPageLayout(pageNum) {
   if (layoutCache.has(pageNum)) return layoutCache.get(pageNum);
   const padded = String(pageNum).padStart(3, '0');
   try {
