@@ -1,8 +1,9 @@
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { stripTashkeel } from './utils.js';
+import { state } from './app.js';
 
-function copyToClipboard(text) {
+export function copyToClipboard(text) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
   } else {
