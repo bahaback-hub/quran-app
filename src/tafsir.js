@@ -3,10 +3,6 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { escapeHtml } from './utils.js';
 
-export function initTafsirState(s) {
-  state = s;
-}
-
 /* ===================== TAFSIR INDEXEDDB CACHE ===================== */
 
 function openTafsirDB() {

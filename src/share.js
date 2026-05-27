@@ -2,10 +2,6 @@ import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { stripTashkeel } from './utils.js';
 
-export function initShareState(s) {
-  state = s;
-}
-
 function copyToClipboard(text) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
