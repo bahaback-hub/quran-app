@@ -6,8 +6,8 @@ import { showToast } from './ui.js';
 import { escapeHtml } from './utils.js';
 import { ADHKAR_DATA } from './adhkar-data.js';
 
-export function initAdhkarState(s) {
-  state = s;
+export function initAdhkarState() {
+  // state is already imported from ./state.js
 }
 
 function getDefaultAdhkarSettings() {

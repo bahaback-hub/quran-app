@@ -3,6 +3,7 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { escapeHtml } from './utils.js';
+import { loadSurah } from './app.js';
 
 /* ===================== FAVORITES ===================== */
 
@@ -92,12 +93,5 @@ export function gotoBookmark() {
   const bm = state.bookmark || storage.get('bookmark');
   if (!bm) { showToast('لا توجد علامة محفوظة', 'error'); return; }
   if (dom.surahSelect) dom.surahSelect.value = bm.surah;
-  if (typeof loadSurahExternal === 'function') {
-    loadSurahExternal(bm.surah, { startAyah: bm.ayah });
-  }
-}
-
-let loadSurahExternal = null;
-export function setLoadSurahCallback(fn) {
-  loadSurahExternal = fn;
+  loadSurah(bm.surah, { startAyah: bm.ayah });
 }

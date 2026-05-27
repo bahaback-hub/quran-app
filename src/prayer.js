@@ -128,7 +128,7 @@ function updateCountdowns() {
 
 /* ===================== AZAN ===================== */
 
-function hideAzanNotification() {
+export function hideAzanNotification() {
   if (dom.azanNotification) dom.azanNotification.style.display = 'none';
 }
 

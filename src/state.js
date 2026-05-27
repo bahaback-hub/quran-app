@@ -25,8 +25,8 @@
  *   method: string,
  *   prayerTimes: object|null,
  *   lastAzanFired: string|null,
- *   favorites: Array<{surah: number, ayah: number, text: string}>,
- *   bookmark: {surah: number, ayah: number}|null,
+ *   favorites: Array<{key: string, surah: number, surahName: string, ayah: number, text: string, timestamp: number}>,
+ *   bookmark: {surah: number, surahName: string, ayah: number, text: string, timestamp: number}|null,
  *   pendingTafsirAfterLoad: string|null,
  *   playerCollapsed: boolean,
  *   barCollapsed: boolean,
@@ -44,8 +44,11 @@
  *   adhkarPanelOpen: boolean,
  *   adhkarActiveTab: string|null,
  *   lastAdhkarFired: string|null,
+ *   adhkarNotificationTimer: number|null,
+ *   _voiceListening: boolean,
+ *   _voiceRecognition: object|null,
  *   _smartTvState: number,
  *   _smartTvAudioSrc: string
  * }}
  */
-export let state = {};
+export let state = /** @type {any} */ ({});
