@@ -260,7 +260,7 @@ function preloadAdjacentPages(pageNum) {
   }
 }
 
-function populateSurahOverlay() {
+export function populateSurahOverlay() {
   if (!dom.mushafSurahOverlayList || !state.surahList.length) return;
   dom.mushafSurahOverlayList.innerHTML = '';
   for (const s of state.surahList) {
