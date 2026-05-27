@@ -68,16 +68,14 @@ export function resetSettings() {
 
 /* ===================== BACKGROUNDS ===================== */
 
-let backgroundsList = [];
-
 /** @returns {Promise<void>} */
 export async function loadBackgrounds() {
   try {
     const res = await fetch('data/backgrounds.json');
-    backgroundsList = await res.json();
+    state.backgroundsList = await res.json();
     if (dom.bgSelect) {
       dom.bgSelect.innerHTML = '';
-      backgroundsList.forEach(bg => {
+      state.backgroundsList.forEach(bg => {
         const opt = document.createElement('option');
         opt.value = bg.id;
         opt.textContent = bg.name;
@@ -100,7 +98,7 @@ export function applyBackground(bgId) {
     if (dom.bgSelect) dom.bgSelect.value = 'none';
     return;
   }
-  const bg = backgroundsList.find(b => b.id === bgId);
+  const bg = state.backgroundsList?.find(b => b.id === bgId);
   if (!bg) return;
   if (bg.type === 'css' && bg.css) {
     document.body.style.backgroundImage = '';

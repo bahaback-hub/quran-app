@@ -131,7 +131,8 @@ function initState() {
     currentTranslation: null,
     translationData: null,
     adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
-    surahOffsets: null
+    surahOffsets: null,
+    backgroundsList: null
   });
 }
 

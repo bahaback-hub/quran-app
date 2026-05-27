@@ -1431,7 +1431,8 @@ const ADHKAR_STORAGE_KEY = 'adhkar_settings';
  *   _voiceRecognition: object|null,
  *   _smartTvState: number,
  *   _smartTvAudioSrc: string,
- *   surahOffsets: Array<{surahNum: number, startAbs: number, count: number, name: string}>|null
+ *   surahOffsets: Array<{surahNum: number, startAbs: number, count: number, name: string}>|null,
+ *   backgroundsList: Array<{id: string, name: string, type?: string, css?: string}>|null
  * }}
  */
 let state = /** @type {any} */ ({});
@@ -1548,7 +1549,8 @@ function initState() {
     currentTranslation: null,
     translationData: null,
     adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
-    surahOffsets: null
+    surahOffsets: null,
+    backgroundsList: null
   });
 }
 
@@ -2786,16 +2788,14 @@ function resetSettings() {
 
 /* ===================== BACKGROUNDS ===================== */
 
-let backgroundsList = [];
-
 /** @returns {Promise<void>} */
 async function loadBackgrounds() {
   try {
     const res = await fetch('data/backgrounds.json');
-    backgroundsList = await res.json();
+    state.backgroundsList = await res.json();
     if (dom.bgSelect) {
       dom.bgSelect.innerHTML = '';
-      backgroundsList.forEach(bg => {
+      state.backgroundsList.forEach(bg => {
         const opt = document.createElement('option');
         opt.value = bg.id;
         opt.textContent = bg.name;
@@ -2818,7 +2818,7 @@ function applyBackground(bgId) {
     if (dom.bgSelect) dom.bgSelect.value = 'none';
     return;
   }
-  const bg = backgroundsList.find(b => b.id === bgId);
+  const bg = state.backgroundsList?.find(b => b.id === bgId);
   if (!bg) return;
   if (bg.type === 'css' && bg.css) {
     document.body.style.backgroundImage = '';
