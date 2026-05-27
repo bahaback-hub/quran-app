@@ -17,7 +17,7 @@ import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSett
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
 import { playCurrentAyah, togglePlayPause, nextAyah, prevAyah, toggleHifdh, toggleRepeat, bindAudioEvents } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
-import { toggleMushafMode, loadPage, highlightMushafAyah } from './mushaf.js';
+import { toggleMushafMode, loadPage, highlightMushafAyah, populateSurahOverlay } from './mushaf.js';
 
 /* Continue Reading Widget Styles - injected once */
 const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
@@ -504,6 +504,7 @@ export async function initApp() {
 
   await loadSurahList();
   buildSurahOffsets();
+  populateSurahOverlay();
 
   const last = storage.get('last_position');
   if (last && last.surah) {

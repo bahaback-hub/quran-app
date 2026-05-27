@@ -1960,6 +1960,7 @@ async function initApp() {
 
   await loadSurahList();
   buildSurahOffsets();
+  populateSurahOverlay();
 
   const last = storage.get('last_position');
   if (last && last.surah) {
