@@ -272,9 +272,9 @@ function populateSurahOverlay() {
     if (SURAH_SECRETS[s.number]) {
       const secretBtn = document.createElement('button');
       secretBtn.className = 'surah-secret-btn';
-      secretBtn.textContent = '🌟';
-      secretBtn.title = 'سرّ السورة';
-      secretBtn.setAttribute('aria-label', `سرّ سورة ${s.name}`);
+      secretBtn.textContent = 'ℹ️';
+      secretBtn.title = 'معلومات عن السورة';
+      secretBtn.setAttribute('aria-label', `معلومات عن سورة ${s.name}`);
       secretBtn.dataset.surah = String(s.number);
       secretBtn.dataset.surahName = s.name;
       secretBtn.addEventListener('click', (e) => {
@@ -294,8 +294,8 @@ export function showSurahSecret(surahNum, surahName) {
     showToast('لا يوجد سر مسجل لهذه السورة', 'error');
     return;
   }
-  dom.surahSecretsSurahName.textContent = `🌟 ${surahNum}. ${surahName}`;
-  dom.surahSecretsTitle.textContent = `🌟 سرّ السورة`;
+  dom.surahSecretsSurahName.textContent = `ℹ️ ${surahNum}. ${surahName}`;
+  dom.surahSecretsTitle.textContent = `ℹ️ معلومات عن السورة`;
   let html = `<p>${secret}</p>`;
   const authKeys = SURAH_SECRETS_AUTH_KEYS[surahNum];
   if (authKeys && authKeys.length) {

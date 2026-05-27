@@ -318,7 +318,7 @@ export function renderSurah(textData) {
 
   let html = `<h2 class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}`;
   if (SURAH_SECRETS[textData.number]) {
-    html += ` <button class="surah-secret-title-btn" data-surah="${textData.number}" data-surahname="${escapeHtml(textData.name)}" title="سرّ السورة" aria-label="سرّ السورة">🌟</button>`;
+    html += ` <button class="surah-secret-title-btn" data-surah="${textData.number}" data-surahname="${escapeHtml(textData.name)}" title="معلومات عن السورة" aria-label="معلومات عن السورة">ℹ️</button>`;
   }
   html += `</h2>`;
   if (textData.number !== 1 && textData.number !== 9) {
