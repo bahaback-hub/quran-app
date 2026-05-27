@@ -69,3 +69,69 @@ export async function handlePageClick(pageNum, clickX, clickY, imgWidth, imgHeig
 
   return null;
 }
+
+/**
+ * Get highlight rectangles for a given ayah on a mushaf page.
+ * @param {number} pageNum - Mushaf page number (1-604)
+ * @param {number} surah - Surah number
+ * @param {number} ayah - Ayah number
+ * @param {number} imgWidth - Displayed image width (px)
+ * @param {number} imgHeight - Displayed image height (px)
+ * @returns {Promise<Array<{top:number,left:number,width:number,height:number}>>}
+ */
+export async function getAyahHighlightRects(pageNum, surah, ayah, imgWidth, imgHeight) {
+  const layout = await getPageLayout(pageNum);
+  if (!layout) return [];
+
+  const totalLines = layout.lines.length;
+  if (totalLines === 0) return [];
+  const lineHeight = imgHeight / totalLines;
+
+  /** @type {Array<{top:number,left:number,width:number,height:number}>} */
+  const rects = [];
+
+  for (let lineIndex = 0; lineIndex < totalLines; lineIndex++) {
+    const line = layout.lines[lineIndex];
+    if (!line || line.type !== 'text') continue;
+
+    const words = line.words || [];
+    if (words.length === 0) continue;
+
+    const ayahWordIndices = [];
+    for (let i = 0; i < words.length; i++) {
+      const parts = words[i].location.split(':');
+      if (parts.length >= 2 && parseInt(parts[0], 10) === surah && parseInt(parts[1], 10) === ayah) {
+        ayahWordIndices.push(i);
+      }
+    }
+    if (ayahWordIndices.length === 0) continue;
+
+    const charCounts = words.map(w => Math.max(1, arabicCharCount(w.word)));
+    const totalChars = charCounts.reduce((a, b) => a + b, 0);
+
+    let minRtl = Infinity;
+    let maxRtl = -Infinity;
+    let cumWidth = 0;
+    for (let i = 0; i < words.length; i++) {
+      const wordWidth = (charCounts[i] / totalChars) * imgWidth;
+      const wordStart = cumWidth;
+      const wordEnd = cumWidth + wordWidth;
+      if (ayahWordIndices.includes(i)) {
+        if (wordStart < minRtl) minRtl = wordStart;
+        if (wordEnd > maxRtl) maxRtl = wordEnd;
+      }
+      cumWidth += wordWidth;
+    }
+
+    if (maxRtl <= minRtl) continue;
+
+    rects.push({
+      left: imgWidth - maxRtl,
+      top: lineIndex * lineHeight,
+      width: maxRtl - minRtl,
+      height: lineHeight,
+    });
+  }
+
+  return rects;
+}
