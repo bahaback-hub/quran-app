@@ -1394,8 +1394,6 @@ function getDefaultAdhkarSettings() {
   return settings;
 }
 
-let state = {};
-
 function initPrayerState(s) {
   state = s;
 }
@@ -1631,8 +1629,6 @@ function togglePrayerBar() {
   storage.set('bar_collapsed', state.barCollapsed);
 }
 
-let state = {};
-
 function initTafsirState(s) {
   state = s;
 }
@@ -1772,8 +1768,6 @@ function toggleTafsir() {
   dom.tafsirCurtain.classList.contains('open') ? closeTafsir() : openTafsir();
 }
 
-let state = {};
-
 function initFavState(s) {
   state = s;
 }
@@ -1876,8 +1870,6 @@ function setLoadSurahCallback(fn) {
   loadSurahExternal = fn;
 }
 
-let state = {};
-
 function initShareState(s) {
   state = s;
 }
@@ -1939,8 +1931,6 @@ function shareTelegram() {
   if (!text) return;
   window.open(`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`, '_blank');
 }
-
-let state = {};
 
 function initSettingsState(s) {
   state = s;
@@ -2087,8 +2077,6 @@ function restoreSettings() {
     dom.prayerBar.classList.remove('expanded');
   }
 }
-
-let state = {};
 
 function initAdhkarState(s) {
   state = s;

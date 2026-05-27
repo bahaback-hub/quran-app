@@ -5,8 +5,6 @@ import { showToast } from './ui.js';
 import { stopAzan, loadPrayerTimes } from './prayer.js';
 import { renderAdhkarSettingsList } from './adhkar.js';
 
-export let state = {};
-
 export function initSettingsState(s) {
   state = s;
 }

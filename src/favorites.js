@@ -3,8 +3,6 @@ import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { escapeHtml } from './utils.js';
 
-export let state = {};
-
 export function initFavState(s) {
   state = s;
 }
