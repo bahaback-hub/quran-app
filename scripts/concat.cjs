@@ -14,6 +14,12 @@ const files = [
   'src/translations/en.js',
   'src/i18n.js',
   'src/adhkar-data.js',
+  'src/prayer.js',
+  'src/tafsir.js',
+  'src/favorites.js',
+  'src/share.js',
+  'src/settings.js',
+  'src/adhkar.js',
   'src/app.js',
   'src/main.js'
 ];
