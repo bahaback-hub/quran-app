@@ -1993,8 +1993,7 @@ async function initApp() {
           const page = data?.data?.page || 1;
           if (dom.pageSelect) dom.pageSelect.value = page;
           if (dom.pageSlider) dom.pageSlider.value = page;
-          state.currentPage = page;
-          loadPage(page);
+          loadPage(page, true);
         })
         .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
     } else {
