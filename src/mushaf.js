@@ -82,7 +82,9 @@ function updatePageIndicator(pageNum) {
 
 /** Load and render a mushaf page image with flip animation. */
 export async function loadPage(pageNum) {
-  if (!pageNum || pageNum === state.currentPage) return;
+  if (!pageNum) return;
+  const hasContainer = !!dom.surahContent?.querySelector('.mushaf-container');
+  if (hasContainer && pageNum === state.currentPage) return;
   const prevPage = state.currentPage;
   const direction = pageNum > prevPage ? 'left' : 'right';
   state.currentPage = pageNum;
