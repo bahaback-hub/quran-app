@@ -7,6 +7,7 @@ import { showToast, loadingBar } from "./ui.js";
 import { escapeHtml, escapeRegExp, normalizeExactText, normalizeRelaxed } from "./utils.js";
 import { loadSurah, highlightCurrentAyah } from "./app.js";
 import { playCurrentAyah } from "./audio.js";
+import { openAyahModal } from "./ayah-modal.js";
 
 /** Load full Quran text into IndexedDB for offline search. */
 export async function loadFullQuranText() {
@@ -382,7 +383,8 @@ function renderSearchResults(matches, query) {
   </div>`;
   for (const m of matches) {
     const highlighted = buildSearchHighlight(m.text, query);
-    html += `<div class="search-result-item">
+    const fi = state.fullQuranText?.indexOf(m) ?? -1;
+    html += `<div class="search-result-item" data-surah="${m.surah}" data-ayah="${m.ayah}" data-surahname="${escapeHtml(m.surahName || '')}" data-fulltext-index="${fi}">
       <div class="search-result-title">${escapeHtml(m.surahName || '')} — آية ${m.ayah}</div>
       <div class="search-result-text">${highlighted}</div>
       <div class="search-result-actions">
@@ -427,6 +429,18 @@ function renderSearchResults(matches, query) {
     });
   });
 
+  document.querySelectorAll('.search-result-item').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (/** @type {HTMLElement} */ (e.target).closest('.search-result-actions')) return;
+      const s = parseInt(el.dataset.surah, 10);
+      const a = parseInt(el.dataset.ayah, 10);
+      const idx = parseInt(el.dataset.fulltextIndex, 10);
+      const name = el.dataset.surahname;
+      const ayahObj = state.fullQuranText?.[idx];
+      if (!ayahObj) return;
+      openAyahModal({ surah: s, ayah: a, text: ayahObj.text, surahName: name, index: idx });
+    });
+  });
 }
 
 function playSpecificAyah(surah, ayah) {

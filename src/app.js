@@ -18,6 +18,7 @@ import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhk
 import { playCurrentAyah, togglePlayPause, nextAyah, prevAyah, toggleHifdh, toggleRepeat, bindAudioEvents } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
 import { toggleMushafMode, loadPage, highlightMushafAyah, populateSurahOverlay } from './mushaf.js';
+import { initAyahModal, openAyahModal } from './ayah-modal.js';
 
 /* Continue Reading Widget Styles - injected once */
 const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
@@ -371,6 +372,23 @@ function attachAyahEvents() {
     el.removeEventListener('click', ayahClickHandler);
     el.addEventListener('click', ayahClickHandler);
   });
+  document.querySelectorAll('.ayah-number').forEach(el => {
+    el.removeEventListener('click', ayahNumClickHandler);
+    el.addEventListener('click', ayahNumClickHandler);
+  });
+}
+
+function ayahNumClickHandler(e) {
+  e.stopPropagation();
+  const ayahEl = e.currentTarget.closest('.ayah');
+  if (!ayahEl) return;
+  const surah = parseInt(ayahEl.dataset.surah, 10);
+  const ayah = parseInt(ayahEl.dataset.ayah, 10);
+  const idx = parseInt(ayahEl.dataset.index, 10);
+  if (!state.surahData || state.surahData.number !== surah) return;
+  const a = state.surahData.ayahs[idx];
+  if (!a) return;
+  openAyahModal({ surah, ayah, text: a.text, surahName: state.surahData.name, index: -1 });
 }
 
 function ayahClickHandler(e) {
@@ -498,6 +516,7 @@ export async function initApp() {
   restoreSettings();
   loadFavorites();
   startClock();
+  initAyahModal();
 
   checkAzanTime();
   scheduleNextAzanCheck();
