@@ -120,7 +120,20 @@ export function applyBackground(bgId) {
 /** Restore all settings from localStorage into the state object and update UI. */
 export function restoreSettings() {
   const fs = storage.get('font_size'); if (fs) applyFontSize(fs);
-  const nm = storage.get('night_mode'); if (nm === true) applyNightMode(true);
+  const nm = storage.get('night_mode');
+  if (nm === true) {
+    applyNightMode(true);
+  } else if (nm === null || nm === undefined) {
+    // Auto night mode based on system preference (only if user never set preference)
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    if (prefersDark.matches) applyNightMode(true);
+    // Listen for system theme changes and apply only if user hasn't explicitly set a preference
+    prefersDark.addEventListener('change', (e) => {
+      if (storage.get('night_mode') === null || storage.get('night_mode') === undefined) {
+        applyNightMode(e.matches);
+      }
+    });
+  }
   const city = storage.get('city'); if (city) state.city = city;
   const country = storage.get('country'); if (country) state.country = country;
   const method = storage.get('method'); if (method) state.method = method;

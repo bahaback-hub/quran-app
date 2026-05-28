@@ -91,8 +91,9 @@ function onTimeUpdate() {
     weights.push(Math.max(1, letters.length));
   }
   const totalWeight = weights.reduce((a, b) => a + b, 0);
-  // Reserve 4% pause between words
-  const pauseRatio = 0.04;
+  // Dynamic pause ratio based on number of words
+  // More words → less pause between them (natural speech flow)
+  const pauseRatio = words.length <= 3 ? 0.06 : words.length <= 8 ? 0.04 : 0.025;
   const speechRatio = 1 - pauseRatio * (words.length - 1);
   // Compute start time for each word
   let cumTime = 0;
