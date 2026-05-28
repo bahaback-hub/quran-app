@@ -4435,14 +4435,43 @@ function updatePageIndicator(pageNum) {
   }
 }
 
-/** Load and render a mushaf page image. */
+/** Load and render a mushaf page image with flip animation. */
 async function loadPage(pageNum) {
-  if (!pageNum) return;
+  if (!pageNum || pageNum === state.currentPage) return;
+  const prevPage = state.currentPage;
+  const direction = pageNum > prevPage ? 'left' : 'right';
   state.currentPage = pageNum;
   storage.set('current_page', pageNum);
   updatePageIndicator(pageNum);
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
+    renderMushafPageImage(pageNum);
+    return;
+  }
+
+  const oldContainer = dom.surahContent?.querySelector('.mushaf-container');
+  if (oldContainer) {
+    const flipOut = direction === 'left' ? 'mushaf-flip-out-left' : 'mushaf-flip-out-right';
+    oldContainer.style.perspective = '1500px';
+    oldContainer.classList.add('mushaf-flipping', flipOut);
+    await new Promise(r => setTimeout(r, 300));
+  }
+
   loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
   renderMushafPageImage(pageNum);
+
+  requestAnimationFrame(() => {
+    const newContainer = dom.surahContent?.querySelector('.mushaf-container');
+    if (newContainer) {
+      const flipIn = direction === 'left' ? 'mushaf-flip-in-right' : 'mushaf-flip-in-left';
+      newContainer.style.perspective = '1500px';
+      newContainer.classList.add('mushaf-flipping', flipIn);
+      newContainer.addEventListener('animationend', () => {
+        newContainer.classList.remove('mushaf-flipping', flipIn);
+      }, { once: true });
+    }
+  });
 }
 
 function getJuzForPage(pageNum) {
