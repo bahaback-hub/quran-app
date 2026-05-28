@@ -47,7 +47,11 @@ export function initAyahModal() {
 
 export function openAyahModal(data) {
   if (!modalEl || !data) return;
-  current = data;
+  let idx = data.index;
+  if (idx === -1 && state.fullQuranText) {
+    idx = state.fullQuranText.findIndex(a => a.surah === data.surah && a.ayah === data.ayah);
+  }
+  current = { ...data, index: idx };
   modalEl.style.display = 'flex';
   document.body.style.overflow = 'hidden';
   M.ayahModalTitle.textContent = `الآية ${data.ayah} من سورة ${data.surahName}`;
@@ -260,6 +264,18 @@ function toggleModalAudio() {
   const player = /** @type {HTMLAudioElement} */ (M.ayahModalAudioPlayer);
   if (!player) return;
   if (!player.paused) { player.pause(); M.ayahModalPlayBtn.textContent = '▶️ تشغيل'; return; }
+
+  // Use existing state audio if same surah is loaded
+  if (state.surahData?.number === current.surah && state.ayahsAudios?.length) {
+    const url = state.ayahsAudios[current.index >= 0 ? current.index : (current.ayah - 1)];
+    if (url) {
+      player.src = url;
+      player.play().then(() => { M.ayahModalPlayBtn.textContent = '⏸️ إيقاف'; })
+        .catch(() => showToast('تعذر تشغيل الصوت', 'error'));
+      return;
+    }
+  }
+
   ensureModalAudio().then(() => {
     if (!current) return;
     const url = ayahAudios[0];
