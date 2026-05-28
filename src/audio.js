@@ -4,6 +4,7 @@ import { dom } from "./dom.js";
 import { storage } from "./storage.js";
 import { showToast } from "./ui.js";
 import { loadSurah, highlightCurrentAyah } from "./app.js";
+import { getReciterById } from "./reciters.js";
 
 export function prepareAudioForNewSurah() {
   if (dom.audioPlayer) {
@@ -73,6 +74,7 @@ function stopWordTracking() {
 
 function onTimeUpdate() {
   if (!wordTrackingActive || !dom.audioPlayer || !state.surahData) return;
+  if (getReciterById(state.currentReciter).source === 'mp3quran') return;
   const duration = dom.audioPlayer.duration;
   if (!duration || !isFinite(duration)) return;
   const currentTime = dom.audioPlayer.currentTime;
