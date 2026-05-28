@@ -677,7 +677,7 @@ export async function initApp() {
   /* ========== MUSHAF MODE ========== */
   dom.modeToggleBtn?.addEventListener('click', toggleMushafMode);
   dom.pageSelect?.addEventListener('change', () => {
-    if (dom.pageSelect.value) { const p = parseInt(dom.pageSelect.value, 10); if (dom.pageSlider) dom.pageSlider.value = p; loadPage(p); }
+    if (dom.pageSelect.value) { const p = parseInt(dom.pageSelect.value, 10); if (dom.pageSlider) dom.pageSlider.value = p; loadPage(p, true); }
   });
   dom.mushafSurahOverlayClose?.addEventListener('click', () => { if (dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
   dom.mushafSurahOverlay?.addEventListener('click', (e) => { if (e.target === dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
@@ -687,8 +687,7 @@ export async function initApp() {
   dom.pageSlider?.addEventListener('input', () => {
     const p = parseInt(dom.pageSlider.value, 10);
     if (dom.pageSelect) dom.pageSelect.value = p;
-    state.currentPage = p;
-    loadPage(p);
+    loadPage(p, true);
   });
 
   // Restore mushaf mode
