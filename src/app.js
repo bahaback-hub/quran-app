@@ -228,7 +228,7 @@ export async function loadSurah(surahNum, opts = {}) {
   if (state.loadingSurah === surahNum) return;
   state.loadingSurah = surahNum;
 
-  if (state.isPlaying) prepareAudioForNewSurah();
+  prepareAudioForNewSurah();
 
   if (state.hifdhMode) {
     state.hifdhMode = false;
