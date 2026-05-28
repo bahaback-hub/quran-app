@@ -4662,6 +4662,7 @@ function populateSurahOverlay() {
       dom.mushafSurahOverlay.style.display = 'none';
       state.currentSurah = s.number;
       state.currentAyahIndex = 0;
+      state.surahData = null;
       loadingBar.show(`⏳ البحث عن أول صفحة لسورة ${s.name}...`);
       try {
         const res = await fetch(`${CONFIG.API_BASE}/ayah/${s.number}:1`);
