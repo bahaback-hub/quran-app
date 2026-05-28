@@ -372,31 +372,17 @@ function attachAyahEvents() {
     el.removeEventListener('click', ayahClickHandler);
     el.addEventListener('click', ayahClickHandler);
   });
-  document.querySelectorAll('.ayah-number').forEach(el => {
-    el.removeEventListener('click', ayahNumClickHandler);
-    el.addEventListener('click', ayahNumClickHandler);
-  });
-}
-
-function ayahNumClickHandler(e) {
-  e.stopPropagation();
-  const ayahEl = e.currentTarget.closest('.ayah');
-  if (!ayahEl) return;
-  const surah = parseInt(ayahEl.dataset.surah, 10);
-  const ayah = parseInt(ayahEl.dataset.ayah, 10);
-  const idx = parseInt(ayahEl.dataset.index, 10);
-  if (!state.surahData || state.surahData.number !== surah) return;
-  const a = state.surahData.ayahs[idx];
-  if (!a) return;
-  openAyahModal({ surah, ayah, text: a.text, surahName: state.surahData.name, index: -1 });
 }
 
 function ayahClickHandler(e) {
   const ayahEl = e.currentTarget;
   const idx = parseInt(ayahEl.getAttribute('data-index'), 10);
-  state.currentAyahIndex = idx;
-  highlightCurrentAyah();
-  playCurrentAyah();
+  const surah = parseInt(ayahEl.dataset.surah, 10);
+  const ayah = parseInt(ayahEl.dataset.ayah, 10);
+  if (!state.surahData || state.surahData.number !== surah) return;
+  const a = state.surahData.ayahs[idx];
+  if (!a) return;
+  openAyahModal({ surah, ayah, text: a.text, surahName: state.surahData.name, index: -1 });
 }
 
 function finalizeSurahLoad(opts) {
