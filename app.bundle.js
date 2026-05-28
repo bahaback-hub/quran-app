@@ -2675,7 +2675,19 @@ function renderFavorites() {
     removeBtn.className = 'favorite-action-btn favorite-remove-btn fav-remove';
     removeBtn.dataset.key = String(f.key || '');
     removeBtn.textContent = 'حذف';
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'favorite-action-btn fav-copy';
+    copyBtn.dataset.text = f.text || '';
+    copyBtn.textContent = 'نسخ';
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'favorite-action-btn fav-share';
+    shareBtn.dataset.text = f.text || '';
+    shareBtn.dataset.surahName = f.surahName || '';
+    shareBtn.dataset.ayah = String(f.ayah || '');
+    shareBtn.textContent = 'مشاركة';
     actions.appendChild(goBtn);
+    actions.appendChild(copyBtn);
+    actions.appendChild(shareBtn);
     actions.appendChild(removeBtn);
     item.appendChild(meta);
     item.appendChild(textDiv);
@@ -2691,6 +2703,26 @@ function renderFavorites() {
       if (dom.surahSelect) dom.surahSelect.value = surah;
       loadSurah(surah, { startAyah: ayah });
       closeFavorites();
+    });
+  });
+  dom.favoritesList.querySelectorAll('.fav-copy').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.dataset.text || '';
+      if (text) { copyToClipboard(text); showToast('📋 تم نسخ الآية', 'success'); }
+    });
+  });
+  dom.favoritesList.querySelectorAll('.fav-share').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.dataset.text || '';
+      const surahName = btn.dataset.surahname || '';
+      const ayah = btn.dataset.ayah || '';
+      const shareText = `${text} — ${surahName} — آية ${ayah}`;
+      if (navigator.share) {
+        navigator.share({ title: 'القرآن الكريم', text: shareText }).catch(() => {});
+      } else {
+        copyToClipboard(shareText);
+        showToast('📋 تم نسخ الآية للمشاركة', 'success');
+      }
     });
   });
   dom.favoritesList.querySelectorAll('.fav-remove').forEach(btn => {
