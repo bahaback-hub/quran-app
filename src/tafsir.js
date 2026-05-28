@@ -140,6 +140,14 @@ export function closeTafsir() {
 
 /** Toggle the tafsir curtain open/closed. */
 export function toggleTafsir() {
-  if (!dom.tafsirCurtain) return;
   dom.tafsirCurtain.classList.contains('open') ? closeTafsir() : openTafsir();
+}
+
+/** Fetch tafsir text (cached or from API) without rendering to the curtain. */
+export async function fetchTafsirText(edition, surahNum, ayahNum) {
+  if (!edition || !surahNum || !ayahNum) return null;
+  const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
+  const cached = await getTafsirFromDB(cacheKey);
+  if (cached) return cached;
+  return await fetchTafsirFromAPI(edition, surahNum, ayahNum);
 }

@@ -25,6 +25,7 @@ const files = [
   'src/audio.js',
   'src/search.js',
   'src/ayah-click.js',
+  'src/ayah-modal.js',
   'src/mushaf.js',
   'src/main.js'
 ];

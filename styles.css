@@ -2722,6 +2722,240 @@ body.night-mode .adhkar-add-inner { background: #1e2330; }
   .adhkar-panel.open { left: 0; }
 }
 
+/* ========== نافذة الآية المنبثقة (Ayah Modal) ========== */
+.ayah-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
+  overflow-y: auto;
+  padding: 16px;
+}
+.ayah-modal-inner {
+  background: var(--panel-bg);
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  direction: rtl;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.ayah-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.ayah-modal-close-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ayah-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.ayah-modal-badges {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.ayah-modal-badges .btn-sm {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--accent) !important;
+  color: var(--accent);
+}
+.btn-fav {
+  background: #f59e0b;
+  color: #1a1a1a;
+}
+.btn-fav.active {
+  background: #dc2626;
+  color: #fff;
+}
+.ayah-modal-nav {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.ayah-modal-nav-btn {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+}
+.ayah-modal-nav-btn:hover { text-decoration: underline; }
+.ayah-modal-text-box {
+  background: var(--tafsir-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 12px;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.05);
+}
+.ayah-modal-text {
+  font-family: 'Amiri','Scheherazade New','Traditional Arabic',serif;
+  font-size: 26px;
+  line-height: 1.9;
+  color: var(--text-primary);
+  text-align: center;
+  word-spacing: 4px;
+}
+.ayah-modal-meta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.ayah-modal-meta-item {
+  background: var(--hover-bg);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+.ayah-modal-section {
+  margin-bottom: 12px;
+}
+.btn-block {
+  width: 100%;
+}
+.ayah-modal-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.ayah-modal-actions .btn-sm {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-soft);
+  background: var(--hover-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  flex: 1;
+  min-width: 80px;
+}
+.ayah-modal-actions .btn-sm:hover {
+  background: var(--accent);
+  color: #fff;
+}
+.ayah-modal-audio {
+  background: var(--tafsir-bg);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.ayah-modal-audio-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+.ayah-modal-qari-select {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-soft);
+  background: var(--select-bg);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+.btn-audio-play {
+  padding: 6px 16px;
+  font-size: 13px;
+}
+.ayah-modal-audio-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.ayah-modal-audio-slider {
+  flex: 1;
+  accent-color: var(--accent);
+  height: 5px;
+  cursor: pointer;
+}
+.ayah-modal-repeat-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.ayah-modal-repeat-label input { accent-color: var(--accent); }
+.ayah-modal-tafsir-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.ayah-modal-tafsir-tab {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-soft);
+  background: var(--hover-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+.ayah-modal-tafsir-tab.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.ayah-modal-tafsir-tab:hover:not(.active) {
+  background: var(--border-soft);
+}
+.ayah-modal-tafsir-body {
+  background: var(--tafsir-bg);
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-primary);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.ayah-modal-tafsir-body .tafsir-text {
+  white-space: pre-wrap;
+}
+body.night-mode .ayah-modal-inner {
+  background: #1a1f2e;
+  border: 1px solid #2a3045;
+}
+body.night-mode .ayah-modal-text-box {
+  border-color: #2a3045;
+}
+body.night-mode .ayah-modal-actions .btn-sm {
+  border-color: #2a3045;
+}
+
 /* ========== الطباعة ========== */
 @media print {
   body { background: #fff; padding: 0; padding-bottom: 0; }
