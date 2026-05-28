@@ -188,7 +188,7 @@ function onAudioEnded() {
       if (startIdx !== -1) {
         state.currentAyahIndex = startIdx;
         highlightCurrentAyah();
-        setTimeout(playCurrentAyah, 0);
+        playCurrentAyah();
         return;
       }
     }
@@ -208,7 +208,7 @@ export function nextAyah(autoFromRepeat) {
   if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
     state.currentAyahIndex++;
     highlightCurrentAyah();
-    if (autoFromRepeat || state.isPlaying) setTimeout(playCurrentAyah, 0);
+    if (autoFromRepeat || state.isPlaying) playCurrentAyah();
   } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
     if (state.mushafMode) {
       state.isPlaying = false;
@@ -225,7 +225,7 @@ export function prevAyah() {
   if (state.currentAyahIndex > 0) {
     state.currentAyahIndex--;
     highlightCurrentAyah();
-    if (state.isPlaying) setTimeout(playCurrentAyah, 0);
+    if (state.isPlaying) playCurrentAyah();
   } else if (state.currentSurah > 1) {
     prevSurah();
   }
