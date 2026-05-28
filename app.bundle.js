@@ -4667,24 +4667,17 @@ function shareModalAyah() {
 function populateQaris() {
   if (!M.ayahModalQariSelect) return;
   M.ayahModalQariSelect.innerHTML = [
-    'ar.alafasy','ar.abdulbasitabdulsamad','ar.abdurrahmaansudais',
-    'ar.husary','ar.minshawi','ar.muhammadayyoub','ar.aliabdurrahmanalhuthaify',
-    'ar.shaatree','ar.saadghamidi','ar.saudshuraym','ar.abdullahbasfar',
-    'ar.salahbukhatir','ar.abdulmohsenalqasim','ar.yaseraldosari',
-    'ar.nasseralkatami','ar.ahmedajamy','ar.ahmedalrame',
-    'ar.maheralmeaqli','ar.abdulazizalahmad','ar.mohammadaldeen'
+    'ar.alafasy','ar.abdulbasitmurattal','ar.abdulsamad',
+    'ar.abdurrahmaansudais','ar.husary','ar.minshawi','ar.minshawimujawwad',
+    'ar.muhammadayyoub','ar.shaatree','ar.abdullahbasfar','ar.ahmedajamy'
   ].map(id => {
     const names = {
-      'ar.alafasy':'مشاري العفاسي','ar.abdulbasitabdulsamad':'عبد الباسط عبد الصمد',
+      'ar.alafasy':'مشاري العفاسي','ar.abdulbasitmurattal':'عبد الباسط (مرتل)',
+      'ar.abdulsamad':'عبد الباسط (مجود)',
       'ar.abdurrahmaansudais':'عبد الرحمن السديس','ar.husary':'محمود خليل الحصري',
-      'ar.minshawi':'محمد صديق المنشاوي','ar.muhammadayyoub':'محمد أيوب',
-      'ar.aliabdurrahmanalhuthaify':'علي الحذيفي','ar.shaatree':'أبو بكر الشاطري',
-      'ar.saadghamidi':'سعد الغامدي','ar.saudshuraym':'سعود الشريم',
-      'ar.abdullahbasfar':'عبد الله باسفر','ar.salahbukhatir':'صلاح بوخاطر',
-      'ar.abdulmohsenalqasim':'عبد المحسن القاسم','ar.yaseraldosari':'ياسر الدوسري',
-      'ar.nasseralkatami':'ناصر القطامي','ar.ahmedajamy':'أحمد العجمي',
-      'ar.ahmedalrame':'أحمد الرامي','ar.maheralmeaqli':'ماهر المعيقلي',
-      'ar.abdulazizalahmad':'عبد العزيز الأحمد','ar.mohammadaldeen':'محمد الدين'
+      'ar.minshawi':'المنشاوي (مرتل)','ar.minshawimujawwad':'المنشاوي (مجود)',
+      'ar.muhammadayyoub':'محمد أيوب','ar.shaatree':'أبو بكر الشاطري',
+      'ar.abdullahbasfar':'عبد الله باسفر','ar.ahmedajamy':'أحمد العجمي'
     };
     return `<option value="${id}">${names[id]||id}</option>`;
   }).join('');
