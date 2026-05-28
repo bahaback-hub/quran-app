@@ -71,6 +71,28 @@ export function renderFavorites() {
     fragment.appendChild(item);
   }
   dom.favoritesList.replaceChildren(fragment);
+
+  dom.favoritesList.querySelectorAll('.fav-go').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const surah = parseInt(btn.dataset.surah, 10);
+      const ayah = parseInt(btn.dataset.ayah, 10);
+      if (dom.surahSelect) dom.surahSelect.value = surah;
+      loadSurah(surah, { startAyah: ayah });
+      closeFavorites();
+    });
+  });
+  dom.favoritesList.querySelectorAll('.fav-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.key;
+      const idx = state.favorites.findIndex(f => f.key === key);
+      if (idx !== -1) {
+        state.favorites.splice(idx, 1);
+        saveFavorites();
+        renderFavorites();
+        showToast('💔 تمت إزالة من المفضلة', '');
+      }
+    });
+  });
 }
 
 export function openFavorites() { renderFavorites(); dom.favoritesPanel?.classList.add('open'); }
