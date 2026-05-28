@@ -417,7 +417,7 @@ function finalizeSurahLoad(opts) {
   }
   highlightCurrentAyah();
   updatePlayerInfo();
-  if (opts.autoPlay) setTimeout(() => playCurrentAyah(), 200);
+  if (opts.autoPlay) playCurrentAyah();
   if (state.autoSave) saveCurrentPosition();
 }
 
