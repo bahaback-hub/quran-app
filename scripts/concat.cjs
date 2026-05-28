@@ -29,9 +29,16 @@ const files = [
   'src/main.js'
 ];
 
+let missingFiles = [];
 let output = '';
 for (const f of files) {
-  let content = fs.readFileSync(path.join(ROOT, f), 'utf8');
+  const fullPath = path.join(ROOT, f);
+  if (!fs.existsSync(fullPath)) {
+    missingFiles.push(f);
+    console.error(`⚠️  ملف مفقود: ${f}`);
+    continue;
+  }
+  let content = fs.readFileSync(fullPath, 'utf8');
 
   // Remove all import statements (multiline)
   content = content.replace(/^import\s[\s\S]*?from\s['"][^'"]+['"];\s*\n/gm, '');
@@ -43,5 +50,10 @@ for (const f of files) {
   output += content + '\n';
 }
 
+if (missingFiles.length > 0) {
+  console.error(`\n❌ فشل: ${missingFiles.length} ملف(ملفات) مفقودة.`);
+  process.exit(1);
+}
+
 fs.writeFileSync(path.join(ROOT, 'app.bundle.js'), output);
-console.log('Wrote app.bundle.js (' + output.length + ' bytes)');
+console.log('✅ Wrote app.bundle.js (' + output.length + ' bytes)');
