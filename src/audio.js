@@ -194,20 +194,6 @@ function onAudioEnded() {
   if (!state.surahData || !state.ayahsAudios) return;
   stopWordTracking();
 
-  const isMp3quran = getReciterById(state.currentReciter).source === 'mp3quran';
-
-  // For mp3quran (full surah audio): go to next surah
-  if (isMp3quran) {
-    showToast(`✅ انتهت سورة ${state.surahData.name}`, 'success');
-    if (state.currentSurah < CONFIG.SURAH_COUNT) {
-      nextSurah();
-    } else {
-      state.isPlaying = false;
-      updatePlayPauseBtn();
-    }
-    return;
-  }
-
   if (state.repeatMode) {
     const currentNum = state.surahData.ayahs[state.currentAyahIndex].numberInSurah;
     if (currentNum === state.repeatTo) {
