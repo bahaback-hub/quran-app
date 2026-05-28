@@ -4660,6 +4660,8 @@ function populateSurahOverlay() {
     btn.dataset.surah = String(s.number);
     btn.addEventListener('click', async () => {
       dom.mushafSurahOverlay.style.display = 'none';
+      state.currentSurah = s.number;
+      state.currentAyahIndex = 0;
       loadingBar.show(`⏳ البحث عن أول صفحة لسورة ${s.name}...`);
       try {
         const res = await fetch(`${CONFIG.API_BASE}/ayah/${s.number}:1`);
@@ -4667,7 +4669,6 @@ function populateSurahOverlay() {
         const page = data?.data?.page || 1;
         if (dom.pageSelect) dom.pageSelect.value = page;
         if (dom.pageSlider) dom.pageSlider.value = page;
-        state.currentPage = page;
         loadPage(page);
       } catch {
         showToast('تعذّر العثور على الصفحة', 'error');
@@ -4739,7 +4740,6 @@ async function highlightMushafAyah() {
         const data = await res.json();
         const page = data?.data?.page;
         if (page && page !== state.currentPage) {
-          state.currentPage = page;
           loadPage(page);
           return;
         }
