@@ -74,10 +74,31 @@ function stopWordTracking() {
 
 function onTimeUpdate() {
   if (!wordTrackingActive || !dom.audioPlayer || !state.surahData) return;
-  if (getReciterById(state.currentReciter).source === 'mp3quran') return;
   const duration = dom.audioPlayer.duration;
   if (!duration || !isFinite(duration)) return;
   const currentTime = dom.audioPlayer.currentTime;
+
+  const isMp3quran = getReciterById(state.currentReciter).source === 'mp3quran';
+
+  if (isMp3quran) {
+    // Ayah-level tracking for full-surah audio
+    const ayahs = state.surahData.ayahs;
+    const progress = currentTime / duration;
+    let cumChars = 0;
+    const totalChars = ayahs.reduce((s, a) => s + (a.text || '').length, 0);
+    if (totalChars === 0) return;
+    const targetChars = progress * totalChars;
+    let newIdx = ayahs.length - 1;
+    for (let i = 0; i < ayahs.length; i++) {
+      cumChars += (ayahs[i].text || '').length;
+      if (cumChars >= targetChars) { newIdx = i; break; }
+    }
+    if (newIdx !== state.currentAyahIndex) {
+      state.currentAyahIndex = newIdx;
+      highlightCurrentAyah();
+    }
+    return;
+  }
 
   const ayahEl = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
   if (!ayahEl) return;
@@ -89,22 +110,17 @@ function onTimeUpdate() {
   const weights = [];
   for (const w of words) {
     const letters = (w.textContent.match(/[\u0621-\u064A\u0660-\u0669]/g) || []);
-    // Ensure every word has at least weight 1
     weights.push(Math.max(1, letters.length));
   }
   const totalWeight = weights.reduce((a, b) => a + b, 0);
-  // Dynamic pause ratio based on number of words
-  // More words → less pause between them (natural speech flow)
   const pauseRatio = words.length <= 3 ? 0.06 : words.length <= 8 ? 0.04 : 0.025;
   const speechRatio = 1 - pauseRatio * (words.length - 1);
-  // Compute start time for each word
   let cumTime = 0;
   const startTimes = [];
   for (let i = 0; i < words.length; i++) {
     startTimes.push(cumTime);
     cumTime += (weights[i] / totalWeight) * speechRatio * duration + pauseRatio * duration;
   }
-  // Find current word index
   let wordIndex = words.length - 1;
   for (let i = words.length - 1; i >= 0; i--) {
     if (currentTime >= startTimes[i]) { wordIndex = i; break; }
@@ -130,8 +146,13 @@ export function expandPlayer() {
 export function togglePlayPause() {
   if (!state.surahData || !dom.audioPlayer) return;
   if (dom.audioPlayer.paused) {
-    if (!dom.audioPlayer.src) playCurrentAyah();
-    else dom.audioPlayer.play().catch(e => console.warn(e));
+    if (!dom.audioPlayer.src || dom.audioPlayer.ended) {
+      state.currentAyahIndex = 0;
+      highlightCurrentAyah();
+      playCurrentAyah();
+    } else {
+      dom.audioPlayer.play().catch(e => console.warn(e));
+    }
   } else {
     dom.audioPlayer.pause();
   }
