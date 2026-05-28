@@ -69,17 +69,33 @@ export async function loadFullQuranText() {
   });
 }
 
+/** Generate Arabic search variants: original + stem without "ال" prefix.
+ *  This handles cases where the Quran text has prefixes (ل, ب, ف, و) before "ال"
+ *  which causes alef assimilation (e.g. "للملائكة" vs "الملائكة").
+ */
+function generateArabicVariants(normQuery) {
+  const variants = [normQuery];
+  if (normQuery.startsWith('ال') && normQuery.length > 3) {
+    variants.push(normQuery.slice(2));
+  }
+  return [...new Set(variants)];
+}
+
 /** Search full Quran text for exact matches. Falls back to relaxed if no results. */
 export function performExactSearch(query) {
   if (!query.trim() || query.length < 2) { showToast('أدخل حرفين على الأقل', 'error'); return; }
   if (!state.fullQuranLoaded) { showToast('⚠️ قاعدة القرآن تُحمَّل، انتظر قليلاً', 'error'); return; }
-  let normQuery = normalizeExactText(query.trim());
-  let matches = state.fullQuranText.filter(ayah => ayah.normalized.includes(normQuery)).slice(0, 100);
+  const normQuery = normalizeExactText(query.trim());
+  const relaxedQuery = normalizeRelaxed(query.trim());
+  const exactVariants = generateArabicVariants(normQuery);
+  const relaxedVariants = generateArabicVariants(relaxedQuery);
+  let matches = state.fullQuranText.filter(ayah =>
+    exactVariants.some(q => ayah.normalized.includes(q))
+  ).slice(0, 100);
   if (!matches.length) {
-    const relaxedQuery = normalizeRelaxed(query.trim());
-    if (relaxedQuery !== normQuery) {
-      matches = state.fullQuranText.filter(ayah => normalizeRelaxed(ayah.text).includes(relaxedQuery)).slice(0, 100);
-    }
+    matches = state.fullQuranText.filter(ayah =>
+      relaxedVariants.some(q => normalizeRelaxed(ayah.text).includes(q))
+    ).slice(0, 100);
   }
   renderSearchResults(matches, query);
 }
