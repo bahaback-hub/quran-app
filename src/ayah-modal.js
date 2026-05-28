@@ -225,14 +225,24 @@ function shareModalAyah() {
 function populateQaris() {
   if (!M.ayahModalQariSelect) return;
   M.ayahModalQariSelect.innerHTML = [
-    'ar.alafasy','ar.abdulbasitmurattal','ar.abdurrahmaansudais',
-    'ar.husary','ar.minshawi','ar.aliabdurrahmanalhuthaify','ar.shaatree'
+    'ar.alafasy','ar.abdulbasitabdulsamad','ar.abdurrahmaansudais',
+    'ar.husary','ar.minshawi','ar.muhammadayyoub','ar.aliabdurrahmanalhuthaify',
+    'ar.shaatree','ar.saadghamidi','ar.saudshuraym','ar.abdullahbasfar',
+    'ar.salahbukhatir','ar.abdulmohsenalqasim','ar.yaseraldosari',
+    'ar.nasseralkatami','ar.ahmedajamy','ar.ahmedalrame',
+    'ar.maheralmeaqli','ar.abdulazizalahmad','ar.mohammadaldeen'
   ].map(id => {
     const names = {
-      'ar.alafasy':'مشاري العفاسي','ar.abdulbasitmurattal':'عبد الباسط عبد الصمد',
+      'ar.alafasy':'مشاري العفاسي','ar.abdulbasitabdulsamad':'عبد الباسط عبد الصمد',
       'ar.abdurrahmaansudais':'عبد الرحمن السديس','ar.husary':'محمود خليل الحصري',
-      'ar.minshawi':'محمد صديق المنشاوي','ar.aliabdurrahmanalhuthaify':'علي الحذيفي',
-      'ar.shaatree':'أبو بكر الشاطري'
+      'ar.minshawi':'محمد صديق المنشاوي','ar.muhammadayyoub':'محمد أيوب',
+      'ar.aliabdurrahmanalhuthaify':'علي الحذيفي','ar.shaatree':'أبو بكر الشاطري',
+      'ar.saadghamidi':'سعد الغامدي','ar.saudshuraym':'سعود الشريم',
+      'ar.abdullahbasfar':'عبد الله باسفر','ar.salahbukhatir':'صلاح بوخاطر',
+      'ar.abdulmohsenalqasim':'عبد المحسن القاسم','ar.yaseraldosari':'ياسر الدوسري',
+      'ar.nasseralkatami':'ناصر القطامي','ar.ahmedajamy':'أحمد العجمي',
+      'ar.ahmedalrame':'أحمد الرامي','ar.maheralmeaqli':'ماهر المعيقلي',
+      'ar.abdulazizalahmad':'عبد العزيز الأحمد','ar.mohammadaldeen':'محمد الدين'
     };
     return `<option value="${id}">${names[id]||id}</option>`;
   }).join('');
