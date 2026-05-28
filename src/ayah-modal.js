@@ -7,6 +7,7 @@ import { copyToClipboard, shareNative } from "./share.js";
 import { fetchTafsirText } from "./tafsir.js";
 import { loadSurah } from "./app.js";
 import { storage } from "./storage.js";
+import { RECITERS, getReciterById, buildAudioUrl } from "./reciters.js";
 
 /** @type {Element} */
 let modalEl;
@@ -228,29 +229,23 @@ function shareModalAyah() {
 
 function populateQaris() {
   if (!M.ayahModalQariSelect) return;
-  M.ayahModalQariSelect.innerHTML = [
-    'ar.alafasy','ar.abdulbasitmurattal','ar.abdulsamad',
-    'ar.abdurrahmaansudais','ar.husary','ar.minshawi','ar.minshawimujawwad',
-    'ar.muhammadayyoub','ar.shaatree','ar.abdullahbasfar','ar.ahmedajamy'
-  ].map(id => {
-    const names = {
-      'ar.alafasy':'مشاري العفاسي','ar.abdulbasitmurattal':'عبد الباسط (مرتل)',
-      'ar.abdulsamad':'عبد الباسط (مجود)',
-      'ar.abdurrahmaansudais':'عبد الرحمن السديس','ar.husary':'محمود خليل الحصري',
-      'ar.minshawi':'المنشاوي (مرتل)','ar.minshawimujawwad':'المنشاوي (مجود)',
-      'ar.muhammadayyoub':'محمد أيوب','ar.shaatree':'أبو بكر الشاطري',
-      'ar.abdullahbasfar':'عبد الله باسفر','ar.ahmedajamy':'أحمد العجمي'
-    };
-    return `<option value="${id}">${names[id]||id}</option>`;
-  }).join('');
+  M.ayahModalQariSelect.innerHTML = RECITERS.map(r =>
+    `<option value="${r.id}">${r.name}</option>`
+  ).join('');
 }
 
 async function ensureModalAudio() {
   if (!current) return;
-  const reciter = /** @type {HTMLSelectElement} */ (M.ayahModalQariSelect)?.value || CONFIG.DEFAULT_RECITER;
+  const reciterId = /** @type {HTMLSelectElement} */ (M.ayahModalQariSelect)?.value || CONFIG.DEFAULT_RECITER;
   if (audioLoadSurah === current.surah && ayahAudios.length) return;
+  const reciterInfo = getReciterById(reciterId);
+  if (reciterInfo.source === 'mp3quran') {
+    ayahAudios = [buildAudioUrl(reciterInfo, current.surah)];
+    audioLoadSurah = current.surah;
+    return;
+  }
   try {
-    const res = await fetch(`${CONFIG.API_BASE}/surah/${current.surah}/${reciter}`);
+    const res = await fetch(`${CONFIG.API_BASE}/surah/${current.surah}/${reciterId}`);
     const d = await res.json();
     if (d?.data?.ayahs) {
       ayahAudios = d.data.ayahs.map(a => a.audio);

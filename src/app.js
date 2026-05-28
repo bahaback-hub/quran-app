@@ -10,6 +10,7 @@ import { __, getLang, setLang } from './i18n.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 import { state } from './state.js';
 import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification } from './prayer.js';
+import { RECITERS, getReciterById, buildAudioUrl } from './reciters.js';
 import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
 import { loadTafsirForCurrentAyah, loadTafsirForSurahAyah, toggleTafsir, closeTafsir } from './tafsir.js';
 import { buildShareText, toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
@@ -177,6 +178,14 @@ function populateSurahSelect() {
   dom.surahSelect.value = state.currentSurah;
 }
 
+function populateReciterSelect() {
+  if (!dom.reciterSelect) return;
+  dom.reciterSelect.innerHTML = RECITERS.map(r =>
+    `<option value="${r.id}">${r.name}</option>`
+  ).join('');
+  dom.reciterSelect.value = state.currentReciter || CONFIG.DEFAULT_RECITER;
+}
+
 export function buildSurahOffsets() {
   if (state.surahOffsets || !state.surahList.length) return;
   state.surahOffsets = [];
@@ -235,10 +244,16 @@ export async function loadSurah(surahNum, opts = {}) {
   state.currentSurah = surahNum;
 
   const cacheKey = `${surahNum}_${state.currentReciter}_${state.currentTranslation || 'notr'}`;
+  const reciterInfo = getReciterById(state.currentReciter);
+  const isMp3quran = reciterInfo.source === 'mp3quran';
   if (state.surahCache.has(cacheKey)) {
     const cached = state.surahCache.get(cacheKey);
     state.surahData = cached.text;
-    state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
+    if (isMp3quran) {
+      state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
+    } else {
+      state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
+    }
     state.translationData = cached.translation || null;
     renderSurah(cached.text);
     finalizeSurahLoad(opts);
@@ -251,28 +266,36 @@ export async function loadSurah(surahNum, opts = {}) {
 
   try {
     const fetches = [
-      fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`),
-      fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`)
+      fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`)
     ];
+    if (!isMp3quran) {
+      fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`));
+    }
     if (state.translationEnabled && state.currentTranslation) {
       fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`));
     }
-    const [textRes, audioRes, transRes] = await Promise.all(fetches);
+
+    const results = await Promise.all(fetches);
+    const textRes = results[0];
     const textJson = await textRes.json();
-    const audioJson = await audioRes.json();
     const textData = textJson?.data;
-    const audioData = audioJson?.data;
-    if (!textData?.ayahs?.length || !audioData?.ayahs?.length) {
+    if (!textData?.ayahs?.length) {
       throw new Error('بيانات السورة غير صالحة');
     }
     state.surahData = textData;
-    state.ayahsAudios = audioData.ayahs.map(a => a.audio);
+    /** @type {Object|null} */
+    let audioData = null;
 
-    if (transRes) {
-      const transJson = await transRes.json();
-      state.translationData = transJson?.data || null;
+    if (isMp3quran) {
+      state.ayahsAudios = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
+      state.translationData = results[1] ? (await results[1].json())?.data || null : null;
     } else {
-      state.translationData = null;
+      const audioRes = results[1];
+      const audioJson = await audioRes.json();
+      audioData = audioJson?.data;
+      if (!audioData?.ayahs?.length) throw new Error('بيانات الصوت غير صالحة');
+      state.ayahsAudios = audioData.ayahs.map(a => a.audio);
+      state.translationData = results[2] ? (await results[2].json())?.data || null : null;
     }
 
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
@@ -489,8 +512,6 @@ function handleVisibilityChange() {
 
 /* ===================== INIT ===================== */
 
-/* ===================== INIT ===================== */
-
 /** Initialize the application: load state, data, bind events. */
 export async function initApp() {
   initState();
@@ -500,6 +521,7 @@ export async function initApp() {
   initAdhkarState();
   loadAdhkarSettings();
   restoreSettings();
+  populateReciterSelect();
   loadFavorites();
   startClock();
   initAyahModal();

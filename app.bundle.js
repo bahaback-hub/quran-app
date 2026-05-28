@@ -1475,6 +1475,56 @@ const ADHKAR_STORAGE_KEY = 'adhkar_settings';
  */
 let state = /** @type {any} */ ({});
 
+const RECITERS = [
+  // ——— API sources (AlQuran.cloud) ———
+  { id: 'ar.alafasy',              name: 'مشاري العفاسي',             source: 'api' },
+  { id: 'ar.abdulbasitmurattal',   name: 'عبد الباسط (مرتل)',         source: 'api' },
+  { id: 'ar.abdulsamad',           name: 'عبد الباسط (مجود)',          source: 'api' },
+  { id: 'ar.abdurrahmaansudais',   name: 'عبد الرحمن السديس',          source: 'api' },
+  { id: 'ar.husary',               name: 'محمود خليل الحصري',          source: 'api' },
+  { id: 'ar.minshawi',             name: 'المنشاوي (مرتل)',            source: 'api' },
+  { id: 'ar.minshawimujawwad',     name: 'المنشاوي (مجود)',           source: 'api' },
+  { id: 'ar.muhammadayyoub',       name: 'محمد أيوب',                 source: 'api' },
+  { id: 'ar.shaatree',             name: 'أبو بكر الشاطري',            source: 'api' },
+  { id: 'ar.abdullahbasfar',       name: 'عبد الله باسفر',            source: 'api' },
+  { id: 'ar.ahmedajamy',           name: 'أحمد العجمي',               source: 'api' },
+
+  // ——— mp3quran.net sources (full surah audio) ———
+  { id: 's_gmd',    name: 'سعد الغامدي',               source: 'mp3quran', server: 'https://server7.mp3quran.net/s_gmd' },
+  { id: 'shur',     name: 'سعود الشريم',               source: 'mp3quran', server: 'https://server7.mp3quran.net/shur' },
+  { id: 's_bud',    name: 'صلاح البدير',               source: 'mp3quran', server: 'https://server6.mp3quran.net/s_bud' },
+  { id: 'bu_khtr',  name: 'صلاح بو خاطر',              source: 'mp3quran', server: 'https://server8.mp3quran.net/bu_khtr' },
+  { id: 'hthfi',    name: 'علي الحذيفي',               source: 'mp3quran', server: 'https://server9.mp3quran.net/hthfi' },
+  { id: 'a_jbr',    name: 'علي جابر',                  source: 'mp3quran', server: 'https://server11.mp3quran.net/a_jbr' },
+  { id: 'frs_a',    name: 'فارس عباد',                 source: 'mp3quran', server: 'https://server8.mp3quran.net/frs_a' },
+  { id: 'yasser',   name: 'ياسر الدوسري',               source: 'mp3quran', server: 'https://server11.mp3quran.net/yasser' },
+  { id: 'salamah',  name: 'ياسر سلامة',                source: 'mp3quran', server: 'https://server12.mp3quran.net/salamah/Rewayat-Hafs-A-n-Assem' },
+  { id: 'qtm',      name: 'ناصر القطامي',               source: 'mp3quran', server: 'https://server6.mp3quran.net/qtm' },
+  { id: 'mtrod',    name: 'عبد الله المطرود',           source: 'mp3quran', server: 'https://server8.mp3quran.net/mtrod' },
+  { id: 'qasm',     name: 'عبد المحسن القاسم',           source: 'mp3quran', server: 'https://server8.mp3quran.net/qasm' },
+  { id: 'sds',      name: 'عبد الرحمن السديس (mp3)',     source: 'mp3quran', server: 'https://server11.mp3quran.net/sds' },
+  { id: 'maher',    name: 'ماهر المعيقلي',              source: 'mp3quran', server: 'https://server12.mp3quran.net/maher' },
+  { id: 'jbrl',     name: 'محمد جبريل',                 source: 'mp3quran', server: 'https://server8.mp3quran.net/jbrl' },
+  { id: 'minsh',    name: 'محمد صديق المنشاوي (mp3)',    source: 'mp3quran', server: 'https://server10.mp3quran.net/minsh' },
+  { id: 'shaatree',name: 'أبو بكر الشاطري (mp3)',       source: 'mp3quran', server: 'https://server11.mp3quran.net/shatri' },
+  { id: 'tnjy',     name: 'خليفة الطنيجي',              source: 'mp3quran', server: 'https://server12.mp3quran.net/tnjy' },
+];
+
+function getReciterById(id) {
+  return RECITERS.find(r => r.id === id) || RECITERS[0];
+}
+
+function padSurah(num) {
+  return String(num).padStart(3, '0');
+}
+
+function buildAudioUrl(reciter, surahNum) {
+  if (reciter.source === 'mp3quran') {
+    return `${reciter.server}/${padSurah(surahNum)}.mp3`;
+  }
+  return null;
+}
+
 /* Continue Reading Widget Styles - injected once */
 const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
 function injectContinueWidgetStyles() {
@@ -1632,6 +1682,14 @@ function populateSurahSelect() {
   dom.surahSelect.value = state.currentSurah;
 }
 
+function populateReciterSelect() {
+  if (!dom.reciterSelect) return;
+  dom.reciterSelect.innerHTML = RECITERS.map(r =>
+    `<option value="${r.id}">${r.name}</option>`
+  ).join('');
+  dom.reciterSelect.value = state.currentReciter || CONFIG.DEFAULT_RECITER;
+}
+
 function buildSurahOffsets() {
   if (state.surahOffsets || !state.surahList.length) return;
   state.surahOffsets = [];
@@ -1690,10 +1748,16 @@ async function loadSurah(surahNum, opts = {}) {
   state.currentSurah = surahNum;
 
   const cacheKey = `${surahNum}_${state.currentReciter}_${state.currentTranslation || 'notr'}`;
+  const reciterInfo = getReciterById(state.currentReciter);
+  const isMp3quran = reciterInfo.source === 'mp3quran';
   if (state.surahCache.has(cacheKey)) {
     const cached = state.surahCache.get(cacheKey);
     state.surahData = cached.text;
-    state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
+    if (isMp3quran) {
+      state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
+    } else {
+      state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
+    }
     state.translationData = cached.translation || null;
     renderSurah(cached.text);
     finalizeSurahLoad(opts);
@@ -1706,28 +1770,36 @@ async function loadSurah(surahNum, opts = {}) {
 
   try {
     const fetches = [
-      fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`),
-      fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`)
+      fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`)
     ];
+    if (!isMp3quran) {
+      fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`));
+    }
     if (state.translationEnabled && state.currentTranslation) {
       fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`));
     }
-    const [textRes, audioRes, transRes] = await Promise.all(fetches);
+
+    const results = await Promise.all(fetches);
+    const textRes = results[0];
     const textJson = await textRes.json();
-    const audioJson = await audioRes.json();
     const textData = textJson?.data;
-    const audioData = audioJson?.data;
-    if (!textData?.ayahs?.length || !audioData?.ayahs?.length) {
+    if (!textData?.ayahs?.length) {
       throw new Error('بيانات السورة غير صالحة');
     }
     state.surahData = textData;
-    state.ayahsAudios = audioData.ayahs.map(a => a.audio);
+    /** @type {Object|null} */
+    let audioData = null;
 
-    if (transRes) {
-      const transJson = await transRes.json();
-      state.translationData = transJson?.data || null;
+    if (isMp3quran) {
+      state.ayahsAudios = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
+      state.translationData = results[1] ? (await results[1].json())?.data || null : null;
     } else {
-      state.translationData = null;
+      const audioRes = results[1];
+      const audioJson = await audioRes.json();
+      audioData = audioJson?.data;
+      if (!audioData?.ayahs?.length) throw new Error('بيانات الصوت غير صالحة');
+      state.ayahsAudios = audioData.ayahs.map(a => a.audio);
+      state.translationData = results[2] ? (await results[2].json())?.data || null : null;
     }
 
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
@@ -1944,8 +2016,6 @@ function handleVisibilityChange() {
 
 /* ===================== INIT ===================== */
 
-/* ===================== INIT ===================== */
-
 /** Initialize the application: load state, data, bind events. */
 async function initApp() {
   initState();
@@ -1955,6 +2025,7 @@ async function initApp() {
   initAdhkarState();
   loadAdhkarSettings();
   restoreSettings();
+  populateReciterSelect();
   loadFavorites();
   startClock();
   initAyahModal();
@@ -4656,29 +4727,23 @@ function shareModalAyah() {
 
 function populateQaris() {
   if (!M.ayahModalQariSelect) return;
-  M.ayahModalQariSelect.innerHTML = [
-    'ar.alafasy','ar.abdulbasitmurattal','ar.abdulsamad',
-    'ar.abdurrahmaansudais','ar.husary','ar.minshawi','ar.minshawimujawwad',
-    'ar.muhammadayyoub','ar.shaatree','ar.abdullahbasfar','ar.ahmedajamy'
-  ].map(id => {
-    const names = {
-      'ar.alafasy':'مشاري العفاسي','ar.abdulbasitmurattal':'عبد الباسط (مرتل)',
-      'ar.abdulsamad':'عبد الباسط (مجود)',
-      'ar.abdurrahmaansudais':'عبد الرحمن السديس','ar.husary':'محمود خليل الحصري',
-      'ar.minshawi':'المنشاوي (مرتل)','ar.minshawimujawwad':'المنشاوي (مجود)',
-      'ar.muhammadayyoub':'محمد أيوب','ar.shaatree':'أبو بكر الشاطري',
-      'ar.abdullahbasfar':'عبد الله باسفر','ar.ahmedajamy':'أحمد العجمي'
-    };
-    return `<option value="${id}">${names[id]||id}</option>`;
-  }).join('');
+  M.ayahModalQariSelect.innerHTML = RECITERS.map(r =>
+    `<option value="${r.id}">${r.name}</option>`
+  ).join('');
 }
 
 async function ensureModalAudio() {
   if (!current) return;
-  const reciter = /** @type {HTMLSelectElement} */ (M.ayahModalQariSelect)?.value || CONFIG.DEFAULT_RECITER;
+  const reciterId = /** @type {HTMLSelectElement} */ (M.ayahModalQariSelect)?.value || CONFIG.DEFAULT_RECITER;
   if (audioLoadSurah === current.surah && ayahAudios.length) return;
+  const reciterInfo = getReciterById(reciterId);
+  if (reciterInfo.source === 'mp3quran') {
+    ayahAudios = [buildAudioUrl(reciterInfo, current.surah)];
+    audioLoadSurah = current.surah;
+    return;
+  }
   try {
-    const res = await fetch(`${CONFIG.API_BASE}/surah/${current.surah}/${reciter}`);
+    const res = await fetch(`${CONFIG.API_BASE}/surah/${current.surah}/${reciterId}`);
     const d = await res.json();
     if (d?.data?.ayahs) {
       ayahAudios = d.data.ayahs.map(a => a.audio);
