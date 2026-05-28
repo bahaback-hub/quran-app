@@ -1533,9 +1533,7 @@ function showContinueWidget(info) {
   const text = document.createElement('span');
   text.className = 'continue-widget-text';
   const dateStr = info.timestamp ? new Date(info.timestamp).toLocaleDateString('ar-SA') : '';
-  text.innerHTML = `📖 **** — آية 
-
-آخر زيارة: `;
+  text.innerHTML = `📖 <strong>${info.surahName}</strong> — آية ${info.ayahNumberInSurah}<br><small style="opacity:0.7;">آخر زيارة: ${dateStr}</small>`;
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'continue-widget-close';
@@ -1606,10 +1604,9 @@ async function loadSurahList() {
     populateSurahSelect();
     return;
   }
-  if (dom.surahSelect) dom.surahSelect.innerHTML = '
-';
+  if (dom.surahSelect) dom.surahSelect.innerHTML = '<option value="">⏳ جاري تحميل قائمة السور...</option>';
   try {
-    const res = await fetch(`/surah`);
+    const res = await fetch(`${CONFIG.API_BASE}/surah`);
     const data = await res.json();
     if (data?.data) {
       state.surahList = data.data;
@@ -1618,20 +1615,18 @@ async function loadSurahList() {
       populateSurahSelect();
     }
   } catch (e) {
-    if (dom.surahSelect) dom.surahSelect.innerHTML = '
-';
+    if (dom.surahSelect) dom.surahSelect.innerHTML = '<option value="">⚠️ تعذّر التحميل</option>';
     showToast('تعذّر تحميل قائمة السور', 'error');
   }
 }
 
 function populateSurahSelect() {
   if (!dom.surahSelect) return;
-  dom.surahSelect.innerHTML = '
-';
+  dom.surahSelect.innerHTML = '<option value="">اختر السورة</option>';
   for (const s of state.surahList) {
     const opt = document.createElement('option');
     opt.value = String(s.number);
-    opt.textContent = `.  ()`;
+    opt.textContent = `${s.number}. ${s.name} (${s.englishName})`;
     dom.surahSelect.appendChild(opt);
   }
   dom.surahSelect.value = state.currentSurah;
@@ -1672,7 +1667,7 @@ function getAbsNumber(surah, ayah) {
 /**
  * Load a surah (text + audio + translation), render it, finalize.
  * @param {number} surahNum
- * @param  [opts]
+ * @param {{ startAyah?: number, autoPlay?: boolean }} [opts]
  */
 async function loadSurah(surahNum, opts = {}) {
   if (!surahNum) return;
@@ -1694,7 +1689,7 @@ async function loadSurah(surahNum, opts = {}) {
   }
   state.currentSurah = surahNum;
 
-  const cacheKey = `__`;
+  const cacheKey = `${surahNum}_${state.currentReciter}_${state.currentTranslation || 'notr'}`;
   if (state.surahCache.has(cacheKey)) {
     const cached = state.surahCache.get(cacheKey);
     state.surahData = cached.text;
@@ -1706,16 +1701,16 @@ async function loadSurah(surahNum, opts = {}) {
     return;
   }
 
-  loadingBar.show(`⏳ جاري تحميل سورة ...`);
-  if (dom.surahContent) dom.surahContent.innerHTML = '';
+  loadingBar.show(`⏳ جاري تحميل سورة ${state.surahList.find(s => s.number === surahNum)?.name || surahNum}...`);
+  if (dom.surahContent) dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
 
   try {
     const fetches = [
-      fetch(`/surah//quran-uthmani`),
-      fetch(`/surah//`)
+      fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`),
+      fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`)
     ];
     if (state.translationEnabled && state.currentTranslation) {
-      fetches.push(fetch(`/surah//`));
+      fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`));
     }
     const [textRes, audioRes, transRes] = await Promise.all(fetches);
     const textJson = await textRes.json();
@@ -1763,10 +1758,7 @@ async function loadSurah(surahNum, opts = {}) {
         return;
       }
     }
-    if (dom.surahContent) dom.surahContent.innerHTML = '
-⚠️ تعذّر تحميل السورة
-
-';
+    if (dom.surahContent) dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل السورة</p>';
     showToast('فشل تحميل السورة', 'error');
     loadingBar.hide();
   } finally {
@@ -1780,21 +1772,34 @@ async function loadSurah(surahNum, opts = {}) {
 function renderSurah(textData) {
   if (!dom.surahContent) return;
 
-  let html = `
-##  — `; if (SURAH_SECRETS[textData.number]) { html += ` ℹ️`; } html += `
-
-`;
-  if (textData.number !== 1 && textData.number !== 9) {
-    html += '
-بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-
-';
+  let html = `<h2 class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}`;
+  if (SURAH_SECRETS[textData.number]) {
+    html += ` <button class="surah-secret-title-btn" data-surah="${textData.number}" data-surahname="${escapeHtml(textData.name)}" title="معلومات عن السورة" aria-label="معلومات عن السورة">ℹ️</button>`;
   }
-  html += `
+  html += `</h2>`;
+  if (textData.number !== 1 && textData.number !== 9) {
+    html += '<p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>';
+  }
+  html += `<div class="ayahs-container" style="font-size:${state.fontSize}px">`;
 
-`; const isRtlTranslation = state.currentTranslation && (state.currentTranslation.startsWith('ur.')); for (let i = 0; i < textData.ayahs.length; i++) { const a = textData.ayahs[i]; let txt = a.text; if (textData.number !== 1 && a.numberInSurah === 1) { txt = txt.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, ''); } html += ``; html += buildAyahWordsHtml(txt, i); html += ` `; if (state.translationEnabled && state.translationData?.ayahs?.[i]) { const transText = escapeHtml(state.translationData.ayahs[i].text); const rtlClass = isRtlTranslation ? ' rtl-lang' : ''; html += ``; } html += ` `; } html += '
-
-';
+  const isRtlTranslation = state.currentTranslation && (state.currentTranslation.startsWith('ur.'));
+  for (let i = 0; i < textData.ayahs.length; i++) {
+    const a = textData.ayahs[i];
+    let txt = a.text;
+    if (textData.number !== 1 && a.numberInSurah === 1) {
+      txt = txt.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
+    }
+    html += `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
+    html += buildAyahWordsHtml(txt, i);
+    html += ` <span class="ayah-number">${a.numberInSurah}</span>`;
+    if (state.translationEnabled && state.translationData?.ayahs?.[i]) {
+      const transText = escapeHtml(state.translationData.ayahs[i].text);
+      const rtlClass = isRtlTranslation ? ' rtl-lang' : '';
+      html += `<span class="translation-text${rtlClass}">${transText}</span>`;
+    }
+    html += `</span> `;
+  }
+  html += '</div>';
   const temp = document.createElement('div');
   temp.innerHTML = html;
   const fragment = document.createDocumentFragment();
@@ -1813,7 +1818,7 @@ function renderSurah(textData) {
 function buildAyahWordsHtml(text, ayahIdx) {
   const words = text.split(/\s+/).filter(w => w.length > 0);
   return words.map((word, wIdx) =>
-    ``
+    `<span class="word" data-ayah-index="${ayahIdx}" data-word-index="${wIdx}">${escapeHtml(word)}</span>`
   ).join(' ');
 }
 
@@ -1848,13 +1853,13 @@ function finalizeSurahLoad(opts) {
 /** Scroll to and highlight the current ayah. */
 function highlightCurrentAyah() {
   document.querySelectorAll('.ayah').forEach(el => el.classList.remove('current'));
-  const cur = document.querySelector(`.ayah[data-index=""]`);
+  const cur = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
   if (cur) {
     cur.classList.add('current');
     if (state.hifdhMode) {
       document.querySelectorAll('.ayah').forEach(el => el.classList.remove('revealed'));
       for (let i = 0; i <= state.currentAyahIndex; i++) {
-        const prev = document.querySelector(`.ayah[data-index=""]`);
+        const prev = document.querySelector(`.ayah[data-index="${i}"]`);
         if (prev) prev.classList.add('revealed');
       }
     }
@@ -1873,11 +1878,11 @@ function updatePlayerInfo() {
   if (dom.playerReciterName) dom.playerReciterName.textContent = reciterText;
   if (dom.playerCurrentAyah && a) {
     const preview = a.text.length > 80 ? a.text.substring(0, 80) + '...' : a.text;
-    dom.playerCurrentAyah.textContent = `﴿﴾ — آية `;
+    dom.playerCurrentAyah.textContent = `﴿${preview}﴾ — آية ${a.numberInSurah}`;
   }
   if (dom.collapsedInfo && a) {
     const short = a.text.length > 50 ? a.text.substring(0, 50) + '...' : a.text;
-    dom.collapsedInfo.innerHTML = ` — آية `;
+    dom.collapsedInfo.innerHTML = `<span class="fi-surah">${state.surahData.name} — آية ${a.numberInSurah}</span><span>${short}</span>`;
   }
 }
 
@@ -1924,6 +1929,8 @@ function dismissWelcomeScreen() {
 
 /* ===================== VISIBILITY ===================== */
 
+/* ===================== VISIBILITY ===================== */
+
 function handleVisibilityChange() {
   if (document.hidden) {
     stopClock();
@@ -1931,6 +1938,8 @@ function handleVisibilityChange() {
     startClock();
   }
 }
+
+/* ===================== INIT ===================== */
 
 /* ===================== INIT ===================== */
 
@@ -1978,8 +1987,7 @@ async function initApp() {
     const surahNum = parseInt(dom.surahSelect.value, 10);
     if (state.mushafMode) {
       state.currentSurah = surahNum;
-      state.currentAyahIndex = 0;
-      fetch(`/ayah/:1`)
+      fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
         .then(res => res.json())
         .then(data => {
           const page = data?.data?.page || 1;
