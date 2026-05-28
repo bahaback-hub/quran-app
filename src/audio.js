@@ -78,28 +78,6 @@ function onTimeUpdate() {
   if (!duration || !isFinite(duration)) return;
   const currentTime = dom.audioPlayer.currentTime;
 
-  const isMp3quran = getReciterById(state.currentReciter).source === 'mp3quran';
-
-  if (isMp3quran) {
-    // Ayah-level tracking for full-surah audio
-    const ayahs = state.surahData.ayahs;
-    const progress = currentTime / duration;
-    let cumChars = 0;
-    const totalChars = ayahs.reduce((s, a) => s + (a.text || '').length, 0);
-    if (totalChars === 0) return;
-    const targetChars = progress * totalChars;
-    let newIdx = ayahs.length - 1;
-    for (let i = 0; i < ayahs.length; i++) {
-      cumChars += (ayahs[i].text || '').length;
-      if (cumChars >= targetChars) { newIdx = i; break; }
-    }
-    if (newIdx !== state.currentAyahIndex) {
-      state.currentAyahIndex = newIdx;
-      highlightCurrentAyah();
-    }
-    return;
-  }
-
   const ayahEl = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
   if (!ayahEl) return;
 
