@@ -9,7 +9,9 @@
 ## Architecture
 - **Vite-based ESM build**: `index.html` loads `src/main.js` as `<script type="module">`
 - **Vite handles all assets**: JS, CSS, images — full bundling with code splitting
-- **No more concat build**: `scripts/concat.cjs` is deprecated; Vite resolves ES module imports natively
+- **PWA**: `vite-plugin-pwa` with Workbox — auto-generates SW with precache + runtime caching
+- **Deployment**: GitHub Actions → `actions/deploy-pages@v4` from `dist/`
+  - User must enable "GitHub Pages → GitHub Actions" in repo settings
 
 ## Code Conventions
 - All functions use `function` declarations (not arrow/const) — hoisting within each module

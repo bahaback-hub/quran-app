@@ -18,8 +18,6 @@ import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSett
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
 import { prepareAudioForNewSurah, playCurrentAyah, togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh, toggleRepeat, bindAudioEvents, setLoadSurah, expandPlayer, updatePlayPauseBtn } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
-import { toggleMushafMode, loadPage, highlightMushafAyah, populateSurahOverlay, showSurahSecret } from './mushaf.js';
-import { initAyahModal, openAyahModal } from './ayah-modal.js';
 
 /* Continue Reading Widget Styles - injected once */
 const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
@@ -134,7 +132,8 @@ function initState() {
     translationData: null,
     adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
     surahOffsets: null,
-    backgroundsList: null
+    backgroundsList: null,
+    ayahTimings: []
   });
 }
 
@@ -196,6 +195,23 @@ export function buildSurahOffsets() {
   }
 }
 
+function countArabicChars(text) {
+  return (text.match(/[\u0621-\u064A\u0660-\u0669]/g) || []).length;
+}
+
+function calculateAyahTimings(ayahs) {
+  const timings = [];
+  const charCounts = ayahs.map(a => countArabicChars(a.text));
+  const totalChars = charCounts.reduce((a, b) => a + b, 0);
+  if (!totalChars) return ayahs.map(() => 0);
+  let cum = 0;
+  for (let i = 0; i < ayahs.length; i++) {
+    timings.push(cum);
+    cum += charCounts[i] / totalChars;
+  }
+  return timings;
+}
+
 function absToSurahAyah(absNum) {
   if (!state.surahOffsets) buildSurahOffsets();
   if (!state.surahOffsets) return null;
@@ -251,8 +267,10 @@ export async function loadSurah(surahNum, opts = {}) {
     state.surahData = cached.text;
     if (isMp3quran) {
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
+      state.ayahTimings = calculateAyahTimings(cached.text.ayahs);
     } else {
       state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
+      state.ayahTimings = [];
     }
     state.translationData = cached.translation || null;
     renderSurah(cached.text);
@@ -288,6 +306,7 @@ export async function loadSurah(surahNum, opts = {}) {
 
     if (isMp3quran) {
       state.ayahsAudios = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
+      state.ayahTimings = calculateAyahTimings(textData.ayahs);
       state.translationData = results[1] ? (await results[1].json())?.data || null : null;
     } else {
       const audioRes = results[1];
@@ -295,6 +314,7 @@ export async function loadSurah(surahNum, opts = {}) {
       audioData = audioJson?.data;
       if (!audioData?.ayahs?.length) throw new Error('بيانات الصوت غير صالحة');
       state.ayahsAudios = audioData.ayahs.map(a => a.audio);
+      state.ayahTimings = [];
       state.translationData = results[2] ? (await results[2].json())?.data || null : null;
     }
 
@@ -378,7 +398,7 @@ export function renderSurah(textData) {
   if (secretBtn) {
     secretBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      showSurahSecret(parseInt(secretBtn.dataset.surah, 10), secretBtn.dataset.surahname);
+      import('./mushaf.js').then(m => m.showSurahSecret(parseInt(secretBtn.dataset.surah, 10), secretBtn.dataset.surahname));
     });
   }
 }
@@ -405,7 +425,7 @@ function ayahClickHandler(e) {
   if (!state.surahData || state.surahData.number !== surah) return;
   const a = state.surahData.ayahs[idx];
   if (!a) return;
-  openAyahModal({ surah, ayah, text: a.text, surahName: state.surahData.name, index: -1 });
+  import('./ayah-modal.js').then(m => m.openAyahModal({ surah, ayah, text: a.text, surahName: state.surahData.name, index: -1 }));
 }
 
 function finalizeSurahLoad(opts) {
@@ -438,7 +458,7 @@ export function highlightCurrentAyah() {
   }
   updatePlayerInfo();
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
-  if (state.mushafMode) highlightMushafAyah();
+  if (state.mushafMode) import('./mushaf.js').then(m => m.highlightMushafAyah());
 }
 
 export function updatePlayerInfo() {
@@ -527,14 +547,14 @@ export async function initApp() {
   populateReciterSelect();
   loadFavorites();
   startClock();
-  initAyahModal();
+  import('./ayah-modal.js').then(m => m.initAyahModal()).catch(() => {});
 
   checkAzanTime();
   scheduleNextAzanCheck();
 
   await loadSurahList();
   buildSurahOffsets();
-  populateSurahOverlay();
+  import('./mushaf.js').then(m => m.populateSurahOverlay()).catch(() => {});
 
   const last = storage.get('last_position');
   if (last && last.surah) {
@@ -567,7 +587,7 @@ export async function initApp() {
           const page = data?.data?.page || 1;
           if (dom.pageSelect) dom.pageSelect.value = page;
           if (dom.pageSlider) dom.pageSlider.value = page;
-          loadPage(page, true);
+          import('./mushaf.js').then(m => m.loadPage(page, true));
         })
         .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
     } else {
@@ -704,9 +724,9 @@ export async function initApp() {
   });
 
   /* ========== MUSHAF MODE ========== */
-  dom.modeToggleBtn?.addEventListener('click', toggleMushafMode);
+  dom.modeToggleBtn?.addEventListener('click', () => import('./mushaf.js').then(m => m.toggleMushafMode()));
   dom.pageSelect?.addEventListener('change', () => {
-    if (dom.pageSelect.value) { const p = parseInt(dom.pageSelect.value, 10); if (dom.pageSlider) dom.pageSlider.value = p; loadPage(p, true); }
+    if (dom.pageSelect.value) { const p = parseInt(dom.pageSelect.value, 10); if (dom.pageSlider) dom.pageSlider.value = p; import('./mushaf.js').then(m => m.loadPage(p, true)); }
   });
   dom.mushafSurahOverlayClose?.addEventListener('click', () => { if (dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
   dom.mushafSurahOverlay?.addEventListener('click', (e) => { if (e.target === dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
@@ -716,14 +736,14 @@ export async function initApp() {
   dom.pageSlider?.addEventListener('input', () => {
     const p = parseInt(dom.pageSlider.value, 10);
     if (dom.pageSelect) dom.pageSelect.value = p;
-    loadPage(p, true);
+    import('./mushaf.js').then(m => m.loadPage(p, true));
   });
 
   // Restore mushaf mode
   const savedMushaf = storage.get('mushaf_mode');
   const savedPage = storage.get('current_page');
   if (savedPage) state.currentPage = savedPage;
-  if (savedMushaf && dom.modeToggleBtn) toggleMushafMode();
+  if (savedMushaf && dom.modeToggleBtn) import('./mushaf.js').then(m => m.toggleMushafMode());
 
   /* ========== ADHKAR ========== */
   wireAdhkarEvents();
@@ -758,7 +778,7 @@ export async function initApp() {
       case 'f': case 'F': toggleFavorite(); break;
       case 't': case 'T': toggleTafsir(); break;
       case 'n': case 'N': toggleNightMode(); break;
-      case 'm': case 'M': toggleMushafMode(); break;
+      case 'm': case 'M': import('./mushaf.js').then(m => m.toggleMushafMode()); break;
       case 'g': case 'G': gotoBookmark(); break;
       case '+': case '=': applyFontSize(Math.min(45, state.fontSize + 2)); break;
       case '-': applyFontSize(Math.max(16, state.fontSize - 2)); break;

@@ -10,7 +10,12 @@ import { getReciterById } from "./reciters.js";
 let _loadSurah = null;
 export function setLoadSurah(fn) { _loadSurah = fn; }
 
+let _mp3quranUrl = null;
+let _autoAdvancing = false;
+
 export function prepareAudioForNewSurah() {
+  _mp3quranUrl = null;
+  _autoAdvancing = false;
   if (dom.audioPlayer) {
     dom.audioPlayer.pause();
     dom.audioPlayer.removeAttribute('src');
@@ -21,6 +26,19 @@ export function prepareAudioForNewSurah() {
     dom.audioPlayer2.removeAttribute('src');
     dom.audioPlayer2.load();
   }
+}
+
+/* ===================== MP3QURAN SEEK HELPERS ===================== */
+
+function _getAyahStartTime() {
+  if (!state.ayahTimings?.length || !dom.audioPlayer?.duration) return 0;
+  return (state.ayahTimings[state.currentAyahIndex] || 0) * dom.audioPlayer.duration;
+}
+
+function _getAyahEndTime() {
+  if (!state.ayahTimings?.length || !dom.audioPlayer?.duration) return dom.audioPlayer?.duration || 0;
+  const next = state.ayahTimings[state.currentAyahIndex + 1];
+  return (next !== undefined ? next : 1) * dom.audioPlayer.duration;
 }
 
 /* ===================== PLAYER ===================== */
@@ -36,11 +54,34 @@ export function playCurrentAyah() {
     return;
   }
   if (!dom.audioPlayer) return;
-  dom.audioPlayer.src = url;
-  dom.audioPlayer.play().catch(e => console.warn(e));
+
+  const isMp3quran = state.ayahTimings?.length > 0;
+
+  if (isMp3quran && _mp3quranUrl === url && dom.audioPlayer.readyState >= 2) {
+    dom.audioPlayer.currentTime = _getAyahStartTime();
+    dom.audioPlayer.play().catch(e => console.warn(e));
+    state.isPlaying = true;
+    startWordTracking();
+    return;
+  }
+
+  _mp3quranUrl = isMp3quran ? url : null;
+
+  if (isMp3quran) {
+    dom.audioPlayer.src = url;
+    dom.audioPlayer.addEventListener('loadedmetadata', function onMeta() {
+      dom.audioPlayer.removeEventListener('loadedmetadata', onMeta);
+      dom.audioPlayer.currentTime = _getAyahStartTime();
+      dom.audioPlayer.play().catch(e => console.warn(e));
+    }, { once: true });
+  } else {
+    dom.audioPlayer.src = url;
+    dom.audioPlayer.play().catch(e => console.warn(e));
+  }
+
   state.isPlaying = true;
   startWordTracking();
-  preloadNextAyah();
+  if (!isMp3quran) preloadNextAyah();
 }
 
 function preloadNextAyah() {
@@ -63,7 +104,6 @@ function preloadNextAyah() {
   }
 }
 
-
 /* ===================== WORD-BY-WORD TRACKING ===================== */
 let wordTrackingActive = false;
 
@@ -77,10 +117,28 @@ function stopWordTracking() {
 }
 
 function onTimeUpdate() {
-  if (!wordTrackingActive || !dom.audioPlayer || !state.surahData) return;
+  if (_autoAdvancing || !wordTrackingActive || !dom.audioPlayer || !state.surahData) return;
   const duration = dom.audioPlayer.duration;
   if (!duration || !isFinite(duration)) return;
-  const currentTime = dom.audioPlayer.currentTime;
+  let currentTime = dom.audioPlayer.currentTime;
+
+  const isMp3quran = state.ayahTimings?.length > 0;
+
+  if (isMp3quran) {
+    const endTime = _getAyahEndTime();
+    if (currentTime >= endTime - 0.15) {
+      _autoAdvancing = true;
+      if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
+        nextAyah(true);
+      } else {
+        onAudioEnded();
+      }
+      _autoAdvancing = false;
+      return;
+    }
+    currentTime -= _getAyahStartTime();
+    if (currentTime < 0) currentTime = 0;
+  }
 
   const ayahEl = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
   if (!ayahEl) return;
@@ -88,7 +146,6 @@ function onTimeUpdate() {
   const words = ayahEl.querySelectorAll('.word');
   if (words.length === 0) return;
 
-  // Weight each word by Arabic letter count (ignore diacritics)
   const weights = [];
   for (const w of words) {
     const letters = (w.textContent.match(/[\u0621-\u064A\u0660-\u0669]/g) || []);
@@ -116,7 +173,6 @@ function onSeeking() {
   if (!wordTrackingActive) return;
   document.querySelectorAll('.word.current-word').forEach(el => el.classList.remove('current-word'));
 }
-
 
 /* ===================== AUDIO EVENTS ===================== */
 export function expandPlayer() {
@@ -161,6 +217,7 @@ export function bindAudioEvents() {
 function onAudioPlay() { state.isPlaying = true; updatePlayPauseBtn(); }
 function onAudioPause() { state.isPlaying = false; updatePlayPauseBtn(); }
 function onAudioError() {
+  _mp3quranUrl = null;
   state.isPlaying = false;
   stopWordTracking();
   updatePlayPauseBtn();
@@ -174,6 +231,7 @@ export function updatePlayPauseBtn() {
 }
 
 function onAudioEnded() {
+  _mp3quranUrl = null;
   if (!state.surahData || !state.ayahsAudios) return;
   stopWordTracking();
 
@@ -239,7 +297,6 @@ export function prevAyah() {
 export function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) _loadSurah?.(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
 export function prevSurah() { if (state.currentSurah > 1) _loadSurah?.(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
 
-
 /* ===================== HIFDH & REPEAT ===================== */
 /** Toggle hifdh (memorization) mode. */
 export function toggleHifdh() {
@@ -290,4 +347,3 @@ export function toggleRepeat() {
     showToast('التكرار مغلق', '');
   }
 }
-
