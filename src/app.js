@@ -10,7 +10,7 @@ import { __, getLang, setLang } from './i18n.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 import { state } from './state.js';
 import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification } from './prayer.js';
-import { RECITERS, getReciterById, buildAudioUrl } from './reciters.js';
+import { RECITERS, getReciterById, buildAudioUrl, hasTimingApi, getTimingApiId } from './reciters.js';
 import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
 import { loadTafsirForCurrentAyah, loadTafsirForSurahAyah, toggleTafsir, closeTafsir } from './tafsir.js';
 import { buildShareText, toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
@@ -199,6 +199,32 @@ function countArabicChars(text) {
   return (text.match(/[\u0621-\u064A\u0660-\u0669]/g) || []).length;
 }
 
+/**
+ * Fetch real ayah timings from quran.com API for supported reciters.
+ * Returns fractions (0-1) matching the calculateAyahTimings() format,
+ * or null if unavailable (triggers character-count fallback).
+ * @param {string} reciterId
+ * @param {number} surahNum
+ * @param {Array<{text: string}>} ayahs
+ * @returns {Promise<number[]|null>}
+ */
+async function fetchAyahTimings(reciterId, surahNum, ayahs) {
+  const apiId = getTimingApiId(reciterId);
+  if (!apiId) return null;
+  try {
+    const res = await fetch(`https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const timestamps = data?.audio_file?.timestamps;
+    if (!timestamps?.length || timestamps.length !== ayahs.length) return null;
+    const totalDuration = timestamps[timestamps.length - 1].timestamp_to;
+    if (!totalDuration || totalDuration <= 0) return null;
+    return timestamps.map(t => t.timestamp_from / totalDuration);
+  } catch {
+    return null;
+  }
+}
+
 function calculateAyahTimings(ayahs, surahNumber) {
   const timings = [];
   const MIN_PER_AYAH = 5;
@@ -317,7 +343,7 @@ export async function loadSurah(surahNum, opts = {}) {
 
     if (isMp3quran) {
       state.ayahsAudios = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
-      state.ayahTimings = calculateAyahTimings(textData.ayahs, surahNum);
+      state.ayahTimings = await fetchAyahTimings(state.currentReciter, surahNum, textData.ayahs) ?? calculateAyahTimings(textData.ayahs, surahNum);
       state.translationData = results[1] ? (await results[1].json())?.data || null : null;
     } else {
       const audioRes = results[1];
