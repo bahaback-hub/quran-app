@@ -125,48 +125,52 @@ export function initSearchAutocomplete() {
   const dropdown = document.getElementById('searchAutocomplete');
   if (!input || !dropdown) return;
 
+  let acTimer = null;
   input.addEventListener('input', () => {
-    const val = input.value.trim();
-    if (!val || !state.searchWords?.length) {
-      dropdown.style.display = 'none';
-      _acIndex = -1;
-      return;
-    }
-    const normVal = normalizeExactText(val);
-    const suggestions = [];
-    for (const w of state.searchWords) {
-      if (suggestions.length >= 8) break;
-      if (w.word.startsWith(normVal)) suggestions.push(w);
-    }
-    if (!suggestions.length) {
-      dropdown.style.display = 'none';
-      _acIndex = -1;
-      return;
-    }
-    let html = '';
-    for (let i = 0; i < suggestions.length; i++) {
-      html += '<div class="search-autocomplete-item" data-index="' + i + '">'
-        + '<span>' + escapeHtml(suggestions[i].word) + '</span>'
-        + '<span class="count">' + suggestions[i].count + '</span>'
-        + '</div>';
-    }
-    dropdown.innerHTML = html;
-    dropdown.style.display = 'block';
-    _acIndex = -1;
-
-    dropdown.querySelectorAll('.search-autocomplete-item').forEach(el => {
-      el.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        input.value = el.querySelector('span').textContent;
+    clearTimeout(acTimer);
+    acTimer = setTimeout(() => {
+      const val = input.value.trim();
+      if (!val || !state.searchWords?.length) {
         dropdown.style.display = 'none';
-        performExactSearch(input.value);
+        _acIndex = -1;
+        return;
+      }
+      const normVal = normalizeExactText(val);
+      const suggestions = [];
+      for (const w of state.searchWords) {
+        if (suggestions.length >= 8) break;
+        if (w.word.startsWith(normVal)) suggestions.push(w);
+      }
+      if (!suggestions.length) {
+        dropdown.style.display = 'none';
+        _acIndex = -1;
+        return;
+      }
+      let html = '';
+      for (let i = 0; i < suggestions.length; i++) {
+        html += '<div class="search-autocomplete-item" data-index="' + i + '">'
+          + '<span>' + escapeHtml(suggestions[i].word) + '</span>'
+          + '<span class="count">' + suggestions[i].count + '</span>'
+          + '</div>';
+      }
+      dropdown.innerHTML = html;
+      dropdown.style.display = 'block';
+      _acIndex = -1;
+
+      dropdown.querySelectorAll('.search-autocomplete-item').forEach(el => {
+        el.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          input.value = el.querySelector('span').textContent;
+          dropdown.style.display = 'none';
+          performExactSearch(input.value);
+        });
+        el.addEventListener('mouseenter', () => {
+          dropdown.querySelectorAll('.search-autocomplete-item').forEach(c => c.classList.remove('active'));
+          el.classList.add('active');
+          _acIndex = parseInt(el.dataset.index, 10);
+        });
       });
-      el.addEventListener('mouseenter', () => {
-        dropdown.querySelectorAll('.search-autocomplete-item').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        _acIndex = parseInt(el.dataset.index, 10);
-      });
-    });
+    }, 150);
   });
 
   input.addEventListener('keydown', (e) => {

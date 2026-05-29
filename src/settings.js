@@ -61,9 +61,10 @@ export function saveLocationSettings() {
 /** Reset all settings to defaults and reload the page. */
 export function resetSettings() {
   if (!confirm('هل تريد إعادة ضبط جميع الإعدادات؟')) return;
-  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed'];
+  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed', 'lang', 'surah_list', 'translation_enabled', 'translation_edition', 'last_position', 'bookmark', 'favorites', 'mushaf_mode', 'current_page'];
   keys.forEach(k => storage.remove(k));
-  location.reload();
+  showToast('✅ تم إعادة الضبط. جارٍ تحديث الصفحة...', 'success');
+  setTimeout(() => location.reload(), 1500);
 }
 
 /* ===================== BACKGROUNDS ===================== */
