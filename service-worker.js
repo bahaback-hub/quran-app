@@ -88,7 +88,7 @@ self.addEventListener('fetch', e => {
         const cached = await cache.match(e.request);
         if (cached) return cached;
         const res = await fetch(e.request);
-        if (res.ok) { try { cache.put(e.request, res.clone()); } catch (e) { /* body already consumed */ } }
+        if (res.ok) { try { cache.put(e.request, res.clone()).catch(() => {}); } catch (e) { /* body already consumed */ } }
         return res;
       }).catch(() => caches.match(e.request))
     );
@@ -102,7 +102,7 @@ self.addEventListener('fetch', e => {
         const cached = await cache.match(e.request);
         if (cached) return cached;
         const res = await fetch(e.request);
-        if (res.ok) { try { cache.put(e.request, res.clone()); } catch (e) { /* body already consumed */ } }
+        if (res.ok) { try { cache.put(e.request, res.clone()).catch(() => {}); } catch (e) { /* body already consumed */ } }
         return res;
       }).catch(() => caches.match(e.request))
     );
@@ -117,7 +117,7 @@ self.addEventListener('fetch', e => {
         if (cached) return cached;
         const res = await fetch(e.request);
         if (res.ok) {
-          try { cache.put(e.request, res.clone()).then(() => trim(CACHE.MUSHARAF, MUSHARAF_LIMIT)); } catch (e) { /* clone failed */ }
+          try { cache.put(e.request, res.clone()).then(() => trim(CACHE.MUSHARAF, MUSHARAF_LIMIT)).catch(() => {}); } catch (e) { /* clone failed */ }
         }
         return res;
       }).catch(() => caches.match(CACHE.APP + '/icon-512.png'))
@@ -133,7 +133,7 @@ self.addEventListener('fetch', e => {
         if (cached) return cached;
         const res = await fetch(e.request);
         if (res.ok) {
-          try { cache.put(e.request, res.clone()).then(() => trim(CACHE.AUDIO, AUDIO_LIMIT)); } catch (e) { /* clone failed */ }
+          try { cache.put(e.request, res.clone()).then(() => trim(CACHE.AUDIO, AUDIO_LIMIT)).catch(() => {}); } catch (e) { /* clone failed */ }
         }
         return res;
       }).catch(() => new Response('', { status: 503 }))
@@ -147,7 +147,7 @@ self.addEventListener('fetch', e => {
       caches.open(CACHE.API).then(async cache => {
         const cached = await cache.match(e.request);
         const net = fetch(e.request).then(res => {
-          if (res.ok && res.type !== 'opaque') { try { cache.put(e.request, res.clone()); } catch (e) { /* clone failed */ } }
+          if (res.ok && res.type !== 'opaque') { try { cache.put(e.request, res.clone()).catch(() => {}); } catch (e) { /* clone failed */ } }
           return res;
         }).catch(() => cached);
         return cached || net;
@@ -160,7 +160,7 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request).then(res => {
       if (res.ok && res.type !== 'opaque') {
-        caches.open(CACHE.APP).then(c => { try { c.put(e.request, res.clone()); } catch (e) { /* clone failed */ } });
+        caches.open(CACHE.APP).then(c => { try { c.put(e.request, res.clone()).catch(() => {}); } catch (e) { /* clone failed */ } });
       }
       return res;
     }).catch(async () => {
