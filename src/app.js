@@ -195,28 +195,32 @@ export function buildSurahOffsets() {
   }
 }
 
-function parseTimestamp(ts) {
-  if (!ts) return 0;
-  const parts = ts.split(':');
-  if (parts.length === 3) return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseFloat(parts[2]);
-  if (parts.length === 2) return parseInt(parts[0], 10) * 60 + parseFloat(parts[1]);
-  return parseFloat(parts[0]) || 0;
+function countArabicChars(text) {
+  return (text.match(/[\u0621-\u064A\u0660-\u0669]/g) || []).length;
 }
 
-async function fetchAyahTimings(surahNum) {
-  try {
-    const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/ar.alafasy`);
-    const json = await res.json();
-    const ayahs = json?.data?.ayahs;
-    if (!ayahs?.length) return null;
-    const timestamps = ayahs.map(a => parseTimestamp(a.timing?.timestamp));
-    const lastDur = parseTimestamp(ayahs[ayahs.length - 1].timing?.duration);
-    const total = timestamps[timestamps.length - 1] + lastDur;
-    if (!total) return null;
-    return timestamps.map(t => t / total);
-  } catch {
-    return null;
+function calculateAyahTimings(ayahs, surahNumber) {
+  const timings = [];
+  const MIN_PER_AYAH = 5;
+  const BASMALAH_MIN = 24;
+  let basmalahChars = 0;
+  const counts = ayahs.map((a, i) => {
+    const n = countArabicChars(a.text);
+    if (i === 0 && surahNumber !== 1 && surahNumber !== 9) {
+      const without = a.text.replace(/^بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِيمِ\s*/u, '');
+      basmalahChars = Math.max(BASMALAH_MIN, n - countArabicChars(without));
+      return Math.max(MIN_PER_AYAH, countArabicChars(without));
+    }
+    return Math.max(MIN_PER_AYAH, n);
+  });
+  const total = counts.reduce((a, b) => a + b, 0) + basmalahChars;
+  if (!total) return ayahs.map(() => 0);
+  let cum = basmalahChars / total;
+  for (let i = 0; i < ayahs.length; i++) {
+    timings.push(cum);
+    cum += counts[i] / total;
   }
+  return timings;
 }
 
 function absToSurahAyah(absNum) {
@@ -274,10 +278,7 @@ export async function loadSurah(surahNum, opts = {}) {
     state.surahData = cached.text;
     if (isMp3quran) {
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
-      state.ayahTimings = cached.timings || [];
-      if (!cached.timings) {
-        fetchAyahTimings(surahNum).then(t => { if (t) { state.ayahTimings = t; cached.timings = t; } });
-      }
+      state.ayahTimings = cached.timings || calculateAyahTimings(cached.text.ayahs, surahNum);
     } else {
       state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
       state.ayahTimings = [];
@@ -298,8 +299,6 @@ export async function loadSurah(surahNum, opts = {}) {
     ];
     if (!isMp3quran) {
       fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`));
-    } else {
-      fetches.push(fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/ar.alafasy`));
     }
     if (state.translationEnabled && state.currentTranslation) {
       fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`));
@@ -318,18 +317,8 @@ export async function loadSurah(surahNum, opts = {}) {
 
     if (isMp3quran) {
       state.ayahsAudios = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
-      state.ayahTimings = [];
-      try {
-        const timingJson = await results[1].json();
-        const refAyahs = timingJson?.data?.ayahs;
-        if (refAyahs?.length) {
-          const secs = refAyahs.map(a => parseTimestamp(a.timing?.timestamp));
-          const lastDur = parseTimestamp(refAyahs[refAyahs.length - 1].timing?.duration);
-          const total = secs[secs.length - 1] + lastDur;
-          if (total) state.ayahTimings = secs.map(t => t / total);
-        }
-      } catch { /* timings will be empty → no seeking fallback */ }
-      state.translationData = results[2] ? (await results[2].json())?.data || null : null;
+      state.ayahTimings = calculateAyahTimings(textData.ayahs, surahNum);
+      state.translationData = results[1] ? (await results[1].json())?.data || null : null;
     } else {
       const audioRes = results[1];
       const audioJson = await audioRes.json();
