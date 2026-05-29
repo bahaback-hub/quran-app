@@ -118,7 +118,7 @@ function stopWordTracking() {
 
 function onTimeUpdate() {
   if (_autoAdvancing || !wordTrackingActive || !dom.audioPlayer || !state.surahData) return;
-  const duration = dom.audioPlayer.duration;
+  let duration = dom.audioPlayer.duration;
   if (!duration || !isFinite(duration)) return;
   let currentTime = dom.audioPlayer.currentTime;
 
@@ -136,7 +136,9 @@ function onTimeUpdate() {
       _autoAdvancing = false;
       return;
     }
-    currentTime -= _getAyahStartTime();
+    const ayahStart = _getAyahStartTime();
+    currentTime -= ayahStart;
+    duration = endTime - ayahStart;
     if (currentTime < 0) currentTime = 0;
   }
 
