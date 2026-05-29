@@ -10,10 +10,11 @@ const CACHE = {
 const AUDIO_LIMIT = 300;
 const MUSHARAF_LIMIT = 604;
 
+// Vite builds produce hashed filenames, so we cache only stable assets at install time.
+// JS/CSS bundles are cached on first fetch via runtime strategies below.
 const ASSETS = [
   './',
   './index.html',
-  './app.bundle.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -24,8 +25,7 @@ const CDN_BASE = 'https://cdn.jsdelivr.net/gh/bahaback-hub/quran-app@main/public
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE.APP).then(c => c.addAll(ASSETS).catch(() => {}))
-    .then(() => self.skipWaiting())
+    caches.open(CACHE.APP).then(c => c.addAll(ASSETS).catch(err => console.error('SW install cache failed:', err)))
   );
 });
 
@@ -35,7 +35,18 @@ self.addEventListener('activate', e => {
     caches.keys().then(keys =>
       Promise.all(keys.map(k => valid.includes(k) ? null : caches.delete(k)))
     ).then(() => self.clients.claim())
+    .then(() => {
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => client.postMessage({ type: 'SW_UPDATED' }));
+      });
+    })
   );
+});
+
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
 
 async function trim(cacheName, limit) {

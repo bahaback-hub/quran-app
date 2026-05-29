@@ -1,7 +1,7 @@
 export const CONFIG = {
-  API_BASE: 'https://api.alquran.cloud/v1',
-  TAFSIR_API: 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir',
-  PRAYER_API: 'https://api.aladhan.com/v1/timingsByCity',
+  API_BASE: import.meta.env.VITE_API_BASE || 'https://api.alquran.cloud/v1',
+  TAFSIR_API: import.meta.env.VITE_TAFSIR_API || 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir',
+  PRAYER_API: import.meta.env.VITE_PRAYER_API || 'https://api.aladhan.com/v1/timingsByCity',
   AZAN_FILE: 'azan.mp3',
   SURAH_COUNT: 114,
   STORAGE_PREFIX: 'quran_app_',

@@ -46,6 +46,7 @@
  *   adhkarActiveTab: string|null,
  *   lastAdhkarFired: string|null,
  *   adhkarNotificationTimer: number|null,
+ *   adhkarIntervalId: number|null,
  *   _voiceListening: boolean,
  *   _voiceRecognition: object|null,
  *   _smartTvState: number,

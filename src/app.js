@@ -16,7 +16,7 @@ import { loadTafsirForCurrentAyah, loadTafsirForSurahAyah, toggleTafsir, closeTa
 import { buildShareText, toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
-import { playCurrentAyah, togglePlayPause, nextAyah, prevAyah, toggleHifdh, toggleRepeat, bindAudioEvents } from './audio.js';
+import { playCurrentAyah, togglePlayPause, nextAyah, prevAyah, toggleHifdh, toggleRepeat, bindAudioEvents, setLoadSurah } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
 import { toggleMushafMode, loadPage, highlightMushafAyah, populateSurahOverlay } from './mushaf.js';
 import { initAyahModal, openAyahModal } from './ayah-modal.js';
@@ -505,8 +505,10 @@ function dismissWelcomeScreen() {
 function handleVisibilityChange() {
   if (document.hidden) {
     stopClock();
+    clearInterval(state.adhkarIntervalId);
   } else {
     startClock();
+    state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
   }
 }
 
@@ -515,6 +517,7 @@ function handleVisibilityChange() {
 /** Initialize the application: load state, data, bind events. */
 export async function initApp() {
   initState();
+  setLoadSurah(loadSurah);
   loadingBar.init();
   loadingBar.hide();
   cacheDom();
@@ -549,7 +552,7 @@ export async function initApp() {
   bindAudioEvents();
 
   checkAdhkarNotifications();
-  setInterval(checkAdhkarNotifications, 15000);
+  state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
 
   /* ========== EVENT BINDINGS ========== */
 

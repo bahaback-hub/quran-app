@@ -3,8 +3,12 @@ import { CONFIG } from "./config.js";
 import { dom } from "./dom.js";
 import { storage } from "./storage.js";
 import { showToast } from "./ui.js";
-import { loadSurah, highlightCurrentAyah } from "./app.js";
+import { highlightCurrentAyah } from "./app.js";
 import { getReciterById } from "./reciters.js";
+
+/** @type {((surahNum: number, opts?: { startAyah?: number, autoPlay?: boolean }) => void) | null} */
+let _loadSurah = null;
+export function setLoadSurah(fn) { _loadSurah = fn; }
 
 export function prepareAudioForNewSurah() {
   if (dom.audioPlayer) {
@@ -231,8 +235,8 @@ export function prevAyah() {
   }
 }
 
-export function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) loadSurah(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
-export function prevSurah() { if (state.currentSurah > 1) loadSurah(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
+export function nextSurah() { if (state.currentSurah < CONFIG.SURAH_COUNT) _loadSurah?.(state.currentSurah + 1, { autoPlay: state.isPlaying }); }
+export function prevSurah() { if (state.currentSurah > 1) _loadSurah?.(state.currentSurah - 1, { autoPlay: state.isPlaying }); }
 
 
 /* ===================== HIFDH & REPEAT ===================== */
