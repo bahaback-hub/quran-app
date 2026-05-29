@@ -41,6 +41,41 @@ export function padSurah(num) {
   return String(num).padStart(3, '0');
 }
 
+/**
+ * Map of mp3quran reciter IDs → quran.com chapter_recitation IDs for real ayah timestamps.
+ * Uses the api.quran.com/api/v4/chapter_recitations/{id}/{surah}?segments=true endpoint.
+ */
+export const TIMING_API_IDS = {
+  's_gmd': 13,      // سعد الغامدي — Saad al-Ghamdi
+  'shur': 10,       // سعود الشريم — Saud ash-Shuraym
+  's_bud': 43,      // صلاح البدير — Salah al-Budayr
+  'bu_khtr': 18,    // صلاح بو خاطر — Salah Bukhatir
+  'a_jbr': 24,      // علي جابر — Ali Jaber
+  'frs_a': 14,      // فارس عباد — Fares Abbad
+  'yasser': 20,     // ياسر الدوسري — Yasser Ad Dussary
+  'qasm': 11,       // عبد المحسن القاسم — Abdul Muhsin al-Qasim
+  'sds': 3,         // عبد الرحمن السديس — Abdurrahman as-Sudais
+  'maher': 52,      // ماهر المعيقلي — Maher al-Mu'aiqly
+  'jbrl': 28,       // محمد جبريل — Muhammad Jibril
+  'minsh': 7,       // محمد صديق المنشاوي — Mohamed Siddiq al-Minshawi
+  'shaatree': 4,    // أبو بكر الشاطري — Abu Bakr al-Shatri
+  'tnjy': 161,      // خليفة الطنيجي — Khalifah Al Tunaiji
+};
+
+/**
+ * Check if a reciter has real timing data available via the quran.com API.
+ */
+export function hasTimingApi(reciterId) {
+  return reciterId in TIMING_API_IDS;
+}
+
+/**
+ * Get the quran.com chapter_recitation ID for a given reciter.
+ */
+export function getTimingApiId(reciterId) {
+  return TIMING_API_IDS[reciterId] || null;
+}
+
 export function buildAudioUrl(reciter, surahNum) {
   if (reciter.source === 'mp3quran') {
     return `${reciter.server}/${padSurah(surahNum)}.mp3`;
