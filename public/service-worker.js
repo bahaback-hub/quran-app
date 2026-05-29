@@ -126,8 +126,7 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request).then(res => {
       if (res && res.status === 200 && res.type !== 'opaque') {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(c => c.put(e.request, clone)).catch(() => {});
+        try { const clone = res.clone(); caches.open(CACHE_NAME).then(c => c.put(e.request, clone)).catch(() => {}); } catch (e) { /* clone failed */ }
       }
       return res;
     }).catch(async () => {
