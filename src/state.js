@@ -53,7 +53,8 @@
  *   _smartTvAudioSrc: string,
  *   surahOffsets: Array<{surahNum: number, startAbs: number, count: number, name: string}>|null,
  *   backgroundsList: Array<{id: string, name: string, type?: string, css?: string}>|null,
- *   ayahTimings: number[]
+ *   ayahTimings: number[],
+ *   presentationMode: boolean
  * }}
  */
 export let state = /** @type {any} */ ({});

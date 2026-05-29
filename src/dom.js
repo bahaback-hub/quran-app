@@ -37,7 +37,13 @@ const DOM_IDS = [
   'adhkarNotifOpenBtn', 'adhkarNotifDismissBtn',
   'adhkarAddOverlay', 'adhkarAddCloseBtn', 'adhkarAddText',
   'adhkarAddCount', 'adhkarAddTime', 'adhkarAddDuration', 'adhkarAddSaveBtn',
-  'surahSecretsOverlay', 'surahSecretsCloseBtn', 'surahSecretsBody', 'surahSecretsTitle', 'surahSecretsSurahName'
+  'surahSecretsOverlay', 'surahSecretsCloseBtn', 'surahSecretsBody', 'surahSecretsTitle', 'surahSecretsSurahName',
+  // Presentation mode
+  'presentationOverlay', 'presentationBody', 'presentationAyahText',
+  'presentationAyahNum', 'presentationTitle', 'presentationCloseBtn',
+  'presentationPrevBtn', 'presentationNextBtn', 'presentationCounter',
+  'presentationTranslation',
+  'viewSurahBtn', 'viewMushafBtn', 'viewPresBtn'
 ];
 
 export function cacheDom() {
