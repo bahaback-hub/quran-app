@@ -9,7 +9,7 @@
 ## Architecture
 - **Vite-based ESM build**: `index.html` loads `src/main.js` as `<script type="module">`
 - **Vite handles all assets**: JS, CSS, images — full bundling with code splitting
-- **PWA**: `vite-plugin-pwa` with Workbox — auto-generates SW with precache + runtime caching
+- **PWA**: `vite-plugin-pwa` with Workbox only — auto-registers a single Service Worker (no manual `service-worker.js`)
 - **Deployment**: GitHub Actions → `actions/deploy-pages@v4` from `dist/`
   - User must enable "GitHub Pages → GitHub Actions" in repo settings
 

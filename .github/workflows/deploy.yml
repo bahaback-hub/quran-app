@@ -9,6 +9,8 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  # Required for gh repo edit (description & topics)
+  administration: write
 
 concurrency:
   group: pages
@@ -22,6 +24,13 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Set repository description and topics
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh repo edit "${{ github.repository }}" \
+            --description "تطبيق ويب PWA للقرآن الكريم — تلاوة، مصحف، تفسير، بحث، مواقيت صلاة وأذكار" \
+            --add-topic quran --add-topic pwa --add-topic arabic --add-topic islam --add-topic vite --add-topic javascript
       - uses: actions/setup-node@v4
         with:
           node-version: 22

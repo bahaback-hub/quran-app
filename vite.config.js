@@ -33,6 +33,7 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
       includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'mushaf-icon.png'],
       manifest: {
         name: 'القرآن الكريم',
@@ -53,7 +54,16 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,json,png}'],
         globIgnores: ['**/pages/**', '**/mushaf-icon.png'],
+        navigateFallback: 'index.html',
         runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/quran\/quran-uthmani/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'quran-full-text',
+              expiration: { maxEntries: 2, maxAgeSeconds: 86400 * 365 }
+            }
+          },
           {
             urlPattern: /^https:\/\/api\.alquran\.cloud\/.*/i,
             handler: 'StaleWhileRevalidate',
@@ -71,11 +81,19 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/.*/i,
+            urlPattern: /\/pages\/page\d+\.png$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'mushaf-pages',
-              expiration: { maxEntries: 30, maxAgeSeconds: 86400 * 365 }
+              expiration: { maxEntries: 604, maxAgeSeconds: 86400 * 365 }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/spa5k\/tafsir_api/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'tafsir-api',
+              expiration: { maxEntries: 200, maxAgeSeconds: 86400 * 365 }
             }
           },
           {
@@ -83,7 +101,7 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'quran-audio',
-              expiration: { maxEntries: 50, maxAgeSeconds: 86400 * 365 }
+              expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 }
             }
           },
           {
@@ -91,7 +109,7 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'quran-audio',
-              expiration: { maxEntries: 50, maxAgeSeconds: 86400 * 365 }
+              expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 }
             }
           },
           {
