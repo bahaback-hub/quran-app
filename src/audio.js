@@ -162,6 +162,7 @@ function onAudioPlay() { state.isPlaying = true; updatePlayPauseBtn(); }
 function onAudioPause() { state.isPlaying = false; updatePlayPauseBtn(); }
 function onAudioError() {
   state.isPlaying = false;
+  stopWordTracking();
   updatePlayPauseBtn();
   showToast('⚠️ تعذّر تشغيل الصوت، حاول آية أخرى', 'error');
 }

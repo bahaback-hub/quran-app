@@ -812,10 +812,11 @@ export async function initApp() {
   // Pause clock when tab hidden (save battery)
   document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  // Register service worker
-  if ('serviceWorker' in navigator) {
+  // Register service worker (only for raw source deployment;
+  // Vite build uses vite-plugin-pwa auto-registration)
+  if ('serviceWorker' in navigator && typeof import.meta.env === 'undefined') {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker.js').catch(err => console.warn('SW registration failed:', err));
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {});
     });
   }
 }
