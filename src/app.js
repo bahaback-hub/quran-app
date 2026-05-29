@@ -199,12 +199,21 @@ function countArabicChars(text) {
   return (text.match(/[\u0621-\u064A\u0660-\u0669]/g) || []).length;
 }
 
-function calculateAyahTimings(ayahs) {
+function calculateAyahTimings(ayahs, surahNumber) {
   const timings = [];
-  const charCounts = ayahs.map(a => countArabicChars(a.text));
-  const totalChars = charCounts.reduce((a, b) => a + b, 0);
+  let basmalahChars = 0;
+  const charCounts = ayahs.map((a, i) => {
+    const n = countArabicChars(a.text);
+    if (i === 0 && surahNumber !== 1 && surahNumber !== 9) {
+      const without = a.text.replace(/^بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِيمِ\s*/u, '');
+      basmalahChars = n - countArabicChars(without);
+      return countArabicChars(without);
+    }
+    return n;
+  });
+  const totalChars = charCounts.reduce((a, b) => a + b, 0) + basmalahChars;
   if (!totalChars) return ayahs.map(() => 0);
-  let cum = 0;
+  let cum = basmalahChars / totalChars;
   for (let i = 0; i < ayahs.length; i++) {
     timings.push(cum);
     cum += charCounts[i] / totalChars;
@@ -267,7 +276,7 @@ export async function loadSurah(surahNum, opts = {}) {
     state.surahData = cached.text;
     if (isMp3quran) {
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
-      state.ayahTimings = calculateAyahTimings(cached.text.ayahs);
+      state.ayahTimings = calculateAyahTimings(cached.text.ayahs, surahNum);
     } else {
       state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
       state.ayahTimings = [];
@@ -306,7 +315,7 @@ export async function loadSurah(surahNum, opts = {}) {
 
     if (isMp3quran) {
       state.ayahsAudios = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
-      state.ayahTimings = calculateAyahTimings(textData.ayahs);
+      state.ayahTimings = calculateAyahTimings(textData.ayahs, surahNum);
       state.translationData = results[1] ? (await results[1].json())?.data || null : null;
     } else {
       const audioRes = results[1];
