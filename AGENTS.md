@@ -1,20 +1,19 @@
 # Quran App — Project Guide
 
 ## Commands
-- `npm run concat` — Build `app.bundle.js` from `src/` files (must run before dev)
-- `npm run dev` — Run `concat` then start Vite dev server
-- `npm run build` — Run `concat` then Vite production build
+- `npm run dev` — Start Vite dev server
+- `npm run build` — Vite production build (with code splitting, tree shaking)
 - `npm test` — Run all Vitest tests
 - `npm run typecheck` — TypeScript type check (`tsc --noEmit`)
 
 ## Architecture
-- **Single-file app**: `index.html` loads `app.bundle.js` (not a module script)
-- **Concat build**: `scripts/concat.cjs` concatenates `src/*.js`, strips `import`/`export`
-- **Vite**: Only used for `vite build` of non-JS assets (CSS, images); JS comes from concat
+- **Vite-based ESM build**: `index.html` loads `src/main.js` as `<script type="module">`
+- **Vite handles all assets**: JS, CSS, images — full bundling with code splitting
+- **No more concat build**: `scripts/concat.cjs` is deprecated; Vite resolves ES module imports natively
 
 ## Code Conventions
-- All functions must be `function` declarations (not arrow/const) — hoisting needed across concat boundaries
-- Every module has explicit imports for all cross-module functions it uses (no relying on concat hoisting)
+- All functions use `function` declarations (not arrow/const) — hoisting within each module
+- Every module has explicit imports for all cross-module functions it uses
 - `state` is a single global object in `src/state.js`: `export let state = {}` — imported by all modules
 - All module‑level mutable state is a property of `state` (e.g. `surahOffsets` moved from `app.js` to `state.surahOffsets`)
 - `initState()` uses `Object.assign(state, {...})` not `state = {...}` (imported binding is read-only in ES modules)
@@ -41,13 +40,6 @@
 | `i18n.js` | Internationalization (ar/en) |
 | `storage.js` | localStorage wrapper |
 | `surahs-data.js` | Surah secrets data |
-
-## Concat File Order (`scripts/concat.cjs`)
-1. Utility files (config, storage, dom, ui, utils, i18n, adhkar-data)
-2. `state.js` (defines `state`)
-3. `app.js` (imports state from state.js)
-4. Module files (prayer, tafsir, favorites, share, settings, adhkar, audio, search, mushaf)
-5. `main.js`
 
 ## DOM
 - All DOM references cached in `dom` object via `cacheDom()` in `src/dom.js`

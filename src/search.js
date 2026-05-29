@@ -57,16 +57,16 @@ export async function loadFullQuranText() {
               try {
                 const tx2 = db.transaction('fullText', 'readwrite');
                 tx2.objectStore('fullText').put({ id: 'fullQuran', data: ayahs });
-              } catch (_) { }
+              } catch (err) { console.warn('Failed to cache full Quran text:', err); }
               showToast('✅ قاعدة القرآن جاهزة', 'success');
               resolve();
             } catch (err) { console.error(err); resolve(); }
           }
         };
-        getReq.onerror = () => resolve();
-      } catch (err) { resolve(); }
+        getReq.onerror = () => { console.warn('Failed to get full Quran from IndexedDB'); resolve(); };
+      } catch (err) { console.warn('Error in IndexedDB transaction:', err); resolve(); }
     };
-    request.onerror = () => resolve();
+    request.onerror = () => { console.warn('Failed to open QuranAppDB'); resolve(); };
   });
 }
 
@@ -467,7 +467,7 @@ async function copySpecificAyah(surah, ayah) {
       const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
       const data = await res.json();
       text = data?.data?.text || '';
-    } catch (e) { }
+    } catch (err) { console.warn('Failed to fetch ayah for copy:', err); }
   }
   if (text) {
     copyToClipboard(text);
@@ -490,11 +490,11 @@ async function shareSpecificAyah(surah, ayah) {
       const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
       const data = await res.json();
       text = data?.data?.text || '';
-    } catch (e) { }
+    } catch (err) { console.warn('Failed to fetch ayah for share:', err); }
   }
   const shareMsg = text ? `﴿${text}﴾\n— ${surahName.trim()} — آية ${ayah}` : `الآية ${ayah} من سورة ${surahName.trim()}`;
   if (navigator.share) {
-    navigator.share({ title: 'القرآن الكريم', text: shareMsg }).catch(() => { });
+    navigator.share({ title: 'القرآن الكريم', text: shareMsg }).catch(err => { if (err.name !== 'AbortError') console.warn('Share failed:', err); });
   } else {
     copyToClipboard(shareMsg);
     showToast('📋 تم نسخ الآية للمشاركة', 'success');

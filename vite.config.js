@@ -7,6 +7,7 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true,
+    cssMinify: 'lightningcss',
     rollupOptions: {
       input: './index.html',
       output: {
