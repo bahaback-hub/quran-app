@@ -7,7 +7,7 @@ import { showToast, loadingBar } from "./ui.js";
 import { escapeHtml, escapeRegExp, normalizeExactText, normalizeRelaxed } from "./utils.js";
 import { loadSurah, highlightCurrentAyah } from "./app.js";
 import { playCurrentAyah } from "./audio.js";
-import { openAyahModal } from "./ayah-modal.js";
+
 
 /** Load full Quran text into IndexedDB for offline search. */
 export async function loadFullQuranText() {
@@ -442,7 +442,7 @@ function renderSearchResults(matches, query) {
       const name = el.dataset.surahname;
       const ayahObj = state.fullQuranText?.[idx];
       if (!ayahObj) return;
-      openAyahModal({ surah: s, ayah: a, text: ayahObj.text, surahName: name, index: idx });
+      import('./ayah-modal.js').then(m => m.openAyahModal({ surah: s, ayah: a, text: ayahObj.text, surahName: name, index: idx }));
     });
   });
 }
