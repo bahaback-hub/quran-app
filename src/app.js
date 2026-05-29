@@ -16,9 +16,9 @@ import { loadTafsirForCurrentAyah, loadTafsirForSurahAyah, toggleTafsir, closeTa
 import { buildShareText, toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
-import { playCurrentAyah, togglePlayPause, nextAyah, prevAyah, toggleHifdh, toggleRepeat, bindAudioEvents, setLoadSurah } from './audio.js';
+import { prepareAudioForNewSurah, playCurrentAyah, togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh, toggleRepeat, bindAudioEvents, setLoadSurah, expandPlayer, updatePlayPauseBtn } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
-import { toggleMushafMode, loadPage, highlightMushafAyah, populateSurahOverlay } from './mushaf.js';
+import { toggleMushafMode, loadPage, highlightMushafAyah, populateSurahOverlay, showSurahSecret } from './mushaf.js';
 import { initAyahModal, openAyahModal } from './ayah-modal.js';
 
 /* Continue Reading Widget Styles - injected once */
