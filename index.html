@@ -76,7 +76,11 @@
           <select id="reciterSelect" aria-label="اختيار القارئ"></select>
          </div>
       </div>
-      <button class="mode-toggle-control" id="modeToggleBtn" aria-label="تبديل وضع العرض"><img src="mushaf-icon.png" alt="" class="mode-toggle-icon"> وضع المصحف</button>
+      <div class="view-mode-group">
+        <button class="view-mode-btn active" id="viewSurahBtn" data-mode="surah" title="وضع السورة">📖 سورة</button>
+        <button class="view-mode-btn" id="viewMushafBtn" data-mode="mushaf" title="وضع المصحف">📄 مصحف</button>
+        <button class="view-mode-btn" id="viewPresBtn" data-mode="presentation" title="وضع العرض">🖼️ عرض</button>
+      </div>
       <div class="controls-left">
         <span class="page-indicator" id="pageIndicator" style="display:none;">صفحة ١ من ٦٠٤</span>
         <div class="control-group search-input-group">
@@ -490,6 +494,26 @@
       <button class="btn" id="mushafSurahOverlayClose">✖</button>
     </div>
     <div class="mushaf-surah-overlay-list" id="mushafSurahOverlayList"></div>
+  </div>
+</div>
+
+<!-- ========== وضع العرض (Presentation Mode) ========== -->
+<div class="presentation-overlay" id="presentationOverlay" role="dialog" aria-label="وضع العرض" style="display:none;">
+  <div class="presentation-inner">
+    <div class="presentation-header">
+      <button class="presentation-header-btn" id="presentationPrevBtn" aria-label="الآية السابقة">⏮</button>
+      <span class="presentation-title" id="presentationTitle">—</span>
+      <span class="presentation-ayah-num" id="presentationAyahNum">—</span>
+      <button class="presentation-header-btn" id="presentationNextBtn" aria-label="الآية التالية">⏭</button>
+      <button class="presentation-close-btn" id="presentationCloseBtn" aria-label="خروج">✖</button>
+    </div>
+    <div class="presentation-body" id="presentationBody">
+      <div class="presentation-ayah-text" id="presentationAyahText"></div>
+      <div class="presentation-translation" id="presentationTranslation" style="display:none;"></div>
+    </div>
+    <div class="presentation-footer">
+      <span class="presentation-counter" id="presentationCounter">٠ / ٠</span>
+    </div>
   </div>
 </div>
 

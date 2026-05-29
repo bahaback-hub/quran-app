@@ -1564,37 +1564,43 @@ body.night-mode .surah-secrets-overlay-inner { background: #1e2330; }
   gap: 6px;
   z-index: 10;
 }
-.mode-toggle-control {
+.view-mode-group {
+  display: flex;
+  gap: 2px;
   background: var(--controls-bg);
-  color: var(--text-secondary);
-  padding: 6px 10px;
   border-radius: 8px;
-  cursor: pointer;
+  padding: 2px;
   border: 1.5px solid var(--border-soft);
+}
+.view-mode-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
   font-size: 12px;
   white-space: nowrap;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-family: inherit;
   font-weight: bold;
-  height: 34px;
+  height: 30px;
   display: flex;
   align-items: center;
+}
+.view-mode-btn:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--accent-dark);
+}
+.view-mode-btn.active {
+  background: var(--accent);
+  color: #2c3e50;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
 }
 .mode-toggle-icon {
   width: 20px;
   height: 20px;
   margin-left: 5px;
-}
-.mode-toggle-control:hover {
-  border-color: var(--accent);
-  color: var(--accent-dark);
-}
-.mode-toggle-control.mushaf-active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #2c3e50;
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
-  color: #2c3e50;
 }
 
 /* ===== حاوية المصحف الرئيسية ===== */

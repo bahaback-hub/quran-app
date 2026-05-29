@@ -18,6 +18,7 @@ import { applyFontSize, applyNightMode, toggleNightMode, openSettings, closeSett
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
 import { prepareAudioForNewSurah, playCurrentAyah, togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh, toggleRepeat, bindAudioEvents, setLoadSurah, expandPlayer, updatePlayPauseBtn } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
+import { openPresentation, closePresentation, initPresentation, syncPresentation } from './presentation.js';
 
 /* Continue Reading Widget Styles - injected once */
 const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
@@ -133,7 +134,8 @@ function initState() {
     adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
     surahOffsets: null,
     backgroundsList: null,
-    ayahTimings: []
+    ayahTimings: [],
+    presentationMode: false
   });
 }
 
@@ -494,6 +496,7 @@ export function highlightCurrentAyah() {
     cur.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
   updatePlayerInfo();
+  syncPresentation();
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
   if (state.mushafMode) import('./mushaf.js').then(m => m.highlightMushafAyah());
 }
@@ -585,6 +588,7 @@ export async function initApp() {
   loadFavorites();
   startClock();
   import('./ayah-modal.js').then(m => m.initAyahModal()).catch(() => {});
+  initPresentation();
 
   checkAzanTime();
   scheduleNextAzanCheck();
@@ -760,7 +764,25 @@ export async function initApp() {
     if (!dom.shareMenu?.contains(e.target) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');
   });
 
-  /* ========== MUSHAF MODE ========== */
+  /* ========== VIEW MODE TOGGLE ========== */
+  dom.viewSurahBtn?.addEventListener('click', () => {
+    closePresentation();
+    if (state.mushafMode) import('./mushaf.js').then(m => m.toggleMushafMode());
+    document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'surah'));
+    if (dom.surahModeControls) dom.surahModeControls.style.display = '';
+    if (dom.pageSelect) dom.pageSelect.style.display = 'none';
+    if (dom.pageSlider) dom.pageSlider.style.display = 'none';
+    if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
+  });
+  dom.viewMushafBtn?.addEventListener('click', () => {
+    closePresentation();
+    import('./mushaf.js').then(m => m.toggleMushafMode());
+  });
+  dom.viewPresBtn?.addEventListener('click', () => {
+    if (state.mushafMode) import('./mushaf.js').then(m => m.toggleMushafMode());
+    openPresentation();
+  });
+  // Keep modeToggleBtn as alias for backward compatibility
   dom.modeToggleBtn?.addEventListener('click', () => import('./mushaf.js').then(m => m.toggleMushafMode()));
   dom.pageSelect?.addEventListener('change', () => {
     if (dom.pageSelect.value) { const p = parseInt(dom.pageSelect.value, 10); if (dom.pageSlider) dom.pageSlider.value = p; import('./mushaf.js').then(m => m.loadPage(p, true)); }
@@ -816,6 +838,9 @@ export async function initApp() {
       case 't': case 'T': toggleTafsir(); break;
       case 'n': case 'N': toggleNightMode(); break;
       case 'm': case 'M': import('./mushaf.js').then(m => m.toggleMushafMode()); break;
+      case 'p': case 'P':
+        if (state.presentationMode) { closePresentation(); } else { openPresentation(); }
+        break;
       case 'g': case 'G': gotoBookmark(); break;
       case '+': case '=': applyFontSize(Math.min(45, state.fontSize + 2)); break;
       case '-': applyFontSize(Math.max(16, state.fontSize - 2)); break;
