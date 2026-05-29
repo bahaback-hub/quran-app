@@ -14,9 +14,14 @@ import { handlePageClick, getAyahHighlightRects, getPageLayout } from "./ayah-cl
 export async function toggleMushafMode() {
   const wasPlaying = state.isPlaying;
   state.mushafMode = !state.mushafMode;
+  document.querySelectorAll('.view-mode-btn').forEach(b => {
+    if (state.mushafMode) {
+      b.classList.toggle('active', b.dataset.mode === 'mushaf');
+    } else {
+      b.classList.toggle('active', b.dataset.mode === 'surah');
+    }
+  });
   if (state.mushafMode) {
-    dom.modeToggleBtn.innerHTML = '📖 وضع السورة';
-    dom.modeToggleBtn.classList.add('mushaf-active');
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
     
@@ -43,8 +48,6 @@ export async function toggleMushafMode() {
       updatePlayPauseBtn();
     }
   } else {
-    dom.modeToggleBtn.innerHTML = '<img src="mushaf-icon.png" alt="" class="mode-toggle-icon"> وضع المصحف';
-    dom.modeToggleBtn.classList.remove('mushaf-active');
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
 
     if (state.surahData && state.surahData.number === state.currentSurah) {

@@ -782,8 +782,7 @@ export async function initApp() {
     if (state.mushafMode) import('./mushaf.js').then(m => m.toggleMushafMode());
     openPresentation();
   });
-  // Keep modeToggleBtn as alias for backward compatibility
-  dom.modeToggleBtn?.addEventListener('click', () => import('./mushaf.js').then(m => m.toggleMushafMode()));
+
   dom.pageSelect?.addEventListener('change', () => {
     if (dom.pageSelect.value) { const p = parseInt(dom.pageSelect.value, 10); if (dom.pageSlider) dom.pageSlider.value = p; import('./mushaf.js').then(m => m.loadPage(p, true)); }
   });
@@ -802,7 +801,7 @@ export async function initApp() {
   const savedMushaf = storage.get('mushaf_mode');
   const savedPage = storage.get('current_page');
   if (savedPage) state.currentPage = savedPage;
-  if (savedMushaf && dom.modeToggleBtn) import('./mushaf.js').then(m => m.toggleMushafMode());
+  if (savedMushaf) import('./mushaf.js').then(m => m.toggleMushafMode());
 
   /* ========== ADHKAR ========== */
   wireAdhkarEvents();
