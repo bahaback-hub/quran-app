@@ -1,8 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-
-function escapeRegExp(str) {
-  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+import { describe, it, expect } from 'vitest';
+import { escapeRegExp } from '../utils.js';
 
 const ARABIC_KEYBOARD_LAYOUT = [
   ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د'],

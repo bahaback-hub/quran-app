@@ -4,7 +4,7 @@ import { dom, cacheDom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
 import { __, getLang, setLang } from './i18n.js';
 import { state } from './state.js';
-import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification } from './prayer.js';
+import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification, showQiblaCompass, hideQiblaCompass } from './prayer.js';
 import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
 import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
@@ -13,6 +13,7 @@ import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhk
 import { togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh, toggleRepeat, bindAudioEvents, setLoadSurah, expandPlayer, updatePlayPauseBtn } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
 import { openPresentation, closePresentation, initPresentation } from './presentation.js';
+import { recordReadingSession, renderReadingStats } from './reading-stats.js';
 import {
   loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect, toggleTranslation
 } from './surah-loader.js';
@@ -450,6 +451,16 @@ export async function initApp() {
   /* ========== ADHKAR ========== */
   wireAdhkarEvents();
 
+  /* ========== QIBLA COMPASS ========== */
+  dom.qiblaCloseBtn?.addEventListener('click', hideQiblaCompass);
+  dom.qiblaOverlay?.addEventListener('click', (e) => { if (e.target === dom.qiblaOverlay) hideQiblaCompass(); });
+
+  /* ========== READING STATS ========== */
+  dom.readingStatsCloseBtn?.addEventListener('click', () => {
+    if (dom.readingStatsPanel) dom.readingStatsPanel.style.display = 'none';
+  });
+  renderReadingStats(dom.readingStatsContent);
+
   /* ========== KEYBOARD SHORTCUTS ========== */
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && state.azanPlaying) { stopAzan(); return; }
@@ -536,4 +547,22 @@ export async function initApp() {
 
   // Pause clock when tab hidden (save battery)
   document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  // Reading progress bar
+  function updateReadingProgress() {
+    const progressBar = document.getElementById('readingProgress');
+    if (!progressBar) return;
+    if (state.mushafMode) {
+      progressBar.style.transform = `scaleX(${state.currentPage / 604})`;
+      return;
+    }
+    const container = dom.surahContent;
+    if (!container || !state.surahData) return;
+    const total = state.surahData.ayahs?.length || 1;
+    const progress = Math.min(1, (state.currentAyahIndex + 1) / total);
+    progressBar.style.transform = `scaleX(${progress})`;
+  }
+  state._updateReadingProgress = updateReadingProgress;
+  window.addEventListener('scroll', updateReadingProgress, { passive: true });
+  updateReadingProgress();
 }

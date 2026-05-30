@@ -1,7 +1,9 @@
+/** Get environment variable with fallback. */
 function env(key, fallback) {
   try { return import.meta.env[key] || fallback; } catch (e) { return fallback; }
 }
 
+/** Application configuration constants. */
 export const CONFIG = {
   API_BASE: env('VITE_API_BASE', 'https://api.alquran.cloud/v1'),
   TAFSIR_API: env('VITE_TAFSIR_API', 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir'),
@@ -17,17 +19,22 @@ export const CONFIG = {
   CACHE_LIMIT: 20
 };
 
+/** Arabic names for prayer times. */
 export const PRAYER_NAMES_AR = {
   Fajr: 'الفجر', Sunrise: 'الشروق', Dhuhr: 'الظهر',
   Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء'
 };
 
+/** Ordered list of prayer keys. */
 export const PRAYER_ORDER = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
+/** Arabic weekday names. */
 export const ARABIC_WEEKDAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
+/** Starting page numbers for each Juz (30 entries). */
 export const JUZ_PAGES = [1, 22, 42, 62, 82, 102, 122, 142, 162, 182, 202, 222, 242, 262, 282, 302, 322, 342, 362, 382, 402, 422, 442, 462, 482, 502, 522, 542, 562, 582];
 
+/** Available translation editions with language and name. */
 export const TRANSLATION_EDITIONS = {
   'en.sahih': { lang: 'en', name: 'Sahih International' },
   'en.pickthall': { lang: 'en', name: 'Pickthall' },

@@ -347,5 +347,3 @@ export const ADHKAR_DATA = {
     }
   ]
 };
-
-const ADHKAR_STORAGE_KEY = 'adhkar_settings';

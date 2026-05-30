@@ -1,3 +1,4 @@
+/** Cached DOM element references. */
 export const dom = {};
 
 const DOM_IDS = [
@@ -42,10 +43,15 @@ const DOM_IDS = [
   'presentationOverlay', 'presentationBody', 'presentationAyahText',
   'presentationAyahNum', 'presentationTitle', 'presentationCloseBtn',
   'presentationPrevBtn', 'presentationNextBtn', 'presentationCounter',
-  'presentationTranslation',
-  'viewSurahBtn', 'viewMushafBtn', 'viewPresBtn'
+   'presentationTranslation',
+   'viewSurahBtn', 'viewMushafBtn', 'viewPresBtn',
+   // Qibla
+   'qiblaOverlay', 'qiblaCompass', 'qiblaAngle', 'qiblaDirection', 'qiblaCloseBtn',
+   // Reading stats
+   'readingStatsPanel', 'readingStatsContent', 'readingStatsCloseBtn'
 ];
 
+/** Cache all DOM element references by ID. */
 export function cacheDom() {
   for (const id of DOM_IDS) {
     dom[id] = document.getElementById(id);

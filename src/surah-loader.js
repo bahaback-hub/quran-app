@@ -8,6 +8,7 @@ import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './recit
 import { SURAH_SECRETS } from './surahs-data.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './audio.js';
 import { loadTafsirForCurrentAyah } from './tafsir.js';
+import { recordReadingSession } from './reading-stats.js';
 import { syncPresentation } from './presentation.js';
 
 /* ===================== SURAH LIST ===================== */
@@ -236,6 +237,7 @@ export async function loadSurah(surahNum, opts = {}) {
 
     renderSurah(textData);
     finalizeSurahLoad(opts);
+    recordReadingSession(surahNum, textData.ayahs.length);
     loadingBar.hide();
   } catch (e) {
     if (state.fullQuranLoaded && state.fullQuranText) {

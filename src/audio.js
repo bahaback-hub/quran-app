@@ -12,6 +12,8 @@ export function setLoadSurah(fn) { _loadSurah = fn; }
 
 let _mp3quranUrl = null;
 let _autoAdvancing = false;
+let _sleepTimer = null;
+let _sleepTimerMinutes = 0;
 
 export function prepareAudioForNewSurah() {
   _mp3quranUrl = null;
@@ -214,9 +216,26 @@ export function bindAudioEvents() {
     dom.audioPlayer.removeEventListener('seeking', onSeeking);
     dom.audioPlayer.addEventListener('seeking', onSeeking);
   }
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => { togglePlayPause(); });
+    navigator.mediaSession.setActionHandler('pause', () => { togglePlayPause(); });
+    navigator.mediaSession.setActionHandler('previoustrack', () => { prevAyah(); });
+    navigator.mediaSession.setActionHandler('nexttrack', () => { nextAyah(false); });
+  }
 }
 
-function onAudioPlay() { state.isPlaying = true; updatePlayPauseBtn(); }
+function onAudioPlay() {
+  state.isPlaying = true;
+  updatePlayPauseBtn();
+  if ('mediaSession' in navigator && state.surahData) {
+    const ayah = state.surahData.ayahs?.[state.currentAyahIndex];
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: ayah ? `آية ${ayah.numberInSurah}` : '',
+      artist: state.surahData.name || 'القرآن الكريم',
+      album: 'القرآن الكريم'
+    });
+  }
+}
 function onAudioPause() { state.isPlaying = false; updatePlayPauseBtn(); }
 function onAudioError() {
   _mp3quranUrl = null;
@@ -348,4 +367,40 @@ export function toggleRepeat() {
   } else {
     showToast('التكرار مغلق', '');
   }
+}
+
+/* ===================== SLEEP TIMER ===================== */
+
+/** Set a sleep timer to pause audio after N minutes. */
+export function setSleepTimer(minutes) {
+  clearSleepTimer();
+  if (minutes <= 0) {
+    showToast('تم إلغاء مؤقت النوم', '');
+    return;
+  }
+  _sleepTimerMinutes = minutes;
+  _sleepTimer = setTimeout(() => {
+    if (dom.audioPlayer && !dom.audioPlayer.paused) {
+      dom.audioPlayer.pause();
+      state.isPlaying = false;
+      updatePlayPauseBtn();
+    }
+    showToast(`⏰ تم إيقاف الصوت بعد ${minutes} دقيقة`, 'success');
+    _sleepTimerMinutes = 0;
+  }, minutes * 60 * 1000);
+  showToast(`⏰ مؤقت النوم: ${minutes} دقيقة`, 'success');
+}
+
+/** Clear the active sleep timer. */
+export function clearSleepTimer() {
+  if (_sleepTimer) {
+    clearTimeout(_sleepTimer);
+    _sleepTimer = null;
+  }
+  _sleepTimerMinutes = 0;
+}
+
+/** Get remaining sleep timer minutes (approximate). */
+export function getSleepTimerMinutes() {
+  return _sleepTimerMinutes;
 }

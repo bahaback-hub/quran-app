@@ -8,6 +8,7 @@ import { copyToClipboard } from './share.js';
 
 /* ===================== FAVORITES ===================== */
 
+/** Load favorites from localStorage into state. */
 export function loadFavorites() {
   state.favorites = storage.get('favorites', []);
 }
@@ -16,6 +17,7 @@ function saveFavorites() {
   storage.set('favorites', state.favorites);
 }
 
+/** Toggle the current ayah in/out of favorites. */
 export function toggleFavorite() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
@@ -37,6 +39,7 @@ export function toggleFavorite() {
   renderFavorites();
 }
 
+/** Render the favorites list in the favorites panel. */
 export function renderFavorites() {
   if (!dom.favoritesList) return;
   if (!state.favorites.length) {
@@ -128,11 +131,14 @@ export function renderFavorites() {
   });
 }
 
+/** Open the favorites panel. */
 export function openFavorites() { renderFavorites(); dom.favoritesPanel?.classList.add('open'); }
+/** Close the favorites panel. */
 export function closeFavorites() { dom.favoritesPanel?.classList.remove('open'); }
 
 /* ===================== BOOKMARK ===================== */
 
+/** Save the current ayah as a bookmark. */
 export function setBookmark() {
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
@@ -144,6 +150,7 @@ export function setBookmark() {
   showToast('🔖 تم حفظ العلامة', 'success');
 }
 
+/** Navigate to the saved bookmark. */
 export function gotoBookmark() {
   const bm = state.bookmark || storage.get('bookmark');
   if (!bm) { showToast('لا توجد علامة محفوظة', 'error'); return; }

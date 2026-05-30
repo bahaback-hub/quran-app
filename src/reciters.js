@@ -1,3 +1,4 @@
+/** List of available Quran reciters from multiple sources. */
 export const RECITERS = [
   // ——— API sources (AlQuran.cloud) ———
   { id: 'ar.alafasy',              name: 'مشاري العفاسي',             source: 'api' },
@@ -33,37 +34,40 @@ export const RECITERS = [
   { id: 'tnjy',     name: 'خليفة الطنيجي',              source: 'mp3quran', server: 'https://server12.mp3quran.net/tnjy' },
 ];
 
+/** Get a reciter object by its ID. */
 export function getReciterById(id) {
   return RECITERS.find(r => r.id === id) || RECITERS[0];
 }
 
+/** Pad a surah number to 3 digits (e.g. 1 → "001"). */
 export function padSurah(num) {
   return String(num).padStart(3, '0');
 }
 
 /**
  * Map of mp3quran reciter IDs → quran.com chapter_recitation IDs for real ayah timestamps.
- * Uses the api.quran.com/api/v4/chapter_recitations/{id}/{surah}?segments=true endpoint.
  */
 export const TIMING_API_IDS = {
-  's_gmd': 13,      // سعد الغامدي — Saad al-Ghamdi
-  'shur': 10,       // سعود الشريم — Saud ash-Shuraym
-  's_bud': 43,      // صلاح البدير — Salah al-Budayr
-  'bu_khtr': 18,    // صلاح بو خاطر — Salah Bukhatir
-  'a_jbr': 24,      // علي جابر — Ali Jaber
-  'frs_a': 14,      // فارس عباد — Fares Abbad
-  'yasser': 20,     // ياسر الدوسري — Yasser Ad Dussary
-  'qasm': 11,       // عبد المحسن القاسم — Abdul Muhsin al-Qasim
-  'sds': 3,         // عبد الرحمن السديس — Abdurrahman as-Sudais
-  'maher': 52,      // ماهر المعيقلي — Maher al-Mu'aiqly
-  'jbrl': 28,       // محمد جبريل — Muhammad Jibril
-  'minsh': 7,       // محمد صديق المنشاوي — Mohamed Siddiq al-Minshawi
-  'shaatree': 4,    // أبو بكر الشاطري — Abu Bakr al-Shatri
-  'tnjy': 161,      // خليفة الطنيجي — Khalifah Al Tunaiji
+  's_gmd': 13,
+  'shur': 10,
+  's_bud': 43,
+  'bu_khtr': 18,
+  'a_jbr': 24,
+  'frs_a': 14,
+  'yasser': 20,
+  'qasm': 11,
+  'sds': 3,
+  'maher': 52,
+  'jbrl': 28,
+  'minsh': 7,
+  'shaatree': 4,
+  'tnjy': 161,
 };
 
 /**
  * Check if a reciter has real timing data available via the quran.com API.
+ * @param {string} reciterId - The reciter ID.
+ * @returns {boolean} Whether timing API is available.
  */
 export function hasTimingApi(reciterId) {
   return reciterId in TIMING_API_IDS;
@@ -71,11 +75,19 @@ export function hasTimingApi(reciterId) {
 
 /**
  * Get the quran.com chapter_recitation ID for a given reciter.
+ * @param {string} reciterId - The reciter ID.
+ * @returns {number|null} The chapter_recitation ID or null.
  */
 export function getTimingApiId(reciterId) {
   return TIMING_API_IDS[reciterId] || null;
 }
 
+/**
+ * Build the audio URL for a reciter and surah number.
+ * @param {{source: string, server?: string}} reciter - Reciter object.
+ * @param {number} surahNum - Surah number (1-114).
+ * @returns {string|null} The audio URL or null for API-based reciters.
+ */
 export function buildAudioUrl(reciter, surahNum) {
   if (reciter.source === 'mp3quran') {
     return `${reciter.server}/${padSurah(surahNum)}.mp3`;

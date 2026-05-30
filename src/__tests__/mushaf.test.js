@@ -1,21 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { dom } from '../dom.js';
-import { JUZ_PAGES } from '../config.js';
-
-function getJuzForPage(pageNum) {
-  let juz = 1;
-  for (let i = JUZ_PAGES.length - 1; i >= 0; i--) {
-    if (pageNum >= JUZ_PAGES[i]) { juz = i + 1; break; }
-  }
-  return juz;
-}
-
-function updatePageIndicator(pageNum) {
-  if (dom.pageIndicator) {
-    const arabic = pageNum.toLocaleString('ar-SA');
-    dom.pageIndicator.textContent = `صفحة ${arabic} من ٦٠٤`;
-  }
-}
+import { getJuzForPage, updatePageIndicator } from '../mushaf.js';
 
 describe('getJuzForPage', () => {
   it('should return juz 1 for page 1', () => {

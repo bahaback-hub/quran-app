@@ -1,5 +1,6 @@
 import { dom } from './dom.js';
 
+/** Show a toast notification with auto-dismiss. */
 export function showToast(msg, type = '') {
   if (!dom.toast) return;
   dom.toast.textContent = msg;
@@ -8,6 +9,7 @@ export function showToast(msg, type = '') {
   window.toastTimeout = setTimeout(() => dom.toast.classList.remove('show'), 2500);
 }
 
+/** Loading bar controller with show/hide methods. */
 export const loadingBar = {
   el: null,
   timer: null,

@@ -21,6 +21,8 @@
 </head>
 <body>
 
+<div class="reading-progress" id="readingProgress" role="progressbar" aria-label="تقدم القراءة"></div>
+
 <noscript>
   <div style="background:#fee;color:#c33;padding:20px;text-align:center;font-size:18px;">
     ⚠️ هذا التطبيق يحتاج إلى تفعيل JavaScript في المتصفح ليعمل.
@@ -633,6 +635,35 @@
       <div class="welcome-feature">🕌 <span>مواقيت الصلاة والأذان</span></div>
     </div>
     <button class="btn btn-gold welcome-dismiss-btn" id="welcomeDismissBtn">✌️ البدء</button>
+  </div>
+</div>
+
+<!-- ========== قمر عزم القبلة ========== -->
+<div class="qibla-overlay" id="qiblaOverlay" role="dialog" aria-label="اتجاه القبلة" style="display:none;">
+  <div class="qibla-panel">
+    <h2>🧭 اتجاه القبلة</h2>
+    <div class="qibla-compass" id="qiblaCompass">
+      <div class="qibla-needle"></div>
+      <div class="qibla-center"></div>
+      <span class="qibla-label qibla-n">شمال</span>
+      <span class="qibla-label qibla-s">جنوب</span>
+      <span class="qibla-label qibla-e">شرق</span>
+      <span class="qibla-label qibla-w">غرب</span>
+    </div>
+    <div class="qibla-angle" id="qiblaAngle">---</div>
+    <div class="qibla-direction" id="qiblaDirection">جاري تحديد الموقع...</div>
+    <button class="qibla-close" id="qiblaCloseBtn">✖ إغلاق</button>
+  </div>
+</div>
+
+<!-- ========== إحصائيات القراءة ========== -->
+<div class="settings-panel" id="readingStatsPanel" role="dialog" aria-label="إحصائيات القراءة" style="display:none;">
+  <div class="settings-panel-inner">
+    <div class="settings-header">
+      <h3>📊 إحصائيات القراءة</h3>
+      <button class="btn" id="readingStatsCloseBtn">✖</button>
+    </div>
+    <div id="readingStatsContent"></div>
   </div>
 </div>
 

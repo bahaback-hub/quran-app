@@ -8,6 +8,9 @@ import { escapeHtml, escapeRegExp, normalizeExactText, normalizeRelaxed } from "
 import { loadSurah, highlightCurrentAyah } from "./app.js";
 import { playCurrentAyah } from "./audio.js";
 
+const SEARCH_HISTORY_KEY = 'search_history';
+const MAX_SEARCH_HISTORY = 10;
+
 
 /** Load full Quran text into IndexedDB for offline search. */
 export async function loadFullQuranText() {
@@ -86,6 +89,7 @@ function generateArabicVariants(normQuery) {
 export function performExactSearch(query) {
   if (!query.trim() || query.length < 2) { showToast('أدخل حرفين على الأقل', 'error'); return; }
   if (!state.fullQuranLoaded) { showToast('⚠️ قاعدة القرآن تُحمَّل، انتظر قليلاً', 'error'); return; }
+  addToSearchHistory(query.trim());
   const normQuery = normalizeExactText(query.trim());
   const relaxedQuery = normalizeRelaxed(query.trim());
   const exactVariants = generateArabicVariants(normQuery);
@@ -503,5 +507,26 @@ async function shareSpecificAyah(surah, ayah) {
     copyToClipboard(shareMsg);
     showToast('📋 تم نسخ الآية للمشاركة', 'success');
   }
+}
+
+/* ===================== SEARCH HISTORY ===================== */
+
+/** Get search history from localStorage. */
+export function getSearchHistory() {
+  return storage.get(SEARCH_HISTORY_KEY, []);
+}
+
+/** Add a query to search history (keeps last 10 unique entries). */
+function addToSearchHistory(query) {
+  const history = getSearchHistory().filter(h => h !== query);
+  history.unshift(query);
+  if (history.length > MAX_SEARCH_HISTORY) history.length = MAX_SEARCH_HISTORY;
+  storage.set(SEARCH_HISTORY_KEY, history);
+}
+
+/** Clear all search history. */
+export function clearSearchHistory() {
+  storage.remove(SEARCH_HISTORY_KEY);
+  showToast('تم مسح سجل البحث', '');
 }
 
