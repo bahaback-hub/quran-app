@@ -3239,3 +3239,104 @@ body {
   .surah-content { padding: 20px; }
   .ayah { background: none !important; box-shadow: none !important; color: #000 !important; }
 }
+
+/* ========== شريط تقدم القراءة ========== */
+.reading-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent, #d4af37); z-index: 9999;
+  transform-origin: left; transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+/* ========== مؤقت النوم ========== */
+.sleep-timer-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 6000; animation: fadeIn 0.2s ease;
+}
+.sleep-timer-panel {
+  background: var(--container-bg, #fefdf8); border-radius: 16px;
+  padding: 24px; max-width: 320px; width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.sleep-timer-panel h3 {
+  text-align: center; margin-bottom: 16px; color: var(--text-primary, #1a1a1a);
+}
+.sleep-timer-options {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.sleep-timer-option {
+  padding: 12px 8px; border: 1px solid var(--border-soft, #d4c9a8);
+  border-radius: 8px; background: none; cursor: pointer;
+  font-size: 14px; color: var(--text-primary, #1a1a1a);
+  transition: all 0.2s;
+}
+.sleep-timer-option:hover {
+  background: var(--hover-bg, rgba(212,175,55,0.15));
+  border-color: var(--accent, #d4af37);
+}
+.sleep-timer-option.active {
+  background: var(--accent, #d4af37); color: #fff; border-color: var(--accent, #d4af37);
+}
+
+/* ========== قمر عزم القبلة ========== */
+.qibla-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 7000; animation: fadeIn 0.3s ease;
+}
+.qibla-panel {
+  text-align: center; color: #fff; padding: 30px;
+}
+.qibla-compass {
+  width: 200px; height: 200px; border-radius: 50%;
+  border: 3px solid var(--accent, #d4af37);
+  margin: 20px auto; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.5s ease;
+}
+.qibla-needle {
+  width: 4px; height: 80px; background: var(--accent, #d4af37);
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  border-radius: 2px;
+}
+.qibla-center {
+  width: 16px; height: 16px; background: var(--accent, #d4af37);
+  border-radius: 50%; position: absolute;
+}
+.qibla-label {
+  position: absolute; font-size: 14px; font-weight: bold;
+}
+.qibla-n { top: 5px; }
+.qibla-s { bottom: 5px; }
+.qibla-e { right: 5px; }
+.qibla-w { left: 5px; }
+.qibla-angle { font-size: 36px; margin: 10px 0; font-weight: bold; }
+.qibla-direction { font-size: 16px; opacity: 0.9; }
+.qibla-close {
+  margin-top: 20px; padding: 10px 30px; border: 2px solid #fff;
+  background: none; color: #fff; border-radius: 8px; cursor: pointer;
+  font-size: 16px; transition: background 0.2s;
+}
+.qibla-close:hover { background: rgba(255,255,255,0.2); }
+
+/* ========== إحصائيات القراءة ========== */
+.reading-stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  padding: 16px;
+}
+.stat-card {
+  background: var(--container-bg, #fefdf8);
+  border: 1px solid var(--border-soft, #d4c9a8);
+  border-radius: 12px; padding: 16px; text-align: center;
+}
+.stat-number {
+  font-size: 24px; font-weight: bold; color: var(--accent, #d4af37);
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-size: 12px; color: var(--text-muted, #5a5a5a);
+}
+@media (max-width: 480px) {
+  .reading-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}

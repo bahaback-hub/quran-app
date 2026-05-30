@@ -167,7 +167,7 @@ export function togglePresentation() {
   if (state.presentationMode) {
     closePresentation();
   } else {
-    closePresentation();
+    openPresentation();
   }
 }
 

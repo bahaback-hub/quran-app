@@ -1,27 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { PRAYER_ORDER, PRAYER_NAMES_AR } from '../config.js';
 import { timeStrToMinutes, formatTime12 } from '../utils.js';
-
-function getNextPrayerKey(prayerTimes) {
-  if (!prayerTimes) return null;
-  const now = new Date();
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  for (const key of PRAYER_ORDER) {
-    const raw = prayerTimes[key];
-    if (!raw) continue;
-    if (timeStrToMinutes(raw.split(' ')[0]) > nowMin) return key;
-  }
-  return 'Fajr';
-}
-
-function formatTime12Local(time24) {
-  if (!time24) return '—';
-  const [h, m] = time24.split(':');
-  let hour = parseInt(h, 10);
-  const period = hour >= 12 ? 'م' : 'ص';
-  hour = hour % 12 || 12;
-  return `${hour}:${m} ${period}`;
-}
+import { getNextPrayerKey } from '../prayer.js';
+import { state } from '../state.js';
 
 describe('PRAYER_ORDER', () => {
   it('should have 5 prayers in order', () => {
@@ -40,44 +21,47 @@ describe('PRAYER_NAMES_AR', () => {
 });
 
 describe('getNextPrayerKey', () => {
-  const sampleTimes = {
-    Fajr: '05:00',
-    Dhuhr: '12:30',
-    Asr: '15:45',
-    Maghrib: '18:20',
-    Isha: '19:50'
-  };
+  beforeEach(() => {
+    state.prayerTimes = null;
+  });
 
   it('should return null for no prayerTimes', () => {
-    expect(getNextPrayerKey(null)).toBeNull();
+    expect(getNextPrayerKey()).toBeNull();
   });
 
   it('should return a valid prayer key', () => {
-    const result = getNextPrayerKey(sampleTimes);
+    state.prayerTimes = {
+      Fajr: '05:00 AM',
+      Dhuhr: '12:30 PM',
+      Asr: '03:45 PM',
+      Maghrib: '06:20 PM',
+      Isha: '07:50 PM'
+    };
+    const result = getNextPrayerKey();
     expect(PRAYER_ORDER).toContain(result);
   });
 });
 
 describe('formatTime12Local', () => {
   it('should format morning time', () => {
-    expect(formatTime12Local('05:00')).toBe('5:00 ص');
+    expect(formatTime12('05:00')).toBe('5:00 ص');
   });
 
   it('should format afternoon time', () => {
-    expect(formatTime12Local('13:30')).toBe('1:30 م');
+    expect(formatTime12('13:30')).toBe('1:30 م');
   });
 
   it('should handle noon', () => {
-    expect(formatTime12Local('12:00')).toBe('12:00 م');
+    expect(formatTime12('12:00')).toBe('12:00 م');
   });
 
   it('should handle midnight', () => {
-    expect(formatTime12Local('00:00')).toBe('12:00 ص');
+    expect(formatTime12('00:00')).toBe('12:00 ص');
   });
 
   it('should return em dash for empty', () => {
-    expect(formatTime12Local('')).toBe('—');
-    expect(formatTime12Local(null)).toBe('—');
+    expect(formatTime12('')).toBe('—');
+    expect(formatTime12(null)).toBe('—');
   });
 });
 

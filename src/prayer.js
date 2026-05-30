@@ -75,7 +75,8 @@ export async function loadPrayerTimes() {
   }
 }
 
-function getNextPrayerKey() {
+/** Get the next prayer key based on current time. */
+export function getNextPrayerKey() {
   if (!state.prayerTimes) return null;
   const now = new Date();
   const nowMin = now.getHours() * 60 + now.getMinutes();
@@ -216,7 +217,11 @@ export function scheduleNextAzanCheck() {
     const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
     if (prayerSec > nowSec) { nextSec = prayerSec; break; }
   }
-  if (nextSec === null) return;
+  if (nextSec === null) {
+    const delayMs = 10 * 60 * 1000;
+    azanTimer = setTimeout(() => { checkAzanTime(); scheduleNextAzanCheck(); }, delayMs);
+    return;
+  }
   const delayMs = (nextSec - nowSec) * 1000;
   azanTimer = setTimeout(() => { checkAzanTime(); scheduleNextAzanCheck(); }, delayMs);
 }
@@ -234,4 +239,88 @@ export function togglePrayerBar() {
     dom.prayerBar.classList.add('expanded');
   }
   storage.set('bar_collapsed', state.barCollapsed);
+}
+
+/* ===================== QIBLA COMPASS ===================== */
+
+/** Calculate Qibla direction from a given latitude/longitude. */
+export function calculateQibla(lat, lng) {
+  const kaabaLat = 21.4225 * Math.PI / 180;
+  const kaabaLng = 39.8262 * Math.PI / 180;
+  const userLat = lat * Math.PI / 180;
+  const userLng = lng * Math.PI / 180;
+  const dLng = kaabaLng - userLng;
+  const y = Math.sin(dLng);
+  const x = Math.cos(userLat) * Math.tan(kaabaLat) - Math.sin(userLat) * Math.cos(dLng);
+  let qibla = Math.atan2(y, x) * 180 / Math.PI;
+  if (qibla < 0) qibla += 360;
+  return qibla;
+}
+
+/** Show the Qibla compass overlay. */
+export function showQiblaCompass() {
+  const overlay = document.getElementById('qiblaOverlay');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+
+  const compass = document.getElementById('qiblaCompass');
+  const direction = document.getElementById('qiblaDirection');
+  const angleDisplay = document.getElementById('qiblaAngle');
+
+  if (!navigator.geolocation) {
+    if (direction) direction.textContent = '⚠️ الموقع غير مدعوم';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      const qiblaAngle = calculateQibla(latitude, longitude);
+
+      if (compass) {
+        compass.style.transform = `rotate(${-qiblaAngle}deg)`;
+      }
+      if (angleDisplay) {
+        angleDisplay.textContent = `${Math.round(qiblaAngle)}°`;
+      }
+
+      const handleOrientation = (e) => {
+        let heading = e.alpha || 0;
+        if (e.webkitCompassHeading) heading = e.webkitCompassHeading;
+        const adjusted = qiblaAngle - heading;
+        if (compass) {
+          compass.style.transform = `rotate(${adjusted}deg)`;
+        }
+      };
+
+      if (window.DeviceOrientationEvent) {
+        const DOE = /** @type {any} */ (DeviceOrientationEvent);
+        if (typeof DOE.requestPermission === 'function') {
+          DOE.requestPermission().then(state => {
+            if (state === 'granted') {
+              window.addEventListener('deviceorientation', handleOrientation);
+            }
+          }).catch(() => {});
+        } else {
+          window.addEventListener('deviceorientation', handleOrientation);
+        }
+      }
+
+      if (direction) {
+        const dirs = ['شمال', 'شمال شرق', 'شرق', 'جنوب شرق', 'جنوب', 'جنوب غرب', 'غرب', 'شمال غرب'];
+        const idx = Math.round(qiblaAngle / 45) % 8;
+        direction.textContent = `اتجاه القبلة: ${dirs[idx]} (${Math.round(qiblaAngle)}°)`;
+      }
+    },
+    () => {
+      if (direction) direction.textContent = '⚠️ تعذّر تحديد الموقع';
+    },
+    { enableHighAccuracy: true }
+  );
+}
+
+/** Hide the Qibla compass overlay. */
+export function hideQiblaCompass() {
+  const overlay = document.getElementById('qiblaOverlay');
+  if (overlay) overlay.style.display = 'none';
 }

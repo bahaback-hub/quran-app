@@ -324,15 +324,6 @@ function onAudioEnded() {
   }
 }
 
-function onQariChange() {
-  resetAudio();
-}
-
-function getAyahIndex(surah, ayah) {
-  if (!current || !state.fullQuranText) return 0;
-  return current.index;
-}
-
 function formatTime(secs) {
   if (!secs || !isFinite(secs)) return '0:00';
   const m = Math.floor(secs / 60);

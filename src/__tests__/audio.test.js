@@ -1,31 +1,16 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
+import { toggleHifdh, toggleRepeat } from '../audio.js';
 
-function toggleHifdh() {
-  state.hifdhMode = !state.hifdhMode;
-  dom.hifdhBtn?.classList.toggle('active', state.hifdhMode);
-  document.querySelectorAll('.ayah').forEach(el => {
-    if (state.hifdhMode) el.classList.add('hifdh-mode');
-    else el.classList.remove('hifdh-mode', 'revealed');
-  });
-  if (state.hifdhMode) {
-    const cur = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
-    if (cur) cur.classList.add('current');
-  }
-}
-
-function toggleRepeat() {
-  state.repeatMode = !state.repeatMode;
-  state.repeatCounter = 0;
-  dom.repeatBtn?.classList.toggle('active', state.repeatMode);
-  if (dom.repeatControls) dom.repeatControls.style.display = state.repeatMode ? 'flex' : 'none';
-}
+// Mock scrollIntoView for jsdom
+Element.prototype.scrollIntoView = function() {};
 
 describe('toggleHifdh', () => {
   beforeEach(() => {
     state.hifdhMode = false;
     state.currentAyahIndex = 0;
+    state.surahData = null;
     dom.hifdhBtn = document.createElement('button');
     document.body.innerHTML = '<div class="ayah" data-index="0">test</div>';
   });

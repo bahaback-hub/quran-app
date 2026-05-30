@@ -61,10 +61,51 @@ export function saveLocationSettings() {
 /** Reset all settings to defaults and reload the page. */
 export function resetSettings() {
   if (!confirm('هل تريد إعادة ضبط جميع الإعدادات؟')) return;
-  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed', 'lang', 'surah_list', 'translation_enabled', 'translation_edition', 'last_position', 'bookmark', 'favorites', 'mushaf_mode', 'current_page'];
+  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed', 'lang', 'surah_list', 'translation_enabled', 'translation_edition', 'last_position', 'bookmark', 'favorites', 'mushaf_mode', 'current_page', 'search_history', 'adhkar_settings'];
   keys.forEach(k => storage.remove(k));
   showToast('✅ تم إعادة الضبط. جارٍ تحديث الصفحة...', 'success');
   setTimeout(() => location.reload(), 1500);
+}
+
+/** Export all settings as a downloadable JSON file. */
+export function exportSettings() {
+  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed', 'lang', 'translation_enabled', 'translation_edition', 'favorites', 'bookmark', 'last_position', 'mushaf_mode', 'current_page', 'adhkar_settings', 'search_history'];
+  const data = {};
+  keys.forEach(k => { data[k] = storage.get(k); });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'quran-app-settings.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ تم تصدير الإعدادات', 'success');
+}
+
+/** Import settings from a JSON file. */
+export function importSettings() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e) => {
+    const file = /** @type {HTMLInputElement} */ (e.target).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(/** @type {string} */ (/** @type {unknown} */ (ev.target?.result)));
+        Object.entries(data).forEach(([k, v]) => {
+          if (v !== null && v !== undefined) storage.set(k, v);
+        });
+        showToast('✅ تم استيراد الإعدادات. جارٍ تحديث الصفحة...', 'success');
+        setTimeout(() => location.reload(), 1500);
+      } catch {
+        showToast('❌ ملف غير صالح', 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
 }
 
 /* ===================== BACKGROUNDS ===================== */

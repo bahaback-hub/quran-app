@@ -76,7 +76,8 @@ function populatePageSelect() {
   if (dom.pageSlider) dom.pageSlider.value = state.currentPage;
 }
 
-function updatePageIndicator(pageNum) {
+/** Update the page indicator text to show current page. */
+export function updatePageIndicator(pageNum) {
   if (dom.pageIndicator) {
     const arabic = pageNum.toLocaleString('ar-SA');
     dom.pageIndicator.textContent = `صفحة ${arabic} من ٦٠٤`;
@@ -118,7 +119,8 @@ export async function loadPage(pageNum, skipNav) {
   });
 }
 
-function getJuzForPage(pageNum) {
+/** Get the Juz number for a given page number (1-604). */
+export function getJuzForPage(pageNum) {
   let juz = 1;
   for (let i = JUZ_PAGES.length - 1; i >= 0; i--) {
     if (pageNum >= JUZ_PAGES[i]) { juz = i + 1; break; }
