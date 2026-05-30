@@ -12,7 +12,7 @@ export function initAdhkarState() {
 }
 
 function getDefaultAdhkarSettings() {
-  const settings = { adhkar_enabled: true, adhkar_sound: true, _resetDate: new Date().toDateString() };
+  const settings = { adhkar_enabled: false, adhkar_sound: true, _resetDate: new Date().toDateString() };
   for (const cat of ADHKAR_DATA.categories) {
     settings[cat.id] = { enabled: true, time: cat.defaultTime || '', duration: cat.defaultDuration ?? 1 };
     for (const item of cat.items) {
@@ -37,6 +37,14 @@ export function loadAdhkarSettings() {
   } else {
     state.adhkarSettings = defaults;
   }
+  // Sync toggle UI with loaded state
+  if (dom.adhkarEnabledToggle) {
+    dom.adhkarEnabledToggle.classList.toggle('on', !!state.adhkarSettings.adhkar_enabled);
+  }
+  if (dom.adhkarSoundToggle) {
+    dom.adhkarSoundToggle.classList.toggle('on', !!state.adhkarSettings.adhkar_sound);
+  }
+
   const today = new Date().toDateString();
   if (state.adhkarSettings._resetDate !== today) {
     for (const key of Object.keys(state.adhkarSettings)) {

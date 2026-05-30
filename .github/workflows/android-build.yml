@@ -35,19 +35,13 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          accept-licenses: 'true'
-      - name: Install required SDK packages
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install \
-            "platforms;android-36" \
-            "build-tools;36.0.0" \
-            "platform-tools" \
-            "cmdline-tools;latest" > /dev/null 2>&1 || true
+          accept-android-sdk-licenses: 'true'
+          packages: 'platforms;android-36 build-tools;36.0.0 platform-tools cmdline-tools;latest'
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ANDROID_HOME=$ANDROID_HOME ./gradlew assembleDebug --no-daemon --stacktrace
+          ./gradlew assembleDebug --stacktrace
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
