@@ -273,7 +273,7 @@ export async function initApp() {
   });
   dom.collapsedExpandBtn?.addEventListener('click', () => expandPlayer());
   dom.collapsedContent?.addEventListener('click', (e) => {
-    if (e.target.closest('#collapsedPlayBtn')) return;
+     if (/** @type {HTMLElement} */ (e.target).closest('#collapsedPlayBtn')) return;
     expandPlayer();
   });
   dom.playPauseBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
@@ -387,6 +387,53 @@ export async function initApp() {
   dom.mushafSurahOverlay?.addEventListener('click', (e) => { if (e.target === dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
   dom.surahSecretsCloseBtn?.addEventListener('click', () => { if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none'; });
   dom.surahSecretsOverlay?.addEventListener('click', (e) => { if (e.target === dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none'; });
+
+  /* ========== BOTTOM NAV (جوال/تابلت) ========== */
+  const bottomNav = document.getElementById('bottomNav');
+  let activeTab = 'quran';
+
+  function activateTab(tab) {
+    if (!bottomNav) return;
+    activeTab = tab;
+    bottomNav.querySelectorAll('.bottom-nav-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === tab);
+    });
+  }
+
+  bottomNav?.addEventListener('click', (e) => {
+    const btn = /** @type {HTMLElement} */ (e.target).closest('.bottom-nav-btn');
+    if (!btn) return;
+    const tab = btn.dataset.tab;
+    if (tab === activeTab && tab !== 'player') { activateTab(tab); return; }
+    activateTab(tab);
+
+    switch (tab) {
+      case 'quran':
+        dom.surahContent?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        dom.controls?.classList.remove('mobile-show');
+        break;
+      case 'player':
+        expandPlayer();
+        dom.player?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        dom.controls?.classList.remove('mobile-show');
+        break;
+      case 'controls':
+        dom.controls?.classList.toggle('mobile-show');
+        break;
+      case 'search':
+        dom.searchInput?.focus();
+        dom.searchInput?.select();
+        if (dom.controls) {
+          dom.controls.style.display = '';
+          dom.controls.classList.add('mobile-show');
+        }
+        break;
+      case 'more':
+        openSettings();
+        dom.controls?.classList.remove('mobile-show');
+        break;
+    }
+  });
 
   dom.pageSlider?.addEventListener('input', () => {
     const p = parseInt(dom.pageSlider.value, 10);

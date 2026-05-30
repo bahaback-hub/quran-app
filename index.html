@@ -367,11 +367,11 @@
     <div class="settings-section-title">🕌 الأذكار</div>
     <div class="settings-row">
       <label>تفعيل التذكير العام:</label>
-      <div class="toggle-switch on" id="adhkarEnabledToggle" role="switch" aria-label="تفعيل التذكير"></div>
+      <div class="toggle-switch" id="adhkarEnabledToggle" role="switch" aria-label="تفعيل التذكير"></div>
     </div>
     <div class="settings-row">
       <label>🔔 صوت التنبيه:</label>
-      <div class="toggle-switch on" id="adhkarSoundToggle" role="switch" aria-label="صوت التنبيه"></div>
+      <div class="toggle-switch" id="adhkarSoundToggle" role="switch" aria-label="صوت التنبيه"></div>
     </div>
     <div id="adhkarSettingsList"></div>
   </div>
@@ -604,9 +604,18 @@
 </div>
 
 <!-- ========== رسائل Toast ========== -->
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- ========== شاشة الترحيب ========== -->
+  <!-- ========== شريط التنقل السفلي (جوال/تابلت) ========== -->
+  <nav class="bottom-nav" id="bottomNav" aria-label="شريط التنقل">
+    <button class="bottom-nav-btn active" data-tab="quran" aria-label="القرآن الكريم">📖<span>القرآن</span></button>
+    <button class="bottom-nav-btn" data-tab="player" aria-label="المشغل">🎧<span>المشغل</span></button>
+    <button class="bottom-nav-btn" data-tab="controls" aria-label="الأدوات">⚙️<span>أدوات</span></button>
+    <button class="bottom-nav-btn" data-tab="search" aria-label="البحث">🔎<span>بحث</span></button>
+    <button class="bottom-nav-btn" data-tab="more" aria-label="القائمة">☰<span>القائمة</span></button>
+  </nav>
+
+  <!-- ========== شاشة الترحيب ========== -->
 <div class="welcome-screen" id="welcomeScreen" role="dialog" aria-label="شاشة الترحيب" style="display:none;">
   <div class="welcome-screen-inner">
     <div class="welcome-logo">📖</div>
