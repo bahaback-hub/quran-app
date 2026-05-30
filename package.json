@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --headed",
     "android:build": "npm run build && npx cap sync",
     "android:open": "npx cap open android",
     "android:run": "npm run android:build && npx cap run android"
@@ -25,6 +27,7 @@
   },
   "homepage": "https://bahaback-hub.github.io/quran-app/",
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.1",
     "jsdom": "^29.1.1",
     "lightningcss": "^1.32.0",
