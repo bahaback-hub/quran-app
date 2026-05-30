@@ -24,7 +24,8 @@
 ## Module Files (`src/`)
 | File | Purpose |
 |------|---------|
-| `app.js` | Main orchestrator: initApp, loadSurah, renderSurah, event bindings |
+| `app.js` | Main orchestrator: initApp, event bindings, initState, keyboard shortcuts |
+| `surah-loader.js` | Surah data loading, rendering, caching, timing, offsets, translation toggle |
 | `state.js` | Global state object shared by all modules |
 | `audio.js` | Audio player, word tracking, hifdh/repeat modes |
 | `search.js` | Full Quran text search, voice search, Arabic keyboard |
