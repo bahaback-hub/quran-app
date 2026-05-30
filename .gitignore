@@ -5,3 +5,5 @@ dist/
 app.bundle.js
 .env
 .env.local
+playwright-report/
+test-results/
