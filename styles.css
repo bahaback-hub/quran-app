@@ -2962,7 +2962,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
   border-color: #2a3045;
 }
 
-/* ========== تحسينات الموبايل (touch targets) ========== */
+/* ========== تحسينات الموبايل — حس تطبيقي ========== */
 @media (hover: none) and (pointer: coarse), (max-width: 768px) {
   .control-group button, .btn-sm, .settings-close, .favorites-close,
   .adhkar-close-btn, .mushaf-surah-overlay-close, .surah-secrets-close-btn,
@@ -2970,7 +2970,8 @@ body.night-mode .ayah-modal-actions .btn-sm {
   .theme-toggle, .search-btn, .clear-search-btn, .voice-search-btn,
   .prev-ayah-btn, .next-ayah-btn, .prev-surah-btn, .next-surah-btn,
   .hifdh-btn, .repeat-btn, .bookmark-btn, .favorite-btn, .share-btn,
-  .play-pause-btn, .collapsed-play-btn {
+  .play-pause-btn, .collapsed-play-btn,
+  .bottom-nav-btn {
     min-width: 44px !important;
     min-height: 44px !important;
     width: auto !important;
@@ -2978,6 +2979,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
     padding: 10px 14px !important;
     font-size: 15px !important;
   }
+  .bottom-nav-btn { padding: 6px 4px !important; }
   .collapse-bar-btn, .expand-bar-btn {
     width: 44px !important;
     height: 44px !important;
@@ -3034,8 +3036,41 @@ body.night-mode .ayah-modal-actions .btn-sm {
     -webkit-appearance: none;
     appearance: none;
   }
-  /* منع التأخير 300ms على النقر */
   * { touch-action: manipulation; }
+}
+
+/* منع الـ bounce/scrolling الزائد — حس تطبيقي */
+html {
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* البوتوم ناف — أيقونات أكبر وإحساس تطبيقي */
+.bottom-nav-btn {
+  position: relative;
+  gap: 2px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.bottom-nav-btn:active {
+  transform: scale(0.94);
+}
+.bottom-nav-btn span {
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* الجوال: نخفي التفسير الجانبي ونستخدم المودال بدلاً عنه */
+@media (max-width: 600px) {
+  .tafsir-curtain,
+  .tafsir-curtain-handle { display: none !important; }
 }
 
 /* ========== شريط التنقل السفلي (جوال/تابلت) ========== */
