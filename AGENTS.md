@@ -5,12 +5,18 @@
 - `npm run build` — Vite production build (with code splitting, tree shaking)
 - `npm test` — Run all Vitest tests
 - `npm run typecheck` — TypeScript type check (`tsc --noEmit`)
+- `npm run android:build` — Build web + sync with Capacitor
+- `npm run android:open` — Open Android Studio
+- `npm run android:run` — Build, sync, and run on connected device
 
 ## Architecture
 - **Vite-based ESM build**: `index.html` loads `src/main.js` as `<script type="module">`
 - **Vite handles all assets**: JS, CSS, images — full bundling with code splitting
-- **PWA**: `vite-plugin-pwa` with Workbox only — auto-registers a single Service Worker (no manual `service-worker.js`)
-- **Deployment**: GitHub Actions → `actions/deploy-pages@v4` from `dist/`
+- **PWA**: `vite-plugin-pwa` with Workbox — auto-generates SW with precache + runtime caching
+- **Android (Capacitor)**: `android/` dir wraps the web app as a native APK/AAB
+  - `npm run android:build` copies `dist/` → `android/app/src/main/assets/public`
+  - Open with `npm run android:open` → Android Studio → Build APK
+- **Web Deployment**: GitHub Actions → `actions/deploy-pages@v4` from `dist/`
   - User must enable "GitHub Pages → GitHub Actions" in repo settings
 
 ## Code Conventions
