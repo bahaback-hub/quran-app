@@ -18,8 +18,7 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash][extname]',
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('lightningcss') || id.includes('postcss')) return 'vendor-css';
-            if (id.includes('ajv') || id.includes('json-schema')) return 'vendor-json';
+              if (id.includes('ajv') || id.includes('json-schema')) return 'vendor-json';
             return 'vendor';
           }
         }
@@ -32,7 +31,7 @@ export default defineConfig({
   },
   plugins: [
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       injectRegister: 'auto',
       includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'mushaf-icon.png'],
       manifest: {
