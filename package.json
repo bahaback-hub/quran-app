@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "android:build": "npm run build && npx cap sync",
+    "android:open": "npx cap open android",
+    "android:run": "npm run android:build && npx cap run android"
   },
   "license": "MIT",
   "private": true,
@@ -30,5 +33,10 @@
     "vite": "^8.0.14",
     "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.1.7"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4"
   }
 }
