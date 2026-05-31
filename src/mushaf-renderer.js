@@ -21,6 +21,8 @@ const STD_LINES = 15;
 
 const BG_COLOR = '#f5f0e8';
 const PAGE_TXT_COLOR = '#1a1a1a';
+const FRAME_COLOR = '#c4a87c';
+const FRAME_INNER = '#b8956a';
 
 const layoutCache = new Map();
 let loadedFonts = new Set();
@@ -97,6 +99,8 @@ export async function renderPage(pageNum, targetCanvas) {
 
   renderPageContent(ctx, data, pageFont);
 
+  drawPageFrame(ctx);
+
   drawPageNumber(ctx, pageNum);
 
   return { canvas, layout: data };
@@ -133,10 +137,30 @@ function renderPageContent(ctx, data, pageFont) {
 
   const lineCount = lines.length;
   const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
-  const lineHeight = usableHeight / lineCount;
-  const baseFontSize = Math.max(26, Math.min(55, lineHeight * 0.85));
+  const baseFontSize = Math.max(26, Math.min(55, (usableHeight / lineCount) * 0.85));
   const availableW = CANVAS_W - PAD_H * 2;
   const stdLineHeight = usableHeight / STD_LINES;
+
+  let totalFs = 0;
+  let fsCount = 0;
+  for (let i = 0; i < lineCount; i++) {
+    const line = lines[i];
+    if (!line?.words || line.words.length <= 1) continue;
+    const { fontSize: fs } = computeFontSize(line.words, pageFont, baseFontSize, availableW, ctx);
+    totalFs += fs;
+    fsCount++;
+  }
+  const pageFontSize = fsCount > 0 ? Math.round(totalFs / fsCount) : baseFontSize;
+
+  const lineWidths = [];
+  for (let i = 0; i < lineCount; i++) {
+    const line = lines[i];
+    if (!line?.words || line.words.length === 0) { lineWidths.push(null); continue; }
+    const widths = measureLine(ctx, line.words, pageFont, pageFontSize);
+    const totalW = widths.reduce((a, b) => a + b, 0);
+    const gap = line.words.length > 1 ? (availableW - totalW) / (line.words.length - 1) : 0;
+    lineWidths.push({ widths, gap: Math.max(0, gap) });
+  }
 
   ctx.textBaseline = 'middle';
 
@@ -146,15 +170,14 @@ function renderPageContent(ctx, data, pageFont) {
 
     const y = TOP_OFFSET + i * stdLineHeight + stdLineHeight / 2;
     const words = line.words;
-
-    const { fontSize, widths, gap } = computeFontSize(words, pageFont, baseFontSize, availableW, ctx);
+    const { widths, gap } = lineWidths[i];
 
     let x = CANVAS_W - PAD_H;
 
     for (let j = 0; j < words.length; j++) {
       const w = words[j];
       const fn = w.font || pageFont;
-      ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
+      ctx.font = `${pageFontSize}px "${fn}", "Scheherazade New", serif`;
       ctx.fillStyle = PAGE_TXT_COLOR;
       ctx.textAlign = 'right';
       ctx.fillText(w.char, x, y);
@@ -172,4 +195,16 @@ function drawPageNumber(ctx, pageNum) {
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#8b6f5a';
   ctx.fillText(numStr, cx, cy);
+}
+
+function drawPageFrame(ctx) {
+  const m = 8;
+  ctx.strokeStyle = FRAME_COLOR;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(m, m, CANVAS_W - m * 2, CANVAS_H - m * 2);
+
+  ctx.strokeStyle = FRAME_INNER;
+  ctx.lineWidth = 1;
+  const gap = 6;
+  ctx.strokeRect(m + gap, m + gap, CANVAS_W - (m + gap) * 2, CANVAS_H - (m + gap) * 2);
 }
