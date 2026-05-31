@@ -110,8 +110,7 @@ function renderPageContent(ctx, data, pageFont) {
   const usableHeight = CANVAS_H - topMargin - BOTTOM_OFFSET - PAD_V;
   const lineCount = lines.length;
   const lineHeight = usableHeight / lineCount;
-  const fontSize = Math.max(22, Math.min(42, lineHeight * 0.78));
-  const WORD_GAP = 4;
+  const fontSize = Math.max(26, Math.min(48, lineHeight * 0.82));
 
   ctx.textBaseline = 'middle';
 
@@ -121,15 +120,6 @@ function renderPageContent(ctx, data, pageFont) {
 
     const y = topMargin + i * lineHeight + lineHeight / 2;
     const words = line.words;
-
-    const totalW = words.reduce((sum, w) => {
-      const fn = w.font || pageFont;
-      ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
-      return sum + ctx.measureText(w.char).width;
-    }, 0);
-    const gapsTotal = words.length - 1;
-    const availableW = CANVAS_W - PAD_H * 2;
-    const extraGap = gapsTotal > 0 ? Math.max(0, (availableW - totalW - gapsTotal * WORD_GAP) / gapsTotal) : 0;
 
     let x = CANVAS_W - PAD_H;
 
@@ -141,7 +131,7 @@ function renderPageContent(ctx, data, pageFont) {
       ctx.fillStyle = PAGE_TXT_COLOR;
       ctx.textAlign = 'right';
       ctx.fillText(w.char, x, y);
-      x -= charW + WORD_GAP + extraGap;
+      x -= charW + 1;
     }
   }
 }
