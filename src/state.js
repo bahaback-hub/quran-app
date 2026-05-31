@@ -55,7 +55,8 @@
  *   backgroundsList: Array<{id: string, name: string, type?: string, css?: string}>|null,
  *   ayahTimings: number[],
  *   presentationMode: boolean,
- *   _updateReadingProgress: Function|null
+ *   _updateReadingProgress: Function|null,
+ *   currentPageLayout: object|null
  * }}
  */
 export let state = /** @type {any} */ ({});

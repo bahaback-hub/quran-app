@@ -8,8 +8,8 @@ import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from "./surahs-data.js";
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from "./app.js";
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from "./audio.js";
 import { loadTafsirForSurahAyah } from "./tafsir.js";
-import { handlePageClick, getAyahHighlightRects, getPageLayout } from "./ayah-click.js";
-import { renderPageToCanvas, ensurePageLayout } from "./mushaf-renderer.js";
+import { handlePageClick, getAyahHighlightRects } from "./ayah-click.js";
+import { renderPage, loadPageData } from "./mushaf-renderer.js";
 
 /** Toggle between mushaf mode and surah mode. */
 export async function toggleMushafMode() {
@@ -173,13 +173,15 @@ function renderMushafPageImage(pageNum, skipNav) {
   canvasWrapper.appendChild(navRight);
   canvasWrapper.appendChild(navLeft);
 
+  let pageLayout = null;
+
   const clickHandler = async (e) => {
     const target = /** @type {Element} */ (e.target);
     if (target.closest('.mushaf-page-nav')) return;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const result = await handlePageClick(pageNum, x, y, rect.width, rect.height);
+    const result = await handlePageClick(pageNum, x, y, rect.width, rect.height, pageLayout);
     if (result) {
       const bar = document.getElementById('mushafAyahBar');
       if (bar) {
@@ -211,9 +213,10 @@ function renderMushafPageImage(pageNum, skipNav) {
   dom.surahContent.appendChild(container);
   dom.surahContent.appendChild(ayahBar);
 
-  getPageLayout(pageNum).then((layout) => {
-    const ok = renderPageToCanvas(pageNum, canvas, layout);
-    if (ok) {
+  renderPage(pageNum, canvas).then(({ canvas: renderedCanvas, layout: layoutData }) => {
+    pageLayout = layoutData;
+    state.currentPageLayout = layoutData;
+    if (renderedCanvas && layoutData) {
       loadingBar.hide();
       if (state.mushafMode) highlightMushafAyah(skipNav);
     } else {
@@ -271,7 +274,7 @@ function preloadAdjacentLayouts(pageNum) {
   if (pageNum < 604) toPreload.push(pageNum + 1);
 
   for (const p of toPreload) {
-    ensurePageLayout(p).catch(() => {});
+    loadPageData(p).catch(() => {});
   }
 }
 
@@ -354,12 +357,12 @@ export async function highlightMushafAyah(skipNav) {
   if (!surah || !ayah) return;
 
   if (!skipNav) {
-    const layout = await getPageLayout(state.currentPage);
+    const layout = state.currentPageLayout;
     if (layout) {
       const isOnPage = layout.lines.some(line =>
-        (line.type === 'text' || line.type === 'basmalah') &&
         line.words?.some(w => {
-          const parts = w.location.split(':');
+          const key = w.verse_key || w.location || '';
+          const parts = key.split(':');
           return parts.length >= 2 && parseInt(parts[0], 10) === surah && parseInt(parts[1], 10) === ayah;
         })
       );
@@ -382,7 +385,7 @@ export async function highlightMushafAyah(skipNav) {
   const rect = canvasEl.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
 
-  const rects = await getAyahHighlightRects(state.currentPage, surah, ayah, rect.width, rect.height);
+  const rects = await getAyahHighlightRects(state.currentPage, surah, ayah, rect.width, rect.height, state.currentPageLayout);
   if (!rects.length) return;
 
   const wrapperRect = wrapper.getBoundingClientRect();
