@@ -101,6 +101,35 @@ export async function renderPage(pageNum, targetCanvas) {
   return { canvas, layout: data };
 }
 
+function measureLine(ctx, words, pageFont, fontSize) {
+  return words.map(w => {
+    const fn = w.font || pageFont;
+    ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
+    return ctx.measureText(w.char).width;
+  });
+}
+
+function computeFontSize(lineWords, pageFont, baseFontSize, availableW, targetGap, ctx) {
+  const gapCount = lineWords.length - 1;
+  if (gapCount <= 0) return { fontSize: baseFontSize, widths: [], gap: 0 };
+
+  let widths = measureLine(ctx, lineWords, pageFont, baseFontSize);
+  let totalW = widths.reduce((a, b) => a + b, 0);
+  if (totalW <= 0) return { fontSize: baseFontSize, widths, gap: targetGap };
+
+  const targetTotal = availableW - gapCount * targetGap;
+  if (targetTotal <= 0) return { fontSize: baseFontSize, widths, gap: targetGap };
+
+  let optimalFs = Math.round(baseFontSize * targetTotal / totalW);
+  optimalFs = Math.max(20, Math.min(100, optimalFs));
+
+  widths = measureLine(ctx, lineWords, pageFont, optimalFs);
+  totalW = widths.reduce((a, b) => a + b, 0);
+  const gap = gapCount > 0 ? (availableW - totalW) / gapCount : 0;
+
+  return { fontSize: optimalFs, widths, gap: Math.max(0, gap) };
+}
+
 function renderPageContent(ctx, data, pageFont) {
   const lines = data.lines;
   if (!lines || lines.length === 0) return;
@@ -110,9 +139,8 @@ function renderPageContent(ctx, data, pageFont) {
   const usableHeight = CANVAS_H - topMargin - BOTTOM_OFFSET - PAD_V;
   const lineCount = lines.length;
   const lineHeight = usableHeight / lineCount;
-  const fontSize = Math.max(26, Math.min(50, lineHeight * 0.85));
+  const baseFontSize = Math.max(26, Math.min(55, lineHeight * 0.85));
   const availableW = CANVAS_W - PAD_H * 2;
-  const MAX_GAP = 10;
 
   ctx.textBaseline = 'middle';
 
@@ -123,16 +151,16 @@ function renderPageContent(ctx, data, pageFont) {
     const y = topMargin + i * lineHeight + lineHeight / 2;
     const words = line.words;
 
-    const wordWidths = words.map(w => {
-      const fn = w.font || pageFont;
-      ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
-      return ctx.measureText(w.char).width;
-    });
+    const { fontSize, widths, gap } = computeFontSize(words, pageFont, baseFontSize, availableW, 5, ctx);
 
-    const totalW = wordWidths.reduce((a, b) => a + b, 0);
-    const gapCount = words.length - 1;
-    let wordGap = gapCount > 0 ? Math.min(MAX_GAP, (availableW - totalW) / gapCount) : 0;
-    wordGap = Math.max(1, wordGap);
+    if (words.length === 1) {
+      const fn = words[0].font || pageFont;
+      ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
+      ctx.fillStyle = PAGE_TXT_COLOR;
+      ctx.textAlign = 'center';
+      ctx.fillText(words[0].char, CANVAS_W / 2, y);
+      continue;
+    }
 
     let x = CANVAS_W - PAD_H;
 
@@ -143,7 +171,7 @@ function renderPageContent(ctx, data, pageFont) {
       ctx.fillStyle = PAGE_TXT_COLOR;
       ctx.textAlign = 'right';
       ctx.fillText(w.char, x, y);
-      x -= wordWidths[j] + wordGap;
+      x -= widths[j] + gap;
     }
   }
 }
