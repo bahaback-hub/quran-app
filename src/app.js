@@ -128,7 +128,7 @@ function initState() {
     prayerTimes: null, lastAzanFired: null,
     favorites: [], bookmark: null,
     pendingTafsirAfterLoad: null,
-    playerCollapsed: false, barCollapsed: false,
+    playerCollapsed: false, barCollapsed: true,
     azanPlaying: false, loadingSurah: null,
     mushafMode: false, currentPage: 1,
     fullQuranText: null, fullQuranLoaded: false,
@@ -279,6 +279,10 @@ export async function initApp() {
   });
   dom.playPauseBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
   dom.collapsedPlayBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
+
+  dom.playerMoreBtn?.addEventListener('click', () => {
+    if (dom.playerMoreRow) dom.playerMoreRow.style.display = dom.playerMoreRow.style.display === 'none' ? '' : 'none';
+  });
 
   dom.speedSelect?.addEventListener('change', () => {
     const rate = parseFloat(dom.speedSelect.value);

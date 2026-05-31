@@ -878,10 +878,29 @@ audio {
 .player-buttons {
   margin-top: 8px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   justify-content: center;
   flex-wrap: wrap;
 }
+.player-buttons .btn { padding: 8px 12px; font-size: 13px; }
+.player-buttons .btn-gold { padding: 8px 20px; }
+
+.player-more-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.player-more-row .btn { padding: 6px 12px; font-size: 12px; }
+
+.btn-more {
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-size: 18px !important;
+  padding: 4px 10px !important;
+}
+.btn-more:hover { color: var(--accent-dark) !important; background: rgba(212,175,55,0.1) !important; }
 
 .btn {
   padding: 8px 16px;
@@ -3214,9 +3233,7 @@ body {
   .prayer-bar-items { gap: 6px; }
   .prayer-bar-inner { padding: 8px 12px; }
   .player:not(.collapsed) { padding: 8px 12px; }
-  .player-buttons .btn-hifdh,
-  .player-buttons .btn-repeat,
-  .player-buttons .btn-bookmark { display: none; }
+  .player-more-row .btn { padding: 5px 10px; font-size: 11px; }
   .surah-content { padding: 20px; }
   .settings-panel, .favorites-panel, .tafsir-curtain { width: 340px; }
   .tafsir-curtain-handle.open { left: 340px; }
@@ -3260,11 +3277,9 @@ body {
   .expanded-header { font-size: 13px; margin-bottom: 4px; }
   .current-ayah { font-size: 14px; padding: 6px 10px; margin-bottom: 6px; }
   .player-buttons { gap: 4px; margin-top: 4px; }
-  .player-buttons .btn-hifdh,
-  .player-buttons .btn-repeat,
-  .player-buttons .btn-bookmark,
   .player-buttons #prevSurahBtn,
   .player-buttons #nextSurahBtn { display: none; }
+  .player-more-row .btn { padding: 5px 10px; font-size: 11px; }
   .player-row { flex-direction: column; gap: 4px; }
   .player-row audio { max-width: 100%; }
   .speed-control { font-size: 11px; }
