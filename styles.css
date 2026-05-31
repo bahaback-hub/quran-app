@@ -1782,6 +1782,15 @@ body.night-mode .mushaf-page-img {
   filter: invert(1);
 }
 
+.mushaf-page-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 2px;
+  aspect-ratio: 1080 / 1540;
+  background: #f5f0e8;
+}
+
 /* ===== تظليل الآية الحالية ===== */
 .mushaf-highlight-overlay {
   pointer-events: none;

@@ -9,6 +9,7 @@ import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from "
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from "./audio.js";
 import { loadTafsirForSurahAyah } from "./tafsir.js";
 import { handlePageClick, getAyahHighlightRects, getPageLayout } from "./ayah-click.js";
+import { renderPageToCanvas, ensurePageLayout } from "./mushaf-renderer.js";
 
 /** Toggle between mushaf mode and surah mode. */
 export async function toggleMushafMode() {
@@ -131,8 +132,6 @@ export function getJuzForPage(pageNum) {
 function renderMushafPageImage(pageNum, skipNav) {
   if (!dom.surahContent) return;
   const juz = getJuzForPage(pageNum);
-  const padded = String(pageNum).padStart(3, '0');
-  const imgUrl = `https://cdn.jsdelivr.net/gh/bahaback-hub/quran-app@main/public/pages/page${padded}.png`;
 
   const container = document.createElement('div');
   container.className = 'mushaf-container';
@@ -146,31 +145,13 @@ function renderMushafPageImage(pageNum, skipNav) {
     </div>
   `;
 
-  const imgWrapper = document.createElement('div');
-  imgWrapper.className = 'mushaf-image-wrapper';
+  const canvasWrapper = document.createElement('div');
+  canvasWrapper.className = 'mushaf-image-wrapper';
 
-  const skeleton = document.createElement('div');
-  skeleton.className = 'mushaf-image-skeleton';
-
-  const img = new Image();
-  img.className = 'mushaf-page-img';
-  img.alt = `صفحة ${pageNum} من المصحف`;
-  img.loading = 'lazy';
-  img.decoding = 'async';
-  img.fetchPriority = 'low';
-
-  img.onerror = () => {
-    img.classList.add('loaded');
-    skeleton.remove();
-    loadingBar.hide();
-  };
-  img.onload = () => {
-    img.classList.add('loaded');
-    skeleton.remove();
-    loadingBar.hide();
-    if (state.mushafMode) highlightMushafAyah(skipNav);
-  };
-  img.src = imgUrl;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'mushaf-page-canvas';
+  canvas.width = 1080;
+  canvas.height = 1540;
 
   const navRight = document.createElement('div');
   navRight.className = 'mushaf-page-nav mushaf-page-nav-right';
@@ -188,15 +169,14 @@ function renderMushafPageImage(pageNum, skipNav) {
     if (state.currentPage < 604) loadPage(state.currentPage + 1, true);
   });
 
-  imgWrapper.appendChild(skeleton);
-  imgWrapper.appendChild(img);
-  imgWrapper.appendChild(navRight);
-  imgWrapper.appendChild(navLeft);
+  canvasWrapper.appendChild(canvas);
+  canvasWrapper.appendChild(navRight);
+  canvasWrapper.appendChild(navLeft);
 
-  imgWrapper.addEventListener('click', async function (e) {
+  const clickHandler = async (e) => {
     const target = /** @type {Element} */ (e.target);
     if (target.closest('.mushaf-page-nav')) return;
-    const rect = img.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const result = await handlePageClick(pageNum, x, y, rect.width, rect.height);
@@ -211,14 +191,15 @@ function renderMushafPageImage(pageNum, skipNav) {
       loadTafsirForSurahAyah(result.surah, result.ayah);
       highlightMushafAyah();
     }
-  });
+  };
+  canvasWrapper.addEventListener('click', clickHandler);
 
   const footer = document.createElement('div');
   footer.className = 'mushaf-footer';
   footer.innerHTML = `${toArabicNumeral(pageNum)}`;
 
   container.appendChild(header);
-  container.appendChild(imgWrapper);
+  container.appendChild(canvasWrapper);
   container.appendChild(footer);
 
   const ayahBar = document.createElement('div');
@@ -230,7 +211,18 @@ function renderMushafPageImage(pageNum, skipNav) {
   dom.surahContent.appendChild(container);
   dom.surahContent.appendChild(ayahBar);
 
-  preloadAdjacentPages(pageNum);
+  getPageLayout(pageNum).then((layout) => {
+    const ok = renderPageToCanvas(pageNum, canvas, layout);
+    if (ok) {
+      loadingBar.hide();
+      if (state.mushafMode) highlightMushafAyah(skipNav);
+    } else {
+      showToast('تعذّر عرض الصفحة', 'error');
+      loadingBar.hide();
+    }
+  });
+
+  preloadAdjacentLayouts(pageNum);
 
   fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`)
     .then(res => res.json())
@@ -273,21 +265,13 @@ function renderMushafPageImage(pageNum, skipNav) {
     .catch(() => { });
 }
 
-function preloadAdjacentPages(pageNum) {
-  const conn = navigator.connection;
-  if (conn && (conn.saveData || conn.effectiveType?.startsWith('2g'))) return;
-
+function preloadAdjacentLayouts(pageNum) {
   const toPreload = [];
   if (pageNum > 1) toPreload.push(pageNum - 1);
   if (pageNum < 604) toPreload.push(pageNum + 1);
 
   for (const p of toPreload) {
-    const padded = String(p).padStart(3, '0');
-    const link = document.createElement('link');
-    link.rel = 'prefetch';
-    link.href = `https://cdn.jsdelivr.net/gh/bahaback-hub/quran-app@main/public/pages/page${padded}.png`;
-    link.as = 'image';
-    document.head.appendChild(link);
+    ensurePageLayout(p).catch(() => {});
   }
 }
 
@@ -362,8 +346,8 @@ export function showSurahSecret(surahNum, surahName) {
 export async function highlightMushafAyah(skipNav) {
   if (!state.mushafMode) return;
   const wrapper = dom.surahContent?.querySelector('.mushaf-image-wrapper');
-  const img = wrapper?.querySelector('.mushaf-page-img');
-  if (!wrapper || !img || !img.complete || !img.naturalWidth) return;
+  const canvasEl = wrapper?.querySelector('.mushaf-page-canvas');
+  if (!wrapper || !canvasEl || !canvasEl.width) return;
 
   const surah = state.surahData?.number;
   const ayah = state.surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah;
@@ -395,7 +379,7 @@ export async function highlightMushafAyah(skipNav) {
     }
   }
 
-  const rect = img.getBoundingClientRect();
+  const rect = canvasEl.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
 
   const rects = await getAyahHighlightRects(state.currentPage, surah, ayah, rect.width, rect.height);
