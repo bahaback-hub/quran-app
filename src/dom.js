@@ -52,7 +52,9 @@ const DOM_IDS = [
    // Header menu
    'headerMenuBtn', 'headerDropdown',
    // Search toggle
-   'searchToggleBtn', 'searchInputGroup'
+   'searchToggleBtn', 'searchInputGroup',
+   // Player more
+   'playerMoreBtn', 'playerMoreRow'
 ];
 
 /** Cache all DOM element references by ID. */

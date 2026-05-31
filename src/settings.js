@@ -193,7 +193,7 @@ export function restoreSettings() {
   const as = storage.get('auto_save'); if (as === false) state.autoSave = false;
   const rec = storage.get('reciter'); if (rec) state.currentReciter = rec;
   const taf = storage.get('tafsir_edition'); if (taf) state.currentTafsirEdition = taf;
-  const bar = storage.get('bar_collapsed'); if (bar === true) state.barCollapsed = true;
+  const bar = storage.get('bar_collapsed'); if (bar === false) state.barCollapsed = false;
   const transEnabled = storage.get('translation_enabled'); if (transEnabled) state.translationEnabled = true;
   const transEdition = storage.get('translation_edition'); if (transEdition) state.currentTranslation = transEdition;
 
@@ -213,8 +213,8 @@ export function restoreSettings() {
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = state.fontSize;
   const speed = storage.get('playback_speed');
   if (speed && dom.speedSelect && dom.audioPlayer) { dom.speedSelect.value = speed; dom.audioPlayer.playbackRate = parseFloat(speed); }
-  if (state.barCollapsed && dom.prayerBar) {
-    dom.prayerBar.classList.add('collapsed');
-    dom.prayerBar.classList.remove('expanded');
+  if (!state.barCollapsed && dom.prayerBar) {
+    dom.prayerBar.classList.remove('collapsed');
+    dom.prayerBar.classList.add('expanded');
   }
 }

@@ -36,16 +36,12 @@
 <div class="container">
 
   <!-- ========== شريط مواقيت الصلاة ========== -->
-  <div class="prayer-bar expanded" id="prayerBar" role="region" aria-label="مواقيت الصلاة">
+  <div class="prayer-bar collapsed" id="prayerBar" role="region" aria-label="مواقيت الصلاة">
     <div class="prayer-bar-inner">
       <div class="prayer-bar-items">
         <div class="prayer-bar-item">🕐 <span id="bigClockTime">--:--</span></div>
         <div class="prayer-bar-item">🕌 <span id="nextPrayerName">جاري التحميل...</span> <span id="nextPrayerTime">--:--</span></div>
         <div class="prayer-bar-item">⏳ <span id="countdownDisplay">--:--:--</span></div>
-        <div class="prayer-bar-item">📅 <span id="hijriDateDisplay">---</span></div>
-        <div class="prayer-bar-item">📆 <span id="weekdayDisplay">---</span> <span id="gregorianDateDisplay">---</span></div>
-        <div class="prayer-bar-item">🧭 القبلة: <span id="cityName">---</span></div>
-        <button class="settings-toggle-btn" id="settingsToggleBtn" aria-label="فتح الإعدادات">⚙️ الإعدادات</button>
       </div>
     </div>
     <button class="collapse-bar-btn" id="collapseBarBtn" aria-label="طي شريط المواقيت">▲</button>
@@ -208,19 +204,30 @@
         </div>
       </div>
       <div class="player-buttons">
-        <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف">⏯ تشغيل</button>
-        <button class="btn" id="prevSurahBtn" aria-label="السورة السابقة">⏮ السورة السابقة</button>
-        <button class="btn" id="prevAyahBtn" aria-label="الآية السابقة">◀ سابقة</button>
+        <button class="btn" id="prevSurahBtn" aria-label="السورة السابقة" title="السورة السابقة">⏮</button>
+        <button class="btn" id="prevAyahBtn" aria-label="الآية السابقة" title="الآية السابقة">◀</button>
+        <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف">⏯</button>
+        <button class="btn" id="nextAyahBtn" aria-label="الآية التالية" title="الآية التالية">▶</button>
+        <button class="btn" id="nextSurahBtn" aria-label="السورة التالية" title="السورة التالية">⏭</button>
+        <div class="speed-control">
+          <label for="speedSelect">السرعة:</label>
+          <select id="speedSelect" aria-label="سرعة التلاوة">
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
+          </select>
+        </div>
+        <button class="btn btn-more" id="playerMoreBtn" aria-label="المزيد" title="المزيد">⁝</button>
+      </div>
+      <div class="player-more-row" id="playerMoreRow" style="display:none;">
         <button class="btn btn-hifdh" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
         <button class="btn btn-repeat" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
         <button class="btn btn-bookmark" id="bookmarkBtn" aria-label="إشارة مرجعية" title="نقرة: حفظ — نقرتان: انتقال">🔖 علامة</button>
         <button class="btn btn-favorite" id="favoriteBtn" aria-label="إضافة للمفضلة">❤️ مفضلة</button>
         <button class="btn btn-gold" id="shareBtn" aria-label="مشاركة الآية">📤 مشاركة</button>
-        <button class="btn" id="nextAyahBtn" aria-label="الآية التالية">تالية ▶</button>
-        <button class="btn" id="nextSurahBtn" aria-label="السورة التالية">السورة التالية ⏭</button>
-      </div>
-      <div class="keyboard-hint" id="keyboardHint">
-        💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار | M = مصحف
       </div>
       <div class="repeat-controls" id="repeatControls" style="display:none;">
         <label>من: <select id="repeatFrom"></select></label>
