@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { CONFIG } from './config.js';
+import { togglePlayPause, updatePlayPauseBtn } from './audio.js';
 
 let _prevHighlightTimeout = null;
 
@@ -202,7 +203,7 @@ function handleKeyDown(e) {
     case 'Escape': closePresentation(); break;
     case 'ArrowRight': case 'ArrowDown': e.preventDefault(); navigateAyah(1); break;
     case 'ArrowLeft': case 'ArrowUp': e.preventDefault(); navigateAyah(-1); break;
-    case ' ': e.preventDefault(); import('./audio.js').then(m => { m.togglePlayPause(); m.updatePlayPauseBtn(); }); break;
+    case ' ': e.preventDefault(); togglePlayPause(); updatePlayPauseBtn(); break;
   }
 }
 
