@@ -52,7 +52,7 @@
  *   _smartTvState: number,
  *   _smartTvAudioSrc: string,
  *   surahOffsets: Array<{surahNum: number, startAbs: number, count: number, name: string}>|null,
- *   backgroundsList: Array<{id: string, name: string, type?: string, css?: string}>|null,
+ *   backgroundsList: Array<{id: string, name: string, type?: string, css?: string, cssBlock?: string}>|null,
  *   ayahTimings: number[],
  *   presentationMode: boolean,
  *   _updateReadingProgress: Function|null,
