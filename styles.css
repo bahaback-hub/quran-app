@@ -358,7 +358,11 @@ body:not(.bg-css) {
   left: 16px;
   z-index: 10;
 }
-.header-menu-btn {
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+.header-action-btn, .header-menu-btn {
   background: rgba(255,255,255,0.15);
   border: 2px solid var(--accent);
   color: var(--header-text);
@@ -372,6 +376,7 @@ body:not(.bg-css) {
   justify-content: center;
   transition: all 0.3s ease;
 }
+.header-action-btn:hover { background: var(--accent); transform: scale(1.1); }
 .header-menu-btn:hover { background: var(--accent); transform: rotate(90deg) scale(1.1); }
 .header-dropdown {
   position: absolute;
@@ -1433,7 +1438,7 @@ noscript > div {
   .header { padding: 22px 15px; }
   .header h1 { font-size: 22px; }
   .header p { font-size: 13px; }
-  .header-menu-btn { width: 36px; height: 36px; font-size: 16px; }
+  .header-action-btn, .header-menu-btn { width: 36px; height: 36px; font-size: 16px; }
   .header-menu-container { top: 10px; left: 10px; }
   .mode-btn.mode-toggle { padding: 4px 8px; font-size: 10px; }
   .surah-content { padding: 16px; min-height: 300px; }
@@ -3061,7 +3066,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
   .control-group button, .btn-sm, .settings-close, .favorites-close,
   .adhkar-close-btn, .mushaf-surah-overlay-close, .surah-secrets-close-btn,
   .collapse-bar-btn, .expand-bar-btn, .mode-toggle-control,
-  .header-menu-btn, .search-btn, .clear-search-btn, .voice-search-btn,
+  .header-action-btn, .header-menu-btn, .search-btn, .clear-search-btn, .voice-search-btn,
   .prev-ayah-btn, .next-ayah-btn, .prev-surah-btn, .next-surah-btn,
   .hifdh-btn, .repeat-btn, .bookmark-btn, .favorite-btn, .share-btn,
   .play-pause-btn, .collapsed-play-btn,
@@ -3225,7 +3230,7 @@ body {
   .header { padding: 18px 16px; }
   .header h1 { font-size: 24px; }
   .header-menu-container { gap: 4px; }
-  .header-menu-btn { width: 36px; height: 36px; font-size: 18px; }
+  .header-action-btn, .header-menu-btn { width: 36px; height: 36px; font-size: 18px; }
   .controls { padding: 10px; gap: 6px; }
   .controls-row .control-group { min-width: 140px; max-width: 180px; }
   .controls-row .control-group select { padding: 4px 6px; font-size: 12px; height: 30px; }
@@ -3250,7 +3255,7 @@ body {
   .header { padding: 12px 10px; }
   .header h1 { font-size: 18px; margin-bottom: 0; }
   .header-menu-container { top: 8px; left: 8px; gap: 4px; }
-  .header-menu-btn { width: 32px; height: 32px; font-size: 15px; }
+  .header-action-btn, .header-menu-btn { width: 32px; height: 32px; font-size: 15px; }
 
   /* أدوات التحكم — تخفى افتراضياً وتظهر عند الضغط على تبويب "أدوات" */
   .controls { padding: 8px; display: none; }
@@ -3324,7 +3329,7 @@ body {
   body { background: #fff; padding: 0; padding-bottom: 0; }
   .player, .prayer-bar, .settings-panel, .favorites-panel,
   .tafsir-curtain, .tafsir-curtain-handle, .toast,
-  .header-menu-btn, .controls, .footer, .skip-link { display: none !important; }
+  .header-action-btn, .header-menu-btn, .controls, .footer, .skip-link { display: none !important; }
   .container { box-shadow: none; max-width: 100%; }
   .surah-content { padding: 20px; }
   .ayah { background: none !important; box-shadow: none !important; color: #000 !important; }

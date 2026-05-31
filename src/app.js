@@ -381,10 +381,6 @@ export async function initApp() {
     toggleAdhkarPanel();
     if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
   });
-  document.getElementById('headerThemeBtn')?.addEventListener('click', () => {
-    toggleNightMode();
-    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
-  });
   document.getElementById('headerSettingsBtn')?.addEventListener('click', () => {
     openSettings();
     if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
