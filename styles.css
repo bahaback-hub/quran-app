@@ -1597,6 +1597,10 @@ body.night-mode .surah-secrets-overlay-inner { background: #1e2330; }
   color: #2c3e50;
   box-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
 }
+.view-mode-btn-trans.on {
+  background: var(--accent);
+  color: #2c3e50;
+}
 .mode-toggle-icon {
   width: 20px;
   height: 20px;
@@ -2024,6 +2028,10 @@ body.night-mode .word.current-word {
   background: var(--select-bg);
   color: var(--text-primary);
   max-width: 160px;
+}
+.view-mode-group #translationSelect {
+  height: 30px;
+  align-self: center;
 }
 
 .ayah .translation-text {
