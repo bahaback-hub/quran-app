@@ -19,11 +19,6 @@ const TOP_OFFSET = 30;
 const BOTTOM_OFFSET = 50;
 const STD_LINES = 15;
 
-const BG_COLOR = '#f5f0e8';
-const PAGE_TXT_COLOR = '#1a1a1a';
-const FRAME_COLOR = '#c4a87c';
-const FRAME_INNER = '#b8956a';
-
 const layoutCache = new Map();
 let loadedFonts = new Set();
 
@@ -78,6 +73,17 @@ async function ensureFontLoaded(fontName) {
   loadedFonts.add(fontName);
 }
 
+function isNightMode() {
+  return document.body.classList.contains('night-mode');
+}
+
+function getColors() {
+  if (isNightMode()) {
+    return { bg: '#1a1e2b', txt: '#d4c4a8', frame: '#4a4e5e', frameInner: '#3a3e4e' };
+  }
+  return { bg: '#f5f0e8', txt: '#1a1a1a', frame: '#c4a87c', frameInner: '#b8956a' };
+}
+
 export async function renderPage(pageNum, targetCanvas) {
   const data = await loadPageData(pageNum);
   if (!data) return { canvas: null, layout: null };
@@ -94,14 +100,16 @@ export async function renderPage(pageNum, targetCanvas) {
   canvas.height = CANVAS_H;
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = BG_COLOR;
+  const colors = getColors();
+
+  ctx.fillStyle = colors.bg;
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-  renderPageContent(ctx, data, pageFont);
+  renderPageContent(ctx, data, pageFont, colors);
 
-  drawPageFrame(ctx);
+  drawPageFrame(ctx, colors);
 
-  drawPageNumber(ctx, pageNum);
+  drawPageNumber(ctx, pageNum, colors);
 
   return { canvas, layout: data };
 }
@@ -114,7 +122,7 @@ function measureLine(ctx, words, pageFont, fontSize) {
   });
 }
 
-function renderPageContent(ctx, data, pageFont) {
+function renderPageContent(ctx, data, pageFont, colors) {
   const lines = data.lines;
   if (!lines || lines.length === 0) return;
 
@@ -155,7 +163,7 @@ function renderPageContent(ctx, data, pageFont) {
       const w = words[j];
       const fn = w.font || pageFont;
       ctx.font = `${pageFontSize}px "${fn}", "Scheherazade New", serif`;
-      ctx.fillStyle = PAGE_TXT_COLOR;
+      ctx.fillStyle = colors.txt;
       ctx.textAlign = 'right';
       ctx.fillText(w.char, x, y);
       x -= widths[j] + gap;
@@ -163,24 +171,24 @@ function renderPageContent(ctx, data, pageFont) {
   }
 }
 
-function drawPageNumber(ctx, pageNum) {
+function drawPageNumber(ctx, pageNum, colors) {
   const cx = CANVAS_W / 2;
   const cy = CANVAS_H - 18;
   const numStr = pageNum.toLocaleString('ar-SA');
   ctx.font = 'bold 16px "Amiri", serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#8b6f5a';
+  ctx.fillStyle = isNightMode() ? '#6a6e7e' : '#8b6f5a';
   ctx.fillText(numStr, cx, cy);
 }
 
-function drawPageFrame(ctx) {
+function drawPageFrame(ctx, colors) {
   const m = 8;
-  ctx.strokeStyle = FRAME_COLOR;
+  ctx.strokeStyle = colors.frame;
   ctx.lineWidth = 2;
   ctx.strokeRect(m, m, CANVAS_W - m * 2, CANVAS_H - m * 2);
 
-  ctx.strokeStyle = FRAME_INNER;
+  ctx.strokeStyle = colors.frameInner;
   ctx.lineWidth = 1;
   const gap = 6;
   ctx.strokeRect(m + gap, m + gap, CANVAS_W - (m + gap) * 2, CANVAS_H - (m + gap) * 2);
