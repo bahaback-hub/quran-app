@@ -133,7 +133,7 @@ export async function loadBackgrounds() {
 export function applyBackground(bgId) {
   if (!bgId || bgId === 'none') {
     document.body.style.backgroundImage = '';
-    document.body.classList.remove('bg-css');
+    document.body.className = document.body.className.replace(/\bbg-css[-\w]*\b/g, '').trim();
     const style = document.getElementById('dynamic-bg-style');
     if (style) style.remove();
     storage.remove('bg_id');
@@ -142,16 +142,25 @@ export function applyBackground(bgId) {
   }
   const bg = state.backgroundsList?.find(b => b.id === bgId);
   if (!bg) return;
-  if (bg.type === 'css' && bg.css) {
+  if (bg.type === 'css' && (bg.cssBlock || bg.css)) {
     document.body.style.backgroundImage = '';
-    document.body.classList.add('bg-css');
-    document.body.setAttribute('data-bg-css', bg.css);
-    const style = document.createElement('style');
-    style.id = 'dynamic-bg-style';
-    style.textContent = `body[data-bg-css] { --bg-css-value: ${bg.css} !important; }`;
+    document.body.className = document.body.className.replace(/\bbg-css[-\w]*\b/g, '').trim();
     const existing = document.getElementById('dynamic-bg-style');
     if (existing) existing.remove();
-    document.head.appendChild(style);
+    if (bg.cssBlock) {
+      const style = document.createElement('style');
+      style.id = 'dynamic-bg-style';
+      style.textContent = bg.cssBlock;
+      document.head.appendChild(style);
+      document.body.className = 'bg-css-arabic';
+    } else {
+      document.body.classList.add('bg-css');
+      document.body.setAttribute('data-bg-css', bg.css + '');
+      const style = document.createElement('style');
+      style.id = 'dynamic-bg-style';
+      style.textContent = `body[data-bg-css] { --bg-css-value: ${bg.css} !important; }`;
+      document.head.appendChild(style);
+    }
   }
   storage.set('bg_id', bgId);
   if (dom.bgSelect) dom.bgSelect.value = bgId;
