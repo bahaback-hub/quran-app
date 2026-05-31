@@ -84,56 +84,49 @@ export async function cacheAllPageLayouts(onProgress) {
 
 const CANVAS_W = 1080;
 const CANVAS_H = 1540;
-const PADDING_H = 36;
-const PADDING_V = 40;
-const TEXT_COLOR = '#1a1a1a';
-const BG_COLOR = '#f5f0e8';
-const AYAH_CIRCLE_COLOR = '#8b6f5a';
-const BASMALA_COLOR = '#a0846c';
+const PAD_H = 45;
+const PAD_V = 50;
+const TOP_BORDER_H = 44;
+const BOTTOM_BAR_H = 36;
 
-function arabicCharCount(str) {
-  return (str.match(/[\u0621-\u064A\u0660-\u0669]/g) || []).length;
-}
+const BG = '#f5f0e8';
+const TEXT_CLR = '#1a1a1a';
+const GOLD = '#c9a96e';
+const GOLD_DARK = '#b8924e';
+const GOLD_LIGHT = '#e0c994';
+const AYAH_CIRCLE = '#8b6f5a';
+const AYAH_CIRCLE_TEXT = '#f5f0e8';
+const HEADER_BG = '#c9a96e';
+const HEADER_TEXT = '#ffffff';
+const BASMALA_CLR = '#a0846c';
+const JUZ_CLR = '#8b6f5a';
+const LINE_NORMAL = 'Scheherazade New';
+const LINE_DECOR = 'Amiri';
 
-export function renderPageToCanvas(pageNum, canvas, layout) {
-  if (!layout) return false;
-
-  canvas.width = CANVAS_W;
-  canvas.height = CANVAS_H;
-  const ctx = canvas.getContext('2d');
-
-  ctx.fillStyle = BG_COLOR;
-  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-
-  let juz = 1;
-  for (let i = JUZ_PAGES.length - 1; i >= 0; i--) {
-    if (pageNum >= JUZ_PAGES[i]) { juz = i + 1; break; }
+function getWordText(word) {
+  if (word.qpcV2) {
+    let t = word.qpcV2;
+    const m = t.match(/([\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s]+|\d+)$/);
+    if (m && m[1]) {
+      const numStr = m[1].replace(/\s/g, '');
+      if (/^\d+$/.test(numStr)) {
+        t = t.slice(0, -m[1].length).trim();
+      }
+    }
+    return t.trim();
   }
-  renderPageDecorations(ctx, pageNum, juz);
-
-  renderPageContent(ctx, layout);
-
-  renderPageFooter(ctx, pageNum);
-
-  return true;
+  return word.word || '';
 }
 
-function renderPageDecorations(ctx, pageNum, juz) {
-  ctx.fillStyle = '#d4c5a9';
-  ctx.fillRect(0, 0, CANVAS_W, 3);
-  ctx.fillRect(0, CANVAS_H - 30, CANVAS_W, 1);
-
-  ctx.font = 'bold 18px "Amiri", "Traditional Arabic", serif';
-  ctx.fillStyle = '#8b6f5a';
-  ctx.textAlign = 'center';
-  ctx.fillText(`الجزء ${toArabicNumeral(juz)}`, CANVAS_W / 2, 28);
-}
-
-function renderPageFooter(ctx, pageNum) {
-  ctx.font = 'bold 20px "Amiri", "Traditional Arabic", serif';
-  ctx.fillStyle = '#8b6f5a';
-  ctx.textAlign = 'center';
-  ctx.fillText(toArabicNumeral(pageNum), CANVAS_W / 2, CANVAS_H - 6);
+function getWordAyahNum(word) {
+  if (!word.qpcV2) {
+    const m = word.word.match(/(\d+)$/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+  const m = word.qpcV2.match(/(\d+)$/);
+  if (m) return parseInt(m[1], 10);
+  const m2 = word.word.match(/(\d+)$/);
+  return m2 ? parseInt(m2[1], 10) : null;
 }
 
 function groupWordsByAyah(words) {
@@ -157,109 +150,292 @@ function groupWordsByAyah(words) {
   return ayahs;
 }
 
-function renderPageContent(ctx, layout) {
-  const lines = layout.lines;
-  if (!lines || lines.length === 0) return;
+function drawTopBorder(ctx, hasSurahHeader) {
+  const y = 0;
+  ctx.fillStyle = GOLD;
+  ctx.fillRect(0, y, CANVAS_W, 3);
+  ctx.fillRect(0, y + 5, CANVAS_W, 1);
 
-  const usableHeight = CANVAS_H - PADDING_V * 2 - 40;
-  const lineHeight = usableHeight / lines.length;
-  const fontSize = Math.max(18, Math.min(36, lineHeight * 0.65));
-
-  ctx.textAlign = 'right';
-  ctx.direction = 'rtl';
-  ctx.textBaseline = 'middle';
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (!line || !line.words || line.words.length === 0) continue;
-
-    const y = PADDING_V + 30 + i * lineHeight + lineHeight / 2;
-
-    if (line.type === 'basmalah') {
-      ctx.font = `bold ${fontSize + 2}px "Amiri", "Traditional Arabic", serif`;
-      ctx.fillStyle = BASMALA_COLOR;
-      ctx.textAlign = 'center';
-      const text = line.words.map(w => w.word).join(' ');
-      ctx.fillText(text, CANVAS_W / 2, y);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = TEXT_COLOR;
-      continue;
-    }
-
-    ctx.font = `500 ${fontSize}px "Scheherazade New", "Amiri", "Traditional Arabic", serif`;
-    ctx.fillStyle = TEXT_COLOR;
-
-    const words = line.words;
-    const wordWidths = words.map(w => ctx.measureText(w.word).width);
-    const totalContentWidth = wordWidths.reduce((a, b) => a + b, 0);
-    const availableWidth = CANVAS_W - PADDING_H * 2;
-
-    const ayahGroups = groupWordsByAyah(words);
-
-    let totalWidth = 0;
-    const ayahMarkers = [];
-    for (const group of ayahGroups) {
-      const groupWidth = group.words.reduce((sum, w) => sum + ctx.measureText(w.word).width, 0);
-      ayahMarkers.push({ number: group.number, width: groupWidth });
-      totalWidth += groupWidth + (ayahMarkers.length > 1 ? 40 : 0);
-    }
-
-    const gap = (ayahMarkers.length > 1 && totalWidth < availableWidth)
-      ? (availableWidth - totalWidth) / (ayahMarkers.length - 1)
-      : 0;
-
-    let x = CANVAS_W - PADDING_H;
-
-    for (let g = 0; g < ayahGroups.length; g++) {
-      const group = ayahGroups[g];
-      const ayahWidth = ayahMarkers[g].width;
-
-      const words = group.words;
-      const widths = words.map(w => ctx.measureText(w.word).width);
-      const totalWordsWidth = widths.reduce((a, b) => a + b, 0);
-
-      const wordGap = words.length > 1
-        ? (ayahWidth - totalWordsWidth) / (words.length - 1)
-        : 0;
-
-      for (let j = words.length - 1; j >= 0; j--) {
-        x -= widths[j];
-        ctx.fillText(words[j].word, x, y);
-        if (j > 0) x -= wordGap;
-      }
-
-      x -= 20;
-
-      drawAyahNumber(ctx, x - 14, y, ayahMarkers[g].number, fontSize);
-
-      x -= 34;
-
-      if (g < ayahGroups.length - 1) {
-        x -= gap;
-      }
+  if (!hasSurahHeader) {
+    const diamondY = y + 8;
+    for (let x = 60; x < CANVAS_W - 60; x += 320) {
+      ctx.fillStyle = GOLD_LIGHT;
+      ctx.beginPath();
+      ctx.moveTo(x, diamondY + 6);
+      ctx.lineTo(x + 6, diamondY + 12);
+      ctx.lineTo(x, diamondY + 18);
+      ctx.lineTo(x - 6, diamondY + 12);
+      ctx.closePath();
+      ctx.fill();
     }
   }
 }
 
-function drawAyahNumber(ctx, x, y, number, fontSize) {
-  const r = fontSize * 0.55;
-  ctx.beginPath();
-  ctx.arc(x + r, y - 2, r, 0, Math.PI * 2);
-  ctx.fillStyle = AYAH_CIRCLE_COLOR;
+function drawSurahHeader(ctx, layout) {
+  const headerLine = layout.lines.find(l => l.type === 'surah-header');
+  if (!headerLine) return false;
+
+  const boxY = 8;
+  const boxH = 36;
+  const boxW = 340;
+  const boxX = (CANVAS_W - boxW) / 2;
+
+  ctx.shadowColor = 'rgba(0,0,0,0.1)';
+  ctx.shadowBlur = 4;
+  ctx.fillStyle = GOLD;
+  roundRect(ctx, boxX, boxY, boxW, boxH, 6);
   ctx.fill();
-  ctx.strokeStyle = '#f5f0e8';
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = GOLD_DARK;
+  ctx.fillRect(boxX + 4, boxY + 4, boxW - 8, boxH - 8);
+
+  ctx.fillStyle = HEADER_TEXT;
+  ctx.font = 'bold 20px "Amiri", serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  let surahName = headerLine.text || '';
+  if (headerLine.surah) {
+    const sNum = parseInt(headerLine.surah, 10);
+    surahName = `سُورَةُ ${surahName.replace(/^سُورَةُ\s*/, '')}`;
+  }
+  ctx.fillText(surahName, CANVAS_W / 2, boxY + boxH / 2);
+
+  return true;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function getJuzForPage(pageNum) {
+  for (let i = JUZ_PAGES.length - 1; i >= 0; i--) {
+    if (pageNum >= JUZ_PAGES[i]) return i + 1;
+  }
+  return 1;
+}
+
+function drawJuzMarker(ctx, pageNum) {
+  const juz = getJuzForPage(pageNum);
+  const juzStartPage = JUZ_PAGES[juz - 1];
+  if (pageNum !== juzStartPage) return;
+
+  const mx = 22;
+  const my = 200;
+
+  ctx.fillStyle = GOLD;
+  ctx.beginPath();
+  ctx.moveTo(mx, my);
+  ctx.quadraticCurveTo(2, my + 40, mx, my + 80);
+  ctx.lineTo(mx - 12, my + 80);
+  ctx.lineTo(mx - 12, my);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = JUZ_CLR;
+  ctx.font = 'bold 11px "Amiri", serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.save();
+  ctx.translate(mx - 6, my + 40);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(`الجزء ${toArabicNumeral(juz)}`, 0, 0);
+  ctx.restore();
+}
+
+function drawPageFooter(ctx, pageNum) {
+  const fy = CANVAS_H - BOTTOM_BAR_H;
+
+  ctx.fillStyle = GOLD;
+  ctx.fillRect(0, fy, CANVAS_W, 1);
+
+  const cx = CANVAS_W / 2;
+  const cy = fy + (BOTTOM_BAR_H - 1) / 2;
+  const rad = 13;
+
+  ctx.fillStyle = GOLD;
+  ctx.beginPath();
+  ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = HEADER_TEXT;
+  ctx.font = 'bold 13px "Amiri", serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(toArabicNumeral(pageNum), cx, cy);
+}
+
+function drawAyahNumber(ctx, centerX, y, number, fontSize) {
+  const r = fontSize * 0.52;
+  const cy = y - 1;
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.08)';
+  ctx.shadowBlur = 2;
+
+  ctx.beginPath();
+  ctx.arc(centerX, cy, r + 1, 0, Math.PI * 2);
+  ctx.fillStyle = AYAH_CIRCLE;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.beginPath();
+  ctx.arc(centerX, cy, r - 2, 0, Math.PI * 2);
+  ctx.fillStyle = GOLD;
+  ctx.fill();
+
+  ctx.strokeStyle = AYAH_CIRCLE;
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
   const numStr = toArabicNumeral(number);
-  const numFontSize = Math.max(10, fontSize * 0.4);
-  ctx.font = `bold ${numFontSize}px "Amiri", "Traditional Arabic", serif`;
-  ctx.fillStyle = '#f5f0e8';
+  const numFs = Math.max(10, fontSize * 0.38);
+  ctx.font = `bold ${numFs}px "${LINE_DECOR}", serif`;
+  ctx.fillStyle = AYAH_CIRCLE_TEXT;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(numStr, x + r, y - 2);
-  ctx.textAlign = 'right';
+  ctx.fillText(numStr, centerX, cy);
+
+  ctx.restore();
+}
+
+export function renderPageToCanvas(pageNum, canvas, layout) {
+  if (!layout) return false;
+
+  canvas.width = CANVAS_W;
+  canvas.height = CANVAS_H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = BG;
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+  const hasSurahHeader = !!layout.lines.find(l => l.type === 'surah-header');
+
+  drawTopBorder(ctx, hasSurahHeader);
+
+  drawJuzMarker(ctx, pageNum);
+
+  const hasHeader = drawSurahHeader(ctx, layout);
+
+  renderPageContent(ctx, layout, hasHeader);
+
+  drawPageFooter(ctx, pageNum);
+
+  return true;
+}
+
+function renderPageContent(ctx, layout, hasHeader) {
+  const lines = layout.lines;
+  if (!lines || lines.length === 0) return;
+
+  const topOffset = PAD_V + TOP_BORDER_H + (hasHeader ? 44 : 18);
+  const usableHeight = CANVAS_H - topOffset - BOTTOM_BAR_H - PAD_V;
+  const textLines = lines.filter(l => l.type === 'text' || l.type === 'basmalah' || l.type === 'surah-type');
+  const lineCount = textLines.length;
+  if (lineCount === 0) return;
+
+  const lineHeight = usableHeight / lineCount;
+  const fontSize = Math.max(20, Math.min(38, lineHeight * 0.65));
+
+  ctx.direction = 'rtl';
   ctx.textBaseline = 'middle';
+
+  let lineIdx = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line || !line.words || line.words.length === 0) continue;
+
+    if (line.type === 'surah-header') continue;
+
+    const y = topOffset + lineIdx * lineHeight + lineHeight / 2;
+
+    if (line.type === 'basmalah') {
+      ctx.font = `bold ${fontSize + 1}px "${LINE_NORMAL}", "${LINE_DECOR}", serif`;
+      ctx.fillStyle = BASMALA_CLR;
+      ctx.textAlign = 'center';
+      const basmalaWord = line.words.find(w => getWordText(w).length > 0);
+      const text = line.words.map(w => getWordText(w)).join(' ');
+      ctx.fillText(text.trim(), CANVAS_W / 2, y);
+      lineIdx++;
+      continue;
+    }
+
+    renderLine(ctx, line, y, fontSize);
+    lineIdx++;
+  }
+}
+
+function renderLine(ctx, line, y, fontSize) {
+  const ayahGroups = groupWordsByAyah(line.words);
+  if (ayahGroups.length === 0) {
+    renderWordsInline(ctx, line.words, y, fontSize, 0);
+    return;
+  }
+
+  const totalGroups = ayahGroups.length;
+  const groupInfo = ayahGroups.map(g => ({
+    number: g.number,
+    words: g.words,
+    w: g.words.reduce((sum, w) => sum + ctx.measureText(getWordText(w)).width, 0),
+  }));
+
+  const totalContentW = groupInfo.reduce((sum, g) => sum + g.w, 0);
+  const ayahMarkersW = totalGroups * 34;
+  const availableW = CANVAS_W - PAD_H * 2 - ayahMarkersW;
+  const gapsTotal = Math.max(0, availableW - totalContentW);
+  const gap = (totalGroups > 1) ? gapsTotal / (totalGroups - 1) : 0;
+
+  ctx.font = `500 ${fontSize}px "${LINE_NORMAL}", "${LINE_DECOR}", serif`;
+  ctx.fillStyle = TEXT_CLR;
+  ctx.textAlign = 'right';
+
+  let x = CANVAS_W - PAD_H;
+
+  for (let g = 0; g < totalGroups; g++) {
+    const { words, number } = ayahGroups[g];
+    const wordTexts = words.map(w => getWordText(w));
+    const widths = wordTexts.map(t => ctx.measureText(t).width);
+    const totalW = widths.reduce((a, b) => a + b, 0);
+    const wordGap = words.length > 1 ? (groupInfo[g].w - totalW) / (words.length - 1) : 0;
+
+    for (let j = words.length - 1; j >= 0; j--) {
+      x -= widths[j];
+      ctx.fillText(wordTexts[j], x, y);
+      if (j > 0) x -= wordGap;
+    }
+
+    x -= 17;
+    drawAyahNumber(ctx, x - 14, y, number, fontSize);
+    x -= 34;
+
+    if (g < totalGroups - 1) {
+      x -= gap;
+    }
+  }
+}
+
+function renderWordsInline(ctx, words, y, fontSize, startX) {
+  ctx.font = `500 ${fontSize}px "${LINE_NORMAL}", "${LINE_DECOR}", serif`;
+  ctx.fillStyle = TEXT_CLR;
+  ctx.textAlign = 'right';
+  let x = CANVAS_W - PAD_H - startX;
+  for (let j = words.length - 1; j >= 0; j--) {
+    const text = getWordText(words[j]);
+    const w = ctx.measureText(text).width;
+    x -= w;
+    ctx.fillText(text, x, y);
+    if (j > 0) x -= 2;
+  }
 }
 
 export function getPageImageDataUrl(pageNum) {
