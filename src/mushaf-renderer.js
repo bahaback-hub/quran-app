@@ -17,6 +17,7 @@ const PAD_H = 30;
 const PAD_V = 30;
 const TOP_OFFSET = 30;
 const BOTTOM_OFFSET = 50;
+const STD_LINES = 15;
 
 const BG_COLOR = '#f5f0e8';
 const PAGE_TXT_COLOR = '#1a1a1a';
@@ -135,6 +136,7 @@ function renderPageContent(ctx, data, pageFont) {
   const lineHeight = usableHeight / lineCount;
   const baseFontSize = Math.max(26, Math.min(55, lineHeight * 0.85));
   const availableW = CANVAS_W - PAD_H * 2;
+  const stdLineHeight = usableHeight / STD_LINES;
 
   ctx.textBaseline = 'middle';
 
@@ -142,7 +144,7 @@ function renderPageContent(ctx, data, pageFont) {
     const line = lines[i];
     if (!line?.words || line.words.length === 0) continue;
 
-    const y = TOP_OFFSET + i * lineHeight + lineHeight / 2;
+    const y = TOP_OFFSET + i * stdLineHeight + stdLineHeight / 2;
     const words = line.words;
 
     const { fontSize, widths, gap } = computeFontSize(words, pageFont, baseFontSize, availableW, ctx);
