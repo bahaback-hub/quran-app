@@ -17,6 +17,7 @@ const PAD_H = 30;
 const PAD_V = 30;
 const TOP_OFFSET = 40;
 const BOTTOM_OFFSET = 46;
+const STD_LINES = 15;
 
 const BG_COLOR = '#f5f0e8';
 const PAGE_TXT_COLOR = '#1a1a1a';
@@ -109,58 +110,76 @@ function measureLine(ctx, words, pageFont, fontSize) {
   });
 }
 
-function computeFontSize(lineWords, pageFont, baseFontSize, availableW, targetGap, ctx) {
+function computeFontSize(lineWords, pageFont, baseFontSize, availableW, ctx) {
   const gapCount = lineWords.length - 1;
   if (gapCount <= 0) return { fontSize: baseFontSize, widths: [], gap: 0 };
 
   let widths = measureLine(ctx, lineWords, pageFont, baseFontSize);
   let totalW = widths.reduce((a, b) => a + b, 0);
-  if (totalW <= 0) return { fontSize: baseFontSize, widths, gap: targetGap };
+  if (totalW <= 0) return { fontSize: baseFontSize, widths, gap: 0 };
 
-  const targetTotal = availableW - gapCount * targetGap;
-  if (targetTotal <= 0) return { fontSize: baseFontSize, widths, gap: targetGap };
-
-  let optimalFs = Math.round(baseFontSize * targetTotal / totalW);
+  let optimalFs = Math.round(baseFontSize * availableW / totalW);
   optimalFs = Math.max(20, Math.min(100, optimalFs));
 
   widths = measureLine(ctx, lineWords, pageFont, optimalFs);
   totalW = widths.reduce((a, b) => a + b, 0);
-  const gap = gapCount > 0 ? (availableW - totalW) / gapCount : 0;
 
-  return { fontSize: optimalFs, widths, gap: Math.max(0, gap) };
+  return { fontSize: optimalFs, widths, gap: 0 };
 }
 
 function renderPageContent(ctx, data, pageFont) {
   const lines = data.lines;
   if (!lines || lines.length === 0) return;
 
-  const isFirstSurahPage = lines[0]?.words?.[0]?.type === 'surah_header';
-  const topMargin = TOP_OFFSET + (isFirstSurahPage ? 10 : 0);
-  const usableHeight = CANVAS_H - topMargin - BOTTOM_OFFSET - PAD_V;
   const lineCount = lines.length;
-  const lineHeight = usableHeight / lineCount;
-  const baseFontSize = Math.max(26, Math.min(55, lineHeight * 0.85));
+  const stdLineHeight = (CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V) / STD_LINES;
+  const baseFontSize = Math.max(26, Math.min(55, stdLineHeight * 0.85));
   const availableW = CANVAS_W - PAD_H * 2;
+
+  const contentH = (CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V);
+  const lineHeight = contentH / lineCount;
+  const extraV = contentH - lineCount * stdLineHeight;
+  const topMargin = TOP_OFFSET + Math.max(0, extraV / 2);
 
   ctx.textBaseline = 'middle';
 
-  for (let i = 0; i < lines.length; i++) {
+  for (let i = 0; i < lineCount; i++) {
     const line = lines[i];
     if (!line?.words || line.words.length === 0) continue;
 
     const y = topMargin + i * lineHeight + lineHeight / 2;
     const words = line.words;
 
-    const { fontSize, widths, gap } = computeFontSize(words, pageFont, baseFontSize, availableW, 5, ctx);
+    const first = words[0];
+    const isCentered = words.length === 1 || first.type === 'surah_header' || first.type === 'bismillah';
 
-    if (words.length === 1) {
-      const fn = words[0].font || pageFont;
-      ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
+    if (isCentered) {
+      const fn = first.font || pageFont;
+      ctx.font = `${baseFontSize}px "${fn}", "Scheherazade New", serif`;
       ctx.fillStyle = PAGE_TXT_COLOR;
       ctx.textAlign = 'center';
-      ctx.fillText(words[0].char, CANVAS_W / 2, y);
+      if (words.length === 1) {
+        ctx.fillText(first.char, CANVAS_W / 2, y);
+      } else {
+        let totalW = 0;
+        for (const w of words) {
+          const wfn = w.font || pageFont;
+          ctx.font = `${baseFontSize}px "${wfn}", "Scheherazade New", serif`;
+          totalW += ctx.measureText(w.char).width;
+        }
+        let cx = CANVAS_W / 2 - totalW / 2;
+        for (const w of words) {
+          const wfn = w.font || pageFont;
+          ctx.font = `${baseFontSize}px "${wfn}", "Scheherazade New", serif`;
+          ctx.textAlign = 'left';
+          ctx.fillText(w.char, cx, y);
+          cx += ctx.measureText(w.char).width;
+        }
+      }
       continue;
     }
+
+    const { fontSize, widths, gap } = computeFontSize(words, pageFont, baseFontSize, availableW, ctx);
 
     let x = CANVAS_W - PAD_H;
 
