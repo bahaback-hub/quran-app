@@ -25,6 +25,9 @@ export function applyNightMode(enabled) {
   if (enabled) document.body.classList.add('night-mode');
   else document.body.classList.remove('night-mode');
   storage.set('night_mode', enabled);
+  if (state.mushafMode && state.currentPage) {
+    import('./mushaf.js').then(m => m.loadPage(state.currentPage, true));
+  }
 }
 
 export function toggleNightMode() { applyNightMode(!state.nightMode); }
