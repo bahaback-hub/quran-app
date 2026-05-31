@@ -114,43 +114,20 @@ function measureLine(ctx, words, pageFont, fontSize) {
   });
 }
 
-function computeFontSize(lineWords, pageFont, baseFontSize, availableW, ctx) {
-  const gapCount = lineWords.length - 1;
-  if (gapCount <= 0) return { fontSize: baseFontSize, widths: [], gap: 0 };
-
-  let widths = measureLine(ctx, lineWords, pageFont, baseFontSize);
-  let totalW = widths.reduce((a, b) => a + b, 0);
-  if (totalW <= 0) return { fontSize: baseFontSize, widths, gap: 0 };
-
-  let optimalFs = Math.round(baseFontSize * availableW / totalW);
-  optimalFs = Math.max(20, Math.min(100, optimalFs));
-
-  widths = measureLine(ctx, lineWords, pageFont, optimalFs);
-  totalW = widths.reduce((a, b) => a + b, 0);
-
-  return { fontSize: optimalFs, widths, gap: 0 };
-}
-
 function renderPageContent(ctx, data, pageFont) {
   const lines = data.lines;
   if (!lines || lines.length === 0) return;
 
   const lineCount = lines.length;
   const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
-  const baseFontSize = Math.max(26, Math.min(55, (usableHeight / lineCount) * 0.85));
   const availableW = CANVAS_W - PAD_H * 2;
-  const stdLineHeight = usableHeight / STD_LINES;
 
-  let totalFs = 0;
-  let fsCount = 0;
-  for (let i = 0; i < lineCount; i++) {
-    const line = lines[i];
-    if (!line?.words || line.words.length <= 1) continue;
-    const { fontSize: fs } = computeFontSize(line.words, pageFont, baseFontSize, availableW, ctx);
-    totalFs += fs;
-    fsCount++;
-  }
-  const pageFontSize = fsCount > 0 ? Math.round(totalFs / fsCount) : baseFontSize;
+  const stdLineHeight = usableHeight / STD_LINES;
+  const baseFontSize = Math.max(26, Math.min(55, stdLineHeight * 0.85));
+  const pageFontSize = baseFontSize;
+
+  const isShortPage = lineCount < 15;
+  const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / (lineCount - 1) : stdLineHeight;
 
   const lineWidths = [];
   for (let i = 0; i < lineCount; i++) {
@@ -168,7 +145,7 @@ function renderPageContent(ctx, data, pageFont) {
     const line = lines[i];
     if (!line?.words || line.words.length === 0) continue;
 
-    const y = TOP_OFFSET + i * stdLineHeight + stdLineHeight / 2;
+    const y = TOP_OFFSET + i * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2);
     const words = line.words;
     const { widths, gap } = lineWidths[i];
 
