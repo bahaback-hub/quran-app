@@ -111,77 +111,39 @@ function renderPageContent(ctx, data, pageFont) {
   const lineCount = lines.length;
   const lineHeight = usableHeight / lineCount;
   const fontSize = Math.max(22, Math.min(42, lineHeight * 0.78));
+  const WORD_GAP = 4;
 
   ctx.textBaseline = 'middle';
-  ctx.direction = 'rtl';
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (!line?.words || line.words.length === 0) continue;
 
     const y = topMargin + i * lineHeight + lineHeight / 2;
+    const words = line.words;
 
-    const ayahEndIdx = line.words.findIndex(w => w.type === 'end');
-    const mainWords = ayahEndIdx >= 0 ? line.words.slice(0, ayahEndIdx) : line.words.filter(w => w.type !== 'end');
-    const endMarkers = line.words.filter(w => w.type === 'end');
-
-    if (mainWords.length === 0) {
-      for (const m of endMarkers) {
-        renderWord(ctx, m, pageFont, fontSize, CANVAS_W / 2, y);
-      }
-      continue;
-    }
-
-    const measureFont = pageFont;
-    ctx.font = `${fontSize}px "${measureFont}", "Scheherazade New", serif`;
-    const totalContentW = mainWords.reduce((sum, w) => {
+    const totalW = words.reduce((sum, w) => {
       const fn = w.font || pageFont;
       ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
       return sum + ctx.measureText(w.char).width;
     }, 0);
-
-    const markersW = endMarkers.reduce((sum, m) => {
-      ctx.font = `${fontSize}px "${m.font || pageFont}", "Scheherazade New", serif`;
-      return sum + ctx.measureText(m.char).width + 10;
-    }, 0);
-
-    const availableW = CANVAS_W - PAD_H * 2 - markersW;
-    const gapsTotal = Math.max(0, availableW - totalContentW);
-    const wordGap = mainWords.length > 1 ? gapsTotal / (mainWords.length - 1) : 0;
+    const gapsTotal = words.length - 1;
+    const availableW = CANVAS_W - PAD_H * 2;
+    const extraGap = gapsTotal > 0 ? Math.max(0, (availableW - totalW - gapsTotal * WORD_GAP) / gapsTotal) : 0;
 
     let x = CANVAS_W - PAD_H;
 
-    for (let j = mainWords.length - 1; j >= 0; j--) {
-      const w = mainWords[j];
+    for (let j = 0; j < words.length; j++) {
+      const w = words[j];
       const fn = w.font || pageFont;
       ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
       const charW = ctx.measureText(w.char).width;
-      x -= charW;
       ctx.fillStyle = PAGE_TXT_COLOR;
       ctx.textAlign = 'right';
       ctx.fillText(w.char, x, y);
-      if (j > 0) x -= wordGap;
-    }
-
-    x -= 8;
-    for (const m of endMarkers) {
-      const fn = m.font || pageFont;
-      ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
-      const charW = ctx.measureText(m.char).width;
-      x -= charW;
-      ctx.fillStyle = PAGE_TXT_COLOR;
-      ctx.fillText(m.char, x, y);
-      x -= 6;
+      x -= charW + WORD_GAP + extraGap;
     }
   }
-}
-
-function renderWord(ctx, word, defaultFont, fontSize, x, y) {
-  const fn = word.font || defaultFont;
-  ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
-  ctx.textAlign = 'center';
-  ctx.fillStyle = PAGE_TXT_COLOR;
-  ctx.fillText(word.char, x, y);
 }
 
 function drawPageNumber(ctx, pageNum) {
