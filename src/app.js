@@ -9,7 +9,7 @@ import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookma
 import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { applyFontSize, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
-import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents } from './adhkar.js';
+import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents, toggleAdhkarPanel } from './adhkar.js';
 import { togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh, toggleRepeat, bindAudioEvents, setLoadSurah, expandPlayer, updatePlayPauseBtn } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
 import { openPresentation, closePresentation, initPresentation } from './presentation.js';
@@ -360,6 +360,39 @@ export async function initApp() {
 
   document.addEventListener('click', (e) => {
     if (!dom.shareMenu?.contains(e.target) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');
+    if (dom.headerDropdown && dom.headerMenuBtn && !dom.headerMenuBtn.contains(e.target) && !dom.headerDropdown.contains(e.target)) {
+      dom.headerDropdown.style.display = 'none';
+    }
+  });
+
+  /* ========== HEADER MENU ========== */
+  dom.headerMenuBtn?.addEventListener('click', () => {
+    if (dom.headerDropdown) dom.headerDropdown.style.display = dom.headerDropdown.style.display === 'none' ? '' : 'none';
+  });
+  document.getElementById('headerFavBtn')?.addEventListener('click', () => {
+    openFavorites();
+    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
+  });
+  document.getElementById('headerAdhkarBtn')?.addEventListener('click', () => {
+    toggleAdhkarPanel();
+    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
+  });
+  document.getElementById('headerThemeBtn')?.addEventListener('click', () => {
+    toggleNightMode();
+    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
+  });
+  document.getElementById('headerSettingsBtn')?.addEventListener('click', () => {
+    openSettings();
+    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
+  });
+
+  /* ========== SEARCH TOGGLE ========== */
+  dom.searchToggleBtn?.addEventListener('click', () => {
+    if (dom.searchInputGroup) {
+      dom.searchInputGroup.style.display = dom.searchInputGroup.style.display === 'none' ? '' : 'none';
+    }
+    if (dom.searchToggleBtn) dom.searchToggleBtn.classList.toggle('active');
+    if (dom.searchInputGroup?.style.display !== 'none') dom.searchInput?.focus();
   });
 
   /* ========== VIEW MODE TOGGLE ========== */

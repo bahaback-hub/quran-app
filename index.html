@@ -58,10 +58,14 @@
 
   <!-- ========== رأس الصفحة ========== -->
   <header class="header">
-    <div class="header-buttons">
-      <button class="favorites-header-btn" id="favoritesOpenBtn" aria-label="فتح المفضلة" title="المفضلة">❤️</button>
-      <button class="adhkar-header-btn" id="adhkarBtn" aria-label="فتح الأذكار" title="الأذكار">🕌</button>
-      <button class="theme-toggle" id="themeToggle" aria-label="تبديل الوضع الليلي" title="الوضع الليلي">🌙</button>
+    <div class="header-menu-container">
+      <button class="header-menu-btn" id="headerMenuBtn" aria-label="القائمة" title="القائمة">⚙️</button>
+      <div class="header-dropdown" id="headerDropdown" style="display:none;">
+        <button id="headerFavBtn">❤️ المفضلة</button>
+        <button id="headerAdhkarBtn">🕌 الأذكار</button>
+        <button class="header-theme-item" id="headerThemeBtn">🌙 الوضع الليلي</button>
+        <button id="headerSettingsBtn">⚙️ الإعدادات</button>
+      </div>
     </div>
     <h1>📖 القرآن الكريم</h1>
   </header>
@@ -70,21 +74,17 @@
   <section class="controls" aria-label="أدوات التحكم">
     <div class="controls-row">
       <div class="controls-right">
-        <div class="control-group surah-mode-controls" id="surahModeControls">
-          <label for="surahSelect">السورة:</label>
+        <div class="surah-reciter-group">
           <select id="surahSelect" aria-label="اختيار السورة"></select>
-        </div>
-        <select id="pageSelect" aria-label="اختيار صفحة المصحف" style="display:none;"></select>
-        <input type="range" id="pageSlider" min="1" max="604" value="1" style="display:none;">
-        <div class="control-group">
-          <label for="reciterSelect">القارئ:</label>
+          <select id="pageSelect" aria-label="اختيار صفحة المصحف" style="display:none;"></select>
           <select id="reciterSelect" aria-label="اختيار القارئ"></select>
-         </div>
+        </div>
+        <input type="range" id="pageSlider" min="1" max="604" value="1" style="display:none;">
       </div>
       <div class="view-mode-group">
-        <button class="view-mode-btn active" id="viewSurahBtn" data-mode="surah" title="وضع السورة">📖 سورة</button>
-        <button class="view-mode-btn" id="viewMushafBtn" data-mode="mushaf" title="وضع المصحف">📄 مصحف</button>
-        <button class="view-mode-btn" id="viewPresBtn" data-mode="presentation" title="وضع العرض">🖼️ عرض</button>
+        <button class="view-mode-btn active" id="viewSurahBtn" data-mode="surah" title="وضع السورة">📖</button>
+        <button class="view-mode-btn" id="viewMushafBtn" data-mode="mushaf" title="وضع المصحف">📄</button>
+        <button class="view-mode-btn" id="viewPresBtn" data-mode="presentation" title="وضع العرض">🖼️</button>
         <button class="view-mode-btn view-mode-btn-trans" id="translationToggle" title="الترجمة">🌐</button>
         <select id="translationSelect" aria-label="اختيار الترجمة" style="display:none;">
           <option value="en.sahih">Sahih International</option>
@@ -96,7 +96,8 @@
       </div>
       <div class="controls-left">
         <span class="page-indicator" id="pageIndicator" style="display:none;">صفحة ١ من ٦٠٤</span>
-        <div class="control-group search-input-group">
+        <button class="search-toggle-btn" id="searchToggleBtn" title="بحث">🔍</button>
+        <div class="control-group search-input-group" id="searchInputGroup" style="display:none;">
           <div class="search-input-wrapper">
             <input id="searchInput" type="text" placeholder="ابحث..." aria-label="مربع البحث" autocomplete="off">
             <div class="search-autocomplete" id="searchAutocomplete" style="display:none;"></div>

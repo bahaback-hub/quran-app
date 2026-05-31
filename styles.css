@@ -350,7 +350,15 @@ body:not(.bg-css) {
 }
 .header h1 { font-size: 32px; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
 .header p { font-size: 15px; opacity: 0.9; }
-.theme-toggle {
+
+/* ===== قائمة الهيدر ===== */
+.header-menu-container {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+}
+.header-menu-btn {
   background: rgba(255,255,255,0.15);
   border: 2px solid var(--accent);
   color: var(--header-text);
@@ -358,14 +366,40 @@ body:not(.bg-css) {
   height: 44px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  flex-shrink: 0;
 }
-.theme-toggle:hover { background: var(--accent); transform: rotate(180deg) scale(1.1); }
+.header-menu-btn:hover { background: var(--accent); transform: rotate(90deg) scale(1.1); }
+.header-dropdown {
+  position: absolute;
+  top: 52px;
+  left: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  min-width: 170px;
+  z-index: 100;
+  overflow: hidden;
+}
+.header-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  text-align: right;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.header-dropdown button:hover { background: rgba(212,175,55,0.1); }
+.header-dropdown button:not(:last-child) { border-bottom: 1px solid var(--border-soft); }
 
 /* ========== أدوات التحكم ========== */
 .controls {
@@ -435,6 +469,22 @@ body.night-mode .control-group label { color: var(--accent); }
   font-size: 12px;
   white-space: nowrap;
 }
+.search-toggle-btn {
+  background: none;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+.search-toggle-btn:hover { background: rgba(212,175,55,0.1); color: var(--accent-dark); }
+.search-toggle-btn.active { background: var(--accent); color: #2c3e50; }
+
 .controls-row .search-input-group {
   min-width: 180px;
   max-width: 220px;
@@ -1364,8 +1414,8 @@ noscript > div {
   .header { padding: 22px 15px; }
   .header h1 { font-size: 22px; }
   .header p { font-size: 13px; }
-  .theme-toggle { width: 36px; height: 36px; font-size: 15px; }
-  .header-buttons { top: 10px; left: 10px; gap: 6px; }
+  .header-menu-btn { width: 36px; height: 36px; font-size: 16px; }
+  .header-menu-container { top: 10px; left: 10px; }
   .mode-btn.mode-toggle { padding: 4px 8px; font-size: 10px; }
   .surah-content { padding: 16px; min-height: 300px; }
   .surah-title { font-size: 22px; }
@@ -1554,16 +1604,24 @@ body.night-mode .surah-secrets-overlay-inner { background: #1e2330; }
 }
 
 /* ========== وضع المصحف ========== */
-.header-buttons {
-  position: absolute;
-  top: 16px;
-  left: 16px;
+/* ===== مجموعة السورة + القارئ ===== */
+.surah-reciter-group {
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: 6px;
-  z-index: 10;
 }
+.surah-reciter-group select {
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-soft);
+  background: var(--select-bg);
+  color: var(--text-primary);
+  max-width: 180px;
+  height: 30px;
+}
+.surah-reciter-group #surahSelect { min-width: 130px; }
+.surah-reciter-group #reciterSelect { min-width: 100px; }
 .view-mode-group {
   display: flex;
   gap: 2px;
@@ -1575,11 +1633,11 @@ body.night-mode .surah-secrets-overlay-inner { background: #1e2330; }
 .view-mode-btn {
   background: transparent;
   color: var(--text-secondary);
-  padding: 4px 8px;
+  padding: 4px 6px;
   border-radius: 6px;
   cursor: pointer;
   border: none;
-  font-size: 12px;
+  font-size: 14px;
   white-space: nowrap;
   transition: all 0.2s ease;
   font-family: inherit;
@@ -2984,7 +3042,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
   .control-group button, .btn-sm, .settings-close, .favorites-close,
   .adhkar-close-btn, .mushaf-surah-overlay-close, .surah-secrets-close-btn,
   .collapse-bar-btn, .expand-bar-btn, .mode-toggle-control,
-  .theme-toggle, .search-btn, .clear-search-btn, .voice-search-btn,
+  .header-menu-btn, .search-btn, .clear-search-btn, .voice-search-btn,
   .prev-ayah-btn, .next-ayah-btn, .prev-surah-btn, .next-surah-btn,
   .hifdh-btn, .repeat-btn, .bookmark-btn, .favorite-btn, .share-btn,
   .play-pause-btn, .collapsed-play-btn,
@@ -3147,8 +3205,8 @@ body {
   body { padding-bottom: 80px; }
   .header { padding: 18px 16px; }
   .header h1 { font-size: 24px; }
-  .header-buttons { gap: 4px; }
-  .header-buttons button { width: 36px; height: 36px; font-size: 18px; }
+  .header-menu-container { gap: 4px; }
+  .header-menu-btn { width: 36px; height: 36px; font-size: 18px; }
   .controls { padding: 10px; gap: 6px; }
   .controls-row .control-group { min-width: 140px; max-width: 180px; }
   .controls-row .control-group select { padding: 4px 6px; font-size: 12px; height: 30px; }
@@ -3174,8 +3232,8 @@ body {
   /* رأس الصفحة مبسط */
   .header { padding: 12px 10px; }
   .header h1 { font-size: 18px; margin-bottom: 0; }
-  .header-buttons { top: 8px; left: 8px; gap: 4px; }
-  .header-buttons button { width: 32px; height: 32px; font-size: 15px; }
+  .header-menu-container { top: 8px; left: 8px; gap: 4px; }
+  .header-menu-btn { width: 32px; height: 32px; font-size: 15px; }
 
   /* أدوات التحكم — تخفى افتراضياً وتظهر عند الضغط على تبويب "أدوات" */
   .controls { padding: 8px; display: none; }
@@ -3251,7 +3309,7 @@ body {
   body { background: #fff; padding: 0; padding-bottom: 0; }
   .player, .prayer-bar, .settings-panel, .favorites-panel,
   .tafsir-curtain, .tafsir-curtain-handle, .toast,
-  .theme-toggle, .controls, .footer, .skip-link { display: none !important; }
+  .header-menu-btn, .controls, .footer, .skip-link { display: none !important; }
   .container { box-shadow: none; max-width: 100%; }
   .surah-content { padding: 20px; }
   .ayah { background: none !important; box-shadow: none !important; color: #000 !important; }
