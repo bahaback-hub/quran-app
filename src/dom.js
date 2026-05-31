@@ -48,7 +48,11 @@ const DOM_IDS = [
    // Qibla
    'qiblaOverlay', 'qiblaCompass', 'qiblaAngle', 'qiblaDirection', 'qiblaCloseBtn',
    // Reading stats
-   'readingStatsPanel', 'readingStatsContent', 'readingStatsCloseBtn'
+   'readingStatsPanel', 'readingStatsContent', 'readingStatsCloseBtn',
+   // Header menu
+   'headerMenuBtn', 'headerDropdown',
+   // Search toggle
+   'searchToggleBtn', 'searchInputGroup'
 ];
 
 /** Cache all DOM element references by ID. */
