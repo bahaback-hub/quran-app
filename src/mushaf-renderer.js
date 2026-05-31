@@ -110,7 +110,9 @@ function renderPageContent(ctx, data, pageFont) {
   const usableHeight = CANVAS_H - topMargin - BOTTOM_OFFSET - PAD_V;
   const lineCount = lines.length;
   const lineHeight = usableHeight / lineCount;
-  const fontSize = Math.max(26, Math.min(48, lineHeight * 0.82));
+  const fontSize = Math.max(26, Math.min(50, lineHeight * 0.85));
+  const availableW = CANVAS_W - PAD_H * 2;
+  const MAX_GAP = 10;
 
   ctx.textBaseline = 'middle';
 
@@ -121,17 +123,27 @@ function renderPageContent(ctx, data, pageFont) {
     const y = topMargin + i * lineHeight + lineHeight / 2;
     const words = line.words;
 
+    const wordWidths = words.map(w => {
+      const fn = w.font || pageFont;
+      ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
+      return ctx.measureText(w.char).width;
+    });
+
+    const totalW = wordWidths.reduce((a, b) => a + b, 0);
+    const gapCount = words.length - 1;
+    let wordGap = gapCount > 0 ? Math.min(MAX_GAP, (availableW - totalW) / gapCount) : 0;
+    wordGap = Math.max(1, wordGap);
+
     let x = CANVAS_W - PAD_H;
 
     for (let j = 0; j < words.length; j++) {
       const w = words[j];
       const fn = w.font || pageFont;
       ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
-      const charW = ctx.measureText(w.char).width;
       ctx.fillStyle = PAGE_TXT_COLOR;
       ctx.textAlign = 'right';
       ctx.fillText(w.char, x, y);
-      x -= charW + 1;
+      x -= wordWidths[j] + wordGap;
     }
   }
 }
