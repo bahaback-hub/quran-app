@@ -34,7 +34,7 @@ export function setLang(lang) {
   currentBundle = translations[lang];
   storage.set(STORAGE_KEY, lang);
 
-  document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
+  document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
 
@@ -42,11 +42,23 @@ export function setLang(lang) {
   window.dispatchEvent(new CustomEvent('languagechange', { detail: { lang } }));
 }
 
-/** Translate all elements with data-i18n attribute. */
+/** Translate all elements with data-i18n, data-i18n-placeholder, data-i18n-title, data-i18n-aria-label attributes. */
 export function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    el.textContent = __(key);
+    if (key) el.textContent = __(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (key) (/** @type {HTMLInputElement} */ (el)).placeholder = __(key);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    if (key) (/** @type {HTMLElement} */ (el)).title = __(key);
+  });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+    const key = el.getAttribute('data-i18n-aria-label');
+    if (key) el.setAttribute('aria-label', __(key));
   });
 }
 

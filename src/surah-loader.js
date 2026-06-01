@@ -184,6 +184,7 @@ async function loadApiAudio(surahNum, reciterId, currentLoad) {
 /* ===================== LOAD & RENDER SURAH ===================== */
 
 let _loadCounter = 0;
+let currentSurahController = null;
 
 /**
  * Load a surah (text + audio + translation), render it, finalize.
@@ -195,6 +196,12 @@ export async function loadSurah(surahNum, opts = {}) {
   _loadCounter++;
   const currentLoad = _loadCounter;
   state.loadingSurah = surahNum;
+
+  // Clear stale audio/translation before new load
+  state.ayahsAudios = [];
+  state.ayahTimings = [];
+  state.translationData = null;
+  state.isPlaying = false;
 
   prepareAudioForNewSurah();
 
@@ -211,6 +218,11 @@ export async function loadSurah(surahNum, opts = {}) {
   }
   state.currentSurah = surahNum;
 
+  // Cancel previous in-flight request
+  if (currentSurahController) currentSurahController.abort();
+  currentSurahController = new AbortController();
+  const signal = currentSurahController.signal;
+
   const cacheKey = `${surahNum}_${state.currentReciter}_${state.currentTranslation || 'notr'}`;
   const reciterInfo = getReciterById(state.currentReciter);
   const isMp3quran = reciterInfo.source === 'mp3quran';
@@ -222,7 +234,7 @@ export async function loadSurah(surahNum, opts = {}) {
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
       state.ayahTimings = cached.timings || calculateAyahTimings(cached.text.ayahs, surahNum);
     } else {
-      state.ayahsAudios = cached.audio?.ayahs?.map(a => a.audio) || [];
+      state.ayahsAudios = Array.isArray(cached.audios) ? cached.audios : (cached.audio?.ayahs?.map(a => a.audio) || []);
       state.ayahTimings = [];
     }
     state.translationData = cached.translation || null;
@@ -235,9 +247,8 @@ export async function loadSurah(surahNum, opts = {}) {
   loadingBar.show(`⏳ جاري تحميل سورة ${state.surahList.find(s => s.number === surahNum)?.name || surahNum}...`);
   if (dom.surahContent) dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
 
-  const ac = new AbortController();
   try {
-    const textRes = await fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`, { signal: ac.signal });
+    const textRes = await fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`, { signal });
     const textJson = await textRes.json();
     const textData = textJson?.data;
     if (!textData?.ayahs?.length) {
@@ -247,7 +258,8 @@ export async function loadSurah(surahNum, opts = {}) {
     state.surahData = textData;
 
     renderSurah(textData);
-    finalizeSurahLoad(opts);
+    const autoPlay = opts.autoPlay;
+    finalizeSurahLoad({ ...opts, autoPlay: false });
     recordReadingSession(surahNum, textData.ayahs.length);
     loadingBar.hide();
 
@@ -256,7 +268,7 @@ export async function loadSurah(surahNum, opts = {}) {
       ? loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad)
       : loadApiAudio(surahNum, state.currentReciter, currentLoad);
     const transPromise = (state.translationEnabled && state.currentTranslation)
-      ? fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`, { signal: ac.signal }).then(r => r.json()).then(d => d?.data || null).catch(() => null)
+      ? fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`, { signal }).then(r => r.json()).then(d => d?.data || null).catch(() => null)
       : Promise.resolve(null);
 
     const [audioResult, transResult] = await Promise.all([audioPromise, transPromise]);
@@ -268,14 +280,20 @@ export async function loadSurah(surahNum, opts = {}) {
     state.translationData = transResult;
     if (transResult && state.surahData) {
       renderSurah(state.surahData);
+      highlightCurrentAyah();
+    }
+
+    if (autoPlay && audioResult) {
+      playCurrentAyah();
     }
 
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
       const firstKey = state.surahCache.keys().next().value;
       state.surahCache.delete(firstKey);
     }
-    state.surahCache.set(cacheKey, { text: textData, audio: state.ayahsAudios, translation: state.translationData, timings: state.ayahTimings });
+    state.surahCache.set(cacheKey, { text: textData, audios: state.ayahsAudios, timings: state.ayahTimings, translation: state.translationData });
   } catch (e) {
+    if (e.name === 'AbortError') return;
     if (state.fullQuranLoaded && state.fullQuranText) {
       if (_loadCounter !== currentLoad) return;
       const ayahs = state.fullQuranText.filter(a => a.surah === surahNum);
