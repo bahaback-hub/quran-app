@@ -8,7 +8,6 @@ import { state } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
 import { SURAH_SECRETS } from './surahs-data.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './audio.js';
-import { loadTafsirForCurrentAyah } from './tafsir.js';
 import { recordReadingSession } from './reading-stats.js';
 
 
@@ -423,7 +422,7 @@ export function highlightCurrentAyah() {
   }
   updatePlayerInfo();
   import('./presentation.js').then(m => m.syncPresentation()).catch(() => {});
-  if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
+  if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) import('./tafsir.js').then(m => m.loadTafsirForCurrentAyah());
   if (state.mushafMode) import('./mushaf.js').then(m => m.highlightMushafAyah());
 }
 
