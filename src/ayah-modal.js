@@ -3,7 +3,7 @@ import { dom } from "./dom.js";
 import { showToast } from "./ui.js";
 import { escapeHtml, stripTashkeel } from "./utils.js";
 import { CONFIG } from "./config.js";
-import { copyToClipboard, shareNative } from "./share.js";
+import { copyToClipboard } from "./utils.js";
 import { fetchTafsirText } from "./tafsir.js";
 import { loadSurah } from "./app.js";
 import { storage } from "./storage.js";

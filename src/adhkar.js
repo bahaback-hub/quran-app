@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { copyToClipboard } from './share.js';
+import { copyToClipboard } from './utils.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';

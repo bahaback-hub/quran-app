@@ -7,12 +7,10 @@ import { state } from './state.js';
 import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification, showQiblaCompass, hideQiblaCompass } from './prayer.js';
 import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
 import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
-import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { applyFontSize, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents, toggleAdhkarPanel } from './adhkar.js';
 import { togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh, toggleRepeat, bindAudioEvents, setLoadSurah, expandPlayer, updatePlayPauseBtn } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search.js';
-import { openPresentation, closePresentation, initPresentation } from './presentation.js';
 import { recordReadingSession, renderReadingStats } from './reading-stats.js';
 import {
   loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect, toggleTranslation
@@ -186,7 +184,7 @@ export async function initApp() {
   loadFavorites();
   startClock();
   import('./ayah-modal.js').then(m => m.initAyahModal()).catch(() => {});
-  initPresentation();
+  import('./presentation.js').then(m => m.initPresentation()).catch(() => {});
 
   checkAzanTime();
   scheduleNextAzanCheck();
@@ -255,7 +253,7 @@ export async function initApp() {
   dom.bookmarkBtn?.addEventListener('click', setBookmark);
   dom.bookmarkBtn?.addEventListener('dblclick', gotoBookmark);
   dom.favoriteBtn?.addEventListener('click', toggleFavorite);
-  dom.shareBtn?.addEventListener('click', toggleShareMenu);
+  dom.shareBtn?.addEventListener('click', () => import('./share.js').then(m => m.toggleShareMenu()));
   dom.themeToggle?.addEventListener('click', toggleNightMode);
   dom.settingsToggleBtn?.addEventListener('click', openSettings);
   dom.settingsCloseBtn?.addEventListener('click', closeSettings);
@@ -347,11 +345,11 @@ export async function initApp() {
   dom.collapseBarBtn?.addEventListener('click', togglePrayerBar);
   dom.expandBarBtn?.addEventListener('click', togglePrayerBar);
 
-  document.querySelectorAll('[data-share="native"]').forEach(btn => btn.addEventListener('click', () => { shareNative(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="copy"]').forEach(btn => btn.addEventListener('click', () => { shareCopy(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="copy-simple"]').forEach(btn => btn.addEventListener('click', () => { shareCopySimple(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="whatsapp"]').forEach(btn => btn.addEventListener('click', () => { shareWhatsApp(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="telegram"]').forEach(btn => btn.addEventListener('click', () => { shareTelegram(); toggleShareMenu(); }));
+  document.querySelectorAll('[data-share="native"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareNative(); m.toggleShareMenu(); }); }));
+  document.querySelectorAll('[data-share="copy"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareCopy(); m.toggleShareMenu(); }); }));
+  document.querySelectorAll('[data-share="copy-simple"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareCopySimple(); m.toggleShareMenu(); }); }));
+  document.querySelectorAll('[data-share="whatsapp"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareWhatsApp(); m.toggleShareMenu(); }); }));
+  document.querySelectorAll('[data-share="telegram"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareTelegram(); m.toggleShareMenu(); }); }));
 
   dom.searchBtn?.addEventListener('click', () => {
     const q = dom.searchInput?.value.trim();
@@ -403,7 +401,7 @@ export async function initApp() {
 
   /* ========== VIEW MODE TOGGLE ========== */
   dom.viewSurahBtn?.addEventListener('click', () => {
-    closePresentation();
+    import('./presentation.js').then(m => m.closePresentation()).catch(() => {});
     if (state.mushafMode) import('./mushaf.js').then(m => m.toggleMushafMode());
     document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'surah'));
     if (dom.surahModeControls) dom.surahModeControls.style.display = '';
@@ -412,12 +410,12 @@ export async function initApp() {
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
   });
   dom.viewMushafBtn?.addEventListener('click', () => {
-    closePresentation();
+    import('./presentation.js').then(m => m.closePresentation()).catch(() => {});
     import('./mushaf.js').then(m => m.toggleMushafMode());
   });
   dom.viewPresBtn?.addEventListener('click', () => {
     if (state.mushafMode) import('./mushaf.js').then(m => m.toggleMushafMode());
-    openPresentation();
+    import('./presentation.js').then(m => m.openPresentation()).catch(() => {});
   });
 
   dom.pageSelect?.addEventListener('change', () => {
@@ -532,7 +530,7 @@ export async function initApp() {
       case 'n': case 'N': toggleNightMode(); break;
       case 'm': case 'M': import('./mushaf.js').then(m => m.toggleMushafMode()); break;
       case 'p': case 'P':
-        if (state.presentationMode) { closePresentation(); } else { openPresentation(); }
+        if (state.presentationMode) { import('./presentation.js').then(m => m.closePresentation()).catch(() => {}); } else { import('./presentation.js').then(m => m.openPresentation()).catch(() => {}); }
         break;
       case 'g': case 'G': gotoBookmark(); break;
       case '+': case '=': applyFontSize(Math.min(45, state.fontSize + 2)); break;

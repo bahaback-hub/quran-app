@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { buildShareText, copyToClipboard } from '../share.js';
+import { copyToClipboard } from '../utils.js';
+import { buildShareText } from '../share.js';
 import { state } from '../state.js';
 
 const sampleAyahs = [

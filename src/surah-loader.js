@@ -10,7 +10,7 @@ import { SURAH_SECRETS } from './surahs-data.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './audio.js';
 import { loadTafsirForCurrentAyah } from './tafsir.js';
 import { recordReadingSession } from './reading-stats.js';
-import { syncPresentation } from './presentation.js';
+
 
 /* ===================== SURAH LIST ===================== */
 
@@ -422,7 +422,7 @@ export function highlightCurrentAyah() {
     cur.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
   updatePlayerInfo();
-  syncPresentation();
+  import('./presentation.js').then(m => m.syncPresentation()).catch(() => {});
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
   if (state.mushafMode) import('./mushaf.js').then(m => m.highlightMushafAyah());
 }
