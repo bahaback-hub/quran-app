@@ -38,7 +38,16 @@ export function setLang(lang) {
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
 
+  applyTranslations();
   window.dispatchEvent(new CustomEvent('languagechange', { detail: { lang } }));
+}
+
+/** Translate all elements with data-i18n attribute. */
+export function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = __(key);
+  });
 }
 
 /** Get the current active language code. */

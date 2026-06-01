@@ -2,6 +2,7 @@ import { CONFIG } from './config.js';
 import { storage } from './storage.js';
 import { dom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
+import { __ } from './i18n.js';
 import { escapeHtml } from './utils.js';
 import { state } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
@@ -154,6 +155,32 @@ function getAbsNumber(surah, ayah) {
   return null;
 }
 
+/* ===================== AUDIO HELPERS (independent from text) ===================== */
+
+/** Load audio for mp3quran reciter source. */
+async function loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad) {
+  const audios = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
+  const timings = await fetchAyahTimings(state.currentReciter, surahNum, textData.ayahs) ?? calculateAyahTimings(textData.ayahs, surahNum);
+  if (_loadCounter !== currentLoad) return null;
+  return { audios, timings };
+}
+
+/** Load audio for standard API reciter source. */
+async function loadApiAudio(surahNum, reciterId, currentLoad) {
+  try {
+    const res = await fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${reciterId}`);
+    const json = await res.json();
+    const data = json?.data;
+    if (!data?.ayahs?.length) throw new Error('لا توجد بيانات صوت');
+    const audios = data.ayahs.map(a => a.audio);
+    if (_loadCounter !== currentLoad) return null;
+    return { audios, timings: [] };
+  } catch (e) {
+    console.warn('Audio load failed (non-fatal):', e);
+    return null;
+  }
+}
+
 /* ===================== LOAD & RENDER SURAH ===================== */
 
 let _loadCounter = 0;
@@ -208,19 +235,9 @@ export async function loadSurah(surahNum, opts = {}) {
   loadingBar.show(`⏳ جاري تحميل سورة ${state.surahList.find(s => s.number === surahNum)?.name || surahNum}...`);
   if (dom.surahContent) dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
 
+  const ac = new AbortController();
   try {
-    const fetches = [
-      fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`)
-    ];
-    if (!isMp3quran) {
-      fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`));
-    }
-    if (state.translationEnabled && state.currentTranslation) {
-      fetches.push(fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`));
-    }
-
-    const results = await Promise.all(fetches);
-    const textRes = results[0];
+    const textRes = await fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`, { signal: ac.signal });
     const textJson = await textRes.json();
     const textData = textJson?.data;
     if (!textData?.ayahs?.length) {
@@ -228,33 +245,36 @@ export async function loadSurah(surahNum, opts = {}) {
     }
     if (_loadCounter !== currentLoad) return;
     state.surahData = textData;
-    /** @type {Object|null} */
-    let audioData = null;
 
-    if (isMp3quran) {
-      state.ayahsAudios = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
-      state.ayahTimings = await fetchAyahTimings(state.currentReciter, surahNum, textData.ayahs) ?? calculateAyahTimings(textData.ayahs, surahNum);
-      state.translationData = results[1] ? (await results[1].json())?.data || null : null;
-    } else {
-      const audioRes = results[1];
-      const audioJson = await audioRes.json();
-      audioData = audioJson?.data;
-      if (!audioData?.ayahs?.length) throw new Error('بيانات الصوت غير صالحة');
-      state.ayahsAudios = audioData.ayahs.map(a => a.audio);
-      state.ayahTimings = [];
-      state.translationData = results[2] ? (await results[2].json())?.data || null : null;
+    renderSurah(textData);
+    finalizeSurahLoad(opts);
+    recordReadingSession(surahNum, textData.ayahs.length);
+    loadingBar.hide();
+
+    // Load audio and translation independently (don't block render)
+    const audioPromise = isMp3quran
+      ? loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad)
+      : loadApiAudio(surahNum, state.currentReciter, currentLoad);
+    const transPromise = (state.translationEnabled && state.currentTranslation)
+      ? fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`, { signal: ac.signal }).then(r => r.json()).then(d => d?.data || null).catch(() => null)
+      : Promise.resolve(null);
+
+    const [audioResult, transResult] = await Promise.all([audioPromise, transPromise]);
+    if (_loadCounter !== currentLoad) return;
+    if (audioResult) {
+      state.ayahsAudios = audioResult.audios;
+      state.ayahTimings = audioResult.timings;
+    }
+    state.translationData = transResult;
+    if (transResult && state.surahData) {
+      renderSurah(state.surahData);
     }
 
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
       const firstKey = state.surahCache.keys().next().value;
       state.surahCache.delete(firstKey);
     }
-    state.surahCache.set(cacheKey, { text: textData, audio: audioData, translation: state.translationData, timings: state.ayahTimings });
-
-    renderSurah(textData);
-    finalizeSurahLoad(opts);
-    recordReadingSession(surahNum, textData.ayahs.length);
-    loadingBar.hide();
+    state.surahCache.set(cacheKey, { text: textData, audio: state.ayahsAudios, translation: state.translationData, timings: state.ayahTimings });
   } catch (e) {
     if (state.fullQuranLoaded && state.fullQuranText) {
       if (_loadCounter !== currentLoad) return;
@@ -397,11 +417,11 @@ export function updatePlayerInfo() {
   if (dom.playerReciterName) dom.playerReciterName.textContent = reciterText;
   if (dom.playerCurrentAyah && a) {
     const preview = a.text.length > 80 ? a.text.substring(0, 80) + '...' : a.text;
-    dom.playerCurrentAyah.textContent = `﴿${preview}﴾ — آية ${a.numberInSurah}`;
+    dom.playerCurrentAyah.textContent = `﴿${preview}﴾ — ${__('ayah')} ${a.numberInSurah}`;
   }
   if (dom.collapsedInfo && a) {
     const short = a.text.length > 50 ? a.text.substring(0, 50) + '...' : a.text;
-    dom.collapsedInfo.innerHTML = `<span class="fi-surah">${escapeHtml(state.surahData.name)} — آية ${escapeHtml(String(a.numberInSurah))}</span><span>${escapeHtml(short)}</span>`;
+    dom.collapsedInfo.innerHTML = `<span class="fi-surah">${escapeHtml(state.surahData.name)} — ${__('ayah')} ${escapeHtml(String(a.numberInSurah))}</span><span>${escapeHtml(short)}</span>`;
   }
 }
 

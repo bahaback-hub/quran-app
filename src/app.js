@@ -2,7 +2,7 @@ import { CONFIG } from './config.js';
 import { storage } from './storage.js';
 import { dom, cacheDom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
-import { __, getLang, setLang } from './i18n.js';
+import { __, getLang, setLang, applyTranslations } from './i18n.js';
 import { state } from './state.js';
 import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification, showQiblaCompass, hideQiblaCompass } from './prayer.js';
 import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
@@ -557,10 +557,9 @@ export async function initApp() {
 
   // Listen for language changes to update UI text
   window.addEventListener('languagechange', () => {
+    applyTranslations();
     const hint = document.getElementById('keyboardHint');
     if (hint) hint.textContent = __('keyboard_hint');
-    const loadHint = document.getElementById('surahSelectHint');
-    if (loadHint) loadHint.textContent = __('select_hint');
   });
 
   // Restore player state

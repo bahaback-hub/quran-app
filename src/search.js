@@ -12,68 +12,92 @@ const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_SEARCH_HISTORY = 10;
 
 
-/** Load full Quran text into IndexedDB for offline search. */
-export async function loadFullQuranText() {
-  if (state.fullQuranLoaded) return;
-  return new Promise((resolve) => {
+/** Open IndexedDB and return the database instance. */
+function openQuranDB() {
+  return new Promise((resolve, reject) => {
     const request = indexedDB.open('QuranAppDB', 1);
     request.onupgradeneeded = e => {
       const db = /** @type {IDBDatabase} */ (/** @type {IDBOpenDBRequest} */ (e.target).result);
       if (!db.objectStoreNames.contains('fullText')) db.createObjectStore('fullText', { keyPath: 'id' });
     };
-    request.onsuccess = async (e) => {
-      const db = /** @type {IDBDatabase} */ (/** @type {IDBOpenDBRequest} */ (e.target).result);
-      try {
-        const tx = db.transaction('fullText', 'readonly');
-        const store = tx.objectStore('fullText');
-        const getReq = store.get('fullQuran');
-        getReq.onsuccess = async () => {
-          if (getReq.result && getReq.result.data) {
-            state.fullQuranText = getReq.result.data;
-            state.fullQuranText.forEach(a => { a.normalized = normalizeExactText(a.text); });
-            state.fullQuranLoaded = true;
-            buildSearchWords();
-            resolve();
-          } else {
-            showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
-            try {
-              let res = await fetch('data/quran-uthmani.json').catch(() => null);
-              if (!res || !res.ok) {
-                res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
-              }
-              const data = await res.json();
-              if (!data?.data?.surahs) throw new Error('بيانات غير صالحة');
-               const ayahs = [];
-               for (const surah of data.data.surahs) {
-                 for (const ayah of surah.ayahs) {
-                   let ayahText = ayah.text;
-                   if (surah.number !== 1 && surah.number !== 9 && ayah.numberInSurah === 1) {
-                     ayahText = ayahText.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
-                   }
-                   ayahs.push({
-                     surah: surah.number, surahName: surah.name,
-                     ayah: ayah.numberInSurah, text: ayahText,
-                     normalized: normalizeExactText(ayahText)
-                   });
-                 }
-               }
-              state.fullQuranText = ayahs;
-              state.fullQuranLoaded = true;
-              buildSearchWords();
-              try {
-                const tx2 = db.transaction('fullText', 'readwrite');
-                tx2.objectStore('fullText').put({ id: 'fullQuran', data: ayahs });
-              } catch (err) { console.warn('Failed to cache full Quran text:', err); }
-              showToast('✅ قاعدة القرآن جاهزة', 'success');
-              resolve();
-            } catch (err) { console.error(err); resolve(); }
-          }
-        };
-        getReq.onerror = () => { console.warn('Failed to get full Quran from IndexedDB'); resolve(); };
-      } catch (err) { console.warn('Error in IndexedDB transaction:', err); resolve(); }
-    };
-    request.onerror = () => { console.warn('Failed to open QuranAppDB'); resolve(); };
+    request.onsuccess = e => resolve(/** @type {IDBDatabase} */ (/** @type {IDBOpenDBRequest} */ (e.target).result));
+    request.onerror = () => reject(new Error('Failed to open QuranAppDB'));
   });
+}
+
+/** Try to load Quran text from IndexedDB. */
+async function loadFromIndexedDB(db) {
+  return new Promise((resolve) => {
+    const tx = db.transaction('fullText', 'readonly');
+    const store = tx.objectStore('fullText');
+    const getReq = store.get('fullQuran');
+    getReq.onsuccess = () => resolve(getReq.result?.data || null);
+    getReq.onerror = () => resolve(null);
+  });
+}
+
+/** Fetch Quran text from local file or API. */
+async function fetchQuranText() {
+  let res = await fetch('data/quran-uthmani.json').catch(() => null);
+  if (!res || !res.ok) {
+    res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
+  }
+  const data = await res.json();
+  if (!data?.data?.surahs) throw new Error('بيانات غير صالحة');
+  return data;
+}
+
+/** Normalize and flatten surah-based API response into ayah array. */
+function flattenAyahs(data) {
+  const ayahs = [];
+  for (const surah of data.data.surahs) {
+    for (const ayah of surah.ayahs) {
+      let ayahText = ayah.text;
+      if (surah.number !== 1 && surah.number !== 9 && ayah.numberInSurah === 1) {
+        ayahText = ayahText.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
+      }
+      ayahs.push({
+        surah: surah.number, surahName: surah.name,
+        ayah: ayah.numberInSurah, text: ayahText,
+        normalized: normalizeExactText(ayahText)
+      });
+    }
+  }
+  return ayahs;
+}
+
+/** Cache ayah array in IndexedDB. */
+function cacheInIndexedDB(db, ayahs) {
+  try {
+    const tx = db.transaction('fullText', 'readwrite');
+    tx.objectStore('fullText').put({ id: 'fullQuran', data: ayahs });
+  } catch (err) { console.warn('Failed to cache full Quran text:', err); }
+}
+
+/** Load full Quran text into IndexedDB for offline search. */
+export async function loadFullQuranText() {
+  if (state.fullQuranLoaded) return;
+  try {
+    const db = await openQuranDB();
+    const cached = await loadFromIndexedDB(db);
+    if (cached) {
+      state.fullQuranText = cached;
+      state.fullQuranText.forEach(a => { a.normalized = normalizeExactText(a.text); });
+      state.fullQuranLoaded = true;
+      buildSearchWords();
+      return;
+    }
+    showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
+    const data = await fetchQuranText();
+    const ayahs = flattenAyahs(data);
+    state.fullQuranText = ayahs;
+    state.fullQuranLoaded = true;
+    buildSearchWords();
+    cacheInIndexedDB(db, ayahs);
+    showToast('✅ قاعدة القرآن جاهزة', 'success');
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 /** Generate Arabic search variants: original + stem without "ال" prefix.
