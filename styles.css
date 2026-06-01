@@ -1895,52 +1895,39 @@ body.night-mode .mushaf-ayah-highlight {
 .mushaf-image-wrapper {
   position: relative;
 }
-.mushaf-page-nav {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 35%;
+.mushaf-page-nav-btn {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface, #2c2c2c);
+  color: var(--accent, #d4af37);
+  font-size: 20px;
   cursor: pointer;
-  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.35;
-  transition: opacity 0.25s ease, background 0.25s ease;
+  opacity: 0.6;
+  transition: opacity 0.2s, background 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
-.mushaf-page-nav:hover {
+.mushaf-page-nav-btn:hover {
   opacity: 1;
+  background: var(--accent, #d4af37);
+  color: #1a1a1a;
 }
 @media (hover: none) {
-  .mushaf-page-nav { opacity: 0.5; }
+  .mushaf-page-nav-btn { opacity: 0.5; }
 }
-.mushaf-page-nav:active {
-  background: rgba(212, 175, 55, 0.12);
+.mushaf-page-nav-next {
+  right: 12px;
 }
-.mushaf-page-nav::after {
-  font-size: 32px;
-  color: var(--accent);
-  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  transition: transform 0.2s;
-}
-.mushaf-page-nav:hover::after {
-  transform: scale(1.25);
-}
-.mushaf-page-nav-right {
-  right: 0;
-  background: linear-gradient(to left, rgba(0,0,0,0.06), transparent);
-}
-.mushaf-page-nav-right::after {
-  content: '▶';
-  margin-right: 10px;
-}
-.mushaf-page-nav-left {
-  left: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0.06), transparent);
-}
-.mushaf-page-nav-left::after {
-  content: '◀';
-  margin-left: 10px;
+.mushaf-page-nav-prev {
+  left: 12px;
 }
 
 /* ===== تقليب الصفحة ===== */

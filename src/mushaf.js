@@ -157,25 +157,7 @@ function renderMushafPageImage(pageNum, skipNav) {
   canvas.width = 1080;
   canvas.height = 1540;
 
-  const navRight = document.createElement('div');
-  navRight.className = 'mushaf-page-nav mushaf-page-nav-right';
-  navRight.setAttribute('aria-label', 'الصفحة السابقة');
-  navRight.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (state.currentPage > 1) loadPage(state.currentPage - 1, true);
-  });
-
-  const navLeft = document.createElement('div');
-  navLeft.className = 'mushaf-page-nav mushaf-page-nav-left';
-  navLeft.setAttribute('aria-label', 'الصفحة التالية');
-  navLeft.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (state.currentPage < 604) loadPage(state.currentPage + 1, true);
-  });
-
   canvasWrapper.appendChild(canvas);
-  canvasWrapper.appendChild(navRight);
-  canvasWrapper.appendChild(navLeft);
 
   let pageLayout = null;
 
@@ -204,9 +186,29 @@ function renderMushafPageImage(pageNum, skipNav) {
   footer.className = 'mushaf-footer';
   footer.innerHTML = `${toArabicNumeral(pageNum)}`;
 
+  const navRight = document.createElement('button');
+  navRight.className = 'mushaf-page-nav-btn mushaf-page-nav-next';
+  navRight.textContent = '▶';
+  navRight.setAttribute('aria-label', 'الصفحة التالية');
+  navRight.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (state.currentPage < 604) loadPage(state.currentPage + 1, true);
+  });
+
+  const navLeft = document.createElement('button');
+  navLeft.className = 'mushaf-page-nav-btn mushaf-page-nav-prev';
+  navLeft.textContent = '◀';
+  navLeft.setAttribute('aria-label', 'الصفحة السابقة');
+  navLeft.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (state.currentPage > 1) loadPage(state.currentPage - 1, true);
+  });
+
   container.appendChild(header);
   container.appendChild(canvasWrapper);
   container.appendChild(footer);
+  container.appendChild(navRight);
+  container.appendChild(navLeft);
 
   const ayahBar = document.createElement('div');
   ayahBar.className = 'mushaf-ayah-bar';
