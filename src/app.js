@@ -6,7 +6,6 @@ import { __, getLang, setLang, applyTranslations } from './i18n.js';
 import { state } from './state.js';
 import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification, showQiblaCompass, hideQiblaCompass } from './prayer.js';
 import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
-import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import { applyFontSize, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents, toggleAdhkarPanel } from './adhkar.js';
 import { togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh, toggleRepeat, bindAudioEvents, setLoadSurah, expandPlayer, updatePlayPauseBtn } from './audio.js';
@@ -172,28 +171,16 @@ function handleVisibilityChange() {
 
 /** Initialize the application: load state, data, bind events. */
 export async function initApp() {
+  // ========== PHASE 1: CRITICAL PATH ==========
   initState();
   setLoadSurah(loadSurah);
-  loadingBar.init();
-  loadingBar.hide();
   cacheDom();
-  initAdhkarState();
-  loadAdhkarSettings();
   restoreSettings();
   populateReciterSelect();
-  loadFavorites();
-  startClock();
-  import('./ayah-modal.js').then(m => m.initAyahModal()).catch(() => {});
-  import('./presentation.js').then(m => m.initPresentation()).catch(() => {});
-
-  checkAzanTime();
-  scheduleNextAzanCheck();
 
   await loadSurahList();
   buildSurahOffsets();
-  import('./mushaf.js').then(m => m.populateSurahOverlay()).catch(() => {});
 
-  // Start loading full Quran text for offline/search (don't block if online)
   const fullQuranPromise = loadFullQuranText().catch(console.warn);
   if (!navigator.onLine) {
     await fullQuranPromise;
@@ -208,14 +195,7 @@ export async function initApp() {
     await loadSurah(1);
   }
 
-  loadPrayerTimes();
-  loadBackgrounds().catch(console.warn);
-  if (navigator.onLine) fullQuranPromise; // let it complete in background
-
   bindAudioEvents();
-
-  checkAdhkarNotifications();
-  state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
 
   /* ========== EVENT BINDINGS ========== */
 
@@ -294,11 +274,11 @@ export async function initApp() {
     storage.set('playback_speed', rate);
   });
 
-  dom.tafsirCurtainHandle?.addEventListener('click', toggleTafsir);
+  dom.tafsirCurtainHandle?.addEventListener('click', () => import('./tafsir.js').then(m => m.toggleTafsir()));
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect.value;
     storage.set('tafsir_edition', state.currentTafsirEdition);
-    if (dom.tafsirCurtain?.classList.contains('open')) loadTafsirForCurrentAyah();
+    if (dom.tafsirCurtain?.classList.contains('open')) import('./tafsir.js').then(m => m.loadTafsirForCurrentAyah());
   });
 
   dom.translationToggle?.addEventListener('click', toggleTranslation);
@@ -526,7 +506,7 @@ export async function initApp() {
       case 'r': case 'R': toggleRepeat(); break;
       case 'b': case 'B': setBookmark(); break;
       case 'f': case 'F': toggleFavorite(); break;
-      case 't': case 'T': toggleTafsir(); break;
+      case 't': case 'T': import('./tafsir.js').then(m => m.toggleTafsir()); break;
       case 'n': case 'N': toggleNightMode(); break;
       case 'm': case 'M': import('./mushaf.js').then(m => m.toggleMushafMode()); break;
       case 'p': case 'P':
@@ -541,7 +521,7 @@ export async function initApp() {
         if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none';
         if (dom.searchResults) dom.searchResults.style.display = 'none';
         if (dom.shareMenu) dom.shareMenu.classList.remove('show');
-        closeTafsir();
+        import('./tafsir.js').then(m => m.closeTafsir());
         if (dom.player && !dom.player.classList.contains('collapsed')) {
           dom.player.classList.add('collapsed');
           storage.set('player_collapsed', true);
@@ -601,4 +581,24 @@ export async function initApp() {
   state._updateReadingProgress = updateReadingProgress;
   window.addEventListener('scroll', updateReadingProgress, { passive: true });
   updateReadingProgress();
+
+  // ========== PHASE 3: DEFERRED NON-CRITICAL INIT ==========
+  setTimeout(() => {
+    loadingBar.init();
+    loadingBar.hide();
+    initAdhkarState();
+    loadAdhkarSettings();
+    loadFavorites();
+    startClock();
+    checkAzanTime();
+    scheduleNextAzanCheck();
+    loadPrayerTimes();
+    loadBackgrounds().catch(console.warn);
+    checkAdhkarNotifications();
+    state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
+    import('./ayah-modal.js').then(m => m.initAyahModal()).catch(() => {});
+    import('./presentation.js').then(m => m.initPresentation()).catch(() => {});
+    import('./mushaf.js').then(m => m.populateSurahOverlay()).catch(() => {});
+    if (navigator.onLine) fullQuranPromise;
+  }, 0);
 }
