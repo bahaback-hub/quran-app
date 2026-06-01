@@ -120,7 +120,7 @@ quran-app/
 │   ├── tafsir.js       # التفسير
 │   ├── adhkar.js       # الأذكار
 │   └── __tests__/      # الاختبارات
-├── public/data/        # بيانات محلية (السور، القرآن) للأوفلاين
+├── public/data/        # بيانات محلية للأوفلاين (قائمة السور، نص القرآن)
 └── vite.config.js      # Vite + PWA (Workbox — Service Worker واحد)
 ```
 
