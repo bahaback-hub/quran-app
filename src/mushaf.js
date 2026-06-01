@@ -186,29 +186,29 @@ function renderMushafPageImage(pageNum, skipNav) {
   footer.className = 'mushaf-footer';
   footer.innerHTML = `${toArabicNumeral(pageNum)}`;
 
-  const navRight = document.createElement('button');
-  navRight.className = 'mushaf-page-nav-btn mushaf-page-nav-next';
-  navRight.textContent = '▶';
-  navRight.setAttribute('aria-label', 'الصفحة التالية');
-  navRight.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (state.currentPage < 604) loadPage(state.currentPage + 1, true);
-  });
-
-  const navLeft = document.createElement('button');
-  navLeft.className = 'mushaf-page-nav-btn mushaf-page-nav-prev';
-  navLeft.textContent = '◀';
-  navLeft.setAttribute('aria-label', 'الصفحة السابقة');
-  navLeft.addEventListener('click', (e) => {
+  const navPrev = document.createElement('button');
+  navPrev.className = 'mushaf-page-nav-btn mushaf-page-nav-prev';
+  navPrev.textContent = '◀';
+  navPrev.setAttribute('aria-label', 'الصفحة السابقة');
+  navPrev.addEventListener('click', (e) => {
     e.stopPropagation();
     if (state.currentPage > 1) loadPage(state.currentPage - 1, true);
+  });
+
+  const navNext = document.createElement('button');
+  navNext.className = 'mushaf-page-nav-btn mushaf-page-nav-next';
+  navNext.textContent = '▶';
+  navNext.setAttribute('aria-label', 'الصفحة التالية');
+  navNext.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (state.currentPage < 604) loadPage(state.currentPage + 1, true);
   });
 
   container.appendChild(header);
   container.appendChild(canvasWrapper);
   container.appendChild(footer);
-  container.appendChild(navRight);
-  container.appendChild(navLeft);
+  container.appendChild(navPrev);
+  container.appendChild(navNext);
 
   const ayahBar = document.createElement('div');
   ayahBar.className = 'mushaf-ayah-bar';
