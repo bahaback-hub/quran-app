@@ -86,10 +86,10 @@ export function updatePageIndicator(pageNum) {
 }
 
 /** Load and render a mushaf page image. */
-export async function loadPage(pageNum, skipNav) {
+export async function loadPage(pageNum, skipNav, force) {
   if (!pageNum) return;
   const hasContainer = !!dom.surahContent?.querySelector('.mushaf-container');
-  if (hasContainer && pageNum === state.currentPage) return;
+  if (!force && hasContainer && pageNum === state.currentPage) return;
   const prevPage = state.currentPage;
   const direction = pageNum > prevPage ? 'left' : 'right';
   state.currentPage = pageNum;

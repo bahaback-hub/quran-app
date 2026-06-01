@@ -195,6 +195,9 @@ export async function initApp() {
   buildSurahOffsets();
   import('./mushaf.js').then(m => m.populateSurahOverlay()).catch(() => {});
 
+  // Load full Quran text into IndexedDB FIRST for offline fallback
+  await loadFullQuranText().catch(console.warn);
+
   const last = storage.get('last_position');
   if (last && last.surah) {
     state.currentSurah = last.surah;
@@ -205,7 +208,6 @@ export async function initApp() {
   }
 
   loadPrayerTimes();
-  loadFullQuranText().catch(console.warn);
   loadBackgrounds().catch(console.warn);
 
   bindAudioEvents();
