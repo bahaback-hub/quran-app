@@ -55,13 +55,13 @@
   <header class="header">
     <div class="header-menu-container">
       <div class="header-actions">
-        <button class="header-action-btn" id="themeToggle" aria-label="الوضع الليلي" title="الوضع الليلي">🌙</button>
+        <button class="header-action-btn" id="themeToggle" data-i18n="night_mode" aria-label="الوضع الليلي" title="الوضع الليلي">🌙</button>
         <button class="header-menu-btn" id="headerMenuBtn" aria-label="القائمة" title="القائمة">⚙️</button>
       </div>
       <div class="header-dropdown" id="headerDropdown" style="display:none;">
-        <button id="headerFavBtn">❤️ المفضلة</button>
-        <button id="headerAdhkarBtn">🕌 الأذكار</button>
-        <button id="headerSettingsBtn">⚙️ الإعدادات</button>
+        <button id="headerFavBtn" data-i18n="favorites">❤️ المفضلة</button>
+        <button id="headerAdhkarBtn" data-i18n="adhkar">🕌 الأذكار</button>
+        <button id="headerSettingsBtn" data-i18n="settings">⚙️ الإعدادات</button>
       </div>
     </div>
     <h1>📖 القرآن الكريم</h1>
@@ -152,8 +152,8 @@
             </div>
           </div>
         </div>
-        <button class="btn btn-gold btn-sm" id="searchBtn" aria-label="بدء البحث">🔎 بحث</button>
-        <button class="btn btn-sm" id="clearSearchBtn" aria-label="مسح النتائج">✖ مسح</button>
+        <button class="btn btn-gold btn-sm" id="searchBtn" data-i18n="search" aria-label="بدء البحث">🔎 بحث</button>
+        <button class="btn btn-sm" id="clearSearchBtn" data-i18n="clear_results" aria-label="مسح النتائج">✖ مسح</button>
       </div>
     </div>
   </section>
@@ -163,7 +163,7 @@
 
   <!-- ========== محتوى السورة ========== -->
   <main class="surah-content" id="surahContent" role="main" aria-label="نص السورة">
-    <p class="loading" id="surahSelectHint">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
+    <p class="loading" id="surahSelectHint" data-i18n="select_hint">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
   </main>
 
   <!-- ========== التذييل ========== -->
@@ -232,9 +232,9 @@
 </div>
 
 <!-- ========== ستارة التفسير ========== -->
-<button class="tafsir-curtain-handle" id="tafsirCurtainHandle" aria-label="فتح/إغلاق التفسير">📜 التفسير</button>
+    <button class="tafsir-curtain-handle" id="tafsirCurtainHandle" data-i18n="tafsir" aria-label="فتح/إغلاق التفسير">📜 التفسير</button>
 <aside class="tafsir-curtain" id="tafsirCurtain" aria-label="نافذة التفسير">
-  <div class="tafsir-curtain-header" id="tafsirCurtainHeader">📜 التفسير</div>
+  <div class="tafsir-curtain-header" id="tafsirCurtainHeader" data-i18n="tafsir">📜 التفسير</div>
   <div class="tafsir-curtain-controls">
     <select id="tafsirSelect" aria-label="اختيار التفسير">
       <option value="ar-tafsir-muyassar">التفسير الميسّر</option>
@@ -246,14 +246,14 @@
     </select>
   </div>
   <div class="tafsir-curtain-body" id="tafsirCurtainBody">
-    <p class="tafsir-no-ayah">📖 اختر سورة وآية لعرض التفسير</p>
+      <p class="tafsir-no-ayah" data-i18n="tafsir_no_ayah">📖 اختر سورة وآية لعرض التفسير</p>
   </div>
 </aside>
 
 <!-- ========== لوحة الإعدادات ========== -->
 <aside class="settings-panel" id="settingsPanel" aria-label="لوحة الإعدادات">
   <div class="settings-header">
-    <h2>⚙️ الإعدادات</h2>
+    <h2 data-i18n="settings">⚙️ الإعدادات</h2>
     <button class="settings-close" id="settingsCloseBtn" aria-label="إغلاق الإعدادات">✖</button>
   </div>
 
@@ -264,7 +264,7 @@
   </div>
 
   <div class="settings-section">
-    <div class="settings-section-title">🕌 مواقيت الصلاة</div>
+    <div class="settings-section-title" data-i18n="prayer_times">🕌 مواقيت الصلاة</div>
     <div class="prayer-times-list" id="prayerTimesRows">
       <p style="text-align:center;color:#888;">⏳ جاري تحميل المواقيت...</p>
     </div>
@@ -273,15 +273,15 @@
   <div class="settings-section">
     <div class="settings-section-title">📍 الموقع وطريقة الحساب</div>
     <div class="settings-row">
-      <label for="cityInput">المدينة:</label>
+      <label for="cityInput" data-i18n="city">المدينة:</label>
       <input type="text" id="cityInput" placeholder="مكة">
     </div>
     <div class="settings-row">
-      <label for="countryInput">الدولة:</label>
+            <label for="countryInput" data-i18n="country">الدولة:</label>
       <input type="text" id="countryInput" placeholder="SA">
     </div>
     <div class="settings-row">
-      <label for="cityQuickSelect">اختيار سريع:</label>
+        <label for="cityQuickSelect" data-i18n="quick_select">اختيار سريع:</label>
       <select id="cityQuickSelect">
         <option value="">— اختر —</option>
         <option value="مكة|SA">مكة المكرمة</option>
@@ -304,7 +304,7 @@
       </select>
     </div>
     <div class="settings-row">
-      <label for="methodSelect">طريقة الحساب:</label>
+        <label for="methodSelect" data-i18n="calculation_method">طريقة الحساب:</label>
       <select id="methodSelect">
         <option value="4">أم القرى — مكة</option>
         <option value="5">الهيئة المصرية</option>
@@ -319,22 +319,22 @@
       </select>
     </div>
     <div class="settings-row">
-      <button class="btn btn-gold" id="saveLocationBtn">💾 حفظ الموقع وتحديث المواقيت</button>
+      <button class="btn btn-gold" id="saveLocationBtn" data-i18n="save_location">💾 حفظ الموقع وتحديث المواقيت</button>
     </div>
   </div>
 
   <div class="settings-section">
-    <div class="settings-section-title">🔔 الأذان</div>
+    <div class="settings-section-title" data-i18n="azan">🔔 الأذان</div>
     <div class="settings-row">
-      <label>تنبيه الأذان:</label>
+      <label data-i18n="azan_enable">تنبيه الأذان:</label>
       <div class="toggle-switch on" id="azanToggle" role="switch" aria-label="تفعيل الأذان"></div>
     </div>
     <div class="settings-row">
-      <label>أذان الفجر:</label>
+      <label data-i18n="azan_fajr">أذان الفجر:</label>
       <div class="toggle-switch on" id="azanFajrToggle" role="switch" aria-label="تفعيل أذان الفجر"></div>
     </div>
     <div class="settings-row">
-      <button class="btn" id="testAzanBtn">▶️ اختبار الأذان</button>
+      <button class="btn" id="testAzanBtn" data-i18n="test_azan">▶️ اختبار الأذان</button>
     </div>
     <p style="font-size:12px;color:#888;text-align:center;margin-top:8px;">🎙️ الأذان بصوت الشيخ ناصر القطامي</p>
   </div>
@@ -404,7 +404,7 @@
 
   <div class="settings-section">
     <div class="settings-row">
-      <button class="btn" id="resetSettingsBtn" style="background:#dc2626;">🔄 إعادة ضبط الإعدادات</button>
+      <button class="btn" id="resetSettingsBtn" data-i18n="reset_settings" style="background:#dc2626;">🔄 إعادة ضبط الإعدادات</button>
     </div>
   </div>
 </aside>
@@ -598,11 +598,11 @@
 
   <!-- ========== شريط التنقل السفلي (جوال/تابلت) ========== -->
   <nav class="bottom-nav" id="bottomNav" aria-label="شريط التنقل">
-    <button class="bottom-nav-btn active" data-tab="quran" aria-label="القرآن الكريم">📖<span>القرآن</span></button>
-    <button class="bottom-nav-btn" data-tab="player" aria-label="المشغل">🎧<span>المشغل</span></button>
+    <button class="bottom-nav-btn active" data-tab="quran" aria-label="القرآن الكريم">📖<span data-i18n="app_title">القرآن</span></button>
+    <button class="bottom-nav-btn" data-tab="player" aria-label="المشغل">🎧<span data-i18n="play">المشغل</span></button>
     <button class="bottom-nav-btn" data-tab="controls" aria-label="الأدوات">⚙️<span>أدوات</span></button>
-    <button class="bottom-nav-btn" data-tab="search" aria-label="البحث">🔎<span>بحث</span></button>
-    <button class="bottom-nav-btn" data-tab="more" aria-label="القائمة">☰<span>القائمة</span></button>
+    <button class="bottom-nav-btn" data-tab="search" aria-label="البحث">🔎<span data-i18n="search">بحث</span></button>
+    <button class="bottom-nav-btn" data-tab="more" aria-label="القائمة">☰<span data-i18n="settings">القائمة</span></button>
   </nav>
 
   <!-- ========== شاشة الترحيب ========== -->

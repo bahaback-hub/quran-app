@@ -85,9 +85,13 @@ export function updatePageIndicator(pageNum) {
   }
 }
 
+let _mushafLoadCounter = 0;
+
 /** Load and render a mushaf page image. */
 export async function loadPage(pageNum, skipNav, force) {
   if (!pageNum) return;
+  _mushafLoadCounter++;
+  const currentLoad = _mushafLoadCounter;
   const hasContainer = !!dom.surahContent?.querySelector('.mushaf-container');
   if (!force && hasContainer && pageNum === state.currentPage) return;
   const prevPage = state.currentPage;
