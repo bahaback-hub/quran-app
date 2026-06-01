@@ -166,9 +166,9 @@ async function loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad) {
 }
 
 /** Load audio for standard API reciter source. */
-async function loadApiAudio(surahNum, reciterId, currentLoad) {
+async function loadApiAudio(surahNum, reciterId, currentLoad, signal) {
   try {
-    const res = await fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${reciterId}`);
+    const res = await fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${reciterId}`, { signal });
     const json = await res.json();
     const data = json?.data;
     if (!data?.ayahs?.length) throw new Error('لا توجد بيانات صوت');
@@ -266,7 +266,7 @@ export async function loadSurah(surahNum, opts = {}) {
     // Load audio and translation independently (don't block render)
     const audioPromise = isMp3quran
       ? loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad)
-      : loadApiAudio(surahNum, state.currentReciter, currentLoad);
+      : loadApiAudio(surahNum, state.currentReciter, currentLoad, signal);
     const transPromise = (state.translationEnabled && state.currentTranslation)
       ? fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`, { signal }).then(r => r.json()).then(d => d?.data || null).catch(() => null)
       : Promise.resolve(null);
