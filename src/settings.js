@@ -132,11 +132,16 @@ export async function loadBackgrounds() {
   } catch (e) { console.warn('فشل تحميل قائمة الخلفيات', e); }
 }
 
+function removeBgClasses() {
+  document.body.className = document.body.className
+    .split(/\s+/).filter(c => !c.startsWith('bg-css')).join(' ').trim();
+}
+
 /** @param {string} bgId */
 export function applyBackground(bgId) {
   if (!bgId || bgId === 'none') {
     document.body.style.backgroundImage = '';
-    document.body.className = document.body.className.replace(/\bbg-css[-\w]*\b/g, '').trim();
+    removeBgClasses();
     const style = document.getElementById('dynamic-bg-style');
     if (style) style.remove();
     storage.remove('bg_id');
@@ -147,7 +152,7 @@ export function applyBackground(bgId) {
   if (!bg) return;
   if (bg.type === 'css' && (bg.cssBlock || bg.css)) {
     document.body.style.backgroundImage = '';
-    document.body.className = document.body.className.replace(/\bbg-css[-\w]*\b/g, '').trim();
+    removeBgClasses();
     const existing = document.getElementById('dynamic-bg-style');
     if (existing) existing.remove();
     if (bg.cssBlock) {
@@ -155,7 +160,7 @@ export function applyBackground(bgId) {
       style.id = 'dynamic-bg-style';
       style.textContent = bg.cssBlock;
       document.head.appendChild(style);
-      document.body.className = 'bg-css-arabic';
+      document.body.classList.add('bg-css-arabic');
     } else {
       document.body.classList.add('bg-css');
       document.body.setAttribute('data-bg-css', bg.css + '');

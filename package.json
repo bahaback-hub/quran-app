@@ -16,6 +16,9 @@
     "android:open": "npx cap open android",
     "android:run": "npm run android:build && npx cap run android"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "license": "MIT",
   "private": true,
   "repository": {
