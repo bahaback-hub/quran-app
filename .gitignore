@@ -7,3 +7,4 @@ app.bundle.js
 .env.local
 playwright-report/
 test-results/
+public/pages/

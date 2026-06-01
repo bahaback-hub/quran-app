@@ -145,6 +145,8 @@ function getAbsNumber(surah, ayah) {
 
 /* ===================== LOAD & RENDER SURAH ===================== */
 
+let _loadCounter = 0;
+
 /**
  * Load a surah (text + audio + translation), render it, finalize.
  * @param {number} surahNum
@@ -152,7 +154,8 @@ function getAbsNumber(surah, ayah) {
  */
 export async function loadSurah(surahNum, opts = {}) {
   if (!surahNum) return;
-  if (state.loadingSurah === surahNum) return;
+  _loadCounter++;
+  const currentLoad = _loadCounter;
   state.loadingSurah = surahNum;
 
   prepareAudioForNewSurah();
@@ -175,6 +178,7 @@ export async function loadSurah(surahNum, opts = {}) {
   const isMp3quran = reciterInfo.source === 'mp3quran';
   if (state.surahCache.has(cacheKey)) {
     const cached = state.surahCache.get(cacheKey);
+    if (_loadCounter !== currentLoad) return;
     state.surahData = cached.text;
     if (isMp3quran) {
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
@@ -211,6 +215,7 @@ export async function loadSurah(surahNum, opts = {}) {
     if (!textData?.ayahs?.length) {
       throw new Error('بيانات السورة غير صالحة');
     }
+    if (_loadCounter !== currentLoad) return;
     state.surahData = textData;
     /** @type {Object|null} */
     let audioData = null;
@@ -241,6 +246,7 @@ export async function loadSurah(surahNum, opts = {}) {
     loadingBar.hide();
   } catch (e) {
     if (state.fullQuranLoaded && state.fullQuranText) {
+      if (_loadCounter !== currentLoad) return;
       const ayahs = state.fullQuranText.filter(a => a.surah === surahNum);
       if (ayahs.length) {
         state.surahData = {

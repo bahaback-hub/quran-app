@@ -33,7 +33,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'auto',
-      includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'mushaf-icon.png'],
+      includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'القرآن الكريم',
         short_name: 'القرآن',
@@ -112,11 +112,19 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/raw\.githubusercontent\.com\/.*mushaf-layout.*/i,
+            urlPattern: /^https:\/\/raw\.githubusercontent\.com\/.*quran-qcf4\/.*\/pages\/.*\.json/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'mushaf-layout',
-              expiration: { maxEntries: 30, maxAgeSeconds: 86400 * 365 }
+              expiration: { maxEntries: 700, maxAgeSeconds: 86400 * 365 }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/MohamadHajjRabee\/quran-qcf4.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'mushaf-fonts',
+              expiration: { maxEntries: 50, maxAgeSeconds: 86400 * 365 }
             }
           }
         ]
