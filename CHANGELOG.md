@@ -33,7 +33,7 @@
 
 ### 🧪 Testing
 - 128 اختبار وحدة (Vitest)
-- 38 اختبار E2E (Playwright)
+- 25 اختبار E2E (Playwright)
 - TypeScript type checking (0 errors)
 
 ### 🔧 Maintenance

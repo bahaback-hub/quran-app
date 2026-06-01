@@ -50,9 +50,8 @@ export default defineConfig({
         ]
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,json,png}'],
-        globIgnores: ['**/pages/**', '**/mushaf-icon.png'],
         navigateFallback: 'index.html',
         runtimeCaching: [
           {
@@ -77,14 +76,6 @@ export default defineConfig({
             options: {
               cacheName: 'prayer-api',
               expiration: { maxEntries: 10, maxAgeSeconds: 3600 }
-            }
-          },
-          {
-            urlPattern: /\/pages\/page\d+\.png$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'mushaf-pages',
-              expiration: { maxEntries: 604, maxAgeSeconds: 86400 * 365 }
             }
           },
           {
