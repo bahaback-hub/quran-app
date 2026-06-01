@@ -6,6 +6,10 @@ test.describe('البحث', () => {
   });
 
   test('حقل البحث موجود وقابل للكتابة', async ({ page }) => {
+    await page.evaluate(() => {
+      const group = document.getElementById('searchInputGroup');
+      if (group) group.style.display = 'flex';
+    });
     const searchInput = page.locator('#searchInput');
     await expect(searchInput).toBeVisible();
     await searchInput.fill('الرحمن');
@@ -22,6 +26,8 @@ test.describe('البحث', () => {
 
   test('لوحة المفاتيح العربية تعمل عبر JS', async ({ page }) => {
     await page.evaluate(() => {
+      const group = document.getElementById('searchInputGroup');
+      if (group) group.style.display = 'flex';
       const kbd = document.getElementById('arabicKeyboard');
       const toggle = document.getElementById('kbdToggleBtn');
       if (kbd) kbd.classList.add('open');

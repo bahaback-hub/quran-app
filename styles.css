@@ -3094,8 +3094,9 @@ body.night-mode .ayah-modal-actions .btn-sm {
     min-height: 44px !important;
     padding: 8px 12px !important;
   }
-  .mushaf-page-nav {
+  .mushaf-page-nav-btn {
     min-width: 48px !important;
+    min-height: 48px !important;
   }
 }
 

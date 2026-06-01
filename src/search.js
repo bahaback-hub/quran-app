@@ -1,5 +1,5 @@
 import { state } from "./state.js";
-import { copyToClipboard } from "./share.js";
+import { copyToClipboard } from "./utils.js";
 import { CONFIG } from "./config.js";
 import { dom } from "./dom.js";
 import { storage } from "./storage.js";
@@ -47,22 +47,37 @@ async function fetchQuranText() {
   return data;
 }
 
-/** Normalize and flatten surah-based API response into ayah array. */
-function flattenAyahs(data) {
+/** Strip basmala from ayah text if it's the first ayah of a surah (except 1,9). */
+function stripBasmala(text, surahNum, ayahNum) {
+  if (surahNum === 1 || surahNum === 9 || ayahNum !== 1) return text;
+  return text.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
+}
+
+/** Flatten surah-based API response into ayah array using JSON reviver (parse inline for speed). */
+function flattenAyahs(jsonText) {
   const ayahs = [];
-  for (const surah of data.data.surahs) {
-    for (const ayah of surah.ayahs) {
-      let ayahText = ayah.text;
-      if (surah.number !== 1 && surah.number !== 9 && ayah.numberInSurah === 1) {
-        ayahText = ayahText.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
-      }
-      ayahs.push({
-        surah: surah.number, surahName: surah.name,
-        ayah: ayah.numberInSurah, text: ayahText,
-        normalized: normalizeExactText(ayahText)
-      });
+  let currentSurah = null;
+  JSON.parse(jsonText, function (key, val) {
+    if (key === 'surahs' && Array.isArray(val)) return val;
+    if (val && typeof val === 'object' && val.number && val.ayahs) {
+      currentSurah = val;
+      return val;
     }
-  }
+    if (currentSurah && key === 'ayahs' && Array.isArray(val)) {
+      for (const ayah of val) {
+        const ayahText = stripBasmala(ayah.text, currentSurah.number, ayah.numberInSurah);
+        ayahs.push({
+          surah: currentSurah.number,
+          surahName: currentSurah.name,
+          ayah: ayah.numberInSurah,
+          text: ayahText,
+          normalized: normalizeExactText(ayahText)
+        });
+      }
+      return val;
+    }
+    return val;
+  });
   return ayahs;
 }
 
@@ -89,7 +104,7 @@ export async function loadFullQuranText() {
     }
     showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
     const data = await fetchQuranText();
-    const ayahs = flattenAyahs(data);
+    const ayahs = flattenAyahs(JSON.stringify(data));
     state.fullQuranText = ayahs;
     state.fullQuranLoaded = true;
     buildSearchWords();

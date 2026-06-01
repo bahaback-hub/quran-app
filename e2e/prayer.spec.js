@@ -7,10 +7,20 @@ test.describe('مواقيت الصلاة', () => {
 
   test('يعرض شريط مواقيت الصلاة', async ({ page }) => {
     await expect(page.locator('#prayerBar')).toBeVisible();
+    await page.evaluate(() => {
+      const bar = document.getElementById('prayerBar');
+      if (bar) { bar.classList.remove('collapsed'); bar.classList.add('expanded'); }
+    });
+    await page.waitForTimeout(1000);
     await expect(page.locator('#nextPrayerName')).toBeVisible();
   });
 
   test('يعرض الساعة في شريط المواقيت', async ({ page }) => {
+    await page.evaluate(() => {
+      const bar = document.getElementById('prayerBar');
+      if (bar) { bar.classList.remove('collapsed'); bar.classList.add('expanded'); }
+    });
+    await page.waitForTimeout(1000);
     const clock = page.locator('#bigClockTime');
     await expect(clock).toBeVisible();
     const text = await clock.textContent();

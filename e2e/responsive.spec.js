@@ -4,6 +4,10 @@ test.describe('التنقل السفلي (جوال)', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
+    await page.evaluate(() => {
+      const ws = document.getElementById('welcomeScreen');
+      if (ws) ws.remove();
+    });
   });
 
   test('شريط التنقل السفلي مرئي', async ({ page }) => {

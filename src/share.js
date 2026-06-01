@@ -1,27 +1,7 @@
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
-import { stripTashkeel } from './utils.js';
+import { stripTashkeel, copyToClipboard } from './utils.js';
 import { state } from './state.js';
-
-/** Copy text to clipboard using Clipboard API with fallback. */
-export function copyToClipboard(text) {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); } catch (_) { }
-  document.body.removeChild(ta);
-}
 
 /** Build share text for the current ayah. */
 export function buildShareText() {

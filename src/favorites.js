@@ -4,7 +4,7 @@ import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { escapeHtml } from './utils.js';
 import { loadSurah } from './app.js';
-import { copyToClipboard } from './share.js';
+import { copyToClipboard } from './utils.js';
 
 /* ===================== FAVORITES ===================== */
 
