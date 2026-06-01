@@ -188,7 +188,7 @@ function renderMushafPageImage(pageNum, skipNav) {
 
   const navPrev = document.createElement('button');
   navPrev.className = 'mushaf-page-nav-btn mushaf-page-nav-prev';
-  navPrev.textContent = '◀';
+  navPrev.textContent = '▶';
   navPrev.setAttribute('aria-label', 'الصفحة السابقة');
   navPrev.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -197,7 +197,7 @@ function renderMushafPageImage(pageNum, skipNav) {
 
   const navNext = document.createElement('button');
   navNext.className = 'mushaf-page-nav-btn mushaf-page-nav-next';
-  navNext.textContent = '▶';
+  navNext.textContent = '◀';
   navNext.setAttribute('aria-label', 'الصفحة التالية');
   navNext.addEventListener('click', (e) => {
     e.stopPropagation();
