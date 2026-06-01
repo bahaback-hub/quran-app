@@ -13,7 +13,7 @@ import { syncPresentation } from './presentation.js';
 
 /* ===================== SURAH LIST ===================== */
 
-/** Load surah list from API or cache, then populate dropdown. */
+/** Load surah list from cache, API, or local fallback, then populate dropdown. */
 export async function loadSurahList() {
   const cached = storage.get('surah_list');
   if (cached && cached.length === CONFIG.SURAH_COUNT) {
@@ -32,11 +32,22 @@ export async function loadSurahList() {
       state.surahOffsets = null;
       storage.set('surah_list', data.data);
       populateSurahSelect();
+      return;
     }
-  } catch (e) {
-    if (dom.surahSelect) dom.surahSelect.innerHTML = '<option value="">⚠️ تعذّر التحميل</option>';
-    showToast('تعذّر تحميل قائمة السور', 'error');
-  }
+  } catch (e) { /* fall through to local fallback */ }
+  try {
+    const localRes = await fetch('data/surah-list.json');
+    const localData = await localRes.json();
+    if (localData && localData.length === CONFIG.SURAH_COUNT) {
+      state.surahList = localData;
+      state.surahOffsets = null;
+      storage.set('surah_list', localData);
+      populateSurahSelect();
+      return;
+    }
+  } catch (e) { /* no local fallback */ }
+  if (dom.surahSelect) dom.surahSelect.innerHTML = '<option value="">⚠️ تعذّر التحميل</option>';
+  showToast('تعذّر تحميل قائمة السور', 'error');
 }
 
 function populateSurahSelect() {
@@ -390,7 +401,7 @@ export function updatePlayerInfo() {
   }
   if (dom.collapsedInfo && a) {
     const short = a.text.length > 50 ? a.text.substring(0, 50) + '...' : a.text;
-    dom.collapsedInfo.innerHTML = `<span class="fi-surah">${state.surahData.name} — آية ${a.numberInSurah}</span><span>${short}</span>`;
+    dom.collapsedInfo.innerHTML = `<span class="fi-surah">${escapeHtml(state.surahData.name)} — آية ${escapeHtml(String(a.numberInSurah))}</span><span>${escapeHtml(short)}</span>`;
   }
 }
 

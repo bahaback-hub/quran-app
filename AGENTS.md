@@ -59,8 +59,8 @@
 - State and DOM must be set up per test (beforeEach)
 
 ## CDN
-- Mushaf page images served via jsDelivr CDN
-- Base URL: `https://cdn.jsdelivr.net/gh/bahaback-hub/quran-app@main/public/pages/`
+- Mushaf rendered via QCF4 Canvas using fonts + layout JSON from jsDelivr/GitHub
+- Runtime caching configured in `vite.config.js` for offline support
 
 ## TypeScript
 - `tsconfig.json` with `allowJs: true`, **`checkJs: true`**

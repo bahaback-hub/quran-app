@@ -37,7 +37,10 @@ export async function loadFullQuranText() {
           } else {
             showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
             try {
-              const res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
+              let res = await fetch('data/quran-uthmani.json').catch(() => null);
+              if (!res || !res.ok) {
+                res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
+              }
               const data = await res.json();
               if (!data?.data?.surahs) throw new Error('بيانات غير صالحة');
                const ayahs = [];
