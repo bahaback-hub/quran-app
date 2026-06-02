@@ -3,8 +3,10 @@ import { CONFIG } from "./config.js";
 import { dom } from "./dom.js";
 import { storage } from "./storage.js";
 import { showToast } from "./ui.js";
+import { hapticFeedback } from "./utils.js";
 import { highlightCurrentAyah } from "./surah-loader.js";
 import { getReciterById } from "./reciters.js";
+import { startVisualizer, stopVisualizer } from "./audio-visualizer.js";
 
 /** @type {((surahNum: number, opts?: { startAyah?: number, autoPlay?: boolean }) => void) | null} */
 let _loadSurah = null;
@@ -203,6 +205,7 @@ export function expandPlayer() {
 /** Toggle play/pause. */
 export function togglePlayPause() {
   if (!state.surahData || !dom.audioPlayer) return;
+  hapticFeedback();
   if (dom.audioPlayer.paused) {
     if (!dom.audioPlayer.src || dom.audioPlayer.ended) {
       state.currentAyahIndex = 0;
@@ -243,6 +246,7 @@ export function bindAudioEvents() {
 function onAudioPlay() {
   state.isPlaying = true;
   updatePlayPauseBtn();
+  startVisualizer(document.getElementById('audioVisualizer'));
   if ('mediaSession' in navigator && state.surahData) {
     const ayah = state.surahData.ayahs?.[state.currentAyahIndex];
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -252,11 +256,12 @@ function onAudioPlay() {
     });
   }
 }
-function onAudioPause() { state.isPlaying = false; updatePlayPauseBtn(); }
+function onAudioPause() { state.isPlaying = false; updatePlayPauseBtn(); stopVisualizer(); }
 function onAudioError() {
   _mp3quranUrl = null;
   state.isPlaying = false;
   stopWordTracking();
+  stopVisualizer();
   updatePlayPauseBtn();
   showToast('⚠️ تعذّر تشغيل الصوت، حاول آية أخرى', 'error');
 }
@@ -337,6 +342,7 @@ export function prevSurah() { if (state.currentSurah > 1) _loadSurah?.(state.cur
 /* ===================== HIFDH & REPEAT ===================== */
 /** Toggle hifdh (memorization) mode. */
 export function toggleHifdh() {
+  hapticFeedback();
   state.hifdhMode = !state.hifdhMode;
   dom.hifdhBtn?.classList.toggle('active', state.hifdhMode);
   document.querySelectorAll('.ayah').forEach(el => {
@@ -349,6 +355,7 @@ export function toggleHifdh() {
 
 /** Toggle repeat mode. */
 export function toggleRepeat() {
+  hapticFeedback();
   state.repeatMode = !state.repeatMode;
   state.repeatCounter = 0;
   dom.repeatBtn?.classList.toggle('active', state.repeatMode);

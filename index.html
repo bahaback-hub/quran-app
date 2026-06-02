@@ -191,6 +191,7 @@
         <button class="collapse-btn" id="collapsePlayerBtn" aria-label="إغلاق المشغل">✖</button>
       </div>
       <div class="current-ayah" id="playerCurrentAyah">—</div>
+      <canvas class="audio-visualizer" id="audioVisualizer" width="300" height="40" aria-hidden="true"></canvas>
       <div class="player-row">
         <audio id="audioPlayer" controls preload="metadata"></audio>
       </div>
@@ -205,9 +206,15 @@
       <div class="player-more-row" id="playerMoreRow" style="display:none;">
         <button class="btn btn-hifdh" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
         <button class="btn btn-repeat" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
+        <button class="btn btn-select" id="selectModeBtn" aria-label="تحديد متعدد">☑️ تحديد</button>
         <button class="btn btn-bookmark" id="bookmarkBtn" aria-label="إشارة مرجعية" title="نقرة: حفظ — نقرتان: انتقال">🔖 علامة</button>
         <button class="btn btn-favorite" id="favoriteBtn" aria-label="إضافة للمفضلة">❤️ مفضلة</button>
         <button class="btn btn-gold" id="shareBtn" aria-label="مشاركة الآية">📤 مشاركة</button>
+      </div>
+      <div class="select-mode-bar" id="selectModeBar" style="display:none;">
+        <span id="selectCount">0</span> آية محددة
+        <button class="btn btn-gold" id="selectShareBtn">📤 مشاركة المحدد</button>
+        <button class="btn" id="selectClearBtn">✖ إلغاء</button>
       </div>
       <div class="repeat-controls" id="repeatControls" style="display:none;">
         <label>من: <select id="repeatFrom"></select></label>

@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { escapeHtml } from './utils.js';
+import { escapeHtml, hapticFeedback } from './utils.js';
 import { loadSurah } from './app.js';
 import { copyToClipboard } from './utils.js';
 
@@ -19,6 +19,7 @@ function saveFavorites() {
 
 /** Toggle the current ayah in/out of favorites. */
 export function toggleFavorite() {
+  hapticFeedback();
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
   const key = `${state.currentSurah}:${a.numberInSurah}`;
@@ -140,6 +141,7 @@ export function closeFavorites() { dom.favoritesPanel?.classList.remove('open');
 
 /** Save the current ayah as a bookmark. */
 export function setBookmark() {
+  hapticFeedback();
   if (!state.surahData) return;
   const a = state.surahData.ayahs[state.currentAyahIndex];
   state.bookmark = {

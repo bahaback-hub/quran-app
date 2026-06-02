@@ -853,6 +853,18 @@ audio {
   display: block;
 }
 
+.audio-visualizer {
+  display: block;
+  width: 100%;
+  height: 40px;
+  margin: 6px 0;
+  border-radius: 8px;
+  background: var(--controls-bg, #f5f1e8);
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+.audio-visualizer.active { opacity: 1; }
+
 .player-row {
   display: flex;
   align-items: center;
@@ -898,6 +910,33 @@ audio {
   margin-top: 6px;
 }
 .player-more-row .btn { padding: 6px 12px; font-size: 12px; }
+
+/* ========== Multi-ayah select mode ========== */
+.select-mode-bar {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--accent, #d4af37);
+  color: #fff;
+  font-size: 14px;
+  border-radius: 10px;
+  margin-top: 6px;
+}
+.select-mode-bar.show { display: flex; }
+.select-mode-bar .btn { padding: 4px 12px; font-size: 12px; }
+.select-mode-bar .btn-gold { background: #fff; color: #6b4e3d; }
+
+.ayah.selectable { cursor: pointer; }
+.ayah.selectable:hover { outline: 2px dashed var(--accent); }
+.ayah.selected {
+  outline: 3px solid var(--accent, #d4af37);
+  outline-offset: 2px;
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.1);
+}
+body.night-mode .ayah.selected { background: rgba(255, 224, 102, 0.1); }
 
 .btn-more {
   background: transparent !important;
@@ -3154,8 +3193,40 @@ body {
 
 /* الجوال: نخفي التفسير الجانبي ونستخدم المودال بدلاً عنه */
 @media (max-width: 600px) {
-  .tafsir-curtain,
-  .tafsir-curtain-handle { display: none !important; }
+  .tafsir-curtain {
+    width: 100vw;
+    max-width: 100vw;
+    left: 0;
+    top: auto;
+    bottom: -100vh;
+    height: 75vh;
+    border-right: none;
+    border-top: 3px solid var(--accent);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.3);
+    transition: bottom 0.4s ease;
+    padding: 16px;
+    z-index: 941;
+  }
+  .tafsir-curtain.open { bottom: 0; left: 0; }
+  .tafsir-curtain-handle {
+    position: fixed;
+    bottom: -60px;
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 36px;
+    border-radius: 12px 12px 0 0;
+    border: 2px solid var(--accent);
+    border-bottom: none;
+    writing-mode: initial;
+    text-orientation: initial;
+    font-size: 11px;
+    z-index: 942;
+    transition: bottom 0.4s ease;
+  }
+  .tafsir-curtain-handle.open { bottom: 75vh; left: 50%; }
 }
 
 /* ========== شريط التنقل السفلي (جوال/تابلت) ========== */

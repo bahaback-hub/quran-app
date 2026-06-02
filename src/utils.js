@@ -105,3 +105,8 @@ export function copyToClipboard(text) {
     fallbackCopy(text);
   }
 }
+
+/** Trigger haptic (vibration) feedback if supported. */
+export function hapticFeedback(pattern = 10) {
+  if (navigator.vibrate) navigator.vibrate(pattern);
+}

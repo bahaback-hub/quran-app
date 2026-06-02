@@ -434,6 +434,31 @@ function initAyahDelegation() {
   });
 }
 
+function ayahClickHandler(e) {
+  const ayahEl = e.currentTarget;
+  const idx = parseInt(ayahEl.getAttribute('data-index'), 10);
+  const surah = parseInt(ayahEl.dataset.surah, 10);
+  const ayah = parseInt(ayahEl.dataset.ayah, 10);
+  if (!state.surahData || state.surahData.number !== surah) return;
+  const a = state.surahData.ayahs[idx];
+  if (!a) return;
+  if (state._selectMode) {
+    const isSelected = ayahEl.classList.toggle('selected');
+    if (isSelected) {
+      if (!state._selectedAyahs) state._selectedAyahs = [];
+      state._selectedAyahs.push({ surah, ayah, text: a.text, surahName: state.surahData.name, index: idx });
+    } else {
+      state._selectedAyahs = state._selectedAyahs.filter(s => !(s.surah === surah && s.ayah === ayah));
+    }
+    const count = state._selectedAyahs.length;
+    const countEl = document.getElementById('selectCount');
+    if (countEl) countEl.textContent = String(count);
+    const bar = document.getElementById('selectModeBar');
+    if (bar) bar.classList.toggle('show', count > 0);
+    return;
+  }
+  import('./ayah-modal.js').then(m => m.openAyahModal({ surah, ayah, text: a.text, surahName: state.surahData.name, index: -1 }));
+}
 function finalizeSurahLoad(opts) {
   if (opts.startAyah && state.surahData) {
     const idx = state.surahData.ayahs.findIndex(a => a.numberInSurah === opts.startAyah);
