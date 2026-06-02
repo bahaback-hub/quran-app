@@ -31,7 +31,7 @@ function updateDates() {
     const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }).format(now);
     if (dom.hijriDateDisplay) dom.hijriDateDisplay.textContent = hijri;
     if (dom.bigClockHijri) dom.bigClockHijri.textContent = '📅 ' + hijri;
-  } catch (e) { }
+  } catch (e) { console.warn('Date update failed:', e); }
   if (dom.weekdayDisplay) dom.weekdayDisplay.textContent = ARABIC_WEEKDAYS[now.getDay()];
   const greg = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
   if (dom.gregorianDateDisplay) dom.gregorianDateDisplay.textContent = greg;
@@ -170,6 +170,16 @@ function showAzanNotification(prayerKey) {
   if (!dom.azanNotification || !dom.azanNotifPrayer) return;
   dom.azanNotifPrayer.textContent = `🕋 صلاة ${PRAYER_NAMES_AR[prayerKey]}`;
   dom.azanNotification.style.display = 'flex';
+
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🕌 حان الآن وقت الصلاة', {
+      body: `صلاة ${PRAYER_NAMES_AR[prayerKey]}`,
+      icon: '/icon-192.png',
+      tag: 'azan-' + prayerKey
+    });
+  } else if ('Notification' in window && Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
 }
 
 export function checkAzanTime() {

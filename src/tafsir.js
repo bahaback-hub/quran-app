@@ -44,7 +44,7 @@ async function saveTafsirToDB(key, text) {
     const db = await openTafsirDB();
     const tx = db.transaction('tafsir', 'readwrite');
     tx.objectStore('tafsir').put({ key, text });
-  } catch (e) { }
+  } catch (e) { console.warn('Failed to cache tafsir:', e); }
 }
 
 async function fetchTafsirFromAPI(edition, surahNum, ayahNum) {

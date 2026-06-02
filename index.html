@@ -8,6 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https://api.alquran.cloud https://api.aladhan.com https://cdn.islamic.network https://cdn.jsdelivr.net https://raw.githubusercontent.com https://api.quran.com https://server*.mp3quran.net https://fonts.googleapis.com https://fonts.gstatic.com; frame-src 'none';">
   <title>القرآن الكريم - عائلة السليماني</title>
   <link rel="icon" href="./icon-192.png">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -653,5 +654,23 @@
 </div>
 
 <script type="module" src="./src/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (newSW) {
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              window.dispatchEvent(new CustomEvent('app-update'));
+            }
+          });
+        }
+      });
+    }).catch(() => {});
+  });
+}
+</script>
 </body>
 </html>

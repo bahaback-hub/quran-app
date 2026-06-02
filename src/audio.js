@@ -3,7 +3,7 @@ import { CONFIG } from "./config.js";
 import { dom } from "./dom.js";
 import { storage } from "./storage.js";
 import { showToast } from "./ui.js";
-import { highlightCurrentAyah } from "./app.js";
+import { highlightCurrentAyah } from "./surah-loader.js";
 import { getReciterById } from "./reciters.js";
 
 /** @type {((surahNum: number, opts?: { startAyah?: number, autoPlay?: boolean }) => void) | null} */
@@ -18,6 +18,7 @@ let _sleepTimerMinutes = 0;
 export function prepareAudioForNewSurah() {
   _mp3quranUrl = null;
   _autoAdvancing = false;
+  clearWordWeightsCache();
   if (dom.audioPlayer) {
     dom.audioPlayer.pause();
     dom.audioPlayer.removeAttribute('src');
@@ -108,6 +109,7 @@ function preloadNextAyah() {
 
 /* ===================== WORD-BY-WORD TRACKING ===================== */
 let wordTrackingActive = false;
+const _wordWeightsCache = new Map();
 
 function startWordTracking() {
   wordTrackingActive = true;
@@ -116,6 +118,36 @@ function startWordTracking() {
 function stopWordTracking() {
   wordTrackingActive = false;
   document.querySelectorAll('.word.current-word').forEach(el => el.classList.remove('current-word'));
+}
+
+function getCachedWordWeights(ayahIndex) {
+  const cached = _wordWeightsCache.get(ayahIndex);
+  if (cached) return cached;
+  const ayahEl = document.querySelector(`.ayah[data-index="${ayahIndex}"]`);
+  if (!ayahEl) return null;
+  const words = ayahEl.querySelectorAll('.word');
+  if (words.length === 0) return null;
+  const weights = [];
+  for (const w of words) {
+    const letters = (w.textContent.match(/[\u0621-\u064A\u0660-\u0669]/g) || []);
+    weights.push(Math.max(1, letters.length));
+  }
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  const pauseRatio = words.length <= 3 ? 0.06 : words.length <= 8 ? 0.04 : 0.025;
+  const speechRatio = 1 - pauseRatio * (words.length - 1);
+  let cumTime = 0;
+  const startTimes = [];
+  for (let i = 0; i < words.length; i++) {
+    startTimes.push(cumTime);
+    cumTime += (weights[i] / totalWeight) * speechRatio + pauseRatio;
+  }
+  const result = { wordCount: words.length, startTimes };
+  _wordWeightsCache.set(ayahIndex, result);
+  return result;
+}
+
+function clearWordWeightsCache() {
+  _wordWeightsCache.clear();
 }
 
 function onTimeUpdate() {
@@ -144,31 +176,15 @@ function onTimeUpdate() {
     if (currentTime < 0) currentTime = 0;
   }
 
-  const ayahEl = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
-  if (!ayahEl) return;
+  const wordData = getCachedWordWeights(state.currentAyahIndex);
+  if (!wordData) return;
 
-  const words = ayahEl.querySelectorAll('.word');
-  if (words.length === 0) return;
-
-  const weights = [];
-  for (const w of words) {
-    const letters = (w.textContent.match(/[\u0621-\u064A\u0660-\u0669]/g) || []);
-    weights.push(Math.max(1, letters.length));
-  }
-  const totalWeight = weights.reduce((a, b) => a + b, 0);
-  const pauseRatio = words.length <= 3 ? 0.06 : words.length <= 8 ? 0.04 : 0.025;
-  const speechRatio = 1 - pauseRatio * (words.length - 1);
-  let cumTime = 0;
-  const startTimes = [];
-  for (let i = 0; i < words.length; i++) {
-    startTimes.push(cumTime);
-    cumTime += (weights[i] / totalWeight) * speechRatio * duration + pauseRatio * duration;
-  }
-  let wordIndex = words.length - 1;
-  for (let i = words.length - 1; i >= 0; i--) {
+  const startTimes = wordData.startTimes.map(t => t * duration);
+  let wordIndex = wordData.wordCount - 1;
+  for (let i = wordData.wordCount - 1; i >= 0; i--) {
     if (currentTime >= startTimes[i]) { wordIndex = i; break; }
   }
-  words.forEach((w, i) => {
+  document.querySelectorAll(`.ayah[data-index="${state.currentAyahIndex}"] .word`).forEach((w, i) => {
     w.classList.toggle('current-word', i <= wordIndex);
   });
 }
