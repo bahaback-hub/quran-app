@@ -39,5 +39,11 @@
     "name": "نبيذي",
     "type": "css",
     "css": "linear-gradient(135deg, #3a0e0e 0%, #6b1515 50%, #8b2020 100%)"
+  },
+  {
+    "id": "video-bg",
+    "name": "فيديو خلفية",
+    "type": "video",
+    "src": "videos/12033393_1920_1080_30fps.mp4"
   }
 ]

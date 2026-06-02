@@ -156,12 +156,53 @@ export function performExactSearch(query) {
       relaxedVariants.some(q => normalizeRelaxed(ayah.text).includes(q))
     );
   }
+  matches.sort((a, b) => {
+    const aIdx = a.normalized.indexOf(exactVariants[0]) !== -1
+      ? a.normalized.indexOf(exactVariants[0])
+      : normalizeRelaxed(a.text).indexOf(relaxedVariants[0]);
+    const bIdx = b.normalized.indexOf(exactVariants[0]) !== -1
+      ? b.normalized.indexOf(exactVariants[0])
+      : normalizeRelaxed(b.text).indexOf(relaxedVariants[0]);
+    return (aIdx === -1 ? 9999 : aIdx) - (bIdx === -1 ? 9999 : bIdx);
+  });
   state._allSearchMatches = matches;
   state._searchResultsPage = 1;
   renderSearchResults(matches.slice(0, SEARCH_PAGE_SIZE), query, matches.length > SEARCH_PAGE_SIZE);
 }
 
 /* ===================== SEARCH AUTOCOMPLETE ===================== */
+
+/** Build a Trie from the Quran word list for O(k) prefix lookup. */
+function buildTrie(words) {
+  const root = {};
+  for (const { word, count } of words) {
+    let node = root;
+    for (const ch of word) {
+      if (!node[ch]) node[ch] = {};
+      node = node[ch];
+    }
+    node._end = word;
+    node._count = count;
+  }
+  return root;
+}
+
+/** Find up to `limit` completions from a Trie node. */
+function trieCompletions(node, limit) {
+  const results = [];
+  function dfs(n) {
+    if (results.length >= limit) return;
+    if (n._end) results.push({ word: n._end, count: n._count });
+    const keys = Object.keys(n).filter(k => k !== '_end' && k !== '_count');
+    keys.sort();
+    for (const k of keys) {
+      if (results.length >= limit) break;
+      dfs(n[k]);
+    }
+  }
+  dfs(node);
+  return results;
+}
 
 export function buildSearchWords() {
   if (!state.fullQuranText || state.searchWords?.length) return;
@@ -173,9 +214,11 @@ export function buildSearchWords() {
       freq.set(w, (freq.get(w) || 0) + 1);
     }
   }
-  state.searchWords = [...freq.entries()]
+  const list = [...freq.entries()]
     .map(([word, count]) => ({ word, count }))
     .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word));
+  state.searchWords = list;
+  state.searchTrie = buildTrie(list);
 }
 
 let _acIndex = -1;
@@ -196,10 +239,19 @@ export function initSearchAutocomplete() {
         return;
       }
       const normVal = normalizeExactText(val);
-      const suggestions = [];
-      for (const w of state.searchWords) {
-        if (suggestions.length >= 8) break;
-        if (w.word.startsWith(normVal)) suggestions.push(w);
+      let suggestions = [];
+      if (state.searchTrie && normVal) {
+        let node = state.searchTrie;
+        for (const ch of normVal) {
+          if (!node[ch]) { node = null; break; }
+          node = node[ch];
+        }
+        if (node) suggestions = trieCompletions(node, 8);
+      } else if (state.searchWords) {
+        for (const w of state.searchWords) {
+          if (suggestions.length >= 8) break;
+          if (w.word.startsWith(normVal)) suggestions.push(w);
+        }
       }
       if (!suggestions.length) {
         dropdown.style.display = 'none';

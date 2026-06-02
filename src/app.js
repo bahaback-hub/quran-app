@@ -6,6 +6,9 @@ import { __, getLang, setLang, applyTranslations } from './i18n.js';
 import { state } from './state.js';
 import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification, showQiblaCompass, hideQiblaCompass } from './prayer.js';
 import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
+import { toggleSelectMode, clearSelection, shareSelected, handleAyahSelect } from './select-mode.js';
+import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
+import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { applyFontSize, toggleNightMode, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents, toggleAdhkarPanel } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah } from './audio.js';
@@ -14,6 +17,7 @@ import { recordReadingSession, renderReadingStats } from './reading-stats.js';
 import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
 import { initNavigation } from './navigation.js';
+import { startOnboarding } from './onboarding.js';
 import {
   loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect, toggleTranslation
 } from './surah-loader.js';
@@ -54,10 +58,37 @@ function initState() {
     ayahTimings: [],
     presentationMode: false,
     _allSearchMatches: null,
-    _searchResultsPage: 1
+    _searchResultsPage: 1,
+    searchTrie: null,
+    _selectMode: false,
+    _selectedAyahs: [],
+    _adhkarAudioCtx: null
   });
 }
 
+/* ===================== ONBOARDING ===================== */
+
+function showOnboarding() {
+  startOnboarding();
+  if (dom.welcomeScreen) dom.welcomeScreen.style.display = 'none';
+}
+
+function dismissWelcomeScreen() {
+  if (dom.welcomeScreen) dom.welcomeScreen.style.display = 'none';
+  storage.set('welcome_dismissed', true);
+}
+
+/* ===================== VISIBILITY ===================== */
+
+function handleVisibilityChange() {
+  if (document.hidden) {
+    stopClock();
+    clearInterval(state.adhkarIntervalId);
+  } else {
+    startClock();
+    state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
+  }
+}
 /* ===================== INIT ===================== */
 
 /** Initialize the application: load state, data, bind events. */
@@ -125,7 +156,7 @@ export async function initApp() {
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
   dom.testAzanBtn?.addEventListener('click', testAzan);
   dom.azanNotifStopBtn?.addEventListener('click', stopAzan);
-  dom.welcomeDismissBtn?.addEventListener('click', dismissWelcomeScreen);
+  dom.welcomeDismissBtn?.addEventListener('click', showOnboarding);
   dom.azanNotification?.addEventListener('click', (e) => {
     if (e.target === dom.azanNotification) stopAzan();
   });
@@ -182,6 +213,10 @@ export async function initApp() {
       if (dom.countryInput) dom.countryInput.value = country;
     }
   });
+
+  dom.selectModeBtn?.addEventListener('click', toggleSelectMode);
+  dom.selectShareBtn?.addEventListener('click', shareSelected);
+  dom.selectClearBtn?.addEventListener('click', clearSelection);
 
   dom.favoritesOpenBtn?.addEventListener('click', openFavorites);
   dom.favoritesCloseBtn?.addEventListener('click', closeFavorites);
@@ -278,8 +313,8 @@ export async function initApp() {
   const savedPlayerCollapsed = storage.get('player_collapsed');
   if (savedPlayerCollapsed === false && dom.player) dom.player.classList.remove('collapsed');
 
-  // Show welcome screen on first visit
-  showWelcomeScreen();
+  // Show welcome screen on first visit (with onboarding tutorial)
+  showOnboarding();
 
   window.addEventListener('online', updateNetworkBanner);
   window.addEventListener('offline', updateNetworkBanner);
@@ -287,6 +322,41 @@ export async function initApp() {
 
   document.addEventListener('visibilitychange', handleVisibilityChange);
 
+  /* ========== SWIPE GESTURES (mobile) ========== */
+  initSwipeGestures();
+
+  /* ========== SWIPE GESTURES ========== */
+  function initSwipeGestures() {
+    const el = dom.surahContent;
+    if (!el) return;
+    let startX = 0, startY = 0;
+    el.addEventListener('touchstart', (e) => {
+      startX = e.changedTouches[0].screenX;
+      startY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    el.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].screenX - startX;
+      const dy = e.changedTouches[0].screenY - startY;
+      if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx) * 1.5) return;
+      if (dx < 0) nextAyah(false);
+      else prevAyah();
+    }, { passive: true });
+  }
+
+  // Reading progress bar
+  function updateReadingProgress() {
+    const progressBar = document.getElementById('readingProgress');
+    if (!progressBar) return;
+    if (state.mushafMode) {
+      progressBar.style.transform = `scaleX(${state.currentPage / 604})`;
+      return;
+    }
+    const container = dom.surahContent;
+    if (!container || !state.surahData) return;
+    const total = state.surahData.ayahs?.length || 1;
+    const progress = Math.min(1, (state.currentAyahIndex + 1) / total);
+    progressBar.style.transform = `scaleX(${progress})`;
+  }
   state._updateReadingProgress = updateReadingProgress;
   window.addEventListener('scroll', updateReadingProgress, { passive: true });
   updateReadingProgress();
