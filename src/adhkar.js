@@ -346,7 +346,7 @@ function playNotificationSound() {
       osc.start(ctx.currentTime + i * 0.15);
       osc.stop(ctx.currentTime + i * 0.15 + 0.4);
     });
-  } catch (e) {}
+  } catch (e) { console.warn('Notification sound failed:', e); }
 }
 
 function showAdhkarNotification(cat, notifDuration) {
@@ -365,6 +365,16 @@ function showAdhkarNotification(cat, notifDuration) {
   }, duration);
 
   renderNotifAdhkarText(cat);
+
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🕌 ' + cat.name, {
+      body: cat.id === 'personal' ? (cat.name || '') : 'حان وقت الأذكار',
+      icon: '/icon-192.png',
+      tag: 'adhkar-' + cat.id
+    });
+  } else if ('Notification' in window && Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
 }
 
 function renderNotifAdhkarText(cat) {

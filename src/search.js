@@ -96,8 +96,14 @@ export async function loadFullQuranText() {
     const db = await openQuranDB();
     const cached = await loadFromIndexedDB(db);
     if (cached) {
+      const needsNormalize = cached.length > 0 && !cached[0].normalized;
+      if (needsNormalize) {
+        for (const a of cached) {
+          a.normalized = normalizeExactText(a.text);
+        }
+        cacheInIndexedDB(db, cached);
+      }
       state.fullQuranText = cached;
-      state.fullQuranText.forEach(a => { a.normalized = normalizeExactText(a.text); });
       state.fullQuranLoaded = true;
       buildSearchWords();
       return;
@@ -105,13 +111,17 @@ export async function loadFullQuranText() {
     showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
     const data = await fetchQuranText();
     const ayahs = flattenAyahs(JSON.stringify(data));
+    for (const a of ayahs) {
+      a.normalized = normalizeExactText(a.text);
+    }
     state.fullQuranText = ayahs;
     state.fullQuranLoaded = true;
     buildSearchWords();
     cacheInIndexedDB(db, ayahs);
     showToast('✅ قاعدة القرآن جاهزة', 'success');
   } catch (err) {
-    console.error(err);
+    console.error('Failed to load full Quran text:', err);
+    showToast('❌ فشل تحميل قاعدة القرآن', 'error');
   }
 }
 
@@ -127,6 +137,8 @@ function generateArabicVariants(normQuery) {
   return [...new Set(variants)];
 }
 
+const SEARCH_PAGE_SIZE = 50;
+
 /** Search full Quran text for exact matches. Falls back to relaxed if no results. */
 export function performExactSearch(query) {
   if (!query.trim() || query.length < 2) { showToast('أدخل حرفين على الأقل', 'error'); return; }
@@ -138,13 +150,15 @@ export function performExactSearch(query) {
   const relaxedVariants = generateArabicVariants(relaxedQuery);
   let matches = state.fullQuranText.filter(ayah =>
     exactVariants.some(q => ayah.normalized.includes(q))
-  ).slice(0, 100);
+  );
   if (!matches.length) {
     matches = state.fullQuranText.filter(ayah =>
       relaxedVariants.some(q => normalizeRelaxed(ayah.text).includes(q))
-    ).slice(0, 100);
+    );
   }
-  renderSearchResults(matches, query);
+  state._allSearchMatches = matches;
+  state._searchResultsPage = 1;
+  renderSearchResults(matches.slice(0, SEARCH_PAGE_SIZE), query, matches.length > SEARCH_PAGE_SIZE);
 }
 
 /* ===================== SEARCH AUTOCOMPLETE ===================== */
@@ -419,7 +433,7 @@ function buildSearchHighlight(text, query) {
   return result;
 }
 
-function renderSearchResults(matches, query) {
+function renderSearchResults(matches, query, hasMore) {
   if (!dom.searchResults) return;
   dom.searchResults.innerHTML = '';
   if (!matches.length) {
@@ -427,8 +441,9 @@ function renderSearchResults(matches, query) {
     dom.searchResults.style.display = 'block';
     return;
   }
+  const totalResults = state._allSearchMatches?.length ?? matches.length;
   let html = `<div class="search-results-header">
-    <span>✅ عدد النتائج: ${matches.length}</span>
+    <span>✅ عدد النتائج: ${totalResults}</span>
     <button class="search-results-close" id="closeSearchResultsBtn" aria-label="إغلاق">✖</button>
   </div>`;
   for (const m of matches) {
@@ -445,11 +460,25 @@ function renderSearchResults(matches, query) {
       </div>
     </div>`;
   }
+  if (hasMore) {
+    html += `<div style="text-align:center;padding:12px;">
+      <button class="btn btn-gold" id="loadMoreSearchBtn">📥 تحميل المزيد (${Math.min(SEARCH_PAGE_SIZE, totalResults - matches.length)}+)</button>
+    </div>`;
+  }
   dom.searchResults.innerHTML = html;
   dom.searchResults.style.display = 'block';
 
   const closeBtn = document.getElementById('closeSearchResultsBtn');
   if (closeBtn) closeBtn.addEventListener('click', () => { dom.searchResults.style.display = 'none'; });
+
+  document.getElementById('loadMoreSearchBtn')?.addEventListener('click', () => {
+    const currentCount = document.querySelectorAll('.search-result-item').length;
+    const nextPage = state._searchResultsPage + 1;
+    state._searchResultsPage = nextPage;
+    const allMatches = state._allSearchMatches ?? [];
+    const nextBatch = allMatches.slice(0, currentCount + SEARCH_PAGE_SIZE);
+    renderSearchResults(nextBatch, query, nextBatch.length < allMatches.length);
+  });
 
   document.querySelectorAll('.search-play').forEach(btn => {
     btn.addEventListener('click', (e) => {

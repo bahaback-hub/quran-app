@@ -320,9 +320,75 @@ export async function loadSurah(surahNum, opts = {}) {
   }
 }
 
+const VIRTUAL_CHUNK_SIZE = 20;
+let _ayahsReadyCount = 0;
+let _virtualObserver = null;
+
+function buildAyahHtml(a, i, textData) {
+  const isRtlTranslation = state.currentTranslation && (state.currentTranslation.startsWith('ur.'));
+  let txt = a.text;
+  if (textData.number !== 1 && a.numberInSurah === 1) {
+    txt = txt.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
+  }
+  let html = `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
+  html += buildAyahWordsHtml(txt, i);
+  html += ` <span class="ayah-number">${a.numberInSurah}</span>`;
+  if (state.translationEnabled && state.translationData?.ayahs?.[i]) {
+    const transText = escapeHtml(state.translationData.ayahs[i].text);
+    html += `<span class="translation-text${isRtlTranslation ? ' rtl-lang' : ''}">${transText}</span>`;
+  }
+  html += `</span> `;
+  return html;
+}
+
+function renderAyahChunk(textData, start, count) {
+  if (!dom.surahContent) return;
+  const ayahsContainer = dom.surahContent.querySelector('.ayahs-container');
+  if (!ayahsContainer) return;
+  const end = Math.min(start + count, textData.ayahs.length);
+  let html = '';
+  for (let i = start; i < end; i++) {
+    html += buildAyahHtml(textData.ayahs[i], i, textData);
+  }
+  ayahsContainer.insertAdjacentHTML('beforeend', html);
+  _ayahsReadyCount = end;
+  if (_ayahsReadyCount < textData.ayahs.length) {
+    ensureVirtualSentinel(textData);
+  } else {
+    cleanupVirtualObserver();
+  }
+}
+
+function ensureVirtualSentinel(textData) {
+  cleanupVirtualObserver();
+  const existing = document.getElementById('virtualSentinel');
+  if (existing) existing.remove();
+  const sentinel = document.createElement('div');
+  sentinel.id = 'virtualSentinel';
+  sentinel.style.height = '1px';
+  dom.surahContent?.appendChild(sentinel);
+  _virtualObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && _ayahsReadyCount < textData.ayahs.length) {
+      renderAyahChunk(textData, _ayahsReadyCount, VIRTUAL_CHUNK_SIZE);
+    }
+  }, { rootMargin: '200px' });
+  _virtualObserver.observe(sentinel);
+}
+
+function cleanupVirtualObserver() {
+  if (_virtualObserver) {
+    _virtualObserver.disconnect();
+    _virtualObserver = null;
+  }
+  const existing = document.getElementById('virtualSentinel');
+  if (existing) existing.remove();
+}
+
 /** Render surah content into dom.surahContent. */
 export function renderSurah(textData) {
   if (!dom.surahContent) return;
+  cleanupVirtualObserver();
+  _ayahsReadyCount = 0;
 
   let html = `<h2 class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}`;
   if (SURAH_SECRETS[textData.number]) {
@@ -332,32 +398,11 @@ export function renderSurah(textData) {
   if (textData.number !== 1 && textData.number !== 9) {
     html += '<p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>';
   }
-  html += `<div class="ayahs-container" style="font-size:${state.fontSize}px">`;
+  html += `<div class="ayahs-container" style="font-size:${state.fontSize}px"></div>`;
+  dom.surahContent.innerHTML = html;
+  initAyahDelegation();
+  renderAyahChunk(textData, 0, VIRTUAL_CHUNK_SIZE);
 
-  const isRtlTranslation = state.currentTranslation && (state.currentTranslation.startsWith('ur.'));
-  for (let i = 0; i < textData.ayahs.length; i++) {
-    const a = textData.ayahs[i];
-    let txt = a.text;
-    if (textData.number !== 1 && a.numberInSurah === 1) {
-      txt = txt.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
-    }
-    html += `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
-    html += buildAyahWordsHtml(txt, i);
-    html += ` <span class="ayah-number">${a.numberInSurah}</span>`;
-    if (state.translationEnabled && state.translationData?.ayahs?.[i]) {
-      const transText = escapeHtml(state.translationData.ayahs[i].text);
-      const rtlClass = isRtlTranslation ? ' rtl-lang' : '';
-      html += `<span class="translation-text${rtlClass}">${transText}</span>`;
-    }
-    html += `</span> `;
-  }
-  html += '</div>';
-  const temp = document.createElement('div');
-  temp.innerHTML = html;
-  const fragment = document.createDocumentFragment();
-  while (temp.firstChild) fragment.appendChild(temp.firstChild);
-  dom.surahContent.replaceChildren(fragment);
-  attachAyahEvents();
   const secretBtn = dom.surahContent.querySelector('.surah-secret-title-btn');
   if (secretBtn) {
     secretBtn.addEventListener('click', (e) => {
@@ -374,22 +419,19 @@ function buildAyahWordsHtml(text, ayahIdx) {
   ).join(' ');
 }
 
-function attachAyahEvents() {
-  document.querySelectorAll('.ayah').forEach(el => {
-    el.removeEventListener('click', ayahClickHandler);
-    el.addEventListener('click', ayahClickHandler);
+function initAyahDelegation() {
+  if (!dom.surahContent) return;
+  dom.surahContent.addEventListener('click', (e) => {
+    const ayahEl = /** @type {HTMLElement} */ (e.target).closest('.ayah');
+    if (!ayahEl) return;
+    const idx = parseInt(ayahEl.getAttribute('data-index'), 10);
+    const surah = parseInt(ayahEl.dataset.surah, 10);
+    const ayah = parseInt(ayahEl.dataset.ayah, 10);
+    if (!state.surahData || state.surahData.number !== surah) return;
+    const a = state.surahData.ayahs[idx];
+    if (!a) return;
+    import('./ayah-modal.js').then(m => m.openAyahModal({ surah, ayah, text: a.text, surahName: state.surahData.name, index: -1 }));
   });
-}
-
-function ayahClickHandler(e) {
-  const ayahEl = e.currentTarget;
-  const idx = parseInt(ayahEl.getAttribute('data-index'), 10);
-  const surah = parseInt(ayahEl.dataset.surah, 10);
-  const ayah = parseInt(ayahEl.dataset.ayah, 10);
-  if (!state.surahData || state.surahData.number !== surah) return;
-  const a = state.surahData.ayahs[idx];
-  if (!a) return;
-  import('./ayah-modal.js').then(m => m.openAyahModal({ surah, ayah, text: a.text, surahName: state.surahData.name, index: -1 }));
 }
 
 function finalizeSurahLoad(opts) {
@@ -408,6 +450,9 @@ function finalizeSurahLoad(opts) {
 /** Scroll to and highlight the current ayah. */
 export function highlightCurrentAyah() {
   document.querySelectorAll('.ayah').forEach(el => el.classList.remove('current'));
+  if (state.surahData && state.currentAyahIndex >= _ayahsReadyCount) {
+    renderAyahChunk(state.surahData, _ayahsReadyCount, state.currentAyahIndex - _ayahsReadyCount + VIRTUAL_CHUNK_SIZE);
+  }
   const cur = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
   if (cur) {
     cur.classList.add('current');

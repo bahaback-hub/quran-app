@@ -39,3 +39,17 @@ declare function hideAzanNotification(): void;
 declare function stopClock(): void;
 declare function loadTafsirForSurahAyah(surahNum: number, ayahNum: number): Promise<void>;
 declare function showSurahSecret(surahNum: number, surahName: string): void;
+declare function initKeyboardShortcuts(): void;
+declare function initNavigation(): void;
+declare function initCapacitorBackButton(): void;
+
+// Capacitor (Android/iOS) — available via <script> tag at runtime
+interface Window {
+  Capacitor?: {
+    Plugins: {
+      App: {
+        addListener(event: string, callback: () => void): void;
+      };
+    };
+  };
+}

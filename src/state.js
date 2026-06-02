@@ -56,7 +56,12 @@
  *   ayahTimings: number[],
  *   presentationMode: boolean,
  *   _updateReadingProgress: Function|null,
- *   currentPageLayout: object|null
+ *   currentPageLayout: object|null,
+ *   _allSearchMatches: Array<{surah: number, surahName: string, ayah: number, text: string, normalized: string}>|null,
+ *   _searchResultsPage: number,
+ *   _editPersonalAdhkarId: string|null
  * }}
  */
-export let state = /** @type {any} */ ({});
+/** @type {any} */
+const _statePlaceholder = {};
+export let state = _statePlaceholder;
