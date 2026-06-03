@@ -1,5 +1,9 @@
+import { initErrorBoundary } from './error-boundary.js';
 import { initApp } from './app.js';
 import { initI18n } from './i18n.js';
+
+// Install global error handlers FIRST — before any other code runs
+initErrorBoundary();
 
 /** @type {Event|null} */
 /** @type {BeforeInstallPromptEvent|null} */
