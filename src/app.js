@@ -21,8 +21,8 @@ import {
   loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect, toggleTranslation
 } from './surah-loader.js';
 import {
-  showContinueWidget, showWelcomeScreen,
-  updateNetworkBanner
+  showContinueWidget, showWelcomeScreen, dismissWelcomeScreen,
+  handleVisibilityChange, updateNetworkBanner, updateReadingProgress
 } from './ui-extras.js';
 
 export { loadSurah, renderSurah, highlightCurrentAyah, updatePlayerInfo, buildSurahOffsets, loadSurahList } from './surah-loader.js';
