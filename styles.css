@@ -37,6 +37,17 @@
   --curtain-handle-bg: linear-gradient(180deg, #8b6f5a, #a0846c);
   --font-size-select-bg: #ffffff;
   --success-bg: #22c55e;
+  /* Font size scale */
+  --fs-xs: 11px;
+  --fs-sm: 13px;
+  --fs-md: 16px;
+  --fs-lg: 20px;
+  --fs-xl: 28px;
+  --fs-2xl: 36px;
+  --fs-3xl: 44px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
 }
 
 body.night-mode {
@@ -387,6 +398,30 @@ body:not(.bg-css) {
 .header h1 { font-size: 32px; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
 .header p { font-size: 15px; opacity: 0.9; }
 
+.header-title-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  opacity: 0.85;
+  direction: rtl;
+}
+.breadcrumb-item {
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.breadcrumb-item:hover { background: rgba(255,255,255,0.15); }
+.breadcrumb-sep { font-size: 18px; color: var(--accent); opacity: 0.7; }
+.breadcrumb-surah { font-weight: bold; }
+
 /* ===== قائمة الهيدر ===== */
 .header-menu-container {
   position: absolute;
@@ -535,6 +570,27 @@ body.night-mode .control-group label { color: var(--accent); }
   padding: 4px 8px;
   font-size: 12px;
   min-height: 34px;
+}
+
+/* ========== مجموعات بطاقات التحكم ========== */
+.control-card {
+  background: var(--player-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.control-card-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  margin-left: 4px;
+  white-space: nowrap;
 }
 
 /* ========== قائمة منسدلة حجم الخط ========== */
@@ -1010,6 +1066,15 @@ body.night-mode .ayah.selected { background: rgba(255, 224, 102, 0.1); }
 .btn-favorite { background: #ca8a04; color: #1a1a1a; }
 .btn-favorite.active { background: #dc2626; color: #fff; box-shadow: 0 0 12px rgba(220,38,38,0.5); }
 
+/* ========== نظام الأزرار الجديد (3 أنواع أساسية) ========== */
+.btn-primary { background: var(--accent); color: #2c3e50; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-secondary { background: var(--primary); color: #fff; }
+.btn-secondary:hover { background: var(--primary-light); }
+.btn-danger { background: #dc2626; color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+body.night-mode .btn-primary { color: #1a1a1a; }
+
 .keyboard-hint {
   text-align: center;
   font-size: 11px;
@@ -1223,6 +1288,37 @@ body.night-mode .settings-header h2 { color: var(--accent); }
   transition: transform 0.2s;
 }
 .settings-close:hover { transform: rotate(90deg); }
+
+/* ========== تبويبات الإعدادات ========== */
+.settings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--border-soft);
+  padding-bottom: 8px;
+}
+.settings-tab {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.settings-tab:hover { background: var(--hover-bg); color: var(--text-primary); }
+.settings-tab.active {
+  background: var(--accent);
+  color: #2c3e50;
+}
+.settings-tab-content { display: none; }
+.settings-tab-content.active { display: block; }
+
 .big-clock {
   text-align: center;
   padding: 20px;
@@ -3405,6 +3501,10 @@ body {
 
   /* إظهار شريط التنقل السفلي */
   .bottom-nav { display: flex; }
+
+  /* المشغل لا يتزاحم مع الشريط السفلي */
+  .player { bottom: 56px; }
+  .player.collapsed { bottom: 56px; }
 
   /* لوحة المفاتيح العربية */
   .arabic-keyboard { gap: 2px; padding: 4px 2px; }
