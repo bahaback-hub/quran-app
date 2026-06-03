@@ -68,8 +68,6 @@
     <div class="header-title-row">
       <h1>📖 القرآن الكريم</h1>
       <div class="breadcrumbs" id="breadcrumbs">
-        <span class="breadcrumb-item breadcrumb-home" id="breadcrumbHome">📖 الرئيسية</span>
-        <span class="breadcrumb-sep">›</span>
         <span class="breadcrumb-item" id="breadcrumbSurah">—</span>
       </div>
     </div>
@@ -93,14 +91,7 @@
           <button class="view-mode-btn active" id="viewSurahBtn" data-mode="surah" title="وضع السورة">📖</button>
           <button class="view-mode-btn" id="viewMushafBtn" data-mode="mushaf" title="وضع المصحف">📄</button>
           <button class="view-mode-btn" id="viewPresBtn" data-mode="presentation" title="وضع العرض">🖼️</button>
-          <button class="view-mode-btn view-mode-btn-trans" id="translationToggle" title="الترجمة">🌐</button>
-          <select id="translationSelect" aria-label="اختيار الترجمة" style="display:none;">
-            <option value="en.sahih">Sahih International</option>
-            <option value="en.pickthall">Pickthall</option>
-            <option value="en.yusufali">Yusuf Ali</option>
-            <option value="fr.hamidullah">Hamidullah (Français)</option>
-            <option value="ur.jalandhry">Jalandhry (اردو)</option>
-          </select>
+          <button class="view-mode-btn view-mode-btn-trans" id="translationToggle" style="display:none;" title="الترجمة">🌐</button>
         </div>
         <span class="page-indicator" id="pageIndicator" style="display:none;">صفحة ١ من ٦٠٤</span>
       </div>
@@ -411,6 +402,17 @@
       <div class="settings-row">
         <label>حفظ آخر موضع تلقائياً:</label>
         <div class="toggle-switch on" id="autoSaveToggle" role="switch" aria-label="حفظ آخر موضع"></div>
+      </div>
+      <div class="settings-row">
+        <label for="translationSelect">الترجمة:</label>
+        <select id="translationSelect" aria-label="اختيار الترجمة">
+          <option value="">— بدون ترجمة —</option>
+          <option value="en.sahih">Sahih International</option>
+          <option value="en.pickthall">Pickthall</option>
+          <option value="en.yusufali">Yusuf Ali</option>
+          <option value="fr.hamidullah">Hamidullah (Français)</option>
+          <option value="ur.jalandhry">Jalandhry (اردو)</option>
+        </select>
       </div>
     </div>
     <div class="settings-section">

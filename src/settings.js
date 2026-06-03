@@ -64,7 +64,7 @@ export function applyLineSpacing(spacing) {
 
 /* ===================== SETTINGS TABS ===================== */
 
-/** Initialize settings tab switching. */
+/** Initialize settings tab switching and activate default tab. */
 export function initSettingsTabs() {
   const tabsContainer = dom.settingsPanel?.querySelector('#settingsTabs');
   if (!tabsContainer) return;
@@ -80,6 +80,12 @@ export function initSettingsTabs() {
       if (target) target.classList.add('active');
     });
   });
+  // Activate content for the initially active tab
+  const activeTab = tabsContainer.querySelector('.settings-tab.active');
+  if (activeTab) {
+    const target = dom.settingsPanel?.querySelector(`.settings-tab-content[data-tab="${activeTab.dataset.tab}"]`);
+    if (target) target.classList.add('active');
+  }
 }
 
 /* ===================== SETTINGS PANEL ===================== */
@@ -263,10 +269,9 @@ export function restoreSettings() {
   if (dom.autoSaveToggle) dom.autoSaveToggle.classList.toggle('on', state.autoSave);
   if (dom.reciterSelect) dom.reciterSelect.value = state.currentReciter;
   if (dom.tafsirSelect) dom.tafsirSelect.value = state.currentTafsirEdition;
-  if (dom.translationToggle) dom.translationToggle.classList.toggle('on', state.translationEnabled);
   if (dom.translationSelect) {
-    dom.translationSelect.style.display = state.translationEnabled ? '' : 'none';
-    if (state.currentTranslation) dom.translationSelect.value = state.currentTranslation;
+    if (state.translationEnabled && state.currentTranslation) dom.translationSelect.value = state.currentTranslation;
+    else dom.translationSelect.value = '';
   }
   if (dom.settingsThemeToggle) dom.settingsThemeToggle.classList.toggle('on', state.nightMode);
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = state.fontSize;
