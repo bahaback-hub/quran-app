@@ -11,6 +11,7 @@ import { getAyahAnnotations } from './tajweed-data.js';
 import { SURAH_SECRETS } from './surahs-data.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './audio.js';
 import { recordReadingSession } from './reading-stats.js';
+import { loadTafsirForCurrentAyah } from './tafsir.js';
 
 
 /* ===================== SURAH LIST ===================== */
@@ -501,7 +502,7 @@ export function highlightCurrentAyah() {
   }
   updatePlayerInfo();
   import('./presentation.js').then(m => m.syncPresentation()).catch(() => {});
-  if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) import('./tafsir.js').then(m => m.loadTafsirForCurrentAyah());
+  if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
   if (state.mushafMode) import('./mushaf.js').then(m => m.highlightMushafAyah());
 }
 

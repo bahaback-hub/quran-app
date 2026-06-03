@@ -13,6 +13,6 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.js", "src/**/*.d.ts"],
+  "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "app.bundle.js", "src/__tests__"]
 }

@@ -7,6 +7,7 @@ import { copyToClipboard } from "./utils.js";
 import { loadSurah } from "./app.js";
 import { storage } from "./storage.js";
 import { RECITERS, getReciterById, buildAudioUrl } from "./reciters.js";
+import { fetchTafsirText } from "./tafsir.js";
 
 /** @type {Element} */
 let modalEl;
@@ -207,7 +208,6 @@ function copyModalAyah(simple) {
 async function copyModalWithTafsir() {
   if (!current) return;
   const edition = document.querySelector('.ayah-modal-tafsir-tab.active')?.dataset?.edition || 'ar-tafsir-muyassar';
-  const { fetchTafsirText } = await import('./tafsir.js');
   const tafsir = await fetchTafsirText(edition, current.surah, current.ayah);
   const text = `${current.text}\n\n${tafsir || ''}`;
   copyToClipboard(text);
@@ -348,7 +348,6 @@ async function loadTafsirTab(edition) {
   activateTab(edition);
   M.ayahModalTafsirBody.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
   try {
-    const { fetchTafsirText } = await import('./tafsir.js');
     const text = await fetchTafsirText(edition, current.surah, current.ayah);
     if (text) {
       M.ayahModalTafsirBody.innerHTML = `<p class="tafsir-text">${escapeHtml(text)}</p>`;

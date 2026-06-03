@@ -1,6 +1,3 @@
-// Global state — defined in state.js, shared via concat scope
-declare var state: Record<string, any>;
-
 // Window extensions (non-standard browser APIs)
 interface Window {
   toastTimeout?: ReturnType<typeof setTimeout>;
