@@ -390,6 +390,13 @@ export function renderSurah(textData) {
   cleanupVirtualObserver();
   _ayahsReadyCount = 0;
 
+  // Update breadcrumbs
+  const breadcrumbSurah = document.getElementById('breadcrumbSurah');
+  if (breadcrumbSurah) {
+    breadcrumbSurah.textContent = `${textData.name} (${textData.englishName})`;
+    breadcrumbSurah.classList.add('breadcrumb-surah');
+  }
+
   let html = `<h2 class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}`;
   if (SURAH_SECRETS[textData.number]) {
     html += ` <button class="surah-secret-title-btn" data-surah="${textData.number}" data-surahname="${escapeHtml(textData.name)}" title="معلومات عن السورة" aria-label="معلومات عن السورة">ℹ️</button>`;

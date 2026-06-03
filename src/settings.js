@@ -62,6 +62,26 @@ export function applyLineSpacing(spacing) {
   if (dom.lineSpacingSelect) dom.lineSpacingSelect.value = spacing;
 }
 
+/* ===================== SETTINGS TABS ===================== */
+
+/** Initialize settings tab switching. */
+export function initSettingsTabs() {
+  const tabsContainer = dom.settingsPanel?.querySelector('#settingsTabs');
+  if (!tabsContainer) return;
+  const tabs = tabsContainer.querySelectorAll('.settings-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabName = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const contents = dom.settingsPanel?.querySelectorAll('.settings-tab-content');
+      contents?.forEach(c => c.classList.remove('active'));
+      const target = dom.settingsPanel?.querySelector(`.settings-tab-content[data-tab="${tabName}"]`);
+      if (target) target.classList.add('active');
+    });
+  });
+}
+
 /* ===================== SETTINGS PANEL ===================== */
 
 /** Open the settings panel and render adhkar settings list. */

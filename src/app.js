@@ -9,7 +9,7 @@ import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookma
 import { toggleSelectMode, clearSelection, shareSelected, handleAyahSelect } from './select-mode.js';
 import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
-import { applyFontSize, toggleNightMode, applySepiaMode, toggleSepiaMode, applyFontType, applyLineSpacing, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
+import { applyFontSize, toggleNightMode, applySepiaMode, toggleSepiaMode, applyFontType, applyLineSpacing, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings, initSettingsTabs } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents, toggleAdhkarPanel, closeAdhkarPanel } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah, nextAyah, prevAyah } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search-ui.js';
@@ -140,6 +140,7 @@ export async function initApp() {
   });
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
   dom.bgSelect?.addEventListener('change', () => { applyBackground(dom.bgSelect.value); });
+  initSettingsTabs();
 
   dom.tafsirCurtainHandle?.addEventListener('click', () => import('./tafsir.js').then(m => m.toggleTafsir()));
   dom.tafsirSelect?.addEventListener('change', () => {
