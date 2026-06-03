@@ -22,5 +22,4 @@ window.installPWA = function() {
   }
 };
 
-initI18n();
-initApp();
+initI18n().then(() => initApp());

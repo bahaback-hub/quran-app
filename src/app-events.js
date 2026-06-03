@@ -160,8 +160,9 @@ export function bindDisplaySettingsEvents() {
   dom.langSelect?.addEventListener('change', () => {
     const newLang = dom.langSelect.value;
     if (newLang !== getLang()) {
-      setLang(newLang);
-      showToast(__('language') + ': ' + (newLang === 'ar' ? 'العربية' : 'English'), 'success');
+      setLang(newLang).then(() => {
+        showToast(__('language') + ': ' + (newLang === 'ar' ? 'العربية' : 'English'), 'success');
+      });
     }
   });
 
