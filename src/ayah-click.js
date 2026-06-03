@@ -1,4 +1,5 @@
 import { state } from "./state.js";
+import { getLineY, CANVAS_H } from "./mushaf-renderer.js";
 
 function arabicCharCount(str) {
   return (str.match(/[\u0621-\u064A\u0660-\u0669]/g) || []).length;
@@ -26,8 +27,18 @@ export async function handlePageClick(pageNum, clickX, clickY, imgWidth, imgHeig
   const totalLines = layout.lines.length;
   if (totalLines === 0) return null;
 
-  const lineHeight = imgHeight / totalLines;
-  const lineIndex = Math.floor(clickY / lineHeight);
+  let lineIndex = -1;
+  for (let i = 0; i < totalLines; i++) {
+    const lineTop = getLineY(i, totalLines, imgHeight);
+    const lineBottom = getLineY(i + 1, totalLines, imgHeight);
+    if (clickY >= lineTop && clickY < lineBottom) {
+      lineIndex = i;
+      break;
+    }
+  }
+  if (lineIndex < 0) {
+    lineIndex = Math.min(totalLines - 1, Math.floor(clickY / (imgHeight / totalLines)));
+  }
   if (lineIndex < 0 || lineIndex >= totalLines) return null;
 
   const line = layout.lines[lineIndex];
@@ -100,11 +111,15 @@ export async function getAyahHighlightRects(pageNum, surah, ayah, imgWidth, imgH
 
     if (maxRtl <= minRtl) continue;
 
+    const lineTop = getLineY(lineIndex, totalLines, imgHeight);
+    const nextLineTop = getLineY(lineIndex + 1, totalLines, imgHeight);
+    const actualLineHeight = nextLineTop - lineTop;
+
     rects.push({
       left: imgWidth - maxRtl,
-      top: lineIndex * lineHeight,
+      top: lineTop,
       width: maxRtl - minRtl,
-      height: lineHeight,
+      height: actualLineHeight || lineHeight,
     });
   }
 

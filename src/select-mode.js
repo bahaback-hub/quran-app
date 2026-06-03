@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
-import { copyToClipboard } from './share.js';
+import { copyToClipboard } from './utils.js';
 
 /** Toggle multi-ayah select mode on/off. */
 export function toggleSelectMode() {
