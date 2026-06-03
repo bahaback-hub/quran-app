@@ -95,6 +95,8 @@
       <div class="controls-left">
         <span class="page-indicator" id="pageIndicator" style="display:none;">صفحة ١ من ٦٠٤</span>
         <button class="search-toggle-btn" id="searchToggleBtn" title="بحث">🔍</button>
+        <button class="btn-install" id="installBtn" title="تثبيت التطبيق" style="display:none;">📲</button>
+        <div class="search-history-dropdown" id="searchHistoryDropdown" style="display:none;"></div>
         <div class="control-group search-input-group" id="searchInputGroup" style="display:none;">
           <div class="search-input-wrapper">
             <input id="searchInput" type="text" data-i18n-placeholder="search_placeholder" data-i18n-aria-label="search" placeholder="ابحث..." aria-label="مربع البحث" autocomplete="off">
@@ -210,6 +212,18 @@
         <button class="btn btn-bookmark" id="bookmarkBtn" aria-label="إشارة مرجعية" title="نقرة: حفظ — نقرتان: انتقال">🔖 علامة</button>
         <button class="btn btn-favorite" id="favoriteBtn" aria-label="إضافة للمفضلة">❤️ مفضلة</button>
         <button class="btn btn-gold" id="shareBtn" aria-label="مشاركة الآية">📤 مشاركة</button>
+        <span class="speed-control" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;">
+          <span>⏩</span>
+          <select id="speedSelect" aria-label="سرعة التلاوة" style="border:1px solid var(--border-soft);border-radius:6px;padding:4px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);">
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
+          </select>
+        </span>
+        <button class="btn btn-sleep" id="sleepTimerBtn" aria-label="مؤقت النوم" title="مؤقت النوم">😴 نوم</button>
       </div>
       <div class="select-mode-bar" id="selectModeBar" style="display:none;">
         <span id="selectCount">0</span> آية محددة
@@ -389,6 +403,33 @@
       </select>
     </div>
     <div class="settings-row">
+      <label for="fontTypeSelect">نوع الخط:</label>
+      <select id="fontTypeSelect">
+        <option value="'Amiri','Traditional Arabic',serif" selected>أميري</option>
+        <option value="'Scheherazade New','Traditional Arabic',serif">شهرزاد</option>
+        <option value="'Traditional Arabic',serif">عربي تقليدي</option>
+        <option value="'Uthmanic Hafs','Traditional Arabic',serif">عثماني</option>
+        <option value="'Al Qalam','Traditional Arabic',serif">القلم</option>
+      </select>
+    </div>
+    <div class="settings-row">
+      <label for="lineSpacingSelect">تباعد الأسطر:</label>
+      <select id="lineSpacingSelect">
+        <option value="1.4">ضيق</option>
+        <option value="1.8" selected>عادي</option>
+        <option value="2.2">واسع</option>
+        <option value="2.6">واسع جداً</option>
+      </select>
+    </div>
+    <div class="settings-row">
+      <label>الوضع الليلي:</label>
+      <div class="toggle-switch" id="themeToggle" role="switch" aria-label="الوضع الليلي"></div>
+    </div>
+    <div class="settings-row">
+      <label>الوضع الدافئ (سيبيا):</label>
+      <div class="toggle-switch" id="sepiaToggle" role="switch" aria-label="الوضع الدافئ"></div>
+    </div>
+    <div class="settings-row">
       <label>حفظ آخر موضع تلقائياً:</label>
       <div class="toggle-switch on" id="autoSaveToggle" role="switch" aria-label="حفظ آخر موضع"></div>
     </div>
@@ -478,6 +519,10 @@
   <div class="favorites-header">
     <h2>❤️ المفضلة</h2>
     <button class="favorites-close" id="favoritesCloseBtn" aria-label="إغلاق المفضلة">✖</button>
+  </div>
+  <div class="favorites-export-row" style="display:flex;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border-soft);">
+    <button class="btn btn-sm" id="favExportTextBtn" style="flex:1;">📄 تصدير كنص</button>
+    <button class="btn btn-sm" id="favExportJsonBtn" style="flex:1;">💾 تصدير JSON</button>
   </div>
   <div id="favoritesList">
     <p style="text-align:center;color:#888;">لا توجد آيات مفضلة بعد</p>

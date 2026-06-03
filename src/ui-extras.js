@@ -118,10 +118,10 @@ export function dismissWelcomeScreen() {
 export function handleVisibilityChange() {
   if (document.hidden) {
     stopClock();
-    clearInterval(state.adhkarIntervalId);
+    if (state.adhkarIntervalId) { clearInterval(state.adhkarIntervalId); state.adhkarIntervalId = null; }
   } else {
     startClock();
-    state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
+    if (!state.adhkarIntervalId) state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
   }
 }
 
@@ -139,16 +139,22 @@ export function updateNetworkBanner() {
 
 /* ===================== READING PROGRESS ===================== */
 
+let _progressPending = false;
 export function updateReadingProgress() {
-  const progressBar = document.getElementById('readingProgress');
-  if (!progressBar) return;
-  if (state.mushafMode) {
-    progressBar.style.transform = `scaleX(${state.currentPage / 604})`;
-    return;
-  }
-  const container = dom.surahContent;
-  if (!container || !state.surahData) return;
-  const total = state.surahData.ayahs?.length || 1;
-  const progress = Math.min(1, (state.currentAyahIndex + 1) / total);
-  progressBar.style.transform = `scaleX(${progress})`;
+  if (_progressPending) return;
+  _progressPending = true;
+  requestAnimationFrame(() => {
+    _progressPending = false;
+    const progressBar = document.getElementById('readingProgress');
+    if (!progressBar) return;
+    if (state.mushafMode) {
+      progressBar.style.transform = `scaleX(${state.currentPage / 604})`;
+      return;
+    }
+    const container = dom.surahContent;
+    if (!container || !state.surahData) return;
+    const total = state.surahData.ayahs?.length || 1;
+    const progress = Math.min(1, (state.currentAyahIndex + 1) / total);
+    progressBar.style.transform = `scaleX(${progress})`;
+  });
 }

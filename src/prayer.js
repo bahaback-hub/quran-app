@@ -25,10 +25,11 @@ export function stopClock() {
   }
 }
 
+const _hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' });
 function updateDates() {
   const now = new Date();
   try {
-    const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }).format(now);
+    const hijri = _hijriFormatter.format(now);
     if (dom.hijriDateDisplay) dom.hijriDateDisplay.textContent = hijri;
     if (dom.bigClockHijri) dom.bigClockHijri.textContent = '📅 ' + hijri;
   } catch (e) { console.warn('Date update failed:', e); }
@@ -228,12 +229,7 @@ export function scheduleNextAzanCheck() {
     const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
     if (prayerSec > nowSec) { nextSec = prayerSec; break; }
   }
-  if (nextSec === null) {
-    const delayMs = 10 * 60 * 1000;
-    azanTimer = setTimeout(() => { checkAzanTime(); scheduleNextAzanCheck(); }, delayMs);
-    return;
-  }
-  const delayMs = (nextSec - nowSec) * 1000;
+  const delayMs = nextSec === null ? 10 * 60 * 1000 : (nextSec - nowSec) * 1000;
   azanTimer = setTimeout(() => { checkAzanTime(); scheduleNextAzanCheck(); }, delayMs);
 }
 

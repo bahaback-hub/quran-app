@@ -54,8 +54,10 @@ const DOM_IDS = [
    // Search toggle
    'searchToggleBtn', 'searchInputGroup',
    // Player more
-    'playerMoreBtn', 'playerMoreRow',
-    'selectModeBtn', 'selectModeBar', 'selectShareBtn', 'selectCount', 'selectClearBtn'
+   'playerMoreBtn', 'playerMoreRow',
+   // New UI elements
+   'sepiaToggle', 'fontTypeSelect', 'lineSpacingSelect',
+   'installBtn', 'sleepTimerBtn'
 ];
 
 /** Cache all DOM element references by ID. */

@@ -20,6 +20,8 @@ let _sleepTimerMinutes = 0;
 export function prepareAudioForNewSurah() {
   _mp3quranUrl = null;
   _autoAdvancing = false;
+  _cachedWordEls = null;
+  _cachedWordAyahIndex = -1;
   clearWordWeightsCache();
   if (dom.audioPlayer) {
     dom.audioPlayer.pause();
@@ -152,6 +154,8 @@ function clearWordWeightsCache() {
   _wordWeightsCache.clear();
 }
 
+let _cachedWordEls = null;
+let _cachedWordAyahIndex = -1;
 function onTimeUpdate() {
   if (_autoAdvancing || !wordTrackingActive || !dom.audioPlayer || !state.surahData) return;
   let duration = dom.audioPlayer.duration;
@@ -186,9 +190,14 @@ function onTimeUpdate() {
   for (let i = wordData.wordCount - 1; i >= 0; i--) {
     if (currentTime >= startTimes[i]) { wordIndex = i; break; }
   }
-  document.querySelectorAll(`.ayah[data-index="${state.currentAyahIndex}"] .word`).forEach((w, i) => {
-    w.classList.toggle('current-word', i <= wordIndex);
-  });
+
+  if (state.currentAyahIndex !== _cachedWordAyahIndex) {
+    _cachedWordEls = document.querySelectorAll(`.ayah[data-index="${state.currentAyahIndex}"] .word`);
+    _cachedWordAyahIndex = state.currentAyahIndex;
+  }
+  for (let i = 0; i < _cachedWordEls.length; i++) {
+    _cachedWordEls[i].classList.toggle('current-word', i <= wordIndex);
+  }
 }
 
 function onSeeking() {
@@ -365,12 +374,20 @@ export function toggleRepeat() {
     state.repeatTo = state.surahData.ayahs.length;
     state.repeatTimes = 3;
     if (dom.repeatFrom && dom.repeatTo && dom.repeatTimes) {
-      dom.repeatFrom.innerHTML = '';
-      dom.repeatTo.innerHTML = '';
+      const opts = document.createDocumentFragment();
+      const opts2 = document.createDocumentFragment();
       for (let i = 1; i <= state.surahData.ayahs.length; i++) {
-        dom.repeatFrom.innerHTML += `<option value="${i}">${i}</option>`;
-        dom.repeatTo.innerHTML += `<option value="${i}">${i}</option>`;
+        const opt = document.createElement('option');
+        opt.value = String(i);
+        opt.textContent = String(i);
+        opts.appendChild(opt);
+        const opt2 = document.createElement('option');
+        opt2.value = String(i);
+        opt2.textContent = String(i);
+        opts2.appendChild(opt2);
       }
+      dom.repeatFrom.replaceChildren(opts);
+      dom.repeatTo.replaceChildren(opts2);
       dom.repeatFrom.value = state.repeatFrom;
       dom.repeatTo.value = state.repeatTo;
       dom.repeatTimes.value = state.repeatTimes;

@@ -32,6 +32,36 @@ export function applyNightMode(enabled) {
 
 export function toggleNightMode() { applyNightMode(!state.nightMode); }
 
+/* ===================== SEPIA MODE ===================== */
+
+export function applySepiaMode(enabled) {
+  state.sepiaMode = enabled;
+  document.body.classList.toggle('sepia-mode', !!enabled);
+  storage.set('sepia_mode', enabled);
+}
+
+export function toggleSepiaMode() { applySepiaMode(!state.sepiaMode); }
+
+/* ===================== FONT TYPE ===================== */
+
+export function applyFontType(type) {
+  state.fontType = type;
+  const container = document.querySelector('.ayahs-container');
+  if (container) container.style.fontFamily = type;
+  storage.set('font_type', type);
+  if (dom.fontTypeSelect) dom.fontTypeSelect.value = type;
+}
+
+/* ===================== LINE SPACING ===================== */
+
+export function applyLineSpacing(spacing) {
+  state.lineSpacing = spacing;
+  const container = document.querySelector('.ayahs-container');
+  if (container) container.style.lineHeight = spacing;
+  storage.set('line_spacing', spacing);
+  if (dom.lineSpacingSelect) dom.lineSpacingSelect.value = spacing;
+}
+
 /* ===================== SETTINGS PANEL ===================== */
 
 /** Open the settings panel and render adhkar settings list. */
@@ -219,6 +249,9 @@ export function restoreSettings() {
     if (state.currentTranslation) dom.translationSelect.value = state.currentTranslation;
   }
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = state.fontSize;
+  const sepia = storage.get('sepia_mode'); if (sepia) applySepiaMode(true);
+  const ft = storage.get('font_type'); if (ft) applyFontType(ft);
+  const ls = storage.get('line_spacing'); if (ls) applyLineSpacing(ls);
   const speed = storage.get('playback_speed');
   if (speed && dom.speedSelect && dom.audioPlayer) { dom.speedSelect.value = speed; dom.audioPlayer.playbackRate = parseFloat(speed); }
   if (!state.barCollapsed && dom.prayerBar) {

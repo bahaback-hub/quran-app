@@ -145,38 +145,66 @@ function renderAdhkarCategory(categoryId) {
   html += `<button class="adhkar-add-btn" data-action="reset" data-category="${categoryId}">🔄 إعادة تعيين الكل</button>`;
   dom.adhkarContent.innerHTML = html;
 
-  dom.adhkarContent.querySelectorAll('[data-action="increment"]').forEach(btn => {
-    btn.addEventListener('click', () => handleAdhkarCounter(btn.dataset.itemId, btn.dataset.category));
-  });
-  dom.adhkarContent.querySelectorAll('[data-action="reset"]').forEach(btn => {
-    btn.addEventListener('click', () => resetAdhkarCounters(btn.dataset.category));
-  });
+  if (!dom.adhkarContent._delegationBound) {
+    dom.adhkarContent._delegationBound = true;
+    dom.adhkarContent.addEventListener('click', (e) => {
+      const target = /** @type {HTMLElement} */ (e.target);
+      const actionBtn = target.closest('[data-action]');
+      if (actionBtn) {
+        const action = actionBtn.dataset.action;
+        if (action === 'increment') { handleAdhkarCounter(actionBtn.dataset.itemId, actionBtn.dataset.category); return; }
+        if (action === 'reset') { resetAdhkarCounters(actionBtn.dataset.category); return; }
+      }
+      const toggle = target.closest('.adhkar-cat-toggle');
+      if (toggle) {
+        const catId = toggle.dataset.category;
+        if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
+        state.adhkarSettings[catId].enabled = toggle.classList.toggle('on');
+        saveAdhkarSettings();
+        renderAdhkarCategory(catId);
+        return;
+      }
+    });
+    dom.adhkarContent.addEventListener('change', (e) => {
+      const target = /** @type {HTMLElement} */ (e.target);
+      if (target.classList.contains('adhkar-cat-time')) {
+        const catId = target.dataset.category;
+        if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
+        state.adhkarSettings[catId].time = (/** @type {HTMLInputElement} */ (target)).value;
+        saveAdhkarSettings();
+        return;
+      }
+      if (target.classList.contains('adhkar-cat-duration')) {
+        const catId = target.dataset.category;
+        if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
+        state.adhkarSettings[catId].duration = parseInt((/** @type {HTMLInputElement} */ (target)).value, 10) || 1;
+        saveAdhkarSettings();
+      }
+    });
+  }
+}
 
-  dom.adhkarContent.querySelectorAll('.adhkar-cat-toggle').forEach(el => {
-    el.addEventListener('click', () => {
-      const catId = el.dataset.category;
-      if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
-      state.adhkarSettings[catId].enabled = el.classList.toggle('on');
-      saveAdhkarSettings();
-      renderAdhkarCategory(catId);
-    });
-  });
-  dom.adhkarContent.querySelectorAll('.adhkar-cat-time').forEach(el => {
-    el.addEventListener('change', () => {
-      const catId = el.dataset.category;
-      if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
-      state.adhkarSettings[catId].time = el.value;
-      saveAdhkarSettings();
-    });
-  });
-  dom.adhkarContent.querySelectorAll('.adhkar-cat-duration').forEach(el => {
-    el.addEventListener('change', () => {
-      const catId = el.dataset.category;
-      if (!state.adhkarSettings[catId]) state.adhkarSettings[catId] = {};
-      state.adhkarSettings[catId].duration = parseInt(el.value, 10) || 1;
-      saveAdhkarSettings();
-    });
-  });
+function updateAdhkarItemDOM(itemId, categoryId) {
+  const itemEl = dom.adhkarContent?.querySelector(`.adhkar-item[data-item-id="${itemId}"]`);
+  if (!itemEl) return;
+  const cat = ADHKAR_DATA.categories.find(c => c.id === categoryId);
+  if (!cat) return;
+  const item = cat.items.find(i => i.id === itemId);
+  if (!item) return;
+  const key = `item_${item.id}`;
+  const counter = state.adhkarSettings[key] || 0;
+  const remaining = Math.max(0, item.count - counter);
+  const completed = counter >= item.count;
+  const pct = Math.min(100, (counter / item.count) * 100);
+  itemEl.classList.toggle('completed', completed);
+  const fill = itemEl.querySelector('.adhkar-progress-fill');
+  if (fill) fill.style.width = pct + '%';
+  const countSpan = itemEl.querySelector('.adhkar-item-count');
+  if (countSpan) countSpan.textContent = `🔄 ${item.count} مرة — متبقي ${remaining}`;
+  const counterText = itemEl.querySelector('.adhkar-counter-text');
+  if (counterText) counterText.textContent = String(counter);
+  const counterBtn = itemEl.querySelector('.adhkar-counter-btn');
+  if (counterBtn) counterBtn.classList.toggle('completed', completed);
 }
 
 function handleAdhkarCounter(itemId, categoryId) {
@@ -192,7 +220,7 @@ function handleAdhkarCounter(itemId, categoryId) {
     state.adhkarSettings[key] = current + 1;
   }
   saveAdhkarSettings();
-  renderAdhkarCategory(categoryId);
+  updateAdhkarItemDOM(itemId, categoryId);
 }
 
 function resetAdhkarCounters(categoryId) {
@@ -200,9 +228,9 @@ function resetAdhkarCounters(categoryId) {
   if (!cat) return;
   for (const item of cat.items) {
     state.adhkarSettings[`item_${item.id}`] = 0;
+    updateAdhkarItemDOM(item.id, categoryId);
   }
   saveAdhkarSettings();
-  renderAdhkarCategory(categoryId);
   showToast('🔄 تم إعادة تعيين الأذكار', 'success');
 }
 
@@ -255,7 +283,22 @@ function renderPersonalAdhkar() {
         state.adhkarSettings[key] = current + 1;
       }
       saveAdhkarSettings();
-      renderPersonalAdhkar();
+      const itemEl = dom.adhkarContent?.querySelector(`.adhkar-item[data-item-id="personal_${p.id}"]`);
+      if (itemEl) {
+        const counter = state.adhkarSettings[key] || 0;
+        const remaining = Math.max(0, p.count - counter);
+        const completed = counter >= p.count;
+        const pct = Math.min(100, (counter / p.count) * 100);
+        itemEl.classList.toggle('completed', completed);
+        const fill = itemEl.querySelector('.adhkar-progress-fill');
+        if (fill) fill.style.width = pct + '%';
+        const countSpan = itemEl.querySelector('.adhkar-item-count');
+        if (countSpan) countSpan.textContent = `🔄 ${p.count} مرة — متبقي ${remaining}`;
+        const counterText = itemEl.querySelector('.adhkar-counter-text');
+        if (counterText) counterText.textContent = String(counter);
+        const counterBtn = itemEl.querySelector('.adhkar-counter-btn');
+        if (counterBtn) counterBtn.classList.toggle('completed', completed);
+      }
     });
   });
   dom.adhkarContent.querySelectorAll('[data-action="edit-personal"]').forEach(btn => {
@@ -330,9 +373,11 @@ function deletePersonalAdhkar(id) {
 
 /* ===== Notifications ===== */
 
+let _adhkarAudioCtx = null;
 function playNotificationSound() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!_adhkarAudioCtx) _adhkarAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _adhkarAudioCtx;
     const notes = [523.25, 659.25, 783.99];
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();

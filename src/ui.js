@@ -1,12 +1,14 @@
 import { dom } from './dom.js';
 
+let _toastTimeout = null;
+
 /** Show a toast notification with auto-dismiss. */
 export function showToast(msg, type = '') {
   if (!dom.toast) return;
   dom.toast.textContent = msg;
   dom.toast.className = 'toast show ' + type;
-  clearTimeout(window.toastTimeout);
-  window.toastTimeout = setTimeout(() => dom.toast.classList.remove('show'), 2500);
+  clearTimeout(_toastTimeout);
+  _toastTimeout = setTimeout(() => dom.toast.classList.remove('show'), 2500);
 }
 
 /** Loading bar controller with show/hide methods. */

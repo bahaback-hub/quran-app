@@ -294,25 +294,7 @@ export function populateSurahOverlay() {
     btn.textContent = `${s.number}. ${s.name} (${s.englishName})`;
     btn.style.flex = '1';
     btn.dataset.surah = String(s.number);
-    btn.addEventListener('click', async () => {
-      dom.mushafSurahOverlay.style.display = 'none';
-      state.currentSurah = s.number;
-      state.currentAyahIndex = 0;
-      state.surahData = null;
-      loadingBar.show(`⏳ البحث عن أول صفحة لسورة ${s.name}...`);
-      try {
-        const res = await fetch(`${CONFIG.API_BASE}/ayah/${s.number}:1`);
-        const data = await res.json();
-        const page = data?.data?.page || 1;
-        if (dom.pageSelect) dom.pageSelect.value = page;
-        if (dom.pageSlider) dom.pageSlider.value = page;
-        loadPage(page, true);
-      } catch {
-        showToast('تعذّر العثور على الصفحة', 'error');
-      } finally {
-        loadingBar.hide();
-      }
-    });
+    btn.dataset.surahName = s.name;
     row.appendChild(btn);
     if (SURAH_SECRETS[s.number]) {
       const secretBtn = document.createElement('button');
@@ -322,13 +304,42 @@ export function populateSurahOverlay() {
       secretBtn.setAttribute('aria-label', `معلومات عن سورة ${s.name}`);
       secretBtn.dataset.surah = String(s.number);
       secretBtn.dataset.surahName = s.name;
-      secretBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showSurahSecret(parseInt(secretBtn.dataset.surah, 10), secretBtn.dataset.surahName);
-      });
       row.appendChild(secretBtn);
     }
     dom.mushafSurahOverlayList.appendChild(row);
+  }
+
+  if (!dom.mushafSurahOverlayList._delegationBound) {
+    dom.mushafSurahOverlayList._delegationBound = true;
+    dom.mushafSurahOverlayList.addEventListener('click', async (e) => {
+      const target = /** @type {HTMLElement} */ (e.target);
+      if (target.classList.contains('mushaf-surah-overlay-btn')) {
+        const surahNum = parseInt(target.dataset.surah, 10);
+        const surahName = target.dataset.surahName || '';
+        dom.mushafSurahOverlay.style.display = 'none';
+        state.currentSurah = surahNum;
+        state.currentAyahIndex = 0;
+        state.surahData = null;
+        loadingBar.show(`⏳ البحث عن أول صفحة لسورة ${surahName}...`);
+        try {
+          const res = await fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`);
+          const data = await res.json();
+          const page = data?.data?.page || 1;
+          if (dom.pageSelect) dom.pageSelect.value = page;
+          if (dom.pageSlider) dom.pageSlider.value = page;
+          loadPage(page, true);
+        } catch {
+          showToast('تعذّر العثور على الصفحة', 'error');
+        } finally {
+          loadingBar.hide();
+        }
+        return;
+      }
+      if (target.classList.contains('surah-secret-btn')) {
+        e.stopPropagation();
+        showSurahSecret(parseInt(target.dataset.surah, 10), target.dataset.surahName);
+      }
+    });
   }
 }
 
