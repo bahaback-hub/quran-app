@@ -11,7 +11,7 @@ let _dataArray = null;
  * Uses a single shared AnalyserNode connected once (MediaElementSource
  * can only be created once per <audio> element).
  */
-export function startVisualizer(canvas) {
+export async function startVisualizer(canvas) {
   if (!canvas || !dom.audioPlayer) return;
   const audioEl = dom.audioPlayer;
   if (!audioEl.src) return;
@@ -27,9 +27,10 @@ export function startVisualizer(canvas) {
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
-    const actx = state._adhkarAudioCtx || new AudioCtx();
-    state._adhkarAudioCtx = actx;
-    if (actx.state === 'suspended') actx.resume();
+    // Create a fresh AudioContext for the player (separate from adhkar)
+    const actx = new AudioCtx();
+    // Resume must complete before creating MediaElementSource
+    if (actx.state === 'suspended') await actx.resume();
     _analyser = actx.createAnalyser();
     _analyser.fftSize = 64;
     const src = actx.createMediaElementSource(audioEl);
