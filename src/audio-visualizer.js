@@ -1,75 +1,41 @@
-import { dom } from './dom.js';
-import { state } from './state.js';
-
 let _animId = null;
-let _ctx = null;
-let _analyser = null;
-let _dataArray = null;
 
 /**
- * Start the visualizer for the current audio player.
- * Uses a single shared AnalyserNode connected once (MediaElementSource
- * can only be created once per <audio> element).
+ * Start a visualizer animation on the given canvas using time-based bars
+ * (does NOT use Web Audio API, so it won't interfere with audio output).
  */
-export async function startVisualizer(canvas) {
-  if (!canvas || !dom.audioPlayer) return;
-  const audioEl = dom.audioPlayer;
-  if (!audioEl.src) return;
-  // Cancel previous animation but keep analyser connection alive
+export function startVisualizer(canvas) {
+  if (!canvas || !document.getElementById('audioPlayer')) return;
   if (_animId) { cancelAnimationFrame(_animId); _animId = null; }
-  // If already connected, just restart the animation
-  if (_analyser && _ctx) {
-    _ctx = canvas.getContext('2d');
-    canvas.classList.add('active');
-    drawWaveform(canvas);
-    return;
-  }
-  try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    // Create a fresh AudioContext for the player (separate from adhkar)
-    const actx = new AudioCtx();
-    // Resume must complete before creating MediaElementSource
-    if (actx.state === 'suspended') await actx.resume();
-    _analyser = actx.createAnalyser();
-    _analyser.fftSize = 64;
-    const src = actx.createMediaElementSource(audioEl);
-    src.connect(_analyser);
-    _analyser.connect(actx.destination);
-    _dataArray = new Uint8Array(_analyser.frequencyBinCount);
-    _ctx = canvas.getContext('2d');
-    canvas.classList.add('active');
-    drawWaveform(canvas);
-  } catch (e) {
-    // Already connected or not supported - skip gracefully
-  }
+  canvas.classList.add('active');
+  drawAnimatedBars(canvas);
 }
 
-function drawWaveform(canvas) {
-  if (!_ctx || !_analyser) return;
-  _animId = requestAnimationFrame(() => drawWaveform(canvas));
-  _analyser.getByteFrequencyData(_dataArray);
+function drawAnimatedBars(canvas) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
   const w = canvas.width;
   const h = canvas.height;
-  _ctx.clearRect(0, 0, w, h);
-  const barCount = _dataArray.length;
-  const barW = Math.max(2, w / barCount - 1);
+  const barCount = 12;
+  const barW = Math.max(2, w / barCount - 2);
+  _animId = requestAnimationFrame(() => drawAnimatedBars(canvas));
+  ctx.clearRect(0, 0, w, h);
   for (let i = 0; i < barCount; i++) {
-    const v = _dataArray[i] / 255;
-    const barH = v * h;
-    const x = i * (barW + 1);
+    // Pseudo-random height based on time + index for a lively feel
+    const v = (Math.sin(Date.now() / 200 + i * 1.5) * 0.5 + 0.5) * 0.6 +
+              (Math.sin(Date.now() / 350 + i * 2.3) * 0.5 + 0.5) * 0.4;
+    const barH = Math.max(2, v * h * 0.9);
+    const x = i * (barW + 2);
     const y = h - barH;
     const hue = 30 + v * 20;
-    _ctx.fillStyle = `hsla(${hue}, 70%, 55%, 0.8)`;
-    _ctx.fillRect(x, y, barW, barH);
+    ctx.fillStyle = `hsla(${hue}, 70%, 55%, 0.8)`;
+    ctx.fillRect(x, y, barW, barH);
   }
 }
 
-/** Stop the visualizer animation (keeps analyser connection alive). */
+/** Stop the visualizer animation. */
 export function stopVisualizer() {
   if (_animId) { cancelAnimationFrame(_animId); _animId = null; }
-  if (_ctx) {
-    const c = _ctx.canvas;
-    if (c) { c.classList.remove('active'); _ctx.clearRect(0, 0, c.width, c.height); }
-  }
+  const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#audioVisualizer.active'));
+  if (c) { c.classList.remove('active'); const ctx = c.getContext('2d'); if (ctx) ctx.clearRect(0, 0, c.width, c.height); }
 }
