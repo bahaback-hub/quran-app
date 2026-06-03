@@ -3634,3 +3634,299 @@ body {
 
 /* ========== Tajweed coloring (Mushaf Mujawwad) ========== */
 /* (tajweed classes removed — now uses inline styles from annotation-based coloring) */
+
+/* ========== تأثير Ripple للأزرار ========== */
+.btn, .header-action-btn, .header-menu-btn, .collapse-bar-btn,
+.floating-play-btn, .settings-toggle-btn, .bottom-nav-btn {
+  position: relative;
+  overflow: hidden;
+}
+.btn::after, .header-action-btn::after, .header-menu-btn::after,
+.collapse-bar-btn::after, .floating-play-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.btn:active::after, .header-action-btn:active::after, .header-menu-btn:active::after {
+  width: 300px;
+  height: 300px;
+  opacity: 0;
+}
+
+/* ========== Skeleton التحميل ========== */
+.skeleton {
+  background: linear-gradient(90deg, var(--controls-bg) 25%, var(--hover-bg) 50%, var(--controls-bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-text {
+  height: 16px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+.skeleton-text:last-child {
+  width: 70%;
+}
+.skeleton-title {
+  height: 24px;
+  width: 50%;
+  margin: 0 auto 16px;
+  border-radius: 6px;
+}
+.skeleton-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 6px;
+}
+
+/* ========== أنيميشن ظهور الآيات ========== */
+.ayahs-container .ayah {
+  animation: ayahFadeIn 0.4s ease both;
+}
+@keyframes ayahFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.bismillah {
+  animation: bismillahGlow 3s ease-in-out infinite alternate;
+}
+@keyframes bismillahGlow {
+  0% { text-shadow: 0 0 4px rgba(212, 175, 55, 0.1); }
+  100% { text-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
+}
+
+/* ========== Glass Morphism ========== */
+@supports (backdrop-filter: blur(12px)) {
+  .settings-panel, .favorites-panel, .tafsir-curtain,
+  .adhkar-panel, .header-dropdown, .share-menu {
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+  .settings-panel {
+    background: rgba(254, 253, 248, 0.85);
+  }
+  body.night-mode .settings-panel {
+    background: rgba(22, 26, 38, 0.85);
+  }
+  .favorites-panel {
+    background: rgba(254, 253, 248, 0.85);
+  }
+  body.night-mode .favorites-panel {
+    background: rgba(22, 26, 38, 0.85);
+  }
+  .tafsir-curtain {
+    background: rgba(249, 247, 240, 0.85);
+  }
+  body.night-mode .tafsir-curtain {
+    background: rgba(30, 35, 48, 0.85);
+  }
+  .header-dropdown {
+    background: rgba(254, 253, 248, 0.9);
+  }
+  body.night-mode .header-dropdown {
+    background: rgba(30, 35, 48, 0.9);
+  }
+  .share-menu {
+    background: rgba(255, 255, 255, 0.9);
+  }
+  body.night-mode .share-menu {
+    background: rgba(42, 48, 64, 0.9);
+  }
+}
+
+/* ========== احترام تفضيلات الحركة ========== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .prayer-row.next-prayer {
+    animation: none !important;
+  }
+  .bismillah {
+    animation: none !important;
+  }
+  body.bg-css::after {
+    animation: none !important;
+  }
+  .ayahs-container .ayah {
+    animation: none !important;
+  }
+}
+
+/* ========== الوضع الليلي التلقائي ========== */
+@media (prefers-color-scheme: dark) {
+  body:not(.night-mode):not(.sepia-mode):not(.force-light) {
+    --bg-gradient: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+    --container-bg: #161a26;
+    --header-bg: linear-gradient(135deg, #1a1f2e, #232838);
+    --header-text: #e8d9a8;
+    --controls-bg: #1e2330;
+    --player-bg: #1a1f2e;
+    --content-bg: #161a26;
+    --text-primary: #d4d4d4;
+    --text-secondary: #b8b8b8;
+    --text-muted: #aaaaaa;
+    --primary: #5a4a3a;
+    --primary-light: #7a6a5a;
+    --border: #5a4a3a;
+    --border-soft: #2a3040;
+    --select-bg: #232838;
+    --highlight-bg: linear-gradient(120deg, #4a3d1a 0%, #6b5520 100%);
+    --highlight-text: #ffe066;
+    --highlight-shadow: rgba(255, 224, 102, 0.4);
+    --hover-bg: rgba(255, 224, 102, 0.1);
+    --bismillah-color: #d4af37;
+    --error-bg: #3a1f1f;
+    --error-text: #ff8888;
+    --footer-bg: #0a0e1a;
+    --shadow: 0 20px 60px rgba(0,0,0,0.6);
+    --tafsir-bg: #1e2330;
+    --tafsir-text: #c8c8c8;
+    --tafsir-border: #3a4050;
+    --prayer-bar-bg: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+    --share-menu-bg: #2a3040;
+    --share-menu-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    --focus-outline: 3px solid #e8d9a8;
+    --curtain-handle-bg: linear-gradient(180deg, #5a4a3a, #7a6a5a);
+    --font-size-select-bg: #2a3040;
+  }
+}
+
+/* ========== وضع التباين العالي ========== */
+@media (prefers-contrast: high) {
+  :root {
+    --accent: #b8962e;
+    --border-soft: #8a7a5a;
+    --text-muted: #3a3a3a;
+    --border: #000;
+  }
+  .btn {
+    border: 2px solid currentColor;
+  }
+  .toggle-switch {
+    border: 2px solid #000;
+  }
+  .ayah.current {
+    outline: 3px solid #000;
+  }
+}
+
+/* ========== تحسينات التمرير والتركيز ========== */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+::selection {
+  background: rgba(212, 175, 55, 0.3);
+  color: var(--text-primary);
+}
+/* Better scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--controls-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-dark);
+}
+/* Smooth panel transitions */
+.settings-panel, .favorites-panel, .tafsir-curtain, .adhkar-panel {
+  will-change: transform;
+}
+
+/* ========== زر تثبيت PWA ========== */
+.btn-install {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+  animation: installPulse 2s ease-in-out infinite;
+}
+.btn-install:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.6);
+}
+@keyframes installPulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4); }
+  50% { box-shadow: 0 2px 16px rgba(34, 197, 94, 0.7); }
+}
+
+/* ========== أنماط الطباعة ========== */
+@media print {
+  body { padding: 0; background: #fff !important; color: #000; }
+  .player, .controls, .settings-panel, .favorites-panel,
+  .tafsir-curtain, .tafsir-curtain-handle, .header-menu-container,
+  .bottom-nav, .network-banner, .toast, .azan-notification,
+  .adhkar-notification, .prayer-bar, .reading-progress,
+  .footer, .skip-link, .bottom-nav { display: none !important; }
+  .container { box-shadow: none; border-radius: 0; }
+  .surah-content { padding: 10px; }
+  .ayah { color: #000 !important; }
+  .ayah-number { background: none; color: #000; border: 1px solid #000; }
+}
+
+/* ========== صفحة أوفلاين ========== */
+.offline-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+.offline-page-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: offlineFloat 3s ease-in-out infinite;
+}
+@keyframes offlineFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.offline-page h2 {
+  font-size: 24px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.offline-page p {
+  font-size: 16px;
+  color: var(--text-muted);
+  max-width: 400px;
+  line-height: 1.8;
+}
