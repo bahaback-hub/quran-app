@@ -3,6 +3,7 @@ import { CONFIG } from './config.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { escapeHtml } from './utils.js';
+import { tafsirFetch } from './api-client.js';
 
 /* ===================== LOCAL MUYASSAR TAFSIR ===================== */
 
@@ -86,10 +87,8 @@ async function saveTafsirToDB(key, text) {
 
 async function fetchTafsirFromAPI(edition, surahNum, ayahNum) {
   const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
-  const url = `${CONFIG.TAFSIR_API}/${edition}/${surahNum}/${ayahNum}.json`;
   try {
-    const res = await fetch(url);
-    const data = await res.json();
+    const data = await tafsirFetch(`/${edition}/${surahNum}/${ayahNum}.json`, { silent: true });
     const text = data?.tafsir?.text || data?.text || 'لا يوجد تفسير متاح';
     await saveTafsirToDB(cacheKey, text);
     return text;

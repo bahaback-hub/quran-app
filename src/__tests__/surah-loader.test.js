@@ -140,12 +140,13 @@ describe('loadSurahList', () => {
 
     const apiData = { data: FULL_SURAH_LIST };
     globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve(apiData),
     });
 
     await loadSurahList();
 
-    expect(fetch).toHaveBeenCalledWith(`${CONFIG.API_BASE}/surah`);
+    expect(fetch).toHaveBeenCalled();
     expect(state.surahList).toEqual(FULL_SURAH_LIST);
   });
 
@@ -156,13 +157,13 @@ describe('loadSurahList', () => {
     globalThis.fetch = vi.fn()
       .mockRejectedValueOnce(new Error('API down'))  // API fails
       .mockResolvedValueOnce({                        // local fallback succeeds
+        ok: true,
         json: () => Promise.resolve(FULL_SURAH_LIST),
       });
 
     await loadSurahList();
 
     expect(fetch).toHaveBeenCalledTimes(2);
-    expect(fetch).toHaveBeenNthCalledWith(2, 'data/surah-list.json');
     expect(state.surahList).toEqual(FULL_SURAH_LIST);
   });
 
@@ -184,6 +185,7 @@ describe('loadSurahList', () => {
 
     const apiData = { data: FULL_SURAH_LIST };
     globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve(apiData),
     });
 

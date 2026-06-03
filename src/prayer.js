@@ -4,6 +4,7 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
+import { prayerFetch } from './api-client.js';
 
 let countdownInterval = null;
 
@@ -49,10 +50,9 @@ export async function loadPrayerTimes() {
   const city = dom.cityInput?.value.trim() || state.city;
   const country = dom.countryInput?.value.trim() || state.country;
   const method = dom.methodSelect?.value || state.method;
-  const url = `${CONFIG.PRAYER_API}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
+  const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
   try {
-    const res = await fetch(url);
-    const data = await res.json();
+    const data = await prayerFetch(query, { errorMsg: 'تعذّر تحميل مواقيت الصلاة' });
     if (data?.data?.timings) {
       state.prayerTimes = data.data.timings;
       storage.set('cached_prayer_times', { date: new Date().toDateString(), timings: state.prayerTimes, city, country });

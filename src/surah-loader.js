@@ -12,6 +12,7 @@ import { SURAH_SECRETS } from './surahs-data.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './audio.js';
 import { recordReadingSession } from './reading-stats.js';
 import { loadTafsirForCurrentAyah } from './tafsir.js';
+import { apiFetch, jsonFetch } from './api-client.js';
 
 
 /* ===================== SURAH LIST ===================== */
@@ -28,8 +29,7 @@ export async function loadSurahList() {
   }
   if (dom.surahSelect) dom.surahSelect.innerHTML = '<option value="">⏳ جاري تحميل قائمة السور...</option>';
   try {
-    const res = await fetch(`${CONFIG.API_BASE}/surah`);
-    const data = await res.json();
+    const data = await apiFetch('/surah', { silent: true });
     if (data?.data) {
       state.surahList = data.data;
       state.surahOffsets = null;
@@ -39,8 +39,7 @@ export async function loadSurahList() {
     }
   } catch (e) { /* fall through to local fallback */ }
   try {
-    const localRes = await fetch('data/surah-list.json');
-    const localData = await localRes.json();
+    const localData = await jsonFetch('data/surah-list.json', { silent: true });
     if (localData && localData.length === CONFIG.SURAH_COUNT) {
       state.surahList = localData;
       state.surahOffsets = null;
@@ -100,9 +99,8 @@ async function fetchAyahTimings(reciterId, surahNum, ayahs) {
   const apiId = getTimingApiId(reciterId);
   if (!apiId) return null;
   try {
-    const res = await fetch(`https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`);
-    if (!res.ok) return null;
-    const data = await res.json();
+    const data = await jsonFetch(`https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`, { silent: true, timeout: 8000 });
+    if (!data) return null;
     const timestamps = data?.audio_file?.timestamps;
     if (!timestamps?.length || timestamps.length !== ayahs.length) return null;
     const totalDuration = timestamps[timestamps.length - 1].timestamp_to;
@@ -170,15 +168,14 @@ async function loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad) {
 /** Load audio for standard API reciter source. */
 async function loadApiAudio(surahNum, reciterId, currentLoad, signal) {
   try {
-    const res = await fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${reciterId}`, { signal });
-    const json = await res.json();
+    const json = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true });
     const data = json?.data;
     if (!data?.ayahs?.length) throw new Error('لا توجد بيانات صوت');
     const audios = data.ayahs.map(a => a.audio);
     if (_loadCounter !== currentLoad) return null;
     return { audios, timings: [] };
   } catch (e) {
-    console.warn('Audio load failed (non-fatal):', e);
+    console.warn('[API] Audio load failed (non-fatal):', e);
     return null;
   }
 }
@@ -250,8 +247,7 @@ export async function loadSurah(surahNum, opts = {}) {
   if (dom.surahContent) dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
 
   try {
-    const textRes = await fetch(`${CONFIG.API_BASE}/surah/${surahNum}/quran-uthmani`, { signal });
-    const textJson = await textRes.json();
+    const textJson = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, errorMsg: 'فشل تحميل السورة' });
     const textData = textJson?.data;
     if (!textData?.ayahs?.length) {
       throw new Error('بيانات السورة غير صالحة');
@@ -270,7 +266,7 @@ export async function loadSurah(surahNum, opts = {}) {
       ? loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad)
       : loadApiAudio(surahNum, state.currentReciter, currentLoad, signal);
     const transPromise = (state.translationEnabled && state.currentTranslation)
-      ? fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentTranslation}`, { signal }).then(r => r.json()).then(d => d?.data || null).catch(() => null)
+      ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal, silent: true }).then(d => d?.data || null).catch(() => null)
       : Promise.resolve(null);
 
     const [audioResult, transResult] = await Promise.all([audioPromise, transPromise]);
