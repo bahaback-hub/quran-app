@@ -541,13 +541,12 @@ function saveCurrentPosition() {
 
 export function toggleTranslation() {
   state.translationEnabled = !state.translationEnabled;
-  dom.translationToggle?.classList.toggle('on', state.translationEnabled);
-  if (dom.translationSelect) dom.translationSelect.style.display = state.translationEnabled ? '' : 'none';
   storage.set('translation_enabled', state.translationEnabled);
   if (state.translationEnabled && !state.currentTranslation) {
     state.currentTranslation = dom.translationSelect?.value || 'en.sahih';
     storage.set('translation_edition', state.currentTranslation);
   }
+  if (dom.translationSelect) dom.translationSelect.value = state.translationEnabled ? state.currentTranslation : '';
   showToast(state.translationEnabled ? '🌐 الترجمة مفعّلة' : 'الترجمة مغلقة', 'success');
   if (state.currentSurah) loadSurah(state.currentSurah);
 }

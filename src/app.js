@@ -149,9 +149,16 @@ export async function initApp() {
     if (dom.tafsirCurtain?.classList.contains('open')) import('./tafsir.js').then(m => m.loadTafsirForCurrentAyah());
   });
 
-  dom.translationToggle?.addEventListener('click', toggleTranslation);
   dom.translationSelect?.addEventListener('change', () => {
-    state.currentTranslation = dom.translationSelect.value;
+    const val = dom.translationSelect.value;
+    if (val) {
+      state.translationEnabled = true;
+      state.currentTranslation = val;
+    } else {
+      state.translationEnabled = false;
+      state.currentTranslation = '';
+    }
+    storage.set('translation_enabled', state.translationEnabled);
     storage.set('translation_edition', state.currentTranslation);
     if (state.currentSurah) loadSurah(state.currentSurah);
   });
