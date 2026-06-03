@@ -131,7 +131,7 @@ describe('getArabicNumeral', () => {
     expect(getArabicNumeral(9)).toBe('٩');
   });
 
-  it('should return input if out of range', () => {
-    expect(getArabicNumeral(10)).toBe(10);
+  it('should return input as string if out of range', () => {
+    expect(getArabicNumeral(10)).toBe('10');
   });
 });

@@ -6,6 +6,7 @@ import { escapeHtml, escapeRegExp, copyToClipboard, normalizeExactText, normaliz
 import { loadSurah, highlightCurrentAyah } from "./app.js";
 import { playCurrentAyah } from "./audio.js";
 import { SEARCH_PAGE_SIZE, performSearch, buildSearchWords, addToSearchHistory, loadFullQuranText, getSearchHistory, clearSearchHistory } from "./search-core.js";
+import { CONFIG } from "./config.js";
 
 export { loadFullQuranText, getSearchHistory, clearSearchHistory };
 
@@ -168,7 +169,6 @@ async function copySpecificAyah(surah, ayah) {
   }
   if (!text) {
     try {
-      const { CONFIG } = await import('./config.js');
       const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
       const data = await res.json();
       text = data?.data?.text || '';
@@ -183,7 +183,6 @@ async function copySpecificAyah(surah, ayah) {
 }
 
 async function shareSpecificAyah(surah, ayah) {
-  const { CONFIG } = await import('./config.js');
   const surahObj = state.surahList.find(s => s.number === Number(surah));
   const surahName = surahObj ? surahObj.name : `سورة `;
   let text = '';

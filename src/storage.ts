@@ -4,14 +4,14 @@ import { CONFIG } from './config.js';
 export const storage = {
   /**
    * Get a value from localStorage.
-   * @param {string} key - Storage key (will be prefixed).
-   * @param {*} def - Default value if key not found.
-   * @returns {*} Parsed value or default.
+   * @param key - Storage key (will be prefixed).
+   * @param def - Default value if key not found.
+   * @returns Parsed value or default.
    */
-  get(key, def = null) {
+  get<T = unknown>(key: string, def: T | null = null): T | null {
     try {
       const v = localStorage.getItem(CONFIG.STORAGE_PREFIX + key);
-      return v === null ? def : JSON.parse(v);
+      return v === null ? def : JSON.parse(v) as T;
     } catch (e) {
       console.warn(`[storage] Failed to read key "${key}":`, e);
       return def;
@@ -19,10 +19,10 @@ export const storage = {
   },
   /**
    * Set a value in localStorage with JSON serialization.
-   * @param {string} key - Storage key (will be prefixed).
-   * @param {*} val - Value to store.
+   * @param key - Storage key (will be prefixed).
+   * @param val - Value to store.
    */
-  set(key, val) {
+  set(key: string, val: unknown): boolean {
     try {
       localStorage.setItem(CONFIG.STORAGE_PREFIX + key, JSON.stringify(val));
       return true;
@@ -33,9 +33,9 @@ export const storage = {
   },
   /**
    * Remove a value from localStorage.
-   * @param {string} key - Storage key (will be prefixed).
+   * @param key - Storage key (will be prefixed).
    */
-  remove(key) {
+  remove(key: string): void {
     try { localStorage.removeItem(CONFIG.STORAGE_PREFIX + key); } catch (e) {
       console.warn(`[storage] Failed to remove key "${key}":`, e);
     }

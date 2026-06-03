@@ -4,6 +4,8 @@ import { togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh,
 import { toggleNightMode, applyFontSize, openSettings, closeSettings } from './settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark, openFavorites, closeFavorites } from './favorites.js';
 import { stopAzan } from './prayer.js';
+import { toggleTafsir, closeTafsir } from './tafsir.js';
+import { storage } from './storage.js';
 
 export function initKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
@@ -33,7 +35,7 @@ export function initKeyboardShortcuts() {
       case 'r': case 'R': toggleRepeat(); break;
       case 'b': case 'B': setBookmark(); break;
       case 'f': case 'F': toggleFavorite(); break;
-      case 't': case 'T': import('./tafsir.js').then(m => m.toggleTafsir()); break;
+      case 't': case 'T': toggleTafsir(); break;
       case 'n': case 'N': toggleNightMode(); break;
       case 'm': case 'M': import('./mushaf.js').then(m => m.toggleMushafMode()); break;
       case 'p': case 'P':
@@ -48,10 +50,10 @@ export function initKeyboardShortcuts() {
         if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none';
         if (dom.searchResults) dom.searchResults.style.display = 'none';
         if (dom.shareMenu) dom.shareMenu.classList.remove('show');
-        import('./tafsir.js').then(m => m.closeTafsir());
+        closeTafsir();
         if (dom.player && !dom.player.classList.contains('collapsed')) {
           dom.player.classList.add('collapsed');
-          import('./storage.js').then(({ storage }) => storage.set('player_collapsed', true));
+          storage.set('player_collapsed', true);
         }
         break;
     }

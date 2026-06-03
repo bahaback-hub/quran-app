@@ -27,6 +27,10 @@ import { loadSurah } from './surah-loader.js';
 import { performExactSearch, initKeyboard, initSearchAutocomplete, startVoiceSearch } from './search-ui.js';
 import { updateReadingProgress, handleVisibilityChange, updateNetworkBanner, showWelcomeScreen, dismissWelcomeScreen } from './ui-extras.js';
 import { showSleepTimerModal } from './sleep-timer-modal.js';
+import { loadTajweedAnnotations } from './tajweed-data.js';
+import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
+import { toggleTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
+import * as audioModule from './audio.js';
 
 /**
  * Bind surah/reciter selection and navigation controls.
@@ -43,7 +47,7 @@ export function bindNavigationEvents() {
           const page = data?.data?.page || 1;
           if (dom.pageSelect) dom.pageSelect.value = page;
           if (dom.pageSlider) dom.pageSlider.value = page;
-          import('./mushaf.js').then(m => m.loadPage(page, true));
+          import('./mushaf.js').then(m => m.loadPage(page, true)); // lazy: mushaf not in main chunk
         })
         .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
     } else {
@@ -65,7 +69,7 @@ export function bindHeaderAndSettingsEvents() {
   dom.bookmarkBtn?.addEventListener('click', setBookmark);
   dom.bookmarkBtn?.addEventListener('dblclick', gotoBookmark);
   dom.favoriteBtn?.addEventListener('click', toggleFavorite);
-  dom.shareBtn?.addEventListener('click', () => import('./share.js').then(m => m.toggleShareMenu()));
+  dom.shareBtn?.addEventListener('click', () => toggleShareMenu());
   dom.themeToggle?.addEventListener('click', toggleNightMode);
   dom.settingsThemeToggle?.addEventListener('click', toggleNightMode);
   dom.settingsToggleBtn?.addEventListener('click', openSettings);
@@ -99,11 +103,11 @@ export function bindAzanEvents() {
  * Bind tafsir curtain and translation select.
  */
 export function bindTafsirEvents() {
-  dom.tafsirCurtainHandle?.addEventListener('click', () => import('./tafsir.js').then(m => m.toggleTafsir()));
+  dom.tafsirCurtainHandle?.addEventListener('click', () => toggleTafsir());
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect.value;
     storage.set('tafsir_edition', state.currentTafsirEdition);
-    if (dom.tafsirCurtain?.classList.contains('open')) import('./tafsir.js').then(m => m.loadTafsirForCurrentAyah());
+    if (dom.tafsirCurtain?.classList.contains('open')) loadTafsirForCurrentAyah();
   });
 
   dom.translationSelect?.addEventListener('change', () => {
@@ -134,7 +138,7 @@ export function bindDisplaySettingsEvents() {
     storage.set('tajweed_enabled', state.tajweedEnabled);
     const reload = () => { if (state.currentSurah) loadSurah(state.currentSurah); };
     if (state.tajweedEnabled) {
-      import('./tajweed-data.js').then(m => m.loadTajweedAnnotations()).then(reload);
+      loadTajweedAnnotations().then(reload);
     } else {
       reload();
     }
@@ -181,15 +185,15 @@ export function bindPanelsAndShareEvents() {
   dom.expandBarBtn?.addEventListener('click', togglePrayerBar);
 
   document.querySelectorAll('[data-share="native"]').forEach(btn =>
-    btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareNative(); m.toggleShareMenu(); }); }));
+    btn.addEventListener('click', () => { shareNative(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="copy"]').forEach(btn =>
-    btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareCopy(); m.toggleShareMenu(); }); }));
+    btn.addEventListener('click', () => { shareCopy(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="copy-simple"]').forEach(btn =>
-    btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareCopySimple(); m.toggleShareMenu(); }); }));
+    btn.addEventListener('click', () => { shareCopySimple(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="whatsapp"]').forEach(btn =>
-    btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareWhatsApp(); m.toggleShareMenu(); }); }));
+    btn.addEventListener('click', () => { shareWhatsApp(); toggleShareMenu(); }));
   document.querySelectorAll('[data-share="telegram"]').forEach(btn =>
-    btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareTelegram(); m.toggleShareMenu(); }); }));
+    btn.addEventListener('click', () => { shareTelegram(); toggleShareMenu(); }));
 }
 
 /**
@@ -211,9 +215,7 @@ export function bindSearchEvents() {
     if (typeof (/** @type {any} */ (window).installPWA) === 'function') (/** @type {any} */ (window)).installPWA();
   });
   dom.sleepTimerBtn?.addEventListener('click', () => {
-    import('./audio.js').then(m => {
-      showSleepTimerModal(m);
-    });
+    showSleepTimerModal(audioModule);
   });
   initKeyboard();
   initSearchAutocomplete();

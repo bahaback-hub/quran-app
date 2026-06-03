@@ -9,6 +9,7 @@ import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from "
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from "./audio.js";
 import { handlePageClick, getAyahHighlightRects } from "./ayah-click.js";
 import { renderPage, loadPageData } from "./mushaf-renderer.js";
+import { loadTafsirForSurahAyah } from "./tafsir.js";
 
 /** Toggle between mushaf mode and surah mode. */
 export async function toggleMushafMode() {
@@ -175,7 +176,7 @@ function renderMushafPageImage(pageNum, skipNav) {
         });
       }
       playMushafAyah(result.surah, result.ayah);
-      import('./tafsir.js').then(m => m.loadTafsirForSurahAyah(result.surah, result.ayah));
+      loadTafsirForSurahAyah(result.surah, result.ayah);
       highlightMushafAyah();
     }
   };
@@ -266,7 +267,7 @@ function renderMushafPageImage(pageNum, skipNav) {
           bar.querySelectorAll('.mushaf-ayah-btn').forEach(b => b.classList.remove('current'));
           this.classList.add('current');
           playMushafAyah(parseInt(this.dataset.surah, 10), parseInt(this.dataset.ayah, 10));
-          import('./tafsir.js').then(m => m.loadTafsirForSurahAyah(parseInt(this.dataset.surah, 10), parseInt(this.dataset.ayah, 10)));
+          loadTafsirForSurahAyah(parseInt(this.dataset.surah, 10), parseInt(this.dataset.ayah, 10));
         });
       });
     })
@@ -458,4 +459,4 @@ function playMushafAyah(surahNum, ayahNum) {
     loadAndPlay();
   }
 }
-
+
