@@ -20,6 +20,7 @@ import { initNavigation } from './navigation.js';
 import {
   loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect, toggleTranslation
 } from './surah-loader.js';
+import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import {
   showContinueWidget, showWelcomeScreen, dismissWelcomeScreen,
   handleVisibilityChange, updateNetworkBanner, updateReadingProgress
@@ -71,6 +72,7 @@ export async function initApp() {
   setLoadSurah(loadSurah);
   cacheDom();
   restoreSettings();
+  preloadTajweedIfNeeded();
   populateReciterSelect();
 
   await loadSurahList();
@@ -171,7 +173,12 @@ export async function initApp() {
   dom.tajweedToggle?.addEventListener('click', () => {
     state.tajweedEnabled = dom.tajweedToggle.classList.toggle('on');
     storage.set('tajweed_enabled', state.tajweedEnabled);
-    if (state.currentSurah) import('./surah-loader.js').then(m => m.loadSurah(state.currentSurah));
+    const reload = () => { if (state.currentSurah) import('./surah-loader.js').then(m => m.loadSurah(state.currentSurah)); };
+    if (state.tajweedEnabled) {
+      import('./tajweed-data.js').then(m => m.loadTajweedAnnotations()).then(reload);
+    } else {
+      reload();
+    }
   });
 
   dom.azanToggle?.addEventListener('click', () => {

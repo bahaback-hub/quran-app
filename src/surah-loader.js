@@ -6,7 +6,8 @@ import { __ } from './i18n.js';
 import { escapeHtml } from './utils.js';
 import { state } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
-import { tajweedColor } from './tajweed.js';
+import { tajweedColorWord, buildColorMap } from './tajweed.js';
+import { getAyahAnnotations } from './tajweed-data.js';
 import { SURAH_SECRETS } from './surahs-data.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './audio.js';
 import { recordReadingSession } from './reading-stats.js';
@@ -328,11 +329,24 @@ let _virtualObserver = null;
 function buildAyahHtml(a, i, textData) {
   const isRtlTranslation = state.currentTranslation && (state.currentTranslation.startsWith('ur.'));
   let txt = a.text;
+  let offsetAdj = 0;
   if (textData.number !== 1 && a.numberInSurah === 1) {
-    txt = txt.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
+    const stripped = txt.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
+    offsetAdj = txt.length - stripped.length;
+    txt = stripped;
+  }
+  let colorMap = null;
+  if (state.tajweedEnabled) {
+    const annotations = getAyahAnnotations(textData.number, a.numberInSurah);
+    if (annotations.length > 0) {
+      const adjusted = offsetAdj > 0
+        ? annotations.map(a => ({ rule: a.rule, start: a.start - offsetAdj, end: a.end - offsetAdj }))
+        : annotations;
+      colorMap = buildColorMap(adjusted);
+    }
   }
   let html = `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
-  html += buildAyahWordsHtml(txt, i);
+  html += buildAyahWordsHtml(txt, i, colorMap);
   html += ` <span class="ayah-number">${a.numberInSurah}</span>`;
   if (state.translationEnabled && state.translationData?.ayahs?.[i]) {
     const transText = escapeHtml(state.translationData.ayahs[i].text);
@@ -420,12 +434,15 @@ export function renderSurah(textData) {
   }
 }
 
-function buildAyahWordsHtml(text, ayahIdx) {
+function buildAyahWordsHtml(text, ayahIdx, colorMap) {
   const words = text.split(/\s+/).filter(w => w.length > 0);
-  const useTajweed = state.tajweedEnabled;
-  return words.map((word, wIdx) =>
-    `<span class="word" data-ayah-index="${ayahIdx}" data-word-index="${wIdx}">${useTajweed ? tajweedColor(word) : escapeHtml(word)}</span>`
-  ).join(' ');
+  const useTajweed = state.tajweedEnabled && colorMap;
+  let outputPos = 0;
+  return words.map((word, wIdx) => {
+    const wordHtml = useTajweed ? tajweedColorWord(word, outputPos, colorMap) : escapeHtml(word);
+    outputPos += word.length;
+    return `<span class="word" data-ayah-index="${ayahIdx}" data-word-index="${wIdx}">${wordHtml}</span>`;
+  }).join(' ');
 }
 
 let _ayahDelegationBound = false;
