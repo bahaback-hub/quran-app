@@ -32,6 +32,56 @@ export function applyNightMode(enabled) {
 
 export function toggleNightMode() { applyNightMode(!state.nightMode); }
 
+/* ===================== SYSTEM THEME DETECTION ===================== */
+
+/** Detect system color-scheme preference and apply it if user hasn't set a preference. */
+export function initSystemThemeDetection() {
+  // If user already has an explicit preference, don't override
+  const hasExplicitPref = storage.get('night_mode') !== undefined && storage.get('night_mode') !== null;
+  if (hasExplicitPref) return;
+
+  const mql = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function applySystemTheme(e) {
+    // Only apply if user hasn't set an explicit preference
+    const stillNoPref = storage.get('night_mode') === undefined || storage.get('night_mode') === null;
+    if (!stillNoPref) return;
+
+    if (e.matches) {
+      if (!document.body.classList.contains('night-mode')) {
+        document.body.classList.add('night-mode');
+        document.body.classList.remove('sepia-mode');
+        state.nightMode = true;
+      }
+    } else {
+      if (document.body.classList.contains('night-mode')) {
+        document.body.classList.remove('night-mode');
+        state.nightMode = false;
+      }
+    }
+    // Update the toggle switch UI if it exists
+    const toggle = document.getElementById('settingsThemeToggle');
+    if (toggle) {
+      if (e.matches) {
+        toggle.classList.add('on');
+      } else {
+        toggle.classList.remove('on');
+      }
+      toggle.setAttribute('aria-checked', String(e.matches));
+    }
+  }
+
+  // Apply initial system preference
+  applySystemTheme(mql);
+
+  // Listen for changes
+  if (mql.addEventListener) {
+    mql.addEventListener('change', applySystemTheme);
+  } else if (mql.addListener) {
+    mql.addListener(applySystemTheme);
+  }
+}
+
 /* ===================== SEPIA MODE ===================== */
 
 export function applySepiaMode(enabled) {
@@ -299,16 +349,6 @@ export function restoreSettings() {
   const nm = storage.get('night_mode');
   if (nm === true) {
     applyNightMode(true);
-  } else if (nm === null || nm === undefined) {
-    // Auto night mode based on system preference (only if user never set preference)
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-    if (prefersDark.matches) applyNightMode(true);
-    // Listen for system theme changes and apply only if user hasn't explicitly set a preference
-    prefersDark.addEventListener('change', (e) => {
-      if (storage.get('night_mode') === null || storage.get('night_mode') === undefined) {
-        applyNightMode(e.matches);
-      }
-    });
   }
   const city = storage.get('city'); if (city) state.city = city;
   const country = storage.get('country'); if (country) state.country = country;

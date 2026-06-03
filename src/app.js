@@ -9,7 +9,7 @@ import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookma
 import { toggleSelectMode, clearSelection, shareSelected, handleAyahSelect } from './select-mode.js';
 import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
-import { applyFontSize, toggleNightMode, applySepiaMode, toggleSepiaMode, applyFontType, applyLineSpacing, openSettings, closeSettings, saveLocationSettings, resetSettings, exportSettings, importSettings, applyBackground, loadBackgrounds, restoreSettings, initSettingsTabs } from './settings.js';
+import { applyFontSize, toggleNightMode, applySepiaMode, toggleSepiaMode, applyFontType, applyLineSpacing, openSettings, closeSettings, saveLocationSettings, resetSettings, exportSettings, importSettings, applyBackground, loadBackgrounds, restoreSettings, initSettingsTabs, initSystemThemeDetection } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents, toggleAdhkarPanel, closeAdhkarPanel } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah, nextAyah, prevAyah } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search-ui.js';
@@ -141,6 +141,7 @@ export async function initApp() {
   setLoadSurah(loadSurah);
   cacheDom();
   restoreSettings();
+  initSystemThemeDetection();
   preloadTajweedIfNeeded();
   populateReciterSelect();
 
