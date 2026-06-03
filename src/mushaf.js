@@ -270,7 +270,7 @@ function renderMushafPageImage(pageNum, skipNav) {
         });
       });
     })
-    .catch(() => { });
+    .catch(() => { console.warn('Failed to fetch ayah list for page', pageNum); });
 }
 
 function preloadAdjacentLayouts(pageNum) {

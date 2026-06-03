@@ -11,13 +11,13 @@ const PAGE_BASE = 'https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4
 const FONT_BASE = 'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2/';
 const BSML_FONT = 'QCF4_QBSML';
 
-const CANVAS_W = 1080;
-const CANVAS_H = 1540;
-const PAD_H = 30;
-const PAD_V = 30;
-const TOP_OFFSET = 30;
-const BOTTOM_OFFSET = 50;
-const STD_LINES = 15;
+export const CANVAS_W = 1080;
+export const CANVAS_H = 1540;
+export const PAD_H = 30;
+export const PAD_V = 30;
+export const TOP_OFFSET = 30;
+export const BOTTOM_OFFSET = 50;
+export const STD_LINES = 15;
 
 const layoutCache = new Map();
 let loadedFonts = new Set();
@@ -36,7 +36,7 @@ export async function loadPageData(pageNum) {
     const data = await res.json();
     layoutCache.set(key, data);
     return data;
-  } catch { return null; }
+  } catch (e) { console.warn('Failed to load mushaf page data:', e); return null; }
 }
 
 async function ensureFontLoaded(fontName) {
@@ -95,6 +95,11 @@ export async function renderPage(pageNum, targetCanvas) {
   const hasSurahHeader = data.lines?.[0]?.words?.[0]?.type === 'surah_header';
   if (hasBasml || hasSurahHeader) await ensureFontLoaded(BSML_FONT);
 
+  const fontReady = document.fonts?.check?.(`1px "${pageFont}"`);
+  if (!fontReady && typeof document.fonts?.ready?.then === 'function') {
+    await document.fonts.ready.catch(() => {});
+  }
+
   const canvas = targetCanvas || document.createElement('canvas');
   canvas.width = CANVAS_W;
   canvas.height = CANVAS_H;
@@ -117,9 +122,20 @@ export async function renderPage(pageNum, targetCanvas) {
 function measureLine(ctx, words, pageFont, fontSize) {
   return words.map(w => {
     const fn = w.font || pageFont;
-    ctx.font = `${fontSize}px "${fn}", "Scheherazade New", serif`;
+    ctx.font = `${fontSize}px "${fn}", "Scheherazade New", "Traditional Arabic", "Amiri", serif`;
     return ctx.measureText(w.char).width;
   });
+}
+
+export function getLineY(lineIndex, lineCount, imgHeight) {
+  if (lineIndex <= 0) return 0;
+  if (lineIndex >= lineCount) return imgHeight;
+  const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
+  const stdLineHeight = usableHeight / STD_LINES;
+  const isShortPage = lineCount < STD_LINES;
+  const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / Math.max(1, lineCount - 1) : stdLineHeight;
+  const y = TOP_OFFSET + lineIndex * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2);
+  return (y / CANVAS_H) * imgHeight;
 }
 
 function renderPageContent(ctx, data, pageFont, colors) {
@@ -162,7 +178,7 @@ function renderPageContent(ctx, data, pageFont, colors) {
     for (let j = 0; j < words.length; j++) {
       const w = words[j];
       const fn = w.font || pageFont;
-      ctx.font = `${pageFontSize}px "${fn}", "Scheherazade New", serif`;
+      ctx.font = `${pageFontSize}px "${fn}", "Scheherazade New", "Traditional Arabic", "Amiri", serif`;
       ctx.fillStyle = colors.txt;
       ctx.textAlign = 'right';
       ctx.fillText(w.char, x, y);
