@@ -9,7 +9,7 @@ import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookma
 import { toggleSelectMode, clearSelection, shareSelected, handleAyahSelect } from './select-mode.js';
 import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
-import { applyFontSize, toggleNightMode, applySepiaMode, toggleSepiaMode, applyFontType, applyLineSpacing, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings, initSettingsTabs } from './settings.js';
+import { applyFontSize, toggleNightMode, applySepiaMode, toggleSepiaMode, applyFontType, applyLineSpacing, openSettings, closeSettings, saveLocationSettings, resetSettings, exportSettings, importSettings, applyBackground, loadBackgrounds, restoreSettings, initSettingsTabs } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents, toggleAdhkarPanel, closeAdhkarPanel } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah, nextAyah, prevAyah } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search-ui.js';
@@ -17,6 +17,7 @@ import { recordReadingSession, renderReadingStats } from './reading-stats.js';
 import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
 import { initNavigation } from './navigation.js';
+import { initToggleSwitchAccessibility, addKeyboardDismiss } from './a11y.js';
 import {
   loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect, toggleTranslation
 } from './surah-loader.js';
@@ -27,6 +28,74 @@ import {
 } from './ui-extras.js';
 
 export { loadSurah, renderSurah, highlightCurrentAyah, updatePlayerInfo, buildSurahOffsets, loadSurahList } from './surah-loader.js';
+
+/** Show a custom modal for the sleep timer instead of using browser prompt(). */
+function showSleepTimerModal(audioModule) {
+  const existing = document.getElementById('sleepTimerModal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'sleepTimerModal';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);';
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:280px;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);font-family:inherit;';
+
+  const title = document.createElement('h3');
+  title.style.cssText = 'margin:0 0 16px;color:var(--text-primary);';
+  title.textContent = '⏰ مؤقت النوم';
+
+  const input = document.createElement('input');
+  input.type = 'number'; input.min = '1'; input.max = '180'; input.value = '15';
+  input.style.cssText = 'width:100%;padding:12px;border:2px solid var(--border-soft,#ddd);border-radius:8px;font-size:18px;text-align:center;box-sizing:border-box;background:var(--input-bg,#fff);color:var(--text-primary);';
+  input.placeholder = 'عدد الدقائق';
+
+  const hint = document.createElement('p');
+  hint.style.cssText = 'margin:8px 0 16px;font-size:13px;color:var(--text-secondary,#888);';
+  hint.textContent = 'أدخل عدد الدقائق ثم اضغط تأكيد';
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.textContent = '✅ تأكيد';
+  confirmBtn.style.cssText = 'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--accent,#c9a84c);color:#fff;font-size:16px;cursor:pointer;font-family:inherit;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = '❌ إلغاء';
+  cancelBtn.style.cssText = 'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);color:var(--text-primary);font-size:16px;cursor:pointer;font-family:inherit;';
+
+  const quickBtns = document.createElement('div');
+  quickBtns.style.cssText = 'display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;';
+  [5, 10, 15, 30, 45, 60].forEach(mins => {
+    const btn = document.createElement('button');
+    btn.textContent = `${mins} د`;
+    btn.style.cssText = 'padding:6px 12px;border:1px solid var(--border-soft,#ddd);border-radius:6px;background:var(--bg-secondary,#f5f5f5);color:var(--text-primary);cursor:pointer;font-size:13px;font-family:inherit;';
+    btn.addEventListener('click', () => { input.value = String(mins); });
+    quickBtns.appendChild(btn);
+  });
+
+  function close() { overlay.remove(); }
+  confirmBtn.addEventListener('click', () => {
+    const mins = parseInt(input.value, 10);
+    if (mins > 0) audioModule.setSleepTimer(mins);
+    close();
+  });
+  cancelBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(confirmBtn);
+  modal.appendChild(title);
+  modal.appendChild(quickBtns);
+  modal.appendChild(input);
+  modal.appendChild(hint);
+  modal.appendChild(btnRow);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  input.focus();
+  input.select();
+}
 
 function initState() {
   Object.assign(state, {
@@ -142,6 +211,8 @@ export async function initApp() {
     hideAzanNotification();
   });
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
+  document.getElementById('exportSettingsBtn')?.addEventListener('click', () => exportSettings());
+  document.getElementById('importSettingsBtn')?.addEventListener('click', () => importSettings());
   dom.bgSelect?.addEventListener('change', () => { applyBackground(dom.bgSelect.value); });
   initSettingsTabs();
 
@@ -237,8 +308,7 @@ export async function initApp() {
   dom.installBtn?.addEventListener('click', () => {     if (typeof (/** @type {any} */ (window).installPWA) === 'function') (/** @type {any} */ (window)).installPWA(); });
   dom.sleepTimerBtn?.addEventListener('click', () => {
     import('./audio.js').then(m => {
-      const mins = parseInt(prompt('⏰ مؤقت النوم — كم دقيقة؟', '15'), 10);
-      if (mins > 0) m.setSleepTimer(mins);
+      showSleepTimerModal(m);
     });
   });
   initKeyboard();
@@ -303,6 +373,7 @@ export async function initApp() {
   initNavigation();
   initKeyboardShortcuts();
   initCapacitorBackButton();
+  initToggleSwitchAccessibility();
 
   // Set language selector to current language
   if (dom.langSelect) dom.langSelect.value = getLang();
@@ -348,6 +419,7 @@ export async function initApp() {
     import('./ayah-modal.js').then(m => m.initAyahModal()).catch(() => {});
     import('./presentation.js').then(m => m.initPresentation()).catch(() => {});
     import('./mushaf.js').then(m => m.populateSurahOverlay()).catch(() => {});
-    if (navigator.onLine) fullQuranPromise;
+    // Ensure full Quran text is loaded when online (non-blocking)
+    if (navigator.onLine) fullQuranPromise.catch(console.warn);
   }, 0);
 }

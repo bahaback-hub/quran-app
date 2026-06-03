@@ -12,7 +12,10 @@ export const storage = {
     try {
       const v = localStorage.getItem(CONFIG.STORAGE_PREFIX + key);
       return v === null ? def : JSON.parse(v);
-    } catch (e) { return def; }
+    } catch (e) {
+      console.warn(`[storage] Failed to read key "${key}":`, e);
+      return def;
+    }
   },
   /**
    * Set a value in localStorage with JSON serialization.
@@ -20,13 +23,21 @@ export const storage = {
    * @param {*} val - Value to store.
    */
   set(key, val) {
-    try { localStorage.setItem(CONFIG.STORAGE_PREFIX + key, JSON.stringify(val)); } catch (e) { }
+    try {
+      localStorage.setItem(CONFIG.STORAGE_PREFIX + key, JSON.stringify(val));
+      return true;
+    } catch (e) {
+      console.warn(`[storage] Failed to write key "${key}" (quota exceeded?):`, e);
+      return false;
+    }
   },
   /**
    * Remove a value from localStorage.
    * @param {string} key - Storage key (will be prefixed).
    */
   remove(key) {
-    try { localStorage.removeItem(CONFIG.STORAGE_PREFIX + key); } catch (e) { }
+    try { localStorage.removeItem(CONFIG.STORAGE_PREFIX + key); } catch (e) {
+      console.warn(`[storage] Failed to remove key "${key}":`, e);
+    }
   }
 };

@@ -116,11 +116,57 @@ export function saveLocationSettings() {
 
 /** Reset all settings to defaults and reload the page. */
 export function resetSettings() {
-  if (!confirm('هل تريد إعادة ضبط جميع الإعدادات؟')) return;
-  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed', 'lang', 'surah_list', 'translation_enabled', 'translation_edition', 'last_position', 'bookmark', 'favorites', 'mushaf_mode', 'current_page', 'search_history', 'adhkar_settings'];
-  keys.forEach(k => storage.remove(k));
-  showToast('✅ تم إعادة الضبط. جارٍ تحديث الصفحة...', 'success');
-  setTimeout(() => location.reload(), 1500);
+  // Custom confirmation modal instead of browser confirm()
+  const existing = document.getElementById('resetConfirmModal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'resetConfirmModal';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);';
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:280px;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);';
+
+  const title = document.createElement('h3');
+  title.style.cssText = 'margin:0 0 12px;color:var(--text-primary);';
+  title.textContent = '⚠️ إعادة ضبط الإعدادات';
+
+  const msg = document.createElement('p');
+  msg.style.cssText = 'margin:0 0 20px;color:var(--text-secondary,#666);font-size:14px;';
+  msg.textContent = 'هل تريد إعادة ضبط جميع الإعدادات إلى القيم الافتراضية؟ سيتم حذف جميع التفضيلات المحفوظة.';
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.textContent = '🔄 إعادة ضبط';
+  confirmBtn.style.cssText = 'flex:1;padding:10px 20px;border:none;border-radius:8px;background:#e74c3c;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = '❌ إلغاء';
+  cancelBtn.style.cssText = 'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);color:var(--text-primary);font-size:14px;cursor:pointer;font-family:inherit;';
+
+  function close() { overlay.remove(); }
+
+  confirmBtn.addEventListener('click', () => {
+    const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed', 'lang', 'surah_list', 'translation_enabled', 'translation_edition', 'last_position', 'bookmark', 'favorites', 'mushaf_mode', 'current_page', 'search_history', 'adhkar_settings'];
+    keys.forEach(k => storage.remove(k));
+    storage.remove('night_mode_set_by_user');
+    showToast('✅ تم إعادة الضبط. جارٍ تحديث الصفحة...', 'success');
+    setTimeout(() => location.reload(), 1500);
+  });
+
+  cancelBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(confirmBtn);
+  modal.appendChild(title);
+  modal.appendChild(msg);
+  modal.appendChild(btnRow);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  cancelBtn.focus();
 }
 
 /** Export all settings as a downloadable JSON file. */
@@ -138,6 +184,17 @@ export function exportSettings() {
   showToast('✅ تم تصدير الإعدادات', 'success');
 }
 
+/** Allowlist of valid setting keys for import validation. */
+const ALLOWED_SETTINGS_KEYS = new Set([
+  'font_size', 'night_mode', 'city', 'country', 'method',
+  'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter',
+  'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id',
+  'playback_speed', 'lang', 'translation_enabled', 'translation_edition',
+  'favorites', 'bookmark', 'last_position', 'mushaf_mode', 'current_page',
+  'adhkar_settings', 'search_history', 'sepia_mode', 'font_type',
+  'line_spacing', 'tajweed_enabled', 'night_mode_set_by_user', 'surah_list'
+]);
+
 /** Import settings from a JSON file. */
 export function importSettings() {
   const input = document.createElement('input');
@@ -150,10 +207,17 @@ export function importSettings() {
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(/** @type {string} */ (/** @type {unknown} */ (ev.target?.result)));
+        let imported = 0;
+        let skipped = 0;
         Object.entries(data).forEach(([k, v]) => {
-          if (v !== null && v !== undefined) storage.set(k, v);
+          if (v !== null && v !== undefined && ALLOWED_SETTINGS_KEYS.has(k)) {
+            storage.set(k, v);
+            imported++;
+          } else {
+            skipped++;
+          }
         });
-        showToast('✅ تم استيراد الإعدادات. جارٍ تحديث الصفحة...', 'success');
+        showToast(`✅ تم استيراد ${imported} إعداد${skipped ? ` (${skipped} مُتجاهل)` : ''}. جارٍ التحديث...`, 'success');
         setTimeout(() => location.reload(), 1500);
       } catch {
         showToast('❌ ملف غير صالح', 'error');
