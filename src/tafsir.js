@@ -6,7 +6,11 @@ import { escapeHtml } from './utils.js';
 
 /* ===================== TAFSIR INDEXEDDB CACHE ===================== */
 
+/** @type {IDBDatabase|null} */
+let _tafsirDb = null;
+
 function openTafsirDB() {
+  if (_tafsirDb) return Promise.resolve(_tafsirDb);
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('QuranTafsirDB', 1);
     request.onupgradeneeded = (e) => {
@@ -15,7 +19,10 @@ function openTafsirDB() {
         db.createObjectStore('tafsir', { keyPath: 'key' });
       }
     };
-    request.onsuccess = (e) => resolve(/** @type {IDBRequest} */ (e.target).result);
+    request.onsuccess = (e) => {
+      _tafsirDb = /** @type {IDBRequest} */ (e.target).result;
+      resolve(_tafsirDb);
+    };
     request.onerror = (e) => reject(/** @type {IDBRequest} */ (e.target).error);
   });
 }
