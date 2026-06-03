@@ -51,6 +51,7 @@ export function renderFavorites() {
   for (const f of state.favorites.slice().reverse()) {
     const item = document.createElement('div');
     item.className = 'favorite-item';
+    item.dataset.key = f.key || '';
     const meta = document.createElement('div');
     meta.className = 'favorite-meta';
     meta.innerHTML = `<strong>${escapeHtml(f.surahName || '')}</strong> — آية ${escapeHtml(String(f.ayah || ''))}`;
@@ -89,53 +90,90 @@ export function renderFavorites() {
   }
   dom.favoritesList.replaceChildren(fragment);
 
-  dom.favoritesList.querySelectorAll('.fav-go').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const surah = parseInt(btn.dataset.surah, 10);
-      const ayah = parseInt(btn.dataset.ayah, 10);
-      if (dom.surahSelect) dom.surahSelect.value = surah;
-      loadSurah(surah, { startAyah: ayah });
-      closeFavorites();
-    });
-  });
-  dom.favoritesList.querySelectorAll('.fav-copy').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const text = btn.dataset.text || '';
-      if (text) { copyToClipboard(text); showToast('📋 تم نسخ الآية', 'success'); }
-    });
-  });
-  dom.favoritesList.querySelectorAll('.fav-share').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const text = btn.dataset.text || '';
-      const surahName = btn.dataset.surahname || '';
-      const ayah = btn.dataset.ayah || '';
-      const shareText = `${text} — ${surahName} — آية ${ayah}`;
-      if (navigator.share) {
-        navigator.share({ title: 'القرآن الكريم', text: shareText }).catch(() => {});
-      } else {
-        copyToClipboard(shareText);
-        showToast('📋 تم نسخ الآية للمشاركة', 'success');
+  if (!dom.favoritesList._delegationBound) {
+    dom.favoritesList._delegationBound = true;
+    dom.favoritesList.addEventListener('click', (e) => {
+      const target = /** @type {HTMLElement} */ (e.target);
+      if (target.classList.contains('fav-go')) {
+        const surah = parseInt(target.dataset.surah, 10);
+        const ayah = parseInt(target.dataset.ayah, 10);
+        if (dom.surahSelect) dom.surahSelect.value = surah;
+        loadSurah(surah, { startAyah: ayah });
+        closeFavorites();
+        return;
+      }
+      if (target.classList.contains('fav-copy')) {
+        const text = target.dataset.text || '';
+        if (text) { copyToClipboard(text); showToast('📋 تم نسخ الآية', 'success'); }
+        return;
+      }
+      if (target.classList.contains('fav-share')) {
+        const text = target.dataset.text || '';
+        const surahName = target.dataset.surahname || '';
+        const ayah = target.dataset.ayah || '';
+        const shareText = `${text} — ${surahName} — آية ${ayah}`;
+        if (navigator.share) {
+          navigator.share({ title: 'القرآن الكريم', text: shareText }).catch(() => {});
+        } else {
+          copyToClipboard(shareText);
+          showToast('📋 تم نسخ الآية للمشاركة', 'success');
+        }
+        return;
+      }
+      if (target.classList.contains('fav-remove')) {
+        const key = target.dataset.key;
+        const idx = state.favorites.findIndex(f => f.key === key);
+        if (idx !== -1) {
+          state.favorites.splice(idx, 1);
+          saveFavorites();
+          const item = dom.favoritesList?.querySelector(`.favorite-item[data-key="${CSS.escape(key)}"]`);
+          if (item) item.remove();
+          if (!state.favorites.length) dom.favoritesList.innerHTML = '<p class="favorites-empty">لا توجد آيات مفضلة بعد</p>';
+          showToast('💔 تمت إزالة من المفضلة', '');
+        }
+        return;
       }
     });
-  });
-  dom.favoritesList.querySelectorAll('.fav-remove').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const key = btn.dataset.key;
-      const idx = state.favorites.findIndex(f => f.key === key);
-      if (idx !== -1) {
-        state.favorites.splice(idx, 1);
-        saveFavorites();
-        renderFavorites();
-        showToast('💔 تمت إزالة من المفضلة', '');
-      }
-    });
-  });
+  }
 }
 
 /** Open the favorites panel. */
-export function openFavorites() { renderFavorites(); dom.favoritesPanel?.classList.add('open'); }
+export function openFavorites() { renderFavorites(); wireFavoritesExport(); dom.favoritesPanel?.classList.add('open'); }
 /** Close the favorites panel. */
 export function closeFavorites() { dom.favoritesPanel?.classList.remove('open'); }
+
+/* ===================== EXPORT ===================== */
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportFavoritesText() {
+  if (!state.favorites.length) { showToast('لا توجد آيات مفضلة للتصدير', 'error'); return; }
+  let text = '';
+  for (const f of state.favorites) {
+    text += `﴿${f.text}﴾ — ${f.surahName || ''} — آية ${f.ayah}\n\n`;
+  }
+  downloadFile(text, 'quran-favorites.txt', 'text/plain;charset=utf-8');
+  showToast('📄 تم تصدير المفضلة كنص', 'success');
+}
+
+function exportFavoritesJson() {
+  if (!state.favorites.length) { showToast('لا توجد آيات مفضلة للتصدير', 'error'); return; }
+  downloadFile(JSON.stringify(state.favorites, null, 2), 'quran-favorites.json', 'application/json');
+  showToast('💾 تم تصدير المفضلة JSON', 'success');
+}
+
+export function wireFavoritesExport() {
+  document.getElementById('favExportTextBtn')?.addEventListener('click', exportFavoritesText);
+  document.getElementById('favExportJsonBtn')?.addEventListener('click', exportFavoritesJson);
+}
 
 /* ===================== BOOKMARK ===================== */
 

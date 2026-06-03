@@ -44,22 +44,22 @@ export function setLang(lang) {
 
 /** Translate all elements with data-i18n, data-i18n-placeholder, data-i18n-title, data-i18n-aria-label attributes. */
 export function applyTranslations() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
+  for (const el of document.querySelectorAll('[data-i18n]')) {
     const key = el.getAttribute('data-i18n');
     if (key) el.textContent = __(key);
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+  }
+  for (const el of document.querySelectorAll('[data-i18n-placeholder]')) {
     const key = el.getAttribute('data-i18n-placeholder');
     if (key) (/** @type {HTMLInputElement} */ (el)).placeholder = __(key);
-  });
-  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+  }
+  for (const el of document.querySelectorAll('[data-i18n-title]')) {
     const key = el.getAttribute('data-i18n-title');
     if (key) (/** @type {HTMLElement} */ (el)).title = __(key);
-  });
-  document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+  }
+  for (const el of document.querySelectorAll('[data-i18n-aria-label]')) {
     const key = el.getAttribute('data-i18n-aria-label');
     if (key) el.setAttribute('aria-label', __(key));
-  });
+  }
 }
 
 /** Get the current active language code. */

@@ -419,8 +419,10 @@ function buildAyahWordsHtml(text, ayahIdx) {
   ).join(' ');
 }
 
+let _ayahDelegationBound = false;
 function initAyahDelegation() {
-  if (!dom.surahContent) return;
+  if (!dom.surahContent || _ayahDelegationBound) return;
+  _ayahDelegationBound = true;
   dom.surahContent.addEventListener('click', (e) => {
     const ayahEl = /** @type {HTMLElement} */ (e.target).closest('.ayah');
     if (!ayahEl) return;
@@ -474,21 +476,25 @@ function finalizeSurahLoad(opts) {
 
 /** Scroll to and highlight the current ayah. */
 export function highlightCurrentAyah() {
-  document.querySelectorAll('.ayah').forEach(el => el.classList.remove('current'));
+  const container = dom.surahContent?.querySelector('.ayahs-container');
+  const ayahs = container?.children;
+  if (ayahs) {
+    for (let i = 0; i < ayahs.length; i++) ayahs[i].classList.remove('current');
+  }
   if (state.surahData && state.currentAyahIndex >= _ayahsReadyCount) {
     renderAyahChunk(state.surahData, _ayahsReadyCount, state.currentAyahIndex - _ayahsReadyCount + VIRTUAL_CHUNK_SIZE);
   }
-  const cur = document.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
+  const cur = container?.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`);
   if (cur) {
     cur.classList.add('current');
     if (state.hifdhMode) {
-      document.querySelectorAll('.ayah').forEach(el => el.classList.remove('revealed'));
+      for (let i = 0; i < ayahs.length; i++) ayahs[i].classList.remove('revealed');
       for (let i = 0; i <= state.currentAyahIndex; i++) {
-        const prev = document.querySelector(`.ayah[data-index="${i}"]`);
+        const prev = container.querySelector(`.ayah[data-index="${i}"]`);
         if (prev) prev.classList.add('revealed');
       }
     }
-    cur.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    cur.scrollIntoView({ behavior: 'instant', block: 'center' });
   }
   updatePlayerInfo();
   import('./presentation.js').then(m => m.syncPresentation()).catch(() => {});

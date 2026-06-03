@@ -75,6 +75,42 @@ body.night-mode {
   --font-size-select-bg: #2a3040;
 }
 
+body.sepia-mode {
+  --bg-gradient: #f5e6c8;
+  --container-bg: #efe0c0;
+  --header-bg: linear-gradient(135deg, #d4c4a0, #e0d0b0);
+  --header-text: #5a3e2b;
+  --controls-bg: #e8d8b8;
+  --player-bg: #e8d8b8;
+  --content-bg: #efe0c0;
+  --text-primary: #3a2a1a;
+  --text-secondary: #5a3e2b;
+  --text-muted: #7a6a5a;
+  --primary: #b8a080;
+  --primary-light: #d0b898;
+  --border: #c8b090;
+  --border-soft: #d8c8a8;
+  --select-bg: #f0e0c0;
+  --highlight-bg: linear-gradient(120deg, #f0d890 0%, #e8c870 100%);
+  --highlight-text: #3a2a1a;
+  --highlight-shadow: rgba(180, 140, 60, 0.4);
+  --hover-bg: rgba(120, 80, 40, 0.1);
+  --bismillah-color: #7a5a3a;
+  --error-bg: #f0d0c0;
+  --error-text: #8a3020;
+  --footer-bg: #d4c4a0;
+  --shadow: 0 20px 60px rgba(60, 40, 20, 0.3);
+  --tafsir-bg: #efe0c0;
+  --tafsir-text: #5a3e2b;
+  --tafsir-border: #c8b090;
+  --prayer-bar-bg: linear-gradient(135deg, #c8b090 0%, #d8c0a0 100%);
+  --share-menu-bg: #f0e0c0;
+  --share-menu-shadow: 0 4px 20px rgba(60, 40, 20, 0.2);
+  --focus-outline: 3px solid #7a5a3a;
+  --curtain-handle-bg: linear-gradient(180deg, #c8b090, #d8c0a0);
+  --font-size-select-bg: #f0e0c0;
+}
+
 body {
   font-family: 'Amiri', 'Traditional Arabic', 'Arial', sans-serif;
   background: var(--bg-gradient);

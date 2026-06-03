@@ -63,7 +63,11 @@
  *   currentPageLayout: object|null,
  *   _allSearchMatches: Array<{surah: number, surahName: string, ayah: number, text: string, normalized: string}>|null,
  *   _searchResultsPage: number,
- *   _editPersonalAdhkarId: string|null
+ *   _editPersonalAdhkarId: string|null,
+ *   searchPrefixMap: Map|null,
+ *   sepiaMode: boolean,
+ *   fontType: string,
+ *   lineSpacing: string
  * }}
  */
 /** @type {any} */
