@@ -236,7 +236,9 @@ export async function initApp() {
     if (dom.headerDropdown && dom.headerMenuBtn && !dom.headerMenuBtn.contains(e.target) && !dom.headerDropdown.contains(e.target)) {
       dom.headerDropdown.style.display = 'none';
     }
-    if (dom.settingsPanel?.classList.contains('open') && !dom.settingsPanel.contains(e.target) && e.target !== dom.settingsToggleBtn) closeSettings();
+    const settingsTarget = /** @type {HTMLElement} */ (e.target);
+    const isSettingsTrigger = settingsTarget === dom.settingsToggleBtn || settingsTarget === document.getElementById('headerSettingsBtn') || settingsTarget.closest?.('[data-tab="more"]');
+    if (dom.settingsPanel?.classList.contains('open') && !dom.settingsPanel.contains(e.target) && !isSettingsTrigger) closeSettings();
     if (dom.favoritesPanel?.classList.contains('open') && !dom.favoritesPanel.contains(e.target) && e.target !== dom.favoritesOpenBtn) closeFavorites();
     if (dom.adhkarPanel?.classList.contains('open') && !dom.adhkarPanel.contains(e.target) && e.target !== dom.adhkarBtn) closeAdhkarPanel();
   });
