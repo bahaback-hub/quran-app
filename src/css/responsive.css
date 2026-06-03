@@ -1,0 +1,318 @@
+/* Responsive — all media queries for tablet, mobile, small screens, print */
+
+/* ========== التجاوب مع الشاشات المتوسطة ========== */
+@media (max-width: 900px) {
+  .prayer-bar-items { gap: 8px; }
+  .prayer-bar-item { padding: 4px 10px; font-size: 12px; white-space: normal; }
+  .controls { flex-direction: column; align-items: stretch; }
+  .controls-row { width: 100%; }
+  .control-group select,
+  .control-group input { min-width: 100%; }
+  .settings-panel { width: 360px; }
+  .favorites-panel { width: 360px; }
+  .tafsir-curtain { width: 340px; }
+  .tafsir-curtain-handle.open { left: 340px; }
+}
+
+/* ========== التجاوب مع الموبايل ========== */
+@media (max-width: 600px) {
+  body { padding: 10px; padding-bottom: 260px; }
+  .container { border-radius: 12px; }
+  .header { padding: 22px 15px; }
+  .header h1 { font-size: 22px; }
+  .header p { font-size: 13px; }
+  .header-action-btn, .header-menu-btn { width: 36px; height: 36px; font-size: 16px; }
+  .header-menu-container { top: 10px; left: 10px; }
+  .mode-btn.mode-toggle { padding: 4px 8px; font-size: 10px; }
+  .surah-content { padding: 16px; min-height: 300px; }
+  .surah-title { font-size: 22px; }
+  .bismillah { font-size: 24px; }
+  .ayahs-container { line-height: 2.2; }
+  .settings-panel,
+  .favorites-panel { width: 100%; max-width: 100%; }
+  .settings-panel { right: -100%; }
+  .favorites-panel { left: -100%; }
+  .tafsir-curtain { width: 92vw; left: -100vw; }
+  .big-clock-time { font-size: 32px; }
+  .player:not(.collapsed) { padding: 8px 10px; }
+  .btn { padding: 6px 10px; font-size: 12px; }
+  .player-buttons { gap: 5px; }
+  .prayer-bar-item { padding: 3px 8px; font-size: 11px; }
+  .prayer-bar-actions { gap: 6px; }
+  .settings-toggle-btn { padding: 5px 12px; font-size: 12px; }
+  .player-info { font-size: 14px; gap: 6px; }
+  .player-info .current-ayah { font-size: 14px; padding: 6px 10px; }
+  audio { max-width: 100%; }
+  .keyboard-hint { display: none; }
+  .toast { bottom: 250px; font-size: 13px; padding: 10px 18px; }
+  .search-result-text { font-size: 16px; }
+  .ayah-number { min-width: 28px; height: 28px; line-height: 28px; font-size: 12px; }
+  .controls-row .search-input-group { min-width: 100px; max-width: 160px; }
+  .controls-row .btn-sm { padding: 4px 6px; font-size: 11px; }
+  .controls-row .font-size-select { width: 52px; min-width: 52px; }
+}
+
+/* ========== شاشات صغيرة جداً ========== */
+@media (max-width: 380px) {
+  .header h1 { font-size: 19px; }
+  .surah-title { font-size: 19px; }
+  .bismillah { font-size: 21px; }
+  .btn { padding: 5px 8px; font-size: 11px; }
+}
+
+/* ========== إعدادات الأذكار داخل لوحة الإعدادات ========== */
+@media (max-width: 600px) {
+  .adhkar-panel { width: 100%; max-width: 100%; left: -100%; }
+  .adhkar-panel.open { left: 0; }
+}
+
+/* ========== تحسينات الموبايل — حس تطبيقي ========== */
+@media (hover: none) and (pointer: coarse), (max-width: 768px) {
+  .control-group button, .btn-sm, .settings-close, .favorites-close,
+  .adhkar-close-btn, .mushaf-surah-overlay-close, .surah-secrets-close-btn,
+  .collapse-bar-btn, .expand-bar-btn, .mode-toggle-control,
+  .header-action-btn, .header-menu-btn, .search-btn, .clear-search-btn, .voice-search-btn,
+  .prev-ayah-btn, .next-ayah-btn, .prev-surah-btn, .next-surah-btn,
+  .hifdh-btn, .repeat-btn, .bookmark-btn, .favorite-btn, .share-btn,
+  .play-pause-btn, .collapsed-play-btn,
+  .bottom-nav-btn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 10px 14px !important;
+    font-size: 15px !important;
+  }
+  .bottom-nav-btn { padding: 6px 4px !important; }
+  .collapse-bar-btn, .expand-bar-btn {
+    width: 44px !important;
+    height: 44px !important;
+    padding: 10px !important;
+  }
+  .ayah-number {
+    min-width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    font-size: 14px !important;
+  }
+  .word {
+    padding: 4px 3px !important;
+    font-size: 24px !important;
+    line-height: 2 !important;
+  }
+  select, input, button {
+    font-size: 16px !important;
+  }
+  .surah-select, .reciter-select, .translation-select, .tafsir-select,
+  .speed-select, .font-size-select, .method-select, .city-quick-select,
+  .lang-select {
+    min-height: 44px !important;
+    padding: 8px 12px !important;
+  }
+  .mushaf-ayah-btn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 8px 12px !important;
+  }
+  .mushaf-page-nav-btn {
+    min-width: 48px !important;
+    min-height: 48px !important;
+  }
+}
+
+/* Smartphones صغيرة جداً */
+@media (max-width: 400px) {
+  .container { padding: 0 4px; }
+  .header { padding: 8px 4px; }
+  .controls { gap: 4px; }
+  .control-group { gap: 4px; }
+  .surah-content { padding: 12px 8px; }
+  .ayah { padding: 8px 6px; margin: 3px 0; }
+  .word { font-size: 20px !important; line-height: 1.8 !important; }
+  .player-controls { gap: 6px; }
+}
+
+/* تحسين التمرير للشاشات التي تعمل باللمس */
+@media (hover: none) and (pointer: coarse) {
+  .ayahs-container {
+    -webkit-overflow-scrolling: touch;
+  }
+  select, input, textarea {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  * { touch-action: manipulation; }
+}
+
+/* الجوال: نخفي التفسير الجانبي ونستخدم المودال بدلاً عنه */
+@media (max-width: 600px) {
+  .tafsir-curtain {
+    width: 100vw;
+    max-width: 100vw;
+    left: 0;
+    top: auto;
+    bottom: -100vh;
+    height: 75vh;
+    border-right: none;
+    border-top: 3px solid var(--accent);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.3);
+    transition: bottom 0.4s ease;
+    padding: 16px;
+    z-index: 941;
+  }
+  .tafsir-curtain.open { bottom: 0; left: 0; }
+  .tafsir-curtain-handle {
+    position: fixed;
+    bottom: -60px;
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 36px;
+    border-radius: 12px 12px 0 0;
+    border: 2px solid var(--accent);
+    border-bottom: none;
+    writing-mode: initial;
+    text-orientation: initial;
+    font-size: 11px;
+    z-index: 942;
+    transition: bottom 0.4s ease;
+  }
+  .tafsir-curtain-handle.open { bottom: 75vh; left: 50%; }
+}
+
+/* ========== الثلاث واجهات: ديسكتوب > 900px, تابلت 600-900px, جوال < 600px ========== */
+
+/* الواجهة الأولى: ديسكتوب (أكبر من 900px) — التصميم الحالي (لا تغيير) */
+
+/* الواجهة الثانية: تابلت (601px - 900px) */
+
+
+@media (max-width: 900px) and (min-width: 601px) {
+  body { padding-bottom: 80px; }
+  .header { padding: 18px 16px; }
+  .header h1 { font-size: 24px; }
+  .header-menu-container { gap: 4px; }
+  .header-action-btn, .header-menu-btn { width: 36px; height: 36px; font-size: 18px; }
+  .controls { padding: 10px; gap: 6px; }
+  .controls-row .control-group { min-width: 140px; max-width: 180px; }
+  .controls-row .control-group select { padding: 4px 6px; font-size: 12px; height: 30px; }
+  .prayer-bar-item { padding: 3px 8px; font-size: 11px; gap: 4px; }
+  .prayer-bar-items { gap: 6px; }
+  .prayer-bar-inner { padding: 8px 12px; }
+  .player:not(.collapsed) { padding: 8px 12px; }
+  .player-more-row .btn { padding: 5px 10px; font-size: 11px; }
+  .surah-content { padding: 20px; }
+  .settings-panel, .favorites-panel, .tafsir-curtain { width: 340px; }
+  .tafsir-curtain-handle.open { left: 340px; }
+  .btn { padding: 6px 12px; font-size: 12px; }
+  .toast { bottom: 90px; }
+}
+
+/* الواجهة الثالثة: جوال (600px فأقل) */
+@media (max-width: 600px) {
+  body { padding: 8px; padding-bottom: 80px; }
+  .container { border-radius: 10px; }
+
+  /* رأس الصفحة مبسط */
+  .header { padding: 12px 10px; }
+  .header h1 { font-size: 18px; margin-bottom: 0; }
+  .header-menu-container { top: 8px; left: 8px; gap: 4px; }
+  .header-action-btn, .header-menu-btn { width: 32px; height: 32px; font-size: 15px; }
+
+  /* أدوات التحكم — تخفى افتراضياً وتظهر عند الضغط على تبويب "أدوات" */
+  .controls { padding: 8px; display: none; }
+  .controls.mobile-show { display: flex; }
+  .controls-row .control-group { min-width: 100%; max-width: 100%; }
+  .controls-row .control-group select { padding: 6px 8px; font-size: 13px; height: 36px; }
+  .controls-row .search-input-group { min-width: 100%; max-width: 100%; }
+
+  /* شريط المواقيت مصغر */
+  .prayer-bar.collapsed { height: 36px; }
+  .collapsed-preview { height: 36px; gap: 8px; font-size: 12px; padding: 0 8px; }
+  .collapsed-preview .clock-only { font-size: 13px; }
+  .prayer-bar-inner { padding: 6px 10px; }
+  .prayer-bar-item { padding: 2px 6px; font-size: 10px; gap: 3px; }
+
+  /* محتوى السورة */
+  .surah-content { padding: 12px; min-height: 250px; }
+  .surah-title { font-size: 20px; }
+  .bismillah { font-size: 22px; }
+
+  /* المشغل مبسط */
+  .player:not(.collapsed) { padding: 6px 8px; padding-bottom: 56px; }
+  .player.collapsed { height: 44px; padding: 4px 8px; }
+  .expanded-header { font-size: 13px; margin-bottom: 4px; }
+  .current-ayah { font-size: 14px; padding: 6px 10px; margin-bottom: 6px; }
+  .player-buttons { gap: 4px; margin-top: 4px; }
+  .player-buttons #prevSurahBtn,
+  .player-buttons #nextSurahBtn { display: none; }
+  .player-more-row .btn { padding: 5px 10px; font-size: 11px; }
+  .player-row { flex-direction: column; gap: 4px; }
+  .player-row audio { max-width: 100%; }
+  .speed-control { font-size: 11px; }
+
+  /* الألواح المنزلقة — تأخذ كامل الشاشة */
+  .settings-panel, .favorites-panel, .adhkar-panel, .tafsir-curtain { width: 100%; max-width: 100%; }
+  .settings-panel { right: -100%; }
+  .favorites-panel { left: -100%; }
+  .adhkar-panel { left: -100%; }
+  .tafsir-curtain { width: 100vw; left: -100vw; }
+  .tafsir-curtain-handle.open { left: auto; right: 0; }
+
+  /* Toast اعلى المشغل */
+  .toast { bottom: 90px; font-size: 12px; padding: 8px 14px; }
+
+  /* نتائج البحث */
+  .search-result-text { font-size: 15px; }
+  .search-results { padding: 10px; max-height: 50vh; }
+
+  /* أرقام الآيات */
+  .ayah-number { min-width: 24px; height: 24px; line-height: 24px; font-size: 11px; }
+
+  /* إظهار شريط التنقل السفلي */
+  .bottom-nav { display: flex; }
+
+  /* المشغل لا يتزاحم مع الشريط السفلي */
+  .player { bottom: 56px; }
+  .player.collapsed { bottom: 56px; }
+
+  /* لوحة المفاتيح العربية */
+  .arabic-keyboard { gap: 2px; padding: 4px 2px; }
+  .kbd-key { min-width: 24px; height: 28px; font-size: 13px; }
+}
+
+@media (max-width: 380px) {
+  .header h1 { font-size: 16px; }
+  .surah-title { font-size: 17px; }
+  .bismillah { font-size: 19px; }
+  .btn { padding: 4px 6px; font-size: 10px; }
+  .bottom-nav-btn { font-size: 15px; padding: 4px 4px 2px; }
+  .bottom-nav-btn span { font-size: 8px; }
+}
+
+/* ========== الطباعة ========== */
+@media print {
+  body { background: #fff; padding: 0; padding-bottom: 0; }
+  .player, .prayer-bar, .settings-panel, .favorites-panel,
+  .tafsir-curtain, .tafsir-curtain-handle, .toast,
+  .header-action-btn, .header-menu-btn, .controls, .footer, .skip-link { display: none !important; }
+  .container { box-shadow: none; max-width: 100%; }
+  .surah-content { padding: 20px; }
+  .ayah { background: none !important; box-shadow: none !important; color: #000 !important; }
+}
+
+/* ========== أنماط الطباعة ========== */
+@media print {
+  body { padding: 0; background: #fff !important; color: #000; }
+  .player, .controls, .settings-panel, .favorites-panel,
+  .tafsir-curtain, .tafsir-curtain-handle, .header-menu-container,
+  .bottom-nav, .network-banner, .toast, .azan-notification,
+  .adhkar-notification, .prayer-bar, .reading-progress,
+  .footer, .skip-link, .bottom-nav { display: none !important; }
+  .container { box-shadow: none; border-radius: 0; }
+  .surah-content { padding: 10px; }
+  .ayah { color: #000 !important; }
+  .ayah-number { background: none; color: #000; border: 1px solid #000; }
+}

@@ -1,0 +1,419 @@
+/* Layout — header, prayer-bar, controls, footer, breadcrumbs, bottom-nav */
+
+/* ========== شريط علوي قابل للطي ========== */
+.prayer-bar {
+  background: var(--prayer-bar-bg);
+  color: #fff;
+  border-bottom: 3px solid var(--accent);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+.prayer-bar #collapseBarBtn,
+.prayer-bar #expandBarBtn {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.prayer-bar.expanded #expandBarBtn { display: none; }
+.prayer-bar.collapsed #collapseBarBtn { display: none; }
+.prayer-bar.collapsed { height: 48px; }
+.prayer-bar.expanded { height: auto; }
+.prayer-bar-inner { padding: 12px 20px; }
+.prayer-bar-items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+}
+.prayer-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.12);
+  padding: 6px 14px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.collapse-bar-btn {
+  background: var(--accent);
+  color: #2c3e50;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-weight: bold;
+}
+.collapse-bar-btn:hover { transform: scale(1.05); background: var(--accent-dark); }
+.collapsed-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 20px;
+  height: 48px;
+}
+.collapsed-preview .clock-only {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffe066;
+  font-family: monospace;
+}
+.prayer-bar.collapsed .prayer-bar-inner { display: none; }
+.prayer-bar.expanded .collapsed-preview { display: none; }
+
+/* ========== رأس الصفحة ========== */
+.header {
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 30px 20px;
+  text-align: center;
+  border-bottom: 4px solid var(--accent);
+  position: relative;
+}
+.header h1 { font-size: 32px; margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+.header p { font-size: 15px; opacity: 0.9; }
+
+.header-title-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  opacity: 0.85;
+  direction: rtl;
+}
+.breadcrumb-item {
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.breadcrumb-item:hover { background: rgba(255,255,255,0.15); }
+.breadcrumb-sep { font-size: 18px; color: var(--accent); opacity: 0.7; }
+.breadcrumb-surah { font-weight: bold; }
+
+/* ===== قائمة الهيدر ===== */
+.header-menu-container {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+}
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+.header-action-btn, .header-menu-btn {
+  background: rgba(255,255,255,0.15);
+  border: 2px solid var(--accent);
+  color: var(--header-text);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.header-action-btn:hover { background: var(--accent); transform: scale(1.1); }
+.header-menu-btn:hover { background: var(--accent); transform: rotate(90deg) scale(1.1); }
+.header-dropdown {
+  position: absolute;
+  top: 52px;
+  left: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  min-width: 170px;
+  z-index: 100;
+  overflow: hidden;
+}
+.header-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  text-align: right;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.header-dropdown button:hover { background: rgba(212,175,55,0.1); }
+.header-dropdown button:not(:last-child) { border-bottom: 1px solid var(--border-soft); }
+
+/* ========== أدوات التحكم ========== */
+.controls {
+  background: var(--controls-bg);
+  padding: 18px;
+  border-bottom: 2px solid var(--accent);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.control-group { display: flex; flex-direction: column; gap: 5px; }
+.control-group label { font-size: 13px; font-weight: bold; color: var(--primary-light); }
+body.night-mode .control-group label { color: var(--accent); }
+.control-group select,
+.control-group input {
+  padding: 10px 14px;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  background: var(--select-bg);
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 180px;
+  color: var(--text-secondary);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.control-group select:focus,
+.control-group input:focus {
+  border-color: var(--accent-dark);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+.control-group input { min-width: 220px; cursor: text; }
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  width: 100%;
+}
+.controls-right {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.controls-left {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.controls-row .control-group {
+  min-width: 180px;
+  max-width: 220px;
+  flex: 1;
+}
+.controls-row .control-group select {
+  min-width: 100%;
+  padding: 6px 8px;
+  font-size: 13px;
+  height: 34px;
+}
+.controls-row .control-group label {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.search-toggle-btn {
+  background: none;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+.search-toggle-btn:hover { background: rgba(212,175,55,0.1); color: var(--accent-dark); }
+.search-toggle-btn.active { background: var(--accent); color: #2c3e50; }
+
+.controls-row .search-input-group {
+  min-width: 180px;
+  max-width: 220px;
+  flex: 1;
+}
+.controls-row .btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+  min-height: 34px;
+}
+
+/* ========== مجموعات بطاقات التحكم ========== */
+.control-card {
+  background: var(--player-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.control-card-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+/* ========== قائمة منسدلة حجم الخط ========== */
+.font-size-select {
+  background: var(--font-size-select-bg);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 6px 6px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  min-width: 60px;
+  width: 64px;
+  height: 34px;
+  align-self: flex-end;
+}
+
+/* ========== التذييل ========== */
+.footer {
+  background: var(--footer-bg);
+  color: #fff;
+  text-align: center;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.footer a { color: #ffe066; text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+
+/* منع الـ bounce/scrolling الزائد — حس تطبيقي */
+html {
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* البوتوم ناف — أيقونات أكبر وإحساس تطبيقي */
+.bottom-nav-btn {
+  position: relative;
+  gap: 2px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.bottom-nav-btn:active {
+  transform: scale(0.94);
+}
+.bottom-nav-btn span {
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* ========== شريط التنقل السفلي (جوال/تابلت) ========== */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--header-bg);
+  border-top: 3px solid var(--accent);
+  z-index: 5000;
+  justify-content: space-around;
+  align-items: stretch;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  direction: rtl;
+  padding: 0 env(safe-area-inset-bottom, 0);
+}
+.bottom-nav-btn {
+  background: none;
+  border: none;
+  color: var(--header-text);
+  opacity: 0.6;
+  padding: 6px 8px 4px;
+  font-size: 18px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  flex: 1;
+  border-top: 3px solid transparent;
+  margin-top: -3px;
+}
+.bottom-nav-btn span {
+  font-size: 9px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.bottom-nav-btn:hover { opacity: 0.9; }
+.bottom-nav-btn.active {
+  opacity: 1;
+  border-top-color: var(--accent);
+  background: rgba(255,255,255,0.08);
+}
+
+/* ========== شريط تقدم القراءة ========== */
+.reading-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent, #d4af37); z-index: 9999;
+  transform-origin: left; transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+/* ========== تحسينات التمرير والتركيز ========== */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+::selection {
+  background: rgba(212, 175, 55, 0.3);
+  color: var(--text-primary);
+}
+/* Better scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--controls-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-dark);
+}
+/* Smooth panel transitions */
+.settings-panel, .favorites-panel, .tafsir-curtain, .adhkar-panel {
+  will-change: transform;
+}

@@ -1,0 +1,249 @@
+/* Floating player — audio, select mode, speed control, repeat controls */
+
+/* ========== المشغل العائم ========== */
+.player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--player-bg);
+  border-top: 4px solid var(--accent);
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.2);
+  z-index: 500;
+  transition: all 0.3s ease;
+  text-align: center;
+  overflow: hidden;
+}
+.player:not(.collapsed) { padding: 12px 18px; }
+.player.collapsed { padding: 6px 12px; height: 55px; }
+
+.expanded-content { display: flex; flex-direction: column; gap: 8px; }
+.player.collapsed .expanded-content { display: none; }
+
+.collapsed-content {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 100%;
+  padding: 0 10px;
+}
+.player.collapsed .collapsed-content { display: flex; }
+
+.floating-info {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-primary);
+  background: rgba(0,0,0,0.05);
+  padding: 4px 12px;
+  border-radius: 20px;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.night-mode .floating-info { background: rgba(255,255,255,0.08); }
+
+.floating-play-btn {
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2c3e50;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  font-weight: bold;
+}
+.floating-play-btn:hover {
+  background: var(--accent-dark);
+}
+
+.floating-info .fi-surah {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+.expanded-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+.expanded-header #playerSurahName {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+.collapse-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.collapse-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.current-ayah {
+  font-size: 16px;
+  color: var(--accent-dark);
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 10px;
+  line-height: 1.8;
+  word-break: break-word;
+}
+
+audio {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  border-radius: 50px;
+  display: block;
+}
+
+.audio-visualizer {
+  display: block;
+  width: 100%;
+  height: 40px;
+  margin: 6px 0;
+  border-radius: 8px;
+  background: var(--controls-bg, #f5f1e8);
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+.audio-visualizer.active { opacity: 1; }
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.player-row audio {
+  flex: 1;
+  min-width: 0;
+}
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.speed-control select {
+  padding: 4px 8px;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: var(--select-bg);
+  color: var(--text-secondary);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.player-buttons {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.player-buttons .btn { padding: 8px 12px; font-size: 13px; }
+.player-buttons .btn-gold { padding: 8px 20px; }
+
+.player-more-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.player-more-row .btn { padding: 6px 12px; font-size: 12px; }
+
+/* ========== Multi-ayah select mode ========== */
+.select-mode-bar {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--accent, #d4af37);
+  color: #fff;
+  font-size: 14px;
+  border-radius: 10px;
+  margin-top: 6px;
+}
+.select-mode-bar.show { display: flex; }
+.select-mode-bar .btn { padding: 4px 12px; font-size: 12px; }
+.select-mode-bar .btn-gold { background: #fff; color: #6b4e3d; }
+
+.ayah.selectable { cursor: pointer; }
+.ayah.selectable:hover { outline: 2px dashed var(--accent); }
+.ayah.selected {
+  outline: 3px solid var(--accent, #d4af37);
+  outline-offset: 2px;
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.1);
+}
+body.night-mode .ayah.selected { background: rgba(255, 224, 102, 0.1); }
+
+.repeat-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-soft);
+}
+.repeat-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+.repeat-controls select {
+  padding: 4px 8px;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  background: var(--select-bg);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 70px;
+}
+
+body.night-mode .collapsed-content {
+  background: #1a1f2e;
+  border-color: var(--accent-dark);
+}
+body.night-mode .expanded-content {
+  background: #1a1f2e;
+}

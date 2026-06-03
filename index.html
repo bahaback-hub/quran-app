@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https://api.alquran.cloud https://api.aladhan.com https://cdn.islamic.network https://cdn.jsdelivr.net https://raw.githubusercontent.com https://api.quran.com https://server*.mp3quran.net https://fonts.googleapis.com https://fonts.gstatic.com; frame-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self' https://api.alquran.cloud https://api.aladhan.com https://cdn.islamic.network https://cdn.jsdelivr.net https://raw.githubusercontent.com https://api.quran.com https://server*.mp3quran.net https://fonts.googleapis.com https://fonts.gstatic.com; frame-src 'none';">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>القرآن الكريم - عائلة السليماني</title>
@@ -63,7 +63,7 @@
         <button class="header-action-btn" id="themeToggle" data-i18n-title="night_mode" data-i18n-aria-label="night_mode" aria-label="الوضع الليلي" title="الوضع الليلي">🌙</button>
         <button class="header-menu-btn" id="headerMenuBtn" aria-label="القائمة" title="القائمة">⚙️</button>
       </div>
-      <div class="header-dropdown" id="headerDropdown" style="display:none;">
+      <div class="header-dropdown hidden" id="headerDropdown">
         <button id="headerFavBtn" data-i18n="favorites">❤️ المفضلة</button>
         <button id="headerAdhkarBtn" data-i18n="adhkar">🕌 الأذكار</button>
         <button id="headerSettingsBtn" data-i18n="settings">⚙️ الإعدادات</button>
@@ -84,10 +84,10 @@
         <span class="control-card-title">📖 السورة</span>
         <div class="surah-reciter-group">
           <select id="surahSelect" aria-label="اختيار السورة"></select>
-          <select id="pageSelect" aria-label="اختيار صفحة المصحف" style="display:none;"></select>
+          <select id="pageSelect" aria-label="اختيار صفحة المصحف" class="hidden"></select>
           <select id="reciterSelect" aria-label="اختيار القارئ"></select>
         </div>
-        <input type="range" id="pageSlider" min="1" max="604" value="1" style="display:none;">
+        <input type="range" id="pageSlider" min="1" max="604" value="1" class="hidden">
       </div>
       <div class="control-card">
         <span class="control-card-title">👁️ العرض</span>
@@ -95,20 +95,20 @@
           <button class="view-mode-btn active" id="viewSurahBtn" data-mode="surah" title="وضع السورة">📖</button>
           <button class="view-mode-btn" id="viewMushafBtn" data-mode="mushaf" title="وضع المصحف">📄</button>
           <button class="view-mode-btn" id="viewPresBtn" data-mode="presentation" title="وضع العرض">🖼️</button>
-          <button class="view-mode-btn view-mode-btn-trans" id="translationToggle" style="display:none;" title="الترجمة">🌐</button>
+          <button class="view-mode-btn view-mode-btn-trans hidden" id="translationToggle" title="الترجمة">🌐</button>
         </div>
-        <span class="page-indicator" id="pageIndicator" style="display:none;">صفحة ١ من ٦٠٤</span>
+        <span class="page-indicator hidden" id="pageIndicator">صفحة ١ من ٦٠٤</span>
       </div>
       <div class="control-card">
         <span class="control-card-title">🔍 بحث</span>
         <button class="btn btn-sm" id="settingsToggleBtn" title="الإعدادات">⚙️</button>
         <button class="search-toggle-btn" id="searchToggleBtn" title="بحث">🔍</button>
-        <button class="btn-install" id="installBtn" title="تثبيت التطبيق" style="display:none;">📲</button>
-        <div class="search-history-dropdown" id="searchHistoryDropdown" style="display:none;"></div>
-        <div class="control-group search-input-group" id="searchInputGroup" style="display:none;">
+        <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق">📲</button>
+        <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
+        <div class="control-group search-input-group hidden" id="searchInputGroup">
           <div class="search-input-wrapper">
             <input id="searchInput" type="text" data-i18n-placeholder="search_placeholder" data-i18n-aria-label="search" placeholder="ابحث..." aria-label="مربع البحث" autocomplete="off">
-            <div class="search-autocomplete" id="searchAutocomplete" style="display:none;"></div>
+            <div class="search-autocomplete hidden" id="searchAutocomplete"></div>
             <button class="kbd-toggle-btn" id="kbdToggleBtn" aria-label="إظهار لوحة المفاتيح" title="لوحة المفاتيح">⌨</button>
             <button class="voice-search-btn" id="voiceSearchBtn" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
           </div>
@@ -180,9 +180,9 @@
   <!-- ========== التذييل ========== -->
   <footer class="footer">
     اللهم اجعل هذا العمل في ميزان أعمال عائلة السليماني — البيانات من
-    <a href="https://alquran.cloud/" target="_blank" rel="noopener" style="color:#ffe066;">AlQuran.cloud API</a>
+    <a href="https://alquran.cloud/" target="_blank" rel="noopener" class="footer-link">AlQuran.cloud API</a>
     و
-    <a href="https://github.com/spa5k/tafsir_api" target="_blank" rel="noopener" style="color:#ffe066;">Tafsir API</a>
+    <a href="https://github.com/spa5k/tafsir_api" target="_blank" rel="noopener" class="footer-link">Tafsir API</a>
   </footer>
 </div>
 
@@ -213,16 +213,16 @@
         <button class="btn" id="nextSurahBtn" aria-label="السورة التالية" title="السورة التالية">⏭</button>
         <button class="btn btn-more" id="playerMoreBtn" aria-label="المزيد" title="المزيد">⁝</button>
       </div>
-      <div class="player-more-row" id="playerMoreRow" style="display:none;">
+      <div class="player-more-row hidden" id="playerMoreRow">
         <button class="btn btn-hifdh" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
         <button class="btn btn-repeat" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
         <button class="btn btn-select" id="selectModeBtn" aria-label="تحديد متعدد">☑️ تحديد</button>
         <button class="btn btn-bookmark" id="bookmarkBtn" aria-label="إشارة مرجعية" title="نقرة: حفظ — نقرتان: انتقال">🔖 علامة</button>
         <button class="btn btn-favorite" id="favoriteBtn" aria-label="إضافة للمفضلة">❤️ مفضلة</button>
         <button class="btn btn-gold" id="shareBtn" aria-label="مشاركة الآية">📤 مشاركة</button>
-        <span class="speed-control" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;">
+        <span class="speed-control speed-control-span">
           <span>⏩</span>
-          <select id="speedSelect" aria-label="سرعة التلاوة" style="border:1px solid var(--border-soft);border-radius:6px;padding:4px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);">
+          <select id="speedSelect" aria-label="سرعة التلاوة" class="speed-select">
             <option value="0.5">0.5x</option>
             <option value="0.75">0.75x</option>
             <option value="1" selected>1x</option>
@@ -233,12 +233,12 @@
         </span>
         <button class="btn btn-sleep" id="sleepTimerBtn" aria-label="مؤقت النوم" title="مؤقت النوم">😴 نوم</button>
       </div>
-      <div class="select-mode-bar" id="selectModeBar" style="display:none;">
+      <div class="select-mode-bar hidden" id="selectModeBar">
         <span id="selectCount">0</span> آية محددة
         <button class="btn btn-gold" id="selectShareBtn">📤 مشاركة المحدد</button>
         <button class="btn" id="selectClearBtn">✖ إلغاء</button>
       </div>
-      <div class="repeat-controls" id="repeatControls" style="display:none;">
+      <div class="repeat-controls hidden" id="repeatControls">
         <label>من: <select id="repeatFrom"></select></label>
         <label>إلى: <select id="repeatTo"></select></label>
         <label>عدد المرات:
@@ -305,7 +305,7 @@
   <div class="settings-tab-content active" data-tab="prayer">
     <div class="settings-section">
       <div class="prayer-times-list" id="prayerTimesRows">
-        <p style="text-align:center;color:#888;">⏳ جاري تحميل المواقيت...</p>
+        <p class="centered-muted">⏳ جاري تحميل المواقيت...</p>
       </div>
     </div>
     <div class="settings-section">
@@ -455,7 +455,7 @@
       <div class="settings-row">
         <button class="btn" id="testAzanBtn" data-i18n="test_azan">▶️ اختبار الأذان</button>
       </div>
-      <p style="font-size:12px;color:#888;text-align:center;margin-top:8px;">🎙️ الأذان بصوت الشيخ ناصر القطامي</p>
+      <p class="azan-note">🎙️ الأذان بصوت الشيخ ناصر القطامي</p>
     </div>
   </div>
 
@@ -514,27 +514,27 @@
   </div>
   <div class="adhkar-tabs" id="adhkarTabs"></div>
   <div class="adhkar-content" id="adhkarContent">
-    <p style="text-align:center;color:#888;">🕌 اختر تبويباً لبدء الأذكار</p>
+    <p class="centered-muted">🕌 اختر تبويباً لبدء الأذكار</p>
   </div>
 </aside>
 
 <!-- ========== إشعار الأذكار ========== -->
-<div class="adhkar-notification" id="adhkarNotification" role="alert" aria-live="assertive" style="display:none;">
+<div class="adhkar-notification hidden" id="adhkarNotification" role="alert" aria-live="assertive">
   <div class="adhkar-notification-inner">
     <div class="adhkar-notification-icon" id="adhkarNotifIcon">🌅</div>
     <div class="adhkar-notification-title" id="adhkarNotifTitle">🕌 حان وقت الأذكار</div>
-    <div class="adhkar-notification-text" id="adhkarNotifText" style="font-size:22px;line-height:1.8;margin:16px 0;font-family:'Amiri','Traditional Arabic',serif;color:var(--text-primary);text-align:right;max-height:50vh;overflow-y:auto;"></div>
-    <div class="adhkar-notification-progress" id="adhkarNotifProgress" style="font-size:13px;color:var(--text-muted);margin-bottom:12px;"></div>
+    <div class="adhkar-notification-text adhkar-notif-text" id="adhkarNotifText"></div>
+    <div class="adhkar-notification-progress adhkar-notif-progress" id="adhkarNotifProgress"></div>
     <div class="adhkar-notification-actions">
       <button class="btn btn-gold" id="adhkarNotifOpenBtn">🕌 فتح الأذكار</button>
-      <button class="btn btn-sm" id="adhkarNotifShareBtn" style="background:var(--accent);color:#2c3e50;">📋 نسخ</button>
+      <button class="btn btn-sm adhkar-notif-share-btn" id="adhkarNotifShareBtn">📋 نسخ</button>
       <button class="btn" id="adhkarNotifDismissBtn">⏰ لاحقاً</button>
     </div>
   </div>
 </div>
 
 <!-- ========== إضافة ذكر شخصي ========== -->
-<div class="adhkar-add-overlay" id="adhkarAddOverlay" aria-label="إضافة ذكر جديد" style="display:none;">
+<div class="adhkar-add-overlay hidden" id="adhkarAddOverlay" aria-label="إضافة ذكر جديد">
   <div class="adhkar-add-inner">
     <div class="adhkar-add-header">
       <h3>📝 إضافة ذكر جديد</h3>
@@ -568,17 +568,17 @@
     <h2>❤️ المفضلة</h2>
     <button class="favorites-close" id="favoritesCloseBtn" aria-label="إغلاق المفضلة">✖</button>
   </div>
-  <div class="favorites-export-row" style="display:flex;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border-soft);">
-    <button class="btn btn-sm" id="favExportTextBtn" style="flex:1;">📄 تصدير كنص</button>
-    <button class="btn btn-sm" id="favExportJsonBtn" style="flex:1;">💾 تصدير JSON</button>
+  <div class="favorites-export-row">
+    <button class="btn btn-sm export-btn" id="favExportTextBtn">📄 تصدير كنص</button>
+    <button class="btn btn-sm export-btn" id="favExportJsonBtn">💾 تصدير JSON</button>
   </div>
   <div id="favoritesList">
-    <p style="text-align:center;color:#888;">لا توجد آيات مفضلة بعد</p>
+    <p class="centered-muted">لا توجد آيات مفضلة بعد</p>
   </div>
 </aside>
 
 <!-- ========== قائمة السور في وضع المصحف ========== -->
-<div class="mushaf-surah-overlay" id="mushafSurahOverlay" role="dialog" aria-label="قائمة السور" style="display:none;">
+<div class="mushaf-surah-overlay hidden" id="mushafSurahOverlay" role="dialog" aria-label="قائمة السور">
   <div class="mushaf-surah-overlay-inner">
     <div class="mushaf-surah-overlay-header">
       <h3>📖 اختر السورة</h3>
@@ -589,7 +589,7 @@
 </div>
 
 <!-- ========== وضع العرض (Presentation Mode) ========== -->
-<div class="presentation-overlay" id="presentationOverlay" role="dialog" aria-label="وضع العرض" style="display:none;">
+<div class="presentation-overlay hidden" id="presentationOverlay" role="dialog" aria-label="وضع العرض">
   <div class="presentation-inner">
     <div class="presentation-header">
       <button class="presentation-header-btn" id="presentationPrevBtn" aria-label="الآية السابقة">⏮</button>
@@ -600,7 +600,7 @@
     </div>
     <div class="presentation-body" id="presentationBody">
       <div class="presentation-ayah-text" id="presentationAyahText"></div>
-      <div class="presentation-translation" id="presentationTranslation" style="display:none;"></div>
+      <div class="presentation-translation hidden" id="presentationTranslation"></div>
     </div>
     <div class="presentation-footer">
       <span class="presentation-counter" id="presentationCounter">٠ / ٠</span>
@@ -612,7 +612,7 @@
 <audio id="azanPlayer" preload="none"></audio>
 
 <!-- ========== إشعار الأذان ========== -->
-<div class="azan-notification" id="azanNotification" role="alert" aria-live="assertive" style="display:none;">
+<div class="azan-notification hidden" id="azanNotification" role="alert" aria-live="assertive">
   <div class="azan-notification-inner">
     <div class="azan-notification-icon">🕌</div>
     <div class="azan-notification-title">حان الآن وقت الصلاة</div>
@@ -624,7 +624,7 @@
 </div>
 
 <!-- ========== سرّ السورة ========== -->
-<div class="surah-secrets-overlay" id="surahSecretsOverlay" role="dialog" aria-label="سرّ السورة" style="display:none;">
+<div class="surah-secrets-overlay hidden" id="surahSecretsOverlay" role="dialog" aria-label="سرّ السورة">
   <div class="surah-secrets-overlay-inner">
     <div class="surah-secrets-overlay-header">
       <h3 id="surahSecretsTitle">🌟 سرّ السورة</h3>
@@ -636,7 +636,7 @@
 </div>
 
 <!-- ========== نافذة الآية (مثل equran.me) ========== -->
-<div class="ayah-modal" id="ayahModal" role="dialog" aria-label="تفاصيل الآية" style="display:none;">
+<div class="ayah-modal hidden" id="ayahModal" role="dialog" aria-label="تفاصيل الآية">
   <div class="ayah-modal-inner">
     <div class="ayah-modal-header">
       <button class="ayah-modal-close-btn" id="ayahModalCloseBtn">✖ إغلاق</button>
@@ -707,7 +707,7 @@
   </nav>
 
   <!-- ========== شاشة الترحيب ========== -->
-<div class="welcome-screen" id="welcomeScreen" role="dialog" aria-label="شاشة الترحيب" style="display:none;">
+<div class="welcome-screen hidden" id="welcomeScreen" role="dialog" aria-label="شاشة الترحيب">
   <div class="welcome-screen-inner">
     <div class="welcome-logo">📖</div>
     <h1 class="welcome-title">القرآن الكريم</h1>
@@ -725,7 +725,7 @@
 </div>
 
 <!-- ========== قمر عزم القبلة ========== -->
-<div class="qibla-overlay" id="qiblaOverlay" role="dialog" aria-label="اتجاه القبلة" style="display:none;">
+<div class="qibla-overlay hidden" id="qiblaOverlay" role="dialog" aria-label="اتجاه القبلة">
   <div class="qibla-panel">
     <h2>🧭 اتجاه القبلة</h2>
     <div class="qibla-compass" id="qiblaCompass">
@@ -743,7 +743,7 @@
 </div>
 
 <!-- ========== إحصائيات القراءة ========== -->
-<div class="settings-panel" id="readingStatsPanel" role="dialog" aria-label="إحصائيات القراءة" style="display:none;">
+<div class="settings-panel hidden" id="readingStatsPanel" role="dialog" aria-label="إحصائيات القراءة">
   <div class="settings-panel-inner">
     <div class="settings-header">
       <h3>📊 إحصائيات القراءة</h3>

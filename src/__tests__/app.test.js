@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { renderSurah } from '../app.js';
@@ -87,5 +87,89 @@ describe('buildShareText', () => {
     const text = buildShareText();
     expect(text).toContain('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ');
     expect(text).toContain('آية 1');
+  });
+});
+
+describe('initState', () => {
+  it('should set all expected state properties', async () => {
+    const { CONFIG } = await import('../config.js');
+    Object.assign(state, {
+      currentSurah: 1, currentAyahIndex: 0,
+      currentReciter: CONFIG.DEFAULT_RECITER,
+      currentTafsirEdition: CONFIG.DEFAULT_TAFSIR,
+      surahData: null, surahList: [], surahCache: new Map(),
+      ayahsAudios: [],
+      isPlaying: false, hifdhMode: false,
+      repeatMode: false, repeatFrom: 1, repeatTo: 1, repeatTimes: 3, repeatCounter: 0,
+      fontSize: 28, nightMode: false, autoSave: true,
+      azanEnabled: true, azanFajrEnabled: true,
+      city: CONFIG.DEFAULT_CITY, country: CONFIG.DEFAULT_COUNTRY,
+      method: CONFIG.DEFAULT_METHOD,
+      prayerTimes: null, lastAzanFired: null,
+      favorites: [], bookmark: null,
+      pendingTafsirAfterLoad: null,
+      playerCollapsed: false, barCollapsed: true,
+      azanPlaying: false, loadingSurah: null,
+      mushafMode: false, currentPage: 1,
+      fullQuranText: null, fullQuranLoaded: false,
+      ayahWordElements: null,
+      translationEnabled: false,
+      currentTranslation: null,
+      translationData: null,
+      tajweedEnabled: true,
+      adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
+      surahOffsets: null,
+      backgroundsList: null,
+      ayahTimings: [],
+      presentationMode: false,
+      _allSearchMatches: null,
+      _searchResultsPage: 1
+    });
+
+    expect(state.currentSurah).toBe(1);
+    expect(state.currentAyahIndex).toBe(0);
+    expect(state.currentReciter).toBe(CONFIG.DEFAULT_RECITER);
+    expect(state.currentTafsirEdition).toBe(CONFIG.DEFAULT_TAFSIR);
+    expect(state.surahData).toBeNull();
+    expect(state.surahList).toEqual([]);
+    expect(state.surahCache).toBeInstanceOf(Map);
+    expect(state.ayahsAudios).toEqual([]);
+    expect(state.isPlaying).toBe(false);
+    expect(state.hifdhMode).toBe(false);
+    expect(state.repeatMode).toBe(false);
+    expect(state.repeatFrom).toBe(1);
+    expect(state.repeatTo).toBe(1);
+    expect(state.repeatTimes).toBe(3);
+    expect(state.repeatCounter).toBe(0);
+    expect(state.fontSize).toBe(28);
+    expect(state.nightMode).toBe(false);
+    expect(state.autoSave).toBe(true);
+    expect(state.azanEnabled).toBe(true);
+    expect(state.azanFajrEnabled).toBe(true);
+    expect(state.city).toBe(CONFIG.DEFAULT_CITY);
+    expect(state.country).toBe(CONFIG.DEFAULT_COUNTRY);
+    expect(state.method).toBe(CONFIG.DEFAULT_METHOD);
+    expect(state.prayerTimes).toBeNull();
+    expect(state.favorites).toEqual([]);
+    expect(state.bookmark).toBeNull();
+    expect(state.barCollapsed).toBe(true);
+    expect(state.playerCollapsed).toBe(false);
+    expect(state.mushafMode).toBe(false);
+    expect(state.currentPage).toBe(1);
+    expect(state.fullQuranLoaded).toBe(false);
+    expect(state.translationEnabled).toBe(false);
+    expect(state.currentTranslation).toBeNull();
+    expect(state.tajweedEnabled).toBe(true);
+    expect(state.presentationMode).toBe(false);
+    expect(state._searchResultsPage).toBe(1);
+  });
+
+  it('should use correct default values from CONFIG', async () => {
+    const { CONFIG } = await import('../config.js');
+    expect(CONFIG.DEFAULT_RECITER).toBe('ar.alafasy');
+    expect(CONFIG.DEFAULT_TAFSIR).toBe('ar-tafsir-muyassar');
+    expect(CONFIG.DEFAULT_CITY).toBe('مكة');
+    expect(CONFIG.DEFAULT_COUNTRY).toBe('SA');
+    expect(CONFIG.DEFAULT_METHOD).toBe('4');
   });
 });

@@ -1,0 +1,458 @@
+/* Components — buttons, toggle-switch, toast, cards, search results, search keyboard, voice search */
+
+/* ========== نتائج البحث ========== */
+.search-results {
+  background: var(--controls-bg);
+  padding: 16px;
+  border-bottom: 2px solid var(--border-soft);
+  display: none;
+  position: relative;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.search-results-header {
+  font-size: 17px;
+  font-weight: bold;
+  color: var(--primary-light);
+  margin-bottom: 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  background: var(--controls-bg);
+  padding: 6px 0;
+  z-index: 5;
+}
+.search-results-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+.search-results-close:hover { background: var(--hover-bg); transform: scale(1.1); }
+.search-result-item {
+  padding: 13px;
+  margin-bottom: 9px;
+  background: var(--player-bg);
+  border: 1px solid var(--border-soft);
+  border-right: 5px solid var(--accent);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+.search-result-item:hover { background: var(--hover-bg); transform: translateX(-4px); }
+.search-result-title {
+  font-weight: bold;
+  color: var(--primary-light);
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+.search-result-text {
+  line-height: 1.9;
+  font-size: 18px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.search-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+.search-result-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  transition: all 0.2s;
+  color: var(--primary);
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.search-result-actions button:hover { background: var(--hover-bg); transform: scale(1.02); }
+.search-highlight {
+  background-color: #fde047 !important;
+  color: #1a1a1a !important;
+  font-weight: bold;
+  padding: 0 3px;
+  border-radius: 6px;
+  box-shadow: 0 0 4px rgba(253, 224, 71, 0.6);
+}
+body.night-mode .search-highlight {
+  background-color: #facc15 !important;
+  color: #0a0e1a !important;
+}
+.search-empty, .search-loading {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.btn-more {
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-size: 18px !important;
+  padding: 4px 10px !important;
+}
+.btn-more:hover { color: var(--accent-dark) !important; background: rgba(212,175,55,0.1) !important; }
+
+.btn {
+  padding: 8px 16px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.2s;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn:hover { background: var(--primary-light); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+.btn:active { transform: translateY(0); }
+.btn-gold { background: var(--accent); color: #2c3e50; }
+.btn-gold:hover { background: var(--accent-dark); }
+.btn-hifdh { background: #a0846c; color: #fff; }
+.btn-hifdh.active { background: #7c3aed; box-shadow: 0 0 12px rgba(124,58,237,0.5); }
+.btn-repeat { background: #f59e0b; color: #1a1a1a; }
+.btn-repeat.active { background: #dc2626; color: #fff; box-shadow: 0 0 12px rgba(220,38,38,0.5); }
+.btn-sm { padding: 4px 10px; font-size: 13px; }
+.btn-bookmark { background: #2563eb; color: #fff; }
+.btn-favorite { background: #ca8a04; color: #1a1a1a; }
+.btn-favorite.active { background: #dc2626; color: #fff; box-shadow: 0 0 12px rgba(220,38,38,0.5); }
+
+/* ========== نظام الأزرار الجديد (3 أنواع أساسية) ========== */
+.btn-primary { background: var(--accent); color: #2c3e50; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-secondary { background: var(--primary); color: #fff; }
+.btn-secondary:hover { background: var(--primary-light); }
+.btn-danger { background: #dc2626; color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+body.night-mode .btn-primary { color: #1a1a1a; }
+
+.keyboard-hint {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: rgba(0,0,0,0.03);
+  border-radius: 8px;
+}
+body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
+
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 26px;
+  background: #ccc;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.toggle-switch.on { background: #22c55e; }
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: all 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-switch.on::after { right: calc(100% - 23px); }
+
+/* ========== Toast الإشعارات ========== */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--primary);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 30px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  z-index: 2000;
+  opacity: 0;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  font-size: 14px;
+  max-width: 90vw;
+  text-align: center;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.toast.success { background: var(--success-bg); }
+.toast.error { background: #dc2626; }
+
+/* ========== زر البحث الصوتي (داخل حقل الإدخال) ========== */
+.search-input-group {
+  position: relative;
+  min-width: 140px;
+  max-width: 200px;
+  flex: 1;
+}
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: var(--select-bg);
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input-wrapper:focus-within {
+  border-color: var(--accent-dark);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+.search-input-wrapper input {
+  flex: 1;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 6px 10px;
+  font-size: 13px;
+  min-width: 0;
+  outline: none;
+  height: 34px;
+}
+.search-input-wrapper input:focus {
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+.search-autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--select-bg, #fff);
+  border: 1px solid var(--accent, #d4af37);
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.search-autocomplete-item {
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-color, #333);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.15s;
+}
+body.night-mode .search-autocomplete-item {
+  color: var(--text-primary);
+}
+.search-autocomplete-item:hover,
+.search-autocomplete-item.active {
+  background: var(--hover-bg, rgba(212,175,55,0.15));
+}
+.search-autocomplete-item .count {
+  font-size: 11px;
+  color: var(--text-muted, #999);
+}
+
+.voice-search-btn {
+  background: transparent !important;
+  color: var(--primary);
+  border: none;
+  border-radius: 0;
+  width: 30px;
+  height: 100%;
+  min-height: 34px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin: 0;
+}
+.voice-search-btn:hover {
+  color: var(--accent-dark);
+  background: transparent !important;
+  transform: scale(1.1);
+}
+.voice-search-btn.listening {
+  color: #dc2626 !important;
+  background: transparent !important;
+  animation: pulseMic 1s ease-in-out infinite;
+}
+@keyframes pulseMic {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* ========== لوحة المفاتيح العربية ========== */
+.kbd-toggle-btn {
+  background: transparent !important;
+  color: var(--primary);
+  border: none;
+  border-radius: 0;
+  width: 30px;
+  height: 100%;
+  min-height: 34px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin: 0;
+  opacity: 0.6;
+}
+.kbd-toggle-btn:hover {
+  color: var(--accent-dark);
+  opacity: 1;
+}
+.kbd-toggle-btn.active {
+  color: var(--accent-dark);
+  opacity: 1;
+}
+.arabic-keyboard {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 4px;
+  background: var(--controls-bg);
+  border: 1px solid var(--border-soft);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  margin-top: -2px;
+}
+.arabic-keyboard.open {
+  display: flex;
+}
+.kbd-row {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+}
+.kbd-key {
+  background: var(--select-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 5px;
+  padding: 4px 2px;
+  min-width: 28px;
+  height: 32px;
+  font-size: 15px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-family: inherit;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 1 auto;
+  user-select: none;
+}
+.kbd-key:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+}
+.kbd-key:active {
+  background: var(--accent);
+  color: #2c3e50;
+  transform: scale(0.95);
+}
+.kbd-key-wide {
+  min-width: 48px;
+  flex: 1;
+}
+.kbd-key-shift {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--accent-dark);
+  font-weight: bold;
+}
+.kbd-key-fixed {
+  min-width: 36px;
+  flex: 0.5;
+}
+.kbd-key-clear {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+}
+.kbd-key-backspace {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+}
+body.night-mode .kbd-key {
+  border-color: #3a4050;
+}
+body.night-mode .kbd-key:hover {
+  background: rgba(255,255,255,0.08);
+}
+body.night-mode .kbd-key:active {
+  background: var(--accent-dark);
+  color: #1a1a1a;
+}
+body.night-mode .kbd-key-shift {
+  background: rgba(212, 175, 55, 0.2);
+}
+body.night-mode .kbd-key-fixed {
+  background: rgba(255,255,255,0.04);
+}
+body.night-mode .kbd-key-clear {
+  background: rgba(220, 38, 38, 0.15);
+}
+body.night-mode .kbd-key-backspace {
+  background: rgba(220, 38, 38, 0.15);
+}
+
+/* ========== زر تثبيت PWA ========== */
+.btn-install {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+  animation: installPulse 2s ease-in-out infinite;
+}
+.btn-install:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.6);
+}
+@keyframes installPulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4); }
+  50% { box-shadow: 0 2px 16px rgba(34, 197, 94, 0.7); }
+}
