@@ -1,101 +1,31 @@
 import { CONFIG } from './config.js';
 import { storage } from './storage.js';
 import { dom, cacheDom } from './dom.js';
-import { showToast, loadingBar } from './ui.js';
-import { __, getLang, setLang, applyTranslations } from './i18n.js';
+import { loadingBar } from './ui.js';
+import { getLang, applyTranslations } from './i18n.js';
 import { state } from './state.js';
-import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification, showQiblaCompass, hideQiblaCompass } from './prayer.js';
-import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
-import { toggleSelectMode, clearSelection, shareSelected, handleAyahSelect } from './select-mode.js';
-import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
-import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
-import { applyFontSize, toggleNightMode, applySepiaMode, toggleSepiaMode, applyFontType, applyLineSpacing, openSettings, closeSettings, saveLocationSettings, resetSettings, exportSettings, importSettings, applyBackground, loadBackgrounds, restoreSettings, initSettingsTabs, initSystemThemeDetection } from './settings.js';
-import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents, toggleAdhkarPanel, closeAdhkarPanel } from './adhkar.js';
-import { bindAudioEvents, setLoadSurah, nextAyah, prevAyah } from './audio.js';
-import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search-ui.js';
-import { recordReadingSession, renderReadingStats } from './reading-stats.js';
+import { startClock, loadPrayerTimes, checkAzanTime, scheduleNextAzanCheck } from './prayer.js';
+import { loadFavorites } from './favorites.js';
+import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications } from './adhkar.js';
+import { bindAudioEvents, setLoadSurah } from './audio.js';
+import { loadFullQuranText } from './search-ui.js';
+import { renderReadingStats } from './reading-stats.js';
 import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
 import { initNavigation } from './navigation.js';
-import { initToggleSwitchAccessibility, addKeyboardDismiss } from './a11y.js';
+import { initToggleSwitchAccessibility } from './a11y.js';
 import {
-  loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect, toggleTranslation
+  loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect
 } from './surah-loader.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import {
-  showContinueWidget, showWelcomeScreen, dismissWelcomeScreen,
+  showContinueWidget, showWelcomeScreen,
   handleVisibilityChange, updateNetworkBanner, updateReadingProgress
 } from './ui-extras.js';
+import { restoreSettings, initSystemThemeDetection } from './settings.js';
+import { bindAllEvents } from './app-events.js';
 
 export { loadSurah, renderSurah, highlightCurrentAyah, updatePlayerInfo, buildSurahOffsets, loadSurahList } from './surah-loader.js';
-
-/** Show a custom modal for the sleep timer instead of using browser prompt(). */
-function showSleepTimerModal(audioModule) {
-  const existing = document.getElementById('sleepTimerModal');
-  if (existing) existing.remove();
-
-  const overlay = document.createElement('div');
-  overlay.id = 'sleepTimerModal';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);';
-
-  const modal = document.createElement('div');
-  modal.style.cssText = 'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:280px;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);font-family:inherit;';
-
-  const title = document.createElement('h3');
-  title.style.cssText = 'margin:0 0 16px;color:var(--text-primary);';
-  title.textContent = '⏰ مؤقت النوم';
-
-  const input = document.createElement('input');
-  input.type = 'number'; input.min = '1'; input.max = '180'; input.value = '15';
-  input.style.cssText = 'width:100%;padding:12px;border:2px solid var(--border-soft,#ddd);border-radius:8px;font-size:18px;text-align:center;box-sizing:border-box;background:var(--input-bg,#fff);color:var(--text-primary);';
-  input.placeholder = 'عدد الدقائق';
-
-  const hint = document.createElement('p');
-  hint.style.cssText = 'margin:8px 0 16px;font-size:13px;color:var(--text-secondary,#888);';
-  hint.textContent = 'أدخل عدد الدقائق ثم اضغط تأكيد';
-
-  const btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
-
-  const confirmBtn = document.createElement('button');
-  confirmBtn.textContent = '✅ تأكيد';
-  confirmBtn.style.cssText = 'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--accent,#c9a84c);color:#fff;font-size:16px;cursor:pointer;font-family:inherit;';
-
-  const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = '❌ إلغاء';
-  cancelBtn.style.cssText = 'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);color:var(--text-primary);font-size:16px;cursor:pointer;font-family:inherit;';
-
-  const quickBtns = document.createElement('div');
-  quickBtns.style.cssText = 'display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;';
-  [5, 10, 15, 30, 45, 60].forEach(mins => {
-    const btn = document.createElement('button');
-    btn.textContent = `${mins} د`;
-    btn.style.cssText = 'padding:6px 12px;border:1px solid var(--border-soft,#ddd);border-radius:6px;background:var(--bg-secondary,#f5f5f5);color:var(--text-primary);cursor:pointer;font-size:13px;font-family:inherit;';
-    btn.addEventListener('click', () => { input.value = String(mins); });
-    quickBtns.appendChild(btn);
-  });
-
-  function close() { overlay.remove(); }
-  confirmBtn.addEventListener('click', () => {
-    const mins = parseInt(input.value, 10);
-    if (mins > 0) audioModule.setSleepTimer(mins);
-    close();
-  });
-  cancelBtn.addEventListener('click', close);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-
-  btnRow.appendChild(cancelBtn);
-  btnRow.appendChild(confirmBtn);
-  modal.appendChild(title);
-  modal.appendChild(quickBtns);
-  modal.appendChild(input);
-  modal.appendChild(hint);
-  modal.appendChild(btnRow);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-  input.focus();
-  input.select();
-}
 
 function initState() {
   Object.assign(state, {
@@ -164,212 +94,8 @@ export async function initApp() {
 
   bindAudioEvents();
 
-  /* ========== EVENT BINDINGS ========== */
-
-  dom.surahSelect?.addEventListener('change', () => {
-    if (!dom.surahSelect.value) return;
-    const surahNum = parseInt(dom.surahSelect.value, 10);
-    if (state.mushafMode) {
-      state.currentSurah = surahNum;
-      fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
-        .then(res => res.json())
-        .then(data => {
-          const page = data?.data?.page || 1;
-          if (dom.pageSelect) dom.pageSelect.value = page;
-          if (dom.pageSlider) dom.pageSlider.value = page;
-          import('./mushaf.js').then(m => m.loadPage(page, true));
-        })
-        .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
-    } else {
-      loadSurah(surahNum);
-    }
-  });
-
-  dom.reciterSelect?.addEventListener('change', () => {
-    state.currentReciter = dom.reciterSelect.value;
-    storage.set('reciter', state.currentReciter);
-    if (state.currentSurah) loadSurah(state.currentSurah);
-  });
-
-  dom.bookmarkBtn?.addEventListener('click', setBookmark);
-  dom.bookmarkBtn?.addEventListener('dblclick', gotoBookmark);
-  dom.favoriteBtn?.addEventListener('click', toggleFavorite);
-  dom.shareBtn?.addEventListener('click', () => import('./share.js').then(m => m.toggleShareMenu()));
-  dom.themeToggle?.addEventListener('click', toggleNightMode);
-  dom.settingsThemeToggle?.addEventListener('click', toggleNightMode);
-  dom.settingsToggleBtn?.addEventListener('click', openSettings);
-  dom.settingsCloseBtn?.addEventListener('click', closeSettings);
-  dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
-  dom.testAzanBtn?.addEventListener('click', testAzan);
-  dom.azanNotifStopBtn?.addEventListener('click', stopAzan);
-  dom.welcomeDismissBtn?.addEventListener('click', dismissWelcomeScreen);
-  dom.azanNotification?.addEventListener('click', (e) => {
-    if (e.target === dom.azanNotification) stopAzan();
-  });
-  dom.azanPlayer?.addEventListener('ended', () => {
-    state.azanPlaying = false;
-    if (dom.testAzanBtn) dom.testAzanBtn.textContent = '▶️ اختبار الأذان';
-    hideAzanNotification();
-  });
-  dom.resetSettingsBtn?.addEventListener('click', resetSettings);
-  document.getElementById('exportSettingsBtn')?.addEventListener('click', () => exportSettings());
-  document.getElementById('importSettingsBtn')?.addEventListener('click', () => importSettings());
-  dom.bgSelect?.addEventListener('change', () => { applyBackground(dom.bgSelect.value); });
-  initSettingsTabs();
-
-  dom.tafsirCurtainHandle?.addEventListener('click', () => import('./tafsir.js').then(m => m.toggleTafsir()));
-  dom.tafsirSelect?.addEventListener('change', () => {
-    state.currentTafsirEdition = dom.tafsirSelect.value;
-    storage.set('tafsir_edition', state.currentTafsirEdition);
-    if (dom.tafsirCurtain?.classList.contains('open')) import('./tafsir.js').then(m => m.loadTafsirForCurrentAyah());
-  });
-
-  dom.translationSelect?.addEventListener('change', () => {
-    const val = dom.translationSelect.value;
-    if (val) {
-      state.translationEnabled = true;
-      state.currentTranslation = val;
-    } else {
-      state.translationEnabled = false;
-      state.currentTranslation = '';
-    }
-    storage.set('translation_enabled', state.translationEnabled);
-    storage.set('translation_edition', state.currentTranslation);
-    if (state.currentSurah) loadSurah(state.currentSurah);
-  });
-
-  dom.fontSizeSelect?.addEventListener('change', (e) => applyFontSize(parseInt(e.target.value, 10)));
-  dom.fontTypeSelect?.addEventListener('change', (e) => applyFontType(e.target.value));
-  dom.lineSpacingSelect?.addEventListener('change', (e) => applyLineSpacing(e.target.value));
-  dom.sepiaToggle?.addEventListener('click', toggleSepiaMode);
-  dom.tajweedToggle?.addEventListener('click', () => {
-    state.tajweedEnabled = dom.tajweedToggle.classList.toggle('on');
-    storage.set('tajweed_enabled', state.tajweedEnabled);
-    const reload = () => { if (state.currentSurah) import('./surah-loader.js').then(m => m.loadSurah(state.currentSurah)); };
-    if (state.tajweedEnabled) {
-      import('./tajweed-data.js').then(m => m.loadTajweedAnnotations()).then(reload);
-    } else {
-      reload();
-    }
-  });
-
-  dom.azanToggle?.addEventListener('click', () => {
-    state.azanEnabled = dom.azanToggle.classList.toggle('on');
-    storage.set('azan_enabled', state.azanEnabled);
-  });
-  dom.azanFajrToggle?.addEventListener('click', () => {
-    state.azanFajrEnabled = dom.azanFajrToggle.classList.toggle('on');
-    storage.set('azan_fajr_enabled', state.azanFajrEnabled);
-  });
-  dom.autoSaveToggle?.addEventListener('click', () => {
-    state.autoSave = dom.autoSaveToggle.classList.toggle('on');
-    storage.set('auto_save', state.autoSave);
-  });
-
-  dom.langSelect?.addEventListener('change', () => {
-    const newLang = dom.langSelect.value;
-    if (newLang !== getLang()) {
-      setLang(newLang);
-      showToast(__('language') + ': ' + (newLang === 'ar' ? 'العربية' : 'English'), 'success');
-    }
-  });
-
-  dom.cityQuickSelect?.addEventListener('change', () => {
-    const v = dom.cityQuickSelect.value;
-    if (v) {
-      const [city, country] = v.split('|');
-      if (dom.cityInput) dom.cityInput.value = city;
-      if (dom.countryInput) dom.countryInput.value = country;
-    }
-  });
-
-  dom.favoritesOpenBtn?.addEventListener('click', openFavorites);
-  dom.favoritesCloseBtn?.addEventListener('click', closeFavorites);
-  dom.collapseBarBtn?.addEventListener('click', togglePrayerBar);
-  dom.expandBarBtn?.addEventListener('click', togglePrayerBar);
-
-  document.querySelectorAll('[data-share="native"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareNative(); m.toggleShareMenu(); }); }));
-  document.querySelectorAll('[data-share="copy"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareCopy(); m.toggleShareMenu(); }); }));
-  document.querySelectorAll('[data-share="copy-simple"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareCopySimple(); m.toggleShareMenu(); }); }));
-  document.querySelectorAll('[data-share="whatsapp"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareWhatsApp(); m.toggleShareMenu(); }); }));
-  document.querySelectorAll('[data-share="telegram"]').forEach(btn => btn.addEventListener('click', () => { import('./share.js').then(m => { m.shareTelegram(); m.toggleShareMenu(); }); }));
-
-  dom.searchBtn?.addEventListener('click', () => {
-    const q = dom.searchInput?.value.trim();
-    if (!q) return;
-    performExactSearch(q);
-  });
-  dom.clearSearchBtn?.addEventListener('click', () => {
-    if (dom.searchResults) dom.searchResults.style.display = 'none';
-    if (dom.searchInput) dom.searchInput.value = '';
-  });
-  dom.searchInput?.addEventListener('keypress', e => { if (e.key === 'Enter') dom.searchBtn?.click(); });
-
-  dom.voiceSearchBtn?.addEventListener('click', startVoiceSearch);
-  dom.installBtn?.addEventListener('click', () => {     if (typeof (/** @type {any} */ (window).installPWA) === 'function') (/** @type {any} */ (window)).installPWA(); });
-  dom.sleepTimerBtn?.addEventListener('click', () => {
-    import('./audio.js').then(m => {
-      showSleepTimerModal(m);
-    });
-  });
-  initKeyboard();
-  initSearchAutocomplete();
-
-  document.addEventListener('click', (e) => {
-    if (!dom.shareMenu?.contains(e.target) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');
-    if (dom.headerDropdown && dom.headerMenuBtn && !dom.headerMenuBtn.contains(e.target) && !dom.headerDropdown.contains(e.target)) {
-      dom.headerDropdown.style.display = 'none';
-    }
-    const settingsTarget = /** @type {HTMLElement} */ (e.target);
-    const isSettingsTrigger = settingsTarget === dom.settingsToggleBtn || settingsTarget === document.getElementById('headerSettingsBtn') || settingsTarget.closest?.('[data-tab="more"]');
-    if (dom.settingsPanel?.classList.contains('open') && !dom.settingsPanel.contains(e.target) && !isSettingsTrigger) closeSettings();
-    if (dom.favoritesPanel?.classList.contains('open') && !dom.favoritesPanel.contains(e.target) && e.target !== dom.favoritesOpenBtn) closeFavorites();
-    if (dom.adhkarPanel?.classList.contains('open') && !dom.adhkarPanel.contains(e.target) && e.target !== dom.adhkarBtn) closeAdhkarPanel();
-  });
-
-  /* ========== HEADER MENU ========== */
-  dom.headerMenuBtn?.addEventListener('click', () => {
-    if (dom.headerDropdown) dom.headerDropdown.style.display = dom.headerDropdown.style.display === 'none' ? '' : 'none';
-  });
-  document.getElementById('headerFavBtn')?.addEventListener('click', () => {
-    openFavorites();
-    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
-  });
-  document.getElementById('headerAdhkarBtn')?.addEventListener('click', () => {
-    toggleAdhkarPanel();
-    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
-  });
-  document.getElementById('headerSettingsBtn')?.addEventListener('click', () => {
-    openSettings();
-    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
-  });
-
-  /* ========== SEARCH TOGGLE ========== */
-  dom.searchToggleBtn?.addEventListener('click', () => {
-    if (dom.searchInputGroup) {
-      dom.searchInputGroup.style.display = dom.searchInputGroup.style.display === 'none' ? '' : 'none';
-    }
-    if (dom.searchToggleBtn) dom.searchToggleBtn.classList.toggle('active');
-    if (dom.searchInputGroup?.style.display !== 'none') dom.searchInput?.focus();
-  });
-
-  dom.mushafSurahOverlayClose?.addEventListener('click', () => { if (dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
-  dom.mushafSurahOverlay?.addEventListener('click', (e) => { if (e.target === dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
-  dom.surahSecretsCloseBtn?.addEventListener('click', () => { if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none'; });
-  dom.surahSecretsOverlay?.addEventListener('click', (e) => { if (e.target === dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none'; });
-
-  /* ========== ADHKAR ========== */
-  wireAdhkarEvents();
-
-  /* ========== QIBLA COMPASS ========== */
-  dom.qiblaCloseBtn?.addEventListener('click', hideQiblaCompass);
-  dom.qiblaOverlay?.addEventListener('click', (e) => { if (e.target === dom.qiblaOverlay) hideQiblaCompass(); });
-
-  /* ========== READING STATS ========== */
-  dom.readingStatsCloseBtn?.addEventListener('click', () => {
-    if (dom.readingStatsPanel) dom.readingStatsPanel.style.display = 'none';
-  });
-  renderReadingStats(dom.readingStatsContent);
+  // ========== PHASE 2: EVENT BINDINGS ==========
+  bindAllEvents();
 
   initNavigation();
   initKeyboardShortcuts();
@@ -383,7 +109,7 @@ export async function initApp() {
   window.addEventListener('languagechange', () => {
     applyTranslations();
     const hint = document.getElementById('keyboardHint');
-    if (hint) hint.textContent = __('keyboard_hint');
+    if (hint) hint.textContent = '';  // will be set by i18n
   });
 
   // Restore player state
@@ -414,7 +140,6 @@ export async function initApp() {
     checkAzanTime();
     scheduleNextAzanCheck();
     loadPrayerTimes();
-    loadBackgrounds().catch(console.warn);
     checkAdhkarNotifications();
     if (!state.adhkarIntervalId) state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
     import('./ayah-modal.js').then(m => m.initAyahModal()).catch(() => {});
