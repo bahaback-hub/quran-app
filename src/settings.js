@@ -277,6 +277,9 @@ export function restoreSettings() {
   const ls = storage.get('line_spacing'); if (ls) applyLineSpacing(ls);
   const speed = storage.get('playback_speed');
   if (speed && dom.speedSelect && dom.audioPlayer) { dom.speedSelect.value = speed; dom.audioPlayer.playbackRate = parseFloat(speed); }
+  const tajweed = storage.get('tajweed_enabled');
+  if (tajweed === false) { state.tajweedEnabled = false; if (dom.tajweedToggle) dom.tajweedToggle.classList.remove('on'); }
+  else { state.tajweedEnabled = true; if (dom.tajweedToggle) dom.tajweedToggle.classList.add('on'); }
   if (!state.barCollapsed && dom.prayerBar) {
     dom.prayerBar.classList.remove('collapsed');
     dom.prayerBar.classList.add('expanded');

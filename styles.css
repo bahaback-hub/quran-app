@@ -3631,3 +3631,16 @@ body {
 @media (max-width: 480px) {
   .reading-stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ========== Tajweed coloring (Mushaf Mujawwad) ========== */
+.tw-fatha, .tw-damma, .tw-kasra { color: #e74c3c; }
+body.night-mode .tw-fatha, body.night-mode .tw-damma, body.night-mode .tw-kasra { color: #ff6b6b; }
+.tw-fathatan, .tw-dammatan, .tw-kasratan { color: #27ae60; }
+body.night-mode .tw-fathatan, body.night-mode .tw-dammatan, body.night-mode .tw-kasratan { color: #51cf66; }
+.tw-shadda { color: #2980b9; }
+body.night-mode .tw-shadda { color: #5dade2; }
+.tw-sukun { color: #8e44ad; }
+body.night-mode .tw-sukun { color: #af7ac5; }
+.tw-madd { color: #b7950b; }
+body.night-mode .tw-madd { color: #f0c040; }
+body.sepia-mode .tw-madd { color: #8b6914; }
