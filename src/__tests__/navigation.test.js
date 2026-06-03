@@ -16,7 +16,6 @@ function setupDOM() {
   dom.hifdhBtn = el('button');
   dom.repeatBtn = el('button');
   dom.collapsePlayerBtn = el('button');
-  dom.collapsedExpandBtn = el('button');
   dom.collapsedContent = el('div');
   dom.playPauseBtn = el('button');
   dom.collapsedPlayBtn = el('button');
@@ -29,7 +28,6 @@ function setupDOM() {
   dom.viewPresBtn = el('button');
   dom.pageSelect = el('select');
   dom.pageSlider = el('input');
-  dom.surahModeControls = el('div');
   dom.pageIndicator = el('div');
 }
 

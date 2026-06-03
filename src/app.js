@@ -6,9 +6,12 @@ import { __, getLang, setLang, applyTranslations } from './i18n.js';
 import { state } from './state.js';
 import { startClock, stopClock, loadPrayerTimes, stopAzan, testAzan, scheduleNextAzanCheck, checkAzanTime, togglePrayerBar, hideAzanNotification, showQiblaCompass, hideQiblaCompass } from './prayer.js';
 import { loadFavorites, toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
+import { toggleSelectMode, clearSelection, shareSelected, handleAyahSelect } from './select-mode.js';
+import { toggleTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
+import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { applyFontSize, toggleNightMode, applySepiaMode, toggleSepiaMode, applyFontType, applyLineSpacing, openSettings, closeSettings, saveLocationSettings, resetSettings, applyBackground, loadBackgrounds, restoreSettings } from './settings.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications, wireAdhkarEvents, toggleAdhkarPanel, closeAdhkarPanel } from './adhkar.js';
-import { bindAudioEvents, setLoadSurah } from './audio.js';
+import { bindAudioEvents, setLoadSurah, nextAyah, prevAyah } from './audio.js';
 import { loadFullQuranText, performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search-ui.js';
 import { recordReadingSession, renderReadingStats } from './reading-stats.js';
 import { initKeyboardShortcuts } from './keyboard.js';
@@ -18,8 +21,8 @@ import {
   loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect, toggleTranslation
 } from './surah-loader.js';
 import {
-  showContinueWidget, showWelcomeScreen, dismissWelcomeScreen,
-  handleVisibilityChange, updateNetworkBanner, updateReadingProgress
+  showContinueWidget, showWelcomeScreen,
+  updateNetworkBanner
 } from './ui-extras.js';
 
 export { loadSurah, renderSurah, highlightCurrentAyah, updatePlayerInfo, buildSurahOffsets, loadSurahList } from './surah-loader.js';
@@ -120,6 +123,7 @@ export async function initApp() {
   dom.favoriteBtn?.addEventListener('click', toggleFavorite);
   dom.shareBtn?.addEventListener('click', () => import('./share.js').then(m => m.toggleShareMenu()));
   dom.themeToggle?.addEventListener('click', toggleNightMode);
+  dom.settingsThemeToggle?.addEventListener('click', toggleNightMode);
   dom.settingsToggleBtn?.addEventListener('click', openSettings);
   dom.settingsCloseBtn?.addEventListener('click', closeSettings);
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);

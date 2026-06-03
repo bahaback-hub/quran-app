@@ -248,6 +248,7 @@ export function restoreSettings() {
     dom.translationSelect.style.display = state.translationEnabled ? '' : 'none';
     if (state.currentTranslation) dom.translationSelect.value = state.currentTranslation;
   }
+  if (dom.settingsThemeToggle) dom.settingsThemeToggle.classList.toggle('on', state.nightMode);
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = state.fontSize;
   const sepia = storage.get('sepia_mode'); if (sepia) applySepiaMode(true);
   const ft = storage.get('font_type'); if (ft) applyFontType(ft);

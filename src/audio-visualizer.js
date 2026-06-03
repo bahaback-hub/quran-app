@@ -8,26 +8,33 @@ let _dataArray = null;
 
 /**
  * Start the visualizer for the current audio player.
- * Uses a single shared AnalyserNode connected once.
+ * Uses a single shared AnalyserNode connected once (MediaElementSource
+ * can only be created once per <audio> element).
  */
 export function startVisualizer(canvas) {
   if (!canvas || !dom.audioPlayer) return;
-  stopVisualizer();
   const audioEl = dom.audioPlayer;
   if (!audioEl.src) return;
+  // Cancel previous animation but keep analyser connection alive
+  if (_animId) { cancelAnimationFrame(_animId); _animId = null; }
+  // If already connected, just restart the animation
+  if (_analyser && _ctx) {
+    _ctx = canvas.getContext('2d');
+    canvas.classList.add('active');
+    drawWaveform(canvas);
+    return;
+  }
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
     const actx = state._adhkarAudioCtx || new AudioCtx();
     state._adhkarAudioCtx = actx;
     if (actx.state === 'suspended') actx.resume();
-    if (!_analyser) {
-      _analyser = actx.createAnalyser();
-      _analyser.fftSize = 64;
-      const src = actx.createMediaElementSource(audioEl);
-      src.connect(_analyser);
-      _analyser.connect(actx.destination);
-    }
+    _analyser = actx.createAnalyser();
+    _analyser.fftSize = 64;
+    const src = actx.createMediaElementSource(audioEl);
+    src.connect(_analyser);
+    _analyser.connect(actx.destination);
     _dataArray = new Uint8Array(_analyser.frequencyBinCount);
     _ctx = canvas.getContext('2d');
     canvas.classList.add('active');
@@ -57,14 +64,11 @@ function drawWaveform(canvas) {
   }
 }
 
-/** Stop the visualizer animation. */
+/** Stop the visualizer animation (keeps analyser connection alive). */
 export function stopVisualizer() {
   if (_animId) { cancelAnimationFrame(_animId); _animId = null; }
   if (_ctx) {
     const c = _ctx.canvas;
     if (c) { c.classList.remove('active'); _ctx.clearRect(0, 0, c.width, c.height); }
   }
-  _analyser = null;
-  _dataArray = null;
-  _ctx = null;
 }

@@ -18,7 +18,6 @@ export function initNavigation() {
     dom.player?.classList.add('collapsed');
     storage.set('player_collapsed', true);
   });
-  dom.collapsedExpandBtn?.addEventListener('click', () => expandPlayer());
   dom.collapsedContent?.addEventListener('click', (e) => {
     if (e.target.closest('#collapsedPlayBtn')) return;
     expandPlayer();
@@ -41,7 +40,6 @@ export function initNavigation() {
     import('./presentation.js').then(m => m.closePresentation()).catch(() => {});
     if (state.mushafMode) import('./mushaf.js').then(m => m.toggleMushafMode());
     document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'surah'));
-    if (dom.surahModeControls) dom.surahModeControls.style.display = '';
     if (dom.pageSelect) dom.pageSelect.style.display = 'none';
     if (dom.pageSlider) dom.pageSlider.style.display = 'none';
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
