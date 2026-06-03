@@ -4,6 +4,36 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { escapeHtml } from './utils.js';
 
+/* ===================== LOCAL MUYASSAR TAFSIR ===================== */
+
+/** @type {Object<number, {ayahs: Array<{ayah: number, text: string}>}>|null} */
+let _localMuyassar = null;
+
+/** Load the local Muyassar tafsir file once. */
+async function loadLocalMuyassar() {
+  if (_localMuyassar) return _localMuyassar;
+  try {
+    const res = await fetch('data/muyassar-tafsir.json');
+    if (!res.ok) return null;
+    _localMuyassar = await res.json();
+    return _localMuyassar;
+  } catch {
+    return null;
+  }
+}
+
+/** Get tafsir text from local Muyassar file (instant, no API needed). */
+function getLocalMuyassarAyah(surahNum, ayahNum) {
+  if (!_localMuyassar) return null;
+  const surah = _localMuyassar[surahNum];
+  if (!surah) return null;
+  // Handle both {ayahs: [...]} and direct array formats
+  const ayahs = surah.ayahs || (Array.isArray(surah) ? surah : null);
+  if (!ayahs) return null;
+  const ayah = ayahs.find(a => a.ayah === ayahNum);
+  return ayah?.text || null;
+}
+
 /* ===================== TAFSIR INDEXEDDB CACHE ===================== */
 
 /** @type {IDBDatabase|null} */
@@ -68,6 +98,29 @@ async function fetchTafsirFromAPI(edition, surahNum, ayahNum) {
   }
 }
 
+/**
+ * Get tafsir text using the hybrid strategy:
+ * 1. Local Muyassar file (instant, offline)
+ * 2. IndexedDB cache (fast, offline after first load)
+ * 3. API fetch + cache (online)
+ */
+async function getTafsirText(edition, surahNum, ayahNum) {
+  // Strategy 1: Local Muyassar file
+  if (edition === 'ar-tafsir-muyassar') {
+    const local = await loadLocalMuyassar();
+    if (local) {
+      const text = getLocalMuyassarAyah(surahNum, ayahNum);
+      if (text) return text;
+    }
+  }
+  // Strategy 2: IndexedDB cache
+  const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
+  const cached = await getTafsirFromDB(cacheKey);
+  if (cached) return cached;
+  // Strategy 3: API + cache
+  return await fetchTafsirFromAPI(edition, surahNum, ayahNum);
+}
+
 /* ===================== TAFSIR UI ===================== */
 
 function renderTafsirContent(text, ayahText, surahName, ayahNum) {
@@ -104,8 +157,15 @@ export async function loadTafsirForCurrentAyah() {
   const a = state.surahData.ayahs[state.currentAyahIndex];
   if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition;
-  const cacheKey = getTafsirCacheKey(edition, state.currentSurah, a.numberInSurah);
   setTafsirHeader(state.surahData.name, a.numberInSurah);
+  // Try instant local first for Muyassar
+  if (edition === 'ar-tafsir-muyassar') {
+    const local = await loadLocalMuyassar();
+    const localText = local ? getLocalMuyassarAyah(state.currentSurah, a.numberInSurah) : null;
+    if (localText) { renderTafsirContent(localText, a.text, state.surahData.name, a.numberInSurah); return; }
+  }
+  // Fall back to cache/API
+  const cacheKey = getTafsirCacheKey(edition, state.currentSurah, a.numberInSurah);
   const cached = await getTafsirFromDB(cacheKey);
   if (cached) { renderTafsirContent(cached, a.text, state.surahData.name, a.numberInSurah); return; }
   showTafsirLoading();
@@ -120,8 +180,15 @@ export async function loadTafsirForSurahAyah(surahNum, ayahNum) {
   const edition = state.currentTafsirEdition || CONFIG.DEFAULT_TAFSIR;
   const surahInfo = state.surahList.find(s => s.number === surahNum);
   const surahName = surahInfo ? surahInfo.name : `سورة ${surahNum}`;
-  const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
   setTafsirHeader(surahName, ayahNum);
+  // Try instant local first for Muyassar
+  if (edition === 'ar-tafsir-muyassar') {
+    const local = await loadLocalMuyassar();
+    const localText = local ? getLocalMuyassarAyah(surahNum, ayahNum) : null;
+    if (localText) { dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(localText)}</p>`; dom.tafsirCurtain?.classList.add('open'); return; }
+  }
+  // Fall back to cache/API
+  const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
   const cached = await getTafsirFromDB(cacheKey);
   if (cached) { dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(cached)}</p>`; dom.tafsirCurtain?.classList.add('open'); return; }
   showTafsirLoading();
@@ -150,11 +217,8 @@ export function toggleTafsir() {
   dom.tafsirCurtain.classList.contains('open') ? closeTafsir() : openTafsir();
 }
 
-/** Fetch tafsir text (cached or from API) without rendering to the curtain. */
+/** Fetch tafsir text using hybrid strategy (local → cache → API). */
 export async function fetchTafsirText(edition, surahNum, ayahNum) {
   if (!edition || !surahNum || !ayahNum) return null;
-  const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
-  const cached = await getTafsirFromDB(cacheKey);
-  if (cached) return cached;
-  return await fetchTafsirFromAPI(edition, surahNum, ayahNum);
+  return await getTafsirText(edition, surahNum, ayahNum);
 }
