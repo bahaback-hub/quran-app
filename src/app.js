@@ -51,6 +51,7 @@ function initState() {
     translationEnabled: false,
     currentTranslation: null,
     translationData: null,
+    tajweedEnabled: true,
     adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
     surahOffsets: null,
     backgroundsList: null,
@@ -167,6 +168,11 @@ export async function initApp() {
   dom.fontTypeSelect?.addEventListener('change', (e) => applyFontType(e.target.value));
   dom.lineSpacingSelect?.addEventListener('change', (e) => applyLineSpacing(e.target.value));
   dom.sepiaToggle?.addEventListener('click', toggleSepiaMode);
+  dom.tajweedToggle?.addEventListener('click', () => {
+    state.tajweedEnabled = dom.tajweedToggle.classList.toggle('on');
+    storage.set('tajweed_enabled', state.tajweedEnabled);
+    if (state.currentSurah) import('./surah-loader.js').then(m => m.loadSurah(state.currentSurah));
+  });
 
   dom.azanToggle?.addEventListener('click', () => {
     state.azanEnabled = dom.azanToggle.classList.toggle('on');

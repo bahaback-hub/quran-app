@@ -67,7 +67,8 @@
  *   searchPrefixMap: Map|null,
  *   sepiaMode: boolean,
  *   fontType: string,
- *   lineSpacing: string
+ *   lineSpacing: string,
+ *   tajweedEnabled: boolean
  * }}
  */
 /** @type {any} */

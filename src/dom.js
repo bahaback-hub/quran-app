@@ -57,7 +57,7 @@ const DOM_IDS = [
    // Player more
    'playerMoreBtn', 'playerMoreRow',
    // New UI elements
-   'sepiaToggle', 'fontTypeSelect', 'lineSpacingSelect',
+   'sepiaToggle', 'fontTypeSelect', 'lineSpacingSelect', 'tajweedToggle',
    'installBtn', 'sleepTimerBtn'
 ];
 

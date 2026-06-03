@@ -6,6 +6,7 @@ import { __ } from './i18n.js';
 import { escapeHtml } from './utils.js';
 import { state } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
+import { tajweedColor } from './tajweed.js';
 import { SURAH_SECRETS } from './surahs-data.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './audio.js';
 import { recordReadingSession } from './reading-stats.js';
@@ -421,8 +422,9 @@ export function renderSurah(textData) {
 
 function buildAyahWordsHtml(text, ayahIdx) {
   const words = text.split(/\s+/).filter(w => w.length > 0);
+  const useTajweed = state.tajweedEnabled;
   return words.map((word, wIdx) =>
-    `<span class="word" data-ayah-index="${ayahIdx}" data-word-index="${wIdx}">${escapeHtml(word)}</span>`
+    `<span class="word" data-ayah-index="${ayahIdx}" data-word-index="${wIdx}">${useTajweed ? tajweedColor(word) : escapeHtml(word)}</span>`
   ).join(' ');
 }
 
