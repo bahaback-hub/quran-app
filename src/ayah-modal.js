@@ -8,6 +8,7 @@ import { loadSurah } from "./app.js";
 import { storage } from "./storage.js";
 import { RECITERS, getReciterById, buildAudioUrl } from "./reciters.js";
 import { fetchTafsirText } from "./tafsir.js";
+import { apiFetch } from "./api-client.js";
 
 /** @type {Element} */
 let modalEl;
@@ -147,8 +148,7 @@ async function loadMeta() {
   M.ayahModalPage.textContent = '📄 الصفحة: جاري...';
   M.ayahModalJuz.textContent = '📖 الجزء: جاري...';
   try {
-    const res = await fetch(`${CONFIG.API_BASE}/ayah/${current.surah}:${current.ayah}`);
-    const d = await res.json();
+    const d = await apiFetch(`/ayah/${current.surah}:${current.ayah}`, { silent: true });
     if (d?.data) {
       M.ayahModalPage.textContent = `📄 الصفحة: ${d.data.page || '--'}`;
       M.ayahModalJuz.textContent = `📖 الجزء: ${d.data.juz || '--'}`;
@@ -245,8 +245,7 @@ async function ensureModalAudio() {
     return;
   }
   try {
-    const res = await fetch(`${CONFIG.API_BASE}/surah/${current.surah}/${reciterId}`);
-    const d = await res.json();
+    const d = await apiFetch(`/surah/${current.surah}/${reciterId}`, { silent: true });
     if (d?.data?.ayahs) {
       ayahAudios = d.data.ayahs.map(a => a.audio);
       audioLoadSurah = current.surah;

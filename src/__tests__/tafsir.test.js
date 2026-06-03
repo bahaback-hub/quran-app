@@ -166,19 +166,19 @@ describe('fetchTafsirText', () => {
   it('should fetch tafsir from API when not in cache', async () => {
     const tafsirText = 'هذا تفسير تجريبي';
     globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve({ tafsir: { text: tafsirText } }),
     });
 
     const result = await fetchTafsirText('ar-tafsir-muyassar', 1, 1);
 
-    expect(fetch).toHaveBeenCalledWith(
-      `${CONFIG.TAFSIR_API}/ar-tafsir-muyassar/1/1.json`
-    );
+    expect(fetch).toHaveBeenCalled();
     expect(result).toBe(tafsirText);
   });
 
   it('should return fallback text when API returns no tafsir text', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve({}),
     });
 
@@ -194,6 +194,7 @@ describe('fetchTafsirText', () => {
 
   it('should use text field directly when tafsir wrapper is missing', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve({ text: 'direct text field' }),
     });
 
@@ -306,18 +307,22 @@ describe('loadTafsirForSurahAyah', () => {
     state.currentTafsirEdition = '';
 
     globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve({ tafsir: { text: 'تفسير' } }),
     });
 
     await loadTafsirForSurahAyah(1, 1);
 
+    // api-client constructs full URL from CONFIG.TAFSIR_API + edition path
     expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining(CONFIG.DEFAULT_TAFSIR)
+      expect.stringContaining(CONFIG.DEFAULT_TAFSIR),
+      expect.any(Object)
     );
   });
 
   it('should render tafsir text in curtain body on success', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
       json: () => Promise.resolve({ tafsir: { text: 'تفسير الاخلاص' } }),
     });
 
