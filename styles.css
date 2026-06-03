@@ -3633,14 +3633,14 @@ body {
 }
 
 /* ========== Tajweed coloring (Mushaf Mujawwad) ========== */
-.tw-fatha, .tw-damma, .tw-kasra { color: #e74c3c; }
-body.night-mode .tw-fatha, body.night-mode .tw-damma, body.night-mode .tw-kasra { color: #ff6b6b; }
-.tw-fathatan, .tw-dammatan, .tw-kasratan { color: #27ae60; }
-body.night-mode .tw-fathatan, body.night-mode .tw-dammatan, body.night-mode .tw-kasratan { color: #51cf66; }
-.tw-shadda { color: #2980b9; }
-body.night-mode .tw-shadda { color: #5dade2; }
-.tw-sukun { color: #8e44ad; }
-body.night-mode .tw-sukun { color: #af7ac5; }
-.tw-madd { color: #b7950b; }
-body.night-mode .tw-madd { color: #f0c040; }
-body.sepia-mode .tw-madd { color: #8b6914; }
+.tw-fatha, .tw-damma, .tw-kasra { color: #e74c3c; -webkit-text-stroke: 0.5px #e74c3c; text-shadow: 0 0 0 #e74c3c; }
+body.night-mode .tw-fatha, body.night-mode .tw-damma, body.night-mode .tw-kasra { color: #ff6b6b; -webkit-text-stroke: 0.5px #ff6b6b; text-shadow: 0 0 0 #ff6b6b; }
+.tw-fathatan, .tw-dammatan, .tw-kasratan { color: #27ae60; -webkit-text-stroke: 0.5px #27ae60; text-shadow: 0 0 0 #27ae60; }
+body.night-mode .tw-fathatan, body.night-mode .tw-dammatan, body.night-mode .tw-kasratan { color: #51cf66; -webkit-text-stroke: 0.5px #51cf66; text-shadow: 0 0 0 #51cf66; }
+.tw-shadda { color: #2980b9; -webkit-text-stroke: 0.5px #2980b9; text-shadow: 0 0 0 #2980b9; }
+body.night-mode .tw-shadda { color: #5dade2; -webkit-text-stroke: 0.5px #5dade2; text-shadow: 0 0 0 #5dade2; }
+.tw-sukun { color: #8e44ad; -webkit-text-stroke: 0.5px #8e44ad; text-shadow: 0 0 0 #8e44ad; }
+body.night-mode .tw-sukun { color: #af7ac5; -webkit-text-stroke: 0.5px #af7ac5; text-shadow: 0 0 0 #af7ac5; }
+.tw-madd { color: #b7950b; -webkit-text-stroke: 0.5px #b7950b; text-shadow: 0 0 0 #b7950b; }
+body.night-mode .tw-madd { color: #f0c040; -webkit-text-stroke: 0.5px #f0c040; text-shadow: 0 0 0 #f0c040; }
+body.sepia-mode .tw-madd { color: #8b6914; -webkit-text-stroke: 0.5px #8b6914; text-shadow: 0 0 0 #8b6914; }
