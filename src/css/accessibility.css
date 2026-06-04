@@ -36,7 +36,7 @@
 
 /* ========== الوضع الليلي التلقائي ========== */
 @media (prefers-color-scheme: dark) {
-  body:not(.night-mode):not(.sepia-mode):not(.force-light) {
+  body:not(.night-mode):not(.force-light) {
     --bg-gradient: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
     --container-bg: #161a26;
     --header-bg: linear-gradient(135deg, #1a1f2e, #232838);

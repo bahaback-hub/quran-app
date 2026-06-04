@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { storage } from '../storage.js';
-import { applyNightMode, toggleNightMode, applyFontSize, applySepiaMode, toggleSepiaMode, applyFontType, applyLineSpacing, initSystemThemeDetection, restoreSettings } from '../settings.js';
+import { applyNightMode, toggleNightMode, applyFontSize, applyFontType, applyLineSpacing, initSystemThemeDetection, restoreSettings } from '../settings.js';
 
 // Mock localStorage
 const store = {};
@@ -30,11 +30,9 @@ beforeEach(() => {
   state.mushafMode = false;
   state.currentPage = 1;
   state.tajweedEnabled = true;
-  state.sepiaMode = false;
   state.fontType = '';
   state.lineSpacing = '';
   document.body.classList.remove('night-mode');
-  document.body.classList.remove('sepia-mode');
 });
 
 describe('applyNightMode', () => {
@@ -84,28 +82,6 @@ describe('applyFontSize', () => {
 
   it('should handle missing container gracefully', () => {
     expect(() => applyFontSize(28)).not.toThrow();
-  });
-});
-
-describe('applySepiaMode', () => {
-  it('should enable sepia mode', () => {
-    applySepiaMode(true);
-    expect(state.sepiaMode).toBe(true);
-    expect(document.body.classList.contains('sepia-mode')).toBe(true);
-  });
-
-  it('should disable sepia mode', () => {
-    document.body.classList.add('sepia-mode');
-    applySepiaMode(false);
-    expect(state.sepiaMode).toBe(false);
-    expect(document.body.classList.contains('sepia-mode')).toBe(false);
-  });
-
-  it('should toggle sepia mode', () => {
-    state.sepiaMode = false;
-    toggleSepiaMode();
-    expect(state.sepiaMode).toBe(true);
-    expect(document.body.classList.contains('sepia-mode')).toBe(true);
   });
 });
 
@@ -214,26 +190,6 @@ describe('initSystemThemeDetection', () => {
     expect(addEventListenerSpy).toHaveBeenCalledWith('change', expect.any(Function));
   });
 
-  it('should update settingsThemeToggle when system theme is dark', () => {
-    storage.remove('night_mode');
-
-    const toggle = document.createElement('div');
-    toggle.id = 'settingsThemeToggle';
-    document.body.appendChild(toggle);
-
-    const matchMediaMock = vi.fn().mockReturnValue({
-      matches: true,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
-    });
-    window.matchMedia = matchMediaMock;
-
-    initSystemThemeDetection();
-
-    expect(toggle.classList.contains('on')).toBe(true);
-    expect(toggle.getAttribute('aria-checked')).toBe('true');
-    document.body.removeChild(toggle);
-  });
 });
 
 describe('restoreSettings', () => {
@@ -301,13 +257,6 @@ describe('restoreSettings', () => {
     storage.set('tajweed_enabled', false);
     restoreSettings();
     expect(state.tajweedEnabled).toBe(false);
-  });
-
-  it('should restore sepia mode when enabled', () => {
-    storage.set('sepia_mode', true);
-    restoreSettings();
-    expect(state.sepiaMode).toBe(true);
-    expect(document.body.classList.contains('sepia-mode')).toBe(true);
   });
 
   it('should restore translation settings', () => {

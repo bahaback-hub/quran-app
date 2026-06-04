@@ -1,4 +1,4 @@
-import { state, AppState, BackgroundEntry } from './state.js';
+import { state, AppState } from './state.js';
 import { CONFIG } from './config.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
@@ -26,6 +26,7 @@ export function applyNightMode(enabled: boolean): void {
   if (enabled) document.body.classList.add('night-mode');
   else document.body.classList.remove('night-mode');
   storage.set('night_mode', enabled);
+  if (dom.themeToggle) dom.themeToggle.textContent = enabled ? '\u2600\uFE0F' : '\uD83C\uDF19';
   if (state.mushafMode && state.currentPage) {
     import('./mushaf.js').then((m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) => m.loadPage(state.currentPage, true, true));
   }
@@ -51,7 +52,6 @@ export function initSystemThemeDetection(): void {
     if (e.matches) {
       if (!document.body.classList.contains('night-mode')) {
         document.body.classList.add('night-mode');
-        document.body.classList.remove('sepia-mode');
         state.nightMode = true;
       }
     } else {
@@ -60,16 +60,8 @@ export function initSystemThemeDetection(): void {
         state.nightMode = false;
       }
     }
-    // Update the toggle switch UI if it exists
-    const toggle = document.getElementById('settingsThemeToggle') as HTMLElement | null;
-    if (toggle) {
-      if (e.matches) {
-        toggle.classList.add('on');
-      } else {
-        toggle.classList.remove('on');
-      }
-      toggle.setAttribute('aria-checked', String(e.matches));
-    }
+    // Update the theme toggle icon
+    if (dom.themeToggle) dom.themeToggle.textContent = e.matches ? '\u2600\uFE0F' : '\uD83C\uDF19';
   }
 
   // Apply initial system preference
@@ -83,17 +75,6 @@ export function initSystemThemeDetection(): void {
     mql.addListener(applySystemTheme as (ev: MediaQueryListEvent) => void);
   }
 }
-
-/* ===================== SEPIA MODE ===================== */
-
-/** Enable or disable sepia mode and persist the preference. */
-export function applySepiaMode(enabled: boolean): void {
-  state.sepiaMode = enabled;
-  document.body.classList.toggle('sepia-mode', !!enabled);
-  storage.set('sepia_mode', enabled);
-}
-
-export function toggleSepiaMode(): void { applySepiaMode(!state.sepiaMode); }
 
 /* ===================== FONT TYPE ===================== */
 
@@ -204,7 +185,7 @@ export function resetSettings(): void {
   function close(): void { overlay.remove(); }
 
   confirmBtn.addEventListener('click', () => {
-    const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed', 'lang', 'surah_list', 'translation_enabled', 'translation_edition', 'last_position', 'bookmark', 'favorites', 'mushaf_mode', 'current_page', 'search_history', 'adhkar_settings'];
+    const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'playback_speed', 'lang', 'surah_list', 'translation_enabled', 'translation_edition', 'last_position', 'bookmark', 'favorites', 'mushaf_mode', 'current_page', 'search_history', 'adhkar_settings'];
     keys.forEach((k: string) => storage.remove(k));
     storage.remove('night_mode_set_by_user');
     showToast(__('reset_settings'), 'success');
@@ -226,7 +207,7 @@ export function resetSettings(): void {
 
 /** Export all settings as a downloadable JSON file. */
 export function exportSettings(): void {
-  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed', 'lang', 'translation_enabled', 'translation_edition', 'favorites', 'bookmark', 'last_position', 'mushaf_mode', 'current_page', 'adhkar_settings', 'search_history'];
+  const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'playback_speed', 'lang', 'translation_enabled', 'translation_edition', 'favorites', 'bookmark', 'last_position', 'mushaf_mode', 'current_page', 'adhkar_settings', 'search_history'];
   const data: Record<string, unknown> = {};
   keys.forEach((k: string) => { data[k] = storage.get(k); });
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -243,10 +224,10 @@ export function exportSettings(): void {
 const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'font_size', 'night_mode', 'city', 'country', 'method',
   'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter',
-  'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id',
+  'tafsir_edition', 'bar_collapsed', 'player_collapsed',
   'playback_speed', 'lang', 'translation_enabled', 'translation_edition',
   'favorites', 'bookmark', 'last_position', 'mushaf_mode', 'current_page',
-  'adhkar_settings', 'search_history', 'sepia_mode', 'font_type',
+  'adhkar_settings', 'search_history', 'font_type',
   'line_spacing', 'tajweed_enabled', 'night_mode_set_by_user', 'surah_list'
 ]);
 
@@ -283,69 +264,6 @@ export function importSettings(): void {
   input.click();
 }
 
-/* ===================== BACKGROUNDS ===================== */
-
-/** Load the backgrounds list from a JSON file and populate the background select. */
-export async function loadBackgrounds(): Promise<void> {
-  try {
-    const res = await fetch('data/backgrounds.json');
-    state.backgroundsList = await res.json() as BackgroundEntry[];
-    if (dom.bgSelect) {
-      dom.bgSelect.innerHTML = '';
-      state.backgroundsList.forEach((bg: BackgroundEntry) => {
-        const opt = document.createElement('option');
-        opt.value = bg.id;
-        opt.textContent = bg.name;
-        dom.bgSelect!.appendChild(opt);
-      });
-      const savedBg = storage.get<string>('bg_id');
-      if (savedBg) applyBackground(savedBg);
-    }
-  } catch (e: unknown) { console.warn(__('failed_load_backgrounds'), e); }
-}
-
-function removeBgClasses(): void {
-  document.body.className = document.body.className
-    .split(/\s+/).filter((c: string) => !c.startsWith('bg-css')).join(' ').trim();
-}
-
-/** Apply a background by ID, or remove it if 'none'. */
-export function applyBackground(bgId: string): void {
-  if (!bgId || bgId === 'none') {
-    document.body.style.backgroundImage = '';
-    removeBgClasses();
-    const style = document.getElementById('dynamic-bg-style');
-    if (style) style.remove();
-    storage.remove('bg_id');
-    if (dom.bgSelect) dom.bgSelect.value = 'none';
-    return;
-  }
-  const bg = state.backgroundsList?.find((b: BackgroundEntry) => b.id === bgId);
-  if (!bg) return;
-  if (bg.type === 'css' && (bg.cssBlock || bg.css)) {
-    document.body.style.backgroundImage = '';
-    removeBgClasses();
-    const existing = document.getElementById('dynamic-bg-style');
-    if (existing) existing.remove();
-    if (bg.cssBlock) {
-      const style = document.createElement('style');
-      style.id = 'dynamic-bg-style';
-      style.textContent = bg.cssBlock;
-      document.head.appendChild(style);
-      document.body.classList.add('bg-css-arabic');
-    } else {
-      document.body.classList.add('bg-css');
-      document.body.setAttribute('data-bg-css', bg.css + '');
-      const style = document.createElement('style');
-      style.id = 'dynamic-bg-style';
-      style.textContent = `body[data-bg-css] { --bg-css-value: ${bg.css} !important; }`;
-      document.head.appendChild(style);
-    }
-  }
-  storage.set('bg_id', bgId);
-  if (dom.bgSelect) dom.bgSelect.value = bgId;
-}
-
 /* ===================== RESTORE SETTINGS ===================== */
 
 /** Restore all settings from localStorage into the state object and update UI. */
@@ -379,9 +297,7 @@ export function restoreSettings(): void {
     if (state.translationEnabled && state.currentTranslation) dom.translationSelect.value = state.currentTranslation;
     else dom.translationSelect.value = '';
   }
-  if (dom.settingsThemeToggle) dom.settingsThemeToggle.classList.toggle('on', state.nightMode);
   if (dom.fontSizeSelect) dom.fontSizeSelect.value = String(state.fontSize);
-  const sepia = storage.get<boolean>('sepia_mode'); if (sepia) applySepiaMode(true);
   const ft = storage.get<string>('font_type'); if (ft) applyFontType(ft);
   const ls = storage.get<string>('line_spacing'); if (ls) applyLineSpacing(ls);
   const speed = storage.get<string>('playback_speed');
