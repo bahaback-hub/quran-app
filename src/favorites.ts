@@ -1,4 +1,4 @@
-import { state, FavoriteEntry, BookmarkEntry } from './state.js';
+import { state, immutablePush, immutableSplice, FavoriteEntry, BookmarkEntry } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
@@ -42,11 +42,11 @@ export function toggleFavorite(): void {
   const key = `${state.currentSurah}:${a.numberInSurah}`;
   const idx = state.favorites.findIndex((f: FavoriteEntry) => f.key === key);
   if (idx !== -1) {
-    state.favorites.splice(idx, 1);
+    immutableSplice(state, 'favorites', idx, 1);
     showToast('💔 تمت إزالة من المفضلة', '');
     dom.favoriteBtn?.classList.remove('active');
   } else {
-    state.favorites.push({
+    immutablePush(state, 'favorites', {
       key, surah: state.currentSurah, surahName: surahData.name,
       ayah: a.numberInSurah, text: a.text, timestamp: Date.now()
     });
@@ -142,7 +142,7 @@ export function renderFavorites(): void {
         const key = target.dataset.key as string;
         const idx = state.favorites.findIndex((f: FavoriteEntry) => f.key === key);
         if (idx !== -1) {
-          state.favorites.splice(idx, 1);
+          immutableSplice(state, 'favorites', idx, 1);
           saveFavorites();
           const item = dom.favoritesList?.querySelector(`.favorite-item[data-key="${CSS.escape(key)}"]`);
           if (item) item.remove();

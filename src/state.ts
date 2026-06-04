@@ -361,13 +361,13 @@ function createReactiveProxy(): AppState {
   return new Proxy(_rawState, {
     set(target: AppState, property: string, newValue: unknown): boolean {
       const key = property as keyof AppState;
-      const oldValue = target[key];
+      const oldValue = Reflect.get(target, key) as unknown;
 
       // Skip notification if value hasn't changed (shallow comparison)
       if (oldValue === newValue) return true;
 
-      // Apply the change to the raw state
-      (target as unknown as Record<string, unknown>)[key] = newValue;
+      // Apply the change to the raw state using Reflect (type-safe)
+      Reflect.set(target, key, newValue);
 
       // Record the change (immediate notify or defer to batch)
       recordChange(key, newValue, oldValue);
@@ -376,7 +376,7 @@ function createReactiveProxy(): AppState {
     },
 
     get(target: AppState, property: string): unknown {
-      return (target as unknown as Record<string, unknown>)[property];
+      return Reflect.get(target, property);
     },
   });
 }
@@ -402,7 +402,7 @@ export const state: AppState = createReactiveProxy();
  */
 export function setState(partial: Partial<AppState>): void {
   for (const [key, newValue] of Object.entries(partial)) {
-    (state as unknown as Record<string, unknown>)[key] = newValue;
+    Reflect.set(state, key, newValue);
     // The Proxy handler will call recordChange automatically
   }
 }
@@ -445,9 +445,94 @@ export function resetState(): void {
   const defaults = createDefaultState();
   batch(() => {
     for (const [key, value] of Object.entries(defaults)) {
-      (state as unknown as Record<string, unknown>)[key] = value;
+      Reflect.set(state, key, value);
     }
   });
+}
+
+/* ===================== IMMUTABLE HELPERS ===================== */
+
+/**
+ * Immutable array push — creates a new array reference so the Proxy detects the change.
+ *
+ * @example
+ *   immutablePush(state, 'favorites', newEntry);
+ *   // Equivalent to: state.favorites = [...state.favorites, newEntry]
+ */
+export function immutablePush<K extends keyof AppState>(
+  target: AppState,
+  key: K,
+  ...items: AppState[K] extends Array<infer T> ? T[] : never
+): void {
+  const arr = target[key] as unknown[];
+  Reflect.set(target, key, [...arr, ...items]);
+}
+
+/**
+ * Immutable array remove by index — creates a new array reference.
+ *
+ * @example
+ *   immutableSplice(state, 'favorites', idx, 1);
+ *   // Equivalent to: state.favorites = state.favorites.filter((_, i) => i !== idx)
+ */
+export function immutableSplice<K extends keyof AppState>(
+  target: AppState,
+  key: K,
+  start: number,
+  deleteCount: number = 1,
+): void {
+  const arr = target[key] as unknown[];
+  const next = [...arr];
+  next.splice(start, deleteCount);
+  Reflect.set(target, key, next);
+}
+
+/**
+ * Immutable Map set — creates a new Map reference so the Proxy detects the change.
+ *
+ * @example
+ *   immutableMapSet(state, 'surahCache', key, value);
+ */
+export function immutableMapSet<K extends keyof AppState>(
+  target: AppState,
+  key: K,
+  mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never,
+  mapValue: AppState[K] extends Map<infer MK, infer MV> ? MV : never,
+): void {
+  const map = new Map(target[key] as Map<unknown, unknown>);
+  map.set(mapKey, mapValue);
+  Reflect.set(target, key, map);
+}
+
+/**
+ * Immutable Map delete — creates a new Map reference.
+ *
+ * @example
+ *   immutableMapDelete(state, 'surahCache', key);
+ */
+export function immutableMapDelete<K extends keyof AppState>(
+  target: AppState,
+  key: K,
+  mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never,
+): void {
+  const map = new Map(target[key] as Map<unknown, unknown>);
+  map.delete(mapKey);
+  Reflect.set(target, key, map);
+}
+
+/**
+ * Immutable array filter — convenience for removing items by predicate.
+ *
+ * @example
+ *   immutableFilter(state, 'favorites', f => f.key !== targetKey);
+ */
+export function immutableFilter<K extends keyof AppState>(
+  target: AppState,
+  key: K,
+  predicate: AppState[K] extends Array<infer T> ? (value: T, index: number, array: T[]) => unknown : never,
+): void {
+  const arr = target[key] as unknown[];
+  Reflect.set(target, key, arr.filter(predicate as (value: unknown, index: number, array: unknown[]) => unknown));
 }
 
 /**
