@@ -59,6 +59,11 @@ body:not(.bg-css) {
   background: var(--bg-gradient);
 }
 
+/* ========== صنف الإخفاء ========== */
+.hidden {
+  display: none !important;
+}
+
 .skip-link {
   position: absolute;
   top: -40px;
