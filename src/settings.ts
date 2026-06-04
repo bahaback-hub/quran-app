@@ -5,6 +5,7 @@ import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { stopAzan, loadPrayerTimes } from './prayer.js';
 import { renderAdhkarSettingsList } from './adhkar.js';
+import { __ } from './i18n.js';
 
 /* ===================== FONT SIZE ===================== */
 
@@ -157,7 +158,7 @@ export function closeSettings(): void {
 export function saveLocationSettings(): void {
   const city = dom.cityInput?.value.trim();
   const country = dom.countryInput?.value.trim();
-  if (!city || !country) { showToast('أدخل المدينة والدولة', 'error'); return; }
+  if (!city || !country) { showToast(__('save_location'), 'error'); return; }
   state.city = city;
   state.country = country;
   state.method = dom.methodSelect?.value || '4';
@@ -165,7 +166,7 @@ export function saveLocationSettings(): void {
   storage.set('country', country);
   storage.set('method', state.method);
   loadPrayerTimes();
-  showToast('✅ تم حفظ الموقع وتحديث المواقيت', 'success');
+  showToast(__('save_location'), 'success');
 }
 
 /** Reset all settings to defaults and reload the page. */
@@ -183,21 +184,21 @@ export function resetSettings(): void {
 
   const title = document.createElement('h3');
   title.style.cssText = 'margin:0 0 12px;color:var(--text-primary);';
-  title.textContent = '⚠️ إعادة ضبط الإعدادات';
+  title.textContent = __('reset_settings');
 
   const msg = document.createElement('p');
   msg.style.cssText = 'margin:0 0 20px;color:var(--text-secondary,#666);font-size:14px;';
-  msg.textContent = 'هل تريد إعادة ضبط جميع الإعدادات إلى القيم الافتراضية؟ سيتم حذف جميع التفضيلات المحفوظة.';
+  msg.textContent = __('confirm_reset');
 
   const btnRow = document.createElement('div');
   btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
 
   const confirmBtn = document.createElement('button');
-  confirmBtn.textContent = '🔄 إعادة ضبط';
+  confirmBtn.textContent = __('reset_settings');
   confirmBtn.style.cssText = 'flex:1;padding:10px 20px;border:none;border-radius:8px;background:#e74c3c;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;';
 
   const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = '❌ إلغاء';
+  cancelBtn.textContent = __('close');
   cancelBtn.style.cssText = 'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);color:var(--text-primary);font-size:14px;cursor:pointer;font-family:inherit;';
 
   function close(): void { overlay.remove(); }
@@ -206,7 +207,7 @@ export function resetSettings(): void {
     const keys = ['font_size', 'night_mode', 'city', 'country', 'method', 'azan_enabled', 'azan_fajr_enabled', 'auto_save', 'reciter', 'tafsir_edition', 'bar_collapsed', 'player_collapsed', 'bg_id', 'playback_speed', 'lang', 'surah_list', 'translation_enabled', 'translation_edition', 'last_position', 'bookmark', 'favorites', 'mushaf_mode', 'current_page', 'search_history', 'adhkar_settings'];
     keys.forEach((k: string) => storage.remove(k));
     storage.remove('night_mode_set_by_user');
-    showToast('✅ تم إعادة الضبط. جارٍ تحديث الصفحة...', 'success');
+    showToast(__('reset_settings'), 'success');
     setTimeout(() => location.reload(), 1500);
   });
 
@@ -235,7 +236,7 @@ export function exportSettings(): void {
   a.download = 'quran-app-settings.json';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('✅ تم تصدير الإعدادات', 'success');
+  showToast(__('success'), 'success');
 }
 
 /** Allowlist of valid setting keys for import validation. */
@@ -271,10 +272,10 @@ export function importSettings(): void {
             skipped++;
           }
         });
-        showToast(`✅ تم استيراد ${imported} إعداد${skipped ? ` (${skipped} مُتجاهل)` : ''}. جارٍ التحديث...`, 'success');
+        showToast(`${__('success')} ${__('settings_imported', String(imported))}`, 'success');
         setTimeout(() => location.reload(), 1500);
       } catch {
-        showToast('❌ ملف غير صالح', 'error');
+        showToast(__('error_invalid_data'), 'error');
       }
     };
     reader.readAsText(file);
@@ -300,7 +301,7 @@ export async function loadBackgrounds(): Promise<void> {
       const savedBg = storage.get<string>('bg_id');
       if (savedBg) applyBackground(savedBg);
     }
-  } catch (e: unknown) { console.warn('فشل تحميل قائمة الخلفيات', e); }
+  } catch (e: unknown) { console.warn(__('failed_load_backgrounds'), e); }
 }
 
 function removeBgClasses(): void {

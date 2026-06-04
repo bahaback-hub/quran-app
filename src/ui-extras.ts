@@ -4,6 +4,7 @@ import { storage } from './storage.js';
 import { loadSurah } from './surah-loader.js';
 import { stopClock, startClock } from './prayer.js';
 import { checkAdhkarNotifications } from './adhkar.js';
+import { __ } from './i18n.js';
 
 /* ===================== CONTINUE WIDGET ===================== */
 
@@ -76,13 +77,13 @@ export function showContinueWidget(info: ContinueInfo): void {
   strong.textContent = info.surahName;
   const small = document.createElement('small');
   small.style.opacity = '0.7';
-  small.textContent = `آخر زيارة: ${dateStr}`;
-  text.append('📖 ', strong, ` — آية ${info.ayahNumberInSurah}`, document.createElement('br'), small);
+  small.textContent = `${__('last_visit_time', dateStr)}`;
+  text.append('📖 ', strong, `${__('continue_ayah', String(info.ayahNumberInSurah))}`, document.createElement('br'), small);
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'continue-widget-close';
   closeBtn.textContent = '✕';
-  closeBtn.setAttribute('aria-label', 'إغلاق');
+  closeBtn.setAttribute('aria-label', __('close'));
 
   widget.appendChild(icon);
   widget.appendChild(text);

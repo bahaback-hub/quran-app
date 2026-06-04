@@ -96,7 +96,7 @@ export async function loadSurahList(): Promise<void> {
     populateSurahSelect();
     return;
   }
-  if (dom.surahSelect) dom.surahSelect.innerHTML = '<option value="">⏳ جاري تحميل قائمة السور...</option>';
+  if (dom.surahSelect) dom.surahSelect.innerHTML = `<option value="">${__('loading_surah_list')}</option>`;
   try {
     const data = await apiFetch('/surah', { silent: true });
     if (data?.data) {
@@ -117,13 +117,13 @@ export async function loadSurahList(): Promise<void> {
       return;
     }
   } catch (_e) { /* no local fallback */ }
-  if (dom.surahSelect) dom.surahSelect.innerHTML = '<option value="">⚠️ تعذّر التحميل</option>';
-  showToast('تعذّر تحميل قائمة السور', 'error');
+  if (dom.surahSelect) dom.surahSelect.innerHTML = `<option value="">${__('error_unexpected')}</option>`;
+  showToast(__('failed_load_surah'), 'error');
 }
 
 function populateSurahSelect(): void {
   if (!dom.surahSelect) return;
-  dom.surahSelect.innerHTML = '<option value="">اختر السورة</option>';
+  dom.surahSelect.innerHTML = `<option value="">${__('select_surah')}</option>`;
   for (const s of state.surahList) {
     const opt = document.createElement('option');
     opt.value = String(s.number);
@@ -243,7 +243,7 @@ async function loadApiAudio(surahNum: number, reciterId: string, currentLoad: nu
   try {
     const json = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true });
     const data = json?.data;
-    if (!data?.ayahs?.length) throw new Error('لا توجد بيانات صوت');
+    if (!data?.ayahs?.length) throw new Error(__('no_audio_data'));
     const audios: (string | null)[] = data.ayahs.map((a: AyahEntry) => a.audio);
     if (_loadCounter !== currentLoad) return null;
     return { audios, timings: [] };
@@ -300,12 +300,12 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   const signal = currentSurahController.signal;
 
   const cacheKey = `${surahNum}_${state.currentReciter}_${state.currentTranslation || 'notr'}`;
-  const reciterInfo = getReciterById(state.currentReciter) as unknown as ReciterInfo;
+  const reciterInfo = getReciterById(state.currentReciter) as ReciterInfo;
   const isMp3quran = reciterInfo.source === 'mp3quran';
   if (state.surahCache.has(cacheKey)) {
-    const cached = state.surahCache.get(cacheKey) as unknown as CachedSurahEntry;
+    const cached = state.surahCache.get(cacheKey) as CachedSurahEntry;
     if (_loadCounter !== currentLoad) return;
-    state.surahData = cached.text as unknown as Record<string, unknown>;
+    state.surahData = cached.text as any;
     if (isMp3quran) {
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');
       state.ayahTimings = cached.timings || calculateAyahTimings(cached.text.ayahs, surahNum);
@@ -320,17 +320,17 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     return;
   }
 
-  loadingBar.show(`⏳ جاري تحميل سورة ${state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || surahNum}...`);
+  loadingBar.show(`${__('loading_surah')} ${state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || surahNum}...`);
   if (dom.surahContent) dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
 
   try {
-    const textJson = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, errorMsg: 'فشل تحميل السورة' });
+    const textJson = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, errorMsg: __('failed_load_surah') });
     const textData: SurahTextData = textJson?.data;
     if (!textData?.ayahs?.length) {
-      throw new Error('بيانات السورة غير صالحة');
+      throw new Error(__('invalid_surah_data'));
     }
     if (_loadCounter !== currentLoad) return;
-    state.surahData = textData as unknown as Record<string, unknown>;
+    state.surahData = textData as any;
 
     renderSurah(textData);
     const autoPlay = opts.autoPlay;
@@ -354,7 +354,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     }
     state.translationData = transResult;
     if (transResult && state.surahData) {
-      renderSurah(state.surahData as unknown as SurahTextData);
+      renderSurah(state.surahData as any);
       highlightCurrentAyah();
     }
 
@@ -380,16 +380,16 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
           ayahs: ayahs.map((a: { ayah: number; text: string }) => ({ numberInSurah: a.ayah, text: a.text }))
         };
         state.ayahsAudios = [];
-        renderSurah(state.surahData as unknown as SurahTextData);
+        renderSurah(state.surahData as any);
         finalizeSurahLoad(opts);
         loadingBar.hide();
-        showToast('📖 وضع عدم الاتصال — الصوت غير متاح', '');
+        showToast(__('offline_no_audio'), '');
         state.loadingSurah = null;
         return;
       }
     }
-    if (dom.surahContent) dom.surahContent.innerHTML = '<p class="error-msg">⚠️ تعذّر تحميل السورة</p>';
-    showToast('فشل تحميل السورة', 'error');
+    if (dom.surahContent) dom.surahContent.innerHTML = `<p class="error-msg">⚠️ ${__('failed_load_surah')}</p>`;
+    showToast(__('failed_load_surah'), 'error');
     loadingBar.hide();
   } finally {
     state.loadingSurah = null;
@@ -489,7 +489,7 @@ export function renderSurah(textData: SurahTextData): void {
 
   let html = `<h2 class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}`;
   if (SURAH_SECRETS[textData.number]) {
-    html += ` <button class="surah-secret-title-btn" data-surah="${textData.number}" data-surahname="${escapeHtml(textData.name)}" title="معلومات عن السورة" aria-label="معلومات عن السورة">ℹ️</button>`;
+    html += ` <button class="surah-secret-title-btn" data-surah="${textData.number}" data-surahname="${escapeHtml(textData.name)}" title="${__('surah_info_title')}" aria-label="${__('surah_info_title')}">ℹ️</button>`;
   }
   html += `</h2>`;
   if (textData.number !== 1 && textData.number !== 9) {
@@ -530,7 +530,7 @@ function initAyahDelegation(): void {
     const idx = parseInt(ayahEl.getAttribute('data-index') || '0', 10);
     const surah = parseInt(ayahEl.dataset.surah || '0', 10);
     const ayah = parseInt(ayahEl.dataset.ayah || '0', 10);
-    const surahData = state.surahData as unknown as SurahTextData | null;
+    const surahData = state.surahData as any;
     if (!surahData || surahData.number !== surah) return;
     const a = surahData.ayahs[idx];
     if (!a) return;
@@ -541,7 +541,7 @@ function initAyahDelegation(): void {
 // NOTE: ayahClickHandler removed — click delegation is handled by initAyahDelegation() above.
 
 function finalizeSurahLoad(opts: LoadSurahOptions): void {
-  const surahData = state.surahData as unknown as SurahTextData | null;
+  const surahData = state.surahData as any;
   if (opts.startAyah && surahData) {
     const idx = surahData.ayahs.findIndex((a: AyahEntry) => a.numberInSurah === opts.startAyah);
     if (idx !== -1) state.currentAyahIndex = idx;
@@ -561,7 +561,7 @@ export function highlightCurrentAyah(): void {
   if (ayahs) {
     for (let i = 0; i < ayahs.length; i++) ayahs[i].classList.remove('current');
   }
-  const surahData = state.surahData as unknown as SurahTextData | null;
+  const surahData = state.surahData as any;
   if (surahData && state.currentAyahIndex >= _ayahsReadyCount) {
     renderAyahChunk(surahData, _ayahsReadyCount, state.currentAyahIndex - _ayahsReadyCount + VIRTUAL_CHUNK_SIZE);
   }
@@ -584,7 +584,7 @@ export function highlightCurrentAyah(): void {
 }
 
 export function updatePlayerInfo(): void {
-  const surahData = state.surahData as unknown as SurahTextData | null;
+  const surahData = state.surahData as any;
   if (!surahData) return;
   const a = surahData.ayahs[state.currentAyahIndex];
   const reciterText = dom.reciterSelect?.options[dom.reciterSelect.selectedIndex]?.text || '';
@@ -601,7 +601,7 @@ export function updatePlayerInfo(): void {
 }
 
 function saveCurrentPosition(): void {
-  const surahData = state.surahData as unknown as SurahTextData | null;
+  const surahData = state.surahData as any;
   if (!surahData) return;
   const a = surahData.ayahs[state.currentAyahIndex];
   storage.set('last_position', {
@@ -623,6 +623,6 @@ export function toggleTranslation(): void {
     storage.set('translation_edition', state.currentTranslation);
   }
   if (dom.translationSelect) dom.translationSelect.value = state.translationEnabled ? (state.currentTranslation || '') : '';
-  showToast(state.translationEnabled ? '🌐 الترجمة مفعّلة' : 'الترجمة مغلقة', 'success');
+  showToast(state.translationEnabled ? __('translation_on') : __('translation_off'), 'success');
   if (state.currentSurah) loadSurah(state.currentSurah);
 }

@@ -4,6 +4,7 @@ import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { escapeHtml, hapticFeedback } from './utils.js';
 import { copyToClipboard } from './utils.js';
+import { __ } from './i18n.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -43,14 +44,14 @@ export function toggleFavorite(): void {
   const idx = state.favorites.findIndex((f: FavoriteEntry) => f.key === key);
   if (idx !== -1) {
     immutableSplice(state, 'favorites', idx, 1);
-    showToast('💔 تمت إزالة من المفضلة', '');
+    showToast(__('removed_from_favorites'), '');
     dom.favoriteBtn?.classList.remove('active');
   } else {
     immutablePush(state, 'favorites', {
       key, surah: state.currentSurah, surahName: surahData.name,
       ayah: a.numberInSurah, text: a.text, timestamp: Date.now()
     });
-    showToast('❤️ أُضيفت إلى المفضلة', 'success');
+    showToast(__('added_to_favorites'), 'success');
     dom.favoriteBtn?.classList.add('active');
   }
   saveFavorites();
@@ -61,7 +62,7 @@ export function toggleFavorite(): void {
 export function renderFavorites(): void {
   if (!dom.favoritesList) return;
   if (!state.favorites.length) {
-    dom.favoritesList.innerHTML = '<p class="favorites-empty">لا توجد آيات مفضلة بعد</p>';
+    dom.favoritesList.innerHTML = `<p class="favorites-empty">${__('no_favorites')}</p>`;
     return;
   }
   const fragment = document.createDocumentFragment();
@@ -71,7 +72,7 @@ export function renderFavorites(): void {
     item.dataset.key = f.key || '';
     const meta = document.createElement('div');
     meta.className = 'favorite-meta';
-    meta.innerHTML = `<strong>${escapeHtml(f.surahName || '')}</strong> — آية ${escapeHtml(String(f.ayah || ''))}`;
+    meta.innerHTML = `<strong>${escapeHtml(f.surahName || '')}</strong> — ${__('ayah')} ${escapeHtml(String(f.ayah || ''))}`;
     const textDiv = document.createElement('div');
     textDiv.className = 'favorite-text';
     textDiv.textContent = f.text || '';
@@ -81,21 +82,21 @@ export function renderFavorites(): void {
     goBtn.className = 'favorite-action-btn fav-go';
     goBtn.dataset.surah = String(f.surah || '');
     goBtn.dataset.ayah = String(f.ayah || '');
-    goBtn.textContent = 'انتقال';
+    goBtn.textContent = __('go_to');
     const removeBtn = document.createElement('button');
     removeBtn.className = 'favorite-action-btn favorite-remove-btn fav-remove';
     removeBtn.dataset.key = String(f.key || '');
-    removeBtn.textContent = 'حذف';
+    removeBtn.textContent = __('delete');
     const copyBtn = document.createElement('button');
     copyBtn.className = 'favorite-action-btn fav-copy';
     copyBtn.dataset.text = f.text || '';
-    copyBtn.textContent = 'نسخ';
+    copyBtn.textContent = __('search_copy');
     const shareBtn = document.createElement('button');
     shareBtn.className = 'favorite-action-btn fav-share';
     shareBtn.dataset.text = f.text || '';
     shareBtn.dataset.surahName = f.surahName || '';
     shareBtn.dataset.ayah = String(f.ayah || '');
-    shareBtn.textContent = 'مشاركة';
+    shareBtn.textContent = __('search_share');
     actions.appendChild(goBtn);
     actions.appendChild(copyBtn);
     actions.appendChild(shareBtn);
@@ -122,19 +123,19 @@ export function renderFavorites(): void {
       }
       if (target.classList.contains('fav-copy')) {
         const text = target.dataset.text || '';
-        if (text) { copyToClipboard(text); showToast('📋 تم نسخ الآية', 'success'); }
+        if (text) { copyToClipboard(text); showToast(__('copied'), 'success'); }
         return;
       }
       if (target.classList.contains('fav-share')) {
         const text = target.dataset.text || '';
         const surahName = target.dataset.surahname || '';
         const ayah = target.dataset.ayah || '';
-        const shareText = `${text} — ${surahName} — آية ${ayah}`;
+        const shareText = `${text} — ${surahName} — ${__('ayah')} ${ayah}`;
         if (navigator.share) {
-          navigator.share({ title: 'القرآن الكريم', text: shareText }).catch(() => {});
+          navigator.share({ title: __('app_title'), text: shareText }).catch(() => {});
         } else {
           copyToClipboard(shareText);
-          showToast('📋 تم نسخ الآية للمشاركة', 'success');
+          showToast(__('copied'), 'success');
         }
         return;
       }
@@ -146,8 +147,8 @@ export function renderFavorites(): void {
           saveFavorites();
           const item = dom.favoritesList?.querySelector(`.favorite-item[data-key="${CSS.escape(key)}"]`);
           if (item) item.remove();
-          if (!state.favorites.length && dom.favoritesList) dom.favoritesList.innerHTML = '<p class="favorites-empty">لا توجد آيات مفضلة بعد</p>';
-          showToast('💔 تمت إزالة من المفضلة', '');
+          if (!state.favorites.length && dom.favoritesList) dom.favoritesList.innerHTML = `<p class="favorites-empty">${__('no_favorites')}</p>`;
+          showToast(__('removed_from_favorites'), '');
         }
         return;
       }
@@ -173,19 +174,19 @@ function downloadFile(content: string, filename: string, mimeType: string): void
 }
 
 function exportFavoritesText(): void {
-  if (!state.favorites.length) { showToast('لا توجد آيات مفضلة للتصدير', 'error'); return; }
+  if (!state.favorites.length) { showToast(__('favorites_export_none'), 'error'); return; }
   let text = '';
   for (const f of state.favorites) {
-    text += `﴿${f.text}﴾ — ${f.surahName || ''} — آية ${f.ayah}\n\n`;
+    text += `﴿${f.text}﴾ — ${f.surahName || ''} — ${__('ayah')} ${f.ayah}\n\n`;
   }
   downloadFile(text, 'quran-favorites.txt', 'text/plain;charset=utf-8');
-  showToast('📄 تم تصدير المفضلة كنص', 'success');
+  showToast(__('favorites_exported_text'), 'success');
 }
 
 function exportFavoritesJson(): void {
-  if (!state.favorites.length) { showToast('لا توجد آيات مفضلة للتصدير', 'error'); return; }
+  if (!state.favorites.length) { showToast(__('favorites_export_none'), 'error'); return; }
   downloadFile(JSON.stringify(state.favorites, null, 2), 'quran-favorites.json', 'application/json');
-  showToast('💾 تم تصدير المفضلة JSON', 'success');
+  showToast(__('favorites_exported_json'), 'success');
 }
 
 export function wireFavoritesExport(): void {
@@ -206,13 +207,13 @@ export function setBookmark(): void {
     ayah: a.numberInSurah, text: a.text, timestamp: Date.now()
   };
   storage.set('bookmark', state.bookmark);
-  showToast('🔖 تم حفظ العلامة', 'success');
+  showToast(__('bookmark_saved'), 'success');
 }
 
 /** Navigate to the saved bookmark. */
 export function gotoBookmark(): void {
   const bm: BookmarkEntry | null = state.bookmark || storage.get<BookmarkEntry>('bookmark');
-  if (!bm) { showToast('لا توجد علامة محفوظة', 'error'); return; }
+  if (!bm) { showToast(__('bookmark_not_found'), 'error'); return; }
   if (dom.surahSelect) dom.surahSelect.value = String(bm.surah);
   loadSurah(bm.surah, { startAyah: bm.ayah });
 }

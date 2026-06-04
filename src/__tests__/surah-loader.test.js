@@ -130,7 +130,7 @@ describe('loadSurahList', () => {
     // Should have default option + 114 surah options
     const options = dom.surahSelect.querySelectorAll('option');
     expect(options.length).toBe(115); // 1 default + 114 surahs
-    expect(options[0].textContent).toContain('اختر السورة');
+    expect(options[0].textContent).toContain('select_surah');
     expect(options[1].value).toBe('1');
   });
 
@@ -175,7 +175,7 @@ describe('loadSurahList', () => {
 
     await loadSurahList();
 
-    expect(showToast).toHaveBeenCalledWith('تعذّر تحميل قائمة السور', 'error');
+    expect(showToast).toHaveBeenCalledWith('failed_load_surah', 'error');
   });
 
   it('should ignore cache if list length does not match SURAH_COUNT', async () => {

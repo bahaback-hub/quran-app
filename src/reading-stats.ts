@@ -1,3 +1,4 @@
+import { __ } from './i18n.js';
 import { state } from './state.js';
 import { storage } from './storage.js';
 
@@ -88,7 +89,7 @@ export function getFormattedStats(): FormattedStats {
   return {
     totalAyahs: stats.totalAyahs,
     totalMinutes: stats.totalMinutes,
-    formattedTime: hours > 0 ? `${hours} ساعة ${mins} دقيقة` : `${mins} دقيقة`,
+    formattedTime: hours > 0 ? `${__('stats_hours_mins', String(hours), String(mins))}` : `${__('stats_mins', String(mins))}`,
     sessionsCount: stats.sessionsCount,
     uniqueSurahs,
     streakDays: stats.streakDays,
@@ -117,27 +118,27 @@ export function renderReadingStats(container: HTMLElement | null): void {
     <div class="reading-stats-grid">
       <div class="stat-card">
         <div class="stat-number">${stats.totalAyahs}</div>
-        <div class="stat-label">آية مقروءة</div>
+        <div class="stat-label">${__('stats_ayahs_read')}</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">${stats.formattedTime}</div>
-        <div class="stat-label">وقت القراءة</div>
+        <div class="stat-label">${__('stats_reading_time')}</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">${stats.uniqueSurahs}</div>
-        <div class="stat-label">سورة مقروءة</div>
+        <div class="stat-label">${__('stats_surahs_read')}</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">${stats.streakDays}</div>
-        <div class="stat-label">أيام متتالية</div>
+        <div class="stat-label">${__('stats_streak_days')}</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">${stats.sessionsCount}</div>
-        <div class="stat-label">جلسة قراءة</div>
+        <div class="stat-label">${__('stats_sessions')}</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">${stats.lastSession}</div>
-        <div class="stat-label">آخر قراءة</div>
+        <div class="stat-label">${__('stats_last_read')}</div>
       </div>
     </div>
   `;

@@ -1,3 +1,4 @@
+import { __ } from './i18n.js';
 import { state, immutablePush, SelectedAyah } from './state.js';
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
@@ -34,20 +35,20 @@ export function clearSelection(): void {
 /** Share all selected ayahs. */
 export function shareSelected(): void {
   if (!state._selectedAyahs?.length) {
-    showToast('لم تختر أي آيات', 'error');
+    showToast(__('select_mode_none'), 'error');
     return;
   }
   const sorted = [...state._selectedAyahs].sort((a: SelectedAyah, b: SelectedAyah) => a.index - b.index);
   let text = '';
   for (const item of sorted) {
-    text += `﴿${item.text}﴾ — ${item.surahName} — آية ${item.ayah}\n\n`;
+    text += `﴿${item.text}﴾ — ${item.surahName} — ${__('ayah')} ${item.ayah}\n\n`;
   }
   text = text.trim();
   if (navigator.share) {
-    navigator.share({ title: 'القرآن الكريم', text }).catch(() => {});
+    navigator.share({ title: __('app_title'), text }).catch(() => {});
   } else {
     copyToClipboard(text);
-    showToast(`📋 تم نسخ ${sorted.length} آيات`, 'success');
+    showToast(`${__('select_mode_copied', String(sorted.length))}`, 'success');
   }
 }
 

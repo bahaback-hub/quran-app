@@ -5,6 +5,7 @@ import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { escapeHtml } from './utils.js';
 import { ADHKAR_DATA } from './adhkar-data.js';
+import { __ } from './i18n.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -122,7 +123,7 @@ function renderAdhkarTabs(): void {
   for (const cat of ADHKAR_DATA.categories) {
     html += `<button class="adhkar-tab${state.adhkarActiveTab === cat.id ? ' active' : ''}" data-category="${cat.id}">${cat.icon} ${cat.name}</button>`;
   }
-  html += `<button class="adhkar-tab${state.adhkarActiveTab === 'personal' ? ' active' : ''}" data-category="personal">📝 أذكاري</button>`;
+  html += `<button class="adhkar-tab${state.adhkarActiveTab === 'personal' ? ' active' : ''}" data-category="personal">${__('adhkar_personal')}</button>`;
   dom.adhkarTabs.innerHTML = html;
   dom.adhkarTabs.querySelectorAll('.adhkar-tab').forEach((btn: Element) => {
     btn.addEventListener('click', () => switchAdhkarTab((btn as HTMLElement).dataset.category as string));
@@ -152,15 +153,15 @@ function renderAdhkarCategory(categoryId: string): void {
     <div class="adhkar-category-options" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding:8px 12px;background:var(--controls-bg);border-radius:8px;">
       <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;">
         <div class="adhkar-cat-toggle toggle-switch${enabled ? ' on' : ''}" data-category="${cat.id}" role="switch" style="transform:scale(0.85);"></div>
-        تذكير
+        ${__('adhkar_time')}
       </label>
       <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
         ⏰ <input type="time" class="adhkar-cat-time" data-category="${cat.id}" value="${notifTime}" style="border:1px solid var(--border-soft);border-radius:6px;padding:2px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);width:80px;">
       </label>
       <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
-        🔔 <input type="number" class="adhkar-cat-duration" data-category="${cat.id}" value="${notifDur}" min="1" max="60" style="border:1px solid var(--border-soft);border-radius:6px;padding:2px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);width:50px;"> دقيقة
+        🔔 <input type="number" class="adhkar-cat-duration" data-category="${cat.id}" value="${notifDur}" min="1" max="60" style="border:1px solid var(--border-soft);border-radius:6px;padding:2px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);width:50px;"> ${__('minutes')}
       </label>
-      <span style="font-size:11px;color:var(--text-muted);">${enabled ? '✅ التنبيه مفعّل' : '⏸ التنبيه متوقف'}</span>
+      <span style="font-size:11px;color:var(--text-muted);">${enabled ? __('notification_active') : __('notification_paused')}</span>
     </div>`;
   for (const item of cat.items) {
     const counter = (settings[`item_${item.id}`] as number) || 0;
@@ -171,7 +172,7 @@ function renderAdhkarCategory(categoryId: string): void {
       <div class="adhkar-item-text">${item.text}</div>
       <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
       <div class="adhkar-item-meta">
-        <span class="adhkar-item-count">🔄 ${item.count} مرة — متبقي ${remaining}</span>
+        <span class="adhkar-item-count">🔄 ${item.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}</span>
         <span class="adhkar-item-reference">📚 ${item.reference}</span>
         <div class="adhkar-counter">
           <button class="adhkar-counter-btn${completed ? ' completed' : ''}" data-action="increment" data-item-id="${item.id}" data-category="${categoryId}">✓</button>
@@ -180,7 +181,7 @@ function renderAdhkarCategory(categoryId: string): void {
       </div>
     </div>`;
   }
-  html += `<button class="adhkar-add-btn" data-action="reset" data-category="${categoryId}">🔄 إعادة تعيين الكل</button>`;
+  html += `<button class="adhkar-add-btn" data-action="reset" data-category="${categoryId}">${__('adhkar_reset')}</button>`;
   dom.adhkarContent.innerHTML = html;
 
   const contentEl = dom.adhkarContent as HTMLElement & { _delegationBound?: boolean };
@@ -243,7 +244,7 @@ function updateAdhkarItemDOM(itemId: string, categoryId: string): void {
   const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
   if (fill) fill.style.width = pct + '%';
   const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
-  if (countSpan) countSpan.textContent = `🔄 ${item.count} مرة — متبقي ${remaining}`;
+  if (countSpan) countSpan.textContent = `🔄 ${item.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}`;
   const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
   if (counterText) counterText.textContent = String(counter);
   const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
@@ -276,7 +277,7 @@ function resetAdhkarCounters(categoryId: string): void {
     updateAdhkarItemDOM(item.id, categoryId);
   }
   saveAdhkarSettings();
-  showToast('🔄 تم إعادة تعيين الأذكار', 'success');
+  showToast(__('adhkar_reset'), 'success');
 }
 
 /* ===== Personal Adhkar ===== */
@@ -285,10 +286,10 @@ function renderPersonalAdhkar(): void {
   if (!dom.adhkarContent) return;
   const settings = state.adhkarSettings as AdhkarSettings;
   const personal = settings.personal_adhkar || [];
-  let html = '<div class="adhkar-category-title">📝 أذكاري</div>';
-  html += '<button class="adhkar-add-btn" id="openAddAdhkarBtn">➕ إضافة ذكر جديد</button>';
+  let html = '<div class="adhkar-category-title">' + __('adhkar_personal') + '</div>';
+  html += '<button class="adhkar-add-btn" id="openAddAdhkarBtn">' + __('adhkar_add') + '</button>';
   if (!personal.length) {
-    html += '<p style="text-align:center;color:#888;padding:20px;">📝 لم تضف أي ذكر شخصي بعد</p>';
+    html += '<p style="text-align:center;color:#888;padding:20px;">' + __('adhkar_no_personal') + '</p>';
   } else {
     for (const p of personal) {
       const counter = (settings[`item_personal_${p.id}`] as number) || 0;
@@ -299,7 +300,7 @@ function renderPersonalAdhkar(): void {
         <div class="adhkar-item-text">${escapeHtml(p.text)}</div>
         <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
         <div class="adhkar-item-meta">
-          <span class="adhkar-item-count">🔄 ${p.count} مرة — متبقي ${remaining}</span>
+          <span class="adhkar-item-count">🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}</span>
           <span class="adhkar-item-reference">${p.time ? '⏰ ' + p.time : ''}</span>
           <div class="adhkar-personal-actions">
             <button class="adhkar-personal-btn edit" data-action="edit-personal" data-id="${p.id}">✏️</button>
@@ -341,7 +342,7 @@ function renderPersonalAdhkar(): void {
         const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
         if (fill) fill.style.width = newPct + '%';
         const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
-        if (countSpan) countSpan.textContent = `🔄 ${p.count} مرة — متبقي ${newRemaining}`;
+        if (countSpan) countSpan.textContent = `🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${newRemaining}`;
         const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
         if (counterText) counterText.textContent = String(newCounter);
         const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
@@ -373,7 +374,7 @@ function closeAdhkarAddDialog(): void {
 
 function savePersonalAdhkar(): void {
   const text = dom.adhkarAddText?.value.trim();
-  if (!text) { showToast('📝 أدخل نص الذكر', 'error'); return; }
+  if (!text) { showToast(__('adhkar_enter_text'), 'error'); return; }
   const count = parseInt(dom.adhkarAddCount?.value ?? '1', 10) || 1;
   const time = dom.adhkarAddTime?.value || null;
   const duration = parseInt(dom.adhkarAddDuration?.value ?? '1', 10) || 1;
@@ -396,7 +397,7 @@ function savePersonalAdhkar(): void {
   saveAdhkarSettings();
   closeAdhkarAddDialog();
   renderPersonalAdhkar();
-  showToast(editId ? '✏️ تم تعديل الذكر' : '✅ تم إضافة الذكر', 'success');
+  showToast(editId ? __('adhkar_edited') : __('adhkar_saved'), 'success');
 }
 
 function editPersonalAdhkar(id: string): void {
@@ -413,13 +414,13 @@ function editPersonalAdhkar(id: string): void {
 }
 
 function deletePersonalAdhkar(id: string): void {
-  if (!confirm('🗑️ هل تريد حذف هذا الذكر؟')) return;
+  if (!confirm(__('adhkar_confirm_delete'))) return;
   const settings = state.adhkarSettings as AdhkarSettings;
   settings.personal_adhkar = (settings.personal_adhkar || []).filter((x: PersonalAdhkarEntry) => x.id !== id);
   delete (state.adhkarSettings as Record<string, unknown>)[`item_personal_${id}`];
   saveAdhkarSettings();
   renderPersonalAdhkar();
-  showToast('🗑️ تم حذف الذكر', '');
+  showToast(__('adhkar_deleted'), '');
 }
 
 /* ===== Notifications ===== */
@@ -465,7 +466,7 @@ function showAdhkarNotification(cat: AdhkarNotifContext, notifDuration?: number)
 
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification('🕌 ' + cat.name, {
-      body: cat.id === 'personal' ? (cat.name || '') : 'حان وقت الأذكار',
+      body: cat.id === 'personal' ? (cat.name || '') : __('adhkar_notification'),
       icon: '/icon-192.png',
       tag: 'adhkar-' + cat.id
     });
@@ -482,7 +483,7 @@ function renderNotifAdhkarText(cat: AdhkarNotifContext): void {
     if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = '';
     if (dom.adhkarNotifShareBtn) dom.adhkarNotifShareBtn.onclick = () => {
       copyToClipboard(cat.name || '');
-      showToast('📋 تم نسخ الذكر', 'success');
+      showToast(__('copied'), 'success');
     };
     return;
   }
@@ -506,17 +507,17 @@ function renderNotifAdhkarText(cat: AdhkarNotifContext): void {
   }
 
   if (!text) {
-    dom.adhkarNotifText.textContent = '✅ تم إكمال جميع الأذكار لهذا الوقت';
+    dom.adhkarNotifText.textContent = __('adhkar_done');
     if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = '';
     if (dom.adhkarNotifShareBtn) dom.adhkarNotifShareBtn.style.display = 'none';
   } else {
     dom.adhkarNotifText.textContent = text;
-    if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = `📖 ${count} ذكر من ${total}`;
+    if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = `📖 ${count}/${total}`;
     if (dom.adhkarNotifShareBtn) {
       dom.adhkarNotifShareBtn.style.display = 'inline-block';
       dom.adhkarNotifShareBtn.onclick = () => {
         copyToClipboard(text);
-        showToast('📋 تم نسخ الأذكار', 'success');
+        showToast(__('copied'), 'success');
       };
     }
   }
@@ -592,7 +593,7 @@ export function renderAdhkarSettingsList(): void {
       <div class="adhkar-setting-time">
         ⏰ <input type="time" data-adhkar-time="${cat.id}" value="${s.time || ''}">
         <span>🔔</span>
-        <input type="number" data-adhkar-duration="${cat.id}" value="${s.duration ?? cat.defaultDuration ?? 1}" min="1" max="60" style="width:50px;"> دقيقة
+        <input type="number" data-adhkar-duration="${cat.id}" value="${s.duration ?? cat.defaultDuration ?? 1}" min="1" max="60" style="width:50px;"> ${__('minutes')}
       </div>
     </div>`;
   }

@@ -13,6 +13,8 @@
  *   - Keeps an in-memory error log (capped at 50 entries) for diagnostics
  */
 
+import { __ } from './i18n.js';
+
 /* ===================== CONFIG ===================== */
 
 const MAX_LOG_ENTRIES = 50;
@@ -106,7 +108,7 @@ function showRecoveryOverlay(errorMsg: string): void {
   const overlay = document.createElement('div');
   overlay.id = 'errorRecoveryOverlay';
   overlay.setAttribute('role', 'alertdialog');
-  overlay.setAttribute('aria-label', 'حدث خطأ في التطبيق');
+  overlay.setAttribute('aria-label', __('error_title'));
   overlay.innerHTML = `
     <div style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999999;
                 display:flex;align-items:center;justify-content:center;
@@ -114,26 +116,26 @@ function showRecoveryOverlay(errorMsg: string): void {
       <div style="background:#1e1e2e;color:#e0e0e0;border-radius:16px;padding:32px;
                   max-width:420px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.5);">
         <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
-        <h2 style="margin:0 0 12px;font-size:20px;color:#f87171;">حدث خطأ غير متوقع</h2>
+        <h2 style="margin:0 0 12px;font-size:20px;color:#f87171;">${__('error_title')}</h2>
         <p style="margin:0 0 24px;font-size:14px;color:#9ca3af;line-height:1.6;">
-          واجه التطبيق مشكلة غير متوقعة. يمكنك إعادة التحميل أو العودة للصفحة الرئيسية.
+          ${__('error_description')}
         </p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
           <button id="errorRecoveryReload" style="padding:10px 24px;border-radius:8px;border:none;
                   background:#6366f1;color:#fff;font-size:15px;cursor:pointer;font-weight:600;">
-            🔄 إعادة تحميل
+            ${__('error_reload')}
           </button>
           <button id="errorRecoveryHome" style="padding:10px 24px;border-radius:8px;border:none;
                   background:#374151;color:#e0e0e0;font-size:15px;cursor:pointer;font-weight:600;">
-            🏠 الصفحة الرئيسية
+            ${__('error_home')}
           </button>
           <button id="errorRecoveryCopy" style="padding:10px 24px;border-radius:8px;border:none;
                   background:#1f2937;color:#9ca3af;font-size:14px;cursor:pointer;">
-            📋 نسخ تفاصيل الخطأ
+            ${__('error_copy_details')}
           </button>
         </div>
         <details style="margin-top:20px;text-align:right;cursor:pointer;">
-          <summary style="color:#6b7280;font-size:13px;">تفاصيل تقنية</summary>
+          <summary style="color:#6b7280;font-size:13px;">${__('error_technical')}</summary>
           <pre id="errorRecoveryDetails" style="margin-top:8px;padding:12px;background:#111827;
                border-radius:8px;overflow-x:auto;font-size:12px;color:#f87171;
                white-space:pre-wrap;word-break:break-all;direction:ltr;text-align:left;
@@ -156,7 +158,7 @@ function showRecoveryOverlay(errorMsg: string): void {
     const details = document.getElementById('errorRecoveryDetails')?.textContent || '';
     navigator.clipboard?.writeText(details).then(() => {
       const btn = document.getElementById('errorRecoveryCopy');
-      if (btn) btn.textContent = '✅ تم النسخ';
+      if (btn) btn.textContent = __('error_copied');
     }).catch(() => {});
   });
 }
@@ -221,9 +223,9 @@ function handleOnError(
   if (isCriticalError(String(message), source)) {
     showRecoveryOverlay(error?.stack || String(message));
   } else {
-    showDebouncedToast('⚠️ حدث خطأ غير متوقع');
+    showDebouncedToast(__('error_title'));
   }
-
+ 
   return true; // Prevent default browser error handling
 }
 
@@ -252,13 +254,13 @@ function handleUnhandledRejection(event: PromiseRejectionEvent): void {
     msgLower.includes('err_internet_disconnected') ||
     msgLower.includes('net::err')
   ) {
-    showDebouncedToast('⚠️ تعذّر الاتصال بالخادم');
+    showDebouncedToast(__('error_server_unreachable'));
   } else if (isCriticalError(message)) {
     showRecoveryOverlay(stack || message);
   } else {
-    showDebouncedToast('⚠️ حدث خطأ غير متوقع');
+    showDebouncedToast(__('error_unexpected'));
   }
-
+ 
   event.preventDefault(); // Silence console warning
 }
 

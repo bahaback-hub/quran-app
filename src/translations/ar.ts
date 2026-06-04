@@ -258,6 +258,144 @@ const ar: TranslationBundle = {
   welcome_feature_mushaf: '📄 تصفّح المصحف كاملًا',
   welcome_feature_prayer: '🕌 مواقيت الصلاة والأذان',
   welcome_dismiss: '✌️ البدء',
+
+  // Missing keys added for 10/10 quality
+  // Sleep timer
+  sleep_timer_title: '⏰ مؤقت النوم',
+  sleep_timer_placeholder: 'عدد الدقائق',
+  sleep_timer_hint: 'أدخل عدد الدقائق ثم اضغط تأكيد',
+  sleep_timer_confirm: '✅ تأكيد',
+  sleep_timer_cancel: '❌ إلغاء',
+  sleep_timer_cancelled: 'تم إلغاء مؤقت النوم',
+  sleep_timer_stopped: '⏰ تم إيقاف الصوت بعد {0} دقيقة',
+  sleep_timer_set: '⏰ مؤقت النوم: {0} دقيقة',
+
+  // Stats
+  stats_ayahs_read: 'آية مقروءة',
+  stats_reading_time: 'وقت القراءة',
+  stats_surahs_read: 'سورة مقروءة',
+  stats_streak_days: 'أيام متتالية',
+  stats_sessions: 'جلسة قراءة',
+  stats_last_read: 'آخر قراءة',
+  stats_hours_mins: '{0} ساعة {1} دقيقة',
+  stats_mins: '{0} دقيقة',
+
+  // Mushaf
+  previous_page: 'الصفحة السابقة',
+  next_page: 'الصفحة التالية',
+  mushaf_page_info: 'صفحة {0} من ٦٠٤',
+  mushaf_juz: 'الجزء {0}',
+  mushaf_page_error: 'تعذّر عرض الصفحة',
+  mushaf_page_not_found: 'تعذّر العثور على الصفحة',
+  mushaf_no_secret: 'لا يوجد سر مسجل لهذه السورة',
+  mushaf_surah_info: 'ℹ️ معلومات عن السورة',
+  surah_info_for: 'معلومات عن سورة {0}',
+  mushaf_loading_page: '⏳ جاري تحميل الصفحة {0}...',
+  loading_ayahs: 'جاري تحميل الآيات...',
+
+  // Search UI
+  search_history_title: '🕐 آخر عمليات البحث',
+  voice_search_unsupported: 'البحث الصوتي غير مدعوم في هذا المتصفح',
+  voice_search_speaking: '🎤 تحدّث الآن...',
+  voice_search_not_recognized: '🎤 لم يتم التعرف على الصوت، حاول مرة أخرى',
+  load_more: '📥 تحميل المزيد ({0}+)',
+  failed_ayah: 'فشل في الحصول على الآية',
+
+  // Ayah modal
+  ayah_modal_title: 'الآية {0} من سورة {1}',
+  last_ayah_in_quran: 'هذه آخر آية في القرآن',
+  next_ayah_label: '← الآية التالية: الآية {0} - {1}',
+  page_loading: '📄 الصفحة: جاري...',
+  juz_loading: '📖 الجزء: جاري...',
+  page_info: '📄 الصفحة: {0}',
+  juz_info: '📖 الجزء: {0}',
+  bookmark_position_saved: '✅ تم حفظ موضع الوقوف',
+  in_favorites: '⭐ في المفضلة',
+  add_to_favorites: '⭐ إضافة للمفضلة',
+  copy_text: '📋 نُسخ النص',
+  copy_simple: '📋 نُسخ بدون تشكيل',
+  copy_with_tafsir: '📋 نُسخ مع التفسير',
+  copy_for_share: '📤 نُسخ للمشاركة',
+  ayah_modal_play: '▶️ تشغيل',
+  ayah_modal_pause: '⏸️ إيقاف',
+  play_ayah_first: 'شغّل الآية أولاً',
+  no_tafsir_available: '⚠️ لا يوجد تفسير متاح',
+
+  // Prayer
+  qibla_direction: 'اتجاه القبلة: {0} ({1}°)',
+  qibla_location_failed: '⚠️ تعذّر تحديد الموقع',
+  location_not_supported: '⚠️ الموقع غير مدعوم',
+  prayer_countdown: '{0} — بعد {1}',
+  prayer_dirs: 'شمال',
+  prayer_dirs_ne: 'شمال شرق',
+  prayer_dirs_e: 'شرق',
+  prayer_dirs_se: 'جنوب شرق',
+  prayer_dirs_s: 'جنوب',
+  prayer_dirs_sw: 'جنوب غرب',
+  prayer_dirs_w: 'غرب',
+  prayer_dirs_nw: 'شمال غرب',
+
+  // Favorites
+  favorites_export_none: 'لا توجد آيات مفضلة للتصدير',
+  favorites_exported_text: '📄 تم تصدير المفضلة كنص',
+  favorites_exported_json: '💾 تم تصدير المفضلة JSON',
+
+  // Select mode
+  select_mode_none: 'لم تختر أي آيات',
+  select_mode_copied: '📋 تم نسخ {0} آيات',
+
+  // Error boundary
+  error_title: 'حدث خطأ غير متوقع',
+  error_description: 'واجه التطبيق مشكلة غير متوقعة. يمكنك إعادة التحميل أو العودة للصفحة الرئيسية.',
+  error_reload: '🔄 إعادة تحميل',
+  error_home: '🏠 الصفحة الرئيسية',
+  error_copy_details: '📋 نسخ تفاصيل الخطأ',
+  error_technical: 'تفاصيل تقنية',
+  error_copied: '✅ تم النسخ',
+
+  // API errors
+  error_no_connection: '⚠️ لا يوجد اتصال بالإنترنت',
+  error_timeout: '⏱️ انتهت مهلة الطلب',
+  error_server_unreachable: '⚠️ تعذّر الاتصال بالخادم',
+  error_server_error: '⚠️ خطأ في الخادم',
+  error_invalid_data: '⚠️ بيانات غير صالحة',
+  error_unexpected: '⚠️ حدث خطأ غير متوقع',
+
+  // Onboarding
+  onboarding_skip: 'تخطي',
+  onboarding_prev: '→ السابق',
+  onboarding_next: 'التالي ←',
+  onboarding_start: '✔️ ابدأ التطبيق',
+
+  // Share
+  share_copied_simple: '📋 تم نسخ النص المبسط',
+
+  // Surah loader
+  loading_surah_list: '⏳ جاري تحميل قائمة السور...',
+  offline_no_audio: '📖 وضع عدم الاتصال — الصوت غير متاح',
+  surah_info_title: 'معلومات عن السورة',
+
+  // Continue widget
+  continue_ayah: ' — آية {0}',
+  last_visit_time: 'آخر زيارة: {0}',
+
+  // Mushaf sources
+  mushaf_sources: '📚 المصادر:',
+  no_audio_data: 'لا توجد بيانات صوت',
+  invalid_surah_data: 'بيانات السورة غير صالحة',
+  settings_imported: '✅ تم استيراد {0} إعدادات. جارٍ التحديث...',
+  failed_load_backgrounds: 'فشل تحميل قائمة الخلفيات',
+  notification_active: '✅ التنبيه مفعّل',
+  notification_paused: '⏸ التنبيه متوقف',
+  minutes: 'دقيقة',
+
+  // Onboarding descriptions
+  onboarding_desc_1: 'تلاوة، تفسير، بحث، ومواقيت الصلاة — كل ما تحتاجه في تطبيق واحد.',
+  onboarding_desc_2: 'اختر قارئك المفضل من 8 قرّاء، وتحكم في سرعة التلاوة ومؤقت النوم.',
+  onboarding_desc_3: 'ابحث في القرآن كاملًا بنتائج مرتبة حسب الأهمية مع إكمال تلقائي.',
+  onboarding_desc_4: '6 تفاسير معتمدة وترجمة المعاني بلغات متعددة.',
+  onboarding_desc_5: 'مواقيت دقيقة مع الأذان والتنبيهات.',
+  onboarding_desc_6: 'الوضع الليلي، وضع السيبيا، تغيير الخط والمسافات، تصدير المفضلة.',
 };
 
 export default ar;

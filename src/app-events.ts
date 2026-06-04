@@ -8,7 +8,7 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { state } from './state.js';
 import { showToast } from './ui.js';
-import { __, getLang, setLang } from './i18n.js';
+import { __, AVAILABLE_LANGUAGES, getLang, setLang } from './i18n.js';
 import {
   applyFontSize, toggleNightMode, toggleSepiaMode, applyFontType,
   applyLineSpacing, openSettings, closeSettings, saveLocationSettings,
@@ -56,7 +56,7 @@ export function bindNavigationEvents(): void {
           if (dom.pageSlider) dom.pageSlider.value = String(page);
           import('./mushaf.js').then(m => m.loadPage(page, true)); // lazy: mushaf not in main chunk
         })
-        .catch(() => showToast('تعذّر العثور على الصفحة', 'error'));
+        .catch(() => showToast(__('mushaf_page_not_found'), 'error'));
     } else {
       loadSurah(surahNum);
     }
@@ -101,7 +101,7 @@ export function bindAzanEvents(): void {
   });
   dom.azanPlayer?.addEventListener('ended', () => {
     state.azanPlaying = false;
-    if (dom.testAzanBtn) dom.testAzanBtn.textContent = '\u25B6\uFE0F اختبار الأذان';
+    if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('test_azan');
     hideAzanNotification();
   });
 }
@@ -168,7 +168,7 @@ export function bindDisplaySettingsEvents(): void {
     const newLang = dom.langSelect!.value;
     if (newLang !== getLang()) {
       setLang(newLang as 'ar' | 'en' | 'tr' | 'ms' | 'id').then(() => {
-        showToast(__('language') + ': ' + (newLang === 'ar' ? 'العربية' : 'English'), 'success');
+        showToast(__('language') + ': ' + (AVAILABLE_LANGUAGES.find(l => l.code === newLang)?.nativeName || newLang), 'success');
       });
     }
   });

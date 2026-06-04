@@ -2,6 +2,7 @@ import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { stripTashkeel, copyToClipboard } from './utils.js';
 import { state } from './state.js';
+import { __ } from './i18n.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -26,7 +27,7 @@ export function buildShareText(): string {
   const surahData = state.surahData as unknown as SurahData;
   const a = surahData.ayahs[state.currentAyahIndex];
   if (!a) return '';
-  return `${a.text} — ${surahData.name} — آية ${a.numberInSurah}`;
+  return `${a.text} — ${surahData.name} — ${__('ayah')} ${a.numberInSurah}`;
 }
 
 /** Toggle share menu visibility. */
@@ -37,14 +38,14 @@ export function shareNative(): void {
   const text = buildShareText();
   if (!text) return;
   if (navigator.share) {
-    navigator.share({ title: 'القرآن الكريم', text }).catch(() => { });
+    navigator.share({ title: __('app_title'), text }).catch(() => { });
   } else {
     shareCopy();
   }
 }
 
 /** Copy current ayah text to clipboard. */
-export function shareCopy(): void { copyToClipboard(buildShareText()); showToast('📋 تم نسخ الآية', 'success'); }
+export function shareCopy(): void { copyToClipboard(buildShareText()); showToast(__('copied'), 'success'); }
 
 /** Copy current ayah text without diacritics. */
 export function shareCopySimple(): void {
@@ -52,9 +53,9 @@ export function shareCopySimple(): void {
   const surahData = state.surahData as unknown as SurahData;
   const a = surahData.ayahs[state.currentAyahIndex];
   if (!a) return;
-  const text = `${stripTashkeel(a.text)} — ${surahData.name} — آية ${a.numberInSurah}`;
+  const text = `${stripTashkeel(a.text)} — ${surahData.name} — ${__('ayah')} ${a.numberInSurah}`;
   copyToClipboard(text);
-  showToast('📋 تم نسخ النص المبسط', 'success');
+  showToast(__('share_copied_simple'), 'success');
 }
 
 /** Share current ayah via WhatsApp. */
