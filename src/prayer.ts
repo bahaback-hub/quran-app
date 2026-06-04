@@ -98,9 +98,9 @@ export async function loadPrayerTimes(): Promise<void> {
       renderPrayerTimes();
       checkAzanTime();
       scheduleNextAzanCheck();
-      showToast(__('cached_prayer'), 'success');
+      // showToast(__('cached_prayer'), 'success');
     } else {
-      showToast(__('failed_prayer'), 'error');
+      // showToast(__('failed_prayer'), 'error');
     }
   }
 }

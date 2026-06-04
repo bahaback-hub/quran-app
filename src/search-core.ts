@@ -107,7 +107,7 @@ export async function loadFullQuranText(): Promise<void> {
       else setTimeout(buildSearchWords, 1000);
       return;
     }
-    showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
+    // showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
     const data = await fetchQuranText();
     const ayahs = flattenAyahs(data);
     for (const a of ayahs) {
@@ -118,10 +118,10 @@ export async function loadFullQuranText(): Promise<void> {
     if (typeof requestIdleCallback === 'function') requestIdleCallback(() => buildSearchWords(), { timeout: 3000 });
     else setTimeout(buildSearchWords, 1000);
     cacheInIndexedDB(db, ayahs);
-    showToast('✅ قاعدة القرآن جاهزة', 'success');
+    // showToast('✅ قاعدة القرآن جاهزة', 'success');
   } catch (err) {
     console.error('Failed to load full Quran text:', err);
-    showToast('❌ فشل تحميل قاعدة القرآن', 'error');
+    // showToast('❌ فشل تحميل قاعدة القرآن', 'error');
   }
 }
 
