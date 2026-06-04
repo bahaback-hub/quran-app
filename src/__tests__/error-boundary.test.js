@@ -59,8 +59,10 @@ describe('Error Boundary', () => {
   /* ===================== PROMISE REJECTIONS ===================== */
 
   it('should catch unhandled promise rejections', () => {
+    const rejected = Promise.reject(new Error('Promise failed'));
+    rejected.catch(() => {});
     const event = new PromiseRejectionEvent('unhandledrejection', {
-      promise: Promise.reject(),
+      promise: rejected,
       reason: new Error('Promise failed'),
     });
     window.dispatchEvent(event);
@@ -72,8 +74,10 @@ describe('Error Boundary', () => {
   });
 
   it('should handle non-Error rejection reasons', () => {
+    const rejected = Promise.reject('string rejection');
+    rejected.catch(() => {});
     const event = new PromiseRejectionEvent('unhandledrejection', {
-      promise: Promise.reject(),
+      promise: rejected,
       reason: 'string rejection',
     });
     window.dispatchEvent(event);
@@ -149,8 +153,10 @@ describe('Error Boundary', () => {
   /* ===================== NETWORK ERROR DETECTION ===================== */
 
   it('should detect network errors from promise rejections', () => {
+    const rejected = Promise.reject(new TypeError('Failed to fetch'));
+    rejected.catch(() => {});
     const event = new PromiseRejectionEvent('unhandledrejection', {
-      promise: Promise.reject(),
+      promise: rejected,
       reason: new TypeError('Failed to fetch'),
     });
     window.dispatchEvent(event);
@@ -161,8 +167,10 @@ describe('Error Boundary', () => {
   });
 
   it('should detect network error variants', () => {
+    const rejected = Promise.reject(new Error('NetworkError when attempting to fetch resource'));
+    rejected.catch(() => {});
     const event = new PromiseRejectionEvent('unhandledrejection', {
-      promise: Promise.reject(),
+      promise: rejected,
       reason: new Error('NetworkError when attempting to fetch resource'),
     });
     window.dispatchEvent(event);
@@ -217,8 +225,10 @@ describe('Error Boundary', () => {
   });
 
   it('should handle promise rejection with numeric reason', () => {
+    const rejected = Promise.reject(404);
+    rejected.catch(() => {});
     const event = new PromiseRejectionEvent('unhandledrejection', {
-      promise: Promise.reject(),
+      promise: rejected,
       reason: 404,
     });
     expect(() => window.dispatchEvent(event)).not.toThrow();
