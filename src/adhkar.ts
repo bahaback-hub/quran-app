@@ -53,7 +53,7 @@ export function initAdhkarState(): void {
 function getDefaultAdhkarSettings(): AdhkarSettings {
   const settings: AdhkarSettings = {
     adhkar_enabled: false,
-    adhkar_sound: true,
+    adhkar_sound: false,
     _resetDate: new Date().toDateString(),
     personal_adhkar: [],
   };
