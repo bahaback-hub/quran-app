@@ -258,6 +258,144 @@ const en: TranslationBundle = {
   welcome_feature_mushaf: '📄 Browse the mushaf',
   welcome_feature_prayer: '🕌 Prayer times & azan',
   welcome_dismiss: '✌️ Get Started',
+
+  // Missing keys added for 10/10 quality
+  // Sleep timer
+  sleep_timer_title: '⏰ Sleep Timer',
+  sleep_timer_placeholder: 'Minutes',
+  sleep_timer_hint: 'Enter minutes and press confirm',
+  sleep_timer_confirm: '✅ Confirm',
+  sleep_timer_cancel: '❌ Cancel',
+  sleep_timer_cancelled: 'Sleep timer cancelled',
+  sleep_timer_stopped: '⏰ Audio stopped after {0} minutes',
+  sleep_timer_set: '⏰ Sleep timer: {0} minutes',
+
+  // Stats
+  stats_ayahs_read: 'Ayahs Read',
+  stats_reading_time: 'Reading Time',
+  stats_surahs_read: 'Surahs Read',
+  stats_streak_days: 'Day Streak',
+  stats_sessions: 'Reading Sessions',
+  stats_last_read: 'Last Read',
+  stats_hours_mins: '{0}h {1}m',
+  stats_mins: '{0} min',
+
+  // Mushaf
+  previous_page: 'Previous Page',
+  next_page: 'Next Page',
+  mushaf_page_info: 'Page {0} of 604',
+  mushaf_juz: 'Juz {0}',
+  mushaf_page_error: 'Failed to display page',
+  mushaf_page_not_found: 'Page not found',
+  mushaf_no_secret: 'No secret recorded for this surah',
+  mushaf_surah_info: 'ℹ️ Surah Info',
+  surah_info_for: 'Info for Surah {0}',
+  mushaf_loading_page: '⏳ Loading page {0}...',
+  loading_ayahs: 'Loading ayahs...',
+
+  // Search UI
+  search_history_title: '🕐 Recent Searches',
+  voice_search_unsupported: 'Voice search is not supported in this browser',
+  voice_search_speaking: '🎤 Speak now...',
+  voice_search_not_recognized: '🎤 Speech not recognized, try again',
+  load_more: '📥 Load more ({0}+)',
+  failed_ayah: 'Failed to get ayah',
+
+  // Ayah modal
+  ayah_modal_title: 'Ayah {0} of Surah {1}',
+  last_ayah_in_quran: 'This is the last ayah in the Quran',
+  next_ayah_label: '← Next ayah: Ayah {0} - {1}',
+  page_loading: '📄 Page: Loading...',
+  juz_loading: '📖 Juz: Loading...',
+  page_info: '📄 Page: {0}',
+  juz_info: '📖 Juz: {0}',
+  bookmark_position_saved: '✅ Bookmark position saved',
+  in_favorites: '⭐ In Favorites',
+  add_to_favorites: '⭐ Add to Favorites',
+  copy_text: '📋 Copy Text',
+  copy_simple: '📋 Copy Plain Text',
+  copy_with_tafsir: '📋 Copy with Tafsir',
+  copy_for_share: '📤 Copy for Sharing',
+  ayah_modal_play: '▶️ Play',
+  ayah_modal_pause: '⏸️ Pause',
+  play_ayah_first: 'Play the ayah first',
+  no_tafsir_available: '⚠️ No tafsir available',
+
+  // Prayer
+  qibla_direction: 'Qibla Direction: {0} ({1}°)',
+  qibla_location_failed: '⚠️ Failed to detect location',
+  location_not_supported: '⚠️ Location not supported',
+  prayer_countdown: '{0} — after {1}',
+  prayer_dirs: 'North',
+  prayer_dirs_ne: 'Northeast',
+  prayer_dirs_e: 'East',
+  prayer_dirs_se: 'Southeast',
+  prayer_dirs_s: 'South',
+  prayer_dirs_sw: 'Southwest',
+  prayer_dirs_w: 'West',
+  prayer_dirs_nw: 'Northwest',
+
+  // Favorites
+  favorites_export_none: 'No favorite ayahs to export',
+  favorites_exported_text: '📄 Favorites exported as text',
+  favorites_exported_json: '💾 Favorites exported as JSON',
+
+  // Select mode
+  select_mode_none: 'No ayahs selected',
+  select_mode_copied: '📋 Copied {0} ayahs',
+
+  // Error boundary
+  error_title: 'An unexpected error occurred',
+  error_description: 'The app encountered an unexpected issue. You can reload or return to the home page.',
+  error_reload: '🔄 Reload',
+  error_home: '🏠 Home Page',
+  error_copy_details: '📋 Copy Error Details',
+  error_technical: 'Technical Details',
+  error_copied: '✅ Copied',
+
+  // API errors
+  error_no_connection: '⚠️ No internet connection',
+  error_timeout: '⏱️ Request timed out',
+  error_server_unreachable: '⚠️ Server unreachable',
+  error_server_error: '⚠️ Server error',
+  error_invalid_data: '⚠️ Invalid data',
+  error_unexpected: '⚠️ An unexpected error occurred',
+
+  // Onboarding
+  onboarding_skip: 'Skip',
+  onboarding_prev: '→ Back',
+  onboarding_next: 'Next ←',
+  onboarding_start: '✔️ Get Started',
+
+  // Share
+  share_copied_simple: '📋 Plain text copied',
+
+  // Surah loader
+  loading_surah_list: '⏳ Loading surah list...',
+  offline_no_audio: '📖 Offline mode — audio unavailable',
+  surah_info_title: 'Surah Info',
+
+  // Continue widget
+  continue_ayah: ' — Ayah {0}',
+  last_visit_time: 'Last visit: {0}',
+
+  // Mushaf sources
+  mushaf_sources: '📚 Sources:',
+  no_audio_data: 'No audio data available',
+  invalid_surah_data: 'Invalid surah data',
+  settings_imported: '✅ Imported {0} settings. Reloading...',
+  failed_load_backgrounds: 'Failed to load backgrounds list',
+  notification_active: '🔔 Notification active',
+  notification_paused: '🔕 Notification paused',
+  minutes: 'min',
+
+  // Onboarding descriptions
+  onboarding_desc_1: 'Recitation, Tafsir, Search, and Prayer times — all in one app.',
+  onboarding_desc_2: 'Choose your favorite reciter from 8 reciters, control speed and sleep timer.',
+  onboarding_desc_3: 'Search the entire Quran with relevance-ranked results and auto-complete.',
+  onboarding_desc_4: '6 trusted tafsirs and translation of meanings in multiple languages.',
+  onboarding_desc_5: 'Accurate prayer times with athan and notifications.',
+  onboarding_desc_6: 'Night mode, sepia mode, font and spacing adjustments, favorites export.',
 };
 
 export default en;

@@ -8,6 +8,7 @@ import { storage } from './storage.js';
 import { RECITERS, getReciterById, buildAudioUrl } from './reciters.js';
 import { fetchTafsirText } from './tafsir.js';
 import { apiFetch } from './api-client.js';
+import { __ } from './i18n.js';
 
 /* ===================== TYPES ===================== */
 
@@ -104,9 +105,9 @@ export function openAyahModal(data: ModalAyahData): void {
   current = { ...data, index: idx };
   modalEl.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  M.ayahModalTitle!.textContent = `الآية ${data.ayah} من سورة ${data.surahName}`;
+  M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(data.ayah), data.surahName)}`;
   M.ayahModalText!.textContent = data.text;
-  M.ayahModalSurahAyah!.textContent = `${data.surahName} — آية ${data.ayah}`;
+  M.ayahModalSurahAyah!.textContent = `${data.surahName} — ${__('ayah')} ${data.ayah}`;
   updateNav();
   updateFavBtn();
   loadMeta();
@@ -164,12 +165,12 @@ function bind(): void {
 function goToNextAyah(): void {
   if (!current || !state.fullQuranText) return;
   const idx: number = current.index + 1;
-  if (idx >= state.fullQuranText.length) { showToast('هذه آخر آية في القرآن', 'error'); return; }
+  if (idx >= state.fullQuranText.length) { showToast(__('last_ayah_in_quran'), 'error'); return; }
   const next = state.fullQuranText[idx];
   current = { surah: next.surah, ayah: next.ayah, text: next.text, surahName: next.surahName, index: idx };
-  M.ayahModalTitle!.textContent = `الآية ${next.ayah} من سورة ${next.surahName}`;
+  M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(next.ayah), next.surahName)}`;
   M.ayahModalText!.textContent = next.text;
-  M.ayahModalSurahAyah!.textContent = `${next.surahName} — آية ${next.ayah}`;
+  M.ayahModalSurahAyah!.textContent = `${next.surahName} — ${__('ayah')} ${next.ayah}`;
   updateNav();
   updateFavBtn();
   loadMeta();
@@ -182,7 +183,7 @@ function updateNav(): void {
   const next: number = current.index + 1;
   if (next < state.fullQuranText.length) {
     const n = state.fullQuranText[next];
-    M.ayahModalNextBtn!.textContent = `← الآية التالية: الآية ${n.ayah} - ${n.surahName}`;
+    M.ayahModalNextBtn!.textContent = `${__('next_ayah_label', String(n.ayah), n.surahName)}`;
     M.ayahModalNav!.style.display = '';
   } else {
     M.ayahModalNav!.style.display = 'none';
@@ -193,18 +194,18 @@ function updateNav(): void {
 
 async function loadMeta(): Promise<void> {
   if (!current) return;
-  M.ayahModalPage!.textContent = '📄 الصفحة: جاري...';
-  M.ayahModalJuz!.textContent = '📖 الجزء: جاري...';
+  M.ayahModalPage!.textContent = __('page_loading');
+  M.ayahModalJuz!.textContent = __('juz_loading');
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const d: any = await apiFetch(`/ayah/${current.surah}:${current.ayah}`, { silent: true });
     if (d?.data) {
-      M.ayahModalPage!.textContent = `📄 الصفحة: ${d.data.page || '--'}`;
-      M.ayahModalJuz!.textContent = `📖 الجزء: ${d.data.juz || '--'}`;
+      M.ayahModalPage!.textContent = `${__('page_info', d.data.page || '--')}`;
+      M.ayahModalJuz!.textContent = `${__('juz_info', d.data.juz || '--')}`;
     }
   } catch {
-    M.ayahModalPage!.textContent = '📄 الصفحة: --';
-    M.ayahModalJuz!.textContent = '📖 الجزء: --';
+    M.ayahModalPage!.textContent = `${__('page_info', '--')}`;
+    M.ayahModalJuz!.textContent = `${__('juz_info', '--')}`;
   }
 }
 
@@ -216,7 +217,7 @@ function saveBookmark(): void {
     surah: current.surah, surahName: current.surahName,
     ayah: current.ayah, text: current.text, timestamp: Date.now()
   });
-  showToast('✅ تم حفظ موضع الوقوف', 'success');
+  showToast(__('bookmark_position_saved'), 'success');
 }
 
 function toggleModalFav(): void {
@@ -225,13 +226,13 @@ function toggleModalFav(): void {
   const idx: number = state.favorites.findIndex(f => f.key === key);
   if (idx !== -1) {
     immutableSplice(state, 'favorites', idx, 1);
-    showToast('💔 تمت إزالة من المفضلة', '');
+    showToast(__('removed_from_favorites'), '');
   } else {
     immutablePush(state, 'favorites', {
       key, surah: current.surah, surahName: current.surahName,
       ayah: current.ayah, text: current.text, timestamp: Date.now()
     });
-    showToast('⭐ أضيفت إلى المفضلة', '');
+    showToast(__('added_to_favorites'), '');
   }
   updateFavBtn();
   storage.set('favorites', state.favorites);
@@ -241,7 +242,7 @@ function updateFavBtn(): void {
   if (!current) return;
   const key: string = `${current.surah}:${current.ayah}`;
   const isFav: boolean = state.favorites.some(f => f.key === key);
-  M.ayahModalFavBtn!.textContent = isFav ? '⭐ في المفضلة' : '⭐ إضافة للمفضلة';
+  M.ayahModalFavBtn!.textContent = isFav ? __('in_favorites') : __('add_to_favorites');
   M.ayahModalFavBtn!.classList.toggle('active', isFav);
 }
 
@@ -251,7 +252,7 @@ function copyModalAyah(simple: boolean): void {
   if (!current) return;
   const text: string = simple ? stripTashkeel(current.text) : current.text;
   copyToClipboard(text);
-  showToast(simple ? '📋 نُسخ بدون تشكيل' : '📋 نُسخ النص', 'success');
+  showToast(simple ? __('copy_simple') : __('copy_text'), 'success');
 }
 
 async function copyModalWithTafsir(): Promise<void> {
@@ -260,17 +261,17 @@ async function copyModalWithTafsir(): Promise<void> {
   const tafsir: string | null = await fetchTafsirText(edition, current.surah, current.ayah);
   const text: string = `${current.text}\n\n${tafsir || ''}`;
   copyToClipboard(text);
-  showToast('📋 نُسخ مع التفسير', 'success');
+  showToast(__('copy_with_tafsir'), 'success');
 }
 
 function shareModalAyah(): void {
   if (!current) return;
-  const text: string = `﴿${current.text}﴾ — ${current.surahName}، آية ${current.ayah}`;
+  const text: string = `﴿${current.text}﴾ — ${current.surahName}، ${__('ayah')} ${current.ayah}`;
   if (navigator.share) {
-    navigator.share({ title: 'القرآن الكريم', text }).catch(() => {});
+    navigator.share({ title: __('app_title'), text }).catch(() => {});
   } else {
     copyToClipboard(text);
-    showToast('📤 نُسخ للمشاركة', 'success');
+    showToast(__('copy_for_share'), 'success');
   }
 }
 
@@ -307,7 +308,7 @@ function toggleModalAudio(): void {
   if (!current) return;
   const player: HTMLAudioElement | null = M.ayahModalAudioPlayer;
   if (!player) return;
-  if (!player.paused) { player.pause(); M.ayahModalPlayBtn!.textContent = '▶️ تشغيل'; return; }
+  if (!player.paused) { player.pause(); M.ayahModalPlayBtn!.textContent = __('ayah_modal_play'); return; }
 
   // Use existing state audio if same surah is loaded
   const surahData = state.surahData as Record<string, unknown> | null;
@@ -315,8 +316,8 @@ function toggleModalAudio(): void {
     const url: string | undefined = state.ayahsAudios[current.index >= 0 ? current.index : (current.ayah - 1)];
     if (url) {
       player.src = url;
-      player.play().then(() => { M.ayahModalPlayBtn!.textContent = '⏸️ إيقاف'; })
-        .catch(() => showToast('تعذر تشغيل الصوت', 'error'));
+      player.play().then(() => { M.ayahModalPlayBtn!.textContent = __('ayah_modal_pause'); })
+        .catch(() => showToast(__('audio_error'), 'error'));
       return;
     }
   }
@@ -324,11 +325,11 @@ function toggleModalAudio(): void {
   ensureModalAudio().then(() => {
     if (!current) return;
     const url: string | undefined = ayahAudios[0];
-    if (!url) { showToast('لا يوجد صوت لهذه الآية', 'error'); return; }
+    if (!url) { showToast(__('no_audio_ayah'), 'error'); return; }
     player.src = url;
     player.play().then(() => {
-      M.ayahModalPlayBtn!.textContent = '⏸️ إيقاف';
-    }).catch(() => showToast('تعذر تشغيل الصوت', 'error'));
+      M.ayahModalPlayBtn!.textContent = __('ayah_modal_pause');
+    }).catch(() => showToast(__('audio_error'), 'error'));
   });
 }
 
@@ -336,7 +337,7 @@ function pauseModalAudio(): void {
   const player: HTMLAudioElement | null = M.ayahModalAudioPlayer;
   if (player) {
     player.pause();
-    M.ayahModalPlayBtn!.textContent = '▶️ تشغيل';
+    M.ayahModalPlayBtn!.textContent = __('ayah_modal_play');
   }
 }
 
@@ -348,7 +349,7 @@ function resetAudio(): void {
     player.removeAttribute('src');
     player.load();
   }
-  M.ayahModalPlayBtn!.textContent = '▶️ تشغيل';
+  M.ayahModalPlayBtn!.textContent = __('ayah_modal_play');
   M.ayahModalAudioCurrent!.textContent = '0:00';
   M.ayahModalAudioDuration!.textContent = '0:00';
   if (slider) { slider.value = '0'; slider.max = '100'; }
@@ -367,7 +368,7 @@ function onAudioTime(): void {
 function onAudioEnded(): void {
   const player: HTMLAudioElement | null = M.ayahModalAudioPlayer;
   const chk: HTMLInputElement | null = M.ayahModalRepeatChk;
-  M.ayahModalPlayBtn!.textContent = '▶️ تشغيل';
+  M.ayahModalPlayBtn!.textContent = __('ayah_modal_play');
   if (chk?.checked && player) {
     player.currentTime = 0;
     player.play().catch(() => {});
@@ -384,7 +385,7 @@ function formatTime(secs: number): string {
 function downloadModalAyah(): void {
   if (!current) return;
   const player: HTMLAudioElement | null = M.ayahModalAudioPlayer;
-  if (!player || !player.src) { showToast('شغّل الآية أولاً', 'error'); return; }
+  if (!player || !player.src) { showToast(__('play_ayah_first'), 'error'); return; }
   const a: HTMLAnchorElement = document.createElement('a');
   a.href = player.src;
   a.download = `ayah-${current.surah}-${current.ayah}.mp3`;
@@ -396,16 +397,16 @@ function downloadModalAyah(): void {
 async function loadTafsirTab(edition: string): Promise<void> {
   if (!current || !edition) return;
   activateTab(edition);
-  M.ayahModalTafsirBody!.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
+  M.ayahModalTafsirBody!.innerHTML = `<p class="tafsir-loading">${__('tafsir_loading')}</p>`;
   try {
     const text: string | null = await fetchTafsirText(edition, current.surah, current.ayah);
     if (text) {
       M.ayahModalTafsirBody!.innerHTML = `<p class="tafsir-text">${escapeHtml(text)}</p>`;
     } else {
-      M.ayahModalTafsirBody!.innerHTML = '<p class="tafsir-error">⚠️ لا يوجد تفسير متاح</p>';
+      M.ayahModalTafsirBody!.innerHTML = `<p class="tafsir-error">${__('no_tafsir_available')}</p>`;
     }
   } catch {
-    M.ayahModalTafsirBody!.innerHTML = '<p class="tafsir-error">⚠️ تعذر تحميل التفسير</p>';
+    M.ayahModalTafsirBody!.innerHTML = `<p class="tafsir-error">${__('tafsir_error')}</p>`;
   }
 }
 

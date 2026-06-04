@@ -1,3 +1,4 @@
+import { __ } from './i18n.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 
@@ -10,33 +11,33 @@ interface OnboardingStep {
 const STEPS: OnboardingStep[] = [
   {
     icon: '📖',
-    title: 'القرآن الكريم',
-    desc: 'تلاوة، تفسير، بحث، ومواقيت الصلاة — كل ما تحتاجه في تطبيق واحد.'
+    title: __('app_title'),
+    desc: __('onboarding_desc_1')
   },
   {
     icon: '🎧',
-    title: 'استمع للقرآن',
-    desc: 'اختر قارئك المفضل من 8 قرّاء، وتحكم في سرعة التلاوة ومؤقت النوم.'
+    title: __('welcome_feature_audio'),
+    desc: __('onboarding_desc_2')
   },
   {
     icon: '🔎',
-    title: 'بحث ذكي',
-    desc: 'ابحث في القرآن كاملًا بنتائج مرتبة حسب الأهمية مع إكمال تلقائي.'
+    title: __('welcome_feature_search'),
+    desc: __('onboarding_desc_3')
   },
   {
     icon: '📜',
-    title: 'التفسير والترجمة',
-    desc: '6 تفاسير معتمدة وترجمة المعاني بلغات متعددة.'
+    title: __('tafsir'),
+    desc: __('onboarding_desc_4')
   },
   {
     icon: '🕌',
-    title: 'مواقيت الصلاة',
-    desc: 'مواقيت دقيقة مع الأذان والتنبيهات.'
+    title: __('prayer_times'),
+    desc: __('onboarding_desc_5')
   },
   {
     icon: '⚙️',
-    title: 'تخصيص كامل',
-    desc: 'الوضع الليلي، وضع السيبيا، تغيير الخط والمسافات، تصدير المفضلة.'
+    title: __('settings'),
+    desc: __('onboarding_desc_6')
   }
 ];
 
@@ -112,7 +113,7 @@ function showOnboarding(): void {
   navRow.style.cssText = 'display: flex; gap: 12px; justify-content: center;';
 
   const prevBtn = document.createElement('button');
-  prevBtn.textContent = '→ السابق';
+  prevBtn.textContent = __('onboarding_prev');
   prevBtn.style.cssText = `
     padding: 10px 20px; border-radius: 12px; border: 2px solid var(--accent, #d4af37);
     background: transparent; color: var(--text-primary, #1a1a1a);
@@ -121,7 +122,7 @@ function showOnboarding(): void {
   `;
 
   const nextBtn = document.createElement('button');
-  nextBtn.textContent = 'التالي ←';
+  nextBtn.textContent = __('onboarding_next');
   nextBtn.style.cssText = `
     padding: 10px 24px; border-radius: 12px; border: none;
     background: linear-gradient(135deg, #8b6f5a, #a0846c);
@@ -129,7 +130,7 @@ function showOnboarding(): void {
   `;
 
   const skipBtn = document.createElement('button');
-  skipBtn.textContent = 'تخطي';
+  skipBtn.textContent = __('onboarding_skip');
   skipBtn.style.cssText = `
     padding: 10px 20px; border-radius: 12px; border: none;
     background: transparent; color: var(--text-muted, #5a5a5a);
@@ -150,7 +151,7 @@ function showOnboarding(): void {
       d.style.borderRadius = i === stepIdx ? '4px' : '50%';
     });
     prevBtn.style.display = stepIdx === 0 ? 'none' : '';
-    nextBtn.textContent = stepIdx === STEPS.length - 1 ? '✔️ ابدأ التطبيق' : 'التالي ←';
+    nextBtn.textContent = stepIdx === STEPS.length - 1 ? __('onboarding_start') : __('onboarding_next');
   }
 
   prevBtn.addEventListener('click', () => {

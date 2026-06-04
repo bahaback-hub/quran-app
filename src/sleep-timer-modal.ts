@@ -3,6 +3,8 @@
  * All styling uses CSS classes instead of inline styles.
  */
 
+import { __ } from './i18n.js';
+
 /** Audio module interface with setSleepTimer method. */
 export interface AudioModule {
   setSleepTimer: (mins: number) => void;
@@ -24,7 +26,7 @@ export function showSleepTimerModal(audioModule: AudioModule): void {
 
   const title = document.createElement('h3');
   title.className = 'modal-title';
-  title.textContent = '\u23F0 مؤقت النوم';
+  title.textContent = __('sleep_timer_title');
 
   const input = document.createElement('input');
   input.type = 'number';
@@ -32,21 +34,21 @@ export function showSleepTimerModal(audioModule: AudioModule): void {
   input.max = '180';
   input.value = '15';
   input.className = 'modal-input';
-  input.placeholder = 'عدد الدقائق';
+  input.placeholder = __('sleep_timer_placeholder');
 
   const hint = document.createElement('p');
   hint.className = 'modal-hint';
-  hint.textContent = 'أدخل عدد الدقائق ثم اضغط تأكيد';
+  hint.textContent = __('sleep_timer_hint');
 
   const btnRow = document.createElement('div');
   btnRow.className = 'modal-btn-row';
 
   const confirmBtn = document.createElement('button');
-  confirmBtn.textContent = '\u2705 تأكيد';
+  confirmBtn.textContent = __('sleep_timer_confirm');
   confirmBtn.className = 'btn btn-gold modal-btn';
 
   const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = '\u274C إلغاء';
+  cancelBtn.textContent = __('sleep_timer_cancel');
   cancelBtn.className = 'btn modal-btn-cancel';
 
   const quickBtns = document.createElement('div');

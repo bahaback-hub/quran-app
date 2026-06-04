@@ -7,6 +7,7 @@ import { hapticFeedback } from "./utils.js";
 import { highlightCurrentAyah } from "./surah-loader.js";
 import { getReciterById } from "./reciters.js";
 import { startVisualizer, stopVisualizer } from "./audio-visualizer.js";
+import { __ } from './i18n.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -71,12 +72,12 @@ function _getAyahEndTime(): number {
 /** Play the current ayah audio. */
 export function playCurrentAyah(): void {
   if (!state.surahData || !state.ayahsAudios?.length) {
-    showToast('لا توجد روابط صوت لهذه السورة', 'error');
+    showToast(__('no_audio'), 'error');
     return;
   }
   const url = state.ayahsAudios[state.currentAyahIndex];
   if (!url) {
-    showToast('لا يوجد صوت لهذه الآية', 'error');
+    showToast(__('no_audio_ayah'), 'error');
     return;
   }
   if (!dom.audioPlayer) return;
@@ -279,14 +280,14 @@ function onAudioPlay(): void {
   state.isPlaying = true;
   updatePlayPauseBtn();
   const vizCanvas = document.getElementById('audioVisualizer');
-  if (vizCanvas) startVisualizer(vizCanvas as unknown as HTMLCanvasElement);
+  if (vizCanvas) startVisualizer(vizCanvas as HTMLCanvasElement);
   if ('mediaSession' in navigator && state.surahData) {
-    const surahData = state.surahData as { ayahs?: { numberInSurah: number }[]; name?: string };
+    const surahData = state.surahData as any;
     const ayah = surahData.ayahs?.[state.currentAyahIndex];
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: ayah ? `آية ${ayah.numberInSurah}` : '',
-      artist: surahData.name || 'القرآن الكريم',
-      album: 'القرآن الكريم'
+      title: ayah ? `${__('ayah')} ${ayah.numberInSurah}` : '',
+      artist: surahData.name || __('app_title'),
+      album: __('app_title')
     });
   }
 }
@@ -303,12 +304,12 @@ function onAudioError(): void {
   stopWordTracking();
   stopVisualizer();
   updatePlayPauseBtn();
-  showToast('⚠️ تعذّر تشغيل الصوت، حاول آية أخرى', 'error');
+  showToast(__('audio_error'), 'error');
 }
 
 export function updatePlayPauseBtn(): void {
   if (dom.playPauseBtn) {
-    dom.playPauseBtn.textContent = state.isPlaying ? '⏸ إيقاف' : '⏯ تشغيل';
+    dom.playPauseBtn.textContent = state.isPlaying ? __('pause') : __('play');
   }
 }
 
@@ -318,7 +319,7 @@ function onAudioEnded(): void {
   stopWordTracking();
 
   if (state.repeatMode) {
-    const surahData = state.surahData as { ayahs: { numberInSurah: number }[] };
+    const surahData = state.surahData as any;
     const currentNum = surahData.ayahs[state.currentAyahIndex].numberInSurah;
     if (currentNum === state.repeatTo) {
       state.repeatCounter++;
@@ -327,7 +328,7 @@ function onAudioEnded(): void {
         state.repeatCounter = 0;
         dom.repeatBtn?.classList.remove('active');
         if (dom.repeatControls) dom.repeatControls.style.display = 'none';
-        showToast('✅ انتهى التكرار', 'success');
+        showToast(__('repeat_complete'), 'success');
         return;
       }
       const startIdx = surahData.ayahs.findIndex((a: { numberInSurah: number }) => a.numberInSurah === state.repeatFrom);
@@ -342,9 +343,9 @@ function onAudioEnded(): void {
     return;
   }
 
-  const surahData = state.surahData as { name: string };
+  const surahData = state.surahData as any;
   if (state.currentAyahIndex === state.ayahsAudios.length - 1) {
-    showToast(`✅ انتهت سورة ${surahData.name}`, 'success');
+    showToast(`✅ ${__('surah_complete')} ${surahData.name}`, 'success');
   }
   nextAyah(true);
 }
@@ -398,7 +399,7 @@ export function toggleHifdh(): void {
     else el.classList.remove('hifdh-mode', 'revealed');
   });
   if (state.hifdhMode) highlightCurrentAyah();
-  showToast(state.hifdhMode ? '🧠 وضع الحفظ مفعّل' : 'وضع الحفظ مغلق', state.hifdhMode ? 'success' : '');
+  showToast(state.hifdhMode ? __('hifdh_on') : __('hifdh_off'), state.hifdhMode ? 'success' : '');
 }
 
 /** Toggle repeat mode. */
@@ -409,7 +410,7 @@ export function toggleRepeat(): void {
   dom.repeatBtn?.classList.toggle('active', state.repeatMode);
   if (dom.repeatControls) dom.repeatControls.style.display = state.repeatMode ? 'flex' : 'none';
   if (state.repeatMode && state.surahData) {
-    const surahData = state.surahData as { ayahs: { numberInSurah: number }[] };
+    const surahData = state.surahData as any;
     state.repeatFrom = 1;
     state.repeatTo = surahData.ayahs.length;
     state.repeatTimes = 3;
@@ -443,9 +444,9 @@ export function toggleRepeat(): void {
       };
       dom.repeatTimes.onchange = () => { state.repeatTimes = parseInt(dom.repeatTimes!.value, 10); state.repeatCounter = 0; };
     }
-    showToast('🔁 وضع التكرار مفعّل', 'success');
+    showToast(__('repeat_on'), 'success');
   } else {
-    showToast('التكرار مغلق', '');
+    showToast(__('repeat_off'), '');
   }
 }
 
@@ -455,7 +456,7 @@ export function toggleRepeat(): void {
 export function setSleepTimer(minutes: number): void {
   clearSleepTimer();
   if (minutes <= 0) {
-    showToast('تم إلغاء مؤقت النوم', '');
+    showToast(__('sleep_timer_cancelled'), '');
     return;
   }
   _sleepTimerMinutes = minutes;
@@ -465,10 +466,10 @@ export function setSleepTimer(minutes: number): void {
       state.isPlaying = false;
       updatePlayPauseBtn();
     }
-    showToast(`⏰ تم إيقاف الصوت بعد ${minutes} دقيقة`, 'success');
+    showToast(__('sleep_timer_stopped', String(minutes)), 'success');
     _sleepTimerMinutes = 0;
   }, minutes * 60 * 1000);
-  showToast(`⏰ مؤقت النوم: ${minutes} دقيقة`, 'success');
+  showToast(__('sleep_timer_set', String(minutes)), 'success');
 }
 
 /** Clear the active sleep timer. */

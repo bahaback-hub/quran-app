@@ -1,3 +1,4 @@
+import { __ } from './i18n.js';
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { CONFIG } from './config.js';
@@ -150,7 +151,7 @@ function updateDisplay(): void {
   if (dom.presentationAyahText) dom.presentationAyahText.textContent = ayah.text;
   if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = String(ayah.numberInSurah);
   const surahName = surahData?.name || '';
-  if (dom.presentationTitle) dom.presentationTitle.textContent = `${surahName} — آية ${ayah.numberInSurah}`;
+  if (dom.presentationTitle) dom.presentationTitle.textContent = `${surahName} — ${__('ayah')} ${ayah.numberInSurah}`;
   const total = surahData?.ayahs?.length || 0;
   if (dom.presentationCounter) dom.presentationCounter.textContent = `${ayah.numberInSurah} / ${total}`;
   const translationData = state.translationData as unknown as TranslationDataLike | null;

@@ -258,6 +258,144 @@ const id: TranslationBundle = {
   welcome_feature_mushaf: '📄 Jelajahi mushaf',
   welcome_feature_prayer: '🕌 Waktu sholat & azan',
   welcome_dismiss: '✌️ Mulai',
+
+  // Missing keys added for 10/10 quality
+  // Sleep timer
+  sleep_timer_title: '⏰ Timer Tidur',
+  sleep_timer_placeholder: 'Menit',
+  sleep_timer_hint: 'Masukkan menit dan tekan konfirmasi',
+  sleep_timer_confirm: '✅ Konfirmasi',
+  sleep_timer_cancel: '❌ Batal',
+  sleep_timer_cancelled: 'Timer tidur dibatalkan',
+  sleep_timer_stopped: '⏰ Audio dihentikan setelah {0} menit',
+  sleep_timer_set: '⏰ Timer tidur: {0} menit',
+
+  // Stats
+  stats_ayahs_read: 'Ayat Dibaca',
+  stats_reading_time: 'Waktu Baca',
+  stats_surahs_read: 'Surah Dibaca',
+  stats_streak_days: 'Hari Beruntun',
+  stats_sessions: 'Sesi Membaca',
+  stats_last_read: 'Terakhir Dibaca',
+  stats_hours_mins: '{0}j {1}m',
+  stats_mins: '{0} mnt',
+
+  // Mushaf
+  previous_page: 'Halaman Sebelumnya',
+  next_page: 'Halaman Berikutnya',
+  mushaf_page_info: 'Halaman {0} dari 604',
+  mushaf_juz: 'Juz {0}',
+  mushaf_page_error: 'Gagal menampilkan halaman',
+  mushaf_page_not_found: 'Halaman tidak ditemukan',
+  mushaf_no_secret: 'Tidak ada rahasia tercatat untuk surah ini',
+  mushaf_surah_info: 'ℹ️ Info Surah',
+  surah_info_for: 'Info Surah {0}',
+  mushaf_loading_page: '⏳ Memuat halaman {0}...',
+  loading_ayahs: 'Memuat ayat...',
+
+  // Search UI
+  search_history_title: '🕐 Pencarian Terbaru',
+  voice_search_unsupported: 'Pencarian suara tidak didukung di browser ini',
+  voice_search_speaking: '🎤 Bicara sekarang...',
+  voice_search_not_recognized: '🎤 Suara tidak dikenali, coba lagi',
+  load_more: '📥 Muat lebih banyak ({0}+)',
+  failed_ayah: 'Gagal mendapatkan ayat',
+
+  // Ayah modal
+  ayah_modal_title: 'Ayat {0} dari Surah {1}',
+  last_ayah_in_quran: 'Ini adalah ayat terakhir dalam Al-Quran',
+  next_ayah_label: '← Ayat berikutnya: Ayat {0} - {1}',
+  page_loading: '📄 Halaman: Memuat...',
+  juz_loading: '📖 Juz: Memuat...',
+  page_info: '📄 Halaman: {0}',
+  juz_info: '📖 Juz: {0}',
+  bookmark_position_saved: '✅ Posisi bookmark disimpan',
+  in_favorites: '⭐ Di Favorit',
+  add_to_favorites: '⭐ Tambah ke Favorit',
+  copy_text: '📋 Salin Teks',
+  copy_simple: '📋 Salin Teks Sederhana',
+  copy_with_tafsir: '📋 Salin dengan Tafsir',
+  copy_for_share: '📤 Salin untuk Dibagikan',
+  ayah_modal_play: '▶️ Putar',
+  ayah_modal_pause: '⏸️ Jeda',
+  play_ayah_first: 'Putar ayat terlebih dahulu',
+  no_tafsir_available: '⚠️ Tafsir tidak tersedia',
+
+  // Prayer
+  qibla_direction: 'Arah Kiblat: {0} ({1}°)',
+  qibla_location_failed: '⚠️ Gagal mendeteksi lokasi',
+  location_not_supported: '⚠️ Lokasi tidak didukung',
+  prayer_countdown: '{0} — setelah {1}',
+  prayer_dirs: 'Utara',
+  prayer_dirs_ne: 'Timur Laut',
+  prayer_dirs_e: 'Timur',
+  prayer_dirs_se: 'Tenggara',
+  prayer_dirs_s: 'Selatan',
+  prayer_dirs_sw: 'Barat Daya',
+  prayer_dirs_w: 'Barat',
+  prayer_dirs_nw: 'Barat Laut',
+
+  // Favorites
+  favorites_export_none: 'Tidak ada ayat favorit untuk diekspor',
+  favorites_exported_text: '📄 Favorit diekspor sebagai teks',
+  favorites_exported_json: '💾 Favorit diekspor sebagai JSON',
+
+  // Select mode
+  select_mode_none: 'Tidak ada ayat dipilih',
+  select_mode_copied: '📋 {0} ayat disalin',
+
+  // Error boundary
+  error_title: 'Terjadi kesalahan tak terduga',
+  error_description: 'Aplikasi mengalami masalah tak terduga. Anda dapat memuat ulang atau kembali ke halaman utama.',
+  error_reload: '🔄 Muat Ulang',
+  error_home: '🏠 Halaman Utama',
+  error_copy_details: '📋 Salin Detail Kesalahan',
+  error_technical: 'Detail Teknis',
+  error_copied: '✅ Disalin',
+
+  // API errors
+  error_no_connection: '⚠️ Tidak ada koneksi internet',
+  error_timeout: '⏱️ Waktu permintaan habis',
+  error_server_unreachable: '⚠️ Server tidak terjangkau',
+  error_server_error: '⚠️ Kesalahan server',
+  error_invalid_data: '⚠️ Data tidak valid',
+  error_unexpected: '⚠️ Terjadi kesalahan tak terduga',
+
+  // Onboarding
+  onboarding_skip: 'Lewati',
+  onboarding_prev: '→ Kembali',
+  onboarding_next: 'Berikutnya ←',
+  onboarding_start: '✔️ Mulai',
+
+  // Share
+  share_copied_simple: '📋 Teks sederhana disalin',
+
+  // Surah loader
+  loading_surah_list: '⏳ Memuat daftar surah...',
+  offline_no_audio: '📖 Mode offline — audio tidak tersedia',
+  surah_info_title: 'Info Surah',
+
+  // Continue widget
+  continue_ayah: ' — Ayat {0}',
+  last_visit_time: 'Kunjungan terakhir: {0}',
+
+  // Mushaf sources
+  mushaf_sources: '📚 Sumber:',
+  no_audio_data: 'Tidak ada data audio tersedia',
+  invalid_surah_data: 'Data surah tidak valid',
+  settings_imported: '✅ {0} pengaturan diimpor. Memuat ulang...',
+  failed_load_backgrounds: 'Gagal memuat daftar latar belakang',
+  notification_active: '🔔 Notifikasi aktif',
+  notification_paused: '🔕 Notifikasi dijeda',
+  minutes: 'mnt',
+
+  // Onboarding descriptions
+  onboarding_desc_1: 'Tilawah, Tafsir, Pencarian, dan Waktu sholat — semuanya dalam satu aplikasi.',
+  onboarding_desc_2: 'Pilih qari favorit Anda dari 8 qari, kontrol kecepatan dan timer tidur.',
+  onboarding_desc_3: 'Cari seluruh al-Quran dengan hasil yang diurut berdasarkan relevansi dan auto-lengkap.',
+  onboarding_desc_4: '6 tafsir terpercaya dan terjemahan makna dalam berbagai bahasa.',
+  onboarding_desc_5: 'Waktu sholat akurat dengan adzan dan notifikasi.',
+  onboarding_desc_6: 'Mode malam, mode sepia, penyesuaian font dan jarak, ekspor favorit.',
 };
 
 export default id;

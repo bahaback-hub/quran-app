@@ -3,6 +3,7 @@ import { CONFIG } from './config.js';
 import { dom } from './dom.js';
 import { escapeHtml } from './utils.js';
 import { tafsirFetch } from './api-client.js';
+import { __ } from './i18n.js';
 
 /* ===================== LOCAL TYPES ===================== */
 
@@ -123,7 +124,7 @@ async function fetchTafsirFromAPI(edition: string, surahNum: number, ayahNum: nu
   const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
   try {
     const data = (await tafsirFetch(`/${edition}/${surahNum}/${ayahNum}.json`, { silent: true })) as TafsirApiResponse;
-    const text = data?.tafsir?.text || data?.text || 'لا يوجد تفسير متاح';
+    const text = data?.tafsir?.text || data?.text || __('no_tafsir_available');
     await saveTafsirToDB(cacheKey, text);
     return text;
   } catch {
@@ -157,7 +158,7 @@ async function getTafsirText(edition: string, surahNum: number, ayahNum: number)
 /* ===================== TAFSIR UI ===================== */
 
 function renderTafsirContent(text: string, ayahText: string, surahName: string, ayahNum: number): void {
-  dom.tafsirCurtainHeader!.textContent = `تفسير: ${surahName} — آية ${ayahNum}`;
+  dom.tafsirCurtainHeader!.textContent = `${__('tafsir')}: ${surahName} — ${__('ayah')} ${ayahNum}`;
   dom.tafsirCurtainBody!.replaceChildren();
   dom.tafsirCurtainBody!.scrollTop = 0;
   const titleEl = document.createElement('div');
@@ -171,16 +172,16 @@ function renderTafsirContent(text: string, ayahText: string, surahName: string, 
 }
 
 function setTafsirHeader(surahName: string, ayahNum: number): void {
-  dom.tafsirCurtainHeader!.textContent = `تفسير: ${surahName} — آية ${ayahNum}`;
+  dom.tafsirCurtainHeader!.textContent = `${__('tafsir')}: ${surahName} — ${__('ayah')} ${ayahNum}`;
 }
 
 function showTafsirLoading(): void {
-  dom.tafsirCurtainBody!.innerHTML = '<p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>';
+  dom.tafsirCurtainBody!.innerHTML = `<p class="tafsir-loading">${__('tafsir_loading')}</p>`;
   dom.tafsirCurtainBody!.scrollTop = 0;
 }
 
 function showTafsirError(): void {
-  dom.tafsirCurtainBody!.innerHTML = '<p class="tafsir-error">⚠️ تعذّر تحميل التفسير</p>';
+  dom.tafsirCurtainBody!.innerHTML = `<p class="tafsir-error">${__('tafsir_error')}</p>`;
   dom.tafsirCurtainBody!.scrollTop = 0;
 }
 
@@ -213,7 +214,7 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
   if (!dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition || CONFIG.DEFAULT_TAFSIR;
   const surahInfo = state.surahList.find(s => s.number === surahNum);
-  const surahName = surahInfo ? surahInfo.name : `سورة ${surahNum}`;
+  const surahName = surahInfo ? surahInfo.name : `${__('surah')} ${surahNum}`;
   setTafsirHeader(surahName, ayahNum);
   // Try instant local first for Muyassar
   if (edition === 'ar-tafsir-muyassar') {

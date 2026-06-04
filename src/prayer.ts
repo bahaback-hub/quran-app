@@ -5,6 +5,7 @@ import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
 import { prayerFetch } from './api-client.js';
+import { __ } from './i18n.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -69,7 +70,7 @@ export async function loadPrayerTimes(): Promise<void> {
   const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = await prayerFetch(query, { errorMsg: 'تعذّر تحميل مواقيت الصلاة' });
+    const data = await prayerFetch(query, { errorMsg: __('failed_prayer') });
     if (data?.data?.timings) {
       state.prayerTimes = data.data.timings;
       storage.set('cached_prayer_times', { date: new Date().toDateString(), timings: state.prayerTimes, city, country });
@@ -86,9 +87,9 @@ export async function loadPrayerTimes(): Promise<void> {
       renderPrayerTimes();
       checkAzanTime();
       scheduleNextAzanCheck();
-      showToast('عرض المواقيت من الكاش المحلي', 'success');
+      showToast(__('cached_prayer'), 'success');
     } else {
-      showToast('تعذّر تحميل مواقيت الصلاة', 'error');
+      showToast(__('failed_prayer'), 'error');
     }
   }
 }
@@ -140,7 +141,7 @@ function updateCountdowns(): void {
   const s = diffSec % 60;
   const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
   if (dom.countdownDisplay) dom.countdownDisplay.textContent = countdownText;
-  if (dom.prayerCountdown) dom.prayerCountdown.textContent = `${PRAYER_NAMES_AR[nextKey]} — بعد ${countdownText}`;
+  if (dom.prayerCountdown) dom.prayerCountdown.textContent = `${__('prayer_countdown', PRAYER_NAMES_AR[nextKey], countdownText)}`;
   const time24 = ((state.prayerTimes[nextKey] as string) || '').split(' ')[0];
   if (dom.nextPrayerName) dom.nextPrayerName.textContent = PRAYER_NAMES_AR[nextKey];
   if (dom.nextPrayerTime) dom.nextPrayerTime.textContent = formatTime12(time24);
@@ -159,7 +160,7 @@ export function stopAzan(): void {
   dom.azanPlayer.removeAttribute('src');
   dom.azanPlayer.load();
   state.azanPlaying = false;
-  if (dom.testAzanBtn) dom.testAzanBtn.textContent = '▶️ اختبار الأذان';
+  if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('test_azan');
   hideAzanNotification();
 }
 
@@ -167,31 +168,31 @@ export function testAzan(): void {
   if (!dom.azanPlayer) return;
   if (state.azanPlaying) {
     stopAzan();
-    showToast('تم إيقاف الأذان', '');
+    showToast(__('azan_stopped'), '');
   } else {
     dom.azanPlayer.src = CONFIG.AZAN_FILE;
     dom.azanPlayer.load();
     dom.azanPlayer.play()
       .then(() => {
         state.azanPlaying = true;
-        if (dom.testAzanBtn) dom.testAzanBtn.textContent = '⏹️ إيقاف الأذان';
+        if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('stop_azan');
         if (dom.azanNotification && dom.azanNotifPrayer) {
-          dom.azanNotifPrayer.textContent = '🕋 اختبار الأذان';
+          dom.azanNotifPrayer.textContent = __('test_azan');
           dom.azanNotification.style.display = 'flex';
         }
       })
-      .catch(() => showToast('تعذّر تشغيل الأذان', 'error'));
+      .catch(() => showToast(__('azan_failed'), 'error'));
   }
 }
 
 function showAzanNotification(prayerKey: string): void {
   if (!dom.azanNotification || !dom.azanNotifPrayer) return;
-  dom.azanNotifPrayer.textContent = `🕋 صلاة ${PRAYER_NAMES_AR[prayerKey]}`;
+  dom.azanNotifPrayer.textContent = `🕋 ${__('prayer')} ${PRAYER_NAMES_AR[prayerKey]}`;
   dom.azanNotification.style.display = 'flex';
 
   if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('🕌 حان الآن وقت الصلاة', {
-      body: `صلاة ${PRAYER_NAMES_AR[prayerKey]}`,
+    new Notification(__('prayer_time_come'), {
+      body: `${__('prayer')} ${PRAYER_NAMES_AR[prayerKey]}`,
       icon: '/icon-192.png',
       tag: 'azan-' + prayerKey
     });
@@ -217,7 +218,7 @@ export function checkAzanTime(): void {
         dom.azanPlayer.play()
           .then(() => {
             state.azanPlaying = true;
-            if (dom.testAzanBtn) dom.testAzanBtn.textContent = '⏹️ إيقاف الأذان';
+            if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('stop_azan');
             showAzanNotification(key);
           })
           .catch((e: unknown) => console.warn(e));
@@ -292,7 +293,7 @@ export function showQiblaCompass(): void {
   const angleDisplay = document.getElementById('qiblaAngle');
 
   if (!navigator.geolocation) {
-    if (direction) direction.textContent = '⚠️ الموقع غير مدعوم';
+    if (direction) direction.textContent = __('location_not_supported');
     return;
   }
 
@@ -333,13 +334,13 @@ export function showQiblaCompass(): void {
       }
 
       if (direction) {
-        const dirs = ['شمال', 'شمال شرق', 'شرق', 'جنوب شرق', 'جنوب', 'جنوب غرب', 'غرب', 'شمال غرب'];
+        const dirs = [__('prayer_dirs'), __('prayer_dirs_ne'), __('prayer_dirs_e'), __('prayer_dirs_se'), __('prayer_dirs_s'), __('prayer_dirs_sw'), __('prayer_dirs_w'), __('prayer_dirs_nw')];
         const idx = Math.round(qiblaAngle / 45) % 8;
-        direction.textContent = `اتجاه القبلة: ${dirs[idx]} (${Math.round(qiblaAngle)}°)`;
+        direction.textContent = `${__('qibla_direction', dirs[idx], String(Math.round(qiblaAngle)))}`;
       }
     },
     () => {
-      if (direction) direction.textContent = '⚠️ تعذّر تحديد الموقع';
+      if (direction) direction.textContent = __('qibla_location_failed');
     },
     { enableHighAccuracy: true }
   );

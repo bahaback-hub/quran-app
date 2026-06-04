@@ -15,6 +15,7 @@
  */
 
 import { CONFIG } from './config.js';
+import { __ } from './i18n.js';
 
 /* ===================== TYPES ===================== */
 
@@ -37,12 +38,12 @@ const DEFAULT_TIMEOUT = 15000;
 
 /** Arabic error messages by category */
 const ERROR_MESSAGES: Record<string, string> = {
-  offline: '⚠️ لا يوجد اتصال بالإنترنت',
-  timeout: '⏱️ انتهت مهلة الطلب',
-  network: '⚠️ تعذّر الاتصال بالخادم',
-  server: '⚠️ خطأ في الخادم',
-  parse: '⚠️ بيانات غير صالحة',
-  default: '⚠️ حدث خطأ غير متوقع',
+  offline: __('error_no_connection'),
+  timeout: __('error_timeout'),
+  network: __('error_server_unreachable'),
+  server: __('error_server_error'),
+  parse: __('error_invalid_data'),
+  default: __('error_unexpected'),
 };
 
 /* ===================== HELPERS ===================== */

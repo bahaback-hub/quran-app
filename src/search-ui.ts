@@ -7,6 +7,7 @@ import { loadSurah, highlightCurrentAyah } from './app.js';
 import { playCurrentAyah } from './audio.js';
 import { SEARCH_PAGE_SIZE, performSearch, buildSearchWords, addToSearchHistory, loadFullQuranText, getSearchHistory, clearSearchHistory } from './search-core.js';
 import { CONFIG } from './config.js';
+import { __ } from './i18n.js';
 
 /** Options for loading a surah (matches surah-loader internal interface). */
 interface LoadSurahOptions {
@@ -43,8 +44,8 @@ interface OrigRange {
 export { loadFullQuranText, getSearchHistory, clearSearchHistory };
 
 export function performExactSearch(query: string): void {
-  if (!query.trim() || query.length < 2) { showToast('أدخل حرفين على الأقل', 'error'); return; }
-  if (!state.fullQuranLoaded) { showToast('⚠️ قاعدة القرآن تُحمَّل، انتظر قليلاً', 'error'); return; }
+  if (!query.trim() || query.length < 2) { showToast(__('min_chars'), 'error'); return; }
+  if (!state.fullQuranLoaded) { showToast(__('quran_db_loading'), 'error'); return; }
   addToSearchHistory(query.trim());
   const matches = performSearch(query);
   state._allSearchMatches = matches;
@@ -108,32 +109,32 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
   if (!dom.searchResults) return;
   dom.searchResults.innerHTML = '';
   if (!matches.length) {
-    dom.searchResults.innerHTML = `<div class="search-empty">❌ لا توجد نتائج لـ "${escapeHtml(query)}"</div>`;
+    dom.searchResults.innerHTML = `<div class="search-empty">❌ ${__('no_results')}</div>`;
     dom.searchResults.style.display = 'block';
     return;
   }
   const totalResults = state._allSearchMatches?.length ?? matches.length;
   let html = `<div class="search-results-header">
-    <span>✅ عدد النتائج: ${totalResults}</span>
-    <button class="search-results-close" id="closeSearchResultsBtn" aria-label="إغلاق">✖</button>
+    <span>✅ ${__('results_count')}: ${totalResults}</span>
+    <button class="search-results-close" id="closeSearchResultsBtn" aria-label="${__('close')}">✖</button>
   </div>`;
   for (const m of matches) {
     const highlighted = buildSearchHighlight(m.text, query);
     const fi = state.fullQuranText?.indexOf(m) ?? -1;
     html += `<div class="search-result-item" data-surah="${m.surah}" data-ayah="${m.ayah}" data-surahname="${escapeHtml(m.surahName || '')}" data-fulltext-index="${fi}">
-      <div class="search-result-title">${escapeHtml(m.surahName || '')} — آية ${m.ayah}</div>
+      <div class="search-result-title">${escapeHtml(m.surahName || '')} — ${__('ayah')} ${m.ayah}</div>
       <div class="search-result-text">${highlighted}</div>
       <div class="search-result-actions">
-        <button class="search-play" data-surah="${m.surah}" data-ayah="${m.ayah}">▶️ تشغيل</button>
-        <button class="search-copy" data-surah="${m.surah}" data-ayah="${m.ayah}">📋 نسخ</button>
-        <button class="search-share" data-surah="${m.surah}" data-ayah="${m.ayah}">📤 مشاركة</button>
-        <button class="search-goto" data-surah="${m.surah}" data-ayah="${m.ayah}">📍 الذهاب</button>
+        <button class="search-play" data-surah="${m.surah}" data-ayah="${m.ayah}">${__('search_play')}</button>
+        <button class="search-copy" data-surah="${m.surah}" data-ayah="${m.ayah}">${__('search_copy')}</button>
+        <button class="search-share" data-surah="${m.surah}" data-ayah="${m.ayah}">${__('search_share')}</button>
+        <button class="search-goto" data-surah="${m.surah}" data-ayah="${m.ayah}">${__('search_goto')}</button>
       </div>
     </div>`;
   }
   if (hasMore) {
     html += `<div style="text-align:center;padding:12px;">
-      <button class="btn btn-gold" id="loadMoreSearchBtn">📥 تحميل المزيد (${Math.min(SEARCH_PAGE_SIZE, totalResults - matches.length)}+)</button>
+      <button class="btn btn-gold" id="loadMoreSearchBtn">${__('load_more', String(Math.min(SEARCH_PAGE_SIZE, totalResults - matches.length)))}</button>
     </div>`;
   }
   dom.searchResults.innerHTML = html;
@@ -210,15 +211,15 @@ async function copySpecificAyah(surah: number, ayah: number): Promise<void> {
   }
   if (text) {
     copyToClipboard(text);
-    showToast('📋 تم نسخ الآية', 'success');
+    showToast(__('copied'), 'success');
   } else {
-    showToast('فشل في الحصول على الآية', 'error');
+    showToast(__('failed_ayah'), 'error');
   }
 }
 
 async function shareSpecificAyah(surah: number, ayah: number): Promise<void> {
   const surahObj = state.surahList.find(s => s.number === Number(surah));
-  const surahName = surahObj ? surahObj.name : `سورة `;
+  const surahName = surahObj ? surahObj.name : `${__('surah')} `;
   let text = '';
   if (state.fullQuranLoaded) {
     const ayahObj = state.fullQuranText?.find(a => a.surah === surah && a.ayah === ayah);
@@ -231,12 +232,12 @@ async function shareSpecificAyah(surah: number, ayah: number): Promise<void> {
       text = data?.data?.text || '';
     } catch (err) { console.warn('Failed to fetch ayah for share:', err); }
   }
-  const shareMsg = text ? `﴿${text}﴾\n— ${surahName.trim()} — آية ${ayah}` : `الآية ${ayah} من سورة ${surahName.trim()}`;
+  const shareMsg = text ? `﴿${text}﴾\n— ${surahName.trim()} — ${__('ayah')} ${ayah}` : `${__('ayah')} ${ayah} ${__('surah')} ${surahName.trim()}`;
   if (navigator.share) {
-    navigator.share({ title: 'القرآن الكريم', text: shareMsg }).catch(err => { if (err.name !== 'AbortError') console.warn('Share failed:', err); });
+    navigator.share({ title: __('app_title'), text: shareMsg }).catch(err => { if (err.name !== 'AbortError') console.warn('Share failed:', err); });
   } else {
     copyToClipboard(shareMsg);
-    showToast('📋 تم نسخ الآية للمشاركة', 'success');
+    showToast(__('copied'), 'success');
   }
 }
 
@@ -250,7 +251,7 @@ function showSearchHistory(): void {
   if (!dropdown) return;
   const history = getSearchHistory();
   if (!history.length) { dropdown.style.display = 'none'; return; }
-  let html = '<div class="search-history-header" style="font-size:11px;padding:4px 8px;color:var(--text-muted);border-bottom:1px solid var(--border-soft);">🕐 آخر عمليات البحث</div>';
+  let html = '<div class="search-history-header" style="font-size:11px;padding:4px 8px;color:var(--text-muted);border-bottom:1px solid var(--border-soft);">' + __('search_history_title') + '</div>';
   for (let i = 0; i < history.length; i++) {
     html += '<div class="search-autocomplete-item search-history-item" data-index="' + i + '">'
       + '<span>' + escapeHtml(history[i]) + '</span>'
@@ -410,7 +411,7 @@ export function startVoiceSearch(): void {
   const SpeechRecognition = (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition
     || (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor }).webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    showToast('البحث الصوتي غير مدعوم في هذا المتصفح', 'error');
+    showToast(__('voice_search_unsupported'), 'error');
     return;
   }
   if (state._voiceListening) return;
@@ -420,7 +421,7 @@ export function startVoiceSearch(): void {
   recognition.maxAlternatives = 1;
   state._voiceListening = true;
   dom.voiceSearchBtn?.classList.add('listening');
-  showToast('🎤 تحدّث الآن...', 'success');
+  showToast(__('voice_search_speaking'), 'success');
   recognition.onresult = (e: SpeechRecognitionEvent) => {
     const transcript = e.results[0][0].transcript;
     if (dom.searchInput) dom.searchInput.value = transcript;
@@ -428,7 +429,7 @@ export function startVoiceSearch(): void {
     stopVoiceSearch();
   };
   recognition.onerror = () => {
-    showToast('🎤 لم يتم التعرف على الصوت، حاول مرة أخرى', 'error');
+    showToast(__('voice_search_not_recognized'), 'error');
     stopVoiceSearch();
   };
   recognition.onend = () => stopVoiceSearch();

@@ -66,7 +66,7 @@ describe('performExactSearch', () => {
     const uiModule = await import('../ui.js');
     const toastSpy = vi.spyOn(uiModule, 'showToast');
     searchModule.performExactSearch('a');
-    expect(toastSpy).toHaveBeenCalledWith('أدخل حرفين على الأقل', 'error');
+    expect(toastSpy).toHaveBeenCalledWith('min_chars', 'error');
   });
 
   it('should show toast if Quran not loaded', async () => {
@@ -76,6 +76,6 @@ describe('performExactSearch', () => {
     const uiModule = await import('../ui.js');
     const toastSpy = vi.spyOn(uiModule, 'showToast');
     searchModule.performExactSearch('الله');
-    expect(toastSpy).toHaveBeenCalledWith('⚠️ قاعدة القرآن تُحمَّل، انتظر قليلاً', 'error');
+    expect(toastSpy).toHaveBeenCalledWith('quran_db_loading', 'error');
   });
 });
