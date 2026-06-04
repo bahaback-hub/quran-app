@@ -121,7 +121,7 @@ export async function loadSurahList(): Promise<void> {
     /* no local fallback */
   }
   if (dom.surahSelect) dom.surahSelect.innerHTML = `<option value="">${__('error_unexpected')}</option>`;
-  showToast(__('failed_load_surah'), 'error');
+  // showToast(__('failed_load_surah'), 'error'); // disabled at startup
 }
 
 function populateSurahSelect(): void {
@@ -416,13 +416,13 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
         renderSurah(state.surahData as any);
         finalizeSurahLoad(opts);
         loadingBar.hide();
-        showToast(__('offline_no_audio'), '');
+        // showToast(__('offline_no_audio'), ''); // disabled at startup
         state.loadingSurah = null;
         return;
       }
     }
     if (dom.surahContent) dom.surahContent.innerHTML = `<p class="error-msg">⚠️ ${__('failed_load_surah')}</p>`;
-    showToast(__('failed_load_surah'), 'error');
+    // showToast(__('failed_load_surah'), 'error'); // disabled at startup
     loadingBar.hide();
   } finally {
     state.loadingSurah = null;

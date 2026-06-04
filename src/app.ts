@@ -125,7 +125,7 @@ export async function initApp(): Promise<void> {
     checkAzanTime();
     scheduleNextAzanCheck();
     loadPrayerTimes();
-    checkAdhkarNotifications();
+    // checkAdhkarNotifications(); // disabled at startup — no popup on open
     if (!state.adhkarIntervalId) state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
     import('./ayah-modal.js').then((m) => m.initAyahModal()).catch(() => {});
     import('./presentation.js').then((m) => m.initPresentation()).catch(() => {});
