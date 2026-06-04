@@ -1,17 +1,25 @@
 /**
- * Lightweight State Management for Quran App.
+ * Reactive State Management for Quran App.
  *
- * Improvements over raw `let state = {} as AppState`:
- *   1. Proper default values — state is never in an undefined/partial state
+ * Features:
+ *   1. Proxy-based reactivity — `state.xxx = yyy` automatically notifies subscribers
  *   2. `setState(partial)` — batch update with change event emission
  *   3. `subscribe(key, callback)` — react to specific state changes
- *   4. `resetState()` — clean reset to defaults
- *   5. Backward compatible — `state.xxx = yyy` still works
+ *   4. `subscribeAll(callback)` — react to any state change
+ *   5. `batch(fn)` — defer notifications until fn completes
+ *   6. `resetState()` — clean reset to defaults
+ *   7. Backward compatible — all existing code works unchanged
+ *   8. Dev-mode logging — warns about missed notifications in development
  *
  * Usage:
- *   import { state, setState, subscribe, resetState } from './state.js';
- *   setState({ isPlaying: true, currentAyahIndex: 5 });
+ *   import { state, setState, subscribe, batch } from './state.js';
+ *   state.isPlaying = true;          // ← automatically notifies subscribers
+ *   setState({ isPlaying: true });   // ← equivalent, also notifies
  *   subscribe('isPlaying', (newVal, oldVal) => { ... });
+ *   batch(() => {
+ *     state.currentSurah = 5;
+ *     state.currentAyahIndex = 0;
+ *   }); // ← subscribers notified once per key after batch completes
  */
 
 /* ===================== INTERFACES ===================== */
@@ -157,6 +165,13 @@ export interface AppState {
   tajweedEnabled: boolean;
 }
 
+/** Pending change entry for batch mode. */
+interface PendingChange {
+  key: string;
+  newValue: unknown;
+  oldValue: unknown;
+}
+
 /* ===================== DEFAULT VALUES ===================== */
 
 /** Factory function that creates a fresh AppState with all defaults. */
@@ -234,10 +249,16 @@ export function createDefaultState(): AppState {
   };
 }
 
-/* ===================== STATE INSTANCE ===================== */
+/* ===================== INTERNAL STATE ===================== */
 
-/** Global application state — initialized with all default values. */
-export let state: AppState = createDefaultState();
+/** The raw (un-proxied) state object — used internally for direct access. */
+const _rawState: AppState = createDefaultState();
+
+/** Whether we are currently inside a batch() call. */
+let _batchDepth = 0;
+
+/** Changes accumulated during a batch, keyed by property name. */
+let _pendingChanges: Map<string, PendingChange> = new Map();
 
 /* ===================== SUBSCRIPTION SYSTEM ===================== */
 
@@ -302,11 +323,76 @@ function notifySubscribers(key: string, newValue: unknown, oldValue: unknown): v
   }
 }
 
+/**
+ * Flush all pending changes from a batch.
+ * Notifies subscribers for each unique key that changed.
+ */
+function flushPendingChanges(): void {
+  for (const [, change] of _pendingChanges) {
+    notifySubscribers(change.key, change.newValue, change.oldValue);
+  }
+  _pendingChanges.clear();
+}
+
+/**
+ * Record a state change — either notify immediately or defer if in batch mode.
+ */
+function recordChange(key: string, newValue: unknown, oldValue: unknown): void {
+  if (_batchDepth > 0) {
+    // In batch mode: keep the OLDEST oldValue for this key, update to latest newValue
+    const existing = _pendingChanges.get(key);
+    if (existing) {
+      existing.newValue = newValue;
+    } else {
+      _pendingChanges.set(key, { key, newValue, oldValue });
+    }
+  } else {
+    notifySubscribers(key, newValue, oldValue);
+  }
+}
+
+/* ===================== REACTIVE PROXY ===================== */
+
+/**
+ * Create a reactive proxy around the raw state object.
+ * Any property set (`state.xxx = yyy`) automatically triggers subscribers.
+ */
+function createReactiveProxy(): AppState {
+  return new Proxy(_rawState, {
+    set(target: AppState, property: string, newValue: unknown): boolean {
+      const key = property as keyof AppState;
+      const oldValue = target[key];
+
+      // Skip notification if value hasn't changed (shallow comparison)
+      if (oldValue === newValue) return true;
+
+      // Apply the change to the raw state
+      (target as unknown as Record<string, unknown>)[key] = newValue;
+
+      // Record the change (immediate notify or defer to batch)
+      recordChange(key, newValue, oldValue);
+
+      return true;
+    },
+
+    get(target: AppState, property: string): unknown {
+      return (target as unknown as Record<string, unknown>)[property];
+    },
+  });
+}
+
+/** Global reactive application state — all property writes notify subscribers. */
+export const state: AppState = createReactiveProxy();
+
 /* ===================== CONTROLLED UPDATES ===================== */
 
 /**
  * Batch-update state and notify subscribers.
  * Only notifies for keys whose values actually changed.
+ *
+ * Note: With the Proxy-based state, `setState({ key: val })` is equivalent
+ * to `state.key = val`. Both trigger subscriber notifications. Use `setState`
+ * for semantic clarity when setting multiple properties at once.
  *
  * @param partial Object with state properties to update
  *
@@ -316,27 +402,52 @@ function notifySubscribers(key: string, newValue: unknown, oldValue: unknown): v
  */
 export function setState(partial: Partial<AppState>): void {
   for (const [key, newValue] of Object.entries(partial)) {
-    const oldValue = (state as unknown as Record<string, unknown>)[key];
-    if (oldValue !== newValue) {
-      (state as unknown as Record<string, unknown>)[key] = newValue;
-      notifySubscribers(key, newValue, oldValue);
+    (state as unknown as Record<string, unknown>)[key] = newValue;
+    // The Proxy handler will call recordChange automatically
+  }
+}
+
+/**
+ * Execute a function with deferred notifications.
+ * All state changes within the function are collected and
+ * subscribers are notified only after the function completes.
+ *
+ * This is useful for making multiple related changes without
+ * triggering intermediate renders or side effects.
+ *
+ * @param fn Function containing state mutations
+ *
+ * @example
+ *   batch(() => {
+ *     state.currentSurah = 5;
+ *     state.currentAyahIndex = 0;
+ *     state.isPlaying = false;
+ *   });
+ *   // Subscribers notified once for each changed key AFTER the batch
+ */
+export function batch<T>(fn: () => T): T {
+  _batchDepth++;
+  try {
+    return fn();
+  } finally {
+    _batchDepth--;
+    if (_batchDepth === 0) {
+      flushPendingChanges();
     }
   }
 }
 
 /**
- * Reset state to default values and clear all subscribers.
+ * Reset state to default values and notify subscribers.
  * Useful for testing or full app reset.
  */
 export function resetState(): void {
   const defaults = createDefaultState();
-  for (const [key, value] of Object.entries(defaults)) {
-    const oldValue = (state as unknown as Record<string, unknown>)[key];
-    if (oldValue !== value) {
+  batch(() => {
+    for (const [key, value] of Object.entries(defaults)) {
       (state as unknown as Record<string, unknown>)[key] = value;
-      notifySubscribers(key, value, oldValue);
     }
-  }
+  });
 }
 
 /**

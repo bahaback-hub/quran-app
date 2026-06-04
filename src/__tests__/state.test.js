@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { state, setState, subscribe, subscribeAll, resetState, clearSubscribers, createDefaultState } from '../state.js';
+import { state, setState, subscribe, subscribeAll, resetState, clearSubscribers, createDefaultState, batch } from '../state.js';
 
 describe('State Management', () => {
   beforeEach(() => {
@@ -52,6 +52,20 @@ describe('State Management', () => {
     it('should allow direct property assignment (backward compatible)', () => {
       state.currentSurah = 5;
       expect(state.currentSurah).toBe(5);
+    });
+
+    it('should notify subscribers on direct property assignment (Proxy reactivity)', () => {
+      const callback = vi.fn();
+      subscribe('currentSurah', callback);
+      state.currentSurah = 5;
+      expect(callback).toHaveBeenCalledWith(5, 1, 'currentSurah');
+    });
+
+    it('should not notify subscribers when direct assignment value is same', () => {
+      const callback = vi.fn();
+      subscribe('isPlaying', callback);
+      state.isPlaying = false; // same as default
+      expect(callback).not.toHaveBeenCalled();
     });
   });
 
@@ -230,6 +244,87 @@ describe('State Management', () => {
       // Second change should not trigger callback
       setState({ isPlaying: false });
       expect(callback).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  /* ===================== batch ===================== */
+
+  describe('batch', () => {
+    it('should defer notifications until batch completes', () => {
+      const callback = vi.fn();
+      subscribe('currentSurah', callback);
+      batch(() => {
+        state.currentSurah = 5;
+        state.currentSurah = 10;
+        // Callback should NOT have been called yet
+        expect(callback).not.toHaveBeenCalled();
+      });
+      // After batch, callback should be called with the FINAL value
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenCalledWith(10, 1, 'currentSurah');
+    });
+
+    it('should preserve the original oldValue in batch', () => {
+      const callback = vi.fn();
+      subscribe('currentAyahIndex', callback);
+      batch(() => {
+        state.currentAyahIndex = 5;
+        state.currentAyahIndex = 10;
+      });
+      // oldValue should be the value BEFORE the batch (0), not 5
+      expect(callback).toHaveBeenCalledWith(10, 0, 'currentAyahIndex');
+    });
+
+    it('should handle multiple keys in a batch', () => {
+      const surahCb = vi.fn();
+      const playCb = vi.fn();
+      subscribe('currentSurah', surahCb);
+      subscribe('isPlaying', playCb);
+
+      batch(() => {
+        state.currentSurah = 5;
+        state.isPlaying = true;
+      });
+
+      expect(surahCb).toHaveBeenCalledWith(5, 1, 'currentSurah');
+      expect(playCb).toHaveBeenCalledWith(true, false, 'isPlaying');
+    });
+
+    it('should support nested batches', () => {
+      const callback = vi.fn();
+      subscribe('fontSize', callback);
+
+      batch(() => {
+        state.fontSize = 30;
+        batch(() => {
+          state.fontSize = 36;
+        });
+        // Inner batch should not flush yet (outer batch still active)
+        expect(callback).not.toHaveBeenCalled();
+      });
+      // Only flush after outermost batch completes
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback).toHaveBeenCalledWith(36, 28, 'fontSize');
+    });
+
+    it('should work with setState inside batch', () => {
+      const callback = vi.fn();
+      subscribe('isPlaying', callback);
+
+      batch(() => {
+        setState({ isPlaying: true });
+        expect(callback).not.toHaveBeenCalled();
+      });
+
+      expect(callback).toHaveBeenCalledWith(true, false, 'isPlaying');
+    });
+
+    it('should return the value from the batched function', () => {
+      const result = batch(() => {
+        state.currentSurah = 5;
+        return 'done';
+      });
+      expect(result).toBe('done');
     });
   });
 });

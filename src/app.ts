@@ -3,7 +3,7 @@ import { storage } from './storage.js';
 import { dom, cacheDom } from './dom.js';
 import { loadingBar } from './ui.js';
 import { getLang, applyTranslations } from './i18n.js';
-import { state, type AppState } from './state.js';
+import { state, setState, resetState, batch, type AppState } from './state.js';
 import { startClock, loadPrayerTimes, checkAzanTime, scheduleNextAzanCheck } from './prayer.js';
 import { loadFavorites } from './favorites.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications } from './adhkar.js';
@@ -35,38 +35,8 @@ interface LastPosition {
 }
 
 function initState(): void {
-  Object.assign(state, {
-    currentSurah: 1, currentAyahIndex: 0,
-    currentReciter: CONFIG.DEFAULT_RECITER,
-    currentTafsirEdition: CONFIG.DEFAULT_TAFSIR,
-    surahData: null, surahList: [], surahCache: new Map(),
-    ayahsAudios: [],
-    isPlaying: false, hifdhMode: false,
-    repeatMode: false, repeatFrom: 1, repeatTo: 1, repeatTimes: 3, repeatCounter: 0,
-    fontSize: 28, nightMode: false, autoSave: true,
-    azanEnabled: true, azanFajrEnabled: true,
-    city: CONFIG.DEFAULT_CITY, country: CONFIG.DEFAULT_COUNTRY,
-    method: CONFIG.DEFAULT_METHOD,
-    prayerTimes: null, lastAzanFired: null,
-    favorites: [], bookmark: null,
-    pendingTafsirAfterLoad: null,
-    playerCollapsed: false, barCollapsed: true,
-    azanPlaying: false, loadingSurah: null,
-    mushafMode: false, currentPage: 1,
-    fullQuranText: null, fullQuranLoaded: false,
-    ayahWordElements: null,
-    translationEnabled: false,
-    currentTranslation: null,
-    translationData: null,
-    tajweedEnabled: true,
-    adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
-    surahOffsets: null,
-    backgroundsList: null,
-    ayahTimings: [],
-    presentationMode: false,
-    _allSearchMatches: null,
-    _searchResultsPage: 1
-  } as Partial<AppState>);
+  // Reset to defaults first (using resetState which goes through the Proxy)
+  resetState();
 }
 
 /* ===================== INIT ===================== */
