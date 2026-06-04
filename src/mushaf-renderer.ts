@@ -70,10 +70,7 @@ const layoutCache = new Map<string, PageLayoutData>();
 const loadedFonts = new Set<string>();
 
 /** Tracks fonts currently being loaded (prevents duplicate loads). */
-const loadingFonts = new Map<string, Promise<void>>();
-
-/** PUA test character used to verify font glyphs are actually available. */
-const PUA_TEST_CHAR = '\uF100';
+const loadingFonts = new Map<string, Promise<boolean>>();
 
 /* ===================== HELPERS ===================== */
 
@@ -109,101 +106,171 @@ function getFontUrl(fontName: string): string {
 }
 
 /**
- * Check if a font is truly available for Canvas rendering by testing
- * with a PUA character. Standard fonts don't have glyphs for PUA
- * code points, so a positive match means our QCF4 font is loaded.
+ * Verify a font is truly usable on Canvas by drawing a PUA character
+ * and checking if the pixels are non-blank. This is the ONLY reliable
+ * way to confirm the font works for Canvas rendering —
+ * document.fonts.check() can return true even when Canvas can't use it.
  */
-function isFontReadyForCanvas(fontName: string): boolean {
+function verifyFontOnCanvas(fontName: string): boolean {
   try {
-    return document.fonts.check(`16px "${fontName}"`, PUA_TEST_CHAR);
+    const testSize = 40;
+    const canvas = document.createElement('canvas');
+    canvas.width = testSize * 2;
+    canvas.height = testSize * 2;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return false;
+
+    // Clear with known background
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the PUA test character with ONLY our font (no fallback)
+    ctx.font = `${testSize}px "${fontName}"`;
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('\uF100', canvas.width / 2, canvas.height / 2);
+
+    // Check if any non-white pixels exist
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      // If any pixel is not white (R=255, G=255, B=255), the font rendered
+      if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) {
+        return true;
+      }
+    }
+
+    return false;
   } catch {
     return false;
   }
 }
 
 /**
- * Wait for a font to become available, polling with exponential backoff.
- * Returns true if the font became available, false if timed out.
+ * Create a hidden DOM element that uses the font. This forces the browser
+ * to download and parse the font binary, making it available for Canvas.
+ * Some browsers (especially Android WebView) won't make fonts available
+ * to Canvas unless they're used in the DOM first.
  */
-async function waitForFont(fontName: string, maxWaitMs = 10000): Promise<boolean> {
-  if (isFontReadyForCanvas(fontName)) return true;
+function createFontPreloadElement(fontName: string): void {
+  const id = `qcf-preload-${fontName}`;
+  if (document.getElementById(id)) return;
 
-  const startTime = Date.now();
-  let delay = 50;
-
-  while (Date.now() - startTime < maxWaitMs) {
-    await new Promise<void>((r) => setTimeout(r, delay));
-    if (isFontReadyForCanvas(fontName)) return true;
-    delay = Math.min(delay * 1.5, 500);
-  }
-
-  console.warn(`Font "${fontName}" did not become available within ${maxWaitMs}ms`);
-  return false;
+  const span = document.createElement('span');
+  span.id = id;
+  span.setAttribute('aria-hidden', 'true');
+  span.style.cssText = `
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    visibility: hidden;
+    font-family: "${fontName}";
+    font-size: 40px;
+    pointer-events: none;
+  `;
+  // Use multiple PUA characters to ensure the browser loads the font
+  span.textContent = '\uF100\uF101\uF102\uF103\uF104\uF105';
+  document.body.appendChild(span);
 }
 
 /**
- * Load a QCF4 font using the FontFace API with retry logic.
+ * Load a QCF4 font using the most reliable method available.
  *
- * The FontFace API is more reliable than @font-face CSS injection because:
- * 1. It gives us explicit control over the load lifecycle
- * 2. We get proper error handling when the font fails to download
- * 3. We can use a PUA test character to verify glyph availability
- * 4. It works consistently across browsers and WebView environments
+ * Strategy order (most to least reliable):
+ * 1. Fetch font as ArrayBuffer → FontFace from binary data
+ *    (Bypasses CORS issues with URL-based FontFace loading)
+ * 2. FontFace API with URL
+ * 3. CSS @font-face injection with DOM preload element
+ *
+ * All strategies include Canvas pixel verification.
  */
 async function ensureFontLoaded(fontName: string): Promise<void> {
-  // Already verified as loaded
   if (loadedFonts.has(fontName)) return;
 
-  // Deduplicate concurrent loads for the same font
+  // Deduplicate concurrent loads
   if (loadingFonts.has(fontName)) {
-    await loadingFonts.get(fontName);
-    return;
+    const result = await loadingFonts.get(fontName);
+    if (result) return;
+    // If previous load failed, remove it so we can retry
+    loadingFonts.delete(fontName);
   }
 
   const loadPromise = _doLoadFont(fontName);
   loadingFonts.set(fontName, loadPromise);
 
   try {
-    await loadPromise;
+    const success = await loadPromise;
+    if (success) {
+      loadedFonts.add(fontName);
+    }
   } finally {
     loadingFonts.delete(fontName);
   }
 }
 
 /**
- * Internal font loading implementation with up to 3 retry attempts.
- * Uses the FontFace API and verifies with PUA test characters.
+ * Internal font loading implementation with 3 strategies and retry logic.
+ * Returns true if the font was loaded and verified on Canvas.
  */
-async function _doLoadFont(fontName: string, maxRetries = 3): Promise<void> {
+async function _doLoadFont(fontName: string): Promise<boolean> {
   const fontUrl = getFontUrl(fontName);
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      // --- Strategy 1: FontFace API (preferred) ---
-      const fontFace = new FontFace(fontName, `url('${fontUrl}')`, {
-        display: 'block',
-      });
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    console.log(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})`);
 
+    // --- Strategy 1: Fetch as ArrayBuffer → FontFace (most reliable) ---
+    try {
+      console.log(`[Mushaf] Strategy 1: Fetching "${fontName}" as ArrayBuffer...`);
+      const res = await fetch(fontUrl);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buffer = await res.arrayBuffer();
+
+      const fontFace = new FontFace(fontName, buffer, { display: 'block' });
       const loaded = await fontFace.load();
       document.fonts.add(loaded);
 
-      // Verify the font actually works with PUA characters on Canvas
-      const ready = await waitForFont(fontName, 5000);
-      if (ready) {
-        loadedFonts.add(fontName);
-        console.log(`[Mushaf] Font "${fontName}" loaded successfully (attempt ${attempt})`);
-        return;
-      }
+      // Wait for the font to be fully processed
+      await document.fonts.ready;
 
-      // Font loaded via FontFace API but not verified on Canvas —
-      // fall through to CSS @font-face approach
-      console.warn(`[Mushaf] FontFace loaded "${fontName}" but Canvas verification failed, trying @font-face fallback`);
+      // Force browser to recognize the font via DOM
+      createFontPreloadElement(fontName);
+
+      // Small delay to let the browser process the font
+      await new Promise<void>((r) => setTimeout(r, 200));
+
+      // Verify on Canvas
+      if (verifyFontOnCanvas(fontName)) {
+        console.log(`[Mushaf] Font "${fontName}" loaded via ArrayBuffer (attempt ${attempt}) ✅`);
+        return true;
+      }
+      console.warn(`[Mushaf] ArrayBuffer loaded but Canvas verification failed for "${fontName}"`);
     } catch (e) {
-      console.warn(`[Mushaf] FontFace API failed for "${fontName}" (attempt ${attempt}):`, e);
+      console.warn(`[Mushaf] ArrayBuffer strategy failed for "${fontName}":`, e);
     }
 
-    // --- Strategy 2: CSS @font-face injection as fallback ---
+    // --- Strategy 2: FontFace with URL ---
     try {
+      console.log(`[Mushaf] Strategy 2: FontFace URL for "${fontName}"...`);
+      const fontFace = new FontFace(fontName, `url('${fontUrl}')`, { display: 'block' });
+      const loaded = await fontFace.load();
+      document.fonts.add(loaded);
+
+      await document.fonts.ready;
+      createFontPreloadElement(fontName);
+      await new Promise<void>((r) => setTimeout(r, 200));
+
+      if (verifyFontOnCanvas(fontName)) {
+        console.log(`[Mushaf] Font "${fontName}" loaded via FontFace URL (attempt ${attempt}) ✅`);
+        return true;
+      }
+    } catch (e) {
+      console.warn(`[Mushaf] FontFace URL strategy failed for "${fontName}":`, e);
+    }
+
+    // --- Strategy 3: CSS @font-face + DOM preload ---
+    try {
+      console.log(`[Mushaf] Strategy 3: CSS @font-face for "${fontName}"...`);
       const styleId = fontName === BSML_FONT ? 'qcf-basml' : `qcf-${fontName}`;
       if (!document.getElementById(styleId)) {
         const style = document.createElement('style');
@@ -217,30 +284,35 @@ async function _doLoadFont(fontName: string, maxRetries = 3): Promise<void> {
         document.head.appendChild(style);
       }
 
-      // Use PUA test character to force the browser to actually download
-      // and parse the font binary (not just register the @font-face rule)
-      await document.fonts.load(`16px "${fontName}"`, PUA_TEST_CHAR);
+      // Force font download via DOM element
+      createFontPreloadElement(fontName);
 
-      const ready = await waitForFont(fontName, 5000);
-      if (ready) {
-        loadedFonts.add(fontName);
-        console.log(`[Mushaf] Font "${fontName}" loaded via @font-face (attempt ${attempt})`);
-        return;
+      // Try to load via document.fonts API with PUA char
+      try {
+        await document.fonts.load(`40px "${fontName}"`, '\uF100');
+      } catch { /* some browsers don't support the text param */ }
+
+      // Wait and poll
+      await document.fonts.ready;
+      await new Promise<void>((r) => setTimeout(r, 500));
+
+      if (verifyFontOnCanvas(fontName)) {
+        console.log(`[Mushaf] Font "${fontName}" loaded via CSS @font-face (attempt ${attempt}) ✅`);
+        return true;
       }
     } catch (e) {
-      console.warn(`[Mushaf] @font-face fallback also failed for "${fontName}" (attempt ${attempt}):`, e);
+      console.warn(`[Mushaf] CSS @font-face strategy failed for "${fontName}":`, e);
     }
 
-    if (attempt < maxRetries) {
-      // Brief pause before retrying
-      await new Promise<void>((r) => setTimeout(r, 300 * attempt));
+    if (attempt < 3) {
+      const delay = 500 * attempt;
+      console.warn(`[Mushaf] All strategies failed for "${fontName}" (attempt ${attempt}), retrying in ${delay}ms...`);
+      await new Promise<void>((r) => setTimeout(r, delay));
     }
   }
 
-  // All retries failed — mark as loaded anyway to avoid infinite loops,
-  // but log the error clearly. Canvas will show fallback text.
-  console.error(`[Mushaf] FAILED to load font "${fontName}" after ${maxRetries} attempts. Quran text may appear as squares.`);
-  loadedFonts.add(fontName);
+  console.error(`[Mushaf] ❌ FAILED to load font "${fontName}" after 3 attempts. Quran text will appear as squares.`);
+  return false;
 }
 
 function isNightMode(): boolean {
@@ -267,21 +339,17 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   const hasSurahHeader = data.lines?.[0]?.words?.[0]?.type === 'surah_header';
   if (hasBasml || hasSurahHeader) await ensureFontLoaded(BSML_FONT);
 
-  // Extra safety: wait for the global fonts.ready promise and then
-  // verify our specific fonts are available with PUA test characters.
-  // This handles edge cases in Android WebView where font loading
-  // may be delayed even after the FontFace API reports success.
+  // Wait for all fonts to be ready
   try {
     await document.fonts.ready;
   } catch { /* ignore */ }
 
-  // Final verification — if the font still isn't ready, poll for it.
-  // This is the last line of defense against race conditions.
-  if (!isFontReadyForCanvas(pageFont)) {
-    const ready = await waitForFont(pageFont, 3000);
-    if (!ready) {
-      console.warn(`[Mushaf] Font "${pageFont}" not ready for Canvas after all loading attempts. Page ${pageNum} may render incorrectly.`);
-    }
+  // Final Canvas verification — if the font still doesn't work,
+  // try one more time with a longer wait
+  if (!loadedFonts.has(pageFont) || !verifyFontOnCanvas(pageFont)) {
+    console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
+    loadedFonts.delete(pageFont);
+    await ensureFontLoaded(pageFont);
   }
 
   const canvas = targetCanvas || document.createElement('canvas');
@@ -306,7 +374,7 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
 function measureLine(ctx: CanvasRenderingContext2D, words: PageWord[], pageFont: string, fontSize: number): number[] {
   return words.map((w) => {
     const fn = w.font || pageFont;
-    ctx.font = `${fontSize}px "${fn}", "Scheherazade New", "Traditional Arabic", "Amiri", serif`;
+    ctx.font = `${fontSize}px "${fn}"`;
     return ctx.measureText(w.char).width;
   });
 }
@@ -372,7 +440,9 @@ function renderPageContent(
     for (let j = 0; j < words.length; j++) {
       const w = words[j];
       const fn = w.font || pageFont;
-      ctx.font = `${pageFontSize}px "${fn}", "Scheherazade New", "Traditional Arabic", "Amiri", serif`;
+      // Use ONLY the QCF4 font — no fallback fonts that might
+      // interfere with PUA character rendering
+      ctx.font = `${pageFontSize}px "${fn}"`;
       ctx.fillStyle = colors.txt;
       ctx.textAlign = 'right';
       ctx.fillText(w.char, x, y);
