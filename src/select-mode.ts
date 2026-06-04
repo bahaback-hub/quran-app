@@ -1,4 +1,4 @@
-import { state, SelectedAyah } from './state.js';
+import { state, immutablePush, SelectedAyah } from './state.js';
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { copyToClipboard } from './utils.js';
@@ -79,7 +79,7 @@ export function handleAyahSelect(surah: number, ayah: number, text: string, sura
   } else {
     el.classList.add('selected');
     if (!state._selectedAyahs) state._selectedAyahs = [];
-    state._selectedAyahs.push({ surah, ayah, text, surahName, index });
+    immutablePush(state, '_selectedAyahs', { surah, ayah, text, surahName, index });
   }
   updateSelectCount();
 }

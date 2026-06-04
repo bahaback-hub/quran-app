@@ -1,4 +1,4 @@
-import { state } from './state.js';
+import { state, immutablePush, immutableSplice } from './state.js';
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { escapeHtml, stripTashkeel, copyToClipboard } from './utils.js';
@@ -224,10 +224,10 @@ function toggleModalFav(): void {
   const key: string = `${current.surah}:${current.ayah}`;
   const idx: number = state.favorites.findIndex(f => f.key === key);
   if (idx !== -1) {
-    state.favorites.splice(idx, 1);
+    immutableSplice(state, 'favorites', idx, 1);
     showToast('💔 تمت إزالة من المفضلة', '');
   } else {
-    state.favorites.push({
+    immutablePush(state, 'favorites', {
       key, surah: current.surah, surahName: current.surahName,
       ayah: current.ayah, text: current.text, timestamp: Date.now()
     });

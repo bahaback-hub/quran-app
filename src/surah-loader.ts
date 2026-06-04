@@ -4,7 +4,7 @@ import { dom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
 import { __ } from './i18n.js';
 import { escapeHtml } from './utils.js';
-import { state, batch, SurahInfo, SurahOffset } from './state.js';
+import { state, batch, immutablePush, immutableMapSet, immutableMapDelete, SurahInfo, SurahOffset } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
@@ -145,10 +145,12 @@ export function buildSurahOffsets(): void {
   if (state.surahOffsets || !state.surahList.length) return;
   state.surahOffsets = [];
   let cum = 1;
+  const offsets: SurahOffset[] = [];
   for (const s of state.surahList) {
-    state.surahOffsets.push({ surahNum: s.number, startAbs: cum, count: s.numberOfAyahs, name: s.name });
+    offsets.push({ surahNum: s.number, startAbs: cum, count: s.numberOfAyahs, name: s.name });
     cum += s.numberOfAyahs;
   }
+  state.surahOffsets = offsets;
 }
 
 function countArabicChars(text: string): number {
@@ -362,9 +364,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
 
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
       const firstKey = state.surahCache.keys().next().value;
-      state.surahCache.delete(firstKey);
+      immutableMapDelete(state, 'surahCache', firstKey);
     }
-    state.surahCache.set(cacheKey, { text: textData, audios: state.ayahsAudios, timings: state.ayahTimings, translation: state.translationData });
+    immutableMapSet(state, 'surahCache', cacheKey, { text: textData, audios: state.ayahsAudios, timings: state.ayahTimings, translation: state.translationData });
   } catch (e: unknown) {
     if ((e as Error).name === 'AbortError') return;
     if (state.fullQuranLoaded && state.fullQuranText) {
