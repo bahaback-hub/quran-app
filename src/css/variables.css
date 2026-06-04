@@ -36,6 +36,8 @@
   --focus-outline: 3px solid #d4af37;
   --curtain-handle-bg: linear-gradient(180deg, #8b6f5a, #a0846c);
   --font-size-select-bg: #ffffff;
+  --card-bg: #ffffff;
+  --panel-bg: #ffffff;
   --success-bg: #22c55e;
   /* Font size scale */
   --fs-xs: 11px;
@@ -84,6 +86,8 @@ body.night-mode {
   --focus-outline: 3px solid #e8d9a8;
   --curtain-handle-bg: linear-gradient(180deg, #5a4a3a, #7a6a5a);
   --font-size-select-bg: #2a3040;
+  --card-bg: #1e2330;
+  --panel-bg: #1e2330;
 }
 
 body.sepia-mode {
@@ -120,4 +124,6 @@ body.sepia-mode {
   --focus-outline: 3px solid #7a5a3a;
   --curtain-handle-bg: linear-gradient(180deg, #c8b090, #d8c0a0);
   --font-size-select-bg: #f0e0c0;
+  --card-bg: #efe0c0;
+  --panel-bg: #efe0c0;
 }
