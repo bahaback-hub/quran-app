@@ -395,7 +395,7 @@ const en: TranslationBundle = {
   onboarding_desc_3: 'Search the entire Quran with relevance-ranked results and auto-complete.',
   onboarding_desc_4: '6 trusted tafsirs and translation of meanings in multiple languages.',
   onboarding_desc_5: 'Accurate prayer times with athan and notifications.',
-  onboarding_desc_6: 'Night mode, sepia mode, font and spacing adjustments, favorites export.',
+  onboarding_desc_6: 'Night mode, font and spacing adjustments, favorites export.',
 };
 
 export default en;

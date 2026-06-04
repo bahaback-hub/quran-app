@@ -395,7 +395,7 @@ const id: TranslationBundle = {
   onboarding_desc_3: 'Cari seluruh al-Quran dengan hasil yang diurut berdasarkan relevansi dan auto-lengkap.',
   onboarding_desc_4: '6 tafsir terpercaya dan terjemahan makna dalam berbagai bahasa.',
   onboarding_desc_5: 'Waktu sholat akurat dengan adzan dan notifikasi.',
-  onboarding_desc_6: 'Mode malam, mode sepia, penyesuaian font dan jarak, ekspor favorit.',
+  onboarding_desc_6: 'Mode malam, penyesuaian font dan jarak, ekspor favorit.',
 };
 
 export default id;

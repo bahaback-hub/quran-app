@@ -76,7 +76,6 @@ interface DomMap {
   tafsirCurtainHeader: HTMLElement | null;
   tafsirCurtainBody: HTMLElement | null;
   tafsirSelect: HTMLSelectElement | null;
-  bgSelect: HTMLSelectElement | null;
   loadingProgress: HTMLElement | null;
   pageSelect: HTMLSelectElement | null;
   pageIndicator: HTMLElement | null;
@@ -89,7 +88,6 @@ interface DomMap {
   pageSlider: HTMLInputElement | null;
   voiceSearchBtn: HTMLElement | null;
   kbdToggleBtn: HTMLElement | null;
-  settingsThemeToggle: HTMLElement | null;
   langSelect: HTMLSelectElement | null;
   translationSelect: HTMLSelectElement | null;
   translationToggle: HTMLElement | null;
@@ -150,7 +148,6 @@ interface DomMap {
   searchInputGroup: HTMLElement | null;
   playerMoreBtn: HTMLElement | null;
   playerMoreRow: HTMLElement | null;
-  sepiaToggle: HTMLInputElement | null;
   fontTypeSelect: HTMLSelectElement | null;
   lineSpacingSelect: HTMLSelectElement | null;
   tajweedToggle: HTMLInputElement | null;
@@ -184,12 +181,11 @@ const DOM_IDS: (keyof DomMap)[] = [
   'azanPlayer', 'toast', 'collapseBarBtn', 'expandBarBtn',
   'prayerBar',
   'tafsirCurtainHandle', 'tafsirCurtain', 'tafsirCurtainHeader',
-  'tafsirCurtainBody', 'tafsirSelect', 'bgSelect', 'loadingProgress',
+  'tafsirCurtainBody', 'tafsirSelect', 'loadingProgress',
   'pageSelect', 'pageIndicator',
   'azanNotification', 'azanNotifPrayer', 'azanNotifStopBtn',
   'mushafSurahOverlay', 'mushafSurahOverlayClose',
   'mushafSurahOverlayList', 'pageSlider', 'voiceSearchBtn', 'kbdToggleBtn',
-  'settingsThemeToggle',
   'langSelect',
   'translationSelect', 'translationToggle',
   'welcomeScreen', 'welcomeDismissBtn',
@@ -211,7 +207,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'headerMenuBtn', 'headerDropdown',
   'searchToggleBtn', 'searchInputGroup',
   'playerMoreBtn', 'playerMoreRow',
-  'sepiaToggle', 'fontTypeSelect', 'lineSpacingSelect', 'tajweedToggle',
+  'fontTypeSelect', 'lineSpacingSelect', 'tajweedToggle',
   'installBtn', 'sleepTimerBtn',
   'networkBanner',
   'controls',

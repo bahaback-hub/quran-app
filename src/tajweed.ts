@@ -67,10 +67,6 @@ const NIGHT_COLORS: Record<TajweedRule, string> = {
   'silent':              '#af7ac5',
 };
 
-const SEPIA_COLORS: Partial<Record<TajweedRule, string>> = {
-  'madd_6':              '#b7001c',
-};
-
 /**
  * Get the color for a tajweed rule based on current theme.
  */
@@ -78,9 +74,6 @@ function getColor(rule: string): string {
   const body = document.body;
   if (body && body.classList.contains('night-mode')) {
     return (NIGHT_COLORS as Record<string, string>)[rule] || (RULE_COLORS as Record<string, string>)[rule] || '#000';
-  }
-  if (body && body.classList.contains('sepia-mode')) {
-    return (SEPIA_COLORS as Record<string, string>)[rule] || (RULE_COLORS as Record<string, string>)[rule] || '#000';
   }
   return (RULE_COLORS as Record<string, string>)[rule] || '#000';
 }

@@ -119,7 +119,6 @@ describe('initState', () => {
       tajweedEnabled: true,
       adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
       surahOffsets: null,
-      backgroundsList: null,
       ayahTimings: [],
       presentationMode: false,
       _allSearchMatches: null,

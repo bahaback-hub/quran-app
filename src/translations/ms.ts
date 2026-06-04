@@ -394,7 +394,7 @@ const ms: TranslationBundle = {
   onboarding_desc_3: 'Cari seluruh al-Quran dengan hasil yang diurut mengikut kaitan dan auto-lengkap.',
   onboarding_desc_4: '6 tafsir dipercayai dan terjemahan makna dalam pelbagai bahasa.',
   onboarding_desc_5: 'Waktu solat tepat dengan azan dan pemberitahuan.',
-  onboarding_desc_6: 'Mod malam, mod sepia, pelarasan fon dan jarak, eksport kegemaran.',
+  onboarding_desc_6: 'Mod malam, pelarasan fon dan jarak, eksport kegemaran.',
 };
 
 export default ms;

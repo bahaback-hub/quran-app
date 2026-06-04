@@ -10,9 +10,9 @@ import { state } from './state.js';
 import { showToast } from './ui.js';
 import { __, AVAILABLE_LANGUAGES, getLang, setLang } from './i18n.js';
 import {
-  applyFontSize, toggleNightMode, toggleSepiaMode, applyFontType,
+  applyFontSize, toggleNightMode, applyFontType,
   applyLineSpacing, openSettings, closeSettings, saveLocationSettings,
-  resetSettings, exportSettings, importSettings, applyBackground,
+  resetSettings, exportSettings, importSettings,
   initSettingsTabs
 } from './settings.js';
 import {
@@ -78,7 +78,6 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.favoriteBtn?.addEventListener('click', toggleFavorite);
   dom.shareBtn?.addEventListener('click', () => toggleShareMenu());
   dom.themeToggle?.addEventListener('click', toggleNightMode);
-  dom.settingsThemeToggle?.addEventListener('click', toggleNightMode);
   dom.settingsToggleBtn?.addEventListener('click', openSettings);
   dom.settingsCloseBtn?.addEventListener('click', closeSettings);
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
@@ -88,7 +87,6 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
   document.getElementById('exportSettingsBtn')?.addEventListener('click', () => exportSettings());
   document.getElementById('importSettingsBtn')?.addEventListener('click', () => importSettings());
-  dom.bgSelect?.addEventListener('change', () => { applyBackground(dom.bgSelect!.value); });
   initSettingsTabs();
 }
 
@@ -139,7 +137,6 @@ export function bindDisplaySettingsEvents(): void {
   dom.fontSizeSelect?.addEventListener('change', (e: Event) => applyFontSize(parseInt((e.target as HTMLSelectElement).value, 10)));
   dom.fontTypeSelect?.addEventListener('change', (e: Event) => applyFontType((e.target as HTMLSelectElement).value));
   dom.lineSpacingSelect?.addEventListener('change', (e: Event) => applyLineSpacing((e.target as HTMLSelectElement).value));
-  dom.sepiaToggle?.addEventListener('click', toggleSepiaMode);
   dom.tajweedToggle?.addEventListener('click', () => {
     state.tajweedEnabled = dom.tajweedToggle!.classList.toggle('on');
     storage.set('tajweed_enabled', state.tajweedEnabled);

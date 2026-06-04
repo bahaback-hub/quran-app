@@ -150,7 +150,6 @@ export interface AppState {
   _smartTvState: number;
   _smartTvAudioSrc: string;
   surahOffsets: SurahOffset[] | null;
-  backgroundsList: BackgroundEntry[] | null;
   ayahTimings: number[];
   presentationMode: boolean;
   _updateReadingProgress: (() => void) | null;
@@ -159,7 +158,6 @@ export interface AppState {
   _searchResultsPage: number;
   _editPersonalAdhkarId: string | null;
   searchPrefixMap: Map<string, unknown> | null;
-  sepiaMode: boolean;
   fontType: string;
   lineSpacing: string;
   tajweedEnabled: boolean;
@@ -233,7 +231,6 @@ export function createDefaultState(): AppState {
     _smartTvState: 0,
     _smartTvAudioSrc: '',
     surahOffsets: null,
-    backgroundsList: null,
     ayahTimings: [],
     presentationMode: false,
     _updateReadingProgress: null,
@@ -242,7 +239,6 @@ export function createDefaultState(): AppState {
     _searchResultsPage: 1,
     _editPersonalAdhkarId: null,
     searchPrefixMap: null,
-    sepiaMode: false,
     fontType: 'amiri',
     lineSpacing: '1.8',
     tajweedEnabled: true,
