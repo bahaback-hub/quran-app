@@ -264,7 +264,7 @@ body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
   padding: 6px 10px;
   cursor: pointer;
   font-size: 13px;
-  color: var(--text-color, #333);
+  color: var(--text-primary);
   display: flex;
   justify-content: space-between;
   align-items: center;
