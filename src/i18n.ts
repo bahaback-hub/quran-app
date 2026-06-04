@@ -24,7 +24,7 @@ let _arFallback: TranslationBundle | null = null;
 /** Get the Arabic fallback bundle, loading it lazily on first access. */
 async function getArFallback(): Promise<TranslationBundle> {
   if (_arFallback) return _arFallback;
-  const mod = await import('./translations/ar.js');
+  const mod = await import('./translations/ar');
   _arFallback = mod.default;
   translations.ar = _arFallback;
   return _arFallback;
@@ -46,11 +46,11 @@ async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
   if (translations[lang]) return translations[lang]!;
 
   const moduleMap: Record<LangCode, () => Promise<any>> = {
-    ar: () => import('./translations/ar.js'),
-    en: () => import('./translations/en.js'),
-    tr: () => import('./translations/tr.js'),
-    ms: () => import('./translations/ms.js'),
-    id: () => import('./translations/id.js'),
+    ar: () => import('./translations/ar'),
+    en: () => import('./translations/en'),
+    tr: () => import('./translations/tr'),
+    ms: () => import('./translations/ms'),
+    id: () => import('./translations/id'),
   };
 
   const loader = moduleMap[lang];

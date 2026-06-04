@@ -1,0 +1,549 @@
+import { state } from "./state.js";
+import { CONFIG, JUZ_PAGES } from "./config.js";
+import { dom } from "./dom.js";
+import { storage } from "./storage.js";
+import { showToast, loadingBar } from "./ui.js";
+import { escapeHtml, toArabicNumeral } from "./utils.js";
+import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from "./surahs-data.js";
+import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from "./app.js";
+import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from "./audio.js";
+import { handlePageClick, getAyahHighlightRects } from "./ayah-click.js";
+import { renderPage, loadPageData } from "./mushaf-renderer.js";
+import type { PageLayoutData } from "./mushaf-renderer.js";
+import { loadTafsirForSurahAyah } from "./tafsir.js";
+
+/* ===================== INTERFACES ===================== */
+
+/** Result from handlePageClick — identifies a clicked ayah. */
+interface AyahClickResult {
+  surah: number;
+  ayah: number;
+}
+
+/** Highlight rect for a single line segment of an ayah. */
+interface AyahHighlightRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+/** Shape of surahData when accessed in mushaf module. */
+interface SurahDataLike {
+  number: number;
+  name: string;
+  englishName: string;
+  ayahs: { numberInSurah: number; number: number; audio: string }[];
+}
+
+/** Shape of an ayah entry from the page API. */
+interface PageApiAyah {
+  numberInSurah: number;
+  number: number;
+  surah: { number: number; name: string };
+}
+
+/** Shape of the page API response. */
+interface PageApiResponse {
+  data?: {
+    ayahs?: PageApiAyah[];
+  };
+}
+
+/** Shape of the ayah API response (for page lookup). */
+interface AyahPageResponse {
+  data?: {
+    page?: number;
+  };
+}
+
+/** Shape of surah list entry (subset used in mushaf). */
+interface SurahListEntry {
+  number: number;
+  name: string;
+  englishName: string;
+}
+
+/** Shape of the surah audio API response. */
+interface SurahAudioResponse {
+  data?: {
+    ayahs?: { audio: string; numberInSurah: number }[];
+  };
+}
+
+/* ===================== MODULE STATE ===================== */
+
+/** Counter used to cancel stale page loads. */
+let _mushafLoadCounter = 0;
+
+/* ===================== TOGGLE MUSHAF MODE ===================== */
+
+/** Toggle between mushaf mode and surah mode. */
+export async function toggleMushafMode(): Promise<void> {
+  const wasPlaying = state.isPlaying;
+  state.mushafMode = !state.mushafMode;
+  document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
+    if (state.mushafMode) {
+      b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'mushaf');
+    } else {
+      b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah');
+    }
+  });
+  if (state.mushafMode) {
+    if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
+    populatePageSelect();
+
+    if (state.currentSurah) {
+      const surahData = state.surahData as unknown as SurahDataLike | null;
+      const currentAyah = (surahData?.number === state.currentSurah && surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
+      try {
+        const res = await fetch(`${CONFIG.API_BASE}/ayah/${state.currentSurah}:${currentAyah}/quran-uthmani`);
+        const data = (await res.json()) as AyahPageResponse;
+        const page = data?.data?.page;
+        if (page && page >= 1 && page <= 604) {
+          state.currentPage = page;
+        }
+      } catch (e: unknown) {
+        console.warn('Failed to get page for ayah:', e);
+      }
+    }
+
+    updatePageIndicator(state.currentPage);
+    populateSurahOverlay();
+    loadPage(state.currentPage);
+    if (wasPlaying && dom.audioPlayer?.paused) {
+      dom.audioPlayer.play().catch(() => {});
+      state.isPlaying = true;
+      updatePlayPauseBtn();
+    }
+  } else {
+    if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
+
+    const surahData = state.surahData as unknown as SurahDataLike | null;
+    if (surahData && surahData.number === state.currentSurah) {
+      renderSurah(state.surahData as unknown as Parameters<typeof renderSurah>[0]);
+      highlightCurrentAyah();
+      updatePlayerInfo();
+    } else {
+      let surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
+      dom.surahContent!.innerHTML = '<p class="loading">⏳ جاري تحميل السورة...</p>';
+      setTimeout(() => loadSurah(surahToLoad), 50);
+    }
+  }
+  storage.set('mushaf_mode', state.mushafMode);
+}
+
+/* ===================== PAGE SELECT ===================== */
+
+function populatePageSelect(): void {
+  if (!dom.pageSelect) return;
+  dom.pageSelect.innerHTML = '';
+  for (let i = 1; i <= 604; i++) {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = `صفحة ${i}`;
+    dom.pageSelect.appendChild(opt);
+  }
+  dom.pageSelect.value = String(state.currentPage);
+  if (dom.pageSlider) dom.pageSlider.value = String(state.currentPage);
+}
+
+/** Update the page indicator text to show current page. */
+export function updatePageIndicator(pageNum: number): void {
+  if (dom.pageIndicator) {
+    const arabic = pageNum.toLocaleString('ar-SA');
+    dom.pageIndicator.textContent = `صفحة ${arabic} من ٦٠٤`;
+  }
+}
+
+/* ===================== LOAD PAGE ===================== */
+
+/** Load and render a mushaf page image. */
+export async function loadPage(pageNum: number, skipNav?: boolean, force?: boolean): Promise<void> {
+  if (!pageNum) return;
+  _mushafLoadCounter++;
+  const currentLoad = _mushafLoadCounter;
+  const hasContainer = !!dom.surahContent?.querySelector('.mushaf-container');
+  if (!force && hasContainer && pageNum === state.currentPage) return;
+  const prevPage = state.currentPage;
+  const direction = pageNum > prevPage ? 'left' : 'right';
+  state.currentPage = pageNum;
+  storage.set('current_page', pageNum);
+  updatePageIndicator(pageNum);
+  loadingBar.show(`⏳ جاري تحميل الصفحة ${pageNum}...`);
+
+  const oldContainer = dom.surahContent?.querySelector('.mushaf-container');
+  if (oldContainer) {
+    oldContainer.classList.add('mushaf-flipping');
+    const flipOut = direction === 'left' ? 'mushaf-flip-out-left' : 'mushaf-flip-out-right';
+    oldContainer.classList.add(flipOut);
+    await new Promise<void>(r => setTimeout(r, 300));
+  }
+
+  renderMushafPageImage(pageNum, skipNav);
+
+  requestAnimationFrame(() => {
+    const newContainer = dom.surahContent?.querySelector('.mushaf-container');
+    if (newContainer) {
+      newContainer.classList.add('mushaf-flipping');
+      const flipIn = direction === 'left' ? 'mushaf-flip-in-right' : 'mushaf-flip-in-left';
+      newContainer.classList.add(flipIn);
+      newContainer.addEventListener('animationend', () => {
+        newContainer.classList.remove('mushaf-flipping', flipIn);
+      }, { once: true });
+    }
+  });
+}
+
+/* ===================== JUZ HELPER ===================== */
+
+/** Get the Juz number for a given page number (1-604). */
+export function getJuzForPage(pageNum: number): number {
+  let juz = 1;
+  for (let i = JUZ_PAGES.length - 1; i >= 0; i--) {
+    if (pageNum >= JUZ_PAGES[i]) { juz = i + 1; break; }
+  }
+  return juz;
+}
+
+/* ===================== RENDER MUSHAF PAGE ===================== */
+
+function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
+  if (!dom.surahContent) return;
+  const juz = getJuzForPage(pageNum);
+
+  const container = document.createElement('div');
+  container.className = 'mushaf-container';
+
+  const header = document.createElement('div');
+  header.className = 'mushaf-header';
+  header.innerHTML = `
+    <div class="mushaf-header-row">
+      <div class="mushaf-surah-names" id="mushafSurahNames"></div>
+      <div class="mushaf-juz">الجزء ${toArabicNumeral(juz)}</div>
+    </div>
+  `;
+
+  const canvasWrapper = document.createElement('div');
+  canvasWrapper.className = 'mushaf-image-wrapper';
+
+  const canvas = document.createElement('canvas');
+  canvas.className = 'mushaf-page-canvas';
+  canvas.width = 1080;
+  canvas.height = 1540;
+
+  canvasWrapper.appendChild(canvas);
+
+  let pageLayout: PageLayoutData | null = null;
+
+  const clickHandler = async (e: MouseEvent): Promise<void> => {
+    const target = e.target as Element;
+    if (target.closest('.mushaf-page-nav')) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const result = await handlePageClick(pageNum, x, y, rect.width, rect.height, pageLayout) as unknown as AyahClickResult | null;
+    if (result) {
+      const bar = document.getElementById('mushafAyahBar');
+      if (bar) {
+        bar.querySelectorAll('.mushaf-ayah-btn').forEach((b: Element) => {
+          b.classList.toggle('current', parseInt((b as HTMLElement).dataset.surah!, 10) === result.surah && parseInt((b as HTMLElement).dataset.ayah!, 10) === result.ayah);
+        });
+      }
+      playMushafAyah(result.surah, result.ayah);
+      loadTafsirForSurahAyah(result.surah, result.ayah);
+      highlightMushafAyah();
+    }
+  };
+  canvasWrapper.addEventListener('click', clickHandler);
+
+  const footer = document.createElement('div');
+  footer.className = 'mushaf-footer';
+  footer.innerHTML = `${toArabicNumeral(pageNum)}`;
+
+  const navPrev = document.createElement('button');
+  navPrev.className = 'mushaf-page-nav-btn mushaf-page-nav-prev';
+  navPrev.textContent = '▶';
+  navPrev.setAttribute('aria-label', 'الصفحة السابقة');
+  navPrev.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    if (state.currentPage > 1) loadPage(state.currentPage - 1, true);
+  });
+
+  const navNext = document.createElement('button');
+  navNext.className = 'mushaf-page-nav-btn mushaf-page-nav-next';
+  navNext.textContent = '◀';
+  navNext.setAttribute('aria-label', 'الصفحة التالية');
+  navNext.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    if (state.currentPage < 604) loadPage(state.currentPage + 1, true);
+  });
+
+  container.appendChild(header);
+  container.appendChild(canvasWrapper);
+  container.appendChild(footer);
+  container.appendChild(navPrev);
+  container.appendChild(navNext);
+
+  const ayahBar = document.createElement('div');
+  ayahBar.className = 'mushaf-ayah-bar';
+  ayahBar.id = 'mushafAyahBar';
+  ayahBar.innerHTML = '<div class="mushaf-ayah-bar-title">🎯 اختر آية للاستماع أو التفسير</div><div class="mushaf-ayah-bar-loading">جاري تحميل الآيات...</div>';
+
+  dom.surahContent.innerHTML = '';
+  dom.surahContent.appendChild(container);
+  dom.surahContent.appendChild(ayahBar);
+
+  renderPage(pageNum, canvas).then(({ canvas: renderedCanvas, layout: layoutData }) => {
+    pageLayout = layoutData;
+    state.currentPageLayout = layoutData as unknown as Record<string, unknown>;
+    if (renderedCanvas && layoutData) {
+      loadingBar.hide();
+      if (state.mushafMode) highlightMushafAyah(skipNav);
+    } else {
+      showToast('تعذّر عرض الصفحة', 'error');
+      loadingBar.hide();
+    }
+  });
+
+  preloadAdjacentLayouts(pageNum);
+
+  fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`)
+    .then(res => res.json())
+    .then((json: PageApiResponse) => {
+      const ayahs = json?.data?.ayahs;
+      if (!ayahs?.length) return;
+
+      const surahNamesEl = document.getElementById('mushafSurahNames');
+      if (surahNamesEl) {
+        const seen: Record<number, string> = {};
+        ayahs.forEach((a: PageApiAyah) => { if (!seen[a.surah.number]) seen[a.surah.number] = a.surah.name; });
+        surahNamesEl.innerHTML = Object.values(seen).map(n => `<span class="mushaf-surah-name">${escapeHtml(n)}</span>`).join(' ');
+      }
+
+      const bar = document.getElementById('mushafAyahBar');
+      if (!bar) return;
+      let itemsHtml = '<div class="mushaf-ayah-bar-title">🎯 اختر آية للاستماع أو التفسير</div><div class="mushaf-ayah-bar-grid">';
+      for (const ayah of ayahs) {
+        const sn = ayah.surah.number;
+        const an = ayah.numberInSurah;
+        const surahInfo = (state.surahList as SurahListEntry[]).find(s => s.number === sn);
+        const surahName = surahInfo ? surahInfo.name : `سورة ${sn}`;
+        itemsHtml += `<button class="mushaf-ayah-btn" data-surah="${sn}" data-ayah="${an}">
+          <span class="mushaf-ayah-btn-surah">${escapeHtml(surahName)}</span>
+          <span class="mushaf-ayah-btn-num">${toArabicNumeral(an)}</span>
+        </button>`;
+      }
+      itemsHtml += '</div>';
+      bar.innerHTML = itemsHtml;
+
+      bar.querySelectorAll('.mushaf-ayah-btn').forEach((btn: Element) => {
+        btn.addEventListener('click', function (this: HTMLElement) {
+          bar.querySelectorAll('.mushaf-ayah-btn').forEach((b: Element) => b.classList.remove('current'));
+          this.classList.add('current');
+          playMushafAyah(parseInt(this.dataset.surah!, 10), parseInt(this.dataset.ayah!, 10));
+          loadTafsirForSurahAyah(parseInt(this.dataset.surah!, 10), parseInt(this.dataset.ayah!, 10));
+        });
+      });
+    })
+    .catch(() => { console.warn('Failed to fetch ayah list for page', pageNum); });
+}
+
+/* ===================== PRELOAD ===================== */
+
+function preloadAdjacentLayouts(pageNum: number): void {
+  const toPreload: number[] = [];
+  if (pageNum > 1) toPreload.push(pageNum - 1);
+  if (pageNum < 604) toPreload.push(pageNum + 1);
+
+  for (const p of toPreload) {
+    loadPageData(p).catch(() => {});
+  }
+}
+
+/* ===================== SURAH OVERLAY ===================== */
+
+export function populateSurahOverlay(): void {
+  if (!dom.mushafSurahOverlayList || !state.surahList.length) return;
+  dom.mushafSurahOverlayList.innerHTML = '';
+  for (const s of state.surahList as SurahListEntry[]) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;';
+    const btn = document.createElement('button');
+    btn.className = 'mushaf-surah-overlay-btn';
+    btn.textContent = `${s.number}. ${s.name} (${s.englishName})`;
+    btn.style.flex = '1';
+    btn.dataset.surah = String(s.number);
+    btn.dataset.surahName = s.name;
+    row.appendChild(btn);
+    if ((SURAH_SECRETS as unknown as Record<number, string>)[s.number]) {
+      const secretBtn = document.createElement('button');
+      secretBtn.className = 'surah-secret-btn';
+      secretBtn.textContent = 'ℹ️';
+      secretBtn.title = 'معلومات عن السورة';
+      secretBtn.setAttribute('aria-label', `معلومات عن سورة ${s.name}`);
+      secretBtn.dataset.surah = String(s.number);
+      secretBtn.dataset.surahName = s.name;
+      row.appendChild(secretBtn);
+    }
+    dom.mushafSurahOverlayList.appendChild(row);
+  }
+
+  const overlayList = dom.mushafSurahOverlayList as HTMLElement & { _delegationBound?: boolean };
+  if (!overlayList._delegationBound) {
+    overlayList._delegationBound = true;
+    overlayList.addEventListener('click', async (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('mushaf-surah-overlay-btn')) {
+        const surahNum = parseInt(target.dataset.surah!, 10);
+        const surahName = target.dataset.surahName || '';
+        dom.mushafSurahOverlay!.style.display = 'none';
+        state.currentSurah = surahNum;
+        state.currentAyahIndex = 0;
+        state.surahData = null;
+        loadingBar.show(`⏳ البحث عن أول صفحة لسورة ${surahName}...`);
+        try {
+          const res = await fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`);
+          const data = (await res.json()) as AyahPageResponse;
+          const page = data?.data?.page || 1;
+          if (dom.pageSelect) dom.pageSelect.value = String(page);
+          if (dom.pageSlider) dom.pageSlider.value = String(page);
+          loadPage(page, true);
+        } catch {
+          showToast('تعذّر العثور على الصفحة', 'error');
+        } finally {
+          loadingBar.hide();
+        }
+        return;
+      }
+      if (target.classList.contains('surah-secret-btn')) {
+        e.stopPropagation();
+        showSurahSecret(parseInt(target.dataset.surah!, 10), target.dataset.surahName || '');
+      }
+    });
+  }
+}
+
+/* ===================== SURAH SECRETS ===================== */
+
+export function showSurahSecret(surahNum: number, surahName?: string): void {
+  if (!dom.surahSecretsOverlay || !dom.surahSecretsBody || !dom.surahSecretsTitle || !dom.surahSecretsSurahName) return;
+  const secret = (SURAH_SECRETS as unknown as Record<number, string>)[surahNum];
+  if (!secret) {
+    showToast('لا يوجد سر مسجل لهذه السورة', 'error');
+    return;
+  }
+  dom.surahSecretsSurahName.textContent = `ℹ️ ${surahNum}. ${surahName ?? ''}`;
+  dom.surahSecretsTitle.textContent = `ℹ️ معلومات عن السورة`;
+  let html = `<p>${secret}</p>`;
+  const authKeys = (SURAH_SECRETS_AUTH_KEYS as unknown as Record<number, string[]>)[surahNum];
+  if (authKeys && authKeys.length) {
+    html += `<div class="secret-source">📚 المصادر: ${authKeys.map((k: string) => `<span>${k}</span>`).join(' ')}</div>`;
+  }
+  dom.surahSecretsBody.innerHTML = html;
+  dom.surahSecretsOverlay.style.display = 'flex';
+}
+
+/* ===================== HIGHLIGHT MUSHAF AYAH ===================== */
+
+/** Update the mushaf page highlight overlay to mark the current ayah. */
+export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
+  if (!state.mushafMode) return;
+  const wrapper = dom.surahContent?.querySelector('.mushaf-image-wrapper') as HTMLElement | null;
+  const canvasEl = wrapper?.querySelector('.mushaf-page-canvas') as HTMLCanvasElement | null;
+  if (!wrapper || !canvasEl || !canvasEl.width) return;
+
+  const surahData = state.surahData as unknown as SurahDataLike | null;
+  const surah = surahData?.number;
+  const ayah = surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah;
+  if (!surah || !ayah) return;
+
+  if (!skipNav) {
+    const layout = state.currentPageLayout as unknown as PageLayoutData | null;
+    if (layout) {
+      const isOnPage = layout.lines.some(line =>
+        line.words?.some(w => {
+          const key = w.verse_key || w.location || '';
+          const parts = key.split(':');
+          return parts.length >= 2 && parseInt(parts[0], 10) === surah && parseInt(parts[1], 10) === ayah;
+        })
+      );
+      if (!isOnPage) {
+        try {
+          const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
+          const data = (await res.json()) as AyahPageResponse;
+          const page = data?.data?.page;
+          if (page && page !== state.currentPage) {
+            loadPage(page);
+            return;
+          }
+        } catch (e: unknown) {
+          console.warn('Failed to find page for ayah:', e);
+        }
+      }
+    }
+  }
+
+  const rect = canvasEl.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  const rects = await getAyahHighlightRects(state.currentPage, surah, ayah, rect.width, rect.height, state.currentPageLayout as unknown as Parameters<typeof getAyahHighlightRects>[5]) as unknown as AyahHighlightRect[];
+  if (!rects.length) return;
+
+  const wrapperRect = wrapper.getBoundingClientRect();
+  const imgLeft = rect.left - wrapperRect.left;
+  const imgTop = rect.top - wrapperRect.top;
+
+  let overlay = wrapper.querySelector('.mushaf-highlight-overlay') as HTMLElement | null;
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'mushaf-highlight-overlay';
+    overlay.style.cssText = 'position:absolute;pointer-events:none;z-index:5;';
+    wrapper.appendChild(overlay);
+  }
+  overlay.style.left = `${imgLeft}px`;
+  overlay.style.top = `${imgTop}px`;
+  overlay.style.width = `${rect.width}px`;
+  overlay.style.height = `${rect.height}px`;
+
+  overlay.innerHTML = '';
+  for (const r of rects) {
+    const bar = document.createElement('div');
+    bar.className = 'mushaf-ayah-highlight';
+    bar.style.cssText = `position:absolute;top:${r.top}px;left:${r.left}px;width:${r.width}px;height:${r.height}px;`;
+    overlay.appendChild(bar);
+  }
+}
+
+/* ===================== PLAY MUSHAF AYAH ===================== */
+
+function playMushafAyah(surahNum: number, ayahNum: number): void {
+  if (state.isPlaying) prepareAudioForNewSurah();
+  const loadAndPlay = (): void => {
+    const surahData = state.surahData as unknown as SurahDataLike;
+    const idx = surahData.ayahs.findIndex(a => a.numberInSurah === ayahNum);
+    if (idx !== -1) {
+      state.currentAyahIndex = idx;
+      updatePlayerInfo();
+      playCurrentAyah();
+    }
+  };
+  if (state.currentSurah !== surahNum || !state.surahData) {
+    const tempSurahList = state.surahList as SurahListEntry[];
+    fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`)
+      .then(res => res.json())
+      .then((json: SurahAudioResponse) => {
+        if (json?.data?.ayahs) {
+          state.ayahsAudios = json.data.ayahs.map(a => a.audio);
+          if (tempSurahList.length) {
+            const s = tempSurahList.find(s => s.number === surahNum);
+            if (s) state.surahData = { name: s.name, englishName: s.englishName, number: surahNum, ayahs: json.data.ayahs } as unknown as Record<string, unknown>;
+          }
+          loadAndPlay();
+        }
+      })
+      .catch(() => showToast('تعذّر تحميل الصوت', 'error'));
+  } else {
+    loadAndPlay();
+  }
+}

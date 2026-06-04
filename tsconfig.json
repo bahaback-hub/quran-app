@@ -3,8 +3,8 @@
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowJs": true,
-    "checkJs": true,
+    "allowJs": false,
+    "checkJs": false,
     "strict": true,
     "noImplicitAny": true,
     "noEmit": true,
@@ -13,6 +13,6 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "app.bundle.js", "src/__tests__"]
 }

@@ -1,0 +1,352 @@
+import { state } from './state.js';
+import { CONFIG, PRAYER_NAMES_AR, PRAYER_ORDER, ARABIC_WEEKDAYS } from './config.js';
+import { dom } from './dom.js';
+import { storage } from './storage.js';
+import { showToast } from './ui.js';
+import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
+import { prayerFetch } from './api-client.js';
+
+/* ===================== INTERFACES ===================== */
+
+/** Shape of cached prayer times stored in localStorage. */
+interface CachedPrayerTimes {
+  date: string;
+  timings: Record<string, unknown>;
+  city: string;
+  country: string;
+}
+
+/** DeviceOrientationEvent with iOS-specific webkitCompassHeading. */
+interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
+  webkitCompassHeading?: number;
+}
+
+/* ===================== CLOCK ===================== */
+
+let countdownInterval: ReturnType<typeof setInterval> | null = null;
+
+export function startClock(): void {
+  updateDates();
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    updateDates();
+    if (state.prayerTimes) updateCountdowns();
+  }, 1000);
+}
+
+export function stopClock(): void {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+}
+
+const _hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' });
+
+function updateDates(): void {
+  const now = new Date();
+  try {
+    const hijri = _hijriFormatter.format(now);
+    if (dom.hijriDateDisplay) dom.hijriDateDisplay.textContent = hijri;
+    if (dom.bigClockHijri) dom.bigClockHijri.textContent = '📅 ' + hijri;
+  } catch (e) { console.warn('Date update failed:', e); }
+  if (dom.weekdayDisplay) dom.weekdayDisplay.textContent = ARABIC_WEEKDAYS[now.getDay()];
+  const greg = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+  if (dom.gregorianDateDisplay) dom.gregorianDateDisplay.textContent = greg;
+  if (dom.bigClockDate) dom.bigClockDate.textContent = greg;
+  const timeStr = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
+  if (dom.bigClockTime) dom.bigClockTime.textContent = timeStr;
+  const collapsedClock = document.getElementById('collapsedClock');
+  if (collapsedClock) collapsedClock.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+}
+
+/* ===================== PRAYER TIMES ===================== */
+
+export async function loadPrayerTimes(): Promise<void> {
+  const city = dom.cityInput?.value.trim() || state.city;
+  const country = dom.countryInput?.value.trim() || state.country;
+  const method = dom.methodSelect?.value || state.method;
+  const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = await prayerFetch(query, { errorMsg: 'تعذّر تحميل مواقيت الصلاة' });
+    if (data?.data?.timings) {
+      state.prayerTimes = data.data.timings;
+      storage.set('cached_prayer_times', { date: new Date().toDateString(), timings: state.prayerTimes, city, country });
+      renderPrayerTimes();
+      checkAzanTime();
+      scheduleNextAzanCheck();
+      return;
+    }
+    throw new Error('Invalid response');
+  } catch {
+    const cached = storage.get<CachedPrayerTimes>('cached_prayer_times');
+    if (cached && cached.date === new Date().toDateString() && cached.city === city && cached.country === country) {
+      state.prayerTimes = cached.timings;
+      renderPrayerTimes();
+      checkAzanTime();
+      scheduleNextAzanCheck();
+      showToast('عرض المواقيت من الكاش المحلي', 'success');
+    } else {
+      showToast('تعذّر تحميل مواقيت الصلاة', 'error');
+    }
+  }
+}
+
+/** Get the next prayer key based on current time. */
+export function getNextPrayerKey(): string | null {
+  if (!state.prayerTimes) return null;
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  for (const key of PRAYER_ORDER) {
+    const raw = state.prayerTimes[key] as string | undefined;
+    if (!raw) continue;
+    if (timeStrToMinutes(raw.split(' ')[0]) > nowMin) return key;
+  }
+  return 'Fajr';
+}
+
+function renderPrayerTimes(): void {
+  if (!state.prayerTimes) return;
+  const order: string[] = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  const next = getNextPrayerKey();
+  let html = '';
+  for (const key of order) {
+    const raw = (state.prayerTimes[key] as string) || '';
+    const time24 = raw.split(' ')[0];
+    const isNext = (key === next);
+    html += `<div class="prayer-row ${isNext ? 'next-prayer' : ''}">
+      <span class="prayer-name">${PRAYER_NAMES_AR[key] || key}</span>
+      <span class="prayer-time">${formatTime12(time24)}</span>
+    </div>`;
+  }
+  if (dom.prayerTimesRows) dom.prayerTimesRows.innerHTML = html;
+  updateCountdowns();
+}
+
+function updateCountdowns(): void {
+  if (!state.prayerTimes) return;
+  const nextKey = getNextPrayerKey();
+  if (!nextKey) return;
+  const now = new Date();
+  const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const raw = (state.prayerTimes[nextKey] as string) || '';
+  const [hStr, mStr] = raw.split(' ')[0].split(':');
+  let nextSec = parseInt(hStr, 10) * 3600 + parseInt(mStr, 10) * 60;
+  if (nextSec <= nowSec) nextSec += 86400;
+  const diffSec = nextSec - nowSec;
+  const h = Math.floor(diffSec / 3600);
+  const m = Math.floor((diffSec % 3600) / 60);
+  const s = diffSec % 60;
+  const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+  if (dom.countdownDisplay) dom.countdownDisplay.textContent = countdownText;
+  if (dom.prayerCountdown) dom.prayerCountdown.textContent = `${PRAYER_NAMES_AR[nextKey]} — بعد ${countdownText}`;
+  const time24 = ((state.prayerTimes[nextKey] as string) || '').split(' ')[0];
+  if (dom.nextPrayerName) dom.nextPrayerName.textContent = PRAYER_NAMES_AR[nextKey];
+  if (dom.nextPrayerTime) dom.nextPrayerTime.textContent = formatTime12(time24);
+}
+
+/* ===================== AZAN ===================== */
+
+export function hideAzanNotification(): void {
+  if (dom.azanNotification) dom.azanNotification.style.display = 'none';
+}
+
+export function stopAzan(): void {
+  if (!dom.azanPlayer) return;
+  dom.azanPlayer.pause();
+  dom.azanPlayer.currentTime = 0;
+  dom.azanPlayer.removeAttribute('src');
+  dom.azanPlayer.load();
+  state.azanPlaying = false;
+  if (dom.testAzanBtn) dom.testAzanBtn.textContent = '▶️ اختبار الأذان';
+  hideAzanNotification();
+}
+
+export function testAzan(): void {
+  if (!dom.azanPlayer) return;
+  if (state.azanPlaying) {
+    stopAzan();
+    showToast('تم إيقاف الأذان', '');
+  } else {
+    dom.azanPlayer.src = CONFIG.AZAN_FILE;
+    dom.azanPlayer.load();
+    dom.azanPlayer.play()
+      .then(() => {
+        state.azanPlaying = true;
+        if (dom.testAzanBtn) dom.testAzanBtn.textContent = '⏹️ إيقاف الأذان';
+        if (dom.azanNotification && dom.azanNotifPrayer) {
+          dom.azanNotifPrayer.textContent = '🕋 اختبار الأذان';
+          dom.azanNotification.style.display = 'flex';
+        }
+      })
+      .catch(() => showToast('تعذّر تشغيل الأذان', 'error'));
+  }
+}
+
+function showAzanNotification(prayerKey: string): void {
+  if (!dom.azanNotification || !dom.azanNotifPrayer) return;
+  dom.azanNotifPrayer.textContent = `🕋 صلاة ${PRAYER_NAMES_AR[prayerKey]}`;
+  dom.azanNotification.style.display = 'flex';
+
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🕌 حان الآن وقت الصلاة', {
+      body: `صلاة ${PRAYER_NAMES_AR[prayerKey]}`,
+      icon: '/icon-192.png',
+      tag: 'azan-' + prayerKey
+    });
+  } else if ('Notification' in window && Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
+}
+
+export function checkAzanTime(): void {
+  if (!state.prayerTimes || !state.azanEnabled) return;
+  const now = new Date();
+  const cur = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+  for (const key of PRAYER_ORDER) {
+    if (key === 'Fajr' && !state.azanFajrEnabled) continue;
+    const raw = ((state.prayerTimes[key] as string) || '').split(' ')[0];
+    if (raw === cur) {
+      const stamp = key + '_' + now.toDateString() + '_' + cur;
+      if (state.lastAzanFired === stamp) return;
+      state.lastAzanFired = stamp;
+      if (dom.azanPlayer) {
+        dom.azanPlayer.src = CONFIG.AZAN_FILE;
+        dom.azanPlayer.currentTime = 0;
+        dom.azanPlayer.play()
+          .then(() => {
+            state.azanPlaying = true;
+            if (dom.testAzanBtn) dom.testAzanBtn.textContent = '⏹️ إيقاف الأذان';
+            showAzanNotification(key);
+          })
+          .catch((e: unknown) => console.warn(e));
+      }
+      return;
+    }
+  }
+}
+
+let azanTimer: ReturnType<typeof setTimeout> | null = null;
+
+export function scheduleNextAzanCheck(): void {
+  if (azanTimer) clearTimeout(azanTimer);
+  if (!state.prayerTimes || !state.azanEnabled) {
+    azanTimer = setTimeout(scheduleNextAzanCheck, 60000);
+    return;
+  }
+  const now = new Date();
+  const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  let nextSec: number | null = null;
+  for (const key of PRAYER_ORDER) {
+    if (key === 'Fajr' && !state.azanFajrEnabled) continue;
+    const raw = ((state.prayerTimes[key] as string) || '').split(' ')[0];
+    if (!raw) continue;
+    const [h, m] = raw.split(':');
+    const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
+    if (prayerSec > nowSec) { nextSec = prayerSec; break; }
+  }
+  const delayMs = nextSec === null ? 10 * 60 * 1000 : (nextSec - nowSec) * 1000;
+  azanTimer = setTimeout(() => { checkAzanTime(); scheduleNextAzanCheck(); }, delayMs);
+}
+
+/* ===================== PRAYER BAR TOGGLE ===================== */
+
+export function togglePrayerBar(): void {
+  if (!dom.prayerBar) return;
+  state.barCollapsed = !state.barCollapsed;
+  if (state.barCollapsed) {
+    dom.prayerBar.classList.add('collapsed');
+    dom.prayerBar.classList.remove('expanded');
+  } else {
+    dom.prayerBar.classList.remove('collapsed');
+    dom.prayerBar.classList.add('expanded');
+  }
+  storage.set('bar_collapsed', state.barCollapsed);
+}
+
+/* ===================== QIBLA COMPASS ===================== */
+
+/** Calculate Qibla direction from a given latitude/longitude. */
+export function calculateQibla(lat: number, lng: number): number {
+  const kaabaLat = 21.4225 * Math.PI / 180;
+  const kaabaLng = 39.8262 * Math.PI / 180;
+  const userLat = lat * Math.PI / 180;
+  const userLng = lng * Math.PI / 180;
+  const dLng = kaabaLng - userLng;
+  const y = Math.sin(dLng);
+  const x = Math.cos(userLat) * Math.tan(kaabaLat) - Math.sin(userLat) * Math.cos(dLng);
+  let qibla = Math.atan2(y, x) * 180 / Math.PI;
+  if (qibla < 0) qibla += 360;
+  return qibla;
+}
+
+/** Show the Qibla compass overlay. */
+export function showQiblaCompass(): void {
+  const overlay = document.getElementById('qiblaOverlay');
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+
+  const compass = document.getElementById('qiblaCompass');
+  const direction = document.getElementById('qiblaDirection');
+  const angleDisplay = document.getElementById('qiblaAngle');
+
+  if (!navigator.geolocation) {
+    if (direction) direction.textContent = '⚠️ الموقع غير مدعوم';
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos: GeolocationPosition) => {
+      const { latitude, longitude } = pos.coords;
+      const qiblaAngle = calculateQibla(latitude, longitude);
+
+      if (compass) {
+        compass.style.transform = `rotate(${-qiblaAngle}deg)`;
+      }
+      if (angleDisplay) {
+        angleDisplay.textContent = `${Math.round(qiblaAngle)}°`;
+      }
+
+      const handleOrientation = (e: DeviceOrientationEventiOS): void => {
+        let heading = e.alpha || 0;
+        if (e.webkitCompassHeading) heading = e.webkitCompassHeading;
+        const adjusted = qiblaAngle - heading;
+        if (compass) {
+          compass.style.transform = `rotate(${adjusted}deg)`;
+        }
+      };
+
+      if (window.DeviceOrientationEvent) {
+        const DOE = DeviceOrientationEvent as unknown as {
+          requestPermission?: () => Promise<string>;
+        };
+        if (typeof DOE.requestPermission === 'function') {
+          DOE.requestPermission().then((permState: string) => {
+            if (permState === 'granted') {
+              window.addEventListener('deviceorientation', handleOrientation as (ev: DeviceOrientationEvent) => void);
+            }
+          }).catch(() => {});
+        } else {
+          window.addEventListener('deviceorientation', handleOrientation as (ev: DeviceOrientationEvent) => void);
+        }
+      }
+
+      if (direction) {
+        const dirs = ['شمال', 'شمال شرق', 'شرق', 'جنوب شرق', 'جنوب', 'جنوب غرب', 'غرب', 'شمال غرب'];
+        const idx = Math.round(qiblaAngle / 45) % 8;
+        direction.textContent = `اتجاه القبلة: ${dirs[idx]} (${Math.round(qiblaAngle)}°)`;
+      }
+    },
+    () => {
+      if (direction) direction.textContent = '⚠️ تعذّر تحديد الموقع';
+    },
+    { enableHighAccuracy: true }
+  );
+}
+
+/** Hide the Qibla compass overlay. */
+export function hideQiblaCompass(): void {
+  const overlay = document.getElementById('qiblaOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
