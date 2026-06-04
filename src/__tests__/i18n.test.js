@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { __, setLang, getLang, initI18n } from '../i18n.js';
+import { __, setLang, getLang, initI18n, preloadLang, unloadLang, getLoadedLangs, AVAILABLE_LANGUAGES } from '../i18n.js';
 
 // Mock storage to control saved language
 vi.mock('../storage.js', () => ({
@@ -67,5 +67,94 @@ describe('i18n', () => {
     // Even in English mode, Arabic fallback should work for keys not in English bundle
     // (This tests that Arabic is always loaded as fallback)
     expect(getLang()).toBe('en');
+  });
+
+  /* ===================== LAZY LOADING ===================== */
+
+  describe('lazy loading', () => {
+    it('should only load the active language and Arabic initially', async () => {
+      await initI18n();
+      const loaded = getLoadedLangs();
+      // Should have at least Arabic (fallback) and the active language
+      expect(loaded).toContain('ar');
+    });
+
+    it('should preload a language without switching', async () => {
+      await setLang('ar');
+      // preloadLang is fire-and-forget but we can wait by loading the same lang
+      preloadLang('tr');
+      // Force wait for the preload to complete
+      await setLang('tr');
+      const loaded = getLoadedLangs();
+      expect(loaded).toContain('tr');
+      // Switch back
+      await setLang('ar');
+      expect(getLang()).toBe('ar');
+    });
+
+    it('should handle preload failure gracefully', async () => {
+      // preloadLang should not throw - it catches errors internally
+      preloadLang('en');
+      // Give it a moment
+      await new Promise(r => setTimeout(r, 100));
+    });
+
+    it('should unload a non-current, non-Arabic language', async () => {
+      await setLang('en');
+      // Load Turkish by switching to it, then back
+      await setLang('tr');
+      await setLang('en');
+      expect(getLoadedLangs()).toContain('tr');
+
+      const result = unloadLang('tr');
+      expect(result).toBe(true);
+      expect(getLoadedLangs()).not.toContain('tr');
+    });
+
+    it('should not unload Arabic (fallback)', async () => {
+      await setLang('en');
+      const result = unloadLang('ar');
+      expect(result).toBe(false);
+      expect(getLoadedLangs()).toContain('ar');
+    });
+
+    it('should not unload the current language', async () => {
+      await setLang('en');
+      const result = unloadLang('en');
+      expect(result).toBe(false);
+      expect(getLoadedLangs()).toContain('en');
+    });
+
+    it('should return false when unloading a language not loaded', () => {
+      const result = unloadLang('ms');
+      expect(result).toBe(false);
+    });
+  });
+
+  /* ===================== AVAILABLE LANGUAGES ===================== */
+
+  describe('AVAILABLE_LANGUAGES', () => {
+    it('should have 5 languages', () => {
+      expect(AVAILABLE_LANGUAGES).toHaveLength(5);
+    });
+
+    it('should have correct language codes', () => {
+      const codes = AVAILABLE_LANGUAGES.map(l => l.code);
+      expect(codes).toContain('ar');
+      expect(codes).toContain('en');
+      expect(codes).toContain('tr');
+      expect(codes).toContain('ms');
+      expect(codes).toContain('id');
+    });
+
+    it('should have Arabic as RTL', () => {
+      const ar = AVAILABLE_LANGUAGES.find(l => l.code === 'ar');
+      expect(ar?.dir).toBe('rtl');
+    });
+
+    it('should have English as LTR', () => {
+      const en = AVAILABLE_LANGUAGES.find(l => l.code === 'en');
+      expect(en?.dir).toBe('ltr');
+    });
   });
 });

@@ -13,10 +13,30 @@ export interface TranslationBundle {
 /** Supported language codes. */
 export type LangCode = 'ar' | 'en' | 'tr' | 'ms' | 'id';
 
+/** Language metadata for the language selector UI. */
+export interface LanguageInfo {
+  code: LangCode;
+  nativeName: string;
+  englishName: string;
+  dir: 'rtl' | 'ltr';
+}
+
+/** Available languages with metadata. */
+export const AVAILABLE_LANGUAGES: LanguageInfo[] = [
+  { code: 'ar', nativeName: 'العربية', englishName: 'Arabic', dir: 'rtl' },
+  { code: 'en', nativeName: 'English', englishName: 'English', dir: 'ltr' },
+  { code: 'tr', nativeName: 'Türkçe', englishName: 'Turkish', dir: 'ltr' },
+  { code: 'ms', nativeName: 'Bahasa Melayu', englishName: 'Malay', dir: 'ltr' },
+  { code: 'id', nativeName: 'Bahasa Indonesia', englishName: 'Indonesian', dir: 'ltr' },
+];
+
 const STORAGE_KEY = 'lang';
 
 /** Lazy-loaded translation cache — only the active language is loaded. */
 const translations: Partial<Record<LangCode, TranslationBundle>> = {};
+
+/** Loading promises — prevents duplicate loads for the same language. */
+const loadingPromises: Partial<Record<LangCode, Promise<TranslationBundle>>> = {};
 
 /** Always keep Arabic loaded as the fallback language. */
 let _arFallback: TranslationBundle | null = null;
@@ -41,11 +61,16 @@ let currentBundle: TranslationBundle | null = null;
 /**
  * Load a translation bundle by language code.
  * Uses dynamic import so only the needed language is fetched.
+ * Deduplicates concurrent loads for the same language.
  */
 async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
+  // Return cached translation if already loaded
   if (translations[lang]) return translations[lang]!;
 
-  const moduleMap: Record<LangCode, () => Promise<any>> = {
+  // Return existing loading promise if one is in progress
+  if (loadingPromises[lang]) return loadingPromises[lang]!;
+
+  const moduleMap: Record<LangCode, () => Promise<{ default: TranslationBundle }>> = {
     ar: () => import('./translations/ar'),
     en: () => import('./translations/en'),
     tr: () => import('./translations/tr'),
@@ -56,13 +81,62 @@ async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
   const loader = moduleMap[lang];
   if (!loader) throw new Error(`Unknown language: ${lang}`);
 
-  const mod = await loader();
-  translations[lang] = mod.default;
+  // Create and cache the loading promise to prevent duplicate loads
+  const promise = loader().then(mod => {
+    translations[lang] = mod.default;
+    delete loadingPromises[lang]; // Clean up promise after load
 
-  // Cache Arabic fallback when it loads
-  if (lang === 'ar') _arFallback = mod.default;
+    // Cache Arabic fallback when it loads
+    if (lang === 'ar') _arFallback = mod.default;
 
-  return mod.default;
+    if (import.meta.env.DEV) {
+      console.info(`[i18n] Loaded "${lang}" bundle (${Object.keys(mod.default).length} keys)`);
+    }
+
+    return mod.default;
+  }).catch(err => {
+    delete loadingPromises[lang]; // Clean up on error too
+    console.error(`[i18n] Failed to load language "${lang}":`, err);
+    throw err;
+  });
+
+  loadingPromises[lang] = promise;
+  return promise;
+}
+
+/**
+ * Preload a translation bundle without switching to it.
+ * Useful for warming the cache so language switches feel instant.
+ * Returns immediately if already loaded or loading.
+ */
+export function preloadLang(lang: LangCode): void {
+  loadTranslation(lang).catch(() => {
+    // Silently ignore preload failures — user didn't request this language
+  });
+}
+
+/**
+ * Unload a translation bundle from memory to free RAM.
+ * Never unloads Arabic (fallback) or the current language.
+ * @returns true if the bundle was unloaded, false if it's protected
+ */
+export function unloadLang(lang: LangCode): boolean {
+  // Never unload Arabic (fallback) or the current language
+  if (lang === 'ar' || lang === currentLang) return false;
+  if (!translations[lang]) return false;
+
+  delete translations[lang];
+  if (import.meta.env.DEV) {
+    console.info(`[i18n] Unloaded "${lang}" bundle to free memory`);
+  }
+  return true;
+}
+
+/**
+ * Get list of currently loaded languages.
+ */
+export function getLoadedLangs(): LangCode[] {
+  return Object.keys(translations) as LangCode[];
 }
 
 /** Initialize i18n system from saved language or browser preference. */
@@ -72,11 +146,44 @@ export async function initI18n(): Promise<void> {
     (navigator.language || '').startsWith('en') ? 'en' : 'ar'
   );
 
-  // Always load Arabic as fallback first
-  await loadTranslation('ar');
+  // Load Arabic and target language in parallel if they're different
+  // This cuts init time in half for non-Arabic users
+  if (targetLang === 'ar') {
+    await loadTranslation('ar');
+  } else {
+    await Promise.all([
+      loadTranslation('ar'),
+      loadTranslation(targetLang),
+    ]);
+  }
 
-  // Then load the target language (may be Arabic, which is already cached)
   await setLang(targetLang);
+
+  // After init, preload likely-needed languages in the background
+  // Strategy: preload the 2 most likely alternate languages
+  setTimeout(() => {
+    const toPreload = getPreloadCandidates(targetLang);
+    for (const lang of toPreload) {
+      preloadLang(lang);
+    }
+  }, 3000);
+}
+
+/**
+ * Get language codes to preload based on the current language.
+ * Preloads languages that users are most likely to switch to.
+ */
+function getPreloadCandidates(current: LangCode): LangCode[] {
+  // Always suggest English as the most common alternate
+  const candidates: LangCode[] = [];
+  if (current !== 'en') candidates.push('en');
+  // Add the user's browser language if different and supported
+  const browserLang = (navigator.language || '').slice(0, 2);
+  if (browserLang !== current && browserLang !== 'en') {
+    const supported = AVAILABLE_LANGUAGES.find(l => l.code === browserLang);
+    if (supported) candidates.push(supported.code);
+  }
+  return candidates.slice(0, 2); // Max 2 preloads to save bandwidth
 }
 
 /** Set the active language and update document direction. */
