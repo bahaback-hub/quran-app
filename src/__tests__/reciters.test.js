@@ -7,7 +7,7 @@ describe('RECITERS', () => {
   });
 
   it('should have api and mp3quran sources', () => {
-    const sources = RECITERS.map(r => r.source);
+    const sources = RECITERS.map((r) => r.source);
     expect(sources).toContain('api');
     expect(sources).toContain('mp3quran');
   });

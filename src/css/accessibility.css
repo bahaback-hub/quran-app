@@ -1,10 +1,16 @@
 /* Accessibility — reduced motion, high contrast, focus styles, auto night mode */
 
-:focus-visible { outline: var(--focus-outline); outline-offset: 2px; border-radius: 4px; }
+:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 
 /* ========== دعم تقليل الحركة ========== */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -14,7 +20,9 @@
 
 /* ========== احترام تفضيلات الحركة ========== */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -60,13 +68,13 @@
     --error-bg: #3a1f1f;
     --error-text: #ff8888;
     --footer-bg: #0a0e1a;
-    --shadow: 0 20px 60px rgba(0,0,0,0.6);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
     --tafsir-bg: #1e2330;
     --tafsir-text: #c8c8c8;
     --tafsir-border: #3a4050;
     --prayer-bar-bg: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
     --share-menu-bg: #2a3040;
-    --share-menu-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    --share-menu-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     --focus-outline: 3px solid #e8d9a8;
     --curtain-handle-bg: linear-gradient(180deg, #5a4a3a, #7a6a5a);
     --font-size-select-bg: #2a3040;

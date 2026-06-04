@@ -14,8 +14,8 @@ vi.mock('../adhkar-data.js', () => ({
         defaultDuration: 30,
         items: [
           { id: 'm1', text: 'سبحان الله', count: 33, reference: 'متفق عليه' },
-          { id: 'm2', text: 'الحمد لله', count: 33, reference: 'متفق عليه' }
-        ]
+          { id: 'm2', text: 'الحمد لله', count: 33, reference: 'متفق عليه' },
+        ],
       },
       {
         id: 'evening',
@@ -23,12 +23,10 @@ vi.mock('../adhkar-data.js', () => ({
         icon: '🌆',
         defaultTime: '18:00',
         defaultDuration: 30,
-        items: [
-          { id: 'e1', text: 'آية الكرسي', count: 1, reference: 'البقرة 255' }
-        ]
-      }
-    ]
-  }
+        items: [{ id: 'e1', text: 'آية الكرسي', count: 1, reference: 'البقرة 255' }],
+      },
+    ],
+  },
 }));
 
 import { loadAdhkarSettings, checkAdhkarNotifications, toggleAdhkarPanel } from '../adhkar.js';
@@ -72,9 +70,11 @@ describe('checkAdhkarNotifications', () => {
       adhkar_enabled: true,
       morning: { enabled: true, time: '06:00', duration: 30 },
       evening: { enabled: false, time: '18:00', duration: 30 },
-      item_m1: 0, item_m2: 0, item_e1: 0,
+      item_m1: 0,
+      item_m2: 0,
+      item_e1: 0,
       personal_adhkar: [],
-      _resetDate: new Date().toDateString()
+      _resetDate: new Date().toDateString(),
     };
     state.lastAdhkarFired = null;
     dom.adhkarNotification = document.createElement('div');

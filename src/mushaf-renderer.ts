@@ -83,14 +83,20 @@ export async function loadPageData(pageNum: number): Promise<PageLayoutData | nu
     const data = (await res.json()) as PageLayoutData;
     layoutCache.set(key, data);
     return data;
-  } catch (e: unknown) { console.warn('Failed to load mushaf page data:', e); return null; }
+  } catch (e: unknown) {
+    console.warn('Failed to load mushaf page data:', e);
+    return null;
+  }
 }
 
 async function ensureFontLoaded(fontName: string): Promise<void> {
   if (loadedFonts.has(fontName)) return;
   if (fontName === BSML_FONT) {
     const existing = document.getElementById('qcf-basml');
-    if (existing) { loadedFonts.add(fontName); return; }
+    if (existing) {
+      loadedFonts.add(fontName);
+      return;
+    }
     const style = document.createElement('style');
     style.id = 'qcf-basml';
     style.textContent = `
@@ -102,7 +108,10 @@ async function ensureFontLoaded(fontName: string): Promise<void> {
     document.head.appendChild(style);
   } else {
     const existing = document.getElementById(`qcf-${fontName}`);
-    if (existing) { loadedFonts.add(fontName); return; }
+    if (existing) {
+      loadedFonts.add(fontName);
+      return;
+    }
     const style = document.createElement('style');
     style.id = `qcf-${fontName}`;
     style.textContent = `
@@ -115,7 +124,9 @@ async function ensureFontLoaded(fontName: string): Promise<void> {
   }
   try {
     await document.fonts.load(`1px "${fontName}"`);
-  } catch { /* font may already be available */ }
+  } catch {
+    /* font may already be available */
+  }
   loadedFonts.add(fontName);
 }
 
@@ -139,7 +150,7 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   const pageFont = data.font || getPageFont(pageNum, null);
   await ensureFontLoaded(pageFont);
 
-  const hasBasml = data.lines?.some(l => l.words?.some(w => w.font === BSML_FONT));
+  const hasBasml = data.lines?.some((l) => l.words?.some((w) => w.font === BSML_FONT));
   const hasSurahHeader = data.lines?.[0]?.words?.[0]?.type === 'surah_header';
   if (hasBasml || hasSurahHeader) await ensureFontLoaded(BSML_FONT);
 
@@ -168,7 +179,7 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
 }
 
 function measureLine(ctx: CanvasRenderingContext2D, words: PageWord[], pageFont: string, fontSize: number): number[] {
-  return words.map(w => {
+  return words.map((w) => {
     const fn = w.font || pageFont;
     ctx.font = `${fontSize}px "${fn}", "Scheherazade New", "Traditional Arabic", "Amiri", serif`;
     return ctx.measureText(w.char).width;
@@ -186,7 +197,12 @@ export function getLineY(lineIndex: number, lineCount: number, imgHeight: number
   return (y / CANVAS_H) * imgHeight;
 }
 
-function renderPageContent(ctx: CanvasRenderingContext2D, data: PageLayoutData, pageFont: string, colors: PageColors): void {
+function renderPageContent(
+  ctx: CanvasRenderingContext2D,
+  data: PageLayoutData,
+  pageFont: string,
+  colors: PageColors
+): void {
   const lines = data.lines;
   if (!lines || lines.length === 0) return;
 
@@ -204,7 +220,10 @@ function renderPageContent(ctx: CanvasRenderingContext2D, data: PageLayoutData, 
   const lineWidths: (LineWidths | null)[] = [];
   for (let i = 0; i < lineCount; i++) {
     const line = lines[i];
-    if (!line?.words || line.words.length === 0) { lineWidths.push(null); continue; }
+    if (!line?.words || line.words.length === 0) {
+      lineWidths.push(null);
+      continue;
+    }
     const widths = measureLine(ctx, line.words, pageFont, pageFontSize);
     const totalW = widths.reduce((a: number, b: number) => a + b, 0);
     const gap = line.words.length > 1 ? (availableW - totalW) / (line.words.length - 1) : 0;

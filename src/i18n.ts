@@ -82,23 +82,25 @@ async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
   if (!loader) throw new Error(`Unknown language: ${lang}`);
 
   // Create and cache the loading promise to prevent duplicate loads
-  const promise = loader().then(mod => {
-    translations[lang] = mod.default;
-    delete loadingPromises[lang]; // Clean up promise after load
+  const promise = loader()
+    .then((mod) => {
+      translations[lang] = mod.default;
+      delete loadingPromises[lang]; // Clean up promise after load
 
-    // Cache Arabic fallback when it loads
-    if (lang === 'ar') _arFallback = mod.default;
+      // Cache Arabic fallback when it loads
+      if (lang === 'ar') _arFallback = mod.default;
 
-    if (import.meta.env.DEV) {
-      console.info(`[i18n] Loaded "${lang}" bundle (${Object.keys(mod.default).length} keys)`);
-    }
+      if (import.meta.env.DEV) {
+        console.info(`[i18n] Loaded "${lang}" bundle (${Object.keys(mod.default).length} keys)`);
+      }
 
-    return mod.default;
-  }).catch(err => {
-    delete loadingPromises[lang]; // Clean up on error too
-    console.error(`[i18n] Failed to load language "${lang}":`, err);
-    throw err;
-  });
+      return mod.default;
+    })
+    .catch((err) => {
+      delete loadingPromises[lang]; // Clean up on error too
+      console.error(`[i18n] Failed to load language "${lang}":`, err);
+      throw err;
+    });
 
   loadingPromises[lang] = promise;
   return promise;
@@ -142,19 +144,14 @@ export function getLoadedLangs(): LangCode[] {
 /** Initialize i18n system from saved language or browser preference. */
 export async function initI18n(): Promise<void> {
   const saved = storage.get<string>(STORAGE_KEY) as LangCode | null;
-  const targetLang: LangCode = saved || (
-    (navigator.language || '').startsWith('en') ? 'en' : 'ar'
-  );
+  const targetLang: LangCode = saved || ((navigator.language || '').startsWith('en') ? 'en' : 'ar');
 
   // Load Arabic and target language in parallel if they're different
   // This cuts init time in half for non-Arabic users
   if (targetLang === 'ar') {
     await loadTranslation('ar');
   } else {
-    await Promise.all([
-      loadTranslation('ar'),
-      loadTranslation(targetLang),
-    ]);
+    await Promise.all([loadTranslation('ar'), loadTranslation(targetLang)]);
   }
 
   await setLang(targetLang);
@@ -180,7 +177,7 @@ function getPreloadCandidates(current: LangCode): LangCode[] {
   // Add the user's browser language if different and supported
   const browserLang = (navigator.language || '').slice(0, 2);
   if (browserLang !== current && browserLang !== 'en') {
-    const supported = AVAILABLE_LANGUAGES.find(l => l.code === browserLang);
+    const supported = AVAILABLE_LANGUAGES.find((l) => l.code === browserLang);
     if (supported) candidates.push(supported.code);
   }
   return candidates.slice(0, 2); // Max 2 preloads to save bandwidth

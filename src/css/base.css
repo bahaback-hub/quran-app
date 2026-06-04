@@ -1,6 +1,10 @@
 /* Base styles — reset, body, skip-link, container, network-banner */
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
   font-family: 'Amiri', 'Traditional Arabic', 'Arial', sans-serif;
@@ -26,7 +30,10 @@ body[data-bg-css] {
 body.bg-css::after {
   content: '';
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: inherit;
   z-index: -1;
   opacity: 0.55;
@@ -37,9 +44,15 @@ body.night-mode.bg-css::after {
 }
 
 @keyframes bgSlowShift {
-  0% { filter: hue-rotate(0deg) saturate(1); }
-  50% { filter: hue-rotate(5deg) saturate(1.1); }
-  100% { filter: hue-rotate(0deg) saturate(1); }
+  0% {
+    filter: hue-rotate(0deg) saturate(1);
+  }
+  50% {
+    filter: hue-rotate(5deg) saturate(1.1);
+  }
+  100% {
+    filter: hue-rotate(0deg) saturate(1);
+  }
 }
 
 body:not(.bg-css) {
@@ -59,7 +72,9 @@ body:not(.bg-css) {
   transition: top 0.2s;
   font-weight: bold;
 }
-.skip-link:focus { top: 0; }
+.skip-link:focus {
+  top: 0;
+}
 
 .container {
   max-width: 1200px;
@@ -74,7 +89,9 @@ body:not(.bg-css) {
 /* ========== شريط حالة الاتصال ========== */
 .network-banner {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   background: #dc2626;
   color: #fff;
   text-align: center;

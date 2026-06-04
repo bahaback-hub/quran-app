@@ -36,7 +36,9 @@
   transform: scale(1.1);
   opacity: 1;
 }
-body.night-mode .surah-title { color: var(--accent); }
+body.night-mode .surah-title {
+  color: var(--accent);
+}
 .bismillah {
   text-align: center;
   font-size: 32px;
@@ -60,7 +62,9 @@ body.night-mode .surah-title { color: var(--accent); }
   border-radius: 8px;
   transition: all 0.3s ease;
 }
-.ayah:hover { background: var(--hover-bg); }
+.ayah:hover {
+  background: var(--hover-bg);
+}
 .ayah.current {
   background: var(--highlight-bg);
   color: var(--highlight-text);
@@ -69,7 +73,7 @@ body.night-mode .surah-title { color: var(--accent); }
 }
 .ayah.hifdh-mode {
   color: transparent !important;
-  text-shadow: 0 0 12px rgba(0,0,0,0.5);
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
   transition: all 0.5s ease;
 }
 .ayah.hifdh-mode.revealed {
@@ -92,7 +96,8 @@ body.night-mode .surah-title { color: var(--accent); }
   padding: 0 6px;
 }
 
-.loading, .loading-msg {
+.loading,
+.loading-msg {
   text-align: center;
   padding: 30px;
   color: var(--text-muted);
@@ -109,7 +114,9 @@ body.night-mode .surah-title { color: var(--accent); }
 
 /* ========== Word-by-Word Highlighting ========== */
 .word {
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
   border-radius: 3px;
   padding: 0 1px;
 }

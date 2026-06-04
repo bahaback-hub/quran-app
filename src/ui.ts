@@ -37,6 +37,8 @@ export const loadingBar = {
     if (!this.el) return;
     this.el.classList.remove('active');
     if (this.timer) clearTimeout(this.timer);
-    this.timer = setTimeout(() => { if (this.el) this.el.textContent = ''; }, 300);
-  }
+    this.timer = setTimeout(() => {
+      if (this.el) this.el.textContent = '';
+    }, 300);
+  },
 };

@@ -75,13 +75,31 @@ let audioLoadSurah: number | null = null;
 function cache(): void {
   modalEl = document.getElementById('ayahModal');
   const ids: (keyof ModalDomMap)[] = [
-    'ayahModalCloseBtn','ayahModalTitle','ayahModalBookmarkBtn','ayahModalFavBtn',
-    'ayahModalNav','ayahModalNextBtn','ayahModalText','ayahModalPage','ayahModalJuz',
-    'ayahModalSurahAyah','ayahModalTafsirBtn','ayahModalShareBtn',
-    'ayahModalCopyBtn','ayahModalCopySimpleBtn','ayahModalCopyTafsirBtn',
-    'ayahModalQariSelect','ayahModalPlayBtn','ayahModalAudioCurrent',
-    'ayahModalAudioSlider','ayahModalAudioDuration','ayahModalRepeatChk',
-    'ayahModalDownloadBtn','ayahModalAudioPlayer','ayahModalTafsirTabs','ayahModalTafsirBody'
+    'ayahModalCloseBtn',
+    'ayahModalTitle',
+    'ayahModalBookmarkBtn',
+    'ayahModalFavBtn',
+    'ayahModalNav',
+    'ayahModalNextBtn',
+    'ayahModalText',
+    'ayahModalPage',
+    'ayahModalJuz',
+    'ayahModalSurahAyah',
+    'ayahModalTafsirBtn',
+    'ayahModalShareBtn',
+    'ayahModalCopyBtn',
+    'ayahModalCopySimpleBtn',
+    'ayahModalCopyTafsirBtn',
+    'ayahModalQariSelect',
+    'ayahModalPlayBtn',
+    'ayahModalAudioCurrent',
+    'ayahModalAudioSlider',
+    'ayahModalAudioDuration',
+    'ayahModalRepeatChk',
+    'ayahModalDownloadBtn',
+    'ayahModalAudioPlayer',
+    'ayahModalTafsirTabs',
+    'ayahModalTafsirBody',
   ];
   for (const id of ids) {
     (M as unknown as Record<string, HTMLElement | null>)[id] = document.getElementById(id);
@@ -100,7 +118,7 @@ export function openAyahModal(data: ModalAyahData): void {
   if (!modalEl || !data) return;
   let idx: number = data.index;
   if (idx === -1 && state.fullQuranText) {
-    idx = state.fullQuranText.findIndex(a => a.surah === data.surah && a.ayah === data.ayah);
+    idx = state.fullQuranText.findIndex((a) => a.surah === data.surah && a.ayah === data.ayah);
   }
   current = { ...data, index: idx };
   modalEl.style.display = 'flex';
@@ -126,7 +144,9 @@ export function closeAyahModal(): void {
 
 function bind(): void {
   M.ayahModalCloseBtn?.addEventListener('click', closeAyahModal);
-  modalEl?.addEventListener('click', (e: MouseEvent) => { if (e.target === modalEl) closeAyahModal(); });
+  modalEl?.addEventListener('click', (e: MouseEvent) => {
+    if (e.target === modalEl) closeAyahModal();
+  });
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape' && modalEl?.style.display !== 'none') closeAyahModal();
   });
@@ -134,7 +154,10 @@ function bind(): void {
   M.ayahModalBookmarkBtn?.addEventListener('click', saveBookmark);
   M.ayahModalFavBtn?.addEventListener('click', toggleModalFav);
   M.ayahModalTafsirBtn?.addEventListener('click', () => {
-    if (current) { closeAyahModal(); loadSurah(current.surah, { startAyah: current.ayah }); }
+    if (current) {
+      closeAyahModal();
+      loadSurah(current.surah, { startAyah: current.ayah });
+    }
   });
   M.ayahModalShareBtn?.addEventListener('click', shareModalAyah);
   M.ayahModalCopyBtn?.addEventListener('click', () => copyModalAyah(false));
@@ -165,7 +188,10 @@ function bind(): void {
 function goToNextAyah(): void {
   if (!current || !state.fullQuranText) return;
   const idx: number = current.index + 1;
-  if (idx >= state.fullQuranText.length) { showToast(__('last_ayah_in_quran'), 'error'); return; }
+  if (idx >= state.fullQuranText.length) {
+    showToast(__('last_ayah_in_quran'), 'error');
+    return;
+  }
   const next = state.fullQuranText[idx];
   current = { surah: next.surah, ayah: next.ayah, text: next.text, surahName: next.surahName, index: idx };
   M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(next.ayah), next.surahName)}`;
@@ -214,8 +240,11 @@ async function loadMeta(): Promise<void> {
 function saveBookmark(): void {
   if (!current) return;
   storage.set('bookmark', {
-    surah: current.surah, surahName: current.surahName,
-    ayah: current.ayah, text: current.text, timestamp: Date.now()
+    surah: current.surah,
+    surahName: current.surahName,
+    ayah: current.ayah,
+    text: current.text,
+    timestamp: Date.now(),
   });
   showToast(__('bookmark_position_saved'), 'success');
 }
@@ -223,14 +252,18 @@ function saveBookmark(): void {
 function toggleModalFav(): void {
   if (!current) return;
   const key: string = `${current.surah}:${current.ayah}`;
-  const idx: number = state.favorites.findIndex(f => f.key === key);
+  const idx: number = state.favorites.findIndex((f) => f.key === key);
   if (idx !== -1) {
     immutableSplice(state, 'favorites', idx, 1);
     showToast(__('removed_from_favorites'), '');
   } else {
     immutablePush(state, 'favorites', {
-      key, surah: current.surah, surahName: current.surahName,
-      ayah: current.ayah, text: current.text, timestamp: Date.now()
+      key,
+      surah: current.surah,
+      surahName: current.surahName,
+      ayah: current.ayah,
+      text: current.text,
+      timestamp: Date.now(),
     });
     showToast(__('added_to_favorites'), '');
   }
@@ -241,7 +274,7 @@ function toggleModalFav(): void {
 function updateFavBtn(): void {
   if (!current) return;
   const key: string = `${current.surah}:${current.ayah}`;
-  const isFav: boolean = state.favorites.some(f => f.key === key);
+  const isFav: boolean = state.favorites.some((f) => f.key === key);
   M.ayahModalFavBtn!.textContent = isFav ? __('in_favorites') : __('add_to_favorites');
   M.ayahModalFavBtn!.classList.toggle('active', isFav);
 }
@@ -257,7 +290,8 @@ function copyModalAyah(simple: boolean): void {
 
 async function copyModalWithTafsir(): Promise<void> {
   if (!current) return;
-  const edition: string = document.querySelector('.ayah-modal-tafsir-tab.active')?.dataset?.edition || 'ar-tafsir-muyassar';
+  const edition: string =
+    document.querySelector('.ayah-modal-tafsir-tab.active')?.dataset?.edition || 'ar-tafsir-muyassar';
   const tafsir: string | null = await fetchTafsirText(edition, current.surah, current.ayah);
   const text: string = `${current.text}\n\n${tafsir || ''}`;
   copyToClipboard(text);
@@ -279,8 +313,8 @@ function shareModalAyah(): void {
 
 function populateQaris(): void {
   if (!M.ayahModalQariSelect) return;
-  M.ayahModalQariSelect.innerHTML = RECITERS.map((r: ReciterEntry) =>
-    `<option value="${r.id}">${r.name}</option>`
+  M.ayahModalQariSelect.innerHTML = RECITERS.map(
+    (r: ReciterEntry) => `<option value="${r.id}">${r.name}</option>`
   ).join('');
 }
 
@@ -301,22 +335,33 @@ async function ensureModalAudio(): Promise<void> {
       ayahAudios = d.data.ayahs.map((a: { audio: string }) => a.audio);
       audioLoadSurah = current.surah;
     }
-  } catch { ayahAudios = []; audioLoadSurah = null; }
+  } catch {
+    ayahAudios = [];
+    audioLoadSurah = null;
+  }
 }
 
 function toggleModalAudio(): void {
   if (!current) return;
   const player: HTMLAudioElement | null = M.ayahModalAudioPlayer;
   if (!player) return;
-  if (!player.paused) { player.pause(); M.ayahModalPlayBtn!.textContent = __('ayah_modal_play'); return; }
+  if (!player.paused) {
+    player.pause();
+    M.ayahModalPlayBtn!.textContent = __('ayah_modal_play');
+    return;
+  }
 
   // Use existing state audio if same surah is loaded
   const surahData = state.surahData as Record<string, unknown> | null;
   if (surahData?.number === current.surah && state.ayahsAudios?.length) {
-    const url: string | undefined = state.ayahsAudios[current.index >= 0 ? current.index : (current.ayah - 1)];
+    const url: string | undefined = state.ayahsAudios[current.index >= 0 ? current.index : current.ayah - 1];
     if (url) {
       player.src = url;
-      player.play().then(() => { M.ayahModalPlayBtn!.textContent = __('ayah_modal_pause'); })
+      player
+        .play()
+        .then(() => {
+          M.ayahModalPlayBtn!.textContent = __('ayah_modal_pause');
+        })
         .catch(() => showToast(__('audio_error'), 'error'));
       return;
     }
@@ -325,11 +370,17 @@ function toggleModalAudio(): void {
   ensureModalAudio().then(() => {
     if (!current) return;
     const url: string | undefined = ayahAudios[0];
-    if (!url) { showToast(__('no_audio_ayah'), 'error'); return; }
+    if (!url) {
+      showToast(__('no_audio_ayah'), 'error');
+      return;
+    }
     player.src = url;
-    player.play().then(() => {
-      M.ayahModalPlayBtn!.textContent = __('ayah_modal_pause');
-    }).catch(() => showToast(__('audio_error'), 'error'));
+    player
+      .play()
+      .then(() => {
+        M.ayahModalPlayBtn!.textContent = __('ayah_modal_pause');
+      })
+      .catch(() => showToast(__('audio_error'), 'error'));
   });
 }
 
@@ -352,7 +403,10 @@ function resetAudio(): void {
   M.ayahModalPlayBtn!.textContent = __('ayah_modal_play');
   M.ayahModalAudioCurrent!.textContent = '0:00';
   M.ayahModalAudioDuration!.textContent = '0:00';
-  if (slider) { slider.value = '0'; slider.max = '100'; }
+  if (slider) {
+    slider.value = '0';
+    slider.max = '100';
+  }
   audioLoadSurah = null;
   ayahAudios = [];
 }
@@ -385,7 +439,10 @@ function formatTime(secs: number): string {
 function downloadModalAyah(): void {
   if (!current) return;
   const player: HTMLAudioElement | null = M.ayahModalAudioPlayer;
-  if (!player || !player.src) { showToast(__('play_ayah_first'), 'error'); return; }
+  if (!player || !player.src) {
+    showToast(__('play_ayah_first'), 'error');
+    return;
+  }
   const a: HTMLAnchorElement = document.createElement('a');
   a.href = player.src;
   a.download = `ayah-${current.surah}-${current.ayah}.mp3`;

@@ -54,16 +54,23 @@ export function trapFocus(container: HTMLElement): () => void {
 
   function onKeyDown(e: KeyboardEvent): void {
     if (e.key !== 'Tab') return;
-    const focusable = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR))
-      .filter((el: Element) => (el as HTMLElement).offsetParent !== null && !el.hasAttribute('disabled')) as HTMLElement[];
+    const focusable = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter(
+      (el: Element) => (el as HTMLElement).offsetParent !== null && !el.hasAttribute('disabled')
+    ) as HTMLElement[];
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     const active = document.activeElement;
     if (e.shiftKey) {
-      if (active === first || !container.contains(active)) { e.preventDefault(); last.focus(); }
+      if (active === first || !container.contains(active)) {
+        e.preventDefault();
+        last.focus();
+      }
     } else {
-      if (active === last || !container.contains(active)) { e.preventDefault(); first.focus(); }
+      if (active === last || !container.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
     }
   }
 
@@ -87,7 +94,9 @@ export function announceToScreenReader(message: string, politeness: AriaPolitene
   region.dataset.busy = '1';
   requestAnimationFrame(() => {
     region.textContent = message;
-    setTimeout(() => { delete region.dataset.busy; }, 600);
+    setTimeout(() => {
+      delete region.dataset.busy;
+    }, 600);
   });
 }
 
@@ -106,7 +115,9 @@ export function manageFocusOnPanelOpen(panelEl: HTMLElement, triggerEl?: HTMLEle
   }
   if (!panelEl.hasAttribute('tabindex')) panelEl.setAttribute('tabindex', '-1');
   const first = panelEl.querySelector(FOCUSABLE_SELECTOR) as HTMLElement | null;
-  requestAnimationFrame(() => { first ? first.focus() : panelEl.focus(); });
+  requestAnimationFrame(() => {
+    first ? first.focus() : panelEl.focus();
+  });
   const label = panelEl.getAttribute('aria-label') || panelEl.getAttribute('aria-labelledby') || 'Panel';
   announceToScreenReader(`${label} opened`);
 }
@@ -143,7 +154,10 @@ export function restoreFocusOnPanelClose(triggerEl?: HTMLElement | null, panelEl
 export function addKeyboardDismiss(element: HTMLElement, callback: () => void): () => void {
   if (!element || typeof callback !== 'function') return () => {};
   function onKeyDown(e: KeyboardEvent): void {
-    if (e.key === 'Escape') { e.stopPropagation(); callback(); }
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      callback();
+    }
   }
   element.addEventListener('keydown', onKeyDown);
   return () => element.removeEventListener('keydown', onKeyDown);
@@ -161,7 +175,10 @@ export function initToggleSwitchAccessibility(): void {
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     const toggle = (e.target as Element)?.closest('.toggle-switch') as HTMLElement | null;
     if (!toggle) return;
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggle.click();
+    }
   });
 
   for (const toggle of document.querySelectorAll('.toggle-switch')) {

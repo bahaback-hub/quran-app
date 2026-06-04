@@ -83,7 +83,6 @@ interface SavedPosition {
   timestamp: number;
 }
 
-
 /* ===================== SURAH LIST ===================== */
 
 /** Load surah list from cache, API, or local fallback, then populate dropdown. */
@@ -106,7 +105,9 @@ export async function loadSurahList(): Promise<void> {
       populateSurahSelect();
       return;
     }
-  } catch (_e) { /* fall through to local fallback */ }
+  } catch (_e) {
+    /* fall through to local fallback */
+  }
   try {
     const localData = await jsonFetch('data/surah-list.json', { silent: true });
     if (localData && localData.length === CONFIG.SURAH_COUNT) {
@@ -116,7 +117,9 @@ export async function loadSurahList(): Promise<void> {
       populateSurahSelect();
       return;
     }
-  } catch (_e) { /* no local fallback */ }
+  } catch (_e) {
+    /* no local fallback */
+  }
   if (dom.surahSelect) dom.surahSelect.innerHTML = `<option value="">${__('error_unexpected')}</option>`;
   showToast(__('failed_load_surah'), 'error');
 }
@@ -135,9 +138,7 @@ function populateSurahSelect(): void {
 
 export function populateReciterSelect(): void {
   if (!dom.reciterSelect) return;
-  dom.reciterSelect.innerHTML = RECITERS.map((r: ReciterInfo) =>
-    `<option value="${r.id}">${r.name}</option>`
-  ).join('');
+  dom.reciterSelect.innerHTML = RECITERS.map((r: ReciterInfo) => `<option value="${r.id}">${r.name}</option>`).join('');
   dom.reciterSelect.value = state.currentReciter || CONFIG.DEFAULT_RECITER;
 }
 
@@ -166,7 +167,10 @@ async function fetchAyahTimings(reciterId: string, surahNum: number, ayahs: Ayah
   const apiId = getTimingApiId(reciterId);
   if (!apiId) return null;
   try {
-    const data = await jsonFetch(`https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`, { silent: true, timeout: 8000 });
+    const data = await jsonFetch(
+      `https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`,
+      { silent: true, timeout: 8000 }
+    );
     if (!data) return null;
     const timestamps: TimestampEntry[] | undefined = data?.audio_file?.timestamps;
     if (!timestamps?.length || timestamps.length !== ayahs.length) return null;
@@ -231,15 +235,27 @@ function getAbsNumber(surah: number, ayah: number): number | null {
 /* ===================== AUDIO HELPERS (independent from text) ===================== */
 
 /** Load audio for mp3quran reciter source. */
-async function loadMp3quranAudio(surahNum: number, textData: SurahTextData, reciterInfo: ReciterInfo, currentLoad: number): Promise<AudioResult | null> {
+async function loadMp3quranAudio(
+  surahNum: number,
+  textData: SurahTextData,
+  reciterInfo: ReciterInfo,
+  currentLoad: number
+): Promise<AudioResult | null> {
   const audios: (string | null)[] = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
-  const timings = await fetchAyahTimings(state.currentReciter, surahNum, textData.ayahs) ?? calculateAyahTimings(textData.ayahs, surahNum);
+  const timings =
+    (await fetchAyahTimings(state.currentReciter, surahNum, textData.ayahs)) ??
+    calculateAyahTimings(textData.ayahs, surahNum);
   if (_loadCounter !== currentLoad) return null;
   return { audios, timings };
 }
 
 /** Load audio for standard API reciter source. */
-async function loadApiAudio(surahNum: number, reciterId: string, currentLoad: number, signal: AbortSignal): Promise<AudioResult | null> {
+async function loadApiAudio(
+  surahNum: number,
+  reciterId: string,
+  currentLoad: number,
+  signal: AbortSignal
+): Promise<AudioResult | null> {
   try {
     const json = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true });
     const data = json?.data;
@@ -283,7 +299,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       state.repeatCounter = 0;
     });
     dom.hifdhBtn?.classList.remove('active');
-    document.querySelectorAll('.ayah').forEach(el => el.classList.remove('hifdh-mode', 'revealed'));
+    document.querySelectorAll('.ayah').forEach((el) => el.classList.remove('hifdh-mode', 'revealed'));
     if (dom.repeatControls) dom.repeatControls.style.display = 'none';
   }
   if (state.repeatMode && !state.hifdhMode) {
@@ -310,7 +326,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');
       state.ayahTimings = cached.timings || calculateAyahTimings(cached.text.ayahs, surahNum);
     } else {
-      state.ayahsAudios = Array.isArray(cached.audios) ? (cached.audios as string[]) : (cached.audio?.ayahs?.map((a: AyahEntry) => a.audio || '') || []);
+      state.ayahsAudios = Array.isArray(cached.audios)
+        ? (cached.audios as string[])
+        : cached.audio?.ayahs?.map((a: AyahEntry) => a.audio || '') || [];
       state.ayahTimings = [];
     }
     state.translationData = cached.translation || null;
@@ -320,8 +338,12 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     return;
   }
 
-  loadingBar.show(`${__('loading_surah')} ${state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || surahNum}...`);
-  if (dom.surahContent) dom.surahContent.innerHTML = '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
+  loadingBar.show(
+    `${__('loading_surah')} ${state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || surahNum}...`
+  );
+  if (dom.surahContent)
+    dom.surahContent.innerHTML =
+      '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
 
   try {
     const textJson = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, errorMsg: __('failed_load_surah') });
@@ -342,11 +364,17 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     const audioPromise = isMp3quran
       ? loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad)
       : loadApiAudio(surahNum, state.currentReciter, currentLoad, signal);
-    const transPromise = (state.translationEnabled && state.currentTranslation)
-      ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal, silent: true }).then((d: { data?: Record<string, unknown> }) => d?.data || null).catch(() => null)
-      : Promise.resolve(null);
+    const transPromise =
+      state.translationEnabled && state.currentTranslation
+        ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal, silent: true })
+            .then((d: { data?: Record<string, unknown> }) => d?.data || null)
+            .catch(() => null)
+        : Promise.resolve(null);
 
-    const [audioResult, transResult]: [AudioResult | null, Record<string, unknown> | null] = await Promise.all([audioPromise, transPromise]);
+    const [audioResult, transResult]: [AudioResult | null, Record<string, unknown> | null] = await Promise.all([
+      audioPromise,
+      transPromise,
+    ]);
     if (_loadCounter !== currentLoad) return;
     if (audioResult) {
       state.ayahsAudios = audioResult.audios.filter((a): a is string => a !== null);
@@ -366,7 +394,12 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       const firstKey = state.surahCache.keys().next().value;
       immutableMapDelete(state, 'surahCache', firstKey);
     }
-    immutableMapSet(state, 'surahCache', cacheKey, { text: textData, audios: state.ayahsAudios, timings: state.ayahTimings, translation: state.translationData });
+    immutableMapSet(state, 'surahCache', cacheKey, {
+      text: textData,
+      audios: state.ayahsAudios,
+      timings: state.ayahTimings,
+      translation: state.translationData,
+    });
   } catch (e: unknown) {
     if ((e as Error).name === 'AbortError') return;
     if (state.fullQuranLoaded && state.fullQuranText) {
@@ -377,7 +410,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
           number: surahNum,
           name: ayahs[0].surahName,
           englishName: state.surahList.find((s: SurahInfo) => s.number === surahNum)?.englishName || '',
-          ayahs: ayahs.map((a: { ayah: number; text: string }) => ({ numberInSurah: a.ayah, text: a.text }))
+          ayahs: ayahs.map((a: { ayah: number; text: string }) => ({ numberInSurah: a.ayah, text: a.text })),
         };
         state.ayahsAudios = [];
         renderSurah(state.surahData as any);
@@ -401,11 +434,14 @@ let _ayahsReadyCount = 0;
 let _virtualObserver: IntersectionObserver | null = null;
 
 function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string {
-  const isRtlTranslation = state.currentTranslation && (state.currentTranslation.startsWith('ur.'));
+  const isRtlTranslation = state.currentTranslation && state.currentTranslation.startsWith('ur.');
   let txt = a.text;
   let offsetAdj = 0;
   if (textData.number !== 1 && a.numberInSurah === 1) {
-    const stripped = txt.replace(/^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u, '');
+    const stripped = txt.replace(
+      /^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u,
+      ''
+    );
     offsetAdj = txt.length - stripped.length;
     txt = stripped;
   }
@@ -413,9 +449,14 @@ function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string
   if (state.tajweedEnabled) {
     const annotations: TajweedAnnotation[] = getAyahAnnotations(textData.number, a.numberInSurah);
     if (annotations.length > 0) {
-      const adjusted = offsetAdj > 0
-        ? annotations.map((ann: TajweedAnnotation) => ({ rule: ann.rule, start: ann.start - offsetAdj, end: ann.end - offsetAdj }))
-        : annotations;
+      const adjusted =
+        offsetAdj > 0
+          ? annotations.map((ann: TajweedAnnotation) => ({
+              rule: ann.rule,
+              start: ann.start - offsetAdj,
+              end: ann.end - offsetAdj,
+            }))
+          : annotations;
       colorMap = buildColorMap(adjusted);
     }
   }
@@ -457,11 +498,14 @@ function ensureVirtualSentinel(textData: SurahTextData): void {
   sentinel.id = 'virtualSentinel';
   sentinel.style.height = '1px';
   dom.surahContent?.appendChild(sentinel);
-  _virtualObserver = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
-    if (entries[0].isIntersecting && _ayahsReadyCount < textData.ayahs.length) {
-      renderAyahChunk(textData, _ayahsReadyCount, VIRTUAL_CHUNK_SIZE);
-    }
-  }, { rootMargin: '200px' });
+  _virtualObserver = new IntersectionObserver(
+    (entries: IntersectionObserverEntry[]) => {
+      if (entries[0].isIntersecting && _ayahsReadyCount < textData.ayahs.length) {
+        renderAyahChunk(textData, _ayahsReadyCount, VIRTUAL_CHUNK_SIZE);
+      }
+    },
+    { rootMargin: '200px' }
+  );
   _virtualObserver.observe(sentinel);
 }
 
@@ -504,20 +548,27 @@ export function renderSurah(textData: SurahTextData): void {
   if (secretBtn) {
     (secretBtn as HTMLElement).addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
-      import('./mushaf.js').then((m: { showSurahSecret: (surahNum: number, surahName?: string) => void }) => m.showSurahSecret(parseInt((secretBtn as HTMLElement).dataset.surah || '0', 10), (secretBtn as HTMLElement).dataset.surahname));
+      import('./mushaf.js').then((m: { showSurahSecret: (surahNum: number, surahName?: string) => void }) =>
+        m.showSurahSecret(
+          parseInt((secretBtn as HTMLElement).dataset.surah || '0', 10),
+          (secretBtn as HTMLElement).dataset.surahname
+        )
+      );
     });
   }
 }
 
 function buildAyahWordsHtml(text: string, ayahIdx: number, colorMap: Map<number, string> | null): string {
-  const words = text.split(/\s+/).filter(w => w.length > 0);
+  const words = text.split(/\s+/).filter((w) => w.length > 0);
   const useTajweed = state.tajweedEnabled && colorMap;
   let outputPos = 0;
-  return words.map((word: string, wIdx: number) => {
-    const wordHtml = useTajweed ? tajweedColorWord(word, outputPos, colorMap!) : escapeHtml(word);
-    outputPos += word.length;
-    return `<span class="word" data-ayah-index="${ayahIdx}" data-word-index="${wIdx}">${wordHtml}</span>`;
-  }).join(' ');
+  return words
+    .map((word: string, wIdx: number) => {
+      const wordHtml = useTajweed ? tajweedColorWord(word, outputPos, colorMap!) : escapeHtml(word);
+      outputPos += word.length;
+      return `<span class="word" data-ayah-index="${ayahIdx}" data-word-index="${wIdx}">${wordHtml}</span>`;
+    })
+    .join(' ');
 }
 
 let _ayahDelegationBound = false;
@@ -534,7 +585,11 @@ function initAyahDelegation(): void {
     if (!surahData || surahData.number !== surah) return;
     const a = surahData.ayahs[idx];
     if (!a) return;
-    import('./ayah-modal.js').then((m: { openAyahModal: (opts: { surah: number; ayah: number; text: string; surahName: string; index: number }) => void }) => m.openAyahModal({ surah, ayah, text: a.text, surahName: surahData.name, index: -1 }));
+    import('./ayah-modal.js').then(
+      (m: {
+        openAyahModal: (opts: { surah: number; ayah: number; text: string; surahName: string; index: number }) => void;
+      }) => m.openAyahModal({ surah, ayah, text: a.text, surahName: surahData.name, index: -1 })
+    );
   });
 }
 
@@ -609,7 +664,7 @@ function saveCurrentPosition(): void {
     ayah: state.currentAyahIndex,
     surahName: surahData.name,
     ayahNumberInSurah: a.numberInSurah,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   } satisfies SavedPosition);
 }
 
@@ -622,7 +677,8 @@ export function toggleTranslation(): void {
     state.currentTranslation = dom.translationSelect?.value || 'en.sahih';
     storage.set('translation_edition', state.currentTranslation);
   }
-  if (dom.translationSelect) dom.translationSelect.value = state.translationEnabled ? (state.currentTranslation || '') : '';
+  if (dom.translationSelect)
+    dom.translationSelect.value = state.translationEnabled ? state.currentTranslation || '' : '';
   showToast(state.translationEnabled ? __('translation_on') : __('translation_off'), 'success');
   if (state.currentSurah) loadSurah(state.currentSurah);
 }

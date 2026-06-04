@@ -1,12 +1,12 @@
-import { state } from "./state.js";
-import { CONFIG } from "./config.js";
-import { dom } from "./dom.js";
-import { storage } from "./storage.js";
-import { showToast } from "./ui.js";
-import { hapticFeedback } from "./utils.js";
-import { highlightCurrentAyah } from "./surah-loader.js";
-import { getReciterById } from "./reciters.js";
-import { startVisualizer, stopVisualizer } from "./audio-visualizer.js";
+import { state } from './state.js';
+import { CONFIG } from './config.js';
+import { dom } from './dom.js';
+import { storage } from './storage.js';
+import { showToast } from './ui.js';
+import { hapticFeedback } from './utils.js';
+import { highlightCurrentAyah } from './surah-loader.js';
+import { getReciterById } from './reciters.js';
+import { startVisualizer, stopVisualizer } from './audio-visualizer.js';
 import { __ } from './i18n.js';
 
 /* ===================== INTERFACES ===================== */
@@ -29,7 +29,9 @@ interface WordWeightsResult {
 /* ===================== MODULE STATE ===================== */
 
 let _loadSurah: LoadSurahFn | null = null;
-export function setLoadSurah(fn: LoadSurahFn): void { _loadSurah = fn; }
+export function setLoadSurah(fn: LoadSurahFn): void {
+  _loadSurah = fn;
+}
 
 let _mp3quranUrl: string | null = null;
 let _autoAdvancing = false;
@@ -96,11 +98,15 @@ export function playCurrentAyah(): void {
 
   if (isMp3quran) {
     dom.audioPlayer.src = url;
-    dom.audioPlayer.addEventListener('loadedmetadata', function onMeta(): void {
-      dom.audioPlayer!.removeEventListener('loadedmetadata', onMeta);
-      dom.audioPlayer!.currentTime = _getAyahStartTime();
-      dom.audioPlayer!.play().catch((e: unknown) => console.warn(e));
-    }, { once: true });
+    dom.audioPlayer.addEventListener(
+      'loadedmetadata',
+      function onMeta(): void {
+        dom.audioPlayer!.removeEventListener('loadedmetadata', onMeta);
+        dom.audioPlayer!.currentTime = _getAyahStartTime();
+        dom.audioPlayer!.play().catch((e: unknown) => console.warn(e));
+      },
+      { once: true }
+    );
   } else {
     dom.audioPlayer.src = url;
     dom.audioPlayer.play().catch((e: unknown) => console.warn(e));
@@ -154,7 +160,7 @@ function getCachedWordWeights(ayahIndex: number): WordWeightsResult | null {
   if (words.length === 0) return null;
   const weights: number[] = [];
   for (const w of words) {
-    const letters = (w.textContent?.match(/[\u0621-\u064A\u0660-\u0669]/g) || []);
+    const letters = w.textContent?.match(/[\u0621-\u064A\u0660-\u0669]/g) || [];
     weights.push(Math.max(1, letters.length));
   }
   const totalWeight = weights.reduce((a: number, b: number) => a + b, 0);
@@ -210,7 +216,10 @@ function onTimeUpdate(): void {
   const startTimes = wordData.startTimes.map((t: number) => t * duration);
   let wordIndex = wordData.wordCount - 1;
   for (let i = wordData.wordCount - 1; i >= 0; i--) {
-    if (currentTime >= startTimes[i]) { wordIndex = i; break; }
+    if (currentTime >= startTimes[i]) {
+      wordIndex = i;
+      break;
+    }
   }
 
   if (state.currentAyahIndex !== _cachedWordAyahIndex) {
@@ -269,10 +278,18 @@ export function bindAudioEvents(): void {
     dom.audioPlayer.addEventListener('seeking', onSeeking);
   }
   if ('mediaSession' in navigator) {
-    navigator.mediaSession.setActionHandler('play', () => { togglePlayPause(); });
-    navigator.mediaSession.setActionHandler('pause', () => { togglePlayPause(); });
-    navigator.mediaSession.setActionHandler('previoustrack', () => { prevAyah(); });
-    navigator.mediaSession.setActionHandler('nexttrack', () => { nextAyah(false); });
+    navigator.mediaSession.setActionHandler('play', () => {
+      togglePlayPause();
+    });
+    navigator.mediaSession.setActionHandler('pause', () => {
+      togglePlayPause();
+    });
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+      prevAyah();
+    });
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+      nextAyah(false);
+    });
   }
 }
 
@@ -287,7 +304,7 @@ function onAudioPlay(): void {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: ayah ? `${__('ayah')} ${ayah.numberInSurah}` : '',
       artist: surahData.name || __('app_title'),
-      album: __('app_title')
+      album: __('app_title'),
     });
   }
 }
@@ -331,7 +348,9 @@ function onAudioEnded(): void {
         showToast(__('repeat_complete'), 'success');
         return;
       }
-      const startIdx = surahData.ayahs.findIndex((a: { numberInSurah: number }) => a.numberInSurah === state.repeatFrom);
+      const startIdx = surahData.ayahs.findIndex(
+        (a: { numberInSurah: number }) => a.numberInSurah === state.repeatFrom
+      );
       if (startIdx !== -1) {
         state.currentAyahIndex = startIdx;
         highlightCurrentAyah();
@@ -434,15 +453,24 @@ export function toggleRepeat(): void {
       dom.repeatTimes.value = String(state.repeatTimes);
       dom.repeatFrom.onchange = () => {
         state.repeatFrom = parseInt(dom.repeatFrom!.value, 10);
-        if (state.repeatFrom > state.repeatTo) { state.repeatTo = state.repeatFrom; dom.repeatTo!.value = String(state.repeatTo); }
+        if (state.repeatFrom > state.repeatTo) {
+          state.repeatTo = state.repeatFrom;
+          dom.repeatTo!.value = String(state.repeatTo);
+        }
         state.repeatCounter = 0;
       };
       dom.repeatTo.onchange = () => {
         state.repeatTo = parseInt(dom.repeatTo!.value, 10);
-        if (state.repeatTo < state.repeatFrom) { state.repeatFrom = state.repeatTo; dom.repeatFrom!.value = String(state.repeatFrom); }
+        if (state.repeatTo < state.repeatFrom) {
+          state.repeatFrom = state.repeatTo;
+          dom.repeatFrom!.value = String(state.repeatFrom);
+        }
         state.repeatCounter = 0;
       };
-      dom.repeatTimes.onchange = () => { state.repeatTimes = parseInt(dom.repeatTimes!.value, 10); state.repeatCounter = 0; };
+      dom.repeatTimes.onchange = () => {
+        state.repeatTimes = parseInt(dom.repeatTimes!.value, 10);
+        state.repeatCounter = 0;
+      };
     }
     showToast(__('repeat_on'), 'success');
   } else {
@@ -460,15 +488,18 @@ export function setSleepTimer(minutes: number): void {
     return;
   }
   _sleepTimerMinutes = minutes;
-  _sleepTimer = setTimeout(() => {
-    if (dom.audioPlayer && !dom.audioPlayer.paused) {
-      dom.audioPlayer.pause();
-      state.isPlaying = false;
-      updatePlayPauseBtn();
-    }
-    showToast(__('sleep_timer_stopped', String(minutes)), 'success');
-    _sleepTimerMinutes = 0;
-  }, minutes * 60 * 1000);
+  _sleepTimer = setTimeout(
+    () => {
+      if (dom.audioPlayer && !dom.audioPlayer.paused) {
+        dom.audioPlayer.pause();
+        state.isPlaying = false;
+        updatePlayPauseBtn();
+      }
+      showToast(__('sleep_timer_stopped', String(minutes)), 'success');
+      _sleepTimerMinutes = 0;
+    },
+    minutes * 60 * 1000
+  );
   showToast(__('sleep_timer_set', String(minutes)), 'success');
 }
 

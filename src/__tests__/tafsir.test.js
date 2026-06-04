@@ -6,12 +6,18 @@ import { CONFIG } from '../config.js';
 // Mock localStorage
 const store = {};
 beforeEach(() => {
-  Object.keys(store).forEach(k => delete store[k]);
+  Object.keys(store).forEach((k) => delete store[k]);
   globalThis.localStorage = {
-    getItem: (key) => store[key] === undefined ? null : store[key],
-    setItem: (key, val) => { store[key] = String(val); },
-    removeItem: (key) => { delete store[key]; },
-    clear: () => { Object.keys(store).forEach(k => delete store[k]); }
+    getItem: (key) => (store[key] === undefined ? null : store[key]),
+    setItem: (key, val) => {
+      store[key] = String(val);
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach((k) => delete store[k]);
+    },
   };
 });
 
@@ -55,7 +61,7 @@ let mockDB = null;
 
 beforeEach(() => {
   mockDB = createMockIDBDatabase();
-  Object.keys(mockIDBData).forEach(k => delete mockIDBData[k]);
+  Object.keys(mockIDBData).forEach((k) => delete mockIDBData[k]);
 
   globalThis.indexedDB = {
     open: vi.fn(() => {
@@ -75,7 +81,14 @@ beforeEach(() => {
   };
 });
 
-import { closeTafsir, toggleTafsir, openTafsir, fetchTafsirText, loadTafsirForCurrentAyah, loadTafsirForSurahAyah } from '../tafsir.js';
+import {
+  closeTafsir,
+  toggleTafsir,
+  openTafsir,
+  fetchTafsirText,
+  loadTafsirForCurrentAyah,
+  loadTafsirForSurahAyah,
+} from '../tafsir.js';
 
 beforeEach(() => {
   // Set up DOM elements
@@ -314,10 +327,7 @@ describe('loadTafsirForSurahAyah', () => {
     await loadTafsirForSurahAyah(1, 1);
 
     // api-client constructs full URL from CONFIG.TAFSIR_API + edition path
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining(CONFIG.DEFAULT_TAFSIR),
-      expect.any(Object)
-    );
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining(CONFIG.DEFAULT_TAFSIR), expect.any(Object));
   });
 
   it('should render tafsir text in curtain body on success', async () => {

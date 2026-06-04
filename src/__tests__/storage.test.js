@@ -4,12 +4,18 @@ import { storage } from '../storage.js';
 // Mock localStorage
 const store = {};
 beforeEach(() => {
-  Object.keys(store).forEach(k => delete store[k]);
+  Object.keys(store).forEach((k) => delete store[k]);
   globalThis.localStorage = {
-    getItem: (key) => store[key] === undefined ? null : store[key],
-    setItem: (key, val) => { store[key] = String(val); },
-    removeItem: (key) => { delete store[key]; },
-    clear: () => { Object.keys(store).forEach(k => delete store[k]); }
+    getItem: (key) => (store[key] === undefined ? null : store[key]),
+    setItem: (key, val) => {
+      store[key] = String(val);
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach((k) => delete store[k]);
+    },
   };
 });
 

@@ -4,7 +4,7 @@ import { escapeRegExp, normalizeExactText } from '../utils.js';
 const ARABIC_KEYBOARD_LAYOUT = [
   ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د'],
   ['ش', 'س', 'ي', 'ب', 'ل', 'ا', 'ت', 'ن', 'م', 'ك', 'ط'],
-  ['ئ', 'ء', 'ؤ', 'ر', 'ى', 'ة', 'و', 'ز', 'ظ']
+  ['ئ', 'ء', 'ؤ', 'ر', 'ى', 'ة', 'و', 'ز', 'ظ'],
 ];
 
 describe('escapeRegExp', () => {
@@ -47,13 +47,25 @@ describe('performExactSearch', () => {
     const { state } = await import('../state.js');
     state.fullQuranLoaded = true;
     state.fullQuranText = [
-      { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', normalized: normalizeExactText('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ') },
-      { surah: 1, surahName: 'الفاتحة', ayah: 2, text: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', normalized: normalizeExactText('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ') }
+      {
+        surah: 1,
+        surahName: 'الفاتحة',
+        ayah: 1,
+        text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+        normalized: normalizeExactText('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ'),
+      },
+      {
+        surah: 1,
+        surahName: 'الفاتحة',
+        ayah: 2,
+        text: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',
+        normalized: normalizeExactText('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ'),
+      },
     ];
     state._allSearchMatches = null;
     state._searchResultsPage = 1;
 
-    const dom = await import('../dom.js').then(m => m.dom);
+    const dom = await import('../dom.js').then((m) => m.dom);
     dom.searchResults = document.createElement('div');
 
     searchModule.performExactSearch('اللَّهِ');

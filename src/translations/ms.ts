@@ -125,7 +125,8 @@ const ms: TranslationBundle = {
   quran_db_loading: '⚠️ Pangkalan data Al-Quran sedang dimuatkan, sila tunggu',
 
   // Keyboard hint
-  keyboard_hint: '💡 Pintasan: Space = Main/Jeda | ← → = Ayat Sebelum/Seterusnya | S = Surah Sebelum | D = Surah Seterusnya | H = Hafal | T = Tafsir | R = Ulang | M = Mushaf',
+  keyboard_hint:
+    '💡 Pintasan: Space = Main/Jeda | ← → = Ayat Sebelum/Seterusnya | S = Surah Sebelum | D = Surah Seterusnya | H = Hafal | T = Tafsir | R = Ulang | M = Mushaf',
 
   // Footer
   footer_data_from: 'Data daripada',
@@ -148,7 +149,7 @@ const ms: TranslationBundle = {
     'ar.minshawi': 'Muhammad Siddiq Al-Minshawi',
     'ar.muhammadayyoub': 'Muhammad Ayyoub',
     'ar.aliabdurrahmanalhuthaify': 'Ali Al-Huthaify',
-    'ar.shaatree': 'Abu Bakr Al-Shatri'
+    'ar.shaatree': 'Abu Bakr Al-Shatri',
   },
 
   // Tafsir names
@@ -156,9 +157,9 @@ const ms: TranslationBundle = {
     'ar-tafsir-muyassar': 'Al-Muyassar',
     'ar-tafsir-al-tabari': 'Al-Tabari',
     'ar-tafsir-ibn-kathir': 'Ibn Kathir',
-    'ar-tafsir-as-saadi': 'Al-Sa\'di',
+    'ar-tafsir-as-saadi': "Al-Sa'di",
     'ar-tafsir-al-baghawi': 'Al-Baghawi',
-    'ar-tafsir-al-qurtubi': 'Al-Qurtubi'
+    'ar-tafsir-al-qurtubi': 'Al-Qurtubi',
   },
 
   // Cities
@@ -178,8 +179,8 @@ const ms: TranslationBundle = {
     'الرباط|MA': 'Rabat',
     'تونس|TN': 'Tunis',
     'الخرطوم|SD': 'Khartoum',
-    'صنعاء|YE': 'Sana\'a',
-    'إسطنبول|TR': 'Istanbul'
+    'صنعاء|YE': "Sana'a",
+    'إسطنبول|TR': 'Istanbul',
   },
 
   // Calculation methods
@@ -193,7 +194,7 @@ const ms: TranslationBundle = {
     '9': 'Qatar',
     '10': 'Singapura',
     '12': 'Kesatuan Ulama Islam (Perancis)',
-    '13': 'Diyanet — Turki'
+    '13': 'Diyanet — Turki',
   },
 
   // Toast types
@@ -345,7 +346,8 @@ const ms: TranslationBundle = {
 
   // Error boundary
   error_title: 'Ralat tidak dijangka berlaku',
-  error_description: 'Aplikasi menghadapi masalah yang tidak dijangka. Anda boleh muat semula atau kembali ke halaman utama.',
+  error_description:
+    'Aplikasi menghadapi masalah yang tidak dijangka. Anda boleh muat semula atau kembali ke halaman utama.',
   error_reload: '🔄 Muat Semula',
   error_home: '🏠 Halaman Utama',
   error_copy_details: '📋 Salin Butiran Ralat',

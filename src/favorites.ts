@@ -48,8 +48,12 @@ export function toggleFavorite(): void {
     dom.favoriteBtn?.classList.remove('active');
   } else {
     immutablePush(state, 'favorites', {
-      key, surah: state.currentSurah, surahName: surahData.name,
-      ayah: a.numberInSurah, text: a.text, timestamp: Date.now()
+      key,
+      surah: state.currentSurah,
+      surahName: surahData.name,
+      ayah: a.numberInSurah,
+      text: a.text,
+      timestamp: Date.now(),
     });
     showToast(__('added_to_favorites'), 'success');
     dom.favoriteBtn?.classList.add('active');
@@ -123,7 +127,10 @@ export function renderFavorites(): void {
       }
       if (target.classList.contains('fav-copy')) {
         const text = target.dataset.text || '';
-        if (text) { copyToClipboard(text); showToast(__('copied'), 'success'); }
+        if (text) {
+          copyToClipboard(text);
+          showToast(__('copied'), 'success');
+        }
         return;
       }
       if (target.classList.contains('fav-share')) {
@@ -147,7 +154,8 @@ export function renderFavorites(): void {
           saveFavorites();
           const item = dom.favoritesList?.querySelector(`.favorite-item[data-key="${CSS.escape(key)}"]`);
           if (item) item.remove();
-          if (!state.favorites.length && dom.favoritesList) dom.favoritesList.innerHTML = `<p class="favorites-empty">${__('no_favorites')}</p>`;
+          if (!state.favorites.length && dom.favoritesList)
+            dom.favoritesList.innerHTML = `<p class="favorites-empty">${__('no_favorites')}</p>`;
           showToast(__('removed_from_favorites'), '');
         }
         return;
@@ -157,9 +165,15 @@ export function renderFavorites(): void {
 }
 
 /** Open the favorites panel. */
-export function openFavorites(): void { renderFavorites(); wireFavoritesExport(); dom.favoritesPanel?.classList.add('open'); }
+export function openFavorites(): void {
+  renderFavorites();
+  wireFavoritesExport();
+  dom.favoritesPanel?.classList.add('open');
+}
 /** Close the favorites panel. */
-export function closeFavorites(): void { dom.favoritesPanel?.classList.remove('open'); }
+export function closeFavorites(): void {
+  dom.favoritesPanel?.classList.remove('open');
+}
 
 /* ===================== EXPORT ===================== */
 
@@ -174,7 +188,10 @@ function downloadFile(content: string, filename: string, mimeType: string): void
 }
 
 function exportFavoritesText(): void {
-  if (!state.favorites.length) { showToast(__('favorites_export_none'), 'error'); return; }
+  if (!state.favorites.length) {
+    showToast(__('favorites_export_none'), 'error');
+    return;
+  }
   let text = '';
   for (const f of state.favorites) {
     text += `﴿${f.text}﴾ — ${f.surahName || ''} — ${__('ayah')} ${f.ayah}\n\n`;
@@ -184,7 +201,10 @@ function exportFavoritesText(): void {
 }
 
 function exportFavoritesJson(): void {
-  if (!state.favorites.length) { showToast(__('favorites_export_none'), 'error'); return; }
+  if (!state.favorites.length) {
+    showToast(__('favorites_export_none'), 'error');
+    return;
+  }
   downloadFile(JSON.stringify(state.favorites, null, 2), 'quran-favorites.json', 'application/json');
   showToast(__('favorites_exported_json'), 'success');
 }
@@ -203,8 +223,11 @@ export function setBookmark(): void {
   const surahData = state.surahData as unknown as SurahData;
   const a = surahData.ayahs[state.currentAyahIndex];
   state.bookmark = {
-    surah: state.currentSurah, surahName: surahData.name,
-    ayah: a.numberInSurah, text: a.text, timestamp: Date.now()
+    surah: state.currentSurah,
+    surahName: surahData.name,
+    ayah: a.numberInSurah,
+    text: a.text,
+    timestamp: Date.now(),
   };
   storage.set('bookmark', state.bookmark);
   showToast(__('bookmark_saved'), 'success');
@@ -213,7 +236,10 @@ export function setBookmark(): void {
 /** Navigate to the saved bookmark. */
 export function gotoBookmark(): void {
   const bm: BookmarkEntry | null = state.bookmark || storage.get<BookmarkEntry>('bookmark');
-  if (!bm) { showToast(__('bookmark_not_found'), 'error'); return; }
+  if (!bm) {
+    showToast(__('bookmark_not_found'), 'error');
+    return;
+  }
   if (dom.surahSelect) dom.surahSelect.value = String(bm.surah);
   loadSurah(bm.surah, { startAyah: bm.ayah });
 }

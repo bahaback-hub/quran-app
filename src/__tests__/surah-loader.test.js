@@ -7,12 +7,18 @@ import { CONFIG } from '../config.js';
 // Mock localStorage
 const store = {};
 beforeEach(() => {
-  Object.keys(store).forEach(k => delete store[k]);
+  Object.keys(store).forEach((k) => delete store[k]);
   globalThis.localStorage = {
-    getItem: (key) => store[key] === undefined ? null : store[key],
-    setItem: (key, val) => { store[key] = String(val); },
-    removeItem: (key) => { delete store[key]; },
-    clear: () => { Object.keys(store).forEach(k => delete store[k]); }
+    getItem: (key) => (store[key] === undefined ? null : store[key]),
+    setItem: (key, val) => {
+      store[key] = String(val);
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach((k) => delete store[k]);
+    },
   };
 });
 
@@ -154,9 +160,11 @@ describe('loadSurahList', () => {
     vi.spyOn(storage, 'get').mockReturnValue(null);
     vi.spyOn(storage, 'set').mockImplementation(() => true);
 
-    globalThis.fetch = vi.fn()
-      .mockRejectedValueOnce(new Error('API down'))  // API fails
-      .mockResolvedValueOnce({                        // local fallback succeeds
+    globalThis.fetch = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('API down')) // API fails
+      .mockResolvedValueOnce({
+        // local fallback succeeds
         ok: true,
         json: () => Promise.resolve(FULL_SURAH_LIST),
       });
@@ -239,9 +247,9 @@ describe('buildSurahOffsets', () => {
     ];
     buildSurahOffsets();
 
-    expect(state.surahOffsets[0].startAbs).toBe(1);  // Surah 1 starts at ayah 1
-    expect(state.surahOffsets[1].startAbs).toBe(4);  // Surah 2 starts at ayah 4 (1+3)
-    expect(state.surahOffsets[2].startAbs).toBe(9);  // Surah 3 starts at ayah 9 (4+5)
+    expect(state.surahOffsets[0].startAbs).toBe(1); // Surah 1 starts at ayah 1
+    expect(state.surahOffsets[1].startAbs).toBe(4); // Surah 2 starts at ayah 4 (1+3)
+    expect(state.surahOffsets[2].startAbs).toBe(9); // Surah 3 starts at ayah 9 (4+5)
   });
 });
 

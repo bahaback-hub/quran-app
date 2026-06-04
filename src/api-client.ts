@@ -76,7 +76,8 @@ function classifyError(error: Error): string {
   if (!navigator.onLine) return ERROR_MESSAGES.offline;
   if (name === 'AbortError') return ''; // Silently ignore aborted requests
   if (name === 'TimeoutError' || msg.includes('timeout') || msg.includes('aborted')) return ERROR_MESSAGES.timeout;
-  if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('net::err')) return ERROR_MESSAGES.network;
+  if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('net::err'))
+    return ERROR_MESSAGES.network;
   if (msg.includes('json') || msg.includes('parse') || msg.includes('unexpected token')) return ERROR_MESSAGES.parse;
 
   return ERROR_MESSAGES.default;
@@ -96,10 +97,14 @@ function createTimeoutController(ms: number, externalSignal?: AbortSignal): Time
       clearTimeout(timerId);
       controller.abort();
     } else {
-      externalSignal.addEventListener('abort', () => {
-        clearTimeout(timerId);
-        controller.abort();
-      }, { once: true });
+      externalSignal.addEventListener(
+        'abort',
+        () => {
+          clearTimeout(timerId);
+          controller.abort();
+        },
+        { once: true }
+      );
     }
   }
 
@@ -113,13 +118,7 @@ function createTimeoutController(ms: number, externalSignal?: AbortSignal): Time
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function safeFetch(url: string, options: FetchOptions = {}): Promise<any> {
-  const {
-    timeout = DEFAULT_TIMEOUT,
-    signal: externalSignal,
-    silent = false,
-    errorMsg,
-    expectJSON = true,
-  } = options;
+  const { timeout = DEFAULT_TIMEOUT, signal: externalSignal, silent = false, errorMsg, expectJSON = true } = options;
 
   const { controller, timerId } = createTimeoutController(timeout, externalSignal);
 
@@ -137,9 +136,7 @@ export async function safeFetch(url: string, options: FetchOptions = {}): Promis
       (httpError as unknown as Record<string, unknown>).status = response.status;
 
       if (!silent) {
-        const msg = response.status >= 500
-          ? ERROR_MESSAGES.server
-          : (errorMsg || ERROR_MESSAGES.default);
+        const msg = response.status >= 500 ? ERROR_MESSAGES.server : errorMsg || ERROR_MESSAGES.default;
         showToastMsg(msg);
       }
 
@@ -158,7 +155,6 @@ export async function safeFetch(url: string, options: FetchOptions = {}): Promis
     }
 
     return response;
-
   } catch (error: unknown) {
     clearTimeout(timerId);
 

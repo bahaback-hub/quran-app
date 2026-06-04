@@ -33,7 +33,7 @@ const DEFAULT_STATS: ReadingStats = {
   lastSession: null,
   surahsRead: {},
   streakDays: 0,
-  lastActiveDate: null
+  lastActiveDate: null,
 };
 
 /** Get reading statistics from localStorage. */
@@ -89,11 +89,12 @@ export function getFormattedStats(): FormattedStats {
   return {
     totalAyahs: stats.totalAyahs,
     totalMinutes: stats.totalMinutes,
-    formattedTime: hours > 0 ? `${__('stats_hours_mins', String(hours), String(mins))}` : `${__('stats_mins', String(mins))}`,
+    formattedTime:
+      hours > 0 ? `${__('stats_hours_mins', String(hours), String(mins))}` : `${__('stats_mins', String(mins))}`,
     sessionsCount: stats.sessionsCount,
     uniqueSurahs,
     streakDays: stats.streakDays,
-    lastSession: stats.lastSession ? new Date(stats.lastSession).toLocaleDateString('ar-SA') : '—'
+    lastSession: stats.lastSession ? new Date(stats.lastSession).toLocaleDateString('ar-SA') : '—',
   };
 }
 
@@ -106,7 +107,7 @@ export function resetReadingStats(): void {
     lastSession: null,
     surahsRead: {},
     streakDays: 0,
-    lastActiveDate: null
+    lastActiveDate: null,
   });
 }
 

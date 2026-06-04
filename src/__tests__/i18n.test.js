@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { __, setLang, getLang, initI18n, preloadLang, unloadLang, getLoadedLangs, AVAILABLE_LANGUAGES } from '../i18n.js';
+import {
+  __,
+  setLang,
+  getLang,
+  initI18n,
+  preloadLang,
+  unloadLang,
+  getLoadedLangs,
+  AVAILABLE_LANGUAGES,
+} from '../i18n.js';
 
 // Mock storage to control saved language
 vi.mock('../storage.js', () => ({
@@ -46,7 +55,9 @@ describe('i18n', () => {
 
   it('should dispatch languagechange event', async () => {
     let fired = false;
-    const handler = () => { fired = true; };
+    const handler = () => {
+      fired = true;
+    };
     window.addEventListener('languagechange', handler);
     await setLang('en');
     expect(fired).toBe(true);
@@ -96,7 +107,7 @@ describe('i18n', () => {
       // preloadLang should not throw - it catches errors internally
       preloadLang('en');
       // Give it a moment
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise((r) => setTimeout(r, 100));
     });
 
     it('should unload a non-current, non-Arabic language', async () => {
@@ -139,7 +150,7 @@ describe('i18n', () => {
     });
 
     it('should have correct language codes', () => {
-      const codes = AVAILABLE_LANGUAGES.map(l => l.code);
+      const codes = AVAILABLE_LANGUAGES.map((l) => l.code);
       expect(codes).toContain('ar');
       expect(codes).toContain('en');
       expect(codes).toContain('tr');
@@ -148,12 +159,12 @@ describe('i18n', () => {
     });
 
     it('should have Arabic as RTL', () => {
-      const ar = AVAILABLE_LANGUAGES.find(l => l.code === 'ar');
+      const ar = AVAILABLE_LANGUAGES.find((l) => l.code === 'ar');
       expect(ar?.dir).toBe('rtl');
     });
 
     it('should have English as LTR', () => {
-      const en = AVAILABLE_LANGUAGES.find(l => l.code === 'en');
+      const en = AVAILABLE_LANGUAGES.find((l) => l.code === 'en');
       expect(en?.dir).toBe('ltr');
     });
   });

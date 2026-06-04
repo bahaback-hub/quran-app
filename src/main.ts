@@ -14,10 +14,12 @@ window.addEventListener('beforeinstallprompt', ((e: Event) => {
   if (btn) btn.style.display = '';
 }) as EventListener);
 
-window.installPWA = function(): void {
+window.installPWA = function (): void {
   if (_installEvent) {
     _installEvent.prompt();
-    _installEvent.userChoice.then(() => { _installEvent = null; });
+    _installEvent.userChoice.then(() => {
+      _installEvent = null;
+    });
   }
 };
 

@@ -1,15 +1,27 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getReadingStats, recordReadingSession, addReadingTime, getFormattedStats, resetReadingStats } from '../reading-stats.js';
+import {
+  getReadingStats,
+  recordReadingSession,
+  addReadingTime,
+  getFormattedStats,
+  resetReadingStats,
+} from '../reading-stats.js';
 
 const STATS_KEY = 'reading_stats';
 
 beforeEach(() => {
   const store = {};
   globalThis.localStorage = {
-    getItem: (key) => store[key] === undefined ? null : store[key],
-    setItem: (key, val) => { store[key] = String(val); },
-    removeItem: (key) => { delete store[key]; },
-    clear: () => { Object.keys(store).forEach(k => delete store[k]); }
+    getItem: (key) => (store[key] === undefined ? null : store[key]),
+    setItem: (key, val) => {
+      store[key] = String(val);
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach((k) => delete store[k]);
+    },
   };
   resetReadingStats();
 });

@@ -31,21 +31,26 @@ export function buildShareText(): string {
 }
 
 /** Toggle share menu visibility. */
-export function toggleShareMenu(): void { dom.shareMenu?.classList.toggle('show'); }
+export function toggleShareMenu(): void {
+  dom.shareMenu?.classList.toggle('show');
+}
 
 /** Share using native Web Share API or fallback to clipboard. */
 export function shareNative(): void {
   const text = buildShareText();
   if (!text) return;
   if (navigator.share) {
-    navigator.share({ title: __('app_title'), text }).catch(() => { });
+    navigator.share({ title: __('app_title'), text }).catch(() => {});
   } else {
     shareCopy();
   }
 }
 
 /** Copy current ayah text to clipboard. */
-export function shareCopy(): void { copyToClipboard(buildShareText()); showToast(__('copied'), 'success'); }
+export function shareCopy(): void {
+  copyToClipboard(buildShareText());
+  showToast(__('copied'), 'success');
+}
 
 /** Copy current ayah text without diacritics. */
 export function shareCopySimple(): void {
@@ -69,5 +74,8 @@ export function shareWhatsApp(): void {
 export function shareTelegram(): void {
   const text = buildShareText();
   if (!text) return;
-  window.open(`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`, '_blank');
+  window.open(
+    `https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`,
+    '_blank'
+  );
 }

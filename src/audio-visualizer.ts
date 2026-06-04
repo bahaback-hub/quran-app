@@ -6,7 +6,10 @@ let _animId: number | null = null;
  */
 export function startVisualizer(canvas: HTMLCanvasElement): void {
   if (!canvas || !document.getElementById('audioPlayer')) return;
-  if (_animId) { cancelAnimationFrame(_animId); _animId = null; }
+  if (_animId) {
+    cancelAnimationFrame(_animId);
+    _animId = null;
+  }
   canvas.classList.add('active');
   drawAnimatedBars(canvas);
 }
@@ -22,8 +25,9 @@ function drawAnimatedBars(canvas: HTMLCanvasElement): void {
   ctx.clearRect(0, 0, w, h);
   for (let i: number = 0; i < barCount; i++) {
     // Pseudo-random height based on time + index for a lively feel
-    const v: number = (Math.sin(Date.now() / 200 + i * 1.5) * 0.5 + 0.5) * 0.6 +
-              (Math.sin(Date.now() / 350 + i * 2.3) * 0.5 + 0.5) * 0.4;
+    const v: number =
+      (Math.sin(Date.now() / 200 + i * 1.5) * 0.5 + 0.5) * 0.6 +
+      (Math.sin(Date.now() / 350 + i * 2.3) * 0.5 + 0.5) * 0.4;
     const barH: number = Math.max(2, v * h * 0.9);
     const x: number = i * (barW + 2);
     const y: number = h - barH;
@@ -35,7 +39,10 @@ function drawAnimatedBars(canvas: HTMLCanvasElement): void {
 
 /** Stop the visualizer animation. */
 export function stopVisualizer(): void {
-  if (_animId) { cancelAnimationFrame(_animId); _animId = null; }
+  if (_animId) {
+    cancelAnimationFrame(_animId);
+    _animId = null;
+  }
   const c = document.querySelector('#audioVisualizer.active') as unknown as HTMLCanvasElement | null;
   if (c) {
     c.classList.remove('active');

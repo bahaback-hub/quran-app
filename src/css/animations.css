@@ -9,10 +9,8 @@ body.night-mode::before {
   right: 0;
   bottom: 0;
   background-image:
-    radial-gradient(2px 2px at 20% 30%, #fff, transparent),
-    radial-gradient(1px 1px at 60% 70%, #fff, transparent),
-    radial-gradient(1.5px 1.5px at 80% 20%, #fff, transparent),
-    radial-gradient(1px 1px at 30% 80%, #fff, transparent),
+    radial-gradient(2px 2px at 20% 30%, #fff, transparent), radial-gradient(1px 1px at 60% 70%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 80% 20%, #fff, transparent), radial-gradient(1px 1px at 30% 80%, #fff, transparent),
     radial-gradient(2px 2px at 90% 50%, #fff, transparent);
   pointer-events: none;
   z-index: 0;
@@ -20,30 +18,62 @@ body.night-mode::before {
   animation: twinkle 4s ease-in-out infinite;
 }
 @keyframes twinkle {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
-body.night-mode .container { position: relative; z-index: 1; }
+body.night-mode .container {
+  position: relative;
+  z-index: 1;
+}
 
 /* ========== شريط التحميل ========== */
 .loading-bar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
-  height: 3px; background: var(--accent);
-  transform: scaleX(0); transform-origin: right;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
   opacity: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; color: #fff; white-space: nowrap; overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .loading-bar.active {
-  height: auto; min-height: 3px; padding: 4px 16px;
+  height: auto;
+  min-height: 3px;
+  padding: 4px 16px;
   transform: scaleX(1);
   opacity: 1;
   animation: loadingBarShimmer 1.5s ease-in-out infinite;
 }
 @keyframes loadingBarShimmer {
-  0%, 100% { box-shadow: 0 0 6px var(--accent), 0 0 12px var(--accent); }
-  50% { box-shadow: 0 0 12px var(--accent), 0 0 24px var(--accent); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 6px var(--accent),
+      0 0 12px var(--accent);
+  }
+  50% {
+    box-shadow:
+      0 0 12px var(--accent),
+      0 0 24px var(--accent);
+  }
 }
 
 /* ========== Skeleton Loading ========== */
@@ -60,19 +90,34 @@ body.night-mode .container { position: relative; z-index: 1; }
   animation: skeletonShimmer 1.5s ease-in-out infinite;
   border-radius: 4px;
 }
-.skeleton-line:nth-child(1) { width: 75%; }
-.skeleton-line:nth-child(2) { width: 60%; }
-.skeleton-line:nth-child(3) { width: 85%; }
-.skeleton-line:nth-child(4) { width: 50%; }
+.skeleton-line:nth-child(1) {
+  width: 75%;
+}
+.skeleton-line:nth-child(2) {
+  width: 60%;
+}
+.skeleton-line:nth-child(3) {
+  width: 85%;
+}
+.skeleton-line:nth-child(4) {
+  width: 50%;
+}
 
 @keyframes skeletonShimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ========== تحسينات حركية ========== */
 .ayah {
-  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
 }
 .ayah:hover {
   transform: translateY(-1px);
@@ -81,37 +126,57 @@ body.night-mode .container { position: relative; z-index: 1; }
   animation: ayahPop 0.4s ease;
 }
 @keyframes ayahPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .prayer-bar {
   transition: all 0.4s ease;
 }
-.prayer-bar.collapsed .expanded-content { display: none; }
-.prayer-bar.collapsed .collapsed-preview { display: flex; }
-.prayer-bar .collapsed-preview { display: none; }
+.prayer-bar.collapsed .expanded-content {
+  display: none;
+}
+.prayer-bar.collapsed .collapsed-preview {
+  display: flex;
+}
+.prayer-bar .collapsed-preview {
+  display: none;
+}
 
 .btn {
   transition: all 0.2s ease;
 }
 .btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 .btn:active {
   transform: translateY(0);
 }
 
 /* ========== تأثير Ripple للأزرار ========== */
-.btn, .header-action-btn, .header-menu-btn, .collapse-bar-btn,
-.floating-play-btn, .settings-toggle-btn, .bottom-nav-btn {
+.btn,
+.header-action-btn,
+.header-menu-btn,
+.collapse-bar-btn,
+.floating-play-btn,
+.settings-toggle-btn,
+.bottom-nav-btn {
   position: relative;
   overflow: hidden;
 }
-.btn::after, .header-action-btn::after, .header-menu-btn::after,
-.collapse-bar-btn::after, .floating-play-btn::after {
+.btn::after,
+.header-action-btn::after,
+.header-menu-btn::after,
+.collapse-bar-btn::after,
+.floating-play-btn::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -121,11 +186,16 @@ body.night-mode .container { position: relative; z-index: 1; }
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.3);
   transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+  transition:
+    width 0.6s ease,
+    height 0.6s ease,
+    opacity 0.6s ease;
   opacity: 0;
   pointer-events: none;
 }
-.btn:active::after, .header-action-btn:active::after, .header-menu-btn:active::after {
+.btn:active::after,
+.header-action-btn:active::after,
+.header-menu-btn:active::after {
   width: 300px;
   height: 300px;
   opacity: 0;
@@ -139,8 +209,12 @@ body.night-mode .container { position: relative; z-index: 1; }
   border-radius: 8px;
 }
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 .skeleton-text {
   height: 16px;
@@ -170,21 +244,35 @@ body.night-mode .container { position: relative; z-index: 1; }
   animation: ayahFadeIn 0.4s ease both;
 }
 @keyframes ayahFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .bismillah {
   animation: bismillahGlow 3s ease-in-out infinite alternate;
 }
 @keyframes bismillahGlow {
-  0% { text-shadow: 0 0 4px rgba(212, 175, 55, 0.1); }
-  100% { text-shadow: 0 0 12px rgba(212, 175, 55, 0.3); }
+  0% {
+    text-shadow: 0 0 4px rgba(212, 175, 55, 0.1);
+  }
+  100% {
+    text-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+  }
 }
 
 /* ========== Glass Morphism ========== */
 @supports (backdrop-filter: blur(12px)) {
-  .settings-panel, .favorites-panel, .tafsir-curtain,
-  .adhkar-panel, .header-dropdown, .share-menu {
+  .settings-panel,
+  .favorites-panel,
+  .tafsir-curtain,
+  .adhkar-panel,
+  .header-dropdown,
+  .share-menu {
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
   }

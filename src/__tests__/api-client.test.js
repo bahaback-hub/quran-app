@@ -78,7 +78,7 @@ describe('api-client', () => {
 
       await expect(safeFetch('https://example.com/api', { silent: true })).rejects.toThrow();
       // Wait for any pending async toasts to settle
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise((r) => setTimeout(r, 100));
       // With silent=true, showToast should not have been called for THIS request
       // (but may have been called from previous test's async import)
       // Just verify the fetch was called with correct args
@@ -89,7 +89,9 @@ describe('api-client', () => {
       const { showToast } = await import('../ui.js');
       globalThis.fetch = vi.fn().mockRejectedValue(new Error('Failed to fetch'));
 
-      try { await safeFetch('https://example.com/api', { errorMsg: 'خطأ مخصص' }); } catch {}
+      try {
+        await safeFetch('https://example.com/api', { errorMsg: 'خطأ مخصص' });
+      } catch {}
       // Toast may or may not be called depending on debounce, but errorMsg should be used
     });
 

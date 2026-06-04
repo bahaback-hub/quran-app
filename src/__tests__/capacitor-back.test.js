@@ -26,7 +26,9 @@ describe('initCapacitorBackButton', () => {
     document.body.appendChild(panel);
 
     let listener;
-    const addListener = vi.fn((_, cb) => { listener = cb; });
+    const addListener = vi.fn((_, cb) => {
+      listener = cb;
+    });
     const { initCapacitorBackButton } = await import('../capacitor-back.js');
     initCapacitorBackButton({ App: { addListener } });
 
@@ -42,7 +44,9 @@ describe('initCapacitorBackButton', () => {
     document.body.appendChild(player);
 
     let listener;
-    const addListener = vi.fn((_, cb) => { listener = cb; });
+    const addListener = vi.fn((_, cb) => {
+      listener = cb;
+    });
     const { initCapacitorBackButton } = await import('../capacitor-back.js');
     initCapacitorBackButton({ App: { addListener } });
     listener();
@@ -56,7 +60,9 @@ describe('initCapacitorBackButton', () => {
     document.body.appendChild(player);
 
     let listener;
-    const addListener = vi.fn((_, cb) => { listener = cb; });
+    const addListener = vi.fn((_, cb) => {
+      listener = cb;
+    });
     const { initCapacitorBackButton } = await import('../capacitor-back.js');
     initCapacitorBackButton({ App: { addListener } });
     listener();
@@ -73,7 +79,9 @@ describe('initCapacitorBackButton', () => {
   });
 
   it('should handle addListener errors gracefully', async () => {
-    const addListener = vi.fn(() => { throw new Error('fail'); });
+    const addListener = vi.fn(() => {
+      throw new Error('fail');
+    });
     const { initCapacitorBackButton } = await import('../capacitor-back.js');
     expect(() => initCapacitorBackButton({ App: { addListener } })).not.toThrow();
   });

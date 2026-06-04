@@ -2,9 +2,15 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import {
-  prevAyah, nextAyah, prevSurah, nextSurah,
-  toggleHifdh, toggleRepeat, expandPlayer,
-  togglePlayPause, updatePlayPauseBtn
+  prevAyah,
+  nextAyah,
+  prevSurah,
+  nextSurah,
+  toggleHifdh,
+  toggleRepeat,
+  expandPlayer,
+  togglePlayPause,
+  updatePlayPauseBtn,
 } from './audio.js';
 import { openSettings } from './settings.js';
 
@@ -26,8 +32,14 @@ export function initNavigation(): void {
     if ((e.target as HTMLElement).closest('#collapsedPlayBtn')) return;
     expandPlayer();
   });
-  dom.playPauseBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
-  dom.collapsedPlayBtn?.addEventListener('click', () => { togglePlayPause(); updatePlayPauseBtn(); });
+  dom.playPauseBtn?.addEventListener('click', () => {
+    togglePlayPause();
+    updatePlayPauseBtn();
+  });
+  dom.collapsedPlayBtn?.addEventListener('click', () => {
+    togglePlayPause();
+    updatePlayPauseBtn();
+  });
 
   dom.playerMoreBtn?.addEventListener('click', () => {
     if (dom.playerMoreRow) dom.playerMoreRow.style.display = dom.playerMoreRow.style.display === 'none' ? '' : 'none';
@@ -41,33 +53,35 @@ export function initNavigation(): void {
 
   /* ========== VIEW MODE TOGGLES ========== */
   dom.viewSurahBtn?.addEventListener('click', () => {
-    import('./presentation.js').then(m => m.closePresentation()).catch(() => {});
-    if (state.mushafMode) import('./mushaf.js').then(m => m.toggleMushafMode());
-    document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah'));
+    import('./presentation.js').then((m) => m.closePresentation()).catch(() => {});
+    if (state.mushafMode) import('./mushaf.js').then((m) => m.toggleMushafMode());
+    document
+      .querySelectorAll('.view-mode-btn')
+      .forEach((b) => b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah'));
     if (dom.pageSelect) dom.pageSelect.style.display = 'none';
     if (dom.pageSlider) dom.pageSlider.style.display = 'none';
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
   });
   dom.viewMushafBtn?.addEventListener('click', () => {
-    import('./presentation.js').then(m => m.closePresentation()).catch(() => {});
-    import('./mushaf.js').then(m => m.toggleMushafMode());
+    import('./presentation.js').then((m) => m.closePresentation()).catch(() => {});
+    import('./mushaf.js').then((m) => m.toggleMushafMode());
   });
   dom.viewPresBtn?.addEventListener('click', () => {
-    if (state.mushafMode) import('./mushaf.js').then(m => m.toggleMushafMode());
-    import('./presentation.js').then(m => m.openPresentation()).catch(() => {});
+    if (state.mushafMode) import('./mushaf.js').then((m) => m.toggleMushafMode());
+    import('./presentation.js').then((m) => m.openPresentation()).catch(() => {});
   });
 
   dom.pageSelect?.addEventListener('change', () => {
     if (dom.pageSelect!.value) {
       const p = parseInt(dom.pageSelect!.value, 10);
       if (dom.pageSlider) dom.pageSlider.value = String(p);
-      import('./mushaf.js').then(m => m.loadPage(p, true));
+      import('./mushaf.js').then((m) => m.loadPage(p, true));
     }
   });
   dom.pageSlider?.addEventListener('input', () => {
     const p = parseInt(dom.pageSlider!.value, 10);
     if (dom.pageSelect) dom.pageSelect.value = String(p);
-    import('./mushaf.js').then(m => m.loadPage(p, true));
+    import('./mushaf.js').then((m) => m.loadPage(p, true));
   });
 
   /* ========== BOTTOM NAV (جوال/تابلت) ========== */
@@ -77,7 +91,7 @@ export function initNavigation(): void {
   function activateTab(tab: string): void {
     if (!bottomNav) return;
     activeTab = tab;
-    bottomNav.querySelectorAll('.bottom-nav-btn').forEach(b => {
+    bottomNav.querySelectorAll('.bottom-nav-btn').forEach((b) => {
       b.classList.toggle('active', (b as HTMLElement).dataset.tab === tab);
     });
   }
@@ -87,7 +101,10 @@ export function initNavigation(): void {
     if (!btn) return;
     const tab = btn.dataset.tab;
     if (!tab) return;
-    if (tab === activeTab && tab !== 'player') { activateTab(tab); return; }
+    if (tab === activeTab && tab !== 'player') {
+      activateTab(tab);
+      return;
+    }
     activateTab(tab);
 
     switch (tab) {
@@ -122,5 +139,5 @@ export function initNavigation(): void {
   const savedMushaf = storage.get('mushaf_mode');
   const savedPage = storage.get<number>('current_page');
   if (savedPage) state.currentPage = savedPage;
-  if (savedMushaf) import('./mushaf.js').then(m => m.toggleMushafMode());
+  if (savedMushaf) import('./mushaf.js').then((m) => m.toggleMushafMode());
 }

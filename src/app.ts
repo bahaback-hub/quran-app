@@ -13,18 +13,26 @@ import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
 import { initNavigation } from './navigation.js';
 import { initToggleSwitchAccessibility } from './a11y.js';
-import {
-  loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect
-} from './surah-loader.js';
+import { loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect } from './surah-loader.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import {
-  showContinueWidget, showWelcomeScreen,
-  handleVisibilityChange, updateNetworkBanner, updateReadingProgress
+  showContinueWidget,
+  showWelcomeScreen,
+  handleVisibilityChange,
+  updateNetworkBanner,
+  updateReadingProgress,
 } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents } from './app-events.js';
 
-export { loadSurah, renderSurah, highlightCurrentAyah, updatePlayerInfo, buildSurahOffsets, loadSurahList } from './surah-loader.js';
+export {
+  loadSurah,
+  renderSurah,
+  highlightCurrentAyah,
+  updatePlayerInfo,
+  buildSurahOffsets,
+  loadSurahList,
+} from './surah-loader.js';
 
 /** Shape of the last_position entry stored in localStorage. */
 interface LastPosition {
@@ -86,7 +94,7 @@ export async function initApp(): Promise<void> {
   window.addEventListener('languagechange', () => {
     applyTranslations();
     const hint = document.getElementById('keyboardHint');
-    if (hint) hint.textContent = '';  // will be set by i18n
+    if (hint) hint.textContent = ''; // will be set by i18n
   });
 
   // Restore player state
@@ -119,9 +127,9 @@ export async function initApp(): Promise<void> {
     loadPrayerTimes();
     checkAdhkarNotifications();
     if (!state.adhkarIntervalId) state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
-    import('./ayah-modal.js').then(m => m.initAyahModal()).catch(() => {});
-    import('./presentation.js').then(m => m.initPresentation()).catch(() => {});
-    import('./mushaf.js').then(m => m.populateSurahOverlay()).catch(() => {});
+    import('./ayah-modal.js').then((m) => m.initAyahModal()).catch(() => {});
+    import('./presentation.js').then((m) => m.initPresentation()).catch(() => {});
+    import('./mushaf.js').then((m) => m.populateSurahOverlay()).catch(() => {});
     // Ensure full Quran text is loaded when online (non-blocking)
     if (navigator.onLine) fullQuranPromise.catch(console.warn);
   }, 0);
