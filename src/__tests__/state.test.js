@@ -32,7 +32,7 @@ describe('State Management', () => {
       expect(defaults.fontSize).toBe(28);
       expect(defaults.nightMode).toBe(false);
       expect(defaults.autoSave).toBe(true);
-      expect(defaults.azanEnabled).toBe(true);
+      expect(defaults.azanEnabled).toBe(false);
       expect(defaults.favorites).toEqual([]);
       expect(defaults.surahList).toEqual([]);
       expect(defaults.surahCache).toBeInstanceOf(Map);

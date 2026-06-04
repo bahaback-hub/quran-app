@@ -112,8 +112,8 @@ describe('initState', () => {
       fontSize: 28,
       nightMode: false,
       autoSave: true,
-      azanEnabled: true,
-      azanFajrEnabled: true,
+      azanEnabled: false,
+      azanFajrEnabled: false,
       city: CONFIG.DEFAULT_CITY,
       country: CONFIG.DEFAULT_COUNTRY,
       method: CONFIG.DEFAULT_METHOD,
@@ -164,8 +164,8 @@ describe('initState', () => {
     expect(state.fontSize).toBe(28);
     expect(state.nightMode).toBe(false);
     expect(state.autoSave).toBe(true);
-    expect(state.azanEnabled).toBe(true);
-    expect(state.azanFajrEnabled).toBe(true);
+    expect(state.azanEnabled).toBe(false);
+    expect(state.azanFajrEnabled).toBe(false);
     expect(state.city).toBe(CONFIG.DEFAULT_CITY);
     expect(state.country).toBe(CONFIG.DEFAULT_COUNTRY);
     expect(state.method).toBe(CONFIG.DEFAULT_METHOD);

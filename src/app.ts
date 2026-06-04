@@ -17,7 +17,6 @@ import { loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect } fr
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import {
   showContinueWidget,
-  showWelcomeScreen,
   handleVisibilityChange,
   updateNetworkBanner,
   updateReadingProgress,
@@ -101,8 +100,8 @@ export async function initApp(): Promise<void> {
   const savedPlayerCollapsed = storage.get<boolean>('player_collapsed');
   if (savedPlayerCollapsed === false && dom.player) dom.player.classList.remove('collapsed');
 
-  // Show welcome screen on first visit
-  showWelcomeScreen();
+  // Welcome screen is disabled by default — user should see a clean first impression.
+  // showWelcomeScreen(); // intentionally not called
 
   window.addEventListener('online', updateNetworkBanner);
   window.addEventListener('offline', updateNetworkBanner);
