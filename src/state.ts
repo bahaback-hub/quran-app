@@ -316,9 +316,9 @@ function notifySubscribers(key: string, newValue: unknown, oldValue: unknown): v
  */
 export function setState(partial: Partial<AppState>): void {
   for (const [key, newValue] of Object.entries(partial)) {
-    const oldValue = (state as Record<string, unknown>)[key];
+    const oldValue = (state as unknown as Record<string, unknown>)[key];
     if (oldValue !== newValue) {
-      (state as Record<string, unknown>)[key] = newValue;
+      (state as unknown as Record<string, unknown>)[key] = newValue;
       notifySubscribers(key, newValue, oldValue);
     }
   }
@@ -331,9 +331,9 @@ export function setState(partial: Partial<AppState>): void {
 export function resetState(): void {
   const defaults = createDefaultState();
   for (const [key, value] of Object.entries(defaults)) {
-    const oldValue = (state as Record<string, unknown>)[key];
+    const oldValue = (state as unknown as Record<string, unknown>)[key];
     if (oldValue !== value) {
-      (state as Record<string, unknown>)[key] = value;
+      (state as unknown as Record<string, unknown>)[key] = value;
       notifySubscribers(key, value, oldValue);
     }
   }
