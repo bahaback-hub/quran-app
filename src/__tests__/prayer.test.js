@@ -35,7 +35,7 @@ describe('getNextPrayerKey', () => {
       Dhuhr: '12:30 PM',
       Asr: '03:45 PM',
       Maghrib: '06:20 PM',
-      Isha: '07:50 PM'
+      Isha: '07:50 PM',
     };
     const result = getNextPrayerKey();
     expect(PRAYER_ORDER).toContain(result);

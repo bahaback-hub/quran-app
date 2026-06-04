@@ -78,7 +78,13 @@ export function showContinueWidget(info: ContinueInfo): void {
   const small = document.createElement('small');
   small.style.opacity = '0.7';
   small.textContent = `${__('last_visit_time', dateStr)}`;
-  text.append('📖 ', strong, `${__('continue_ayah', String(info.ayahNumberInSurah))}`, document.createElement('br'), small);
+  text.append(
+    '📖 ',
+    strong,
+    `${__('continue_ayah', String(info.ayahNumberInSurah))}`,
+    document.createElement('br'),
+    small
+  );
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'continue-widget-close';
@@ -126,7 +132,10 @@ export function dismissWelcomeScreen(): void {
 export function handleVisibilityChange(): void {
   if (document.hidden) {
     stopClock();
-    if (state.adhkarIntervalId) { clearInterval(state.adhkarIntervalId); state.adhkarIntervalId = null; }
+    if (state.adhkarIntervalId) {
+      clearInterval(state.adhkarIntervalId);
+      state.adhkarIntervalId = null;
+    }
   } else {
     startClock();
     if (!state.adhkarIntervalId) state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);

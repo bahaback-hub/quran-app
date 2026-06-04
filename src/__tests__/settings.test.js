@@ -2,17 +2,31 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { storage } from '../storage.js';
-import { applyNightMode, toggleNightMode, applyFontSize, applyFontType, applyLineSpacing, initSystemThemeDetection, restoreSettings } from '../settings.js';
+import {
+  applyNightMode,
+  toggleNightMode,
+  applyFontSize,
+  applyFontType,
+  applyLineSpacing,
+  initSystemThemeDetection,
+  restoreSettings,
+} from '../settings.js';
 
 // Mock localStorage
 const store = {};
 beforeEach(() => {
-  Object.keys(store).forEach(k => delete store[k]);
+  Object.keys(store).forEach((k) => delete store[k]);
   globalThis.localStorage = {
-    getItem: (key) => store[key] === undefined ? null : store[key],
-    setItem: (key, val) => { store[key] = String(val); },
-    removeItem: (key) => { delete store[key]; },
-    clear: () => { Object.keys(store).forEach(k => delete store[k]); }
+    getItem: (key) => (store[key] === undefined ? null : store[key]),
+    setItem: (key, val) => {
+      store[key] = String(val);
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach((k) => delete store[k]);
+    },
   };
   state.fontSize = 28;
   state.nightMode = false;
@@ -132,7 +146,7 @@ describe('initSystemThemeDetection', () => {
     const matchMediaMock = vi.fn().mockReturnValue({
       matches: true,
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     });
     window.matchMedia = matchMediaMock;
 
@@ -149,7 +163,7 @@ describe('initSystemThemeDetection', () => {
     const matchMediaMock = vi.fn().mockReturnValue({
       matches: true,
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     });
     window.matchMedia = matchMediaMock;
 
@@ -165,7 +179,7 @@ describe('initSystemThemeDetection', () => {
     const matchMediaMock = vi.fn().mockReturnValue({
       matches: false,
       addEventListener: vi.fn(),
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     });
     window.matchMedia = matchMediaMock;
 
@@ -180,7 +194,7 @@ describe('initSystemThemeDetection', () => {
     const matchMediaMock = vi.fn().mockReturnValue({
       matches: false,
       addEventListener: addEventListenerSpy,
-      removeEventListener: vi.fn()
+      removeEventListener: vi.fn(),
     });
     window.matchMedia = matchMediaMock;
 
@@ -189,7 +203,6 @@ describe('initSystemThemeDetection', () => {
     expect(matchMediaMock).toHaveBeenCalledWith('(prefers-color-scheme: dark)');
     expect(addEventListenerSpy).toHaveBeenCalledWith('change', expect.any(Function));
   });
-
 });
 
 describe('restoreSettings', () => {

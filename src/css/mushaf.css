@@ -17,8 +17,12 @@
   max-width: 180px;
   height: 30px;
 }
-.surah-reciter-group #surahSelect { min-width: 130px; }
-.surah-reciter-group #reciterSelect { min-width: 100px; }
+.surah-reciter-group #surahSelect {
+  min-width: 130px;
+}
+.surah-reciter-group #reciterSelect {
+  min-width: 100px;
+}
 .view-mode-group {
   display: flex;
   gap: 2px;
@@ -77,7 +81,10 @@
 .mushaf-container::before {
   content: '';
   position: absolute;
-  top: 10px; left: 10px; right: 10px; bottom: 10px;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
   border: 2px solid var(--accent);
   pointer-events: none;
   opacity: 0.2;
@@ -148,7 +155,7 @@ body.night-mode .mushaf-container {
 .page-input-group label {
   font-size: 12px;
 }
-.page-input-group input[type="number"] {
+.page-input-group input[type='number'] {
   width: 44px;
   padding: 2px 4px;
   border: 1.5px solid var(--accent);
@@ -160,8 +167,8 @@ body.night-mode .mushaf-container {
   text-align: center;
   -moz-appearance: textfield;
 }
-.page-input-group input[type="number"]::-webkit-outer-spin-button,
-.page-input-group input[type="number"]::-webkit-inner-spin-button {
+.page-input-group input[type='number']::-webkit-outer-spin-button,
+.page-input-group input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
@@ -169,8 +176,11 @@ body.night-mode .mushaf-container {
 /* ===== قائمة السور المنبثقة ===== */
 .mushaf-surah-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,10 +196,12 @@ body.night-mode .mushaf-container {
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   animation: scaleIn 0.3s ease;
 }
-body.night-mode .mushaf-surah-overlay-inner { background: #1e2330; }
+body.night-mode .mushaf-surah-overlay-inner {
+  background: #1e2330;
+}
 .mushaf-surah-overlay-header {
   display: flex;
   justify-content: space-between;
@@ -197,7 +209,10 @@ body.night-mode .mushaf-surah-overlay-inner { background: #1e2330; }
   padding: 16px 20px;
   border-bottom: 2px solid var(--accent);
 }
-.mushaf-surah-overlay-header h3 { margin: 0; color: var(--text-primary); }
+.mushaf-surah-overlay-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+}
 .mushaf-surah-overlay-list {
   overflow-y: auto;
   padding: 10px;
@@ -217,7 +232,9 @@ body.night-mode .mushaf-surah-overlay-inner { background: #1e2330; }
   font-family: inherit;
   transition: background 0.2s;
 }
-.mushaf-surah-overlay-btn:hover { background: var(--hover-bg); }
+.mushaf-surah-overlay-btn:hover {
+  background: var(--hover-bg);
+}
 
 /* ===== حاوية الصورة ===== */
 .mushaf-image-wrapper {
@@ -292,7 +309,9 @@ body.night-mode .mushaf-ayah-highlight {
   opacity: 1;
 }
 @media (hover: none) {
-  .mushaf-page-nav-btn { opacity: 0.5; }
+  .mushaf-page-nav-btn {
+    opacity: 0.5;
+  }
 }
 .mushaf-page-nav-prev {
   right: -14px;
@@ -306,20 +325,44 @@ body.night-mode .mushaf-ayah-highlight {
   backface-visibility: hidden;
 }
 @keyframes flipOutLeft {
-  0% { transform: rotateY(0deg); opacity: 1; }
-  100% { transform: rotateY(-90deg); opacity: 0.2; }
+  0% {
+    transform: rotateY(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(-90deg);
+    opacity: 0.2;
+  }
 }
 @keyframes flipOutRight {
-  0% { transform: rotateY(0deg); opacity: 1; }
-  100% { transform: rotateY(90deg); opacity: 0.2; }
+  0% {
+    transform: rotateY(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(90deg);
+    opacity: 0.2;
+  }
 }
 @keyframes flipInRight {
-  0% { transform: rotateY(90deg); opacity: 0.2; }
-  100% { transform: rotateY(0deg); opacity: 1; }
+  0% {
+    transform: rotateY(90deg);
+    opacity: 0.2;
+  }
+  100% {
+    transform: rotateY(0deg);
+    opacity: 1;
+  }
 }
 @keyframes flipInLeft {
-  0% { transform: rotateY(-90deg); opacity: 0.2; }
-  100% { transform: rotateY(0deg); opacity: 1; }
+  0% {
+    transform: rotateY(-90deg);
+    opacity: 0.2;
+  }
+  100% {
+    transform: rotateY(0deg);
+    opacity: 1;
+  }
 }
 .mushaf-flip-out-left {
   animation: flipOutLeft 0.35s ease-in forwards;
@@ -353,8 +396,12 @@ body.night-mode .mushaf-image-skeleton {
   background-size: 200% 100%;
 }
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ===== التجاوب ===== */
@@ -363,7 +410,10 @@ body.night-mode .mushaf-image-skeleton {
     padding: 15px 10px;
   }
   .mushaf-container::before {
-    top: 6px; left: 6px; right: 6px; bottom: 6px;
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
   }
 }
 
@@ -371,5 +421,7 @@ body.night-mode .mushaf-image-skeleton {
   .mushaf-container {
     padding: 10px 8px;
   }
-  .mushaf-page-num { font-size: 22px; }
+  .mushaf-page-num {
+    font-size: 22px;
+  }
 }

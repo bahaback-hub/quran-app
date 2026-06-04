@@ -109,7 +109,8 @@ describe('Error Boundary', () => {
     window.onerror(
       "Cannot read properties of null (reading 'dom')",
       'app.js',
-      1, 1,
+      1,
+      1,
       new Error("Cannot read properties of null (reading 'dom')")
     );
     // Recovery overlay should be created

@@ -17,8 +17,8 @@
     "android:run": "npm run android:build && npx cap run android",
     "lint": "eslint src/ e2e/ --no-warn-ignored",
     "lint:fix": "eslint src/ e2e/ --fix",
-    "format": "prettier --write 'src/**/*.js' 'e2e/**/*.js' 'styles.css'",
-    "format:check": "prettier --check 'src/**/*.js' 'e2e/**/*.js' 'styles.css'"
+    "format": "prettier --write 'src/**/*.{js,ts,css}' 'e2e/**/*.{js,ts}'",
+    "format:check": "prettier --check 'src/**/*.{js,ts,css}' 'e2e/**/*.{js,ts}'"
   },
   "engines": {
     "node": ">=22"
@@ -37,6 +37,7 @@
     "@eslint/js": "^9.0.0",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.1",
+    "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
     "jsdom": "^29.1.1",

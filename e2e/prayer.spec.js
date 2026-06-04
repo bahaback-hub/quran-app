@@ -9,7 +9,10 @@ test.describe('مواقيت الصلاة', () => {
     await expect(page.locator('#prayerBar')).toBeVisible();
     await page.evaluate(() => {
       const bar = document.getElementById('prayerBar');
-      if (bar) { bar.classList.remove('collapsed'); bar.classList.add('expanded'); }
+      if (bar) {
+        bar.classList.remove('collapsed');
+        bar.classList.add('expanded');
+      }
     });
     await page.waitForTimeout(1000);
     await expect(page.locator('#nextPrayerName')).toBeVisible();
@@ -18,7 +21,10 @@ test.describe('مواقيت الصلاة', () => {
   test('يعرض الساعة في شريط المواقيت', async ({ page }) => {
     await page.evaluate(() => {
       const bar = document.getElementById('prayerBar');
-      if (bar) { bar.classList.remove('collapsed'); bar.classList.add('expanded'); }
+      if (bar) {
+        bar.classList.remove('collapsed');
+        bar.classList.add('expanded');
+      }
     });
     await page.waitForTimeout(1000);
     const clock = page.locator('#bigClockTime');

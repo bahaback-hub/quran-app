@@ -1,16 +1,16 @@
-import { state } from "./state.js";
-import { CONFIG, JUZ_PAGES } from "./config.js";
-import { dom } from "./dom.js";
-import { storage } from "./storage.js";
-import { showToast, loadingBar } from "./ui.js";
-import { escapeHtml, toArabicNumeral } from "./utils.js";
-import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from "./surahs-data.js";
-import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from "./app.js";
-import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from "./audio.js";
-import { handlePageClick, getAyahHighlightRects } from "./ayah-click.js";
-import { renderPage, loadPageData } from "./mushaf-renderer.js";
-import type { PageLayoutData } from "./mushaf-renderer.js";
-import { loadTafsirForSurahAyah } from "./tafsir.js";
+import { state } from './state.js';
+import { CONFIG, JUZ_PAGES } from './config.js';
+import { dom } from './dom.js';
+import { storage } from './storage.js';
+import { showToast, loadingBar } from './ui.js';
+import { escapeHtml, toArabicNumeral } from './utils.js';
+import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
+import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from './app.js';
+import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from './audio.js';
+import { handlePageClick, getAyahHighlightRects } from './ayah-click.js';
+import { renderPage, loadPageData } from './mushaf-renderer.js';
+import type { PageLayoutData } from './mushaf-renderer.js';
+import { loadTafsirForSurahAyah } from './tafsir.js';
 import { __ } from './i18n.js';
 
 /* ===================== INTERFACES ===================== */
@@ -96,7 +96,8 @@ export async function toggleMushafMode(): Promise<void> {
 
     if (state.currentSurah) {
       const surahData = state.surahData as any;
-      const currentAyah = (surahData?.number === state.currentSurah && surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
+      const currentAyah =
+        (surahData?.number === state.currentSurah && surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
       try {
         const res = await fetch(`${CONFIG.API_BASE}/ayah/${state.currentSurah}:${currentAyah}/quran-uthmani`);
         const data = (await res.json()) as AyahPageResponse;
@@ -178,7 +179,7 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
     oldContainer.classList.add('mushaf-flipping');
     const flipOut = direction === 'left' ? 'mushaf-flip-out-left' : 'mushaf-flip-out-right';
     oldContainer.classList.add(flipOut);
-    await new Promise<void>(r => setTimeout(r, 300));
+    await new Promise<void>((r) => setTimeout(r, 300));
   }
 
   renderMushafPageImage(pageNum, skipNav);
@@ -189,9 +190,13 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
       newContainer.classList.add('mushaf-flipping');
       const flipIn = direction === 'left' ? 'mushaf-flip-in-right' : 'mushaf-flip-in-left';
       newContainer.classList.add(flipIn);
-      newContainer.addEventListener('animationend', () => {
-        newContainer.classList.remove('mushaf-flipping', flipIn);
-      }, { once: true });
+      newContainer.addEventListener(
+        'animationend',
+        () => {
+          newContainer.classList.remove('mushaf-flipping', flipIn);
+        },
+        { once: true }
+      );
     }
   });
 }
@@ -202,7 +207,10 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
 export function getJuzForPage(pageNum: number): number {
   let juz = 1;
   for (let i = JUZ_PAGES.length - 1; i >= 0; i--) {
-    if (pageNum >= JUZ_PAGES[i]) { juz = i + 1; break; }
+    if (pageNum >= JUZ_PAGES[i]) {
+      juz = i + 1;
+      break;
+    }
   }
   return juz;
 }
@@ -243,12 +251,23 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const result = await handlePageClick(pageNum, x, y, rect.width, rect.height, pageLayout) as AyahClickResult | null;
+    const result = (await handlePageClick(
+      pageNum,
+      x,
+      y,
+      rect.width,
+      rect.height,
+      pageLayout
+    )) as AyahClickResult | null;
     if (result) {
       const bar = document.getElementById('mushafAyahBar');
       if (bar) {
         bar.querySelectorAll('.mushaf-ayah-btn').forEach((b: Element) => {
-          b.classList.toggle('current', parseInt((b as HTMLElement).dataset.surah!, 10) === result.surah && parseInt((b as HTMLElement).dataset.ayah!, 10) === result.ayah);
+          b.classList.toggle(
+            'current',
+            parseInt((b as HTMLElement).dataset.surah!, 10) === result.surah &&
+              parseInt((b as HTMLElement).dataset.ayah!, 10) === result.ayah
+          );
         });
       }
       playMushafAyah(result.surah, result.ayah);
@@ -310,7 +329,7 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
   preloadAdjacentLayouts(pageNum);
 
   fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`)
-    .then(res => res.json())
+    .then((res) => res.json())
     .then((json: PageApiResponse) => {
       const ayahs = json?.data?.ayahs;
       if (!ayahs?.length) return;
@@ -318,8 +337,12 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
       const surahNamesEl = document.getElementById('mushafSurahNames');
       if (surahNamesEl) {
         const seen: Record<number, string> = {};
-        ayahs.forEach((a: PageApiAyah) => { if (!seen[a.surah.number]) seen[a.surah.number] = a.surah.name; });
-        surahNamesEl.innerHTML = Object.values(seen).map(n => `<span class="mushaf-surah-name">${escapeHtml(n)}</span>`).join(' ');
+        ayahs.forEach((a: PageApiAyah) => {
+          if (!seen[a.surah.number]) seen[a.surah.number] = a.surah.name;
+        });
+        surahNamesEl.innerHTML = Object.values(seen)
+          .map((n) => `<span class="mushaf-surah-name">${escapeHtml(n)}</span>`)
+          .join(' ');
       }
 
       const bar = document.getElementById('mushafAyahBar');
@@ -328,7 +351,7 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
       for (const ayah of ayahs) {
         const sn = ayah.surah.number;
         const an = ayah.numberInSurah;
-        const surahInfo = (state.surahList as SurahListEntry[]).find(s => s.number === sn);
+        const surahInfo = (state.surahList as SurahListEntry[]).find((s) => s.number === sn);
         const surahName = surahInfo ? surahInfo.name : `${__('surah')} ${sn}`;
         itemsHtml += `<button class="mushaf-ayah-btn" data-surah="${sn}" data-ayah="${an}">
           <span class="mushaf-ayah-btn-surah">${escapeHtml(surahName)}</span>
@@ -347,7 +370,9 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
         });
       });
     })
-    .catch(() => { console.warn('Failed to fetch ayah list for page', pageNum); });
+    .catch(() => {
+      console.warn('Failed to fetch ayah list for page', pageNum);
+    });
 }
 
 /* ===================== PRELOAD ===================== */
@@ -488,7 +513,14 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
   const rect = canvasEl.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
 
-  const rects = await getAyahHighlightRects(state.currentPage, surah, ayah, rect.width, rect.height, state.currentPageLayout as any) as AyahHighlightRect[];
+  const rects = (await getAyahHighlightRects(
+    state.currentPage,
+    surah,
+    ayah,
+    rect.width,
+    rect.height,
+    state.currentPageLayout as any
+  )) as AyahHighlightRect[];
   if (!rects.length) return;
 
   const wrapperRect = wrapper.getBoundingClientRect();
@@ -532,13 +564,19 @@ function playMushafAyah(surahNum: number, ayahNum: number): void {
   if (state.currentSurah !== surahNum || !state.surahData) {
     const tempSurahList = state.surahList as SurahListEntry[];
     fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`)
-      .then(res => res.json())
+      .then((res) => res.json())
       .then((json: SurahAudioResponse) => {
         if (json?.data?.ayahs) {
-          state.ayahsAudios = json.data.ayahs.map(a => a.audio);
+          state.ayahsAudios = json.data.ayahs.map((a) => a.audio);
           if (tempSurahList.length) {
-            const s = tempSurahList.find(s => s.number === surahNum);
-            if (s) state.surahData = { name: s.name, englishName: s.englishName, number: surahNum, ayahs: json.data.ayahs } as any;
+            const s = tempSurahList.find((s) => s.number === surahNum);
+            if (s)
+              state.surahData = {
+                name: s.name,
+                englishName: s.englishName,
+                number: surahNum,
+                ayahs: json.data.ayahs,
+              } as any;
           }
           loadAndPlay();
         }

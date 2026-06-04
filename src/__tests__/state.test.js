@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { state, setState, subscribe, subscribeAll, resetState, clearSubscribers, createDefaultState, batch } from '../state.js';
+import {
+  state,
+  setState,
+  subscribe,
+  subscribeAll,
+  resetState,
+  clearSubscribers,
+  createDefaultState,
+  batch,
+} from '../state.js';
 
 describe('State Management', () => {
   beforeEach(() => {
@@ -139,7 +148,9 @@ describe('State Management', () => {
     });
 
     it('should not break when subscriber throws', () => {
-      const badCallback = vi.fn(() => { throw new Error('oops'); });
+      const badCallback = vi.fn(() => {
+        throw new Error('oops');
+      });
       const goodCallback = vi.fn();
       subscribe('isPlaying', badCallback);
       subscribe('isPlaying', goodCallback);

@@ -25,17 +25,26 @@ interface ActivePanel {
 }
 
 export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
-  const capGlobal = (typeof globalThis !== 'undefined' && (globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.Plugins) as CapacitorPlugins | undefined;
+  const capGlobal = (typeof globalThis !== 'undefined' &&
+    (globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.Plugins) as CapacitorPlugins | undefined;
   const app = plugins?.App || capGlobal?.App;
   if (!app) return;
   try {
     app.addListener('backButton', () => {
       const activeElements: ActivePanel[] = [
         { el: document.getElementById('settingsPanel'), close: () => closeSettings() },
-        { el: document.getElementById('adhkarPanel'), close: () => { if (state.adhkarPanelOpen) closeAdhkarPanel(); } },
+        {
+          el: document.getElementById('adhkarPanel'),
+          close: () => {
+            if (state.adhkarPanelOpen) closeAdhkarPanel();
+          },
+        },
         { el: document.getElementById('favoritesPanel'), close: () => closeFavorites() },
-        { el: document.getElementById('ayahModal'), close: () => document.getElementById('ayahModalCloseBtn')?.click() },
-        { el: document.getElementById('tafsirCurtain'), close: () => closeTafsir() }
+        {
+          el: document.getElementById('ayahModal'),
+          close: () => document.getElementById('ayahModalCloseBtn')?.click(),
+        },
+        { el: document.getElementById('tafsirCurtain'), close: () => closeTafsir() },
       ];
       for (const { el, close } of activeElements) {
         if (el && el.style.display !== 'none' && el.style.display !== '') {

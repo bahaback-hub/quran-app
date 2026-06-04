@@ -50,7 +50,7 @@ describe('renderSurah', () => {
 
   it('should include ayah numbers', () => {
     renderSurah(sampleSurah);
-    sampleAyahs.forEach(a => {
+    sampleAyahs.forEach((a) => {
       expect(dom.surahContent.innerHTML).toContain(`>${a.numberInSurah}<`);
     });
   });
@@ -94,35 +94,56 @@ describe('initState', () => {
   it('should set all expected state properties', async () => {
     const { CONFIG } = await import('../config.js');
     Object.assign(state, {
-      currentSurah: 1, currentAyahIndex: 0,
+      currentSurah: 1,
+      currentAyahIndex: 0,
       currentReciter: CONFIG.DEFAULT_RECITER,
       currentTafsirEdition: CONFIG.DEFAULT_TAFSIR,
-      surahData: null, surahList: [], surahCache: new Map(),
+      surahData: null,
+      surahList: [],
+      surahCache: new Map(),
       ayahsAudios: [],
-      isPlaying: false, hifdhMode: false,
-      repeatMode: false, repeatFrom: 1, repeatTo: 1, repeatTimes: 3, repeatCounter: 0,
-      fontSize: 28, nightMode: false, autoSave: true,
-      azanEnabled: true, azanFajrEnabled: true,
-      city: CONFIG.DEFAULT_CITY, country: CONFIG.DEFAULT_COUNTRY,
+      isPlaying: false,
+      hifdhMode: false,
+      repeatMode: false,
+      repeatFrom: 1,
+      repeatTo: 1,
+      repeatTimes: 3,
+      repeatCounter: 0,
+      fontSize: 28,
+      nightMode: false,
+      autoSave: true,
+      azanEnabled: true,
+      azanFajrEnabled: true,
+      city: CONFIG.DEFAULT_CITY,
+      country: CONFIG.DEFAULT_COUNTRY,
       method: CONFIG.DEFAULT_METHOD,
-      prayerTimes: null, lastAzanFired: null,
-      favorites: [], bookmark: null,
+      prayerTimes: null,
+      lastAzanFired: null,
+      favorites: [],
+      bookmark: null,
       pendingTafsirAfterLoad: null,
-      playerCollapsed: false, barCollapsed: true,
-      azanPlaying: false, loadingSurah: null,
-      mushafMode: false, currentPage: 1,
-      fullQuranText: null, fullQuranLoaded: false,
+      playerCollapsed: false,
+      barCollapsed: true,
+      azanPlaying: false,
+      loadingSurah: null,
+      mushafMode: false,
+      currentPage: 1,
+      fullQuranText: null,
+      fullQuranLoaded: false,
       ayahWordElements: null,
       translationEnabled: false,
       currentTranslation: null,
       translationData: null,
       tajweedEnabled: true,
-      adhkarSettings: null, adhkarPanelOpen: false, adhkarActiveTab: null, lastAdhkarFired: null,
+      adhkarSettings: null,
+      adhkarPanelOpen: false,
+      adhkarActiveTab: null,
+      lastAdhkarFired: null,
       surahOffsets: null,
       ayahTimings: [],
       presentationMode: false,
       _allSearchMatches: null,
-      _searchResultsPage: 1
+      _searchResultsPage: 1,
     });
 
     expect(state.currentSurah).toBe(1);

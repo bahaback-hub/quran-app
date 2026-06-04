@@ -11,7 +11,7 @@ export const storage = {
   get<T = unknown>(key: string, def: T | null = null): T | null {
     try {
       const v = localStorage.getItem(CONFIG.STORAGE_PREFIX + key);
-      return v === null ? def : JSON.parse(v) as T;
+      return v === null ? def : (JSON.parse(v) as T);
     } catch (e) {
       console.warn(`[storage] Failed to read key "${key}":`, e);
       return def;
@@ -36,8 +36,10 @@ export const storage = {
    * @param key - Storage key (will be prefixed).
    */
   remove(key: string): void {
-    try { localStorage.removeItem(CONFIG.STORAGE_PREFIX + key); } catch (e) {
+    try {
+      localStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
+    } catch (e) {
       console.warn(`[storage] Failed to remove key "${key}":`, e);
     }
-  }
+  },
 };

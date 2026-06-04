@@ -223,12 +223,31 @@ export function closePresentation(): void {
 }
 
 function handleKeyDown(e: KeyboardEvent): void {
-  if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA' || (e.target as HTMLElement).tagName === 'SELECT') return;
+  if (
+    (e.target as HTMLElement).tagName === 'INPUT' ||
+    (e.target as HTMLElement).tagName === 'TEXTAREA' ||
+    (e.target as HTMLElement).tagName === 'SELECT'
+  )
+    return;
   switch (e.key) {
-    case 'Escape': closePresentation(); break;
-    case 'ArrowRight': case 'ArrowDown': e.preventDefault(); navigateAyah(1); break;
-    case 'ArrowLeft': case 'ArrowUp': e.preventDefault(); navigateAyah(-1); break;
-    case ' ': e.preventDefault(); togglePlayPause(); updatePlayPauseBtn(); break;
+    case 'Escape':
+      closePresentation();
+      break;
+    case 'ArrowRight':
+    case 'ArrowDown':
+      e.preventDefault();
+      navigateAyah(1);
+      break;
+    case 'ArrowLeft':
+    case 'ArrowUp':
+      e.preventDefault();
+      navigateAyah(-1);
+      break;
+    case ' ':
+      e.preventDefault();
+      togglePlayPause();
+      updatePlayPauseBtn();
+      break;
   }
 }
 

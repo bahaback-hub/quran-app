@@ -42,7 +42,11 @@ export function stopClock(): void {
   }
 }
 
-const _hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' });
+const _hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
 
 function updateDates(): void {
   const now = new Date();
@@ -50,7 +54,9 @@ function updateDates(): void {
     const hijri = _hijriFormatter.format(now);
     if (dom.hijriDateDisplay) dom.hijriDateDisplay.textContent = hijri;
     if (dom.bigClockHijri) dom.bigClockHijri.textContent = '📅 ' + hijri;
-  } catch (e) { console.warn('Date update failed:', e); }
+  } catch (e) {
+    console.warn('Date update failed:', e);
+  }
   if (dom.weekdayDisplay) dom.weekdayDisplay.textContent = ARABIC_WEEKDAYS[now.getDay()];
   const greg = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
   if (dom.gregorianDateDisplay) dom.gregorianDateDisplay.textContent = greg;
@@ -73,7 +79,12 @@ export async function loadPrayerTimes(): Promise<void> {
     const data = await prayerFetch(query, { errorMsg: __('failed_prayer') });
     if (data?.data?.timings) {
       state.prayerTimes = data.data.timings;
-      storage.set('cached_prayer_times', { date: new Date().toDateString(), timings: state.prayerTimes, city, country });
+      storage.set('cached_prayer_times', {
+        date: new Date().toDateString(),
+        timings: state.prayerTimes,
+        city,
+        country,
+      });
       renderPrayerTimes();
       checkAzanTime();
       scheduleNextAzanCheck();
@@ -115,7 +126,7 @@ function renderPrayerTimes(): void {
   for (const key of order) {
     const raw = (state.prayerTimes[key] as string) || '';
     const time24 = raw.split(' ')[0];
-    const isNext = (key === next);
+    const isNext = key === next;
     html += `<div class="prayer-row ${isNext ? 'next-prayer' : ''}">
       <span class="prayer-name">${PRAYER_NAMES_AR[key] || key}</span>
       <span class="prayer-time">${formatTime12(time24)}</span>
@@ -141,7 +152,8 @@ function updateCountdowns(): void {
   const s = diffSec % 60;
   const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
   if (dom.countdownDisplay) dom.countdownDisplay.textContent = countdownText;
-  if (dom.prayerCountdown) dom.prayerCountdown.textContent = `${__('prayer_countdown', PRAYER_NAMES_AR[nextKey], countdownText)}`;
+  if (dom.prayerCountdown)
+    dom.prayerCountdown.textContent = `${__('prayer_countdown', PRAYER_NAMES_AR[nextKey], countdownText)}`;
   const time24 = ((state.prayerTimes[nextKey] as string) || '').split(' ')[0];
   if (dom.nextPrayerName) dom.nextPrayerName.textContent = PRAYER_NAMES_AR[nextKey];
   if (dom.nextPrayerTime) dom.nextPrayerTime.textContent = formatTime12(time24);
@@ -172,7 +184,8 @@ export function testAzan(): void {
   } else {
     dom.azanPlayer.src = CONFIG.AZAN_FILE;
     dom.azanPlayer.load();
-    dom.azanPlayer.play()
+    dom.azanPlayer
+      .play()
       .then(() => {
         state.azanPlaying = true;
         if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('stop_azan');
@@ -194,7 +207,7 @@ function showAzanNotification(prayerKey: string): void {
     new Notification(__('prayer_time_come'), {
       body: `${__('prayer')} ${PRAYER_NAMES_AR[prayerKey]}`,
       icon: '/icon-192.png',
-      tag: 'azan-' + prayerKey
+      tag: 'azan-' + prayerKey,
     });
   } else if ('Notification' in window && Notification.permission !== 'denied') {
     Notification.requestPermission();
@@ -215,7 +228,8 @@ export function checkAzanTime(): void {
       if (dom.azanPlayer) {
         dom.azanPlayer.src = CONFIG.AZAN_FILE;
         dom.azanPlayer.currentTime = 0;
-        dom.azanPlayer.play()
+        dom.azanPlayer
+          .play()
           .then(() => {
             state.azanPlaying = true;
             if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('stop_azan');
@@ -245,10 +259,16 @@ export function scheduleNextAzanCheck(): void {
     if (!raw) continue;
     const [h, m] = raw.split(':');
     const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
-    if (prayerSec > nowSec) { nextSec = prayerSec; break; }
+    if (prayerSec > nowSec) {
+      nextSec = prayerSec;
+      break;
+    }
   }
   const delayMs = nextSec === null ? 10 * 60 * 1000 : (nextSec - nowSec) * 1000;
-  azanTimer = setTimeout(() => { checkAzanTime(); scheduleNextAzanCheck(); }, delayMs);
+  azanTimer = setTimeout(() => {
+    checkAzanTime();
+    scheduleNextAzanCheck();
+  }, delayMs);
 }
 
 /* ===================== PRAYER BAR TOGGLE ===================== */
@@ -270,14 +290,14 @@ export function togglePrayerBar(): void {
 
 /** Calculate Qibla direction from a given latitude/longitude. */
 export function calculateQibla(lat: number, lng: number): number {
-  const kaabaLat = 21.4225 * Math.PI / 180;
-  const kaabaLng = 39.8262 * Math.PI / 180;
-  const userLat = lat * Math.PI / 180;
-  const userLng = lng * Math.PI / 180;
+  const kaabaLat = (21.4225 * Math.PI) / 180;
+  const kaabaLng = (39.8262 * Math.PI) / 180;
+  const userLat = (lat * Math.PI) / 180;
+  const userLng = (lng * Math.PI) / 180;
   const dLng = kaabaLng - userLng;
   const y = Math.sin(dLng);
   const x = Math.cos(userLat) * Math.tan(kaabaLat) - Math.sin(userLat) * Math.cos(dLng);
-  let qibla = Math.atan2(y, x) * 180 / Math.PI;
+  let qibla = (Math.atan2(y, x) * 180) / Math.PI;
   if (qibla < 0) qibla += 360;
   return qibla;
 }
@@ -323,18 +343,29 @@ export function showQiblaCompass(): void {
           requestPermission?: () => Promise<string>;
         };
         if (typeof DOE.requestPermission === 'function') {
-          DOE.requestPermission().then((permState: string) => {
-            if (permState === 'granted') {
-              window.addEventListener('deviceorientation', handleOrientation as (ev: DeviceOrientationEvent) => void);
-            }
-          }).catch(() => {});
+          DOE.requestPermission()
+            .then((permState: string) => {
+              if (permState === 'granted') {
+                window.addEventListener('deviceorientation', handleOrientation as (ev: DeviceOrientationEvent) => void);
+              }
+            })
+            .catch(() => {});
         } else {
           window.addEventListener('deviceorientation', handleOrientation as (ev: DeviceOrientationEvent) => void);
         }
       }
 
       if (direction) {
-        const dirs = [__('prayer_dirs'), __('prayer_dirs_ne'), __('prayer_dirs_e'), __('prayer_dirs_se'), __('prayer_dirs_s'), __('prayer_dirs_sw'), __('prayer_dirs_w'), __('prayer_dirs_nw')];
+        const dirs = [
+          __('prayer_dirs'),
+          __('prayer_dirs_ne'),
+          __('prayer_dirs_e'),
+          __('prayer_dirs_se'),
+          __('prayer_dirs_s'),
+          __('prayer_dirs_sw'),
+          __('prayer_dirs_w'),
+          __('prayer_dirs_nw'),
+        ];
         const idx = Math.round(qiblaAngle / 45) % 8;
         direction.textContent = `${__('qibla_direction', dirs[idx], String(Math.round(qiblaAngle)))}`;
       }

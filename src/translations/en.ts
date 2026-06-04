@@ -125,7 +125,8 @@ const en: TranslationBundle = {
   quran_db_loading: '⚠️ Quran database is loading, please wait',
 
   // Keyboard hint
-  keyboard_hint: '💡 Shortcuts: Space = Play/Pause | ← → = Prev/Next Ayah | S = Prev Surah | D = Next Surah | H = Memorize | T = Tafsir | R = Repeat | M = Mushaf',
+  keyboard_hint:
+    '💡 Shortcuts: Space = Play/Pause | ← → = Prev/Next Ayah | S = Prev Surah | D = Next Surah | H = Memorize | T = Tafsir | R = Repeat | M = Mushaf',
 
   // Footer
   footer_data_from: 'Data from',
@@ -148,7 +149,7 @@ const en: TranslationBundle = {
     'ar.minshawi': 'Muhammad Siddiq Al-Minshawi',
     'ar.muhammadayyoub': 'Muhammad Ayyoub',
     'ar.aliabdurrahmanalhuthaify': 'Ali Al-Huthaify',
-    'ar.shaatree': 'Abu Bakr Al-Shatri'
+    'ar.shaatree': 'Abu Bakr Al-Shatri',
   },
 
   // Tafsir names
@@ -156,9 +157,9 @@ const en: TranslationBundle = {
     'ar-tafsir-muyassar': 'Al-Muyassar',
     'ar-tafsir-al-tabari': 'Al-Tabari',
     'ar-tafsir-ibn-kathir': 'Ibn Kathir',
-    'ar-tafsir-as-saadi': 'Al-Sa\'di',
+    'ar-tafsir-as-saadi': "Al-Sa'di",
     'ar-tafsir-al-baghawi': 'Al-Baghawi',
-    'ar-tafsir-al-qurtubi': 'Al-Qurtubi'
+    'ar-tafsir-al-qurtubi': 'Al-Qurtubi',
   },
 
   // Cities
@@ -178,8 +179,8 @@ const en: TranslationBundle = {
     'الرباط|MA': 'Rabat',
     'تونس|TN': 'Tunis',
     'الخرطوم|SD': 'Khartoum',
-    'صنعاء|YE': 'Sana\'a',
-    'إسطنبول|TR': 'Istanbul'
+    'صنعاء|YE': "Sana'a",
+    'إسطنبول|TR': 'Istanbul',
   },
 
   // Calculation methods
@@ -193,7 +194,7 @@ const en: TranslationBundle = {
     '9': 'Qatar',
     '10': 'Singapore',
     '12': 'Union of Islamic Scholars (France)',
-    '13': 'Diyanet — Turkey'
+    '13': 'Diyanet — Turkey',
   },
 
   // Toast types

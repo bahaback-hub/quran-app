@@ -51,9 +51,18 @@ export function initAdhkarState(): void {
 }
 
 function getDefaultAdhkarSettings(): AdhkarSettings {
-  const settings: AdhkarSettings = { adhkar_enabled: false, adhkar_sound: true, _resetDate: new Date().toDateString(), personal_adhkar: [] };
+  const settings: AdhkarSettings = {
+    adhkar_enabled: false,
+    adhkar_sound: true,
+    _resetDate: new Date().toDateString(),
+    personal_adhkar: [],
+  };
   for (const cat of ADHKAR_DATA.categories) {
-    (settings as Record<string, unknown>)[cat.id] = { enabled: true, time: cat.defaultTime || '', duration: cat.defaultDuration ?? 1 };
+    (settings as Record<string, unknown>)[cat.id] = {
+      enabled: true,
+      time: cat.defaultTime || '',
+      duration: cat.defaultDuration ?? 1,
+    };
     for (const item of cat.items) {
       settings[`item_${item.id}`] = 0;
     }
@@ -132,7 +141,9 @@ function renderAdhkarTabs(): void {
 
 function switchAdhkarTab(categoryId: string): void {
   state.adhkarActiveTab = categoryId;
-  document.querySelectorAll('.adhkar-tab').forEach((t: Element) => t.classList.toggle('active', (t as HTMLElement).dataset.category === categoryId));
+  document
+    .querySelectorAll('.adhkar-tab')
+    .forEach((t: Element) => t.classList.toggle('active', (t as HTMLElement).dataset.category === categoryId));
   renderAdhkarCategory(categoryId);
 }
 
@@ -192,8 +203,14 @@ function renderAdhkarCategory(categoryId: string): void {
       const actionBtn = target.closest('[data-action]') as HTMLElement | null;
       if (actionBtn) {
         const action = actionBtn.dataset.action;
-        if (action === 'increment') { handleAdhkarCounter(actionBtn.dataset.itemId as string, actionBtn.dataset.category as string); return; }
-        if (action === 'reset') { resetAdhkarCounters(actionBtn.dataset.category as string); return; }
+        if (action === 'increment') {
+          handleAdhkarCounter(actionBtn.dataset.itemId as string, actionBtn.dataset.category as string);
+          return;
+        }
+        if (action === 'reset') {
+          resetAdhkarCounters(actionBtn.dataset.category as string);
+          return;
+        }
       }
       const toggle = target.closest('.adhkar-cat-toggle') as HTMLElement | null;
       if (toggle) {
@@ -244,7 +261,8 @@ function updateAdhkarItemDOM(itemId: string, categoryId: string): void {
   const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
   if (fill) fill.style.width = pct + '%';
   const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
-  if (countSpan) countSpan.textContent = `🔄 ${item.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}`;
+  if (countSpan)
+    countSpan.textContent = `🔄 ${item.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}`;
   const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
   if (counterText) counterText.textContent = String(counter);
   const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
@@ -332,7 +350,9 @@ function renderPersonalAdhkar(): void {
         s[key] = current + 1;
       }
       saveAdhkarSettings();
-      const itemEl = dom.adhkarContent?.querySelector(`.adhkar-item[data-item-id="personal_${p.id}"]`) as HTMLElement | null;
+      const itemEl = dom.adhkarContent?.querySelector(
+        `.adhkar-item[data-item-id="personal_${p.id}"]`
+      ) as HTMLElement | null;
       if (itemEl) {
         const newCounter = (s[key] as number) || 0;
         const newRemaining = Math.max(0, p.count - newCounter);
@@ -342,7 +362,8 @@ function renderPersonalAdhkar(): void {
         const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
         if (fill) fill.style.width = newPct + '%';
         const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
-        if (countSpan) countSpan.textContent = `🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${newRemaining}`;
+        if (countSpan)
+          countSpan.textContent = `🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${newRemaining}`;
         const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
         if (counterText) counterText.textContent = String(newCounter);
         const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
@@ -374,7 +395,10 @@ function closeAdhkarAddDialog(): void {
 
 function savePersonalAdhkar(): void {
   const text = dom.adhkarAddText?.value.trim();
-  if (!text) { showToast(__('adhkar_enter_text'), 'error'); return; }
+  if (!text) {
+    showToast(__('adhkar_enter_text'), 'error');
+    return;
+  }
   const count = parseInt(dom.adhkarAddCount?.value ?? '1', 10) || 1;
   const time = dom.adhkarAddTime?.value || null;
   const duration = parseInt(dom.adhkarAddDuration?.value ?? '1', 10) || 1;
@@ -443,7 +467,9 @@ function playNotificationSound(): void {
       osc.start(ctx.currentTime + i * 0.15);
       osc.stop(ctx.currentTime + i * 0.15 + 0.4);
     });
-  } catch (e: unknown) { console.warn('Notification sound failed:', e); }
+  } catch (e: unknown) {
+    console.warn('Notification sound failed:', e);
+  }
 }
 
 function showAdhkarNotification(cat: AdhkarNotifContext, notifDuration?: number): void {
@@ -466,9 +492,9 @@ function showAdhkarNotification(cat: AdhkarNotifContext, notifDuration?: number)
 
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification('🕌 ' + cat.name, {
-      body: cat.id === 'personal' ? (cat.name || '') : __('adhkar_notification'),
+      body: cat.id === 'personal' ? cat.name || '' : __('adhkar_notification'),
       icon: '/icon-192.png',
-      tag: 'adhkar-' + cat.id
+      tag: 'adhkar-' + cat.id,
     });
   } else if ('Notification' in window && Notification.permission !== 'denied') {
     Notification.requestPermission();
@@ -481,10 +507,11 @@ function renderNotifAdhkarText(cat: AdhkarNotifContext): void {
   if (cat.id === 'personal') {
     dom.adhkarNotifText.textContent = cat.name || '';
     if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = '';
-    if (dom.adhkarNotifShareBtn) dom.adhkarNotifShareBtn.onclick = () => {
-      copyToClipboard(cat.name || '');
-      showToast(__('copied'), 'success');
-    };
+    if (dom.adhkarNotifShareBtn)
+      dom.adhkarNotifShareBtn.onclick = () => {
+        copyToClipboard(cat.name || '');
+        showToast(__('copied'), 'success');
+      };
     return;
   }
 
@@ -555,14 +582,20 @@ export function checkAdhkarNotifications(): void {
     }
   }
 
-  for (const p of (settings.personal_adhkar || [])) {
+  for (const p of settings.personal_adhkar || []) {
     if (!p.time) continue;
     const [h, m] = p.time.split(':').map(Number);
     const pMin = h * 60 + m;
     const fireKey = 'personal_' + p.id + '_' + today;
     if (curMin >= pMin && state.lastAdhkarFired !== fireKey) {
       state.lastAdhkarFired = fireKey;
-      showAdhkarNotification({ id: 'personal', _personalId: p.id, icon: '📝', name: p.text, duration: p.duration || 1 });
+      showAdhkarNotification({
+        id: 'personal',
+        _personalId: p.id,
+        icon: '📝',
+        name: p.text,
+        duration: p.duration || 1,
+      });
       return;
     }
   }

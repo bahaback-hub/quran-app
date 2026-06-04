@@ -57,18 +57,24 @@ export function showSleepTimerModal(audioModule: AudioModule): void {
     const btn = document.createElement('button');
     btn.textContent = `${mins} د`;
     btn.className = 'modal-quick-btn';
-    btn.addEventListener('click', () => { input.value = String(mins); });
+    btn.addEventListener('click', () => {
+      input.value = String(mins);
+    });
     quickBtns.appendChild(btn);
   });
 
-  function close(): void { overlay.remove(); }
+  function close(): void {
+    overlay.remove();
+  }
   confirmBtn.addEventListener('click', () => {
     const mins = parseInt(input.value, 10);
     if (mins > 0) audioModule.setSleepTimer(mins);
     close();
   });
   cancelBtn.addEventListener('click', close);
-  overlay.addEventListener('click', (e: MouseEvent) => { if (e.target === overlay) close(); });
+  overlay.addEventListener('click', (e: MouseEvent) => {
+    if (e.target === overlay) close();
+  });
 
   btnRow.appendChild(cancelBtn);
   btnRow.appendChild(confirmBtn);

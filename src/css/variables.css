@@ -26,13 +26,13 @@
   --error-bg: #fee;
   --error-text: #c33;
   --footer-bg: #6b4e3d;
-  --shadow: 0 20px 60px rgba(0,0,0,0.12);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
   --tafsir-bg: #faf8f3;
   --tafsir-text: #3a3a3a;
   --tafsir-border: #e5ddd0;
   --prayer-bar-bg: linear-gradient(135deg, #6b4e3d 0%, #8b6f5a 100%);
   --share-menu-bg: #ffffff;
-  --share-menu-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --share-menu-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   --focus-outline: 3px solid #d4a843;
   --curtain-handle-bg: linear-gradient(180deg, #8b6f5a, #a0846c);
   --font-size-select-bg: #ffffff;
@@ -76,18 +76,16 @@ body.night-mode {
   --error-bg: #3a1f1f;
   --error-text: #ff8888;
   --footer-bg: #0a0e1a;
-  --shadow: 0 20px 60px rgba(0,0,0,0.6);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
   --tafsir-bg: #1e2330;
   --tafsir-text: #c8c8c8;
   --tafsir-border: #3a4050;
   --prayer-bar-bg: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
   --share-menu-bg: #2a3040;
-  --share-menu-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  --share-menu-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   --focus-outline: 3px solid #e8d9a8;
   --curtain-handle-bg: linear-gradient(180deg, #5a4a3a, #7a6a5a);
   --font-size-select-bg: #2a3040;
   --card-bg: #1e2330;
   --panel-bg: #1e2330;
 }
-
-

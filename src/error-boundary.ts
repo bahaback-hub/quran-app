@@ -156,10 +156,13 @@ function showRecoveryOverlay(errorMsg: string): void {
   });
   document.getElementById('errorRecoveryCopy')?.addEventListener('click', () => {
     const details = document.getElementById('errorRecoveryDetails')?.textContent || '';
-    navigator.clipboard?.writeText(details).then(() => {
-      const btn = document.getElementById('errorRecoveryCopy');
-      if (btn) btn.textContent = __('error_copied');
-    }).catch(() => {});
+    navigator.clipboard
+      ?.writeText(details)
+      .then(() => {
+        const btn = document.getElementById('errorRecoveryCopy');
+        if (btn) btn.textContent = __('error_copied');
+      })
+      .catch(() => {});
   });
 }
 
@@ -188,7 +191,8 @@ function isCriticalError(message: string, source?: string): boolean {
   const msg = message.toLowerCase();
   // Rendering / DOM errors that break the UI
   if (msg.includes('cannot read properties of null') && (msg.includes('dom') || msg.includes('element'))) return true;
-  if (msg.includes('cannot read properties of undefined') && (msg.includes('dom') || msg.includes('element'))) return true;
+  if (msg.includes('cannot read properties of undefined') && (msg.includes('dom') || msg.includes('element')))
+    return true;
   // Bootstrap / init errors
   if (source && source.includes('app.js')) return true;
   if (source && source.includes('main.js')) return true;
@@ -225,7 +229,7 @@ function handleOnError(
   } else {
     showDebouncedToast(__('error_title'));
   }
- 
+
   return true; // Prevent default browser error handling
 }
 
@@ -260,7 +264,7 @@ function handleUnhandledRejection(event: PromiseRejectionEvent): void {
   } else {
     showDebouncedToast(__('error_unexpected'));
   }
- 
+
   event.preventDefault(); // Silence console warning
 }
 
@@ -269,7 +273,8 @@ function handleUnhandledRejection(event: PromiseRejectionEvent): void {
  */
 function handleResourceError(event: Event): void {
   const target = event.target as HTMLElement | null;
-  if (!target || target === (window as unknown as HTMLElement) || target === (document as unknown as HTMLElement)) return; // Not a resource error
+  if (!target || target === (window as unknown as HTMLElement) || target === (document as unknown as HTMLElement))
+    return; // Not a resource error
 
   const tagName = target.tagName?.toLowerCase();
   const src = target.getAttribute('src') || target.getAttribute('href') || '';

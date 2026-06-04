@@ -15,7 +15,7 @@ export function pad2(n: number): string {
 
 export function toArabicNumeral(num: number | string): string {
   const digits = '٠١٢٣٤٥٦٧٨٩';
-  return String(num).replace(/\d/g, d => digits[parseInt(d, 10)]);
+  return String(num).replace(/\d/g, (d) => digits[parseInt(d, 10)]);
 }
 
 export function formatTime12(time24: string): string {
@@ -96,7 +96,11 @@ function fallbackCopy(text: string): void {
   ta.style.opacity = '0';
   document.body.appendChild(ta);
   ta.select();
-  try { document.execCommand('copy'); } catch (_e) { /* noop */ }
+  try {
+    document.execCommand('copy');
+  } catch (_e) {
+    /* noop */
+  }
   document.body.removeChild(ta);
 }
 

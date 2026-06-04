@@ -12,33 +12,33 @@ const STEPS: OnboardingStep[] = [
   {
     icon: '📖',
     title: __('app_title'),
-    desc: __('onboarding_desc_1')
+    desc: __('onboarding_desc_1'),
   },
   {
     icon: '🎧',
     title: __('welcome_feature_audio'),
-    desc: __('onboarding_desc_2')
+    desc: __('onboarding_desc_2'),
   },
   {
     icon: '🔎',
     title: __('welcome_feature_search'),
-    desc: __('onboarding_desc_3')
+    desc: __('onboarding_desc_3'),
   },
   {
     icon: '📜',
     title: __('tafsir'),
-    desc: __('onboarding_desc_4')
+    desc: __('onboarding_desc_4'),
   },
   {
     icon: '🕌',
     title: __('prayer_times'),
-    desc: __('onboarding_desc_5')
+    desc: __('onboarding_desc_5'),
   },
   {
     icon: '⚙️',
     title: __('settings'),
-    desc: __('onboarding_desc_6')
-  }
+    desc: __('onboarding_desc_6'),
+  },
 ];
 
 export function hasSeenOnboarding(): unknown {
@@ -155,15 +155,24 @@ function showOnboarding(): void {
   }
 
   prevBtn.addEventListener('click', () => {
-    if (stepIdx > 0) { stepIdx--; updateStep(); }
+    if (stepIdx > 0) {
+      stepIdx--;
+      updateStep();
+    }
   });
 
   nextBtn.addEventListener('click', () => {
-    if (stepIdx < STEPS.length - 1) { stepIdx++; updateStep(); }
-    else { overlay.remove(); }
+    if (stepIdx < STEPS.length - 1) {
+      stepIdx++;
+      updateStep();
+    } else {
+      overlay.remove();
+    }
   });
 
-  skipBtn.addEventListener('click', () => { overlay.remove(); });
+  skipBtn.addEventListener('click', () => {
+    overlay.remove();
+  });
 
   navRow.appendChild(prevBtn);
   navRow.appendChild(nextBtn);

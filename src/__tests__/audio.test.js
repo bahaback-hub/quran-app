@@ -4,7 +4,7 @@ import { dom } from '../dom.js';
 import { toggleHifdh, toggleRepeat } from '../audio.js';
 
 // Mock scrollIntoView for jsdom
-Element.prototype.scrollIntoView = function() {};
+Element.prototype.scrollIntoView = function () {};
 
 describe('toggleHifdh', () => {
   beforeEach(() => {
@@ -30,7 +30,7 @@ describe('toggleHifdh', () => {
 
   it('should add hifdh-mode class to ayahs', () => {
     toggleHifdh();
-    document.querySelectorAll('.ayah').forEach(el => {
+    document.querySelectorAll('.ayah').forEach((el) => {
       expect(el.classList.contains('hifdh-mode')).toBe(true);
     });
   });

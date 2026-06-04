@@ -37,7 +37,10 @@
   border-radius: 50%;
   transition: all 0.2s;
 }
-.search-results-close:hover { background: var(--hover-bg); transform: scale(1.1); }
+.search-results-close:hover {
+  background: var(--hover-bg);
+  transform: scale(1.1);
+}
 .search-result-item {
   padding: 13px;
   margin-bottom: 9px;
@@ -47,7 +50,10 @@
   border-radius: 12px;
   transition: all 0.2s ease;
 }
-.search-result-item:hover { background: var(--hover-bg); transform: translateX(-4px); }
+.search-result-item:hover {
+  background: var(--hover-bg);
+  transform: translateX(-4px);
+}
 .search-result-title {
   font-weight: bold;
   color: var(--primary-light);
@@ -84,7 +90,10 @@
   align-items: center;
   gap: 4px;
 }
-.search-result-actions button:hover { background: var(--hover-bg); transform: scale(1.02); }
+.search-result-actions button:hover {
+  background: var(--hover-bg);
+  transform: scale(1.02);
+}
 .search-highlight {
   background-color: #fde047 !important;
   color: #1a1a1a !important;
@@ -97,7 +106,8 @@ body.night-mode .search-highlight {
   background-color: #facc15 !important;
   color: #0a0e1a !important;
 }
-.search-empty, .search-loading {
+.search-empty,
+.search-loading {
   text-align: center;
   padding: 20px;
   color: var(--text-muted);
@@ -110,7 +120,10 @@ body.night-mode .search-highlight {
   font-size: 18px !important;
   padding: 4px 10px !important;
 }
-.btn-more:hover { color: var(--accent-dark) !important; background: rgba(212,175,55,0.1) !important; }
+.btn-more:hover {
+  color: var(--accent-dark) !important;
+  background: rgba(212, 175, 55, 0.1) !important;
+}
 
 .btn {
   padding: 8px 16px;
@@ -127,27 +140,81 @@ body.night-mode .search-highlight {
   align-items: center;
   gap: 4px;
 }
-.btn:hover { background: var(--primary-light); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-.btn:active { transform: translateY(0); }
-.btn-gold { background: var(--accent); color: #2c3e50; }
-.btn-gold:hover { background: var(--accent-dark); }
-.btn-hifdh { background: #a0846c; color: #fff; }
-.btn-hifdh.active { background: #7c3aed; box-shadow: 0 0 12px rgba(124,58,237,0.5); }
-.btn-repeat { background: #f59e0b; color: #1a1a1a; }
-.btn-repeat.active { background: #dc2626; color: #fff; box-shadow: 0 0 12px rgba(220,38,38,0.5); }
-.btn-sm { padding: 4px 10px; font-size: 13px; }
-.btn-bookmark { background: #2563eb; color: #fff; }
-.btn-favorite { background: #ca8a04; color: #1a1a1a; }
-.btn-favorite.active { background: #dc2626; color: #fff; box-shadow: 0 0 12px rgba(220,38,38,0.5); }
+.btn:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.btn:active {
+  transform: translateY(0);
+}
+.btn-gold {
+  background: var(--accent);
+  color: #2c3e50;
+}
+.btn-gold:hover {
+  background: var(--accent-dark);
+}
+.btn-hifdh {
+  background: #a0846c;
+  color: #fff;
+}
+.btn-hifdh.active {
+  background: #7c3aed;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.5);
+}
+.btn-repeat {
+  background: #f59e0b;
+  color: #1a1a1a;
+}
+.btn-repeat.active {
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.5);
+}
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+.btn-bookmark {
+  background: #2563eb;
+  color: #fff;
+}
+.btn-favorite {
+  background: #ca8a04;
+  color: #1a1a1a;
+}
+.btn-favorite.active {
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.5);
+}
 
 /* ========== نظام الأزرار الجديد (3 أنواع أساسية) ========== */
-.btn-primary { background: var(--accent); color: #2c3e50; }
-.btn-primary:hover { background: var(--accent-dark); }
-.btn-secondary { background: var(--primary); color: #fff; }
-.btn-secondary:hover { background: var(--primary-light); }
-.btn-danger { background: #dc2626; color: #fff; }
-.btn-danger:hover { background: #b91c1c; }
-body.night-mode .btn-primary { color: #1a1a1a; }
+.btn-primary {
+  background: var(--accent);
+  color: #2c3e50;
+}
+.btn-primary:hover {
+  background: var(--accent-dark);
+}
+.btn-secondary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-secondary:hover {
+  background: var(--primary-light);
+}
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+.btn-danger:hover {
+  background: #b91c1c;
+}
+body.night-mode .btn-primary {
+  color: #1a1a1a;
+}
 
 .keyboard-hint {
   text-align: center;
@@ -155,10 +222,12 @@ body.night-mode .btn-primary { color: #1a1a1a; }
   color: var(--text-muted);
   margin-top: 8px;
   padding: 4px 8px;
-  background: rgba(0,0,0,0.03);
+  background: rgba(0, 0, 0, 0.03);
   border-radius: 8px;
 }
-body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
+body.night-mode .keyboard-hint {
+  background: rgba(255, 255, 255, 0.05);
+}
 
 .toggle-switch {
   position: relative;
@@ -170,7 +239,9 @@ body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
   transition: background 0.3s;
   flex-shrink: 0;
 }
-.toggle-switch.on { background: #22c55e; }
+.toggle-switch.on {
+  background: #22c55e;
+}
 .toggle-switch::after {
   content: '';
   position: absolute;
@@ -181,9 +252,11 @@ body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
   background: #fff;
   border-radius: 50%;
   transition: all 0.3s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
-.toggle-switch.on::after { right: calc(100% - 23px); }
+.toggle-switch.on::after {
+  right: calc(100% - 23px);
+}
 
 /* ========== Toast الإشعارات ========== */
 .toast {
@@ -195,7 +268,7 @@ body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
   color: #fff;
   padding: 12px 24px;
   border-radius: 30px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   z-index: 2000;
   opacity: 0;
   transition: all 0.3s ease;
@@ -208,8 +281,12 @@ body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
   transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
-.toast.success { background: var(--success-bg); }
-.toast.error { background: #dc2626; }
+.toast.success {
+  background: var(--success-bg);
+}
+.toast.error {
+  background: #dc2626;
+}
 
 /* ========== زر البحث الصوتي (داخل حقل الإدخال) ========== */
 .search-input-group {
@@ -225,7 +302,9 @@ body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
   border-radius: 8px;
   background: var(--select-bg);
   overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 .search-input-wrapper:focus-within {
   border-color: var(--accent-dark);
@@ -258,7 +337,7 @@ body.night-mode .keyboard-hint { background: rgba(255,255,255,0.05); }
   border-radius: 6px;
   max-height: 200px;
   overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 .search-autocomplete-item {
   padding: 6px 10px;
@@ -275,7 +354,7 @@ body.night-mode .search-autocomplete-item {
 }
 .search-autocomplete-item:hover,
 .search-autocomplete-item.active {
-  background: var(--hover-bg, rgba(212,175,55,0.15));
+  background: var(--hover-bg, rgba(212, 175, 55, 0.15));
 }
 .search-autocomplete-item .count {
   font-size: 11px;
@@ -310,8 +389,13 @@ body.night-mode .search-autocomplete-item {
   animation: pulseMic 1s ease-in-out infinite;
 }
 @keyframes pulseMic {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
 }
 
 /* ========== لوحة المفاتيح العربية ========== */
@@ -412,7 +496,7 @@ body.night-mode .kbd-key {
   border-color: #3a4050;
 }
 body.night-mode .kbd-key:hover {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
 }
 body.night-mode .kbd-key:active {
   background: var(--accent-dark);
@@ -422,7 +506,7 @@ body.night-mode .kbd-key-shift {
   background: rgba(212, 175, 55, 0.2);
 }
 body.night-mode .kbd-key-fixed {
-  background: rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.04);
 }
 body.night-mode .kbd-key-clear {
   background: rgba(220, 38, 38, 0.15);
@@ -453,6 +537,11 @@ body.night-mode .kbd-key-backspace {
   box-shadow: 0 4px 16px rgba(34, 197, 94, 0.6);
 }
 @keyframes installPulse {
-  0%, 100% { box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4); }
-  50% { box-shadow: 0 2px 16px rgba(34, 197, 94, 0.7); }
+  0%,
+  100% {
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    box-shadow: 0 2px 16px rgba(34, 197, 94, 0.7);
+  }
 }

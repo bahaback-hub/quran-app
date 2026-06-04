@@ -125,7 +125,8 @@ const ar: TranslationBundle = {
   quran_db_loading: '⚠️ قاعدة القرآن تُحمَّل، انتظر قليلاً',
 
   // Keyboard hint
-  keyboard_hint: '💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار | M = مصحف',
+  keyboard_hint:
+    '💡 اختصارات: Space = تشغيل/إيقاف | ← → = آية سابقة/تالية | S = سورة سابقة | D = سورة تالية | H = حفظ | T = تفسير | R = تكرار | M = مصحف',
 
   // Footer
   footer_data_from: 'البيانات من',
@@ -148,7 +149,7 @@ const ar: TranslationBundle = {
     'ar.minshawi': 'محمد صديق المنشاوي',
     'ar.muhammadayyoub': 'محمد أيوب',
     'ar.aliabdurrahmanalhuthaify': 'علي الحذيفي',
-    'ar.shaatree': 'أبو بكر الشاطري'
+    'ar.shaatree': 'أبو بكر الشاطري',
   },
 
   // Tafsir names
@@ -158,7 +159,7 @@ const ar: TranslationBundle = {
     'ar-tafsir-ibn-kathir': 'تفسير ابن كثير',
     'ar-tafsir-as-saadi': 'تفسير السعدي',
     'ar-tafsir-al-baghawi': 'تفسير البغوي',
-    'ar-tafsir-al-qurtubi': 'تفسير القرطبي'
+    'ar-tafsir-al-qurtubi': 'تفسير القرطبي',
   },
 
   // Cities
@@ -179,7 +180,7 @@ const ar: TranslationBundle = {
     'تونس|TN': 'تونس',
     'الخرطوم|SD': 'الخرطوم',
     'صنعاء|YE': 'صنعاء',
-    'إسطنبول|TR': 'إسطنبول'
+    'إسطنبول|TR': 'إسطنبول',
   },
 
   // Calculation methods
@@ -193,7 +194,7 @@ const ar: TranslationBundle = {
     '9': 'قطر',
     '10': 'سنغافورة',
     '12': 'اتحاد علماء أوروبا',
-    '13': 'ديانت — تركيا'
+    '13': 'ديانت — تركيا',
   },
 
   // Toast types

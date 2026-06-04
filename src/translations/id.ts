@@ -3,9 +3,9 @@ import type { TranslationBundle } from '../i18n';
 
 const id: TranslationBundle = {
   // App
-  app_title: 'Al-Qur\'an yang Mulia',
+  app_title: "Al-Qur'an yang Mulia",
   app_subtitle: 'Keluarga Al-Sulaimani — Membaca, Penandaan, Pencarian Lengkap, dan Tafsir',
-  app_description: 'Aplikasi Al-Qur\'an — Membaca, Pencarian, Tafsir, dan Waktu Sholat',
+  app_description: "Aplikasi Al-Qur'an — Membaca, Pencarian, Tafsir, dan Waktu Sholat",
 
   // Navigation
   select_surah: 'Pilih Surah',
@@ -44,7 +44,7 @@ const id: TranslationBundle = {
   min_chars: 'Masukkan minimal 2 karakter',
   no_results: 'Tidak ada hasil yang ditemukan',
   results_count: 'Jumlah hasil',
-  all_quran: 'Cari Seluruh Al-Qur\'an',
+  all_quran: "Cari Seluruh Al-Qur'an",
 
   // Tafsir
   tafsir: '📜 Tafsir',
@@ -120,12 +120,13 @@ const id: TranslationBundle = {
   audio_error: '⚠️ Gagal memutar audio, coba ayah lain',
   copied: '📋 Ayah disalin',
   failed_copy: 'Gagal mendapatkan ayah',
-  loading_quran_db: 'Memuat basis data Al-Qur\'an (hanya sekali)...',
-  quran_db_ready: '✅ Basis data Al-Qur\'an siap',
-  quran_db_loading: '⚠️ Basis data Al-Qur\'an sedang dimuat, harap tunggu',
+  loading_quran_db: "Memuat basis data Al-Qur'an (hanya sekali)...",
+  quran_db_ready: "✅ Basis data Al-Qur'an siap",
+  quran_db_loading: "⚠️ Basis data Al-Qur'an sedang dimuat, harap tunggu",
 
   // Keyboard hint
-  keyboard_hint: '💡 Pintasan: Space = Putar/Jeda | ← → = Ayah Sebelumnya/Berikutnya | S = Surah Sebelumnya | D = Surah Berikutnya | H = Hafalkan | T = Tafsir | R = Ulangi | M = Mushaf',
+  keyboard_hint:
+    '💡 Pintasan: Space = Putar/Jeda | ← → = Ayah Sebelumnya/Berikutnya | S = Surah Sebelumnya | D = Surah Berikutnya | H = Hafalkan | T = Tafsir | R = Ulangi | M = Mushaf',
 
   // Footer
   footer_data_from: 'Data dari',
@@ -148,7 +149,7 @@ const id: TranslationBundle = {
     'ar.minshawi': 'Muhammad Siddiq Al-Minshawi',
     'ar.muhammadayyoub': 'Muhammad Ayyoub',
     'ar.aliabdurrahmanalhuthaify': 'Ali Al-Huthaify',
-    'ar.shaatree': 'Abu Bakr Al-Shatri'
+    'ar.shaatree': 'Abu Bakr Al-Shatri',
   },
 
   // Tafsir names
@@ -156,9 +157,9 @@ const id: TranslationBundle = {
     'ar-tafsir-muyassar': 'Al-Muyassar',
     'ar-tafsir-al-tabari': 'Al-Tabari',
     'ar-tafsir-ibn-kathir': 'Ibn Kathir',
-    'ar-tafsir-as-saadi': 'Al-Sa\'di',
+    'ar-tafsir-as-saadi': "Al-Sa'di",
     'ar-tafsir-al-baghawi': 'Al-Baghawi',
-    'ar-tafsir-al-qurtubi': 'Al-Qurtubi'
+    'ar-tafsir-al-qurtubi': 'Al-Qurtubi',
   },
 
   // Cities
@@ -178,8 +179,8 @@ const id: TranslationBundle = {
     'الرباط|MA': 'Rabat',
     'تونس|TN': 'Tunis',
     'الخرطوم|SD': 'Khartoum',
-    'صنعاء|YE': 'Sana\'a',
-    'إسطنبول|TR': 'Istanbul'
+    'صنعاء|YE': "Sana'a",
+    'إسطنبول|TR': 'Istanbul',
   },
 
   // Calculation methods
@@ -193,7 +194,7 @@ const id: TranslationBundle = {
     '9': 'Qatar',
     '10': 'Singapura',
     '12': 'Serikat Ulama Islam (Prancis)',
-    '13': 'Diyanet — Turki'
+    '13': 'Diyanet — Turki',
   },
 
   // Toast types
@@ -249,10 +250,10 @@ const id: TranslationBundle = {
   adhkar_remaining: 'tersisa',
 
   // Welcome screen
-  welcome_title: 'Al-Qur\'an yang Mulia',
+  welcome_title: "Al-Qur'an yang Mulia",
   welcome_subtitle: 'Keluarga Al-Sulaimani',
   welcome_feature_audio: '🎧 Dengarkan 8 qari',
-  welcome_feature_search: '🔎 Cari seluruh Al-Qur\'an',
+  welcome_feature_search: "🔎 Cari seluruh Al-Qur'an",
   welcome_feature_tafsir: '📜 6 karya tafsir otoritatif',
   welcome_feature_translation: '🌐 Terjemahan (Inggris, Prancis, Urdu)',
   welcome_feature_mushaf: '📄 Jelajahi mushaf',

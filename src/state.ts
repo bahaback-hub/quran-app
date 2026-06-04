@@ -311,11 +311,19 @@ function notifySubscribers(key: string, newValue: unknown, oldValue: unknown): v
   const keySubs = subscribers.get(key);
   if (keySubs) {
     for (const cb of keySubs) {
-      try { cb(newValue, oldValue, key); } catch (e) { console.warn(`[State] Subscriber error on "${key}":`, e); }
+      try {
+        cb(newValue, oldValue, key);
+      } catch (e) {
+        console.warn(`[State] Subscriber error on "${key}":`, e);
+      }
     }
   }
   for (const cb of wildcardSubscribers) {
-    try { cb(newValue, oldValue, key); } catch (e) { console.warn(`[State] Wildcard subscriber error:`, e); }
+    try {
+      cb(newValue, oldValue, key);
+    } catch (e) {
+      console.warn(`[State] Wildcard subscriber error:`, e);
+    }
   }
 }
 
@@ -475,7 +483,7 @@ export function immutableSplice<K extends keyof AppState>(
   target: AppState,
   key: K,
   start: number,
-  deleteCount: number = 1,
+  deleteCount: number = 1
 ): void {
   const arr = target[key] as unknown[];
   const next = [...arr];
@@ -493,7 +501,7 @@ export function immutableMapSet<K extends keyof AppState>(
   target: AppState,
   key: K,
   mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never,
-  mapValue: AppState[K] extends Map<infer MK, infer MV> ? MV : never,
+  mapValue: AppState[K] extends Map<infer MK, infer MV> ? MV : never
 ): void {
   const map = new Map(target[key] as Map<unknown, unknown>);
   map.set(mapKey, mapValue);
@@ -509,7 +517,7 @@ export function immutableMapSet<K extends keyof AppState>(
 export function immutableMapDelete<K extends keyof AppState>(
   target: AppState,
   key: K,
-  mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never,
+  mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never
 ): void {
   const map = new Map(target[key] as Map<unknown, unknown>);
   map.delete(mapKey);
@@ -525,7 +533,7 @@ export function immutableMapDelete<K extends keyof AppState>(
 export function immutableFilter<K extends keyof AppState>(
   target: AppState,
   key: K,
-  predicate: AppState[K] extends Array<infer T> ? (value: T, index: number, array: T[]) => unknown : never,
+  predicate: AppState[K] extends Array<infer T> ? (value: T, index: number, array: T[]) => unknown : never
 ): void {
   const arr = target[key] as unknown[];
   Reflect.set(target, key, arr.filter(predicate as (value: unknown, index: number, array: unknown[]) => unknown));

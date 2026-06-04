@@ -1,7 +1,3 @@
-export {
-  loadFullQuranText, getSearchHistory, clearSearchHistory
-} from './search-core.js';
+export { loadFullQuranText, getSearchHistory, clearSearchHistory } from './search-core.js';
 
-export {
-  performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete
-} from './search-ui.js';
+export { performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete } from './search-ui.js';

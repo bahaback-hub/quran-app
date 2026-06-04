@@ -22,7 +22,11 @@ export interface TranslationEdition {
 
 /** Get environment variable with fallback. */
 function env(key: string, fallback: string): string {
-  try { return import.meta.env[key] || fallback; } catch (_e) { return fallback; }
+  try {
+    return import.meta.env[key] || fallback;
+  } catch (_e) {
+    return fallback;
+  }
 }
 
 /** Application configuration constants. */
@@ -38,13 +42,17 @@ export const CONFIG: AppConfig = {
   DEFAULT_METHOD: '4',
   DEFAULT_CITY: 'مكة',
   DEFAULT_COUNTRY: 'SA',
-  CACHE_LIMIT: 20
+  CACHE_LIMIT: 20,
 };
 
 /** Arabic names for prayer times. */
 export const PRAYER_NAMES_AR: Record<string, string> = {
-  Fajr: 'الفجر', Sunrise: 'الشروق', Dhuhr: 'الظهر',
-  Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء'
+  Fajr: 'الفجر',
+  Sunrise: 'الشروق',
+  Dhuhr: 'الظهر',
+  Asr: 'العصر',
+  Maghrib: 'المغرب',
+  Isha: 'العشاء',
 };
 
 /** Ordered list of prayer keys. */
@@ -54,7 +62,10 @@ export const PRAYER_ORDER: string[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'
 export const ARABIC_WEEKDAYS: string[] = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
 /** Starting page numbers for each Juz (30 entries). */
-export const JUZ_PAGES: number[] = [1, 22, 42, 62, 82, 102, 122, 142, 162, 182, 202, 222, 242, 262, 282, 302, 322, 342, 362, 382, 402, 422, 442, 462, 482, 502, 522, 542, 562, 582];
+export const JUZ_PAGES: number[] = [
+  1, 22, 42, 62, 82, 102, 122, 142, 162, 182, 202, 222, 242, 262, 282, 302, 322, 342, 362, 382, 402, 422, 442, 462, 482,
+  502, 522, 542, 562, 582,
+];
 
 /** Available translation editions with language and name. */
 export const TRANSLATION_EDITIONS: Record<string, TranslationEdition> = {
@@ -62,5 +73,5 @@ export const TRANSLATION_EDITIONS: Record<string, TranslationEdition> = {
   'en.pickthall': { lang: 'en', name: 'Pickthall' },
   'en.yusufali': { lang: 'en', name: 'Yusuf Ali' },
   'fr.hamidullah': { lang: 'fr', name: 'Hamidullah' },
-  'ur.jalandhry': { lang: 'ur', name: 'Jalandhry' }
+  'ur.jalandhry': { lang: 'ur', name: 'Jalandhry' },
 };

@@ -10,17 +10,26 @@ import { state } from './state.js';
 import { showToast } from './ui.js';
 import { __, AVAILABLE_LANGUAGES, getLang, setLang } from './i18n.js';
 import {
-  applyFontSize, toggleNightMode, applyFontType,
-  applyLineSpacing, openSettings, closeSettings, saveLocationSettings,
-  resetSettings, exportSettings, importSettings,
-  initSettingsTabs
+  applyFontSize,
+  toggleNightMode,
+  applyFontType,
+  applyLineSpacing,
+  openSettings,
+  closeSettings,
+  saveLocationSettings,
+  resetSettings,
+  exportSettings,
+  importSettings,
+  initSettingsTabs,
 } from './settings.js';
+import { togglePrayerBar, testAzan, stopAzan, hideQiblaCompass, hideAzanNotification } from './prayer.js';
 import {
-  togglePrayerBar, testAzan, stopAzan, hideQiblaCompass, hideAzanNotification
-} from './prayer.js';
-import {
-  loadFavorites, toggleFavorite, openFavorites, closeFavorites,
-  setBookmark, gotoBookmark
+  loadFavorites,
+  toggleFavorite,
+  openFavorites,
+  closeFavorites,
+  setBookmark,
+  gotoBookmark,
 } from './favorites.js';
 import { closeAdhkarPanel, toggleAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah } from './surah-loader.js';
@@ -49,12 +58,12 @@ export function bindNavigationEvents(): void {
     if (state.mushafMode) {
       state.currentSurah = surahNum;
       fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
-        .then(res => res.json())
+        .then((res) => res.json())
         .then((data: AyahPageResponse) => {
           const page = data?.data?.page || 1;
           if (dom.pageSelect) dom.pageSelect.value = String(page);
           if (dom.pageSlider) dom.pageSlider.value = String(page);
-          import('./mushaf.js').then(m => m.loadPage(page, true)); // lazy: mushaf not in main chunk
+          import('./mushaf.js').then((m) => m.loadPage(page, true)); // lazy: mushaf not in main chunk
         })
         .catch(() => showToast(__('mushaf_page_not_found'), 'error'));
     } else {
@@ -134,13 +143,19 @@ export function bindTafsirEvents(): void {
  * Bind display settings: font size, type, spacing, sepia, tajweed, toggles.
  */
 export function bindDisplaySettingsEvents(): void {
-  dom.fontSizeSelect?.addEventListener('change', (e: Event) => applyFontSize(parseInt((e.target as HTMLSelectElement).value, 10)));
+  dom.fontSizeSelect?.addEventListener('change', (e: Event) =>
+    applyFontSize(parseInt((e.target as HTMLSelectElement).value, 10))
+  );
   dom.fontTypeSelect?.addEventListener('change', (e: Event) => applyFontType((e.target as HTMLSelectElement).value));
-  dom.lineSpacingSelect?.addEventListener('change', (e: Event) => applyLineSpacing((e.target as HTMLSelectElement).value));
+  dom.lineSpacingSelect?.addEventListener('change', (e: Event) =>
+    applyLineSpacing((e.target as HTMLSelectElement).value)
+  );
   dom.tajweedToggle?.addEventListener('click', () => {
     state.tajweedEnabled = dom.tajweedToggle!.classList.toggle('on');
     storage.set('tajweed_enabled', state.tajweedEnabled);
-    const reload = () => { if (state.currentSurah) loadSurah(state.currentSurah); };
+    const reload = () => {
+      if (state.currentSurah) loadSurah(state.currentSurah);
+    };
     if (state.tajweedEnabled) {
       loadTajweedAnnotations().then(reload);
     } else {
@@ -165,7 +180,10 @@ export function bindDisplaySettingsEvents(): void {
     const newLang = dom.langSelect!.value;
     if (newLang !== getLang()) {
       setLang(newLang as 'ar' | 'en' | 'tr' | 'ms' | 'id').then(() => {
-        showToast(__('language') + ': ' + (AVAILABLE_LANGUAGES.find(l => l.code === newLang)?.nativeName || newLang), 'success');
+        showToast(
+          __('language') + ': ' + (AVAILABLE_LANGUAGES.find((l) => l.code === newLang)?.nativeName || newLang),
+          'success'
+        );
       });
     }
   });
@@ -189,16 +207,36 @@ export function bindPanelsAndShareEvents(): void {
   dom.collapseBarBtn?.addEventListener('click', togglePrayerBar);
   dom.expandBarBtn?.addEventListener('click', togglePrayerBar);
 
-  document.querySelectorAll('[data-share="native"]').forEach(btn =>
-    btn.addEventListener('click', () => { shareNative(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="copy"]').forEach(btn =>
-    btn.addEventListener('click', () => { shareCopy(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="copy-simple"]').forEach(btn =>
-    btn.addEventListener('click', () => { shareCopySimple(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="whatsapp"]').forEach(btn =>
-    btn.addEventListener('click', () => { shareWhatsApp(); toggleShareMenu(); }));
-  document.querySelectorAll('[data-share="telegram"]').forEach(btn =>
-    btn.addEventListener('click', () => { shareTelegram(); toggleShareMenu(); }));
+  document.querySelectorAll('[data-share="native"]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      shareNative();
+      toggleShareMenu();
+    })
+  );
+  document.querySelectorAll('[data-share="copy"]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      shareCopy();
+      toggleShareMenu();
+    })
+  );
+  document.querySelectorAll('[data-share="copy-simple"]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      shareCopySimple();
+      toggleShareMenu();
+    })
+  );
+  document.querySelectorAll('[data-share="whatsapp"]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      shareWhatsApp();
+      toggleShareMenu();
+    })
+  );
+  document.querySelectorAll('[data-share="telegram"]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      shareTelegram();
+      toggleShareMenu();
+    })
+  );
 }
 
 /**
@@ -214,10 +252,13 @@ export function bindSearchEvents(): void {
     if (dom.searchResults) dom.searchResults.style.display = 'none';
     if (dom.searchInput) dom.searchInput.value = '';
   });
-  dom.searchInput?.addEventListener('keypress', (e: KeyboardEvent) => { if (e.key === 'Enter') dom.searchBtn?.click(); });
+  dom.searchInput?.addEventListener('keypress', (e: KeyboardEvent) => {
+    if (e.key === 'Enter') dom.searchBtn?.click();
+  });
   dom.voiceSearchBtn?.addEventListener('click', startVoiceSearch);
   dom.installBtn?.addEventListener('click', () => {
-    if (typeof (window as unknown as { installPWA?: () => void }).installPWA === 'function') (window as unknown as { installPWA: () => void }).installPWA();
+    if (typeof (window as unknown as { installPWA?: () => void }).installPWA === 'function')
+      (window as unknown as { installPWA: () => void }).installPWA();
   });
   dom.sleepTimerBtn?.addEventListener('click', () => {
     showSleepTimerModal(audioModule);
@@ -231,15 +272,39 @@ export function bindSearchEvents(): void {
  */
 export function bindGlobalClickHandler(): void {
   document.addEventListener('click', (e: MouseEvent) => {
-    if (!dom.shareMenu?.contains(e.target as Node) && e.target !== dom.shareBtn) dom.shareMenu?.classList.remove('show');
-    if (dom.headerDropdown && dom.headerMenuBtn && !dom.headerMenuBtn.contains(e.target as Node) && !dom.headerDropdown.contains(e.target as Node)) {
+    if (!dom.shareMenu?.contains(e.target as Node) && e.target !== dom.shareBtn)
+      dom.shareMenu?.classList.remove('show');
+    if (
+      dom.headerDropdown &&
+      dom.headerMenuBtn &&
+      !dom.headerMenuBtn.contains(e.target as Node) &&
+      !dom.headerDropdown.contains(e.target as Node)
+    ) {
       dom.headerDropdown.style.display = 'none';
     }
     const settingsTarget = e.target as HTMLElement;
-    const isSettingsTrigger = settingsTarget === dom.settingsToggleBtn || settingsTarget === document.getElementById('headerSettingsBtn') || settingsTarget.closest?.('[data-tab="more"]');
-    if (dom.settingsPanel?.classList.contains('open') && !dom.settingsPanel.contains(e.target as Node) && !isSettingsTrigger) closeSettings();
-    if (dom.favoritesPanel?.classList.contains('open') && !dom.favoritesPanel.contains(e.target as Node) && e.target !== dom.favoritesOpenBtn) closeFavorites();
-    if (dom.adhkarPanel?.classList.contains('open') && !dom.adhkarPanel.contains(e.target as Node) && e.target !== dom.adhkarBtn) closeAdhkarPanel();
+    const isSettingsTrigger =
+      settingsTarget === dom.settingsToggleBtn ||
+      settingsTarget === document.getElementById('headerSettingsBtn') ||
+      settingsTarget.closest?.('[data-tab="more"]');
+    if (
+      dom.settingsPanel?.classList.contains('open') &&
+      !dom.settingsPanel.contains(e.target as Node) &&
+      !isSettingsTrigger
+    )
+      closeSettings();
+    if (
+      dom.favoritesPanel?.classList.contains('open') &&
+      !dom.favoritesPanel.contains(e.target as Node) &&
+      e.target !== dom.favoritesOpenBtn
+    )
+      closeFavorites();
+    if (
+      dom.adhkarPanel?.classList.contains('open') &&
+      !dom.adhkarPanel.contains(e.target as Node) &&
+      e.target !== dom.adhkarBtn
+    )
+      closeAdhkarPanel();
   });
 }
 
@@ -248,7 +313,8 @@ export function bindGlobalClickHandler(): void {
  */
 export function bindHeaderMenuEvents(): void {
   dom.headerMenuBtn?.addEventListener('click', () => {
-    if (dom.headerDropdown) dom.headerDropdown.style.display = dom.headerDropdown.style.display === 'none' ? '' : 'none';
+    if (dom.headerDropdown)
+      dom.headerDropdown.style.display = dom.headerDropdown.style.display === 'none' ? '' : 'none';
   });
   document.getElementById('headerFavBtn')?.addEventListener('click', () => {
     openFavorites();
@@ -276,15 +342,25 @@ export function bindMiscEvents(): void {
     if (dom.searchInputGroup?.style.display !== 'none') dom.searchInput?.focus();
   });
 
-  dom.mushafSurahOverlayClose?.addEventListener('click', () => { if (dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
-  dom.mushafSurahOverlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === dom.mushafSurahOverlay && dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none'; });
-  dom.surahSecretsCloseBtn?.addEventListener('click', () => { if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none'; });
-  dom.surahSecretsOverlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === dom.surahSecretsOverlay && dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none'; });
+  dom.mushafSurahOverlayClose?.addEventListener('click', () => {
+    if (dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none';
+  });
+  dom.mushafSurahOverlay?.addEventListener('click', (e: MouseEvent) => {
+    if (e.target === dom.mushafSurahOverlay && dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none';
+  });
+  dom.surahSecretsCloseBtn?.addEventListener('click', () => {
+    if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none';
+  });
+  dom.surahSecretsOverlay?.addEventListener('click', (e: MouseEvent) => {
+    if (e.target === dom.surahSecretsOverlay && dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none';
+  });
 
   wireAdhkarEvents();
 
   dom.qiblaCloseBtn?.addEventListener('click', hideQiblaCompass);
-  dom.qiblaOverlay?.addEventListener('click', (e: MouseEvent) => { if (e.target === dom.qiblaOverlay) hideQiblaCompass(); });
+  dom.qiblaOverlay?.addEventListener('click', (e: MouseEvent) => {
+    if (e.target === dom.qiblaOverlay) hideQiblaCompass();
+  });
 
   dom.readingStatsCloseBtn?.addEventListener('click', () => {
     if (dom.readingStatsPanel) dom.readingStatsPanel.style.display = 'none';

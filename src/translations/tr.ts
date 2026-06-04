@@ -44,7 +44,7 @@ const tr: TranslationBundle = {
   min_chars: 'En az 2 karakter girin',
   no_results: 'Sonuç bulunamadı',
   results_count: 'Sonuç sayısı',
-  all_quran: 'Tüm Kuran\'ı Ara',
+  all_quran: "Tüm Kuran'ı Ara",
 
   // Tafsir
   tafsir: '📜 Tefsir',
@@ -125,12 +125,13 @@ const tr: TranslationBundle = {
   quran_db_loading: '⚠️ Kuran veritabanı yükleniyor, lütfen bekleyin',
 
   // Keyboard hint
-  keyboard_hint: '💡 Kısayollar: Space = Oynat/Duraklat | ← → = Önceki/Sonraki Ayet | S = Önceki Sure | D = Sonraki Sure | H = Ezberle | T = Tefsir | R = Tekrar | M = Mushaf',
+  keyboard_hint:
+    '💡 Kısayollar: Space = Oynat/Duraklat | ← → = Önceki/Sonraki Ayet | S = Önceki Sure | D = Sonraki Sure | H = Ezberle | T = Tefsir | R = Tekrar | M = Mushaf',
 
   // Footer
   footer_data_from: 'Veriler',
   footer_by: 'Al-Sulaimani Ailesi',
-  footer_prayer: 'Allah bu çalışmayı Al-Sulaimani Ailesi\'nden kabul etsin',
+  footer_prayer: "Allah bu çalışmayı Al-Sulaimani Ailesi'nden kabul etsin",
 
   // Weekdays
   weekdays: ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'],
@@ -148,7 +149,7 @@ const tr: TranslationBundle = {
     'ar.minshawi': 'Muhammad Siddiq Al-Minshawi',
     'ar.muhammadayyoub': 'Muhammad Ayyoub',
     'ar.aliabdurrahmanalhuthaify': 'Ali Al-Huthaify',
-    'ar.shaatree': 'Abu Bakr Al-Shatri'
+    'ar.shaatree': 'Abu Bakr Al-Shatri',
   },
 
   // Tafsir names
@@ -156,9 +157,9 @@ const tr: TranslationBundle = {
     'ar-tafsir-muyassar': 'Al-Muyassar',
     'ar-tafsir-al-tabari': 'Al-Tabari',
     'ar-tafsir-ibn-kathir': 'Ibn Kathir',
-    'ar-tafsir-as-saadi': 'Al-Sa\'di',
+    'ar-tafsir-as-saadi': "Al-Sa'di",
     'ar-tafsir-al-baghawi': 'Al-Baghawi',
-    'ar-tafsir-al-qurtubi': 'Al-Qurtubi'
+    'ar-tafsir-al-qurtubi': 'Al-Qurtubi',
   },
 
   // Cities
@@ -179,7 +180,7 @@ const tr: TranslationBundle = {
     'تونس|TN': 'Tunus',
     'الخرطوم|SD': 'Hartum',
     'صنعاء|YE': 'Sana',
-    'إسطنبول|TR': 'İstanbul'
+    'إسطنبول|TR': 'İstanbul',
   },
 
   // Calculation methods
@@ -193,7 +194,7 @@ const tr: TranslationBundle = {
     '9': 'Katar',
     '10': 'Singapur',
     '12': 'İslam Birliği (Fransa)',
-    '13': 'Diyanet — Türkiye'
+    '13': 'Diyanet — Türkiye',
   },
 
   // Toast types
@@ -252,10 +253,10 @@ const tr: TranslationBundle = {
   welcome_title: 'Mükemmel Kuran',
   welcome_subtitle: 'Al-Sulaimani Ailesi',
   welcome_feature_audio: '🎧 8 kurradan dinleyin',
-  welcome_feature_search: '🔎 Tüm Kuran\'ı arayın',
+  welcome_feature_search: "🔎 Tüm Kuran'ı arayın",
   welcome_feature_tafsir: '📜 6 muteber tefsir eseri',
   welcome_feature_translation: '🌐 Çeviri (İngilizce, Fransızca, Urduca)',
-  welcome_feature_mushaf: '📄 Mushaf\'ı tarayın',
+  welcome_feature_mushaf: "📄 Mushaf'ı tarayın",
   welcome_feature_prayer: '🕌 Namaz vakitleri ve ezan',
   welcome_dismiss: '✌️ Başla',
 
@@ -346,7 +347,8 @@ const tr: TranslationBundle = {
 
   // Error boundary
   error_title: 'Beklenmeyen bir hata oluştu',
-  error_description: 'Uygulama beklenmeyen bir sorunla karşılaştı. Yeniden yükleyebilir veya ana sayfaya dönebilirsiniz.',
+  error_description:
+    'Uygulama beklenmeyen bir sorunla karşılaştı. Yeniden yükleyebilir veya ana sayfaya dönebilirsiniz.',
   error_reload: '🔄 Yeniden Yükle',
   error_home: '🏠 Ana Sayfa',
   error_copy_details: '📋 Hata Ayrıntılarını Kopyala',
@@ -392,7 +394,7 @@ const tr: TranslationBundle = {
   // Onboarding descriptions
   onboarding_desc_1: 'Tilavet, Tefsir, Arama ve Namaz vakitleri — hepsi tek uygulamada.',
   onboarding_desc_2: '8 okuyucu arasından seçim yapın, hızı ve uyku zamanlayıcısını kontrol edin.',
-  onboarding_desc_3: 'Tüm Kuran\'ı alaka düzeyine göre sıralanmış sonuçlar ve otomatik tamamlama ile arayın.',
+  onboarding_desc_3: "Tüm Kuran'ı alaka düzeyine göre sıralanmış sonuçlar ve otomatik tamamlama ile arayın.",
   onboarding_desc_4: '6 güvenilir tefsir ve birden çok dilde anlam çevirisi.',
   onboarding_desc_5: 'Ezan ve bildirimlerle doğru namaz vakitleri.',
   onboarding_desc_6: 'Gece modu, sepya modu, yazı tipi ve boşluk ayarları, favori dışa aktarma.',
