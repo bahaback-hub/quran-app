@@ -4,7 +4,7 @@ import { dom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
 import { __ } from './i18n.js';
 import { escapeHtml } from './utils.js';
-import { state, SurahInfo, SurahOffset } from './state.js';
+import { state, batch, SurahInfo, SurahOffset } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
@@ -263,22 +263,28 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   if (!surahNum) return;
   _loadCounter++;
   const currentLoad = _loadCounter;
-  state.loadingSurah = surahNum;
-
-  // Clear stale audio/translation before new load
-  state.ayahsAudios = [];
-  state.ayahTimings = [];
-  state.translationData = null;
-  state.isPlaying = false;
+  // Clear stale audio/translation before new load (batched to avoid intermediate notifications)
+  batch(() => {
+    state.loadingSurah = surahNum;
+    state.ayahsAudios = [];
+    state.ayahTimings = [];
+    state.translationData = null;
+    state.isPlaying = false;
+  });
 
   prepareAudioForNewSurah();
 
   if (state.hifdhMode) {
-    state.hifdhMode = false;
+    batch(() => {
+      state.hifdhMode = false;
+      state.repeatMode = false;
+      state.repeatCounter = 0;
+    });
     dom.hifdhBtn?.classList.remove('active');
     document.querySelectorAll('.ayah').forEach(el => el.classList.remove('hifdh-mode', 'revealed'));
+    if (dom.repeatControls) dom.repeatControls.style.display = 'none';
   }
-  if (state.repeatMode) {
+  if (state.repeatMode && !state.hifdhMode) {
     state.repeatMode = false;
     state.repeatCounter = 0;
     dom.repeatBtn?.classList.remove('active');
