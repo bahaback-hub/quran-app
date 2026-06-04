@@ -71,7 +71,8 @@ export async function initApp(): Promise<void> {
   if (last && last.surah) {
     state.currentSurah = last.surah;
     await loadSurah(last.surah, { startAyah: last.ayahNumberInSurah || 1 });
-    setTimeout(() => showContinueWidget(last as unknown as Parameters<typeof showContinueWidget>[0]), 1200);
+    // showContinueWidget disabled at startup — no popup on open
+    // setTimeout(() => showContinueWidget(last as unknown as Parameters<typeof showContinueWidget>[0]), 1200);
   } else {
     await loadSurah(1);
   }
