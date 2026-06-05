@@ -91,8 +91,6 @@ interface DomMap {
   langSelect: HTMLSelectElement | null;
   translationSelect: HTMLSelectElement | null;
   translationToggle: HTMLElement | null;
-  welcomeScreen: HTMLElement | null;
-  welcomeDismissBtn: HTMLElement | null;
   adhkarBtn: HTMLElement | null;
   adhkarPanel: HTMLElement | null;
   adhkarCloseBtn: HTMLElement | null;
@@ -248,8 +246,6 @@ const DOM_IDS: (keyof DomMap)[] = [
   'langSelect',
   'translationSelect',
   'translationToggle',
-  'welcomeScreen',
-  'welcomeDismissBtn',
   'adhkarBtn',
   'adhkarPanel',
   'adhkarCloseBtn',

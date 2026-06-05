@@ -113,20 +113,6 @@ export function showContinueWidget(info: ContinueInfo): void {
   }, 8000);
 }
 
-/* ===================== WELCOME SCREEN ===================== */
-
-export function showWelcomeScreen(): void {
-  if (!dom.welcomeScreen) return;
-  const dismissed = storage.get('welcome_dismissed');
-  if (dismissed) return;
-  dom.welcomeScreen.style.display = 'flex';
-}
-
-export function dismissWelcomeScreen(): void {
-  if (dom.welcomeScreen) dom.welcomeScreen.style.display = 'none';
-  storage.set('welcome_dismissed', true);
-}
-
 /* ===================== VISIBILITY ===================== */
 
 export function handleVisibilityChange(): void {
