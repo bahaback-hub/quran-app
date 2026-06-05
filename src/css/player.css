@@ -230,7 +230,7 @@ audio {
 }
 .select-mode-bar .btn-gold {
   background: #fff;
-  color: #6b4e3d;
+  color: var(--primary);
 }
 
 .ayah.selectable {
