@@ -140,8 +140,7 @@ interface DomMap {
   readingStatsPanel: HTMLElement | null;
   readingStatsContent: HTMLElement | null;
   readingStatsCloseBtn: HTMLElement | null;
-  headerMenuBtn: HTMLElement | null;
-  headerDropdown: HTMLElement | null;
+
   searchToggleBtn: HTMLElement | null;
   searchInputGroup: HTMLElement | null;
   playerMoreBtn: HTMLElement | null;
@@ -295,8 +294,6 @@ const DOM_IDS: (keyof DomMap)[] = [
   'readingStatsPanel',
   'readingStatsContent',
   'readingStatsCloseBtn',
-  'headerMenuBtn',
-  'headerDropdown',
   'searchToggleBtn',
   'searchInputGroup',
   'playerMoreBtn',
