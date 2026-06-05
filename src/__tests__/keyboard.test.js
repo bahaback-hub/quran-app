@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
-import { storage } from '../storage.js';
 
 // Mock all the imported modules so keyboard shortcuts can be tested in isolation
 vi.mock('../audio.js', () => ({
@@ -146,7 +145,7 @@ describe('keyboard shortcuts - Ctrl/Cmd combinations', () => {
     const selectSpy = vi.fn();
     dom.searchInput = { focus: focusSpy, select: selectSpy };
     const event = new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true });
-    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+    vi.spyOn(event, 'preventDefault');
     document.dispatchEvent(event);
     expect(focusSpy).toHaveBeenCalled();
     expect(selectSpy).toHaveBeenCalled();

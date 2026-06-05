@@ -7,8 +7,6 @@ import {
   resetReadingStats,
 } from '../reading-stats.js';
 
-const STATS_KEY = 'reading_stats';
-
 beforeEach(() => {
   const store = {};
   globalThis.localStorage = {

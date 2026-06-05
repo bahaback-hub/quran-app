@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
-import { dom } from '../dom.js';
 import { storage } from '../storage.js';
 import {
   applyNightMode,

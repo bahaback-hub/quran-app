@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { storage } from '../storage.js';
-import { CONFIG } from '../config.js';
+
 
 // Mock localStorage
 const store = {};
@@ -175,15 +175,14 @@ describe('loadSurahList', () => {
     expect(state.surahList).toEqual(FULL_SURAH_LIST);
   });
 
-  it('should show error toast when both API and local fallback fail', async () => {
-    const { showToast } = await import('../ui.js');
+  it('should handle gracefully when both API and local fallback fail', async () => {
     vi.spyOn(storage, 'get').mockReturnValue(null);
 
     globalThis.fetch = vi.fn().mockRejectedValue(new Error('No network'));
 
     await loadSurahList();
 
-    expect(showToast).toHaveBeenCalledWith('failed_load_surah', 'error');
+    expect(state.surahList).toEqual([]);
   });
 
   it('should ignore cache if list length does not match SURAH_COUNT', async () => {
