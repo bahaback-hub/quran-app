@@ -156,7 +156,7 @@ body.night-mode .search-highlight {
   background: var(--accent-dark);
 }
 .btn-hifdh {
-  background: #a0846c;
+  background: var(--primary);
   color: #fff;
 }
 .btn-hifdh.active {
