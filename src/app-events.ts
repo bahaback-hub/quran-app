@@ -273,18 +273,9 @@ export function bindGlobalClickHandler(): void {
   document.addEventListener('click', (e: MouseEvent) => {
     if (!dom.shareMenu?.contains(e.target as Node) && e.target !== dom.shareBtn)
       dom.shareMenu?.classList.remove('show');
-    if (
-      dom.headerDropdown &&
-      dom.headerMenuBtn &&
-      !dom.headerMenuBtn.contains(e.target as Node) &&
-      !dom.headerDropdown.contains(e.target as Node)
-    ) {
-      dom.headerDropdown.style.display = 'none';
-    }
     const settingsTarget = e.target as HTMLElement;
     const isSettingsTrigger =
       settingsTarget === dom.settingsToggleBtn ||
-      settingsTarget === document.getElementById('headerSettingsBtn') ||
       settingsTarget.closest?.('[data-tab="more"]');
     if (
       dom.settingsPanel?.classList.contains('open') &&
@@ -307,26 +298,9 @@ export function bindGlobalClickHandler(): void {
   });
 }
 
-/**
- * Bind header menu dropdown buttons.
- */
+/** No-op: header menu dropdown removed. */
 export function bindHeaderMenuEvents(): void {
-  dom.headerMenuBtn?.addEventListener('click', () => {
-    if (dom.headerDropdown)
-      dom.headerDropdown.style.display = dom.headerDropdown.style.display === 'none' ? '' : 'none';
-  });
-  document.getElementById('headerFavBtn')?.addEventListener('click', () => {
-    openFavorites();
-    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
-  });
-  document.getElementById('headerAdhkarBtn')?.addEventListener('click', () => {
-    toggleAdhkarPanel();
-    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
-  });
-  document.getElementById('headerSettingsBtn')?.addEventListener('click', () => {
-    openSettings();
-    if (dom.headerDropdown) dom.headerDropdown.style.display = 'none';
-  });
+  // dropdown removed
 }
 
 /**
