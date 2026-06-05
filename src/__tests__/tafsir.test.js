@@ -31,11 +31,11 @@ function createMockIDBDatabase() {
     objectStoreNames: {
       contains: (name) => storeNames.has(name),
     },
-    createObjectStore: vi.fn((name, opts) => {
+    createObjectStore: vi.fn((name, _opts) => {
       storeNames.add(name);
       return {};
     }),
-    transaction: vi.fn((storeName, mode) => {
+    transaction: vi.fn((_storeName, _mode) => {
       const data = mockIDBData;
       return {
         objectStore: vi.fn(() => ({

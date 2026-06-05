@@ -86,7 +86,6 @@ describe('api-client', () => {
     });
 
     it('should show custom error message when errorMsg is provided', async () => {
-      const { showToast } = await import('../ui.js');
       globalThis.fetch = vi.fn().mockRejectedValue(new Error('Failed to fetch'));
 
       try {
