@@ -15,12 +15,7 @@ import { initNavigation } from './navigation.js';
 import { initToggleSwitchAccessibility } from './a11y.js';
 import { loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect } from './surah-loader.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
-import {
-  showContinueWidget,
-  handleVisibilityChange,
-  updateNetworkBanner,
-  updateReadingProgress,
-} from './ui-extras.js';
+import { showContinueWidget, handleVisibilityChange, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents } from './app-events.js';
 
