@@ -290,7 +290,9 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       // Try to load via document.fonts API with PUA char
       try {
         await document.fonts.load(`40px "${fontName}"`, '\uF100');
-      } catch { /* some browsers don't support the text param */ }
+      } catch {
+        /* some browsers don't support the text param */
+      }
 
       // Wait and poll
       await document.fonts.ready;
@@ -342,7 +344,9 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   // Wait for all fonts to be ready
   try {
     await document.fonts.ready;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   // Final Canvas verification — if the font still doesn't work,
   // try one more time with a longer wait
