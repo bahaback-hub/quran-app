@@ -34,7 +34,6 @@ import {
 import { closeAdhkarPanel, toggleAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah } from './surah-loader.js';
 import { performExactSearch, initKeyboard, initSearchAutocomplete, startVoiceSearch } from './search-ui.js';
-import { dismissWelcomeScreen } from './ui-extras.js';
 import { showSleepTimerModal } from './sleep-timer-modal.js';
 import { loadTajweedAnnotations } from './tajweed-data.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
@@ -92,7 +91,7 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
   dom.testAzanBtn?.addEventListener('click', testAzan);
   dom.azanNotifStopBtn?.addEventListener('click', stopAzan);
-  dom.welcomeDismissBtn?.addEventListener('click', dismissWelcomeScreen);
+  // welcome screen removed
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
   document.getElementById('exportSettingsBtn')?.addEventListener('click', () => exportSettings());
   document.getElementById('importSettingsBtn')?.addEventListener('click', () => importSettings());

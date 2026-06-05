@@ -4,7 +4,7 @@ import { dom, cacheDom } from './dom.js';
 import { loadingBar } from './ui.js';
 import { getLang, applyTranslations } from './i18n.js';
 import { state, setState, resetState, batch, type AppState } from './state.js';
-import { startClock, loadPrayerTimes, checkAzanTime, scheduleNextAzanCheck } from './prayer.js';
+import { startClock, loadPrayerTimes, scheduleNextAzanCheck } from './prayer.js';
 import { loadFavorites } from './favorites.js';
 import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah } from './audio.js';
@@ -102,7 +102,7 @@ export async function initApp(): Promise<void> {
   if (savedPlayerCollapsed === false && dom.player) dom.player.classList.remove('collapsed');
 
   // Welcome screen is disabled by default — user should see a clean first impression.
-  // showWelcomeScreen(); // intentionally not called
+  // welcome screen removed
 
   window.addEventListener('online', updateNetworkBanner);
   window.addEventListener('offline', updateNetworkBanner);
@@ -122,11 +122,8 @@ export async function initApp(): Promise<void> {
     loadAdhkarSettings();
     loadFavorites();
     startClock();
-    checkAzanTime();
     scheduleNextAzanCheck();
     loadPrayerTimes();
-    // checkAdhkarNotifications(); // disabled at startup — no popup on open
-    if (!state.adhkarIntervalId) state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
     import('./ayah-modal.js').then((m) => m.initAyahModal()).catch(() => {});
     import('./presentation.js').then((m) => m.initPresentation()).catch(() => {});
     import('./mushaf.js').then((m) => m.populateSurahOverlay()).catch(() => {});
