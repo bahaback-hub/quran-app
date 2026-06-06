@@ -203,7 +203,15 @@ export function openPresentation(): void {
   }
   state.presentationMode = true;
   injectStyles();
-  if (dom.presentationOverlay) dom.presentationOverlay.classList.remove('hidden');
+  if (dom.presentationOverlay) {
+    dom.presentationOverlay.classList.remove('hidden');
+    dom.presentationOverlay.style.display = '';
+    if (document.body.classList.contains('night-mode')) {
+      dom.presentationOverlay.classList.remove('pres-light');
+    } else {
+      dom.presentationOverlay.classList.add('pres-light');
+    }
+  }
   document.body.classList.add('presentation-active');
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
     b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'presentation');
@@ -214,7 +222,10 @@ export function openPresentation(): void {
 
 export function closePresentation(): void {
   state.presentationMode = false;
-  if (dom.presentationOverlay) dom.presentationOverlay.classList.add('hidden');
+  if (dom.presentationOverlay) {
+    dom.presentationOverlay.classList.add('hidden');
+    dom.presentationOverlay.style.display = '';
+  }
   document.body.classList.remove('presentation-active');
   document.removeEventListener('keydown', handleKeyDown);
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
