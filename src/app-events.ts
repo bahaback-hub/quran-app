@@ -247,10 +247,6 @@ export function bindSearchEvents(): void {
     if (!q) return;
     performExactSearch(q);
   });
-  dom.clearSearchBtn?.addEventListener('click', () => {
-    if (dom.searchResults) dom.searchResults.style.display = 'none';
-    if (dom.searchInput) dom.searchInput.value = '';
-  });
   dom.searchInput?.addEventListener('keypress', (e: KeyboardEvent) => {
     if (e.key === 'Enter') dom.searchBtn?.click();
   });

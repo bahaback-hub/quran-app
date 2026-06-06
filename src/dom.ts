@@ -22,7 +22,7 @@ interface DomMap {
   reciterSelect: HTMLSelectElement | null;
   searchInput: HTMLInputElement | null;
   searchBtn: HTMLElement | null;
-  clearSearchBtn: HTMLElement | null;
+
   searchResults: HTMLElement | null;
   surahContent: HTMLElement | null;
   cityInput: HTMLInputElement | null;
@@ -177,7 +177,6 @@ const DOM_IDS: (keyof DomMap)[] = [
   'reciterSelect',
   'searchInput',
   'searchBtn',
-  'clearSearchBtn',
   'searchResults',
   'surahContent',
   'cityInput',
