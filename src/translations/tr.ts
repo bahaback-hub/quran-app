@@ -36,7 +36,6 @@ const tr: TranslationBundle = {
   juz: 'Cüz',
   select_page: 'Sayfa Numarası',
   surah_list: '📖 Sureler',
-  choose_ayah: '🎯 Dinlemek veya tefsir görmek için bir ayet seçin',
 
   // Search
   search: '🔎 Ara',
@@ -292,7 +291,6 @@ const tr: TranslationBundle = {
   mushaf_surah_info: 'ℹ️ Sure Bilgisi',
   surah_info_for: '{0} Suresi Bilgisi',
   mushaf_loading_page: '⏳ {0}. sayfa yükleniyor...',
-  loading_ayahs: 'Ayetler yükleniyor...',
 
   // Search UI
   search_history_title: '🕐 Son Aramalar',

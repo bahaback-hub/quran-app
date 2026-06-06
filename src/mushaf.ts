@@ -37,20 +37,6 @@ interface SurahDataLike {
   ayahs: { numberInSurah: number; number: number; audio: string }[];
 }
 
-/** Shape of an ayah entry from the page API. */
-interface PageApiAyah {
-  numberInSurah: number;
-  number: number;
-  surah: { number: number; name: string };
-}
-
-/** Shape of the page API response. */
-interface PageApiResponse {
-  data?: {
-    ayahs?: PageApiAyah[];
-  };
-}
-
 /** Shape of the ayah API response (for page lookup). */
 interface AyahPageResponse {
   data?: {
@@ -260,16 +246,6 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
       pageLayout
     )) as AyahClickResult | null;
     if (result) {
-      const bar = document.getElementById('mushafAyahBar');
-      if (bar) {
-        bar.querySelectorAll('.mushaf-ayah-btn').forEach((b: Element) => {
-          b.classList.toggle(
-            'current',
-            parseInt((b as HTMLElement).dataset.surah!, 10) === result.surah &&
-              parseInt((b as HTMLElement).dataset.ayah!, 10) === result.ayah
-          );
-        });
-      }
       playMushafAyah(result.surah, result.ayah);
       loadTafsirForSurahAyah(result.surah, result.ayah);
       highlightMushafAyah();
@@ -305,14 +281,9 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
   container.appendChild(navPrev);
   container.appendChild(navNext);
 
-  const ayahBar = document.createElement('div');
-  ayahBar.className = 'mushaf-ayah-bar';
-  ayahBar.id = 'mushafAyahBar';
-  ayahBar.innerHTML = `<div class="mushaf-ayah-bar-title">${__('choose_ayah')}</div><div class="mushaf-ayah-bar-loading">${__('loading_ayahs')}</div>`;
-
   dom.surahContent.innerHTML = '';
   dom.surahContent.appendChild(container);
-  dom.surahContent.appendChild(ayahBar);
+  dom.surahContent.appendChild(buildTajweedLegend());
 
   renderPage(pageNum, canvas).then(({ canvas: renderedCanvas, layout: layoutData }) => {
     pageLayout = layoutData;
@@ -330,45 +301,20 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
 
   fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`)
     .then((res) => res.json())
-    .then((json: PageApiResponse) => {
+    .then((json: { data?: { ayahs?: { surah: { number: number; name: string } }[] } }) => {
       const ayahs = json?.data?.ayahs;
       if (!ayahs?.length) return;
 
       const surahNamesEl = document.getElementById('mushafSurahNames');
       if (surahNamesEl) {
         const seen: Record<number, string> = {};
-        ayahs.forEach((a: PageApiAyah) => {
+        ayahs.forEach((a: { surah: { number: number; name: string } }) => {
           if (!seen[a.surah.number]) seen[a.surah.number] = a.surah.name;
         });
         surahNamesEl.innerHTML = Object.values(seen)
           .map((n) => `<span class="mushaf-surah-name">${escapeHtml(n)}</span>`)
           .join(' ');
       }
-
-      const bar = document.getElementById('mushafAyahBar');
-      if (!bar) return;
-      let itemsHtml = `<div class="mushaf-ayah-bar-title">${__('choose_ayah')}</div><div class="mushaf-ayah-bar-grid">`;
-      for (const ayah of ayahs) {
-        const sn = ayah.surah.number;
-        const an = ayah.numberInSurah;
-        const surahInfo = (state.surahList as SurahListEntry[]).find((s) => s.number === sn);
-        const surahName = surahInfo ? surahInfo.name : `${__('surah')} ${sn}`;
-        itemsHtml += `<button class="mushaf-ayah-btn" data-surah="${sn}" data-ayah="${an}">
-          <span class="mushaf-ayah-btn-surah">${escapeHtml(surahName)}</span>
-          <span class="mushaf-ayah-btn-num">${toArabicNumeral(an)}</span>
-        </button>`;
-      }
-      itemsHtml += '</div>';
-      bar.innerHTML = itemsHtml;
-
-      bar.querySelectorAll('.mushaf-ayah-btn').forEach((btn: Element) => {
-        btn.addEventListener('click', function (this: HTMLElement) {
-          bar.querySelectorAll('.mushaf-ayah-btn').forEach((b: Element) => b.classList.remove('current'));
-          this.classList.add('current');
-          playMushafAyah(parseInt(this.dataset.surah!, 10), parseInt(this.dataset.ayah!, 10));
-          loadTafsirForSurahAyah(parseInt(this.dataset.surah!, 10), parseInt(this.dataset.ayah!, 10));
-        });
-      });
     })
     .catch(() => {
       console.warn('Failed to fetch ayah list for page', pageNum);
@@ -585,4 +531,48 @@ function playMushafAyah(surahNum: number, ayahNum: number): void {
   } else {
     loadAndPlay();
   }
+}
+
+/* ===================== TAJWEED LEGEND ===================== */
+
+/** Build the tajweed color legend shown below mushaf pages. */
+function buildTajweedLegend(): HTMLElement {
+  const legend = document.createElement('div');
+  legend.className = 'mushaf-tajweed-legend';
+
+  const title = document.createElement('div');
+  title.className = 'mushaf-tajweed-legend-title';
+  title.textContent = 'ألوان التجويد';
+
+  const grid = document.createElement('div');
+  grid.className = 'mushaf-tajweed-legend-grid';
+
+  const entries: { color: string; label: string }[] = [
+    { color: '#ce9e00', label: 'مد ٢' },
+    { color: '#ff7b00', label: 'مد ٢-٤-٦ والمنفصل' },
+    { color: '#b50000', label: 'مد ٦ (لازم)' },
+    { color: '#f40000', label: 'مد متصل' },
+    { color: '#09b000', label: 'الغنة والإخفاء والإقلاب' },
+    { color: '#2fadff', label: 'اللام الشمسية والقلقلة' },
+    { color: '#a5a5a5', label: 'همزة الوصل والإدغام' },
+    { color: '#8e44ad', label: 'السكون' },
+  ];
+
+  for (const entry of entries) {
+    const item = document.createElement('div');
+    item.className = 'mushaf-tajweed-legend-item';
+    const swatch = document.createElement('span');
+    swatch.className = 'mushaf-tajweed-legend-swatch';
+    swatch.style.backgroundColor = entry.color;
+    const label = document.createElement('span');
+    label.className = 'mushaf-tajweed-legend-label';
+    label.textContent = entry.label;
+    item.appendChild(swatch);
+    item.appendChild(label);
+    grid.appendChild(item);
+  }
+
+  legend.appendChild(title);
+  legend.appendChild(grid);
+  return legend;
 }

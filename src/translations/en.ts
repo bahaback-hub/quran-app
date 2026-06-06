@@ -36,7 +36,6 @@ const en: TranslationBundle = {
   juz: 'Juz',
   select_page: 'Page Number',
   surah_list: '📖 Surahs',
-  choose_ayah: '🎯 Choose an ayah to listen or view tafsir',
 
   // Search
   search: '🔎 Search',
@@ -292,7 +291,6 @@ const en: TranslationBundle = {
   mushaf_surah_info: 'ℹ️ Surah Info',
   surah_info_for: 'Info for Surah {0}',
   mushaf_loading_page: '⏳ Loading page {0}...',
-  loading_ayahs: 'Loading ayahs...',
 
   // Search UI
   search_history_title: '🕐 Recent Searches',
