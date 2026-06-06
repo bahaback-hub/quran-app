@@ -307,10 +307,10 @@ export function bindHeaderMenuEvents(): void {
 export function bindMiscEvents(): void {
   dom.searchToggleBtn?.addEventListener('click', () => {
     if (dom.searchInputGroup) {
-      dom.searchInputGroup.style.display = dom.searchInputGroup.style.display === 'none' ? '' : 'none';
+      dom.searchInputGroup.classList.toggle('hidden');
     }
     if (dom.searchToggleBtn) dom.searchToggleBtn.classList.toggle('active');
-    if (dom.searchInputGroup?.style.display !== 'none') dom.searchInput?.focus();
+    if (dom.searchInputGroup?.classList.contains('hidden') === false) dom.searchInput?.focus();
   });
 
   dom.mushafSurahOverlayClose?.addEventListener('click', () => {
