@@ -203,7 +203,7 @@ export function openPresentation(): void {
   }
   state.presentationMode = true;
   injectStyles();
-  if (dom.presentationOverlay) dom.presentationOverlay.style.display = '';
+  if (dom.presentationOverlay) dom.presentationOverlay.classList.remove('hidden');
   document.body.classList.add('presentation-active');
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
     b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'presentation');
@@ -214,7 +214,7 @@ export function openPresentation(): void {
 
 export function closePresentation(): void {
   state.presentationMode = false;
-  if (dom.presentationOverlay) dom.presentationOverlay.style.display = 'none';
+  if (dom.presentationOverlay) dom.presentationOverlay.classList.add('hidden');
   document.body.classList.remove('presentation-active');
   document.removeEventListener('keydown', handleKeyDown);
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
