@@ -6,6 +6,10 @@
  * Font CDN:  https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2/
  */
 import { JUZ_PAGES } from './config.js';
+import { state } from './state.js';
+import { buildColorMap } from './tajweed.js';
+import { getAyahAnnotations } from './tajweed-data.js';
+import type { TajweedAnnotation } from './tajweed-data.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -17,6 +21,7 @@ export interface PageWord {
   verse_key?: string;
   location?: string;
   word?: string;
+  text?: string;
 }
 
 /** A single line in a mushaf page layout. */
@@ -394,6 +399,88 @@ export function getLineY(lineIndex: number, lineCount: number, imgHeight: number
   return (y / CANVAS_H) * imgHeight;
 }
 
+/** Pre‑compute per‑word tajweed coloring data for the entire page. */
+function computePageTajweed(
+  data: PageLayoutData
+): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
+  if (!state.tajweedEnabled) return null;
+
+  // Collect all words with verse_key and text, in page order
+  const verseKeyWords = new Map<string, { text: string; lineIdx: number; wordIdx: number }[]>();
+  for (let li = 0; li < data.lines.length; li++) {
+    const line = data.lines[li];
+    if (!line?.words) continue;
+    for (let wi = 0; wi < line.words.length; wi++) {
+      const w = line.words[wi];
+      if (w.verse_key && w.text && w.type === 'word') {
+        if (!verseKeyWords.has(w.verse_key)) verseKeyWords.set(w.verse_key, []);
+        verseKeyWords.get(w.verse_key)!.push({ text: w.text, lineIdx: li, wordIdx: wi });
+      }
+    }
+  }
+
+  // Build ayah text and color map per verse_key, then assign colors to each word
+  const result: { wordIdx: number; lineIdx: number; color: string | null }[] = [];
+
+  for (const [vk, words] of verseKeyWords) {
+    const parts = vk.split(':');
+    const surah = parseInt(parts[0], 10);
+    const ayah = parseInt(parts[1], 10);
+
+    const annotations: TajweedAnnotation[] = getAyahAnnotations(surah, ayah);
+    if (annotations.length === 0) {
+      for (const w of words) result.push({ wordIdx: w.wordIdx, lineIdx: w.lineIdx, color: null });
+      continue;
+    }
+
+    // Reconstruct the ayah text from the QCF4 word texts (same logic as surah‑loader)
+    const ayahText = words.map((w) => w.text).join(' ');
+
+    let offsetAdj = 0;
+    let txt = ayahText;
+    if (surah !== 1 && ayah === 1) {
+      const stripped = txt.replace(
+        /^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u,
+        ''
+      );
+      offsetAdj = txt.length - stripped.length;
+      txt = stripped;
+    }
+
+    const adjusted =
+      offsetAdj > 0
+        ? annotations.map((ann: TajweedAnnotation) => ({
+            rule: ann.rule,
+            start: ann.start - offsetAdj,
+            end: ann.end - offsetAdj,
+          }))
+        : annotations;
+
+    const colorMap = buildColorMap(adjusted);
+    if (!colorMap || colorMap.size === 0) {
+      for (const w of words) result.push({ wordIdx: w.wordIdx, lineIdx: w.lineIdx, color: null });
+      continue;
+    }
+
+    // Calculate cumulative offsets for each word within the (stripped) ayah text
+    const txtWords = txt.split(/\s+/).filter((s) => s.length > 0);
+    let outputPos = 0;
+    for (let wi = 0; wi < txtWords.length && wi < words.length; wi++) {
+      const wordText = txtWords[wi];
+      // Scan the word's character positions in the color map
+      let wordColor: string | null = null;
+      for (let ci = 0; ci < wordText.length; ci++) {
+        const c = colorMap.get(outputPos + ci);
+        if (c) { wordColor = c; break; }
+      }
+      result.push({ wordIdx: words[wi].wordIdx, lineIdx: words[wi].lineIdx, color: wordColor });
+      outputPos += wordText.length + 1; // +1 for the space separator
+    }
+  }
+
+  return result;
+}
+
 function renderPageContent(
   ctx: CanvasRenderingContext2D,
   data: PageLayoutData,
@@ -427,6 +514,15 @@ function renderPageContent(
     lineWidths.push({ widths, gap: Math.max(0, gap) });
   }
 
+  // Pre‑compute tajweed coloring for each word on the page
+  const tajweedColors = computePageTajweed(data);
+  const tajweedLookup = new Map<string, string | null>();
+  if (tajweedColors) {
+    for (const entry of tajweedColors) {
+      tajweedLookup.set(`${entry.lineIdx}:${entry.wordIdx}`, entry.color);
+    }
+  }
+
   ctx.textBaseline = 'middle';
 
   for (let i = 0; i < lineCount; i++) {
@@ -444,11 +540,13 @@ function renderPageContent(
     for (let j = 0; j < words.length; j++) {
       const w = words[j];
       const fn = w.font || pageFont;
-      // Use ONLY the QCF4 font — no fallback fonts that might
-      // interfere with PUA character rendering
       ctx.font = `${pageFontSize}px "${fn}"`;
-      ctx.fillStyle = colors.txt;
       ctx.textAlign = 'right';
+
+      // Use tajweed color if available, otherwise default text color
+      const wordColor = tajweedLookup ? tajweedLookup.get(`${i}:${j}`) : null;
+      ctx.fillStyle = wordColor || colors.txt;
+
       ctx.fillText(w.char, x, y);
       x -= widths[j] + gap;
     }
