@@ -433,48 +433,26 @@ function computePageTajweed(
       continue;
     }
 
-    // Reconstruct the ayah text from the QCF4 word texts (same logic as surah‑loader)
+    // Build color map using the full ayah text (with basmalah if present)
+    // — QCF4 layout always includes basmalah words, and annotations are for the full ayah
     const ayahText = words.map((w) => w.text).join(' ');
-
-    let offsetAdj = 0;
-    let txt = ayahText;
-    if (surah !== 1 && ayah === 1) {
-      const stripped = txt.replace(
-        /^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u,
-        ''
-      );
-      offsetAdj = txt.length - stripped.length;
-      txt = stripped;
-    }
-
-    const adjusted =
-      offsetAdj > 0
-        ? annotations.map((ann: TajweedAnnotation) => ({
-            rule: ann.rule,
-            start: ann.start - offsetAdj,
-            end: ann.end - offsetAdj,
-          }))
-        : annotations;
-
-    const colorMap = buildColorMap(adjusted);
+    const colorMap = buildColorMap(annotations);
     if (!colorMap || colorMap.size === 0) {
       for (const w of words) result.push({ wordIdx: w.wordIdx, lineIdx: w.lineIdx, color: null });
       continue;
     }
 
-    // Calculate cumulative offsets for each word within the (stripped) ayah text
-    const txtWords = txt.split(/\s+/).filter((s) => s.length > 0);
+    // Use the full QCF4 word list as-is (no basmalah stripping)
     let outputPos = 0;
-    for (let wi = 0; wi < txtWords.length && wi < words.length; wi++) {
-      const wordText = txtWords[wi];
-      // Scan the word's character positions in the color map
+    for (let wi = 0; wi < words.length; wi++) {
+      const wordText = words[wi].text;
       let wordColor: string | null = null;
       for (let ci = 0; ci < wordText.length; ci++) {
         const c = colorMap.get(outputPos + ci);
         if (c) { wordColor = c; break; }
       }
       result.push({ wordIdx: words[wi].wordIdx, lineIdx: words[wi].lineIdx, color: wordColor });
-      outputPos += wordText.length + 1; // +1 for the space separator
+      outputPos += wordText.length + 1;
     }
   }
 
