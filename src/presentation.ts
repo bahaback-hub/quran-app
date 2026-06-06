@@ -3,6 +3,10 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { CONFIG } from './config.js';
 import { togglePlayPause, updatePlayPauseBtn } from './audio.js';
+import { buildColorMap, tajweedColorWord } from './tajweed.js';
+import { getAyahAnnotations } from './tajweed-data.js';
+import type { TajweedAnnotation } from './tajweed-data.js';
+import { escapeHtml } from './utils.js';
 
 /** Shape of surahData when accessed in presentation functions. */
 interface SurahAyahData {
@@ -136,19 +140,53 @@ function injectStyles(): void {
   document.head.appendChild(style);
 }
 
+function buildAyahHtml(text: string, surahNum: number, ayahNum: number): string {
+  let txt = text;
+  let offsetAdj = 0;
+  if (surahNum !== 1 && ayahNum === 1) {
+    const stripped = txt.replace(
+      /^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u,
+      ''
+    );
+    offsetAdj = txt.length - stripped.length;
+    txt = stripped;
+  }
+  if (!state.tajweedEnabled) return escapeHtml(txt);
+  const annotations = getAyahAnnotations(surahNum, ayahNum);
+  if (annotations.length === 0) return escapeHtml(txt);
+  const adjusted =
+    offsetAdj > 0
+      ? annotations.map((ann: TajweedAnnotation) => ({
+          rule: ann.rule,
+          start: ann.start - offsetAdj,
+          end: ann.end - offsetAdj,
+        }))
+      : annotations;
+  const colorMap = buildColorMap(adjusted);
+  const words = txt.split(/\s+/).filter((w) => w.length > 0);
+  let outputPos = 0;
+  return words
+    .map((word: string) => {
+      const wordHtml = tajweedColorWord(word, outputPos, colorMap);
+      outputPos += word.length;
+      return wordHtml;
+    })
+    .join(' ');
+}
+
 function updateDisplay(): void {
   if (!state.presentationMode) return;
   const surahData = state.surahData as unknown as SurahDataLike | null;
   const ayah = surahData?.ayahs?.[state.currentAyahIndex];
   if (!ayah) {
-    if (dom.presentationAyahText) dom.presentationAyahText.textContent = '—';
+    if (dom.presentationAyahText) dom.presentationAyahText.innerHTML = '—';
     if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = '—';
     if (dom.presentationTitle) dom.presentationTitle.textContent = '—';
     if (dom.presentationCounter) dom.presentationCounter.textContent = '٠ / ٠';
     if (dom.presentationTranslation) dom.presentationTranslation.style.display = 'none';
     return;
   }
-  if (dom.presentationAyahText) dom.presentationAyahText.textContent = ayah.text;
+  if (dom.presentationAyahText) dom.presentationAyahText.innerHTML = buildAyahHtml(ayah.text, state.currentSurah, ayah.numberInSurah);
   if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = String(ayah.numberInSurah);
   const surahName = surahData?.name || '';
   if (dom.presentationTitle) dom.presentationTitle.textContent = `${surahName} — ${__('ayah')} ${ayah.numberInSurah}`;
