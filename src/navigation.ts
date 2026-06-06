@@ -121,6 +121,10 @@ export function initNavigation(): void {
         dom.controls?.classList.toggle('mobile-show');
         break;
       case 'search':
+        if (dom.searchInputGroup?.classList.contains('hidden')) {
+          dom.searchInputGroup.classList.remove('hidden');
+          dom.searchToggleBtn?.classList.add('active');
+        }
         dom.searchInput?.focus();
         dom.searchInput?.select();
         if (dom.controls) {
