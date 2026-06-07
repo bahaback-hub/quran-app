@@ -6,7 +6,7 @@ import { getLang, applyTranslations } from './i18n.js';
 import { state, setState, resetState, batch, type AppState } from './state.js';
 import { startClock, loadPrayerTimes, scheduleNextAzanCheck } from './prayer.js';
 import { loadFavorites } from './favorites.js';
-import { initAdhkarState, loadAdhkarSettings, checkAdhkarNotifications } from './adhkar.js';
+import { initAdhkarState, loadAdhkarSettings, startAdhkarNotificationScheduler } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah } from './audio.js';
 import { loadFullQuranText } from './search-ui.js';
 import { initKeyboardShortcuts } from './keyboard.js';
@@ -115,6 +115,7 @@ export async function initApp(): Promise<void> {
     loadingBar.hide();
     initAdhkarState();
     loadAdhkarSettings();
+    startAdhkarNotificationScheduler();
     loadFavorites();
     startClock();
     scheduleNextAzanCheck();

@@ -88,8 +88,20 @@ function cacheInIndexedDB(db: IDBDatabase, ayahs: QuranTextEntry[]): void {
   }
 }
 
+let _loadingPromise: Promise<void> | null = null;
+
 export async function loadFullQuranText(): Promise<void> {
   if (state.fullQuranLoaded) return;
+  if (_loadingPromise) return _loadingPromise;
+  _loadingPromise = _doLoadFullQuranText();
+  try {
+    await _loadingPromise;
+  } finally {
+    _loadingPromise = null;
+  }
+}
+
+async function _doLoadFullQuranText(): Promise<void> {
   try {
     const db = await openQuranDB();
     const cached = await loadFromIndexedDB(db);
@@ -107,7 +119,6 @@ export async function loadFullQuranText(): Promise<void> {
       else setTimeout(buildSearchWords, 1000);
       return;
     }
-    // showToast('جاري تحميل قاعدة القرآن (مرة واحدة فقط)...', 'success');
     const data = await fetchQuranText();
     const ayahs = flattenAyahs(data);
     for (const a of ayahs) {
@@ -118,10 +129,8 @@ export async function loadFullQuranText(): Promise<void> {
     if (typeof requestIdleCallback === 'function') requestIdleCallback(() => buildSearchWords(), { timeout: 3000 });
     else setTimeout(buildSearchWords, 1000);
     cacheInIndexedDB(db, ayahs);
-    // showToast('✅ قاعدة القرآن جاهزة', 'success');
   } catch (err) {
     console.error('Failed to load full Quran text:', err);
-    // showToast('❌ فشل تحميل قاعدة القرآن', 'error');
   }
 }
 

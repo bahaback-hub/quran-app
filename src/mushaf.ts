@@ -497,39 +497,17 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
 /* ===================== PLAY MUSHAF AYAH ===================== */
 
 function playMushafAyah(surahNum: number, ayahNum: number): void {
-  if (state.isPlaying) prepareAudioForNewSurah();
-  const loadAndPlay = (): void => {
-    const surahData = state.surahData as any;
-    const idx = surahData.ayahs.findIndex((a: any) => a.numberInSurah === ayahNum);
-    if (idx !== -1) {
-      state.currentAyahIndex = idx;
-      updatePlayerInfo();
-      playCurrentAyah();
-    }
-  };
   if (state.currentSurah !== surahNum || !state.surahData) {
-    const tempSurahList = state.surahList as SurahListEntry[];
-    fetch(`${CONFIG.API_BASE}/surah/${surahNum}/${state.currentReciter}`)
-      .then((res) => res.json())
-      .then((json: SurahAudioResponse) => {
-        if (json?.data?.ayahs) {
-          state.ayahsAudios = json.data.ayahs.map((a) => a.audio);
-          if (tempSurahList.length) {
-            const s = tempSurahList.find((s) => s.number === surahNum);
-            if (s)
-              state.surahData = {
-                name: s.name,
-                englishName: s.englishName,
-                number: surahNum,
-                ayahs: json.data.ayahs,
-              } as any;
-          }
-          loadAndPlay();
-        }
-      })
-      .catch(() => showToast(__('audio_error'), 'error'));
-  } else {
-    loadAndPlay();
+    loadSurah(surahNum, { startAyah: ayahNum, autoPlay: true });
+    return;
+  }
+  if (state.isPlaying) prepareAudioForNewSurah();
+  const surahData = state.surahData as any;
+  const idx = surahData.ayahs.findIndex((a: any) => a.numberInSurah === ayahNum);
+  if (idx !== -1) {
+    state.currentAyahIndex = idx;
+    updatePlayerInfo();
+    playCurrentAyah();
   }
 }
 
