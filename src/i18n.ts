@@ -195,7 +195,7 @@ export async function setLang(lang: LangCode): Promise<void> {
   document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
 
   applyTranslations();
-  window.dispatchEvent(new CustomEvent('languagechange', { detail: { lang } }));
+  window.dispatchEvent(new CustomEvent('app:langchange', { detail: { lang } }));
 }
 
 /** Translate all elements with data-i18n, data-i18n-placeholder, data-i18n-title, data-i18n-aria-label attributes. */

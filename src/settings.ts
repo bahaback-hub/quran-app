@@ -326,6 +326,38 @@ const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'surah_list',
 ]);
 
+/** Type validators for setting keys — ensures imported values match expected types. */
+const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
+  font_size: (v) => typeof v === 'number',
+  night_mode: (v) => typeof v === 'boolean',
+  city: (v) => typeof v === 'string',
+  country: (v) => typeof v === 'string',
+  method: (v) => typeof v === 'string',
+  azan_enabled: (v) => typeof v === 'boolean',
+  azan_fajr_enabled: (v) => typeof v === 'boolean',
+  auto_save: (v) => typeof v === 'boolean',
+  reciter: (v) => typeof v === 'string',
+  tafsir_edition: (v) => typeof v === 'string',
+  bar_collapsed: (v) => typeof v === 'boolean',
+  player_collapsed: (v) => typeof v === 'boolean',
+  playback_speed: (v) => typeof v === 'string',
+  lang: (v) => typeof v === 'string',
+  translation_enabled: (v) => typeof v === 'boolean',
+  translation_edition: (v) => typeof v === 'string',
+  favorites: (v) => Array.isArray(v),
+  bookmark: (v) => v === null || typeof v === 'object',
+  last_position: (v) => typeof v === 'string' || typeof v === 'number',
+  mushaf_mode: (v) => typeof v === 'boolean',
+  current_page: (v) => typeof v === 'number',
+  adhkar_settings: (v) => typeof v === 'object' && v !== null,
+  search_history: (v) => Array.isArray(v),
+  font_type: (v) => typeof v === 'string',
+  line_spacing: (v) => typeof v === 'string',
+  tajweed_enabled: (v) => typeof v === 'boolean',
+  night_mode_set_by_user: (v) => typeof v === 'boolean',
+  surah_list: (v) => Array.isArray(v),
+};
+
 /** Import settings from a JSON file. */
 export function importSettings(): void {
   const input = document.createElement('input');
@@ -342,6 +374,11 @@ export function importSettings(): void {
         let skipped = 0;
         Object.entries(data).forEach(([k, v]: [string, unknown]) => {
           if (v !== null && v !== undefined && ALLOWED_SETTINGS_KEYS.has(k)) {
+            const validator = SETTING_TYPE_VALIDATORS[k];
+            if (validator && !validator(v)) {
+              skipped++;
+              return;
+            }
             storage.set(k, v);
             imported++;
           } else {

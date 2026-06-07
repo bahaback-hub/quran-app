@@ -3,7 +3,7 @@ import { CONFIG, PRAYER_NAMES_AR, PRAYER_ORDER, ARABIC_WEEKDAYS } from './config
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
+import { pad2, formatTime12, timeStrToMinutes, escapeHtml } from './utils.js';
 import { prayerFetch } from './api-client.js';
 import { __ } from './i18n.js';
 
@@ -128,7 +128,7 @@ function renderPrayerTimes(): void {
     const time24 = raw.split(' ')[0];
     const isNext = key === next;
     html += `<div class="prayer-row ${isNext ? 'next-prayer' : ''}">
-      <span class="prayer-name">${PRAYER_NAMES_AR[key] || key}</span>
+      <span class="prayer-name">${escapeHtml(PRAYER_NAMES_AR[key] || key)}</span>
       <span class="prayer-time">${formatTime12(time24)}</span>
     </div>`;
   }
@@ -288,6 +288,9 @@ export function togglePrayerBar(): void {
 
 /* ===================== QIBLA COMPASS ===================== */
 
+/** Stored reference to the deviceorientation handler so it can be removed. */
+let _qiblaOrientationHandler: ((ev: DeviceOrientationEvent) => void) | null = null;
+
 /** Calculate Qibla direction from a given latitude/longitude. */
 export function calculateQibla(lat: number, lng: number): number {
   const kaabaLat = (21.4225 * Math.PI) / 180;
@@ -329,6 +332,12 @@ export function showQiblaCompass(): void {
         angleDisplay.textContent = `${Math.round(qiblaAngle)}°`;
       }
 
+      // Remove any previous handler to prevent memory leaks
+      if (_qiblaOrientationHandler) {
+        window.removeEventListener('deviceorientation', _qiblaOrientationHandler);
+        _qiblaOrientationHandler = null;
+      }
+
       const handleOrientation = (e: DeviceOrientationEventiOS): void => {
         let heading = e.alpha || 0;
         if (e.webkitCompassHeading) heading = e.webkitCompassHeading;
@@ -338,6 +347,9 @@ export function showQiblaCompass(): void {
         }
       };
 
+      // Store reference so we can remove it later
+      _qiblaOrientationHandler = handleOrientation as (ev: DeviceOrientationEvent) => void;
+
       if (window.DeviceOrientationEvent) {
         const DOE = DeviceOrientationEvent as unknown as {
           requestPermission?: () => Promise<string>;
@@ -346,12 +358,12 @@ export function showQiblaCompass(): void {
           DOE.requestPermission()
             .then((permState: string) => {
               if (permState === 'granted') {
-                window.addEventListener('deviceorientation', handleOrientation as (ev: DeviceOrientationEvent) => void);
+                window.addEventListener('deviceorientation', _qiblaOrientationHandler!);
               }
             })
             .catch(() => {});
         } else {
-          window.addEventListener('deviceorientation', handleOrientation as (ev: DeviceOrientationEvent) => void);
+          window.addEventListener('deviceorientation', _qiblaOrientationHandler);
         }
       }
 
@@ -377,8 +389,13 @@ export function showQiblaCompass(): void {
   );
 }
 
-/** Hide the Qibla compass overlay. */
+/** Hide the Qibla compass overlay and remove the orientation listener. */
 export function hideQiblaCompass(): void {
   const overlay = document.getElementById('qiblaOverlay');
   if (overlay) overlay.style.display = 'none';
+  // Remove orientation handler to prevent memory leak
+  if (_qiblaOrientationHandler) {
+    window.removeEventListener('deviceorientation', _qiblaOrientationHandler);
+    _qiblaOrientationHandler = null;
+  }
 }

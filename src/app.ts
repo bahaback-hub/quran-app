@@ -85,8 +85,8 @@ export async function initApp(): Promise<void> {
   // Set language selector to current language
   if (dom.langSelect) dom.langSelect.value = getLang();
 
-  // Listen for language changes to update UI text
-  window.addEventListener('languagechange', () => {
+  // Listen for language changes to update UI text (custom event from i18n module)
+  window.addEventListener('app:langchange', () => {
     applyTranslations();
     const hint = document.getElementById('keyboardHint');
     if (hint) hint.textContent = ''; // will be set by i18n

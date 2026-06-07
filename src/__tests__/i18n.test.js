@@ -53,15 +53,15 @@ describe('i18n', () => {
     expect(document.documentElement.dir).toBe('ltr');
   });
 
-  it('should dispatch languagechange event', async () => {
+  it('should dispatch app:langchange event', async () => {
     let fired = false;
     const handler = () => {
       fired = true;
     };
-    window.addEventListener('languagechange', handler);
+    window.addEventListener('app:langchange', handler);
     await setLang('en');
     expect(fired).toBe(true);
-    window.removeEventListener('languagechange', handler);
+    window.removeEventListener('app:langchange', handler);
   });
 
   it('should only load the active language bundle', async () => {

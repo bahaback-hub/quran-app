@@ -210,8 +210,19 @@ function exportFavoritesJson(): void {
 }
 
 export function wireFavoritesExport(): void {
-  document.getElementById('favExportTextBtn')?.addEventListener('click', exportFavoritesText);
-  document.getElementById('favExportJsonBtn')?.addEventListener('click', exportFavoritesJson);
+  const textBtn = document.getElementById('favExportTextBtn');
+  const jsonBtn = document.getElementById('favExportJsonBtn');
+  // Clone and replace to remove any previous listeners
+  if (textBtn) {
+    const newTextBtn = textBtn.cloneNode(true) as HTMLElement;
+    textBtn.parentNode?.replaceChild(newTextBtn, textBtn);
+    newTextBtn.addEventListener('click', exportFavoritesText);
+  }
+  if (jsonBtn) {
+    const newJsonBtn = jsonBtn.cloneNode(true) as HTMLElement;
+    jsonBtn.parentNode?.replaceChild(newJsonBtn, jsonBtn);
+    newJsonBtn.addEventListener('click', exportFavoritesJson);
+  }
 }
 
 /* ===================== BOOKMARK ===================== */

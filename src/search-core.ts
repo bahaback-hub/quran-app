@@ -3,6 +3,7 @@ import { CONFIG } from './config.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { normalizeExactText, normalizeRelaxed } from './utils.js';
+import { __ } from './i18n.js';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_SEARCH_HISTORY = 10;
@@ -143,13 +144,14 @@ function generateArabicVariants(normQuery: string): string[] {
 }
 
 export function performSearch(query: string): QuranTextEntry[] {
+  if (!state.fullQuranText) return [];
   const normQuery = normalizeExactText(query.trim());
   const relaxedQuery = normalizeRelaxed(query.trim());
   const exactVariants = generateArabicVariants(normQuery);
   const relaxedVariants = generateArabicVariants(relaxedQuery);
-  let matches = state.fullQuranText!.filter((ayah) => exactVariants.some((q) => ayah.normalized.includes(q)));
+  let matches = state.fullQuranText.filter((ayah) => exactVariants.some((q) => ayah.normalized.includes(q)));
   if (!matches.length) {
-    matches = state.fullQuranText!.filter((ayah) =>
+    matches = state.fullQuranText.filter((ayah) =>
       relaxedVariants.some((q) => normalizeRelaxed(ayah.text).includes(q))
     );
   }
@@ -201,5 +203,5 @@ export function getSearchHistory(): string[] {
 
 export function clearSearchHistory(): void {
   storage.remove(SEARCH_HISTORY_KEY);
-  showToast('تم مسح سجل البحث', '');
+  showToast(__('search_history_cleared'), '');
 }

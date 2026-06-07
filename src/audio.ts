@@ -195,13 +195,14 @@ function onTimeUpdate(): void {
   if (isMp3quran) {
     const endTime = _getAyahEndTime();
     if (currentTime >= endTime - 0.15) {
+      if (_autoAdvancing) return;
       _autoAdvancing = true;
       if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
         nextAyah(true);
       } else {
         onAudioEnded();
       }
-      _autoAdvancing = false;
+      // _autoAdvancing is reset in onAudioPlay when next ayah starts
       return;
     }
     const ayahStart = _getAyahStartTime();
@@ -294,6 +295,7 @@ export function bindAudioEvents(): void {
 }
 
 function onAudioPlay(): void {
+  _autoAdvancing = false;
   state.isPlaying = true;
   updatePlayPauseBtn();
   const vizCanvas = document.getElementById('audioVisualizer');
@@ -513,7 +515,7 @@ export function clearSleepTimer(): void {
   _sleepTimerMinutes = 0;
 }
 
-/** Get remaining sleep timer minutes (approximate). */
+/** Get the original sleep timer duration in minutes. */
 export function getSleepTimerMinutes(): number {
   return _sleepTimerMinutes;
 }

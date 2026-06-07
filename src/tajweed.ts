@@ -4,6 +4,7 @@
  */
 
 import type { TajweedAnnotation } from './tajweed-data.js';
+import { escapeHtml } from './utils.js';
 
 type TajweedRule =
   | 'hamzat_wasl'
@@ -112,7 +113,7 @@ export function tajweedColorWord(word: string, wordOffset: number, colorMap: Map
       while (i < word.length && colorMap.get(wordOffset + i) === color) {
         i++;
       }
-      result += `<span style="color:${color}">${word.substring(start, i)}</span>`;
+      result += `<span style="color:${color}">${escapeHtml(word.substring(start, i))}</span>`;
     } else {
       result += word[i];
       i++;
