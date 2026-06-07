@@ -241,12 +241,17 @@ async function loadMp3quranAudio(
   reciterInfo: ReciterInfo,
   currentLoad: number
 ): Promise<AudioResult | null> {
-  const audios: (string | null)[] = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
-  const timings =
-    (await fetchAyahTimings(state.currentReciter, surahNum, textData.ayahs)) ??
-    calculateAyahTimings(textData.ayahs, surahNum);
-  if (_loadCounter !== currentLoad) return null;
-  return { audios, timings };
+  try {
+    const audios: (string | null)[] = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
+    const timings =
+      (await fetchAyahTimings(state.currentReciter, surahNum, textData.ayahs)) ??
+      calculateAyahTimings(textData.ayahs, surahNum);
+    if (_loadCounter !== currentLoad) return null;
+    return { audios, timings };
+  } catch (e) {
+    console.warn('[Audio] mp3quran load failed:', e);
+    return null;
+  }
 }
 
 /** Load audio for standard API reciter source. */

@@ -378,6 +378,7 @@ export function nextAyah(autoFromRepeat: boolean): void {
     if (autoFromRepeat || state.isPlaying) playCurrentAyah();
   } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
     if (state.mushafMode) {
+      dom.audioPlayer?.pause();
       state.isPlaying = false;
       updatePlayPauseBtn();
       return;

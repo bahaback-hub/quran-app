@@ -667,6 +667,13 @@ export function renderAdhkarSettingsList(): void {
 
 /* Wire up event listeners that need access to adhkar functions */
 /** Bind all adhkar-related DOM event listeners. */
+
+/** Start a recurring timer to check adhkar notifications every 30 seconds. */
+export function startAdhkarNotificationScheduler(): void {
+  checkAdhkarNotifications();
+  setInterval(checkAdhkarNotifications, 30_000);
+}
+
 export function wireAdhkarEvents(): void {
   dom.adhkarBtn?.addEventListener('click', toggleAdhkarPanel);
   dom.adhkarCloseBtn?.addEventListener('click', closeAdhkarPanel);
