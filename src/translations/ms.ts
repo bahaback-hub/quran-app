@@ -293,6 +293,7 @@ const ms: TranslationBundle = {
 
   // Search UI
   search_history_title: '🕐 Carian Terkini',
+  search_history_cleared: 'Sejarah carian dikosongkan',
   voice_search_unsupported: 'Carian suara tidak disokong dalam pelayar ini',
   voice_search_speaking: '🎤 Bercakaplah sekarang...',
   voice_search_not_recognized: '🎤 Suara tidak dikenali, cuba lagi',

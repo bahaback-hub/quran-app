@@ -294,6 +294,7 @@ const id: TranslationBundle = {
 
   // Search UI
   search_history_title: '🕐 Pencarian Terbaru',
+  search_history_cleared: 'Riwayat pencarian dihapus',
   voice_search_unsupported: 'Pencarian suara tidak didukung di browser ini',
   voice_search_speaking: '🎤 Bicara sekarang...',
   voice_search_not_recognized: '🎤 Suara tidak dikenali, coba lagi',

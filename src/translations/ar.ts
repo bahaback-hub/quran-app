@@ -294,6 +294,7 @@ const ar: TranslationBundle = {
 
   // Search UI
   search_history_title: '🕐 آخر عمليات البحث',
+  search_history_cleared: 'تم مسح سجل البحث',
   voice_search_unsupported: 'البحث الصوتي غير مدعوم في هذا المتصفح',
   voice_search_speaking: '🎤 تحدّث الآن...',
   voice_search_not_recognized: '🎤 لم يتم التعرف على الصوت، حاول مرة أخرى',

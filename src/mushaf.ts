@@ -407,10 +407,10 @@ export function showSurahSecret(surahNum: number, surahName?: string): void {
   }
   dom.surahSecretsSurahName.textContent = `ℹ️ ${surahNum}. ${surahName ?? ''}`;
   dom.surahSecretsTitle.textContent = __('mushaf_surah_info');
-  let html = `<p>${secret}</p>`;
+  let html = `<p>${escapeHtml(secret)}</p>`;
   const authKeys = SURAH_SECRETS_AUTH_KEYS[surahNum];
   if (authKeys && authKeys.length) {
-    html += `<div class="secret-source">${__('mushaf_sources')} ${authKeys.map((k: string) => `<span>${k}</span>`).join(' ')}</div>`;
+    html += `<div class="secret-source">${__('mushaf_sources')} ${authKeys.map((k: string) => `<span>${escapeHtml(k)}</span>`).join(' ')}</div>`;
   }
   dom.surahSecretsBody.innerHTML = html;
   dom.surahSecretsOverlay.style.display = 'flex';

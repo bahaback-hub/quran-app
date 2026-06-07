@@ -294,6 +294,7 @@ const tr: TranslationBundle = {
 
   // Search UI
   search_history_title: '🕐 Son Aramalar',
+  search_history_cleared: 'Arama geçmişi temizlendi',
   voice_search_unsupported: 'Sesli arama bu tarayıcıda desteklenmiyor',
   voice_search_speaking: '🎤 Şimdi konuşun...',
   voice_search_not_recognized: '🎤 Ses tanınamadı, tekrar deneyin',

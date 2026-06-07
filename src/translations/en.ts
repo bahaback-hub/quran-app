@@ -294,6 +294,7 @@ const en: TranslationBundle = {
 
   // Search UI
   search_history_title: '🕐 Recent Searches',
+  search_history_cleared: 'Search history cleared',
   voice_search_unsupported: 'Voice search is not supported in this browser',
   voice_search_speaking: '🎤 Speak now...',
   voice_search_not_recognized: '🎤 Speech not recognized, try again',

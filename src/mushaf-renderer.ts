@@ -69,6 +69,7 @@ export const TOP_OFFSET = 30;
 export const BOTTOM_OFFSET = 50;
 export const STD_LINES = 15;
 
+const LAYOUT_CACHE_MAX = 50; // LRU cache limit to prevent unbounded memory growth
 const layoutCache = new Map<string, PageLayoutData>();
 
 /** Tracks fonts that have been verified as loaded and usable on Canvas. */
@@ -91,6 +92,11 @@ export async function loadPageData(pageNum: number): Promise<PageLayoutData | nu
     const res = await fetch(`${PAGE_BASE}${padded}.json`);
     if (!res.ok) return null;
     const data = (await res.json()) as PageLayoutData;
+    // Evict oldest entry if cache is full (LRU policy)
+    if (layoutCache.size >= LAYOUT_CACHE_MAX) {
+      const firstKey = layoutCache.keys().next().value;
+      if (firstKey !== undefined) layoutCache.delete(firstKey);
+    }
     layoutCache.set(key, data);
     return data;
   } catch (e: unknown) {
@@ -477,7 +483,7 @@ function renderPageContent(
   const pageFontSize = baseFontSize;
 
   const isShortPage = lineCount < 15;
-  const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / (lineCount - 1) : stdLineHeight;
+  const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / Math.max(1, lineCount - 1) : stdLineHeight;
 
   const lineWidths: (LineWidths | null)[] = [];
   for (let i = 0; i < lineCount; i++) {
