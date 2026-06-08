@@ -85,7 +85,16 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.bookmarkBtn?.addEventListener('dblclick', gotoBookmark);
   dom.favoriteBtn?.addEventListener('click', toggleFavorite);
   dom.shareBtn?.addEventListener('click', () => toggleShareMenu());
-  dom.themeToggle?.addEventListener('click', toggleNightMode);
+  dom.themeToggle?.addEventListener('click', (e: MouseEvent) => {
+    e.preventDefault();
+    toggleNightMode();
+  });
+  dom.themeToggle?.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleNightMode();
+    }
+  });
   dom.settingsToggleBtn?.addEventListener('click', openSettings);
   dom.settingsCloseBtn?.addEventListener('click', closeSettings);
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);

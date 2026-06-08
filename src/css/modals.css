@@ -629,13 +629,13 @@ body.night-mode .ayah-modal-actions .btn-sm {
   transition: all 0.2s;
 }
 .sleep-timer-option:hover {
-  background: var(--hover-bg, rgba(98, 125, 152, 0.10));
-  border-color: var(--accent, #c49a2a);
+  background: var(--hover-bg, rgba(116, 78, 78, 0.10));
+  border-color: var(--accent, #c87060);
 }
 .sleep-timer-option.active {
-  background: var(--accent, #c49a2a);
+  background: var(--accent, #c87060);
   color: #fff;
-  border-color: var(--accent, #c49a2a);
+  border-color: var(--accent, #c87060);
 }
 
 /* ========== قمر عزم القبلة ========== */
@@ -658,7 +658,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  border: 3px solid var(--accent, #c49a2a);
+  border: 3px solid var(--accent, #c87060);
   margin: 20px auto;
   position: relative;
   display: flex;
@@ -669,7 +669,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
 .qibla-needle {
   width: 4px;
   height: 80px;
-  background: var(--accent, #c49a2a);
+  background: var(--accent, #c87060);
   position: absolute;
   top: 10px;
   left: 50%;
@@ -679,7 +679,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
 .qibla-center {
   width: 16px;
   height: 16px;
-  background: var(--accent, #c49a2a);
+  background: var(--accent, #c87060);
   border-radius: 50%;
   position: absolute;
 }
@@ -741,7 +741,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
 .stat-number {
   font-size: 24px;
   font-weight: bold;
-  color: var(--accent, #c49a2a);
+  color: var(--accent, #c87060);
   margin-bottom: 4px;
 }
 .stat-label {
@@ -833,7 +833,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
 .modal-input:focus {
   border-color: var(--accent);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(98, 125, 152, 0.15);
+  box-shadow: 0 0 0 3px rgba(116, 78, 78, 0.15);
 }
 .modal-hint {
   margin: 8px 0 16px;
@@ -890,7 +890,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
 }
 .modal-quick-btn:hover {
   background: var(--accent);
-  color: #102a43;
+  color: #2c1a1a;
   border-color: var(--accent);
 }
 

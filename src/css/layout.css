@@ -52,7 +52,7 @@
 }
 .collapse-bar-btn {
   background: var(--accent);
-  color: #102a43;
+  color: #2c1a1a;
   border: none;
   width: 34px;
   height: 34px;
@@ -201,7 +201,7 @@
   transition: background 0.15s;
 }
 .header-dropdown button:hover {
-  background: rgba(98, 125, 152, 0.08);
+  background: rgba(116, 78, 78, 0.08);
 }
 .header-dropdown button:not(:last-child) {
   border-bottom: 1px solid var(--border-soft);
@@ -249,7 +249,7 @@ body.night-mode .control-group label {
 .control-group select:focus,
 .control-group input:focus {
   border-color: var(--accent-dark);
-  box-shadow: 0 0 0 3px rgba(98, 125, 152, 0.15);
+  box-shadow: 0 0 0 3px rgba(116, 78, 78, 0.15);
 }
 .control-group input {
   min-width: 220px;
@@ -304,12 +304,12 @@ body.night-mode .control-group label {
   transition: all 0.2s;
 }
 .search-toggle-btn:hover {
-  background: rgba(98, 125, 152, 0.08);
+  background: rgba(116, 78, 78, 0.08);
   color: var(--accent-dark);
 }
 .search-toggle-btn.active {
   background: var(--accent);
-  color: #102a43;
+  color: #2c1a1a;
 }
 
 .controls-row .search-input-group {
@@ -460,7 +460,7 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background: var(--accent, #c49a2a);
+  background: var(--accent, #c87060);
   z-index: 9999;
   transform-origin: left;
   transform: scaleX(0);
@@ -473,7 +473,7 @@ html {
   scroll-padding-top: 80px;
 }
 ::selection {
-  background: rgba(98, 125, 152, 0.12);
+  background: rgba(116, 78, 78, 0.12);
   color: var(--text-primary);
 }
 /* Better scrollbar styling */
