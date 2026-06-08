@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0f766e">
+  <meta name="theme-color" content="#5c2e2e">
   <meta name="description" content="تطبيق القرآن الكريم — تلاوة، بحث، تفسير، ومواقيت الصلاة">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -60,7 +60,12 @@
   <header class="header">
     <div class="header-menu-container">
       <div class="header-actions">
-        <button class="header-action-btn" id="themeToggle" data-i18n-title="night_mode" data-i18n-aria-label="night_mode" aria-label="الوضع الليلي" title="الوضع الليلي">🌙</button>
+        <div class="theme-switch" id="themeToggle" role="switch" aria-checked="false" data-i18n-aria-label="night_mode" aria-label="الوضع الليلي" title="الوضع الليلي" tabindex="0">
+          <input type="checkbox" id="themeSwitchCheck" class="theme-switch-check" />
+          <label for="themeSwitchCheck" class="theme-switch-label">
+            <span></span>
+          </label>
+        </div>
         <button class="header-action-btn" id="settingsToggleBtn" title="الإعدادات" aria-label="الإعدادات">⚙️</button>
       </div>
     </div>

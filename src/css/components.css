@@ -122,7 +122,7 @@ body.night-mode .search-highlight {
 }
 .btn-more:hover {
   color: var(--accent-dark) !important;
-  background: rgba(98, 125, 152, 0.08) !important;
+  background: rgba(116, 78, 78, 0.08) !important;
 }
 
 .btn {
@@ -150,7 +150,7 @@ body.night-mode .search-highlight {
 }
 .btn-gold {
   background: var(--accent);
-  color: #102a43;
+  color: #2c1a1a;
 }
 .btn-gold:hover {
   background: var(--accent-dark);
@@ -193,7 +193,7 @@ body.night-mode .search-highlight {
 /* ========== نظام الأزرار الجديد (3 أنواع أساسية) ========== */
 .btn-primary {
   background: var(--accent);
-  color: #102a43;
+  color: #2c1a1a;
 }
 .btn-primary:hover {
   background: var(--accent-dark);
@@ -308,7 +308,7 @@ body.night-mode .keyboard-hint {
 }
 .search-input-wrapper:focus-within {
   border-color: var(--accent-dark);
-  box-shadow: 0 0 0 3px rgba(98, 125, 152, 0.15);
+  box-shadow: 0 0 0 3px rgba(116, 78, 78, 0.15);
 }
 .search-input-wrapper input {
   flex: 1;
@@ -333,7 +333,7 @@ body.night-mode .keyboard-hint {
   right: 0;
   z-index: 1000;
   background: var(--select-bg, #fff);
-  border: 1px solid var(--accent, #c49a2a);
+  border: 1px solid var(--accent, #c87060);
   border-radius: 6px;
   max-height: 200px;
   overflow-y: auto;
@@ -354,7 +354,7 @@ body.night-mode .search-autocomplete-item {
 }
 .search-autocomplete-item:hover,
 .search-autocomplete-item.active {
-  background: var(--hover-bg, rgba(98, 125, 152, 0.10));
+  background: var(--hover-bg, rgba(116, 78, 78, 0.10));
 }
 .search-autocomplete-item .count {
   font-size: 11px;
@@ -468,7 +468,7 @@ body.night-mode .search-autocomplete-item {
 }
 .kbd-key:active {
   background: var(--accent);
-  color: #102a43;
+  color: #2c1a1a;
   transform: scale(0.95);
 }
 .kbd-key-wide {
@@ -476,7 +476,7 @@ body.night-mode .search-autocomplete-item {
   flex: 1;
 }
 .kbd-key-shift {
-  background: rgba(98, 125, 152, 0.10);
+  background: rgba(116, 78, 78, 0.10);
   color: var(--accent-dark);
   font-weight: bold;
 }
@@ -503,7 +503,7 @@ body.night-mode .kbd-key:active {
   color: #1a1a1a;
 }
 body.night-mode .kbd-key-shift {
-  background: rgba(98, 125, 152, 0.15);
+  background: rgba(116, 78, 78, 0.15);
 }
 body.night-mode .kbd-key-fixed {
   background: rgba(255, 255, 255, 0.04);
@@ -544,4 +544,107 @@ body.night-mode .kbd-key-backspace {
   50% {
     box-shadow: 0 2px 16px rgba(34, 197, 94, 0.7);
   }
+}
+
+/* ========== مفتاح تبديل الوضع الليلي/النهاري (Uiverse inspired) ========== */
+.theme-switch {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  cursor: pointer;
+}
+.theme-switch-check {
+  position: absolute;
+  visibility: hidden;
+}
+.theme-switch-label {
+  cursor: pointer;
+  display: block;
+  height: 28px;
+  text-indent: -9999px;
+  width: 56px;
+  background: linear-gradient(135deg, #c87060 0%, #ff9f6d 100%);
+  border-radius: 28px;
+  position: relative;
+  transition: background 0.4s ease;
+  border: 2px solid rgba(209, 92, 92, 0.3);
+  box-shadow: 0 0 6px rgba(255, 159, 109, 0.4) inset;
+}
+/* Sun indicator — left */
+.theme-switch-label:before {
+  background: radial-gradient(circle, #744e4e 0%, #ff7171 100%);
+  border-radius: 50%;
+  border: 1px solid #742323;
+  box-shadow: 0 1px 4px rgba(255, 67, 48, 0.5), 0 0 4px rgba(255, 159, 109, 0.4) inset;
+  content: "";
+  display: block;
+  height: 8px;
+  width: 8px;
+  left: 6px;
+  position: absolute;
+  top: 9px;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+/* Moon indicator — right */
+.theme-switch-label:after {
+  background: radial-gradient(circle, rgba(60, 60, 60, 0.6) 0%, rgba(151, 151, 151, 0.6) 100%);
+  border-radius: 50%;
+  border: 1px solid #444;
+  box-shadow: 0 1px 3px rgba(20, 20, 20, 0.3);
+  content: "";
+  display: block;
+  height: 8px;
+  width: 8px;
+  right: 6px;
+  position: absolute;
+  top: 9px;
+  transition: all 0.3s ease;
+  z-index: 2;
+  opacity: 0.4;
+}
+/* Sliding knob */
+.theme-switch-label span {
+  background: linear-gradient(180deg, #fff 0%, #f0e5df 100%);
+  border-radius: 20px;
+  border: 1px solid #e8d5cc;
+  box-shadow: 0 1px 4px rgba(44, 26, 26, 0.2);
+  display: block;
+  height: 22px;
+  left: 2px;
+  position: absolute;
+  top: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 22px;
+}
+/* Checked state — night mode */
+.theme-switch-check:checked + .theme-switch-label {
+  background: linear-gradient(135deg, #1a1f2e 0%, #2a3040 100%);
+  border-color: rgba(100, 100, 140, 0.3);
+  box-shadow: 0 0 6px rgba(100, 100, 140, 0.3) inset;
+}
+.theme-switch-check:checked + .theme-switch-label:before {
+  opacity: 0.4;
+}
+.theme-switch-check:checked + .theme-switch-label:after {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(180, 180, 220, 0.6) 0%, rgba(220, 220, 255, 0.8) 100%);
+  border-color: #666;
+  box-shadow: 0 1px 3px rgba(100, 100, 140, 0.3), 0 0 6px rgba(180, 180, 255, 0.3);
+}
+.theme-switch-check:checked + .theme-switch-label span {
+  left: 30px;
+  background: linear-gradient(180deg, #4f4f5e 0%, #3a3a4a 100%);
+  border-color: #2a2a3a;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+/* Focus styles */
+.theme-switch:focus-visible {
+  outline: none;
+}
+.theme-switch:focus-visible .theme-switch-label {
+  box-shadow: 0 0 0 3px var(--focus-outline);
 }

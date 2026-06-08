@@ -26,7 +26,9 @@ export function applyNightMode(enabled: boolean): void {
   if (enabled) document.body.classList.add('night-mode');
   else document.body.classList.remove('night-mode');
   storage.set('night_mode', enabled);
-  if (dom.themeToggle) dom.themeToggle.textContent = enabled ? '\u2600\uFE0F' : '\uD83C\uDF19';
+  const checkbox = dom.themeToggle?.querySelector('.theme-switch-check') as HTMLInputElement | null;
+  if (checkbox) checkbox.checked = enabled;
+  if (dom.themeToggle) dom.themeToggle.setAttribute('aria-checked', String(enabled));
   if (state.mushafMode && state.currentPage) {
     import('./mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
@@ -66,7 +68,9 @@ export function initSystemThemeDetection(): void {
       }
     }
     // Update the theme toggle icon
-    if (dom.themeToggle) dom.themeToggle.textContent = e.matches ? '\u2600\uFE0F' : '\uD83C\uDF19';
+    const checkbox = dom.themeToggle?.querySelector('.theme-switch-check') as HTMLInputElement | null;
+    if (checkbox) checkbox.checked = e.matches;
+    if (dom.themeToggle) dom.themeToggle.setAttribute('aria-checked', String(e.matches));
   }
 
   // Apply initial system preference
