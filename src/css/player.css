@@ -71,7 +71,7 @@ body.night-mode .floating-info {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #212529;
+  color: #102a43;
   transition: all 0.2s;
   flex-shrink: 0;
   font-weight: bold;
@@ -243,7 +243,7 @@ audio {
   outline: 3px solid var(--accent, #c49a2a);
   outline-offset: 2px;
   border-radius: 8px;
-  background: rgba(196, 154, 42, 0.1);
+  background: rgba(98, 125, 152, 0.08);
 }
 body.night-mode .ayah.selected {
   background: rgba(255, 224, 102, 0.1);

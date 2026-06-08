@@ -629,7 +629,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
   transition: all 0.2s;
 }
 .sleep-timer-option:hover {
-  background: var(--hover-bg, rgba(196, 154, 42, 0.15));
+  background: var(--hover-bg, rgba(98, 125, 152, 0.10));
   border-color: var(--accent, #c49a2a);
 }
 .sleep-timer-option.active {
@@ -833,7 +833,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
 .modal-input:focus {
   border-color: var(--accent);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(196, 154, 42, 0.2);
+  box-shadow: 0 0 0 3px rgba(98, 125, 152, 0.15);
 }
 .modal-hint {
   margin: 8px 0 16px;
@@ -890,7 +890,7 @@ body.night-mode .ayah-modal-actions .btn-sm {
 }
 .modal-quick-btn:hover {
   background: var(--accent);
-  color: #212529;
+  color: #102a43;
   border-color: var(--accent);
 }
 

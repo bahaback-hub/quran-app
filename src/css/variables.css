@@ -1,39 +1,39 @@
 /* CSS Custom Properties — theme variables for :root, night-mode, sepia-mode */
 
 :root {
-  /* Neutrals — from Bootstrap Gray palette */
-  --bg-gradient: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  /* Neutrals — Blue-Gray palette (Material Tailwind inspired) */
+  --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #ffffff 100%);
   --container-bg: #ffffff;
   --header-bg: linear-gradient(135deg, #5c3d2e, #7a5c3e);
   --header-text: #ffffff;
-  --controls-bg: #e9ecef;
+  --controls-bg: #e4eaf0;
   --player-bg: #ffffff;
   --content-bg: #ffffff;
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --text-muted: #adb5bd;
+  --text-primary: #102a43;
+  --text-secondary: #486581;
+  --text-muted: #829ab1;
   --accent: #c49a2a;
   --accent-dark: #a07d1a;
   --primary: #5c3d2e;
   --primary-light: #7a5c3e;
   --border: #c49a2a;
-  --border-soft: #dee2e6;
+  --border-soft: #d9e2ec;
   --select-bg: #ffffff;
   --highlight-bg: linear-gradient(120deg, #fef08a 0%, #fde047 100%);
   --highlight-text: #422006;
   --highlight-shadow: rgba(196, 154, 42, 0.5);
-  --hover-bg: rgba(196, 154, 42, 0.08);
+  --hover-bg: rgba(98, 125, 152, 0.08);
   --bismillah-color: #5c3d2e;
   --error-bg: #fef2f2;
   --error-text: #dc2626;
   --footer-bg: #5c3d2e;
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-  --tafsir-bg: #f8f9fa;
-  --tafsir-text: #495057;
-  --tafsir-border: #dee2e6;
+  --shadow: 0 20px 60px rgba(16, 42, 67, 0.08);
+  --tafsir-bg: #f0f4f8;
+  --tafsir-text: #334e68;
+  --tafsir-border: #d9e2ec;
   --prayer-bar-bg: linear-gradient(135deg, #5c3d2e 0%, #7a5c3e 100%);
   --share-menu-bg: #ffffff;
-  --share-menu-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --share-menu-shadow: 0 4px 20px rgba(16, 42, 67, 0.06);
   --focus-outline: 3px solid #c49a2a;
   --curtain-handle-bg: linear-gradient(180deg, #5c3d2e, #7a5c3e);
   --font-size-select-bg: #ffffff;

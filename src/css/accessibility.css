@@ -46,8 +46,8 @@
 @media (prefers-contrast: high) {
   :root {
     --accent: #9a7a1a;
-    --border-soft: #6c757d;
-    --text-muted: #495057;
+    --border-soft: #486581;
+    --text-muted: #334e68;
     --border: #000;
   }
   .btn {
