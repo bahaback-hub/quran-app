@@ -333,7 +333,7 @@ body.night-mode .settings-header h2 {
 }
 .settings-tab.active {
   background: var(--accent);
-  color: #2c1a1a;
+  color: #2c3e50;
 }
 .settings-tab-content {
   display: none;
@@ -411,7 +411,7 @@ body.night-mode .prayer-time {
 }
 
 .countdown-box {
-  background: linear-gradient(135deg, #c87060, #a05545);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #fff;
   padding: 12px;
   border-radius: 10px;
@@ -561,7 +561,7 @@ body.night-mode .adhkar-header h2 {
 }
 .adhkar-tab.active {
   background: var(--accent);
-  color: #2c1a1a;
+  color: #2c3e50;
   border-color: var(--accent);
   font-weight: bold;
 }
@@ -641,7 +641,7 @@ body.night-mode .adhkar-header h2 {
 }
 .adhkar-counter-btn:hover {
   background: var(--accent);
-  color: #2c1a1a;
+  color: #2c3e50;
   transform: scale(1.1);
 }
 .adhkar-counter-btn:active {
@@ -740,7 +740,7 @@ body.night-mode .adhkar-header h2 {
   margin-bottom: 10px;
 }
 .adhkar-add-btn:hover {
-  background: rgba(116, 78, 78, 0.08);
+  background: rgba(217, 119, 6, 0.08);
   border-style: solid;
 }
 
