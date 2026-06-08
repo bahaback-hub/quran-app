@@ -15,6 +15,8 @@ body {
   padding-bottom: 240px;
   transition: background 0.5s ease;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ========== الخلفيات الزخرفية ========== */
@@ -85,10 +87,11 @@ body:not(.bg-css) {
   max-width: 1200px;
   margin: 0 auto;
   background: var(--container-bg);
-  border-radius: 20px;
+  border-radius: 18px;
   box-shadow: var(--shadow);
   overflow: hidden;
   transition: background 0.4s ease;
+  border: 1px solid var(--border-soft);
 }
 
 /* ========== شريط حالة الاتصال ========== */
@@ -124,4 +127,35 @@ noscript > div {
   border-radius: 12px;
   border: 2px solid #c33;
   font-weight: bold;
+}
+
+/* ========== أيقونات SVG ========== */
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.icon-quran {
+  color: inherit;
+  margin-left: 6px;
+}
+.icon-sm {
+  color: var(--icon-primary, var(--primary));
+  margin-left: 4px;
+}
+.icon-nav {
+  color: inherit;
+}
+.icon-xs {
+  color: inherit;
+}
+.icon-play {
+  color: inherit;
+}
+
+body:not(.night-mode) .bottom-nav-btn .icon-nav {
+  color: rgba(255, 255, 255, 0.8);
+}
+body:not(.night-mode) .bottom-nav-btn.active .icon-nav {
+  color: #fff;
 }
