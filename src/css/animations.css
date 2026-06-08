@@ -258,10 +258,10 @@ body.night-mode .container {
 }
 @keyframes bismillahGlow {
   0% {
-    text-shadow: 0 0 4px rgba(212, 175, 55, 0.1);
+    text-shadow: 0 0 4px rgba(196, 154, 42, 0.1);
   }
   100% {
-    text-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+    text-shadow: 0 0 12px rgba(196, 154, 42, 0.3);
   }
 }
 

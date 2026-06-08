@@ -162,7 +162,10 @@ function updateCountdowns(): void {
 /* ===================== AZAN ===================== */
 
 export function hideAzanNotification(): void {
-  if (dom.azanNotification) dom.azanNotification.style.display = 'none';
+  if (dom.azanNotification) {
+    dom.azanNotification.classList.add('hidden');
+    dom.azanNotification.style.display = 'none';
+  }
 }
 
 export function stopAzan(): void {
@@ -191,6 +194,7 @@ export function testAzan(): void {
         if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('stop_azan');
         if (dom.azanNotification && dom.azanNotifPrayer) {
           dom.azanNotifPrayer.textContent = __('test_azan');
+          dom.azanNotification.classList.remove('hidden');
           dom.azanNotification.style.display = 'flex';
         }
       })
@@ -201,6 +205,7 @@ export function testAzan(): void {
 function showAzanNotification(prayerKey: string): void {
   if (!dom.azanNotification || !dom.azanNotifPrayer) return;
   dom.azanNotifPrayer.textContent = `🕋 ${__('prayer')} ${PRAYER_NAMES_AR[prayerKey]}`;
+  dom.azanNotification.classList.remove('hidden');
   dom.azanNotification.style.display = 'flex';
 
   if ('Notification' in window && Notification.permission === 'granted') {
@@ -309,6 +314,7 @@ export function calculateQibla(lat: number, lng: number): number {
 export function showQiblaCompass(): void {
   const overlay = document.getElementById('qiblaOverlay');
   if (!overlay) return;
+  overlay.classList.remove('hidden');
   overlay.style.display = 'flex';
 
   const compass = document.getElementById('qiblaCompass');
@@ -392,7 +398,10 @@ export function showQiblaCompass(): void {
 /** Hide the Qibla compass overlay and remove the orientation listener. */
 export function hideQiblaCompass(): void {
   const overlay = document.getElementById('qiblaOverlay');
-  if (overlay) overlay.style.display = 'none';
+  if (overlay) {
+    overlay.classList.add('hidden');
+    overlay.style.display = 'none';
+  }
   // Remove orientation handler to prevent memory leak
   if (_qiblaOrientationHandler) {
     window.removeEventListener('deviceorientation', _qiblaOrientationHandler);

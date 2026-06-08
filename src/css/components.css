@@ -122,7 +122,7 @@ body.night-mode .search-highlight {
 }
 .btn-more:hover {
   color: var(--accent-dark) !important;
-  background: rgba(212, 175, 55, 0.1) !important;
+  background: rgba(196, 154, 42, 0.1) !important;
 }
 
 .btn {
@@ -150,7 +150,7 @@ body.night-mode .search-highlight {
 }
 .btn-gold {
   background: var(--accent);
-  color: #2c3e50;
+  color: #212529;
 }
 .btn-gold:hover {
   background: var(--accent-dark);
@@ -193,7 +193,7 @@ body.night-mode .search-highlight {
 /* ========== نظام الأزرار الجديد (3 أنواع أساسية) ========== */
 .btn-primary {
   background: var(--accent);
-  color: #2c3e50;
+  color: #212529;
 }
 .btn-primary:hover {
   background: var(--accent-dark);
@@ -308,7 +308,7 @@ body.night-mode .keyboard-hint {
 }
 .search-input-wrapper:focus-within {
   border-color: var(--accent-dark);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 0 0 3px rgba(196, 154, 42, 0.2);
 }
 .search-input-wrapper input {
   flex: 1;
@@ -333,7 +333,7 @@ body.night-mode .keyboard-hint {
   right: 0;
   z-index: 1000;
   background: var(--select-bg, #fff);
-  border: 1px solid var(--accent, #d4af37);
+  border: 1px solid var(--accent, #c49a2a);
   border-radius: 6px;
   max-height: 200px;
   overflow-y: auto;
@@ -354,7 +354,7 @@ body.night-mode .search-autocomplete-item {
 }
 .search-autocomplete-item:hover,
 .search-autocomplete-item.active {
-  background: var(--hover-bg, rgba(212, 175, 55, 0.15));
+  background: var(--hover-bg, rgba(196, 154, 42, 0.15));
 }
 .search-autocomplete-item .count {
   font-size: 11px;
@@ -468,7 +468,7 @@ body.night-mode .search-autocomplete-item {
 }
 .kbd-key:active {
   background: var(--accent);
-  color: #2c3e50;
+  color: #212529;
   transform: scale(0.95);
 }
 .kbd-key-wide {
@@ -476,7 +476,7 @@ body.night-mode .search-autocomplete-item {
   flex: 1;
 }
 .kbd-key-shift {
-  background: rgba(212, 175, 55, 0.15);
+  background: rgba(196, 154, 42, 0.15);
   color: var(--accent-dark);
   font-weight: bold;
 }
@@ -503,7 +503,7 @@ body.night-mode .kbd-key:active {
   color: #1a1a1a;
 }
 body.night-mode .kbd-key-shift {
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(196, 154, 42, 0.2);
 }
 body.night-mode .kbd-key-fixed {
   background: rgba(255, 255, 255, 0.04);

@@ -369,6 +369,7 @@ export function populateSurahOverlay(): void {
       if (target.classList.contains('mushaf-surah-overlay-btn')) {
         const surahNum = parseInt(target.dataset.surah!, 10);
         const surahName = target.dataset.surahName || '';
+        dom.mushafSurahOverlay!.classList.add('hidden');
         dom.mushafSurahOverlay!.style.display = 'none';
         state.currentSurah = surahNum;
         state.currentAyahIndex = 0;
@@ -413,6 +414,7 @@ export function showSurahSecret(surahNum: number, surahName?: string): void {
     html += `<div class="secret-source">${__('mushaf_sources')} ${authKeys.map((k: string) => `<span>${escapeHtml(k)}</span>`).join(' ')}</div>`;
   }
   dom.surahSecretsBody.innerHTML = html;
+  dom.surahSecretsOverlay.classList.remove('hidden');
   dom.surahSecretsOverlay.style.display = 'flex';
 }
 

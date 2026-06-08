@@ -121,6 +121,7 @@ export function openAyahModal(data: ModalAyahData): void {
     idx = state.fullQuranText.findIndex((a) => a.surah === data.surah && a.ayah === data.ayah);
   }
   current = { ...data, index: idx };
+  modalEl.classList.remove('hidden');
   modalEl.style.display = 'flex';
   document.body.style.overflow = 'hidden';
   M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(data.ayah), data.surahName)}`;
@@ -136,6 +137,7 @@ export function openAyahModal(data: ModalAyahData): void {
 
 export function closeAyahModal(): void {
   if (!modalEl) return;
+  modalEl.classList.add('hidden');
   modalEl.style.display = 'none';
   document.body.style.overflow = '';
   pauseModalAudio();
@@ -148,7 +150,7 @@ function bind(): void {
     if (e.target === modalEl) closeAyahModal();
   });
   document.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && modalEl?.style.display !== 'none') closeAyahModal();
+    if (e.key === 'Escape' && !modalEl?.classList.contains('hidden')) closeAyahModal();
   });
   M.ayahModalNextBtn?.addEventListener('click', goToNextAyah);
   M.ayahModalBookmarkBtn?.addEventListener('click', saveBookmark);
