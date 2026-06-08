@@ -310,16 +310,28 @@ export function bindMiscEvents(): void {
   });
 
   dom.mushafSurahOverlayClose?.addEventListener('click', () => {
-    if (dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none';
+    if (dom.mushafSurahOverlay) {
+      dom.mushafSurahOverlay.classList.add('hidden');
+      dom.mushafSurahOverlay.style.display = 'none';
+    }
   });
   dom.mushafSurahOverlay?.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === dom.mushafSurahOverlay && dom.mushafSurahOverlay) dom.mushafSurahOverlay.style.display = 'none';
+    if (e.target === dom.mushafSurahOverlay && dom.mushafSurahOverlay) {
+      dom.mushafSurahOverlay.classList.add('hidden');
+      dom.mushafSurahOverlay.style.display = 'none';
+    }
   });
   dom.surahSecretsCloseBtn?.addEventListener('click', () => {
-    if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none';
+    if (dom.surahSecretsOverlay) {
+      dom.surahSecretsOverlay.classList.add('hidden');
+      dom.surahSecretsOverlay.style.display = 'none';
+    }
   });
   dom.surahSecretsOverlay?.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === dom.surahSecretsOverlay && dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none';
+    if (e.target === dom.surahSecretsOverlay && dom.surahSecretsOverlay) {
+      dom.surahSecretsOverlay.classList.add('hidden');
+      dom.surahSecretsOverlay.style.display = 'none';
+    }
   });
 
   wireAdhkarEvents();
@@ -330,7 +342,10 @@ export function bindMiscEvents(): void {
   });
 
   dom.readingStatsCloseBtn?.addEventListener('click', () => {
-    if (dom.readingStatsPanel) dom.readingStatsPanel.style.display = 'none';
+    if (dom.readingStatsPanel) {
+      dom.readingStatsPanel.classList.add('hidden');
+      dom.readingStatsPanel.style.display = 'none';
+    }
   });
 }
 

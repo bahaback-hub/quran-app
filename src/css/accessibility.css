@@ -45,9 +45,9 @@
 /* ========== وضع التباين العالي ========== */
 @media (prefers-contrast: high) {
   :root {
-    --accent: #b8962e;
-    --border-soft: #8a7a5a;
-    --text-muted: #3a3a3a;
+    --accent: #9a7a1a;
+    --border-soft: #6c757d;
+    --text-muted: #495057;
     --border: #000;
   }
   .btn {

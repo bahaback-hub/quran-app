@@ -262,9 +262,10 @@ describe('keyboard shortcuts - Escape', () => {
   });
 
   it('should hide surah secrets overlay on Escape', () => {
-    dom.surahSecretsOverlay = { style: { display: 'block' } };
+    dom.surahSecretsOverlay = { style: { display: 'block' }, classList: { add: vi.fn() } };
     pressKey('Escape');
     expect(dom.surahSecretsOverlay.style.display).toBe('none');
+    expect(dom.surahSecretsOverlay.classList.add).toHaveBeenCalledWith('hidden');
   });
 
   it('should hide search results on Escape', () => {

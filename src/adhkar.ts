@@ -398,11 +398,15 @@ function openAdhkarAddDialog(): void {
   if (dom.adhkarAddTime) dom.adhkarAddTime.value = '';
   if (dom.adhkarAddDuration) dom.adhkarAddDuration.value = '1';
   dom.adhkarAddOverlay.dataset.editId = '';
+  dom.adhkarAddOverlay.classList.remove('hidden');
   dom.adhkarAddOverlay.style.display = 'flex';
 }
 
 function closeAdhkarAddDialog(): void {
-  if (dom.adhkarAddOverlay) dom.adhkarAddOverlay.style.display = 'none';
+  if (dom.adhkarAddOverlay) {
+    dom.adhkarAddOverlay.classList.add('hidden');
+    dom.adhkarAddOverlay.style.display = 'none';
+  }
 }
 
 function savePersonalAdhkar(): void {
@@ -441,6 +445,7 @@ function editPersonalAdhkar(id: string): void {
   const p = settings.personal_adhkar?.find((x: PersonalAdhkarEntry) => x.id === id);
   if (!p) return;
   if (!dom.adhkarAddOverlay) return;
+  dom.adhkarAddOverlay.classList.remove('hidden');
   dom.adhkarAddOverlay.style.display = 'flex';
   dom.adhkarAddOverlay.dataset.editId = id;
   if (dom.adhkarAddText) dom.adhkarAddText.value = p.text;
@@ -540,6 +545,7 @@ function showAdhkarNotification(cat: AdhkarNotifContext, notifDuration?: number)
   if (dom.adhkarNotifIcon) dom.adhkarNotifIcon.textContent = cat.icon || '🕌';
   if (dom.adhkarNotifTitle) dom.adhkarNotifTitle.textContent = `🕌 ${cat.name}`;
   dom.adhkarNotification.dataset.category = cat.id || 'personal';
+  dom.adhkarNotification.classList.remove('hidden');
   dom.adhkarNotification.style.display = 'flex';
 
   const settings = state.adhkarSettings as AdhkarSettings;
@@ -548,7 +554,10 @@ function showAdhkarNotification(cat: AdhkarNotifContext, notifDuration?: number)
   const duration = (notifDuration || cat.duration || 1) * 60 * 1000;
   if (state.adhkarNotificationTimer) clearTimeout(state.adhkarNotificationTimer);
   state.adhkarNotificationTimer = setTimeout(() => {
-    if (dom.adhkarNotification) dom.adhkarNotification.style.display = 'none';
+    if (dom.adhkarNotification) {
+      dom.adhkarNotification.classList.add('hidden');
+      dom.adhkarNotification.style.display = 'none';
+    }
   }, duration);
 
   renderNotifAdhkarText(cat);
@@ -614,7 +623,10 @@ function renderNotifAdhkarText(cat: AdhkarNotifContext): void {
 }
 
 function dismissAdhkarNotification(): void {
-  if (dom.adhkarNotification) dom.adhkarNotification.style.display = 'none';
+  if (dom.adhkarNotification) {
+    dom.adhkarNotification.classList.add('hidden');
+    dom.adhkarNotification.style.display = 'none';
+  }
   if (state.adhkarNotificationTimer) {
     clearTimeout(state.adhkarNotificationTimer);
     state.adhkarNotificationTimer = null;

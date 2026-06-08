@@ -118,7 +118,10 @@ export function initKeyboardShortcuts(): void {
       case 'Escape':
         closeSettings();
         closeFavorites();
-        if (dom.surahSecretsOverlay) dom.surahSecretsOverlay.style.display = 'none';
+        if (dom.surahSecretsOverlay) {
+          dom.surahSecretsOverlay.classList.add('hidden');
+          dom.surahSecretsOverlay.style.display = 'none';
+        }
         if (dom.searchResults) dom.searchResults.style.display = 'none';
         if (dom.shareMenu) dom.shareMenu.classList.remove('show');
         closeTafsir();
