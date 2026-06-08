@@ -258,10 +258,10 @@ body.night-mode .container {
 }
 @keyframes bismillahGlow {
   0% {
-    text-shadow: 0 0 4px rgba(200, 112, 96, 0.1);
+    text-shadow: 0 0 4px rgba(217, 119, 6, 0.1);
   }
   100% {
-    text-shadow: 0 0 12px rgba(200, 112, 96, 0.3);
+    text-shadow: 0 0 12px rgba(217, 119, 6, 0.3);
   }
 }
 
@@ -277,25 +277,25 @@ body.night-mode .container {
     -webkit-backdrop-filter: blur(16px) saturate(180%);
   }
   .settings-panel {
-    background: rgba(254, 253, 248, 0.85);
+    background: rgba(255, 255, 255, 0.85);
   }
   body.night-mode .settings-panel {
     background: rgba(22, 26, 38, 0.85);
   }
   .favorites-panel {
-    background: rgba(254, 253, 248, 0.85);
+    background: rgba(255, 255, 255, 0.85);
   }
   body.night-mode .favorites-panel {
     background: rgba(22, 26, 38, 0.85);
   }
   .tafsir-curtain {
-    background: rgba(249, 247, 240, 0.85);
+    background: rgba(248, 250, 252, 0.85);
   }
   body.night-mode .tafsir-curtain {
     background: rgba(30, 35, 48, 0.85);
   }
   .header-dropdown {
-    background: rgba(254, 253, 248, 0.9);
+    background: rgba(255, 255, 255, 0.9);
   }
   body.night-mode .header-dropdown {
     background: rgba(30, 35, 48, 0.9);
