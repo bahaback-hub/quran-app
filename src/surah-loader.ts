@@ -9,6 +9,7 @@ import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './recit
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
 import { SURAH_SECRETS } from './surahs-data.js';
+import { isSajdaAyah, isJuzStart } from './quran-meta.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './audio.js';
 import { recordReadingSession } from './reading-stats.js';
 import { loadTafsirForCurrentAyah } from './tafsir.js';
@@ -465,9 +466,21 @@ function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string
       colorMap = buildColorMap(adjusted);
     }
   }
-  let html = `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
+  let html = '';
+  // Juz marker: if this ayah starts a new juz, insert a divider
+  const juzNum = isJuzStart(textData.number, a.numberInSurah);
+  if (juzNum !== null) {
+    html += `<div class="juz-marker"><span class="juz-label">الجزء ${juzNum}</span></div>`;
+  }
+  html += `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
   html += buildAyahWordsHtml(txt, i, colorMap);
-  html += ` <span class="ayah-number">${a.numberInSurah}</span>`;
+  // Sajda indicator
+  const sajda = isSajdaAyah(textData.number, a.numberInSurah);
+  if (sajda.isSajda) {
+    const sajdaTitle = sajda.type === 'obligatory' ? 'سجدة واجبة' : 'سجدة مستحبة';
+    html += ` <span class="sajda-indicator" title="${sajdaTitle}">۩</span>`;
+  }
+  html += ` <span class="ayah-number"><span class="ayah-number-inner">${a.numberInSurah}</span></span>`;
   const translationData = state.translationData as { ayahs?: { text: string }[] } | null;
   if (state.translationEnabled && translationData?.ayahs?.[i]) {
     const transText = escapeHtml(translationData.ayahs[i].text);
@@ -542,7 +555,8 @@ export function renderSurah(textData: SurahTextData): void {
   }
   html += `</h2>`;
   if (textData.number !== 1 && textData.number !== 9) {
-    html += '<p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>';
+    html +=
+      '<div class="bismillah-wrapper"><span class="bismillah-ornament">﴾</span><p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><span class="bismillah-ornament">﴿</span></div>';
   }
   html += `<div class="ayahs-container" style="font-size:${state.fontSize}px"></div>`;
   dom.surahContent.innerHTML = html;

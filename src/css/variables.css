@@ -97,3 +97,51 @@ body.night-mode {
   --card-bg: #1e2330;
   --panel-bg: #1e2330;
 }
+
+/* ========== وضع السيبيا — خلفية بيج دافئة مريحة للعين ========== */
+body.sepia-mode {
+  --bg-gradient: linear-gradient(135deg, #f0e6d2 0%, #e8dbc4 100%);
+  --container-bg: #f5edd8;
+  --header-bg: linear-gradient(135deg, #6b4e2e, #8a6840);
+  --header-text: #faf3e6;
+  --controls-bg: #efe5d0;
+  --player-bg: #f5edd8;
+  --content-bg: #f8f0e0;
+  --text-primary: #2c1e0e;
+  --text-secondary: #4a3828;
+  --text-muted: #8a7a66;
+  --primary: #7a5e38;
+  --primary-light: #9a7e52;
+  --border: #8a6840;
+  --border-soft: #d4c8b2;
+  --select-bg: #f0e6d2;
+  --highlight-bg: linear-gradient(120deg, #f0d88a 0%, #e0c060 100%);
+  --highlight-text: #2c1e0e;
+  --highlight-shadow: rgba(160, 120, 50, 0.35);
+  --hover-bg: rgba(138, 104, 64, 0.12);
+  --bismillah-color: #7a5e38;
+  --error-bg: #f5e0d8;
+  --error-text: #a03020;
+  --footer-bg: #4a3520;
+  --shadow: 0 16px 48px rgba(80, 60, 30, 0.12);
+  --tafsir-bg: #f2e8d4;
+  --tafsir-text: #4a3828;
+  --tafsir-border: #d4c8b2;
+  --prayer-bar-bg: linear-gradient(135deg, #6b4e2e 0%, #4a3520 100%);
+  --share-menu-bg: #f0e6d2;
+  --share-menu-shadow: 0 4px 20px rgba(80, 60, 30, 0.1);
+  --focus-outline: 3px solid #8a6840;
+  --curtain-handle-bg: linear-gradient(180deg, #6b4e2e, #9a7e52);
+  --font-size-select-bg: #efe5d0;
+  --card-bg: #f5edd8;
+  --panel-bg: #f5edd8;
+  --success-bg: #8a6840;
+  --control-card-shadow: 0 1px 4px rgba(80, 60, 30, 0.08);
+  --player-light-shadow: 0 -4px 20px rgba(80, 60, 30, 0.1);
+  --input-focus-ring: rgba(138, 104, 64, 0.3);
+  --icon-primary: #7a5e38;
+  --icon-accent: #8a6840;
+  --badge-bg: rgba(138, 104, 64, 0.12);
+  --badge-text: #6b4e2e;
+  --divider: rgba(80, 60, 30, 0.1);
+}

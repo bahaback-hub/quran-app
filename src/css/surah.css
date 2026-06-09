@@ -41,12 +41,23 @@ body.night-mode .surah-title {
 }
 .bismillah {
   text-align: center;
-  font-size: 32px;
+  font-size: 34px;
   color: var(--bismillah-color);
+  font-weight: bold;
+}
+.bismillah-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 18px;
   border-bottom: 2px dashed var(--border-soft);
-  font-weight: bold;
+}
+.bismillah-ornament {
+  font-size: 28px;
+  color: var(--bismillah-color);
+  opacity: 0.5;
 }
 .ayahs-container {
   line-height: 2.4;
@@ -81,20 +92,39 @@ body.night-mode .surah-title {
   text-shadow: none;
 }
 .ayah-number {
-  display: inline-block;
-  background: var(--accent);
-  color: #1a1005;
-  min-width: 32px;
-  height: 32px;
-  line-height: 32px;
-  border-radius: 50%;
-  text-align: center;
-  font-size: 13px;
-  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 36px;
+  height: 36px;
   margin: 0 6px;
   vertical-align: middle;
-  padding: 0 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+.ayah-number::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  border-radius: 50%;
+  opacity: 0.15;
+}
+.ayah-number::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0.6;
+}
+.ayah-number-inner {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--accent-dark);
+  line-height: 1;
 }
 
 .loading,
@@ -258,17 +288,21 @@ body:not(.night-mode) .surah-title {
 
 body:not(.night-mode) .bismillah {
   color: var(--bismillah-color);
-  font-size: 30px;
-  border-bottom: 2px dashed var(--border-soft);
-  margin-bottom: 24px;
-  padding-bottom: 18px;
+  font-size: 34px;
+  text-shadow: 0 1px 3px rgba(154, 123, 79, 0.15);
 }
 
-body:not(.night-mode) .ayah-number {
+body:not(.night-mode) .ayah-number::before {
   background: var(--accent);
-  color: #1a1005;
-  box-shadow: 0 1px 3px rgba(196, 122, 18, 0.25);
-  font-size: 13px;
+  opacity: 0.15;
+}
+body:not(.night-mode) .ayah-number::after {
+  border-color: var(--accent);
+  opacity: 0.6;
+}
+body:not(.night-mode) .ayah-number-inner {
+  color: var(--accent-dark);
+  font-size: 12px;
 }
 
 body:not(.night-mode) .ayah:hover {
@@ -288,4 +322,76 @@ body:not(.night-mode) .word.current-word {
   color: #1a1a1a;
   border-radius: 3px;
   box-shadow: 0 0 6px rgba(253, 224, 71, 0.4);
+}
+
+/* ========== علامة الجزء ========== */
+.juz-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 18px 0;
+  gap: 12px;
+}
+.juz-marker::before,
+.juz-marker::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-soft), transparent);
+}
+.juz-label {
+  background: var(--accent);
+  color: #1a1005;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(196, 122, 18, 0.25);
+}
+body.night-mode .juz-label {
+  background: var(--accent);
+  color: #1a1a1a;
+}
+
+/* ========== مؤشر السجدة ========== */
+.sajda-indicator {
+  display: inline-block;
+  color: #d97706;
+  font-size: 20px;
+  margin: 0 2px;
+  vertical-align: middle;
+  cursor: help;
+  animation: sajdaGlow 2.5s ease-in-out infinite;
+}
+@keyframes sajdaGlow {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+body.night-mode .sajda-indicator {
+  color: #fbbf24;
+}
+
+/* ========== Night mode overrides for bismillah & ayah numbers ========== */
+body.night-mode .bismillah {
+  text-shadow: 0 1px 3px rgba(212, 175, 55, 0.2);
+}
+body.night-mode .ayah-number-inner {
+  color: var(--accent);
+}
+body.night-mode .ayah-number::after {
+  border-color: var(--accent);
+  opacity: 0.5;
+}
+body.night-mode .ayah-number::before {
+  background: var(--accent);
+  opacity: 0.1;
 }

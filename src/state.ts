@@ -111,6 +111,7 @@ export interface AppState {
   repeatCounter: number;
   fontSize: number;
   nightMode: boolean;
+  sepiaMode: boolean;
   autoSave: boolean;
   azanEnabled: boolean;
   azanFajrEnabled: boolean;
@@ -192,6 +193,7 @@ export function createDefaultState(): AppState {
     repeatCounter: 0,
     fontSize: 28,
     nightMode: false,
+    sepiaMode: false,
     autoSave: true,
     azanEnabled: false,
     azanFajrEnabled: false,
