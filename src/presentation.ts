@@ -186,7 +186,8 @@ function updateDisplay(): void {
     if (dom.presentationTranslation) dom.presentationTranslation.style.display = 'none';
     return;
   }
-  if (dom.presentationAyahText) dom.presentationAyahText.innerHTML = buildAyahHtml(ayah.text, state.currentSurah, ayah.numberInSurah);
+  if (dom.presentationAyahText)
+    dom.presentationAyahText.innerHTML = buildAyahHtml(ayah.text, state.currentSurah, ayah.numberInSurah);
   if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = String(ayah.numberInSurah);
   const surahName = surahData?.name || '';
   if (dom.presentationTitle) dom.presentationTitle.textContent = `${surahName} — ${__('ayah')} ${ayah.numberInSurah}`;
