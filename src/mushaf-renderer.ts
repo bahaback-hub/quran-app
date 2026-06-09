@@ -360,6 +360,13 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   // Load all fonts in parallel
   await Promise.all([...pageFonts].map((fn) => ensureFontLoaded(fn)));
 
+  // Ensure Reem Kufi is loaded for bismillah rendering
+  try {
+    await document.fonts.load('500 40px "Reem Kufi"');
+  } catch {
+    /* ignore */
+  }
+
   // Wait for all fonts to be ready
   try {
     await document.fonts.ready;
@@ -519,6 +526,8 @@ function renderPageContent(
   // Special colors for bismillah and surah header
   const bsmlColor = isNightMode() ? '#d4af37' : '#8b6914';
   const headerColor = isNightMode() ? '#c4a87c' : '#7a5c3a';
+  const bsmlFont = 'Reem Kufi';
+  const bsmlText = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
 
   ctx.textBaseline = 'middle';
 
@@ -537,6 +546,16 @@ function renderPageContent(
     const isBismillahLine = lineType === 'bismillah';
     const isHeaderLine = lineType === 'surah_header';
 
+    // Render bismillah with Reem Kufi font, centered
+    if (isBismillahLine) {
+      const bsmlFontSize = Math.round(pageFontSize * 1.25);
+      ctx.font = `500 ${bsmlFontSize}px "${bsmlFont}", "Scheherazade New", serif`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = bsmlColor;
+      ctx.fillText(bsmlText, CANVAS_W / 2, y);
+      continue;
+    }
+
     let x = CANVAS_W - PAD_H;
 
     for (let j = 0; j < words.length; j++) {
@@ -545,10 +564,8 @@ function renderPageContent(
       ctx.font = `${pageFontSize}px "${fn}"`;
       ctx.textAlign = 'right';
 
-      // Use special color for bismillah and surah headers
-      if (isBismillahLine) {
-        ctx.fillStyle = bsmlColor;
-      } else if (isHeaderLine) {
+      // Use special color for surah headers
+      if (isHeaderLine) {
         ctx.fillStyle = headerColor;
       } else {
         // Use tajweed color if available, otherwise default text color
