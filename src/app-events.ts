@@ -279,7 +279,10 @@ export function bindGlobalClickHandler(): void {
     if (!dom.shareMenu?.contains(e.target as Node) && e.target !== dom.shareBtn)
       dom.shareMenu?.classList.remove('show');
     const settingsTarget = e.target as HTMLElement;
-    const isSettingsTrigger = settingsTarget === dom.settingsToggleBtn || settingsTarget.closest?.('[data-tab="more"]');
+    const isSettingsTrigger =
+      settingsTarget === dom.settingsToggleBtn ||
+      settingsTarget.closest?.('#settingsToggleBtn') !== null ||
+      settingsTarget.closest?.('[data-tab="more"]');
     if (
       dom.settingsPanel?.classList.contains('open') &&
       !dom.settingsPanel.contains(e.target as Node) &&
