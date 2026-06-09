@@ -346,11 +346,19 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   if (!data) return { canvas: null, layout: null };
 
   const pageFont = data.font || getPageFont(pageNum, null);
-  await ensureFontLoaded(pageFont);
 
-  const hasBasml = data.lines?.some((l) => l.words?.some((w) => w.font === BSML_FONT));
-  const hasSurahHeader = data.lines?.[0]?.words?.[0]?.type === 'surah_header';
-  if (hasBasml || hasSurahHeader) await ensureFontLoaded(BSML_FONT);
+  // Collect ALL unique font names used on this page (bismillah, header, etc.)
+  const pageFonts = new Set<string>();
+  pageFonts.add(pageFont);
+  pageFonts.add(BSML_FONT);
+  for (const line of data.lines ?? []) {
+    for (const w of line.words ?? []) {
+      if (w.font) pageFonts.add(w.font);
+    }
+  }
+
+  // Load all fonts in parallel
+  await Promise.all([...pageFonts].map((fn) => ensureFontLoaded(fn)));
 
   // Wait for all fonts to be ready
   try {
@@ -359,7 +367,7 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
     /* ignore */
   }
 
-  // Final Canvas verification — if the font still doesn't work,
+  // Final Canvas verification — if the page font still doesn't work,
   // try one more time with a longer wait
   if (!loadedFonts.has(pageFont) || !verifyFontOnCanvas(pageFont)) {
     console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
