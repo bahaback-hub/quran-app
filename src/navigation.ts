@@ -42,7 +42,10 @@ export function initNavigation(): void {
   });
 
   dom.playerMoreBtn?.addEventListener('click', () => {
-    if (dom.playerMoreRow) dom.playerMoreRow.style.display = dom.playerMoreRow.style.display === 'none' ? '' : 'none';
+    if (dom.playerMoreRow) {
+      const isHidden = dom.playerMoreRow.classList.toggle('hidden');
+      dom.playerMoreBtn?.setAttribute('aria-expanded', String(!isHidden));
+    }
   });
 
   dom.speedSelect?.addEventListener('change', () => {
