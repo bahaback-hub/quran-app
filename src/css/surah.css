@@ -41,10 +41,10 @@ body.night-mode .surah-title {
 }
 .bismillah {
   text-align: center;
-  font-size: 30px;
+  font-size: 34px;
   color: var(--bismillah-color);
-  font-weight: 500;
-  font-family: 'Reem Kufi', 'Scheherazade New', 'Traditional Arabic', serif;
+  font-weight: bold;
+  font-family: 'Amiri', 'Traditional Arabic', serif;
   margin: 0;
 }
 .bismillah-wrapper {
@@ -58,10 +58,9 @@ body.night-mode .surah-title {
   direction: rtl;
 }
 .bismillah-ornament {
-  font-size: 24px;
+  font-size: 28px;
   color: var(--bismillah-color);
-  opacity: 0.4;
-  font-family: 'Reem Kufi', 'Scheherazade New', serif;
+  opacity: 0.5;
 }
 .ayahs-container {
   line-height: 2.4;
@@ -292,8 +291,8 @@ body:not(.night-mode) .surah-title {
 
 body:not(.night-mode) .bismillah {
   color: var(--bismillah-color);
-  font-size: 30px;
-  text-shadow: 0 1px 4px rgba(154, 123, 79, 0.2);
+  font-size: 34px;
+  text-shadow: 0 1px 3px rgba(154, 123, 79, 0.15);
 }
 
 body:not(.night-mode) .ayah-number::before {
