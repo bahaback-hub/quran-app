@@ -548,7 +548,7 @@ function renderPageContent(
 
     // Render bismillah with Reem Kufi font, centered
     if (isBismillahLine) {
-      const bsmlFontSize = Math.round(pageFontSize * 1.25);
+      const bsmlFontSize = Math.round(pageFontSize * 0.95);
       ctx.font = `500 ${bsmlFontSize}px "${bsmlFont}", "Scheherazade New", serif`;
       ctx.textAlign = 'center';
       ctx.fillStyle = bsmlColor;
