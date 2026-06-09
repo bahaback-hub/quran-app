@@ -44,6 +44,7 @@ export function prepareAudioForNewSurah(): void {
   _cachedWordEls = null;
   _cachedWordAyahIndex = -1;
   clearWordWeightsCache();
+  document.body.classList.remove('audio-playing');
   if (dom.audioPlayer) {
     dom.audioPlayer.pause();
     dom.audioPlayer.removeAttribute('src');
@@ -297,6 +298,7 @@ export function bindAudioEvents(): void {
 function onAudioPlay(): void {
   _autoAdvancing = false;
   state.isPlaying = true;
+  document.body.classList.add('audio-playing');
   updatePlayPauseBtn();
   const vizCanvas = document.getElementById('audioVisualizer');
   if (vizCanvas) startVisualizer(vizCanvas as HTMLCanvasElement);
@@ -313,6 +315,7 @@ function onAudioPlay(): void {
 
 function onAudioPause(): void {
   state.isPlaying = false;
+  document.body.classList.remove('audio-playing');
   updatePlayPauseBtn();
   stopVisualizer();
 }
@@ -320,6 +323,7 @@ function onAudioPause(): void {
 function onAudioError(): void {
   _mp3quranUrl = null;
   state.isPlaying = false;
+  document.body.classList.remove('audio-playing');
   stopWordTracking();
   stopVisualizer();
   updatePlayPauseBtn();
@@ -382,6 +386,7 @@ export function nextAyah(autoFromRepeat: boolean): void {
     if (state.mushafMode) {
       dom.audioPlayer?.pause();
       state.isPlaying = false;
+      document.body.classList.remove('audio-playing');
       updatePlayPauseBtn();
       return;
     }
@@ -496,6 +501,7 @@ export function setSleepTimer(minutes: number): void {
       if (dom.audioPlayer && !dom.audioPlayer.paused) {
         dom.audioPlayer.pause();
         state.isPlaying = false;
+        document.body.classList.remove('audio-playing');
         updatePlayPauseBtn();
       }
       showToast(__('sleep_timer_stopped', String(minutes)), 'success');
