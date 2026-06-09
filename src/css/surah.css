@@ -53,6 +53,7 @@ body.night-mode .surah-title {
   margin-bottom: 24px;
   padding-bottom: 18px;
   border-bottom: 2px dashed var(--border-soft);
+  direction: rtl;
 }
 .bismillah-ornament {
   font-size: 28px;

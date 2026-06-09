@@ -508,6 +508,10 @@ function renderPageContent(
     }
   }
 
+  // Special colors for bismillah and surah header
+  const bsmlColor = isNightMode() ? '#d4af37' : '#8b6914';
+  const headerColor = isNightMode() ? '#c4a87c' : '#7a5c3a';
+
   ctx.textBaseline = 'middle';
 
   for (let i = 0; i < lineCount; i++) {
@@ -519,6 +523,25 @@ function renderPageContent(
     const lw = lineWidths[i];
     if (!lw) continue;
     const { widths, gap } = lw;
+
+    // Check if this line is a bismillah or surah_header line
+    const lineType = words[0]?.type;
+    const isBismillahLine = lineType === 'bismillah';
+    const isHeaderLine = lineType === 'surah_header';
+
+    if (isBismillahLine || isHeaderLine) {
+      // Render bismillah and surah headers centered with special color
+      for (let j = 0; j < words.length; j++) {
+        const w = words[j];
+        const fn = w.font || pageFont;
+        const specialFontSize = isBismillahLine ? pageFontSize * 1.1 : pageFontSize;
+        ctx.font = `${specialFontSize}px "${fn}"`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = isBismillahLine ? bsmlColor : headerColor;
+        ctx.fillText(w.char, CANVAS_W / 2, y);
+      }
+      continue;
+    }
 
     let x = CANVAS_W - PAD_H;
 

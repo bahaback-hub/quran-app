@@ -556,7 +556,7 @@ export function renderSurah(textData: SurahTextData): void {
   html += `</h2>`;
   if (textData.number !== 1 && textData.number !== 9) {
     html +=
-      '<div class="bismillah-wrapper"><span class="bismillah-ornament">﴾</span><p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><span class="bismillah-ornament">﴿</span></div>';
+      '<div class="bismillah-wrapper"><span class="bismillah-ornament">﴿</span><p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><span class="bismillah-ornament">﴾</span></div>';
   }
   html += `<div class="ayahs-container" style="font-size:${state.fontSize}px"></div>`;
   dom.surahContent.innerHTML = html;
