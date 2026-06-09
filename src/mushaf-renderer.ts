@@ -406,9 +406,7 @@ export function getLineY(lineIndex: number, lineCount: number, imgHeight: number
 }
 
 /** Pre‑compute per‑word tajweed coloring data for the entire page. */
-function computePageTajweed(
-  data: PageLayoutData
-): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
+function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
   if (!state.tajweedEnabled) return null;
 
   // Collect all words with verse_key and text, in page order
@@ -455,7 +453,10 @@ function computePageTajweed(
       let wordColor: string | null = null;
       for (let ci = 0; ci < wordText.length; ci++) {
         const c = colorMap.get(outputPos + ci);
-        if (c) { wordColor = c; break; }
+        if (c) {
+          wordColor = c;
+          break;
+        }
       }
       result.push({ wordIdx: words[wi].wordIdx, lineIdx: words[wi].lineIdx, color: wordColor });
       outputPos += wordText.length + 1;
