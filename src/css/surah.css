@@ -85,6 +85,13 @@ body.night-mode .surah-title {
   box-shadow: 0 0 14px var(--highlight-shadow);
   font-weight: bold;
 }
+/* Hide highlight when audio is not playing — reader mode */
+body:not(.audio-playing) .ayah.current {
+  background: transparent;
+  color: var(--text-primary);
+  box-shadow: none;
+  font-weight: normal;
+}
 .ayah.hifdh-mode {
   color: transparent !important;
   text-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
@@ -165,6 +172,13 @@ body.night-mode .word.current-word {
   background: #facc15;
   color: #0a0e1a;
   box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+}
+
+/* Hide word tracking highlight when not playing */
+body:not(.audio-playing) .word.current-word {
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
 }
 
 .ayah.current .word.current-word:last-child {
@@ -272,6 +286,18 @@ body.night-mode .word.current-word {
 .ayah.current .translation-text.rtl-lang {
   border-right: none;
   border-left-color: var(--highlight-shadow);
+}
+
+/* Hide translation highlight when not playing */
+body:not(.audio-playing) .ayah.current .translation-text {
+  border-right-color: var(--accent);
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+body:not(.audio-playing) .ayah.current .translation-text.rtl-lang {
+  border-left-color: var(--accent);
+  border-right: none;
 }
 
 /* ========== Tajweed coloring (Mushaf Mujawwad) ========== */

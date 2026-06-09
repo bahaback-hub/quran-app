@@ -272,6 +272,7 @@ body.night-mode .mushaf-page-img {
 .mushaf-highlight-overlay {
   pointer-events: none;
   z-index: 5;
+  transition: opacity 0.3s ease;
 }
 .mushaf-ayah-highlight {
   background: rgba(217, 119, 6, 0.25);
@@ -280,6 +281,10 @@ body.night-mode .mushaf-page-img {
 }
 body.night-mode .mushaf-ayah-highlight {
   background: rgba(100, 180, 255, 0.25);
+}
+/* Hide mushaf highlight when audio is not playing */
+body:not(.audio-playing) .mushaf-highlight-overlay {
+  opacity: 0;
 }
 
 /* ===== أزرار التنقل على جانبي الصفحة ===== */
