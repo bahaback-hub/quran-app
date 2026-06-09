@@ -591,7 +591,7 @@ body.night-mode .adhkar-header h2 {
 }
 .adhkar-item.completed {
   opacity: 0.6;
-  border-right-color: #22c55e;
+  border-right-color: #d97706;
 }
 .adhkar-item-text {
   font-size: 18px;
@@ -648,8 +648,8 @@ body.night-mode .adhkar-header h2 {
   transform: scale(0.95);
 }
 .adhkar-counter-btn.completed {
-  background: #22c55e;
-  border-color: #22c55e;
+  background: #d97706;
+  border-color: #d97706;
   color: #fff;
 }
 .adhkar-counter-text {
@@ -668,7 +668,7 @@ body.night-mode .adhkar-header h2 {
 }
 .adhkar-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), #22c55e);
+  background: linear-gradient(90deg, var(--accent), #d97706);
   border-radius: 2px;
   transition: width 0.3s ease;
 }

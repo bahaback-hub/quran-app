@@ -283,7 +283,7 @@ body.night-mode .ayah.selected {
 body:not(.night-mode) .player {
   background: var(--player-bg);
   border-top: 3px solid var(--accent);
-  box-shadow: var(--player-light-shadow, 0 -4px 20px rgba(10, 46, 42, 0.08));
+  box-shadow: var(--player-light-shadow, 0 -4px 20px rgba(60, 40, 20, 0.08));
 }
 
 body:not(.night-mode) .floating-info {
@@ -314,7 +314,7 @@ body:not(.night-mode) .current-ayah {
 body:not(.night-mode) .expanded-header {
   font-size: 15px;
   color: var(--text-primary);
-  border-bottom: 1px solid var(--divider, rgba(10, 46, 42, 0.08));
+  border-bottom: 1px solid var(--divider, rgba(60, 40, 20, 0.08));
   padding-bottom: 8px;
   margin-bottom: 10px;
 }
