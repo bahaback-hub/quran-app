@@ -537,20 +537,6 @@ function renderPageContent(
     const isBismillahLine = lineType === 'bismillah';
     const isHeaderLine = lineType === 'surah_header';
 
-    if (isBismillahLine || isHeaderLine) {
-      // Render bismillah and surah headers centered with special color
-      for (let j = 0; j < words.length; j++) {
-        const w = words[j];
-        const fn = w.font || pageFont;
-        const specialFontSize = isBismillahLine ? pageFontSize * 1.1 : pageFontSize;
-        ctx.font = `${specialFontSize}px "${fn}"`;
-        ctx.textAlign = 'center';
-        ctx.fillStyle = isBismillahLine ? bsmlColor : headerColor;
-        ctx.fillText(w.char, CANVAS_W / 2, y);
-      }
-      continue;
-    }
-
     let x = CANVAS_W - PAD_H;
 
     for (let j = 0; j < words.length; j++) {
@@ -559,9 +545,16 @@ function renderPageContent(
       ctx.font = `${pageFontSize}px "${fn}"`;
       ctx.textAlign = 'right';
 
-      // Use tajweed color if available, otherwise default text color
-      const wordColor = tajweedLookup ? tajweedLookup.get(`${i}:${j}`) : null;
-      ctx.fillStyle = wordColor || colors.txt;
+      // Use special color for bismillah and surah headers
+      if (isBismillahLine) {
+        ctx.fillStyle = bsmlColor;
+      } else if (isHeaderLine) {
+        ctx.fillStyle = headerColor;
+      } else {
+        // Use tajweed color if available, otherwise default text color
+        const wordColor = tajweedLookup ? tajweedLookup.get(`${i}:${j}`) : null;
+        ctx.fillStyle = wordColor || colors.txt;
+      }
 
       ctx.fillText(w.char, x, y);
       x -= widths[j] + gap;
