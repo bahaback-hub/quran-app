@@ -23,12 +23,16 @@ export function applyFontSize(size: number): void {
 /** Enable or disable night mode and persist the preference. */
 export function applyNightMode(enabled: boolean): void {
   state.nightMode = enabled;
-  if (enabled) document.body.classList.add('night-mode');
-  else document.body.classList.remove('night-mode');
+  if (enabled) {
+    document.body.classList.add('night-mode');
+    document.body.classList.remove('sepia-mode');
+    state.sepiaMode = false;
+  } else {
+    document.body.classList.remove('night-mode');
+  }
   storage.set('night_mode', enabled);
-  const checkbox = dom.themeToggle?.querySelector('.theme-switch-check') as HTMLInputElement | null;
-  if (checkbox) checkbox.checked = enabled;
-  if (dom.themeToggle) dom.themeToggle.setAttribute('aria-checked', String(enabled));
+  if (enabled) storage.set('sepia_mode', false);
+  updateThemeButtons();
   if (state.mushafMode && state.currentPage) {
     import('./mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
@@ -39,6 +43,54 @@ export function applyNightMode(enabled: boolean): void {
 
 export function toggleNightMode(): void {
   applyNightMode(!state.nightMode);
+}
+
+/* ===================== SEPIA MODE ===================== */
+
+/** Enable or disable sepia mode and persist the preference. */
+export function applySepiaMode(enabled: boolean): void {
+  state.sepiaMode = enabled;
+  if (enabled) {
+    document.body.classList.add('sepia-mode');
+    document.body.classList.remove('night-mode');
+    state.nightMode = false;
+  } else {
+    document.body.classList.remove('sepia-mode');
+  }
+  storage.set('sepia_mode', enabled);
+  if (enabled) storage.set('night_mode', false);
+  updateThemeButtons();
+  if (state.mushafMode && state.currentPage) {
+    import('./mushaf.js').then(
+      (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
+        m.loadPage(state.currentPage, true, true)
+    );
+  }
+}
+
+/** Apply a specific theme by name: 'light', 'sepia', or 'night' */
+export function applyTheme(theme: 'light' | 'sepia' | 'night'): void {
+  if (theme === 'night') {
+    applyNightMode(true);
+  } else if (theme === 'sepia') {
+    applySepiaMode(true);
+  } else {
+    applyNightMode(false);
+    applySepiaMode(false);
+  }
+}
+
+/** Update the active state of theme buttons in the header */
+function updateThemeButtons(): void {
+  const buttons = document.querySelectorAll('.theme-btn');
+  buttons.forEach((btn) => {
+    const btnTheme = (btn as HTMLElement).dataset.theme as string;
+    let isActive = false;
+    if (btnTheme === 'light' && !state.nightMode && !state.sepiaMode) isActive = true;
+    if (btnTheme === 'sepia' && state.sepiaMode) isActive = true;
+    if (btnTheme === 'night' && state.nightMode) isActive = true;
+    btn.classList.toggle('active', isActive);
+  });
 }
 
 /* ===================== SYSTEM THEME DETECTION ===================== */
@@ -409,6 +461,10 @@ export function restoreSettings(): void {
   const nm = storage.get<boolean>('night_mode');
   if (nm === true) {
     applyNightMode(true);
+  }
+  const sm = storage.get<boolean>('sepia_mode');
+  if (sm === true) {
+    applySepiaMode(true);
   }
   const city = storage.get<string>('city');
   if (city) state.city = city;

@@ -154,72 +154,46 @@
   align-items: center;
 }
 
-/* ========== مفتاح الوضع الليلي (theme-switch) ========== */
-.theme-switch {
-  position: relative;
-  width: 52px;
-  height: 28px;
-  cursor: pointer;
+/* ========== مبدّل المظهر (نهاري / سيبيا / ليلي) ========== */
+.theme-switcher {
   display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
-.theme-switch-check {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  position: absolute;
-}
-.theme-switch-label {
-  position: relative;
-  display: block;
-  width: 52px;
-  height: 28px;
-  background: #c4b49a;
-  border-radius: 14px;
-  transition: background 0.35s ease;
-  border: 2px solid rgba(255, 255, 255, 0.25);
+.theme-btn {
+  width: 34px;
+  height: 30px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
   cursor: pointer;
-}
-.theme-switch-label span {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border-radius: 50%;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-}
-.theme-switch-label span::before {
-  content: '☀️';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1;
-  transition: opacity 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  opacity: 0.6;
 }
-/* عند تفعيل الوضع الليلي */
-.theme-switch-check:checked + .theme-switch-label {
-  background: #3b4d6b;
+.theme-btn:hover {
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.15);
 }
-.theme-switch-check:checked + .theme-switch-label span {
-  right: calc(100% - 22px);
-  background: #e8e0d0;
+.theme-btn.active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
-.theme-switch-check:checked + .theme-switch-label span::before {
-  content: '🌙';
+/* سيبيا نشط */
+.theme-btn[data-theme='sepia'].active {
+  background: rgba(180, 140, 80, 0.4);
 }
-/* حالات التركيز والتفاعل */
-.theme-switch:focus-visible .theme-switch-label {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.theme-switch-label:hover {
-  border-color: var(--accent);
+/* ليلي نشط */
+.theme-btn[data-theme='night'].active {
+  background: rgba(60, 80, 120, 0.5);
 }
 .header-action-btn,
 .header-menu-btn {
@@ -501,16 +475,6 @@ body:not(.night-mode) .header-menu-btn {
 body:not(.night-mode) .header-action-btn:hover,
 body:not(.night-mode) .header-menu-btn:hover {
   background: var(--accent);
-  border-color: var(--accent);
-}
-
-/* ========== مفتاح الوضع الليلي — الوضع النهاري فقط ========== */
-body:not(.night-mode) .theme-switch-label {
-  background: #c4b49a;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-}
-body:not(.night-mode) .theme-switch-label:hover {
-  background: #b8a58a;
   border-color: var(--accent);
 }
 

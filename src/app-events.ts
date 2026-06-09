@@ -12,6 +12,7 @@ import { __, AVAILABLE_LANGUAGES, getLang, setLang } from './i18n.js';
 import {
   applyFontSize,
   toggleNightMode,
+  applyTheme,
   applyFontType,
   applyLineSpacing,
   openSettings,
@@ -86,8 +87,12 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.favoriteBtn?.addEventListener('click', toggleFavorite);
   dom.shareBtn?.addEventListener('click', () => toggleShareMenu());
   dom.themeToggle?.addEventListener('click', (e: MouseEvent) => {
-    e.preventDefault();
-    toggleNightMode();
+    const target = e.target as HTMLElement;
+    const btn = target.closest('.theme-btn') as HTMLElement | null;
+    if (btn?.dataset.theme) {
+      e.preventDefault();
+      applyTheme(btn.dataset.theme as 'light' | 'sepia' | 'night');
+    }
   });
   dom.themeToggle?.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
