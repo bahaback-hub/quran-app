@@ -380,7 +380,7 @@ body.night-mode .control-group label {
 
 /* ========== تحسينات الوضع النهاري ========== */
 body:not(.night-mode) .header {
-  background: linear-gradient(135deg, #0d4f48 0%, #1a7a6a 100%);
+  background: linear-gradient(135deg, #7a5c3a 0%, #9a7b4f 100%);
   border-bottom: 3px solid var(--accent);
 }
 
@@ -394,12 +394,12 @@ body:not(.night-mode) .control-card {
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 10px 14px;
-  box-shadow: var(--control-card-shadow, 0 1px 4px rgba(10, 46, 42, 0.06));
+  box-shadow: var(--control-card-shadow, 0 1px 4px rgba(60, 40, 20, 0.06));
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 body:not(.night-mode) .control-card:hover {
-  box-shadow: 0 2px 8px rgba(10, 46, 42, 0.1);
+  box-shadow: 0 2px 8px rgba(60, 40, 20, 0.1);
   border-color: var(--accent);
 }
 
