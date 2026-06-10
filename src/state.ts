@@ -162,6 +162,7 @@ export interface AppState {
   fontType: string;
   lineSpacing: string;
   tajweedEnabled: boolean;
+  presBgMode: 'plain' | 'nature' | 'auto';
 }
 
 /** Pending change entry for batch mode. */
@@ -244,6 +245,7 @@ export function createDefaultState(): AppState {
     fontType: 'amiri',
     lineSpacing: '1.8',
     tajweedEnabled: true,
+    presBgMode: 'plain',
   };
 }
 
