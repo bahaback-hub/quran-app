@@ -384,6 +384,7 @@ export function exportSettings(): void {
     'pres_bg_scene',
     'pres_bg_nature',
   ];
+  const data: Record<string, unknown> = {};
   keys.forEach((k: string) => {
     data[k] = storage.get(k);
   });
