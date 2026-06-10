@@ -16,6 +16,7 @@ import {
   applyFontType,
   applyLineSpacing,
   applyPresBgMode,
+  applyPresBgScene,
   openSettings,
   closeSettings,
   saveLocationSettings,
@@ -165,7 +166,10 @@ export function bindDisplaySettingsEvents(): void {
     applyLineSpacing((e.target as HTMLSelectElement).value)
   );
   dom.presBgSelect?.addEventListener('change', (e: Event) =>
-    applyPresBgMode((e.target as HTMLSelectElement).value as 'plain' | 'nature' | 'auto' | 'animated')
+    applyPresBgMode((e.target as HTMLSelectElement).value as 'plain' | 'nature' | 'auto' | 'animated' | 'scene')
+  );
+  dom.presBgSceneSelect?.addEventListener('change', (e: Event) =>
+    applyPresBgScene((e.target as HTMLSelectElement).value)
   );
   dom.tajweedToggle?.addEventListener('click', () => {
     state.tajweedEnabled = dom.tajweedToggle!.classList.toggle('on');

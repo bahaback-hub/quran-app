@@ -152,6 +152,8 @@ interface DomMap {
   lineSpacingSelect: HTMLSelectElement | null;
   tajweedToggle: HTMLInputElement | null;
   presBgSelect: HTMLSelectElement | null;
+  presBgSceneSelect: HTMLSelectElement | null;
+  presBgSceneRow: HTMLElement | null;
   installBtn: HTMLElement | null;
   sleepTimerBtn: HTMLElement | null;
   networkBanner: HTMLElement | null;
@@ -308,6 +310,8 @@ const DOM_IDS: (keyof DomMap)[] = [
   'lineSpacingSelect',
   'tajweedToggle',
   'presBgSelect',
+  'presBgSceneSelect',
+  'presBgSceneRow',
   'installBtn',
   'sleepTimerBtn',
   'networkBanner',

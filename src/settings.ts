@@ -162,10 +162,29 @@ export function applyLineSpacing(spacing: string): void {
 /* ===================== PRESENTATION BACKGROUND ===================== */
 
 /** Apply a presentation background mode and persist it. */
-export function applyPresBgMode(mode: 'plain' | 'nature' | 'auto' | 'animated'): void {
+export function applyPresBgMode(mode: 'plain' | 'nature' | 'auto' | 'animated' | 'scene'): void {
   state.presBgMode = mode;
   storage.set('pres_bg_mode', mode);
   if (dom.presBgSelect) dom.presBgSelect.value = mode;
+  // Show/hide the scene sub-selector
+  if (dom.presBgSceneRow) {
+    dom.presBgSceneRow.classList.toggle('hidden', mode !== 'scene');
+  }
+  // Update presentation display if active
+  if (state.presentationMode) {
+    import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+  }
+}
+
+/** Apply a specific animated scene and persist it. */
+export function applyPresBgScene(scene: string): void {
+  state.presBgScene = scene;
+  storage.set('pres_bg_scene', scene);
+  if (dom.presBgSceneSelect) dom.presBgSceneSelect.value = scene;
+  // Update presentation display if currently in scene mode
+  if (state.presentationMode && state.presBgMode === 'scene') {
+    import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+  }
 }
 
 /* ===================== SETTINGS TABS ===================== */
@@ -297,6 +316,7 @@ export function resetSettings(): void {
       'search_history',
       'adhkar_settings',
       'pres_bg_mode',
+      'pres_bg_scene',
     ];
     keys.forEach((k: string) => storage.remove(k));
     storage.remove('night_mode_set_by_user');
@@ -346,6 +366,7 @@ export function exportSettings(): void {
     'adhkar_settings',
     'search_history',
     'pres_bg_mode',
+    'pres_bg_scene',
   ];
   const data: Record<string, unknown> = {};
   keys.forEach((k: string) => {
@@ -392,6 +413,7 @@ const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'night_mode_set_by_user',
   'surah_list',
   'pres_bg_mode',
+  'pres_bg_scene',
 ]);
 
 /** Type validators for setting keys — ensures imported values match expected types. */
@@ -424,7 +446,8 @@ const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
   tajweed_enabled: (v) => typeof v === 'boolean',
   night_mode_set_by_user: (v) => typeof v === 'boolean',
   surah_list: (v) => Array.isArray(v),
-  pres_bg_mode: (v) => typeof v === 'string' && ['plain', 'nature', 'auto', 'animated'].includes(v),
+  pres_bg_mode: (v) => typeof v === 'string' && ['plain', 'nature', 'auto', 'animated', 'scene'].includes(v),
+  pres_bg_scene: (v) => typeof v === 'string' && ['stars', 'waves', 'aurora', 'particles', 'rain'].includes(v),
 };
 
 /** Import settings from a JSON file. */
@@ -533,8 +556,12 @@ export function restoreSettings(): void {
     if (dom.tajweedToggle) dom.tajweedToggle.classList.add('on');
   }
   const presBg = storage.get<string>('pres_bg_mode');
-  if (presBg === 'nature' || presBg === 'auto' || presBg === 'animated') {
+  if (presBg === 'nature' || presBg === 'auto' || presBg === 'animated' || presBg === 'scene') {
     applyPresBgMode(presBg);
+  }
+  const presBgScene = storage.get<string>('pres_bg_scene');
+  if (presBgScene && ['stars', 'waves', 'aurora', 'particles', 'rain'].includes(presBgScene)) {
+    applyPresBgScene(presBgScene);
   }
   if (!state.barCollapsed && dom.prayerBar) {
     dom.prayerBar.classList.remove('collapsed');
