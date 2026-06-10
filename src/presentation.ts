@@ -314,11 +314,34 @@ function injectStyles(): void {
       opacity: 1;
       pointer-events: auto;
     }
-    .pres-control-btn.pres-tajweed-off {
-      opacity: 0.5;
-    }
     .presentation-overlay.pres-controls-visible .pres-control-btn.pres-tajweed-off {
       opacity: 0.5;
+    }
+
+    /* ===== FULLSCREEN: HIDE ALL UI, SHOW ONLY AYAH ===== */
+    .presentation-overlay:fullscreen .presentation-header,
+    .presentation-overlay:fullscreen .presentation-footer,
+    .presentation-overlay:fullscreen .presentation-translation {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    .presentation-overlay:fullscreen.pres-controls-visible .presentation-header,
+    .presentation-overlay:fullscreen.pres-controls-visible .presentation-footer {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .presentation-overlay:fullscreen .presentation-body {
+      justify-content: center;
+    }
+    .presentation-overlay:fullscreen .presentation-ayah-text {
+      font-size: 80px;
+    }
+    @media (max-width: 600px) {
+      .presentation-overlay:fullscreen .presentation-ayah-text { font-size: 40px; }
+    }
+    @media (min-width: 1200px) {
+      .presentation-overlay:fullscreen .presentation-ayah-text { font-size: 90px; }
     }
 
     .presentation-body {
@@ -635,7 +658,13 @@ function handleKeyDown(e: KeyboardEvent): void {
   showControls();
   switch (e.key) {
     case 'Escape':
-      closePresentation();
+      // If in fullscreen, only exit fullscreen — don't close presentation
+      if (document.fullscreenElement) {
+        e.preventDefault();
+        document.exitFullscreen().catch(() => {});
+      } else {
+        closePresentation();
+      }
       break;
     case 'ArrowRight':
     case 'ArrowDown':
@@ -679,7 +708,8 @@ export function initPresentation(): void {
   if (dom.presentationPrevBtn) dom.presentationPrevBtn.addEventListener('click', () => navigateAyah(-1));
   if (dom.presentationNextBtn) dom.presentationNextBtn.addEventListener('click', () => navigateAyah(1));
   dom.presentationOverlay?.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === dom.presentationOverlay) closePresentation();
+    // Don't close on background click when in fullscreen
+    if (e.target === dom.presentationOverlay && !document.fullscreenElement) closePresentation();
   });
 
   // Play/Pause button
