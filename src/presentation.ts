@@ -27,6 +27,31 @@ interface TranslationDataLike {
   ayahs: TranslationAyahData[];
 }
 
+/** Available nature background images with their mood/time. */
+const NATURE_BACKGROUNDS = [
+  { src: 'backgrounds/dawn.jpg', mood: 'dawn', label: 'فجر' },
+  { src: 'backgrounds/clouds.jpg', mood: 'morning', label: 'صباح' },
+  { src: 'backgrounds/mountains.jpg', mood: 'afternoon', label: 'ظهر' },
+  { src: 'backgrounds/sunset.jpg', mood: 'sunset', label: 'غروب' },
+  { src: 'backgrounds/nightsky.jpg', mood: 'night', label: 'ليل' },
+];
+
+/** Get a background image based on the current time of day. */
+function getAutoBackground(): (typeof NATURE_BACKGROUNDS)[number] {
+  const hour = new Date().getHours();
+  if (hour >= 4 && hour < 7) return NATURE_BACKGROUNDS[0]; // dawn
+  if (hour >= 7 && hour < 12) return NATURE_BACKGROUNDS[1]; // morning clouds
+  if (hour >= 12 && hour < 16) return NATURE_BACKGROUNDS[2]; // afternoon mountains
+  if (hour >= 16 && hour < 19) return NATURE_BACKGROUNDS[3]; // sunset
+  return NATURE_BACKGROUNDS[4]; // night sky
+}
+
+/** Get a random nature background (cycles per ayah). */
+function getRandomNatureBg(): (typeof NATURE_BACKGROUNDS)[number] {
+  const idx = Math.floor(Math.random() * NATURE_BACKGROUNDS.length);
+  return NATURE_BACKGROUNDS[idx];
+}
+
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function injectStyles(): void {
@@ -40,12 +65,74 @@ function injectStyles(): void {
       display: flex; align-items: center; justify-content: center;
       direction: rtl; font-family: 'Scheherazade New', 'Amiri', serif;
       animation: presFadeIn 0.3s ease;
+      transition: background-image 1.2s ease;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .presentation-overlay.pres-nature,
+    .presentation-overlay.pres-auto {
+      background-size: cover;
+      background-position: center;
+    }
+    .presentation-overlay.pres-nature::before,
+    .presentation-overlay.pres-auto::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 0;
+    }
+    .presentation-overlay.pres-nature .presentation-inner,
+    .presentation-overlay.pres-auto .presentation-inner {
+      position: relative; z-index: 1;
     }
     .presentation-overlay.pres-light {
       background: #f5f0e8;
     }
     .presentation-overlay.pres-light .presentation-ayah-text {
       color: #1a1a1a;
+    }
+    .presentation-overlay.pres-nature .presentation-ayah-text,
+    .presentation-overlay.pres-auto .presentation-ayah-text {
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .presentation-overlay.pres-nature .presentation-translation,
+    .presentation-overlay.pres-auto .presentation-translation {
+      color: rgba(255,255,255,0.85);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    }
+    .presentation-overlay.pres-nature .presentation-title,
+    .presentation-overlay.pres-auto .presentation-title {
+      color: rgba(255,255,255,0.8);
+    }
+    .presentation-overlay.pres-nature .presentation-ayah-num,
+    .presentation-overlay.pres-auto .presentation-ayah-num {
+      color: #ffe066;
+    }
+    .presentation-overlay.pres-nature .presentation-header,
+    .presentation-overlay.pres-auto .presentation-header {
+      border-color: rgba(255,255,255,0.15);
+    }
+    .presentation-overlay.pres-nature .presentation-footer,
+    .presentation-overlay.pres-auto .presentation-footer {
+      border-color: rgba(255,255,255,0.15);
+    }
+    .presentation-overlay.pres-nature .presentation-counter,
+    .presentation-overlay.pres-auto .presentation-counter {
+      color: rgba(255,255,255,0.7);
+    }
+    .presentation-overlay.pres-nature .presentation-header-btn,
+    .presentation-overlay.pres-auto .presentation-header-btn,
+    .presentation-overlay.pres-nature .presentation-close-btn,
+    .presentation-overlay.pres-auto .presentation-close-btn {
+      color: #fff; background: rgba(255,255,255,0.15);
+    }
+    .presentation-overlay.pres-nature .presentation-header-btn:hover,
+    .presentation-overlay.pres-auto .presentation-header-btn:hover,
+    .presentation-overlay.pres-nature .presentation-close-btn:hover,
+    .presentation-overlay.pres-auto .presentation-close-btn:hover {
+      background: rgba(255,255,255,0.3);
     }
     .presentation-inner {
       display: flex; flex-direction: column;
@@ -176,6 +263,29 @@ function buildAyahHtml(text: string, surahNum: number, ayahNum: number): string 
 
 function updateDisplay(): void {
   if (!state.presentationMode) return;
+
+  // Apply background based on presBgMode setting
+  const overlay = dom.presentationOverlay;
+  if (overlay) {
+    overlay.classList.remove('pres-nature', 'pres-auto');
+    if (state.presBgMode === 'nature') {
+      const bg = getRandomNatureBg();
+      overlay.style.backgroundImage = `url('${bg.src}')`;
+      overlay.classList.add('pres-nature');
+      overlay.classList.remove('pres-light');
+    } else if (state.presBgMode === 'auto') {
+      const bg = getAutoBackground();
+      overlay.style.backgroundImage = `url('${bg.src}')`;
+      overlay.classList.add('pres-auto');
+      overlay.classList.remove('pres-light');
+    } else {
+      overlay.style.backgroundImage = '';
+      if (!document.body.classList.contains('night-mode')) {
+        overlay.classList.add('pres-light');
+      }
+    }
+  }
+
   const surahData = state.surahData as unknown as SurahDataLike | null;
   const ayah = surahData?.ayahs?.[state.currentAyahIndex];
   if (!ayah) {
@@ -245,10 +355,13 @@ export function openPresentation(): void {
   if (dom.presentationOverlay) {
     dom.presentationOverlay.classList.remove('hidden');
     dom.presentationOverlay.style.display = '';
-    if (document.body.classList.contains('night-mode')) {
-      dom.presentationOverlay.classList.remove('pres-light');
-    } else {
-      dom.presentationOverlay.classList.add('pres-light');
+    // Background mode is handled by updateDisplay()
+    if (state.presBgMode === 'plain') {
+      if (document.body.classList.contains('night-mode')) {
+        dom.presentationOverlay.classList.remove('pres-light');
+      } else {
+        dom.presentationOverlay.classList.add('pres-light');
+      }
     }
   }
   document.body.classList.add('presentation-active');

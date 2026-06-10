@@ -148,6 +148,7 @@ interface DomMap {
   fontTypeSelect: HTMLSelectElement | null;
   lineSpacingSelect: HTMLSelectElement | null;
   tajweedToggle: HTMLInputElement | null;
+  presBgSelect: HTMLSelectElement | null;
   installBtn: HTMLElement | null;
   sleepTimerBtn: HTMLElement | null;
   networkBanner: HTMLElement | null;
@@ -300,6 +301,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'fontTypeSelect',
   'lineSpacingSelect',
   'tajweedToggle',
+  'presBgSelect',
   'installBtn',
   'sleepTimerBtn',
   'networkBanner',

@@ -159,6 +159,15 @@ export function applyLineSpacing(spacing: string): void {
   if (dom.lineSpacingSelect) dom.lineSpacingSelect.value = spacing;
 }
 
+/* ===================== PRESENTATION BACKGROUND ===================== */
+
+/** Apply a presentation background mode and persist it. */
+export function applyPresBgMode(mode: 'plain' | 'nature' | 'auto'): void {
+  state.presBgMode = mode;
+  storage.set('pres_bg_mode', mode);
+  if (dom.presBgSelect) dom.presBgSelect.value = mode;
+}
+
 /* ===================== SETTINGS TABS ===================== */
 
 /** Initialize settings tab switching. */
@@ -518,6 +527,10 @@ export function restoreSettings(): void {
   } else {
     state.tajweedEnabled = true;
     if (dom.tajweedToggle) dom.tajweedToggle.classList.add('on');
+  }
+  const presBg = storage.get<string>('pres_bg_mode');
+  if (presBg === 'nature' || presBg === 'auto') {
+    applyPresBgMode(presBg);
   }
   if (!state.barCollapsed && dom.prayerBar) {
     dom.prayerBar.classList.remove('collapsed');
