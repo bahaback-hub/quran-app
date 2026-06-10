@@ -162,8 +162,9 @@ export interface AppState {
   fontType: string;
   lineSpacing: string;
   tajweedEnabled: boolean;
-  presBgMode: 'plain' | 'nature' | 'auto' | 'animated' | 'scene';
+  presBgMode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene';
   presBgScene: string;
+  presBgNature: string;
 }
 
 /** Pending change entry for batch mode. */
@@ -248,6 +249,7 @@ export function createDefaultState(): AppState {
     tajweedEnabled: true,
     presBgMode: 'plain',
     presBgScene: 'stars',
+    presBgNature: 'dawn',
   };
 }
 
