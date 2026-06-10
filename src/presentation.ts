@@ -455,17 +455,16 @@ function updateDisplay(): void {
   } else {
     if (dom.presentationTranslation) dom.presentationTranslation.style.display = 'none';
   }
+  // Smooth crossfade transition: fade out → update already done above → fade in
   if (_prevHighlightTimeout) clearTimeout(_prevHighlightTimeout);
-  _prevHighlightTimeout = setTimeout(() => {
-    const el = dom.presentationAyahText;
-    if (el) {
-      el.style.transition = 'opacity 0.15s';
-      el.style.opacity = '0';
-      requestAnimationFrame(() => {
-        el.style.opacity = '1';
-      });
-    }
-  }, 50);
+  const ayahEl = dom.presentationAyahText;
+  if (ayahEl) {
+    ayahEl.style.transition = 'opacity 0.4s ease';
+    ayahEl.style.opacity = '0.7';
+    _prevHighlightTimeout = setTimeout(() => {
+      if (ayahEl) ayahEl.style.opacity = '1';
+    }, 100);
+  }
 }
 
 function navigateAyah(delta: number): void {
