@@ -46,6 +46,11 @@ function getAutoBackground(): (typeof NATURE_BACKGROUNDS)[number] {
   return NATURE_BACKGROUNDS[4]; // night sky
 }
 
+/** Get a specific nature background by its mood key. */
+function getNatureBgByMood(mood: string): (typeof NATURE_BACKGROUNDS)[number] | null {
+  return NATURE_BACKGROUNDS.find((bg) => bg.mood === mood) || null;
+}
+
 /** Get a random nature background (cycles per ayah). */
 function getRandomNatureBg(): (typeof NATURE_BACKGROUNDS)[number] {
   const idx = Math.floor(Math.random() * NATURE_BACKGROUNDS.length);
@@ -1112,6 +1117,13 @@ function updateDisplay(): void {
       removeAnimatedBgLayer(overlay);
       removeSceneCanvas(overlay);
       const bg = getRandomNatureBg();
+      overlay.style.backgroundImage = `url('${bg.src}')`;
+      overlay.classList.add('pres-nature');
+      overlay.classList.remove('pres-light');
+    } else if (state.presBgMode === 'singleNature') {
+      removeAnimatedBgLayer(overlay);
+      removeSceneCanvas(overlay);
+      const bg = getNatureBgByMood(state.presBgNature) || getRandomNatureBg();
       overlay.style.backgroundImage = `url('${bg.src}')`;
       overlay.classList.add('pres-nature');
       overlay.classList.remove('pres-light');

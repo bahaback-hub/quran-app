@@ -154,6 +154,8 @@ interface DomMap {
   presBgSelect: HTMLSelectElement | null;
   presBgSceneSelect: HTMLSelectElement | null;
   presBgSceneRow: HTMLElement | null;
+  presBgNatureSelect: HTMLSelectElement | null;
+  presBgNatureRow: HTMLElement | null;
   installBtn: HTMLElement | null;
   sleepTimerBtn: HTMLElement | null;
   networkBanner: HTMLElement | null;
@@ -312,6 +314,8 @@ const DOM_IDS: (keyof DomMap)[] = [
   'presBgSelect',
   'presBgSceneSelect',
   'presBgSceneRow',
+  'presBgNatureSelect',
+  'presBgNatureRow',
   'installBtn',
   'sleepTimerBtn',
   'networkBanner',
