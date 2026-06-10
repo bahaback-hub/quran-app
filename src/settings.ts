@@ -162,7 +162,7 @@ export function applyLineSpacing(spacing: string): void {
 /* ===================== PRESENTATION BACKGROUND ===================== */
 
 /** Apply a presentation background mode and persist it. */
-export function applyPresBgMode(mode: 'plain' | 'nature' | 'auto'): void {
+export function applyPresBgMode(mode: 'plain' | 'nature' | 'auto' | 'animated'): void {
   state.presBgMode = mode;
   storage.set('pres_bg_mode', mode);
   if (dom.presBgSelect) dom.presBgSelect.value = mode;
@@ -296,6 +296,7 @@ export function resetSettings(): void {
       'current_page',
       'search_history',
       'adhkar_settings',
+      'pres_bg_mode',
     ];
     keys.forEach((k: string) => storage.remove(k));
     storage.remove('night_mode_set_by_user');
@@ -344,6 +345,7 @@ export function exportSettings(): void {
     'current_page',
     'adhkar_settings',
     'search_history',
+    'pres_bg_mode',
   ];
   const data: Record<string, unknown> = {};
   keys.forEach((k: string) => {
@@ -389,6 +391,7 @@ const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'tajweed_enabled',
   'night_mode_set_by_user',
   'surah_list',
+  'pres_bg_mode',
 ]);
 
 /** Type validators for setting keys — ensures imported values match expected types. */
@@ -421,6 +424,7 @@ const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
   tajweed_enabled: (v) => typeof v === 'boolean',
   night_mode_set_by_user: (v) => typeof v === 'boolean',
   surah_list: (v) => Array.isArray(v),
+  pres_bg_mode: (v) => typeof v === 'string' && ['plain', 'nature', 'auto', 'animated'].includes(v),
 };
 
 /** Import settings from a JSON file. */
@@ -529,7 +533,7 @@ export function restoreSettings(): void {
     if (dom.tajweedToggle) dom.tajweedToggle.classList.add('on');
   }
   const presBg = storage.get<string>('pres_bg_mode');
-  if (presBg === 'nature' || presBg === 'auto') {
+  if (presBg === 'nature' || presBg === 'auto' || presBg === 'animated') {
     applyPresBgMode(presBg);
   }
   if (!state.barCollapsed && dom.prayerBar) {
