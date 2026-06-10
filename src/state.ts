@@ -162,7 +162,7 @@ export interface AppState {
   fontType: string;
   lineSpacing: string;
   tajweedEnabled: boolean;
-  presBgMode: 'plain' | 'nature' | 'auto';
+  presBgMode: 'plain' | 'nature' | 'auto' | 'animated';
 }
 
 /** Pending change entry for batch mode. */

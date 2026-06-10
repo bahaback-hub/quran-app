@@ -54,6 +54,20 @@ function getRandomNatureBg(): (typeof NATURE_BACKGROUNDS)[number] {
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
+/** Ken Burns animation variants — each uses a different pan/zoom direction. */
+const KEN_BURNS_ANIMATIONS = [
+  'kenBurns1', // zoom in + pan right
+  'kenBurns2', // zoom out + pan left
+  'kenBurns3', // zoom in + pan up
+  'kenBurns4', // zoom out + pan down
+  'kenBurns5', // slow zoom in center
+];
+
+/** Pick a random Ken Burns animation name. */
+function getRandomKenBurns(): string {
+  return KEN_BURNS_ANIMATIONS[Math.floor(Math.random() * KEN_BURNS_ANIMATIONS.length)];
+}
+
 function injectStyles(): void {
   if (document.getElementById('pres-styles')) return;
   const style = document.createElement('style');
@@ -69,6 +83,7 @@ function injectStyles(): void {
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      overflow: hidden;
     }
     .presentation-overlay.pres-nature,
     .presentation-overlay.pres-auto {
@@ -86,6 +101,110 @@ function injectStyles(): void {
     .presentation-overlay.pres-auto .presentation-inner {
       position: relative; z-index: 1;
     }
+
+    /* ===== ANIMATED MODE ===== */
+    .presentation-overlay.pres-animated {
+      background-size: cover;
+      background-position: center;
+    }
+    .presentation-overlay.pres-animated::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 1;
+    }
+    .presentation-overlay.pres-animated::after {
+      content: '';
+      position: absolute;
+      top: -20%; left: -20%;
+      width: 140%; height: 140%;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 600px 300px at 20% 30%, rgba(255,255,255,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 250px at 70% 50%, rgba(255,255,255,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 700px 350px at 50% 70%, rgba(255,255,255,0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 400px 200px at 80% 20%, rgba(255,255,255,0.14) 0%, transparent 70%);
+      animation: cloudDrift 25s ease-in-out infinite alternate;
+    }
+    .presentation-overlay.pres-animated .pres-bg-layer {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+      animation: kenBurns1 24s ease-in-out infinite alternate;
+    }
+    .presentation-overlay.pres-animated .pres-bg-layer.kb2 { animation-name: kenBurns2; animation-duration: 28s; }
+    .presentation-overlay.pres-animated .pres-bg-layer.kb3 { animation-name: kenBurns3; animation-duration: 22s; }
+    .presentation-overlay.pres-animated .pres-bg-layer.kb4 { animation-name: kenBurns4; animation-duration: 26s; }
+    .presentation-overlay.pres-animated .pres-bg-layer.kb5 { animation-name: kenBurns5; animation-duration: 30s; }
+    .presentation-overlay.pres-animated .presentation-inner {
+      position: relative; z-index: 2;
+    }
+
+    /* Ken Burns keyframes — cinematic slow pan/zoom */
+    @keyframes kenBurns1 {
+      0%   { transform: scale(1)   translate(0, 0); }
+      100% { transform: scale(1.12) translate(3%, -2%); }
+    }
+    @keyframes kenBurns2 {
+      0%   { transform: scale(1.1) translate(2%, 1%); }
+      100% { transform: scale(1)    translate(-2%, -1%); }
+    }
+    @keyframes kenBurns3 {
+      0%   { transform: scale(1)   translate(0, 2%); }
+      100% { transform: scale(1.08) translate(1%, -3%); }
+    }
+    @keyframes kenBurns4 {
+      0%   { transform: scale(1.1) translate(-1%, -2%); }
+      100% { transform: scale(1)    translate(2%, 1%); }
+    }
+    @keyframes kenBurns5 {
+      0%   { transform: scale(1); }
+      100% { transform: scale(1.15); }
+    }
+
+    /* Floating cloud overlay animation */
+    @keyframes cloudDrift {
+      0%   { transform: translate(0, 0); }
+      33%  { transform: translate(4%, 2%); }
+      66%  { transform: translate(-3%, 1%); }
+      100% { transform: translate(2%, -1%); }
+    }
+
+    /* Animated mode text colors (same as nature) */
+    .presentation-overlay.pres-animated .presentation-ayah-text {
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .presentation-overlay.pres-animated .presentation-translation {
+      color: rgba(255,255,255,0.85);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    }
+    .presentation-overlay.pres-animated .presentation-title {
+      color: rgba(255,255,255,0.8);
+    }
+    .presentation-overlay.pres-animated .presentation-ayah-num {
+      color: #ffe066;
+    }
+    .presentation-overlay.pres-animated .presentation-header {
+      border-color: rgba(255,255,255,0.15);
+    }
+    .presentation-overlay.pres-animated .presentation-footer {
+      border-color: rgba(255,255,255,0.15);
+    }
+    .presentation-overlay.pres-animated .presentation-counter {
+      color: rgba(255,255,255,0.7);
+    }
+    .presentation-overlay.pres-animated .presentation-header-btn,
+    .presentation-overlay.pres-animated .presentation-close-btn {
+      color: #fff; background: rgba(255,255,255,0.15);
+    }
+    .presentation-overlay.pres-animated .presentation-header-btn:hover,
+    .presentation-overlay.pres-animated .presentation-close-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
     .presentation-overlay.pres-light {
       background: #f5f0e8;
     }
@@ -261,24 +380,48 @@ function buildAyahHtml(text: string, surahNum: number, ayahNum: number): string 
     .join(' ');
 }
 
+/** Remove any animated background layer from the overlay. */
+function removeAnimatedBgLayer(overlay: HTMLElement): void {
+  const existing = overlay.querySelector('.pres-bg-layer');
+  if (existing) existing.remove();
+}
+
+/** Create and insert the animated background image layer with a random Ken Burns effect. */
+function applyAnimatedBg(overlay: HTMLElement, bgSrc: string): void {
+  removeAnimatedBgLayer(overlay);
+  const layer = document.createElement('div');
+  layer.className = 'pres-bg-layer ' + getRandomKenBurns();
+  layer.style.backgroundImage = `url('${bgSrc}')`;
+  overlay.insertBefore(layer, overlay.firstChild);
+}
+
 function updateDisplay(): void {
   if (!state.presentationMode) return;
 
   // Apply background based on presBgMode setting
   const overlay = dom.presentationOverlay;
   if (overlay) {
-    overlay.classList.remove('pres-nature', 'pres-auto');
+    overlay.classList.remove('pres-nature', 'pres-auto', 'pres-animated');
     if (state.presBgMode === 'nature') {
+      removeAnimatedBgLayer(overlay);
       const bg = getRandomNatureBg();
       overlay.style.backgroundImage = `url('${bg.src}')`;
       overlay.classList.add('pres-nature');
       overlay.classList.remove('pres-light');
     } else if (state.presBgMode === 'auto') {
+      removeAnimatedBgLayer(overlay);
       const bg = getAutoBackground();
       overlay.style.backgroundImage = `url('${bg.src}')`;
       overlay.classList.add('pres-auto');
       overlay.classList.remove('pres-light');
+    } else if (state.presBgMode === 'animated') {
+      overlay.style.backgroundImage = 'none';
+      const bg = getRandomNatureBg();
+      applyAnimatedBg(overlay, bg.src);
+      overlay.classList.add('pres-animated');
+      overlay.classList.remove('pres-light');
     } else {
+      removeAnimatedBgLayer(overlay);
       overlay.style.backgroundImage = '';
       if (!document.body.classList.contains('night-mode')) {
         overlay.classList.add('pres-light');
@@ -377,6 +520,7 @@ export function closePresentation(): void {
   if (dom.presentationOverlay) {
     dom.presentationOverlay.classList.add('hidden');
     dom.presentationOverlay.style.display = '';
+    removeAnimatedBgLayer(dom.presentationOverlay);
   }
   document.body.classList.remove('presentation-active');
   document.removeEventListener('keydown', handleKeyDown);

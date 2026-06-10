@@ -165,7 +165,7 @@ export function bindDisplaySettingsEvents(): void {
     applyLineSpacing((e.target as HTMLSelectElement).value)
   );
   dom.presBgSelect?.addEventListener('change', (e: Event) =>
-    applyPresBgMode((e.target as HTMLSelectElement).value as 'plain' | 'nature' | 'auto')
+    applyPresBgMode((e.target as HTMLSelectElement).value as 'plain' | 'nature' | 'auto' | 'animated')
   );
   dom.tajweedToggle?.addEventListener('click', () => {
     state.tajweedEnabled = dom.tajweedToggle!.classList.toggle('on');
