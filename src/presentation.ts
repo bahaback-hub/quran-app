@@ -54,6 +54,12 @@ function getRandomNatureBg(): (typeof NATURE_BACKGROUNDS)[number] {
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
+/** Presentation-local tajweed toggle — independent of the global setting. */
+let _presTajweedEnabled = true;
+
+/** Timeout for auto-hiding presentation controls. */
+let _hideControlsTimeout: ReturnType<typeof setTimeout> | null = null;
+
 /** Ken Burns animation variants — each uses a different pan/zoom direction. */
 const KEN_BURNS_ANIMATIONS = [
   'kenBurns1', // zoom in + pan right
@@ -297,6 +303,24 @@ function injectStyles(): void {
     .presentation-close-btn {
       font-size: 18px; padding: 8px 14px;
     }
+
+    /* ===== AUTO-HIDE CONTROL BUTTONS ===== */
+    .pres-control-btn {
+      opacity: 0;
+      transition: opacity 0.5s ease, background 0.2s;
+      pointer-events: none;
+    }
+    .presentation-overlay.pres-controls-visible .pres-control-btn {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .pres-control-btn.pres-tajweed-off {
+      opacity: 0.5;
+    }
+    .presentation-overlay.pres-controls-visible .pres-control-btn.pres-tajweed-off {
+      opacity: 0.5;
+    }
+
     .presentation-body {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -357,7 +381,7 @@ function buildAyahHtml(text: string, surahNum: number, ayahNum: number): string 
     offsetAdj = txt.length - stripped.length;
     txt = stripped;
   }
-  if (!state.tajweedEnabled) return escapeHtml(txt);
+  if (!_presTajweedEnabled) return escapeHtml(txt);
   const annotations = getAyahAnnotations(surahNum, ayahNum);
   if (annotations.length === 0) return escapeHtml(txt);
   const adjusted =
@@ -393,6 +417,59 @@ function applyAnimatedBg(overlay: HTMLElement, bgSrc: string): void {
   layer.className = 'pres-bg-layer ' + getRandomKenBurns();
   layer.style.backgroundImage = `url('${bgSrc}')`;
   overlay.insertBefore(layer, overlay.firstChild);
+}
+
+/** Show presentation control buttons and reset auto-hide timer. */
+function showControls(): void {
+  const overlay = dom.presentationOverlay;
+  if (!overlay) return;
+  overlay.classList.add('pres-controls-visible');
+  if (_hideControlsTimeout) clearTimeout(_hideControlsTimeout);
+  _hideControlsTimeout = setTimeout(() => {
+    hideControls();
+  }, 3000);
+}
+
+/** Hide presentation control buttons. */
+function hideControls(): void {
+  const overlay = dom.presentationOverlay;
+  if (!overlay) return;
+  overlay.classList.remove('pres-controls-visible');
+}
+
+/** Update the play/pause button icon based on current audio state. */
+function updatePresPlayPauseBtn(): void {
+  const btn = dom.presPlayPauseBtn;
+  if (!btn) return;
+  btn.textContent = state.isPlaying ? '⏸' : '▶';
+}
+
+/** Toggle tajweed colors in presentation mode only. */
+function togglePresTajweed(): void {
+  _presTajweedEnabled = !_presTajweedEnabled;
+  const btn = dom.presTajweedBtn;
+  if (btn) {
+    btn.classList.toggle('pres-tajweed-off', !_presTajweedEnabled);
+  }
+  updateDisplay();
+}
+
+/** Toggle fullscreen mode for the presentation overlay. */
+function togglePresFullscreen(): void {
+  const overlay = dom.presentationOverlay;
+  if (!overlay) return;
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  } else {
+    overlay.requestFullscreen().catch(() => {});
+  }
+}
+
+/** Update the fullscreen button icon. */
+function updatePresFullscreenBtn(): void {
+  const btn = dom.presFullscreenBtn;
+  if (!btn) return;
+  btn.textContent = document.fullscreenElement ? '⛶' : '⛶';
 }
 
 function updateDisplay(): void {
@@ -465,6 +542,8 @@ function updateDisplay(): void {
       if (ayahEl) ayahEl.style.opacity = '1';
     }, 100);
   }
+  // Update play/pause button state
+  updatePresPlayPauseBtn();
 }
 
 function navigateAyah(delta: number): void {
@@ -493,6 +572,8 @@ export function openPresentation(): void {
     import('./mushaf.js').then((m: { toggleMushafMode: () => void }) => m.toggleMushafMode());
   }
   state.presentationMode = true;
+  // Sync presentation tajweed with global setting on open
+  _presTajweedEnabled = state.tajweedEnabled;
   injectStyles();
   if (dom.presentationOverlay) {
     dom.presentationOverlay.classList.remove('hidden');
@@ -506,20 +587,35 @@ export function openPresentation(): void {
       }
     }
   }
+  // Set initial tajweed button state
+  if (dom.presTajweedBtn) {
+    dom.presTajweedBtn.classList.toggle('pres-tajweed-off', !_presTajweedEnabled);
+  }
   document.body.classList.add('presentation-active');
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
     b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'presentation');
   });
   document.addEventListener('keydown', handleKeyDown);
+  // Show controls initially, then auto-hide
+  showControls();
   updateDisplay();
 }
 
 export function closePresentation(): void {
   state.presentationMode = false;
+  // Exit fullscreen if active
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
   if (dom.presentationOverlay) {
     dom.presentationOverlay.classList.add('hidden');
     dom.presentationOverlay.style.display = '';
+    dom.presentationOverlay.classList.remove('pres-controls-visible');
     removeAnimatedBgLayer(dom.presentationOverlay);
+  }
+  if (_hideControlsTimeout) {
+    clearTimeout(_hideControlsTimeout);
+    _hideControlsTimeout = null;
   }
   document.body.classList.remove('presentation-active');
   document.removeEventListener('keydown', handleKeyDown);
@@ -535,6 +631,8 @@ function handleKeyDown(e: KeyboardEvent): void {
     (e.target as HTMLElement).tagName === 'SELECT'
   )
     return;
+  // Any key press shows controls
+  showControls();
   switch (e.key) {
     case 'Escape':
       closePresentation();
@@ -553,12 +651,26 @@ function handleKeyDown(e: KeyboardEvent): void {
       e.preventDefault();
       togglePlayPause();
       updatePlayPauseBtn();
+      updatePresPlayPauseBtn();
       break;
   }
 }
 
+/** Handle mouse/touch movement on presentation overlay — show controls. */
+function handleOverlayMouseMove(): void {
+  showControls();
+}
+
+/** Handle fullscreen change event — update button icon. */
+function handleFullscreenChange(): void {
+  updatePresFullscreenBtn();
+}
+
 export function syncPresentation(): void {
-  if (state.presentationMode) updateDisplay();
+  if (state.presentationMode) {
+    updateDisplay();
+    updatePresPlayPauseBtn();
+  }
 }
 
 export function initPresentation(): void {
@@ -569,4 +681,37 @@ export function initPresentation(): void {
   dom.presentationOverlay?.addEventListener('click', (e: MouseEvent) => {
     if (e.target === dom.presentationOverlay) closePresentation();
   });
+
+  // Play/Pause button
+  if (dom.presPlayPauseBtn) {
+    dom.presPlayPauseBtn.addEventListener('click', () => {
+      togglePlayPause();
+      updatePlayPauseBtn();
+      updatePresPlayPauseBtn();
+      showControls(); // Reset auto-hide timer
+    });
+  }
+
+  // Tajweed toggle button (presentation-local)
+  if (dom.presTajweedBtn) {
+    dom.presTajweedBtn.addEventListener('click', () => {
+      togglePresTajweed();
+      showControls(); // Reset auto-hide timer
+    });
+  }
+
+  // Fullscreen toggle button
+  if (dom.presFullscreenBtn) {
+    dom.presFullscreenBtn.addEventListener('click', () => {
+      togglePresFullscreen();
+      showControls(); // Reset auto-hide timer
+    });
+  }
+
+  // Mouse/touch movement shows controls
+  dom.presentationOverlay?.addEventListener('mousemove', handleOverlayMouseMove);
+  dom.presentationOverlay?.addEventListener('touchstart', handleOverlayMouseMove, { passive: true });
+
+  // Fullscreen change event
+  document.addEventListener('fullscreenchange', handleFullscreenChange);
 }
