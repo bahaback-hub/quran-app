@@ -2,9 +2,9 @@ import { state, immutablePush, immutableSplice, FavoriteEntry, BookmarkEntry } f
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { escapeHtml, hapticFeedback } from './utils.js';
-import { copyToClipboard } from './utils.js';
+import { escapeHtml, hapticFeedback, copyToClipboard } from './utils.js';
 import { __ } from './i18n.js';
+import { loadSurah } from './surah-loader.js';
 
 /* ===================== INTERFACES ===================== */
 

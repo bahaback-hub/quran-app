@@ -307,6 +307,7 @@ export function resetSettings(): void {
     const keys = [
       'font_size',
       'night_mode',
+      'sepia_mode',
       'city',
       'country',
       'method',
@@ -329,9 +330,13 @@ export function resetSettings(): void {
       'current_page',
       'search_history',
       'adhkar_settings',
+      'font_type',
+      'line_spacing',
+      'tajweed_enabled',
       'pres_bg_mode',
       'pres_bg_scene',
       'pres_bg_nature',
+      'reading_stats',
     ];
     keys.forEach((k: string) => storage.remove(k));
     storage.remove('night_mode_set_by_user');
@@ -359,6 +364,7 @@ export function exportSettings(): void {
   const keys = [
     'font_size',
     'night_mode',
+    'sepia_mode',
     'city',
     'country',
     'method',
@@ -380,9 +386,13 @@ export function exportSettings(): void {
     'current_page',
     'adhkar_settings',
     'search_history',
+    'font_type',
+    'line_spacing',
+    'tajweed_enabled',
     'pres_bg_mode',
     'pres_bg_scene',
     'pres_bg_nature',
+    'reading_stats',
   ];
   const data: Record<string, unknown> = {};
   keys.forEach((k: string) => {

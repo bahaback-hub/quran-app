@@ -45,9 +45,14 @@ interface AdhkarSettings {
 
 /* ===================== INIT ===================== */
 
-/** Initialize adhkar state. */
+/** Initialize adhkar state — load settings from storage into state. */
 export function initAdhkarState(): void {
-  // state is already imported from ./state.js
+  const saved = storage.get<AdhkarSettings>('adhkar_settings');
+  if (saved) {
+    state.adhkarSettings = saved;
+  } else {
+    state.adhkarSettings = getDefaultAdhkarSettings();
+  }
 }
 
 function getDefaultAdhkarSettings(): AdhkarSettings {

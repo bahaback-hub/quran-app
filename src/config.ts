@@ -55,8 +55,11 @@ export const PRAYER_NAMES_AR: Record<string, string> = {
   Isha: 'العشاء',
 };
 
-/** Ordered list of prayer keys. */
+/** Ordered list of prayer keys for azan scheduling (excludes Sunrise — not a prayer). */
 export const PRAYER_ORDER: string[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
+/** Ordered list for countdown display (includes Sunrise). */
+export const PRAYER_DISPLAY_ORDER: string[] = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
 /** Arabic weekday names. */
 export const ARABIC_WEEKDAYS: string[] = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];

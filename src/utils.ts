@@ -66,9 +66,7 @@ function normalizeArabic(str: string): string {
  */
 export function normalizeExactText(str: string): string {
   return normalizeArabic(str)
-    .replace(/\u0670/g, '')
-    .replace(/و(\S*ه(?!\S))/g, 'ا$1')
-    .replace(/ت(?!\S)/g, 'ه');
+    .replace(/\u0670/g, '');
 }
 
 /** More aggressive normalizer for fuzzy fallback when exact search yields 0 results.
@@ -84,9 +82,7 @@ export function normalizeRelaxed(str: string): string {
     .replace(/ة/g, 'ه')
     .replace(/ؤ/g, 'و')
     .replace(/ئ/g, 'ي')
-    .replace(/ء/g, '')
-    .replace(/و(\S*ه(?!\S))/g, '$1')
-    .replace(/ت(?!\S)/g, 'ه');
+    .replace(/ء/g, '');
 }
 
 export function getArabicNumeral(digit: string | number): string {

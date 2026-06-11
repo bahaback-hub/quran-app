@@ -44,7 +44,9 @@ export function prepareAudioForNewSurah(): void {
   _cachedWordEls = null;
   _cachedWordAyahIndex = -1;
   clearWordWeightsCache();
+  state.isPlaying = false;
   document.body.classList.remove('audio-playing');
+  updatePlayPauseBtn();
   if (dom.audioPlayer) {
     dom.audioPlayer.pause();
     dom.audioPlayer.removeAttribute('src');
@@ -198,10 +200,15 @@ function onTimeUpdate(): void {
     if (currentTime >= endTime - 0.15) {
       if (_autoAdvancing) return;
       _autoAdvancing = true;
-      if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
-        nextAyah(true);
-      } else {
-        onAudioEnded();
+      try {
+        if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
+          nextAyah(true);
+        } else {
+          onAudioEnded();
+        }
+      } catch (e) {
+        console.warn('[Audio] Error during auto-advance:', e);
+        _autoAdvancing = false; // Reset on error to prevent stuck state
       }
       // _autoAdvancing is reset in onAudioPlay when next ayah starts
       return;
@@ -352,6 +359,10 @@ function onAudioEnded(): void {
         dom.repeatBtn?.classList.remove('active');
         if (dom.repeatControls) dom.repeatControls.style.display = 'none';
         showToast(__('repeat_complete'), 'success');
+        // Stop playback when repeat is complete
+        state.isPlaying = false;
+        document.body.classList.remove('audio-playing');
+        updatePlayPauseBtn();
         return;
       }
       const startIdx = surahData.ayahs.findIndex(
@@ -370,6 +381,15 @@ function onAudioEnded(): void {
 
   const surahData = state.surahData as any;
   if (state.currentAyahIndex === state.ayahsAudios.length - 1) {
+    // Last ayah of the surah
+    if (state.currentSurah >= CONFIG.SURAH_COUNT) {
+      // Last surah (114) — stop playback cleanly
+      showToast(`✅ ${__('surah_complete')} ${surahData.name}`, 'success');
+      state.isPlaying = false;
+      document.body.classList.remove('audio-playing');
+      updatePlayPauseBtn();
+      return;
+    }
     showToast(`✅ ${__('surah_complete')} ${surahData.name}`, 'success');
   }
   nextAyah(true);
