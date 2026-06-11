@@ -116,6 +116,8 @@ export function initKeyboardShortcuts(): void {
         applyFontSize(28);
         break;
       case 'Escape':
+        // If presentation mode is active, let the presentation's own handler manage Escape
+        if (state.presentationMode) return;
         closeSettings();
         closeFavorites();
         if (dom.surahSecretsOverlay) {
