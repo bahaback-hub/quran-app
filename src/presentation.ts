@@ -2,7 +2,7 @@ import { __ } from './i18n.js';
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { CONFIG } from './config.js';
-import { togglePlayPause, updatePlayPauseBtn } from './audio.js';
+import { togglePlayPause, updatePlayPauseBtn, playCurrentAyah } from './audio.js';
 import { buildColorMap, tajweedColorWord } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
 import type { TajweedAnnotation } from './tajweed-data.js';
@@ -372,8 +372,13 @@ function injectStyles(): void {
       opacity: 1;
       pointer-events: auto;
     }
-    .presentation-overlay.pres-controls-visible .pres-control-btn.pres-tajweed-off {
-      opacity: 0.5;
+    /* Tajweed toggle always visible — important feature users need to discover */
+    .presentation-overlay .pres-tajweed-btn {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+    .presentation-overlay .pres-tajweed-btn.pres-tajweed-off {
+      opacity: 0.5 !important;
     }
 
     /* ===== FULLSCREEN: HIDE ALL UI, SHOW ONLY AYAH ===== */
@@ -477,9 +482,9 @@ function buildAyahHtml(text: string, surahNum: number, ayahNum: number): string 
   const words = txt.split(/\s+/).filter((w) => w.length > 0);
   let outputPos = 0;
   return words
-    .map((word: string) => {
+    .map((word: string, idx: number) => {
       const wordHtml = tajweedColorWord(word, outputPos, colorMap);
-      outputPos += word.length;
+      outputPos += word.length + (idx < words.length - 1 ? 1 : 0); // +1 for space between words
       return wordHtml;
     })
     .join(' ');
@@ -1092,10 +1097,19 @@ function togglePresTajweed(): void {
 function togglePresFullscreen(): void {
   const overlay = dom.presentationOverlay;
   if (!overlay) return;
-  if (document.fullscreenElement) {
-    document.exitFullscreen().catch(() => {});
+  const fsElement = document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement;
+  if (fsElement) {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
+      (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
+    }
   } else {
-    overlay.requestFullscreen().catch(() => {});
+    if (overlay.requestFullscreen) {
+      overlay.requestFullscreen().catch(() => {});
+    } else if ((overlay as unknown as { webkitRequestFullscreen?: () => Promise<void> }).webkitRequestFullscreen) {
+      (overlay as unknown as { webkitRequestFullscreen: () => Promise<void> }).webkitRequestFullscreen().catch(() => {});
+    }
   }
 }
 
@@ -1103,7 +1117,8 @@ function togglePresFullscreen(): void {
 function updatePresFullscreenBtn(): void {
   const btn = dom.presFullscreenBtn;
   if (!btn) return;
-  btn.textContent = document.fullscreenElement ? '⛶' : '⛶';
+  const isFullscreen = !!(document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement);
+  btn.textContent = isFullscreen ? '⤓' : '⛶';
 }
 
 function updateDisplay(): void {
@@ -1209,6 +1224,15 @@ function navigateAyah(delta: number): void {
   if (next < 0 || next >= surahData.ayahs.length) return;
   state.currentAyahIndex = next;
   updateDisplay();
+  // Sync audio: play the new ayah if audio was already playing
+  if (state.isPlaying) {
+    playCurrentAyah();
+  }
+  // Sync main surah view highlight
+  const ayahEls = document.querySelectorAll('.ayah-card');
+  ayahEls.forEach((el: Element) => {
+    el.classList.toggle('current-ayah', (el as HTMLElement).dataset.ayahIndex === String(next));
+  });
   if (dom.presentationOverlay) {
     const pBody = dom.presentationBody;
     if (pBody) pBody.scrollTop = 0;
@@ -1260,12 +1284,17 @@ export function openPresentation(): void {
 export function closePresentation(): void {
   state.presentationMode = false;
   // Exit fullscreen if active
-  if (document.fullscreenElement) {
-    document.exitFullscreen().catch(() => {});
+  const fsEl = document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement;
+  if (fsEl) {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
+      (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
+    }
   }
   if (dom.presentationOverlay) {
     dom.presentationOverlay.classList.add('hidden');
-    dom.presentationOverlay.style.display = '';
+    dom.presentationOverlay.style.display = 'none';
     dom.presentationOverlay.classList.remove('pres-controls-visible');
     removeAnimatedBgLayer(dom.presentationOverlay);
     removeSceneCanvas(dom.presentationOverlay);
@@ -1293,9 +1322,14 @@ function handleKeyDown(e: KeyboardEvent): void {
   switch (e.key) {
     case 'Escape':
       // If in fullscreen, only exit fullscreen — don't close presentation
-      if (document.fullscreenElement) {
+      const fsEl = document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement;
+      if (fsEl) {
         e.preventDefault();
-        document.exitFullscreen().catch(() => {});
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
+          (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
+        }
       } else {
         closePresentation();
       }
@@ -1354,7 +1388,8 @@ export function initPresentation(): void {
   if (dom.presentationNextBtn) dom.presentationNextBtn.addEventListener('click', () => navigateAyah(1));
   dom.presentationOverlay?.addEventListener('click', (e: MouseEvent) => {
     // Don't close on background click when in fullscreen
-    if (e.target === dom.presentationOverlay && !document.fullscreenElement) closePresentation();
+    const inFs = !!(document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement);
+    if (e.target === dom.presentationOverlay && !inFs) closePresentation();
   });
 
   // Play/Pause button
@@ -1389,4 +1424,5 @@ export function initPresentation(): void {
 
   // Fullscreen change event
   document.addEventListener('fullscreenchange', handleFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 }
