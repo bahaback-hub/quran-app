@@ -1,0 +1,389 @@
+/* Glass Morphism Sepia — Prophet's Mosque golden hour background with warm frosted glass UI elements */
+
+/* ========== خلفية المسجد النبوي وقت الغروب ========== */
+body.sepia-mode {
+  background: url('../backgrounds/mosque-sepia.jpg') center center / cover no-repeat fixed;
+  position: relative;
+}
+
+/* ========== عناصر زجاجية دافئة — Warm Glass Morphism ========== */
+/* طبقة زجاجية أساسية */
+body.sepia-mode .container {
+  background: rgba(245, 237, 216, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(138, 104, 64, 0.25);
+  box-shadow: 0 8px 32px rgba(80, 60, 30, 0.1);
+}
+
+/* الرأس */
+body.sepia-mode .header {
+  background: rgba(107, 78, 46, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(138, 104, 64, 0.5);
+}
+
+/* شريط الصلاة */
+body.sepia-mode .prayer-bar {
+  background: rgba(74, 53, 32, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(138, 104, 64, 0.4);
+}
+
+/* أدوات التحكم */
+body.sepia-mode .controls {
+  background: rgba(239, 229, 208, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(138, 104, 64, 0.2);
+}
+
+/* محتوى السورة */
+body.sepia-mode .surah-content {
+  background: rgba(248, 240, 224, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* بطاقات التحكم */
+body.sepia-mode .control-card {
+  background: rgba(245, 237, 216, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(138, 104, 64, 0.15);
+  box-shadow: 0 2px 8px rgba(80, 60, 30, 0.06);
+  transition: all 0.25s ease;
+}
+
+body.sepia-mode .control-card:hover {
+  background: rgba(245, 237, 216, 0.75);
+  box-shadow: 0 6px 20px rgba(80, 60, 30, 0.12);
+  transform: translateY(-1px);
+}
+
+/* التذييل */
+body.sepia-mode .footer {
+  background: rgba(74, 53, 32, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* المشغل العائم */
+body.sepia-mode .player {
+  background: rgba(245, 237, 216, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 2px solid rgba(138, 104, 64, 0.45);
+  box-shadow: 0 -6px 24px rgba(80, 60, 30, 0.08);
+}
+
+/* شريط التنقل السفلي */
+body.sepia-mode .bottom-nav {
+  background: rgba(107, 78, 46, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 2px solid rgba(138, 104, 64, 0.45);
+}
+
+/* ========== اللوحات الجانبية ========== */
+body.sepia-mode .settings-panel {
+  background: rgba(242, 232, 212, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: -10px 0 40px rgba(80, 60, 30, 0.12);
+}
+
+body.sepia-mode .favorites-panel {
+  background: rgba(242, 232, 212, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 10px 0 40px rgba(80, 60, 30, 0.12);
+}
+
+body.sepia-mode .adhkar-panel {
+  background: rgba(242, 232, 212, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 10px 0 40px rgba(80, 60, 30, 0.12);
+}
+
+body.sepia-mode .tafsir-curtain {
+  background: rgba(242, 232, 212, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 8px 0 32px rgba(80, 60, 30, 0.12);
+}
+
+/* ========== أقسام داخل اللوحات ========== */
+body.sepia-mode .settings-section {
+  background: rgba(239, 229, 208, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+body.sepia-mode .prayer-times-list {
+  background: rgba(239, 229, 208, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+body.sepia-mode .prayer-row {
+  background: rgba(245, 237, 216, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.2s ease;
+}
+
+body.sepia-mode .prayer-row:hover {
+  background: rgba(245, 237, 216, 0.8);
+}
+
+body.sepia-mode .adhkar-item {
+  background: rgba(239, 229, 208, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+body.sepia-mode .adhkar-item:hover {
+  background: rgba(239, 229, 208, 0.8);
+}
+
+body.sepia-mode .favorite-item {
+  background: rgba(239, 229, 208, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+body.sepia-mode .favorite-item:hover {
+  background: rgba(239, 229, 208, 0.8);
+}
+
+/* ========== نتائج البحث ========== */
+body.sepia-mode .search-results {
+  background: rgba(239, 229, 208, 0.8);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+body.sepia-mode .search-results-header {
+  background: rgba(239, 229, 208, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+body.sepia-mode .search-result-item {
+  background: rgba(248, 240, 224, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+body.sepia-mode .search-result-item:hover {
+  background: rgba(248, 240, 224, 0.8);
+}
+
+/* ========== القائمة المنسدلة ========== */
+body.sepia-mode .header-dropdown {
+  background: rgba(242, 232, 212, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(80, 60, 30, 0.1);
+}
+
+body.sepia-mode .share-menu {
+  background: rgba(242, 232, 212, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ========== الإكمال التلقائي ========== */
+body.sepia-mode .search-autocomplete {
+  background: rgba(242, 232, 212, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ========== لوحة المفاتيح العربية ========== */
+body.sepia-mode .arabic-keyboard {
+  background: rgba(239, 229, 208, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ========== النوافذ المنبثقة والتنبيهات ========== */
+body.sepia-mode .toast {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ========== الترجمة ========== */
+body.sepia-mode .ayah .translation-text {
+  background: rgba(242, 232, 212, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ========== عناصر الإدخال ========== */
+body.sepia-mode .control-group select,
+body.sepia-mode .control-group input {
+  background: rgba(248, 240, 224, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+body.sepia-mode .settings-row select,
+body.sepia-mode .settings-row input {
+  background: rgba(248, 240, 224, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+body.sepia-mode .font-size-select {
+  background: rgba(248, 240, 224, 0.8);
+}
+
+body.sepia-mode .search-input-wrapper {
+  background: rgba(248, 240, 224, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ========== الأزرار ========== */
+body.sepia-mode .kbd-key {
+  background: rgba(245, 237, 216, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: all 0.15s ease;
+}
+
+body.sepia-mode .kbd-key:hover {
+  background: rgba(248, 240, 224, 0.9);
+  transform: translateY(-1px);
+}
+
+body.sepia-mode .kbd-key:active {
+  transform: translateY(0px);
+}
+
+/* ========== تحسين المقروئية — ظل النص ========== */
+body.sepia-mode .surah-content .ayahs-container {
+  text-shadow: 0 0 1px rgba(245, 237, 216, 0.5);
+}
+
+body.sepia-mode .bismillah {
+  text-shadow: 0 1px 4px rgba(245, 237, 216, 0.6);
+}
+
+body.sepia-mode .surah-title {
+  text-shadow: 0 1px 3px rgba(245, 237, 216, 0.5);
+}
+
+/* ========== شريط التمرير ========== */
+body.sepia-mode ::-webkit-scrollbar-track {
+  background: rgba(239, 229, 208, 0.4);
+}
+
+/* ========== تحسينات إضافية ========== */
+@keyframes glassSepiaFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+body.sepia-mode .container {
+  animation: glassSepiaFadeIn 0.6s ease-out;
+}
+
+body.sepia-mode .stat-card {
+  background: rgba(245, 237, 216, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+body.sepia-mode .adhkar-counter-btn {
+  background: rgba(245, 237, 216, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+body.sepia-mode .adhkar-setting-row {
+  background: rgba(245, 237, 216, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+body.sepia-mode .juz-marker::before,
+body.sepia-mode .juz-marker::after {
+  background: linear-gradient(90deg, transparent, rgba(138, 104, 64, 0.3), transparent);
+}
+
+body.sepia-mode .reading-progress {
+  background: rgba(138, 104, 64, 0.8);
+}
+
+/* ========== المحتوى الموسع/المطوي ========== */
+body.sepia-mode .collapsed-content,
+body.sepia-mode .expanded-content {
+  background: rgba(242, 232, 212, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ========== النافذة المنبثقة للآية ========== */
+body.sepia-mode .ayah-modal-inner {
+  background: rgba(242, 232, 212, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(138, 104, 64, 0.2);
+}
+
+/* ========== تأثيرات التفاعل الدقيق — Micro-interactions ========== */
+body.sepia-mode .theme-btn {
+  transition: all 0.25s ease;
+}
+
+body.sepia-mode .theme-btn:hover {
+  transform: scale(1.15);
+}
+
+body.sepia-mode .settings-close,
+body.sepia-mode .favorites-close,
+body.sepia-mode .adhkar-close {
+  transition: all 0.2s ease;
+}
+
+body.sepia-mode .settings-close:hover,
+body.sepia-mode .favorites-close:hover,
+body.sepia-mode .adhkar-close:hover {
+  transform: scale(1.1) rotate(90deg);
+}
+
+body.sepia-mode .bottom-nav button {
+  transition: all 0.2s ease;
+}
+
+body.sepia-mode .bottom-nav button:hover {
+  transform: translateY(-2px);
+}
+
+/* ========== دعم المتصفحات بدون backdrop-filter ========== */
+@supports ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
+  body.sepia-mode .settings-panel,
+  body.sepia-mode .favorites-panel,
+  body.sepia-mode .tafsir-curtain,
+  body.sepia-mode .adhkar-panel,
+  body.sepia-mode .header-dropdown,
+  body.sepia-mode .share-menu {
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    backdrop-filter: blur(18px) saturate(180%);
+  }
+}
