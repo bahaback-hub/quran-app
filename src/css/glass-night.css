@@ -14,44 +14,44 @@ body.night-mode::before {
 /* ========== عناصر زجاجية داكنة — Dark Glass Morphism ========== */
 /* طبقة زجاجية أساسية */
 body.night-mode .container {
-  background: rgba(10, 14, 26, 0.82);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(232, 217, 168, 0.15);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: rgba(10, 14, 26, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(232, 217, 168, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   z-index: 1;
   position: relative;
 }
 
 /* الرأس */
 body.night-mode .header {
-  background: rgba(18, 24, 40, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 2px solid rgba(212, 175, 55, 0.35);
+  background: rgba(14, 18, 32, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 2px solid rgba(212, 175, 55, 0.4);
 }
 
 /* شريط الصلاة */
 body.night-mode .prayer-bar {
-  background: rgba(10, 14, 26, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
 }
 
 /* أدوات التحكم */
 body.night-mode .controls {
-  background: rgba(20, 26, 42, 0.78);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  background: rgba(16, 22, 38, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
 }
 
 /* محتوى السورة */
 body.night-mode .surah-content {
-  background: rgba(16, 20, 34, 0.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(12, 16, 28, 0.68);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 /* بطاقات التحكم */
@@ -252,11 +252,19 @@ body.night-mode .kbd-key {
 
 /* ========== تحسين المقروئية — ظل النص ========== */
 body.night-mode .surah-content .ayahs-container {
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.5);
 }
 
 body.night-mode .bismillah {
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+body.night-mode .surah-title {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7), 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+body.night-mode .ayah {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 /* ========== شريط التمرير ========== */
@@ -281,10 +289,7 @@ body.night-mode .container {
   animation: glassNightFadeIn 0.6s ease-out;
 }
 
-/* تحسين ظلال العناوين */
-body.night-mode .surah-title {
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-}
+/* تحسين ظلال العناوين — تم نقله للأعلى */
 
 /* شبكة الإحصائيات */
 body.night-mode .stat-card {
