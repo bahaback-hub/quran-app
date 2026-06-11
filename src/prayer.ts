@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { CONFIG, PRAYER_NAMES_AR, PRAYER_ORDER, ARABIC_WEEKDAYS } from './config.js';
+import { CONFIG, PRAYER_NAMES_AR, PRAYER_ORDER, PRAYER_DISPLAY_ORDER, ARABIC_WEEKDAYS } from './config.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
@@ -105,12 +105,13 @@ export async function loadPrayerTimes(): Promise<void> {
   }
 }
 
-/** Get the next prayer key based on current time. */
+/** Get the next prayer key based on current time (includes Sunrise for countdown). */
 export function getNextPrayerKey(): string | null {
   if (!state.prayerTimes) return null;
   const now = new Date();
   const nowMin = now.getHours() * 60 + now.getMinutes();
-  for (const key of PRAYER_ORDER) {
+  // Use PRAYER_DISPLAY_ORDER which includes Sunrise for countdown display
+  for (const key of PRAYER_DISPLAY_ORDER) {
     const raw = state.prayerTimes[key] as string | undefined;
     if (!raw) continue;
     if (timeStrToMinutes(raw.split(' ')[0]) > nowMin) return key;
@@ -269,9 +270,24 @@ export function scheduleNextAzanCheck(): void {
       break;
     }
   }
-  const delayMs = nextSec === null ? 10 * 60 * 1000 : (nextSec - nowSec) * 1000;
+  // If all prayers have passed today, schedule for tomorrow's Fajr
+  if (nextSec === null) {
+    const fajrRaw = ((state.prayerTimes['Fajr'] as string) || '').split(' ')[0];
+    if (fajrRaw) {
+      const [fh, fm] = fajrRaw.split(':');
+      const fajrSec = parseInt(fh, 10) * 3600 + parseInt(fm, 10) * 60;
+      nextSec = fajrSec + 86400; // Tomorrow's Fajr
+    } else {
+      nextSec = nowSec + 10 * 60; // Fallback: check again in 10 minutes
+    }
+  }
+  const delayMs = (nextSec - nowSec) * 1000;
   azanTimer = setTimeout(() => {
-    checkAzanTime();
+    try {
+      checkAzanTime();
+    } catch (e) {
+      console.warn('[Azan] checkAzanTime error:', e);
+    }
     scheduleNextAzanCheck();
   }, delayMs);
 }

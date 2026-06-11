@@ -63,7 +63,7 @@ export function recordReadingSession(surahNum: number, ayahCount: number): void 
     const yesterday = new Date(Date.now() - 86400000).toDateString();
     if (stats.lastActiveDate === yesterday) {
       stats.streakDays += 1;
-    } else if (stats.lastActiveDate !== today) {
+    } else {
       stats.streakDays = 1;
     }
     stats.lastActiveDate = today;
