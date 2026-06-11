@@ -12,194 +12,211 @@ body.night-mode::before {
 }
 
 /* ========== عناصر زجاجية داكنة — Dark Glass Morphism ========== */
-/* طبقة زجاجية أساسية */
+/* طبقة زجاجية أساسية — شفافة أكثر لإظهار الخلفية */
 body.night-mode .container {
-  background: rgba(10, 14, 26, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(232, 217, 168, 0.18);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  background: rgba(10, 14, 26, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(232, 217, 168, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   z-index: 1;
   position: relative;
 }
 
 /* الرأس */
 body.night-mode .header {
-  background: rgba(14, 18, 32, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+  background: rgba(14, 18, 32, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(212, 175, 55, 0.45);
 }
 
 /* شريط الصلاة */
 body.night-mode .prayer-bar {
-  background: rgba(10, 14, 26, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  background: rgba(10, 14, 26, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.35);
 }
 
 /* أدوات التحكم */
 body.night-mode .controls {
-  background: rgba(16, 22, 38, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(16, 22, 38, 0.68);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(212, 175, 55, 0.2);
 }
 
-/* محتوى السورة */
+/* محتوى السورة — أكثر شفافية لإظهار الخلفية */
 body.night-mode .surah-content {
-  background: rgba(12, 16, 28, 0.68);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(10, 14, 26, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* بطاقات التحكم */
 body.night-mode .control-card {
-  background: rgba(22, 28, 44, 0.65);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(212, 175, 55, 0.12);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: rgba(20, 26, 42, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s ease;
 }
 
 body.night-mode .control-card:hover {
-  background: rgba(28, 34, 50, 0.8);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  background: rgba(28, 34, 50, 0.75);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transform: translateY(-1px);
 }
 
 /* التذييل */
 body.night-mode .footer {
-  background: rgba(10, 14, 26, 0.9);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* المشغل العائم */
 body.night-mode .player {
-  background: rgba(14, 18, 30, 0.88);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-top: 2px solid rgba(212, 175, 55, 0.35);
-  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.4);
+  background: rgba(14, 18, 30, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 2px solid rgba(212, 175, 55, 0.4);
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.35);
 }
 
 /* شريط التنقل السفلي */
 body.night-mode .bottom-nav {
-  background: rgba(18, 24, 40, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 2px solid rgba(212, 175, 55, 0.35);
+  background: rgba(14, 18, 32, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 2px solid rgba(212, 175, 55, 0.4);
 }
 
 /* ========== اللوحات الجانبية ========== */
-/* لوحة الإعدادات */
 body.night-mode .settings-panel {
-  background: rgba(14, 18, 30, 0.92);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+  background: rgba(12, 16, 28, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.45);
 }
 
-/* لوحة المفضلة */
 body.night-mode .favorites-panel {
-  background: rgba(14, 18, 30, 0.92);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5);
+  background: rgba(12, 16, 28, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 10px 0 40px rgba(0, 0, 0, 0.45);
 }
 
-/* لوحة الأذكار */
 body.night-mode .adhkar-panel {
-  background: rgba(14, 18, 30, 0.92);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5);
+  background: rgba(12, 16, 28, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 10px 0 40px rgba(0, 0, 0, 0.45);
 }
 
-/* ستارة التفسير */
 body.night-mode .tafsir-curtain {
-  background: rgba(16, 20, 34, 0.92);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5);
+  background: rgba(14, 18, 30, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.45);
 }
 
 /* ========== أقسام داخل اللوحات ========== */
 body.night-mode .settings-section {
-  background: rgba(20, 26, 42, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(20, 26, 42, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 body.night-mode .prayer-times-list {
-  background: rgba(20, 26, 42, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(20, 26, 42, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 body.night-mode .prayer-row {
-  background: rgba(18, 22, 36, 0.7);
+  background: rgba(18, 22, 36, 0.6);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  transition: background 0.2s ease;
+}
+
+body.night-mode .prayer-row:hover {
+  background: rgba(24, 30, 48, 0.8);
 }
 
 body.night-mode .adhkar-item {
-  background: rgba(20, 26, 42, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(20, 26, 42, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+body.night-mode .adhkar-item:hover {
+  background: rgba(24, 30, 48, 0.75);
 }
 
 body.night-mode .favorite-item {
-  background: rgba(20, 26, 42, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(20, 26, 42, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+body.night-mode .favorite-item:hover {
+  background: rgba(24, 30, 48, 0.75);
 }
 
 /* ========== نتائج البحث ========== */
 body.night-mode .search-results {
-  background: rgba(14, 18, 30, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(12, 16, 28, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 body.night-mode .search-results-header {
-  background: rgba(20, 26, 42, 0.9);
+  background: rgba(18, 24, 40, 0.85);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
 body.night-mode .search-result-item {
-  background: rgba(22, 28, 44, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(20, 26, 42, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+body.night-mode .search-result-item:hover {
+  background: rgba(28, 34, 50, 0.8);
 }
 
 /* ========== القائمة المنسدلة ========== */
 body.night-mode .header-dropdown {
-  background: rgba(14, 18, 30, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  background: rgba(12, 16, 28, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
 }
 
-/* قائمة المشاركة */
 body.night-mode .share-menu {
-  background: rgba(14, 18, 30, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: rgba(12, 16, 28, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 /* ========== الإكمال التلقائي ========== */
 body.night-mode .search-autocomplete {
-  background: rgba(14, 18, 30, 0.92);
+  background: rgba(12, 16, 28, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 /* ========== لوحة المفاتيح العربية ========== */
 body.night-mode .arabic-keyboard {
-  background: rgba(14, 18, 30, 0.88);
+  background: rgba(14, 18, 30, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -212,7 +229,7 @@ body.night-mode .toast {
 
 /* ========== الترجمة ========== */
 body.night-mode .ayah .translation-text {
-  background: rgba(20, 26, 42, 0.7);
+  background: rgba(20, 26, 42, 0.6);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -220,34 +237,44 @@ body.night-mode .ayah .translation-text {
 /* ========== عناصر الإدخال ========== */
 body.night-mode .control-group select,
 body.night-mode .control-group input {
-  background: rgba(22, 28, 44, 0.85);
+  background: rgba(22, 28, 44, 0.8);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 body.night-mode .settings-row select,
 body.night-mode .settings-row input {
-  background: rgba(22, 28, 44, 0.85);
+  background: rgba(22, 28, 44, 0.8);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 body.night-mode .font-size-select {
-  background: rgba(22, 28, 44, 0.85);
+  background: rgba(22, 28, 44, 0.8);
 }
 
 body.night-mode .search-input-wrapper {
-  background: rgba(22, 28, 44, 0.85);
+  background: rgba(22, 28, 44, 0.8);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 /* ========== الأزرار ========== */
 body.night-mode .kbd-key {
-  background: rgba(22, 28, 44, 0.75);
+  background: rgba(22, 28, 44, 0.7);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  border-color: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.25);
+  transition: all 0.15s ease;
+}
+
+body.night-mode .kbd-key:hover {
+  background: rgba(30, 36, 52, 0.9);
+  transform: translateY(-1px);
+}
+
+body.night-mode .kbd-key:active {
+  transform: translateY(0px);
 }
 
 /* ========== تحسين المقروئية — ظل النص ========== */
@@ -269,11 +296,10 @@ body.night-mode .ayah {
 
 /* ========== شريط التمرير ========== */
 body.night-mode ::-webkit-scrollbar-track {
-  background: rgba(10, 14, 26, 0.5);
+  background: rgba(10, 14, 26, 0.4);
 }
 
 /* ========== تحسينات إضافية ========== */
-/* تأثير حركي عند تحميل الصفحة */
 @keyframes glassNightFadeIn {
   from {
     opacity: 0;
@@ -281,7 +307,7 @@ body.night-mode ::-webkit-scrollbar-track {
   }
   to {
     opacity: 1;
-    backdrop-filter: blur(18px);
+    backdrop-filter: blur(10px);
   }
 }
 
@@ -289,36 +315,29 @@ body.night-mode .container {
   animation: glassNightFadeIn 0.6s ease-out;
 }
 
-/* تحسين ظلال العناوين — تم نقله للأعلى */
-
-/* شبكة الإحصائيات */
 body.night-mode .stat-card {
-  background: rgba(20, 26, 42, 0.8);
+  background: rgba(20, 26, 42, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* عداد الأذكار */
 body.night-mode .adhkar-counter-btn {
-  background: rgba(20, 26, 42, 0.8);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-/* صفوف إعدادات الأذكار */
-body.night-mode .adhkar-setting-row {
   background: rgba(20, 26, 42, 0.7);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
 
-/* علامة الجزء */
+body.night-mode .adhkar-setting-row {
+  background: rgba(20, 26, 42, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
 body.night-mode .juz-marker::before,
 body.night-mode .juz-marker::after {
   background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.25), transparent);
 }
 
-/* شريط التقدم */
 body.night-mode .reading-progress {
   background: rgba(212, 175, 55, 0.8);
 }
@@ -326,17 +345,57 @@ body.night-mode .reading-progress {
 /* ========== المحتوى الموسع/المطوي ========== */
 body.night-mode .collapsed-content,
 body.night-mode .expanded-content {
-  background: rgba(16, 20, 34, 0.75);
+  background: rgba(14, 18, 30, 0.65);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 /* ========== النافذة المنبثقة للآية ========== */
 body.night-mode .ayah-modal-inner {
-  background: rgba(14, 18, 30, 0.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: rgba(12, 16, 28, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+/* ========== تأثيرات التفاعل الدقيق — Micro-interactions ========== */
+body.night-mode .theme-btn {
+  transition: all 0.25s ease;
+}
+
+body.night-mode .theme-btn:hover {
+  transform: scale(1.15);
+}
+
+body.night-mode .settings-close,
+body.night-mode .favorites-close,
+body.night-mode .adhkar-close {
+  transition: all 0.2s ease;
+}
+
+body.night-mode .settings-close:hover,
+body.night-mode .favorites-close:hover,
+body.night-mode .adhkar-close:hover {
+  transform: scale(1.1) rotate(90deg);
+}
+
+body.night-mode .bottom-nav button {
+  transition: all 0.2s ease;
+}
+
+body.night-mode .bottom-nav button:hover {
+  transform: translateY(-2px);
+}
+
+/* ========== تحسين تباين الأزرار في الوضع الليلي ========== */
+body.night-mode .btn-primary {
+  background: linear-gradient(135deg, #d4af37, #b8952a);
+  color: #0a0e1a;
+  font-weight: bold;
+}
+
+body.night-mode .btn-primary:hover {
+  background: linear-gradient(135deg, #e8c84a, #d4af37);
 }
 
 /* ========== دعم المتصفحات بدون backdrop-filter ========== */
@@ -347,7 +406,7 @@ body.night-mode .ayah-modal-inner {
   body.night-mode .adhkar-panel,
   body.night-mode .header-dropdown,
   body.night-mode .share-menu {
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    backdrop-filter: blur(18px) saturate(180%);
   }
 }
