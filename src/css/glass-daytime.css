@@ -1,0 +1,311 @@
+/* Glass Morphism Daytime — Nature background with frosted glass UI elements */
+
+/* ========== خلفية المنظر الطبيعي للوضع النهاري ========== */
+body:not(.night-mode):not(.sepia-mode) {
+  background: url('/backgrounds/mosque.jpg') center center / cover no-repeat fixed;
+  position: relative;
+}
+
+/* ========== عناصر زجاجية — Glass Morphism ========== */
+/* طبقة زجاجية أساسية */
+body:not(.night-mode):not(.sepia-mode) .container {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(60, 40, 20, 0.12);
+}
+
+/* الرأس */
+body:not(.night-mode):not(.sepia-mode) .header {
+  background: rgba(122, 92, 58, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 3px solid rgba(196, 122, 18, 0.6);
+}
+
+/* شريط الصلاة */
+body:not(.night-mode):not(.sepia-mode) .prayer-bar {
+  background: rgba(92, 68, 48, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 2px solid rgba(196, 122, 18, 0.5);
+}
+
+/* أدوات التحكم */
+body:not(.night-mode):not(.sepia-mode) .controls {
+  background: rgba(247, 242, 235, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 2px solid rgba(196, 122, 18, 0.2);
+}
+
+/* محتوى السورة */
+body:not(.night-mode):not(.sepia-mode) .surah-content {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* بطاقات التحكم */
+body:not(.night-mode):not(.sepia-mode) .control-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(196, 122, 18, 0.15);
+  box-shadow: 0 2px 8px rgba(60, 40, 20, 0.08);
+}
+
+body:not(.night-mode):not(.sepia-mode) .control-card:hover {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 16px rgba(60, 40, 20, 0.12);
+}
+
+/* التذييل */
+body:not(.night-mode):not(.sepia-mode) .footer {
+  background: rgba(92, 68, 48, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* المشغل العائم */
+body:not(.night-mode):not(.sepia-mode) .player {
+  background: rgba(254, 253, 248, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 3px solid rgba(196, 122, 18, 0.5);
+  box-shadow: 0 -6px 24px rgba(60, 40, 20, 0.1);
+}
+
+/* شريط التنقل السفلي */
+body:not(.night-mode):not(.sepia-mode) .bottom-nav {
+  background: rgba(122, 92, 58, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 3px solid rgba(196, 122, 18, 0.5);
+}
+
+/* ========== اللوحات الجانبية ========== */
+/* لوحة الإعدادات */
+body:not(.night-mode):not(.sepia-mode) .settings-panel {
+  background: rgba(254, 253, 248, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: -10px 0 40px rgba(60, 40, 20, 0.15);
+}
+
+/* لوحة المفضلة */
+body:not(.night-mode):not(.sepia-mode) .favorites-panel {
+  background: rgba(254, 253, 248, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 10px 0 40px rgba(60, 40, 20, 0.15);
+}
+
+/* لوحة الأذكار */
+body:not(.night-mode):not(.sepia-mode) .adhkar-panel {
+  background: rgba(254, 253, 248, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 10px 0 40px rgba(60, 40, 20, 0.15);
+}
+
+/* ستارة التفسير */
+body:not(.night-mode):not(.sepia-mode) .tafsir-curtain {
+  background: rgba(250, 246, 240, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 8px 0 32px rgba(60, 40, 20, 0.15);
+}
+
+/* ========== أقسام داخل اللوحات ========== */
+body:not(.night-mode):not(.sepia-mode) .settings-section {
+  background: rgba(247, 242, 235, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+body:not(.night-mode):not(.sepia-mode) .prayer-times-list {
+  background: rgba(247, 242, 235, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+body:not(.night-mode):not(.sepia-mode) .prayer-row {
+  background: rgba(254, 253, 248, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+body:not(.night-mode):not(.sepia-mode) .adhkar-item {
+  background: rgba(247, 242, 235, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+body:not(.night-mode):not(.sepia-mode) .favorite-item {
+  background: rgba(247, 242, 235, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ========== نتائج البحث ========== */
+body:not(.night-mode):not(.sepia-mode) .search-results {
+  background: rgba(247, 242, 235, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+body:not(.night-mode):not(.sepia-mode) .search-results-header {
+  background: rgba(247, 242, 235, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+body:not(.night-mode):not(.sepia-mode) .search-result-item {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ========== القائمة المنسدلة ========== */
+body:not(.night-mode):not(.sepia-mode) .header-dropdown {
+  background: rgba(254, 253, 248, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(60, 40, 20, 0.12);
+}
+
+/* قائمة المشاركة */
+body:not(.night-mode):not(.sepia-mode) .share-menu {
+  background: rgba(254, 253, 248, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ========== الإكمال التلقائي ========== */
+body:not(.night-mode):not(.sepia-mode) .search-autocomplete {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ========== لوحة المفاتيح العربية ========== */
+body:not(.night-mode):not(.sepia-mode) .arabic-keyboard {
+  background: rgba(247, 242, 235, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ========== النوافذ المنبثقة والتنبيهات ========== */
+body:not(.night-mode):not(.sepia-mode) .toast {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ========== الترجمة ========== */
+body:not(.night-mode):not(.sepia-mode) .ayah .translation-text {
+  background: rgba(250, 246, 240, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ========== عناصر الإدخال ========== */
+body:not(.night-mode):not(.sepia-mode) .control-group select,
+body:not(.night-mode):not(.sepia-mode) .control-group input {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+body:not(.night-mode):not(.sepia-mode) .settings-row select,
+body:not(.night-mode):not(.sepia-mode) .settings-row input {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+body:not(.night-mode):not(.sepia-mode) .font-size-select {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+body:not(.night-mode):not(.sepia-mode) .search-input-wrapper {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ========== الأزرار ========== */
+body:not(.night-mode):not(.sepia-mode) .kbd-key {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ========== تحسين المقروئية — ظل النص ========== */
+body:not(.night-mode):not(.sepia-mode) .surah-content .ayahs-container {
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+body:not(.night-mode):not(.sepia-mode) .bismillah {
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.6);
+}
+
+/* ========== شريط التمرير ========== */
+body:not(.night-mode):not(.sepia-mode) ::-webkit-scrollbar-track {
+  background: rgba(247, 242, 235, 0.5);
+}
+
+/* ========== تحسينات إضافية ========== */
+/* تأثير حركي عند تحميل الصفحة */
+@keyframes glassFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(16px);
+  }
+}
+
+body:not(.night-mode):not(.sepia-mode) .container {
+  animation: glassFadeIn 0.6s ease-out;
+}
+
+/* تحسين ظلال البطاقات */
+body:not(.night-mode):not(.sepia-mode) .surah-title {
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
+}
+
+/* شبكة الإحصائيات */
+body:not(.night-mode):not(.sepia-mode) .stat-card {
+  background: rgba(254, 253, 248, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* عداد الأذكار */
+body:not(.night-mode):not(.sepia-mode) .adhkar-counter-btn {
+  background: rgba(254, 253, 248, 0.8);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* صفوف إعدادات الأذكار */
+body:not(.night-mode):not(.sepia-mode) .adhkar-setting-row {
+  background: rgba(254, 253, 248, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* علامة الجزء */
+body:not(.night-mode):not(.sepia-mode) .juz-marker::before,
+body:not(.night-mode):not(.sepia-mode) .juz-marker::after {
+  background: linear-gradient(90deg, transparent, rgba(196, 122, 18, 0.3), transparent);
+}
+
+/* شريط التقدم */
+body:not(.night-mode):not(.sepia-mode) .reading-progress {
+  background: rgba(196, 122, 18, 0.8);
+}
