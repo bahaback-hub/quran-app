@@ -315,8 +315,24 @@
     -webkit-appearance: none;
     appearance: none;
   }
-  * {
+  /* Only apply touch-action: manipulation to interactive elements, not content area */
+  button,
+  .btn,
+  a,
+  select,
+  input,
+  textarea,
+  .toggle-switch,
+  .bottom-nav-btn,
+  .header-action-btn,
+  .header-menu-btn,
+  .player-buttons .btn,
+  .search-autocomplete-item {
     touch-action: manipulation;
+  }
+  /* Allow pinch-to-zoom in ayah content area for accessibility */
+  .ayahs-container {
+    touch-action: pan-x pan-y pinch-zoom;
   }
 }
 
@@ -668,43 +684,8 @@
 /* ========== الطباعة ========== */
 @media print {
   body {
-    background: #fff;
-    padding: 0;
-    padding-bottom: 0;
-  }
-  .player,
-  .prayer-bar,
-  .settings-panel,
-  .favorites-panel,
-  .tafsir-curtain,
-  .tafsir-curtain-handle,
-  .toast,
-  .header-action-btn,
-  .header-menu-btn,
-  .controls,
-  .footer,
-  .skip-link {
-    display: none !important;
-  }
-  .container {
-    box-shadow: none;
-    max-width: 100%;
-  }
-  .surah-content {
-    padding: 20px;
-  }
-  .ayah {
-    background: none !important;
-    box-shadow: none !important;
-    color: #000 !important;
-  }
-}
-
-/* ========== أنماط الطباعة ========== */
-@media print {
-  body {
-    padding: 0;
     background: #fff !important;
+    padding: 0;
     color: #000;
   }
   .player,
@@ -713,6 +694,8 @@
   .favorites-panel,
   .tafsir-curtain,
   .tafsir-curtain-handle,
+  .header-action-btn,
+  .header-menu-btn,
   .header-menu-container,
   .bottom-nav,
   .network-banner,
@@ -728,17 +711,24 @@
   }
   .container {
     box-shadow: none;
+    max-width: 100%;
     border-radius: 0;
   }
   .surah-content {
-    padding: 10px;
+    padding: 20px;
   }
   .ayah {
+    background: none !important;
+    box-shadow: none !important;
     color: #000 !important;
+    page-break-inside: avoid;
   }
   .ayah-number {
     background: none;
     color: #000;
     border: 1px solid #000;
+  }
+  .bismillah {
+    color: #333 !important;
   }
 }

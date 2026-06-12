@@ -84,6 +84,52 @@ interface SavedPosition {
   timestamp: number;
 }
 
+/* ===================== IndexedDB SURAH CACHE ===================== */
+
+function openSurahDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('QuranSurahDB', 1);
+    request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
+      const db = (e.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains('surahs')) {
+        db.createObjectStore('surahs', { keyPath: 'key' });
+      }
+    };
+    request.onsuccess = (e: Event) => resolve((e.target as IDBOpenDBRequest).result);
+    request.onerror = () => reject(new Error('Failed to open QuranSurahDB'));
+  });
+}
+
+async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Promise<void> {
+  try {
+    const db = await openSurahDB();
+    const tx = db.transaction('surahs', 'readwrite');
+    tx.objectStore('surahs').put({ key, ...entry });
+  } catch (err) {
+    if (import.meta.env.DEV) console.warn('[IDB] Failed to cache surah:', err);
+  }
+}
+
+async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEntry | null> {
+  try {
+    const db = await openSurahDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('surahs', 'readonly');
+      const req = tx.objectStore('surahs').get(key);
+      req.onsuccess = () => {
+        const result = req.result as { key: string; text: SurahTextData; audios?: (string | null)[]; timings?: number[]; audio?: { ayahs: AyahEntry[] }; translation: Record<string, unknown> | null } | undefined;
+        if (!result) { resolve(null); return; }
+        // Extract the CachedSurahEntry fields (exclude the 'key' property)
+        const { key: _k, ...entry } = result;
+        resolve(entry as unknown as CachedSurahEntry);
+      };
+      req.onerror = () => resolve(null);
+    });
+  } catch {
+    return null;
+  }
+}
+
 /* ===================== SURAH LIST ===================== */
 
 /** Load surah list from cache, API, or local fallback, then populate dropdown. */
@@ -344,6 +390,33 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     return;
   }
 
+  // Try IndexedDB cache for offline support before fetching from API
+  const idbCached = await getCachedSurahFromIDB(cacheKey);
+  if (idbCached) {
+    if (_loadCounter !== currentLoad) return;
+    // Also store in memory cache
+    immutableMapSet(state, 'surahCache', cacheKey, idbCached);
+    state.surahData = idbCached.text as any;
+    if (isMp3quran) {
+      state.ayahsAudios = idbCached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');
+      state.ayahTimings = idbCached.timings || calculateAyahTimings(idbCached.text.ayahs, surahNum);
+    } else {
+      state.ayahsAudios = Array.isArray(idbCached.audios)
+        ? (idbCached.audios as string[])
+        : idbCached.audio?.ayahs?.map((a: AyahEntry) => a.audio || '') || [];
+      state.ayahTimings = [];
+    }
+    state.translationData = idbCached.translation || null;
+    renderSurah(idbCached.text);
+    finalizeSurahLoad(opts);
+    state.loadingSurah = null;
+    // If online, still try to refresh the data in background (stale-while-revalidate)
+    if (navigator.onLine) {
+      _refreshSurahFromAPI(surahNum, cacheKey, reciterInfo, isMp3quran, currentLoad, signal);
+    }
+    return;
+  }
+
   loadingBar.show(
     `${__('loading_surah')} ${state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || surahNum}...`
   );
@@ -400,12 +473,15 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       const firstKey = state.surahCache.keys().next().value;
       immutableMapDelete(state, 'surahCache', firstKey);
     }
-    immutableMapSet(state, 'surahCache', cacheKey, {
+    const cacheEntry: CachedSurahEntry = {
       text: textData,
       audios: state.ayahsAudios,
       timings: state.ayahTimings,
       translation: state.translationData,
-    });
+    };
+    immutableMapSet(state, 'surahCache', cacheKey, cacheEntry);
+    // Also persist to IndexedDB for offline access
+    cacheSurahToIDB(cacheKey, cacheEntry);
   } catch (e: unknown) {
     if ((e as Error).name === 'AbortError') return;
     if (state.fullQuranLoaded && state.fullQuranText) {
@@ -432,6 +508,67 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     loadingBar.hide();
   } finally {
     state.loadingSurah = null;
+  }
+}
+
+/**
+ * Background refresh: re-fetch surah data from API and update caches.
+ * Used when the surah was loaded from IDB cache but we want fresh data.
+ */
+async function _refreshSurahFromAPI(
+  surahNum: number,
+  cacheKey: string,
+  reciterInfo: ReciterInfo,
+  isMp3quran: boolean,
+  currentLoad: number,
+  signal: AbortSignal
+): Promise<void> {
+  try {
+    const textJson = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, silent: true });
+    const textData: SurahTextData = textJson?.data;
+    if (!textData?.ayahs?.length || _loadCounter !== currentLoad) return;
+
+    // Update in-memory state
+    state.surahData = textData as any;
+
+    // Load audio
+    const audioPromise = isMp3quran
+      ? loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad)
+      : loadApiAudio(surahNum, state.currentReciter, currentLoad, signal);
+    const transPromise =
+      state.translationEnabled && state.currentTranslation
+        ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal, silent: true })
+            .then((d: { data?: Record<string, unknown> }) => d?.data || null)
+            .catch(() => null)
+        : Promise.resolve(null);
+
+    const [audioResult, transResult]: [AudioResult | null, Record<string, unknown> | null] = await Promise.all([
+      audioPromise,
+      transPromise,
+    ]);
+    if (_loadCounter !== currentLoad) return;
+
+    if (audioResult) {
+      state.ayahsAudios = audioResult.audios.filter((a): a is string => a !== null);
+      state.ayahTimings = audioResult.timings;
+    }
+    state.translationData = transResult;
+
+    // Update caches
+    const cacheEntry: CachedSurahEntry = {
+      text: textData,
+      audios: state.ayahsAudios,
+      timings: state.ayahTimings,
+      translation: state.translationData,
+    };
+    immutableMapSet(state, 'surahCache', cacheKey, cacheEntry);
+    cacheSurahToIDB(cacheKey, cacheEntry);
+
+    // Re-render with fresh data
+    renderSurah(textData);
+    highlightCurrentAyah();
+  } catch {
+    // Background refresh failure is silent — the cached data is still displayed
   }
 }
 

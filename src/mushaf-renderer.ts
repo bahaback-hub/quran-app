@@ -228,11 +228,8 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
   const fontUrl = getFontUrl(fontName);
 
   for (let attempt = 1; attempt <= 3; attempt++) {
-    console.log(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})`);
-
     // --- Strategy 1: Fetch as ArrayBuffer → FontFace (most reliable) ---
     try {
-      console.log(`[Mushaf] Strategy 1: Fetching "${fontName}" as ArrayBuffer...`);
       const res = await fetch(fontUrl);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const buffer = await res.arrayBuffer();
@@ -252,17 +249,14 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
 
       // Verify on Canvas
       if (verifyFontOnCanvas(fontName)) {
-        console.log(`[Mushaf] Font "${fontName}" loaded via ArrayBuffer (attempt ${attempt}) ✅`);
         return true;
       }
-      console.warn(`[Mushaf] ArrayBuffer loaded but Canvas verification failed for "${fontName}"`);
     } catch (e) {
-      console.warn(`[Mushaf] ArrayBuffer strategy failed for "${fontName}":`, e);
+      if (import.meta.env.DEV) console.warn(`[Mushaf] ArrayBuffer strategy failed for "${fontName}":`, e);
     }
 
     // --- Strategy 2: FontFace with URL ---
     try {
-      console.log(`[Mushaf] Strategy 2: FontFace URL for "${fontName}"...`);
       const fontFace = new FontFace(fontName, `url('${fontUrl}')`, { display: 'block' });
       const loaded = await fontFace.load();
       document.fonts.add(loaded);
@@ -272,16 +266,14 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       await new Promise<void>((r) => setTimeout(r, 200));
 
       if (verifyFontOnCanvas(fontName)) {
-        console.log(`[Mushaf] Font "${fontName}" loaded via FontFace URL (attempt ${attempt}) ✅`);
         return true;
       }
     } catch (e) {
-      console.warn(`[Mushaf] FontFace URL strategy failed for "${fontName}":`, e);
+      if (import.meta.env.DEV) console.warn(`[Mushaf] FontFace URL strategy failed for "${fontName}":`, e);
     }
 
     // --- Strategy 3: CSS @font-face + DOM preload ---
     try {
-      console.log(`[Mushaf] Strategy 3: CSS @font-face for "${fontName}"...`);
       const styleId = fontName === BSML_FONT ? 'qcf-basml' : `qcf-${fontName}`;
       if (!document.getElementById(styleId)) {
         const style = document.createElement('style');
@@ -310,21 +302,20 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       await new Promise<void>((r) => setTimeout(r, 500));
 
       if (verifyFontOnCanvas(fontName)) {
-        console.log(`[Mushaf] Font "${fontName}" loaded via CSS @font-face (attempt ${attempt}) ✅`);
         return true;
       }
     } catch (e) {
-      console.warn(`[Mushaf] CSS @font-face strategy failed for "${fontName}":`, e);
+      if (import.meta.env.DEV) console.warn(`[Mushaf] CSS @font-face strategy failed for "${fontName}":`, e);
     }
 
     if (attempt < 3) {
       const delay = 500 * attempt;
-      console.warn(`[Mushaf] All strategies failed for "${fontName}" (attempt ${attempt}), retrying in ${delay}ms...`);
+      if (import.meta.env.DEV) console.warn(`[Mushaf] All strategies failed for "${fontName}" (attempt ${attempt}), retrying in ${delay}ms...`);
       await new Promise<void>((r) => setTimeout(r, delay));
     }
   }
 
-  console.error(`[Mushaf] ❌ FAILED to load font "${fontName}" after 3 attempts. Quran text will appear as squares.`);
+  console.error(`[Mushaf] FAILED to load font "${fontName}" after 3 attempts. Quran text will appear as squares.`);
   return false;
 }
 
@@ -377,7 +368,7 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   // Final Canvas verification — if the page font still doesn't work,
   // try one more time with a longer wait
   if (!loadedFonts.has(pageFont) || !verifyFontOnCanvas(pageFont)) {
-    console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
+    if (import.meta.env.DEV) console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
     loadedFonts.delete(pageFont);
     await ensureFontLoaded(pageFont);
   }

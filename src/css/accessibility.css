@@ -1,4 +1,4 @@
-/* Accessibility — reduced motion, high contrast, focus styles, auto night mode */
+/* Accessibility — reduced motion, high contrast, focus styles */
 
 :focus-visible {
   outline: var(--focus-outline);
@@ -7,18 +7,6 @@
 }
 
 /* ========== دعم تقليل الحركة ========== */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ========== احترام تفضيلات الحركة ========== */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -39,6 +27,11 @@
   }
   .ayahs-container .ayah {
     animation: none !important;
+  }
+  /* Disable hifdh pulse animation when reduced motion is preferred */
+  .ayah.hifdh-mode::after {
+    animation: none !important;
+    opacity: 0.5;
   }
 }
 

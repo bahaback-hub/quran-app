@@ -117,6 +117,8 @@ const ms: TranslationBundle = {
   no_audio: 'Tiada pautan audio untuk surah ini',
   no_audio_ayah: 'Tiada audio untuk ayat ini',
   audio_error: '⚠️ Gagal memainkan audio, cuba ayat lain',
+  next_ayah: 'Melangkah ke ayat seterusnya',
+  sleep_timer_remaining: 'Baki',
   copied: '📋 Ayat disalin',
   failed_copy: 'Gagal mendapatkan ayat',
   loading_quran_db: 'Memuatkan pangkalan data Al-Quran (sekali sahaja)...',

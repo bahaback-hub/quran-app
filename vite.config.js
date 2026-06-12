@@ -40,7 +40,7 @@ export default defineConfig({
   },
   plugins: [
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       injectRegister: 'auto',
       includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png'],
       manifest: {

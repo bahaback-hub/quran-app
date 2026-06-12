@@ -117,6 +117,8 @@ const en: TranslationBundle = {
   no_audio: 'No audio links for this surah',
   no_audio_ayah: 'No audio for this ayah',
   audio_error: '⚠️ Failed to play audio, try another ayah',
+  next_ayah: 'Skipping to next ayah',
+  sleep_timer_remaining: 'Remaining',
   copied: '📋 Ayah copied',
   failed_copy: 'Failed to get ayah',
   loading_quran_db: 'Loading Quran database (one time only)...',
