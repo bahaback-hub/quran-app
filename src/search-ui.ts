@@ -411,7 +411,8 @@ export function initSearchAutocomplete(): void {
       items.forEach((c, i) => c.classList.toggle('active', i === _acIndex));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      _acIndex = Math.max(_acIndex - 1, 0);
+      _acIndex = _acIndex - 1;
+      if (_acIndex < -1) _acIndex = -1;
       items.forEach((c, i) => c.classList.toggle('active', i === _acIndex));
     } else if (e.key === 'Enter' && _acIndex >= 0) {
       e.preventDefault();

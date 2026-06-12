@@ -115,7 +115,7 @@ export function tajweedColorWord(word: string, wordOffset: number, colorMap: Map
       }
       result += `<span style="color:${color}">${escapeHtml(word.substring(start, i))}</span>`;
     } else {
-      result += word[i];
+      result += escapeHtml(word[i]);
       i++;
     }
   }
