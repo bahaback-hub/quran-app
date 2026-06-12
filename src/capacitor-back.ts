@@ -47,7 +47,12 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
         { el: document.getElementById('tafsirCurtain'), close: () => closeTafsir() },
       ];
       for (const { el, close } of activeElements) {
-        if (el && el.style.display !== 'none' && el.style.display !== '') {
+        // Check visibility using CSS classes (open/hidden) not inline display
+        const isVisible = el && (
+          el.classList.contains('open') ||
+          (!el.classList.contains('hidden') && el.style.display && el.style.display !== 'none')
+        );
+        if (isVisible) {
           close();
           return;
         }

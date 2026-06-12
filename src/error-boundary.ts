@@ -227,7 +227,7 @@ function handleOnError(
   if (isCriticalError(String(message), source)) {
     showRecoveryOverlay(error?.stack || String(message));
   } else {
-    // showDebouncedToast(__('error_title')); // disabled at startup
+    showDebouncedToast(__('error_title'));
   }
 
   return true; // Prevent default browser error handling
@@ -258,11 +258,11 @@ function handleUnhandledRejection(event: PromiseRejectionEvent): void {
     msgLower.includes('err_internet_disconnected') ||
     msgLower.includes('net::err')
   ) {
-    // showDebouncedToast(__('error_server_unreachable')); // disabled at startup
+    showDebouncedToast(__('error_server_unreachable'));
   } else if (isCriticalError(message)) {
     showRecoveryOverlay(stack || message);
   } else {
-    // showDebouncedToast(__('error_unexpected')); // disabled at startup
+    showDebouncedToast(__('error_unexpected'));
   }
 
   event.preventDefault(); // Silence console warning

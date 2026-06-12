@@ -442,6 +442,7 @@ const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'pres_bg_scene',
   'pres_bg_nature',
   'sepia_mode',
+  'reading_stats',
 ]);
 
 /** Type validators for setting keys — ensures imported values match expected types. */
@@ -478,6 +479,7 @@ const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
   pres_bg_scene: (v) => typeof v === 'string' && ['stars', 'waves', 'aurora', 'particles', 'rain'].includes(v),
   pres_bg_nature: (v) => typeof v === 'string' && ['dawn', 'morning', 'afternoon', 'sunset', 'night'].includes(v),
   sepia_mode: (v) => typeof v === 'boolean',
+  reading_stats: (v) => typeof v === 'object' && v !== null,
 };
 
 /** Import settings from a JSON file. */
