@@ -224,13 +224,17 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
   const surahInfo = state.surahList.find((s) => s.number === surahNum);
   const surahName = surahInfo ? surahInfo.name : `${__('surah')} ${surahNum}`;
   setTafsirHeader(surahName, ayahNum);
+  // Find ayah text for header display
+  const ayahEntry = (state.fullQuranText || []).find(
+    (e: { surah: number; ayah: number }) => e.surah === surahNum && e.ayah === ayahNum
+  );
+  const ayahText = (ayahEntry as { text?: string } | undefined)?.text || '';
   // Try instant local first for Muyassar
   if (edition === 'ar-tafsir-muyassar') {
     const local = await loadLocalMuyassar();
     const localText = local ? getLocalMuyassarAyah(surahNum, ayahNum) : null;
     if (localText) {
-      dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(localText)}</p>`;
-      dom.tafsirCurtain?.classList.add('open');
+      renderTafsirContent(localText, ayahText, surahName, ayahNum);
       return;
     }
   }
@@ -238,14 +242,13 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
   const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
   const cached = await getTafsirFromDB(cacheKey);
   if (cached) {
-    dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(cached)}</p>`;
-    dom.tafsirCurtain?.classList.add('open');
+    renderTafsirContent(cached, ayahText, surahName, ayahNum);
     return;
   }
   showTafsirLoading();
   dom.tafsirCurtain?.classList.add('open');
   const text = await fetchTafsirFromAPI(edition, surahNum, ayahNum);
-  if (text) dom.tafsirCurtainBody.innerHTML = `<p>${escapeHtml(text)}</p>`;
+  if (text) renderTafsirContent(text, ayahText, surahName, ayahNum);
   else showTafsirError();
 }
 

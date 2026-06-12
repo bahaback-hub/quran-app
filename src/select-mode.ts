@@ -65,7 +65,8 @@ function updateSelectCount(): void {
   if (el) el.textContent = String(count);
   const selectModeBar = document.getElementById('selectModeBar');
   if (selectModeBar) {
-    selectModeBar.classList.toggle('show', count > 0);
+    // Keep bar visible while select mode is active, even with 0 selections
+    selectModeBar.classList.toggle('show', state._selectMode);
   }
 }
 

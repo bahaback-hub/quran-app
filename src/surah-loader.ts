@@ -584,7 +584,7 @@ function buildAyahWordsHtml(text: string, ayahIdx: number, colorMap: Map<number,
   return words
     .map((word: string, wIdx: number) => {
       const wordHtml = useTajweed ? tajweedColorWord(word, outputPos, colorMap!) : escapeHtml(word);
-      outputPos += word.length;
+      outputPos += word.length + (wIdx < words.length - 1 ? 1 : 0); // +1 for space between words
       return `<span class="word" data-ayah-index="${ayahIdx}" data-word-index="${wIdx}">${wordHtml}</span>`;
     })
     .join(' ');

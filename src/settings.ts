@@ -441,6 +441,7 @@ const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'pres_bg_mode',
   'pres_bg_scene',
   'pres_bg_nature',
+  'sepia_mode',
 ]);
 
 /** Type validators for setting keys — ensures imported values match expected types. */
@@ -476,6 +477,7 @@ const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
   pres_bg_mode: (v) => typeof v === 'string' && ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene'].includes(v),
   pres_bg_scene: (v) => typeof v === 'string' && ['stars', 'waves', 'aurora', 'particles', 'rain'].includes(v),
   pres_bg_nature: (v) => typeof v === 'string' && ['dawn', 'morning', 'afternoon', 'sunset', 'night'].includes(v),
+  sepia_mode: (v) => typeof v === 'boolean',
 };
 
 /** Import settings from a JSON file. */
@@ -537,9 +539,9 @@ export function restoreSettings(): void {
   const method = storage.get<string>('method');
   if (method) state.method = method;
   const azan = storage.get<boolean>('azan_enabled');
-  if (azan === false) state.azanEnabled = false;
+  if (azan !== undefined && azan !== null) state.azanEnabled = azan;
   const azanFajr = storage.get<boolean>('azan_fajr_enabled');
-  if (azanFajr === false) state.azanFajrEnabled = false;
+  if (azanFajr !== undefined && azanFajr !== null) state.azanFajrEnabled = azanFajr;
   const as = storage.get<boolean>('auto_save');
   if (as === false) state.autoSave = false;
   const rec = storage.get<string>('reciter');

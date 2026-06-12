@@ -8,38 +8,41 @@ interface OnboardingStep {
   desc: string;
 }
 
-const STEPS: OnboardingStep[] = [
-  {
-    icon: '📖',
-    title: __('app_title'),
-    desc: __('onboarding_desc_1'),
-  },
-  {
-    icon: '🎧',
-    title: __('welcome_feature_audio'),
-    desc: __('onboarding_desc_2'),
-  },
-  {
-    icon: '🔎',
-    title: __('welcome_feature_search'),
-    desc: __('onboarding_desc_3'),
-  },
-  {
-    icon: '📜',
-    title: __('tafsir'),
-    desc: __('onboarding_desc_4'),
-  },
-  {
-    icon: '🕌',
-    title: __('prayer_times'),
-    desc: __('onboarding_desc_5'),
-  },
-  {
-    icon: '⚙️',
-    title: __('settings'),
-    desc: __('onboarding_desc_6'),
-  },
-];
+/** Build onboarding steps lazily to ensure i18n is initialized first. */
+function getSteps(): OnboardingStep[] {
+  return [
+    {
+      icon: '📖',
+      title: __('app_title'),
+      desc: __('onboarding_desc_1'),
+    },
+    {
+      icon: '🎧',
+      title: __('welcome_feature_audio'),
+      desc: __('onboarding_desc_2'),
+    },
+    {
+      icon: '🔎',
+      title: __('welcome_feature_search'),
+      desc: __('onboarding_desc_3'),
+    },
+    {
+      icon: '📜',
+      title: __('tafsir'),
+      desc: __('onboarding_desc_4'),
+    },
+    {
+      icon: '🕌',
+      title: __('prayer_times'),
+      desc: __('onboarding_desc_5'),
+    },
+    {
+      icon: '⚙️',
+      title: __('settings'),
+      desc: __('onboarding_desc_6'),
+    },
+  ];
+}
 
 export function hasSeenOnboarding(): unknown {
   return storage.get('onboarding_seen');
@@ -78,6 +81,7 @@ function showOnboarding(): void {
     display: flex; justify-content: center; gap: 8px; margin-bottom: 20px;
   `;
   const dots: HTMLSpanElement[] = [];
+  const STEPS = getSteps();
   for (let i = 0; i < STEPS.length; i++) {
     const dot = document.createElement('span');
     dot.style.cssText = `

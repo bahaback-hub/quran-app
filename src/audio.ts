@@ -200,6 +200,8 @@ function onTimeUpdate(): void {
     if (currentTime >= endTime - 0.15) {
       if (_autoAdvancing) return;
       _autoAdvancing = true;
+      // Pause to prevent the real 'ended' event from firing after we handle it
+      dom.audioPlayer.pause();
       try {
         if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
           nextAyah(true);
@@ -259,7 +261,7 @@ export function togglePlayPause(): void {
   hapticFeedback();
   if (dom.audioPlayer.paused) {
     if (!dom.audioPlayer.src || dom.audioPlayer.ended) {
-      state.currentAyahIndex = 0;
+      // Replay current ayah instead of resetting to first ayah
       highlightCurrentAyah();
       playCurrentAyah();
     } else {
@@ -328,6 +330,7 @@ function onAudioPause(): void {
 }
 
 function onAudioError(): void {
+  _autoAdvancing = false;
   _mp3quranUrl = null;
   state.isPlaying = false;
   document.body.classList.remove('audio-playing');

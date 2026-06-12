@@ -166,6 +166,8 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
     const flipOut = direction === 'left' ? 'mushaf-flip-out-left' : 'mushaf-flip-out-right';
     oldContainer.classList.add(flipOut);
     await new Promise<void>((r) => setTimeout(r, 300));
+    // Abort if user navigated to a different page during animation
+    if (_mushafLoadCounter !== currentLoad) return;
   }
 
   renderMushafPageImage(pageNum, skipNav);
