@@ -107,8 +107,14 @@ async function _doLoadFullQuranText(): Promise<void> {
     const db = await openQuranDB();
     const cached = await loadFromIndexedDB(db);
     if (cached) {
-      const needsNormalize = cached.length > 0 && !cached[0].normalized;
+      // Re-normalize if cache was built with older normalizer (missing وٰة→اة fix)
+      // Check a known Uthmani word: if الصلوة normalizes to الصلوه instead of الصلاه, re-normalize
+      const needsNormalize = cached.length > 0 && (
+        !cached[0].normalized ||
+        cached.some(a => a.normalized && a.normalized.includes('الصلوه'))
+      );
       if (needsNormalize) {
+        console.log('[Search] Re-normalizing cached Quran text with updated normalizer...');
         for (const a of cached) {
           a.normalized = normalizeExactText(a.text);
         }
