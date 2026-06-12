@@ -44,12 +44,24 @@ export function stripTashkeel(str: string): string {
 }
 
 /**
+ * Convert Uthmani وٰة (waw + dagger alif + ta marbuta) → اة before tashkeel removal.
+ * This handles words like الصلوة → الصلاة, الزكوة → الزكاة, الحيوة → الحياة
+ * where Uthmani uses وٰة but modern Arabic uses اة.
+ * Must run BEFORE tashkeel stripping because ٰ (U+0670) is otherwise removed.
+ */
+function uthmaniWawAlefFix(str: string): string {
+  return String(str)
+    // وٰة (waw + optional diacritics + dagger alif + optional diacritics + ta marbuta)
+    .replace(/و[\u064B-\u065F]*\u0670[\u064B-\u065F]*ة/g, 'اة');
+}
+
+/**
  * Canonical Arabic normalizer used by search functions.
  * Strips tashkeel/harakat and Quranic marks, normalizes alef/ya/ta-marbuta/hamza variants.
- * Does NOT handle dagger alif (U+0670) — callers decide whether to strip or convert it.
+ * Applies Uthmani وٰة→اة fix BEFORE tashkeel removal for accurate matching.
  */
 function normalizeArabic(str: string): string {
-  return String(str)
+  return uthmaniWawAlefFix(String(str))
     .replace(/[\u064B-\u065F\u0610-\u061A\u06D6-\u06ED\u08D0-\u08E3]/g, '')
     .replace(/[إأآٱٲٳٵ]/g, 'ا')
     .replace(/ى/g, 'ي')
@@ -71,10 +83,11 @@ export function normalizeExactText(str: string): string {
 
 /** More aggressive normalizer for fuzzy fallback when exact search yields 0 results.
  *  Converts dagger alif (U+0670) to ا instead of stripping it, keeping alifs
- *  for words like السماوات, الإنسان where the alif is written as dagger alif.
+ *  for words like الكتاب, السماوات, الإنسان where the alif is written as dagger alif.
+ *  Also applies Uthmani وٰة→اة fix for words like الصلاة, الزكاة.
  */
 export function normalizeRelaxed(str: string): string {
-  return String(str)
+  return uthmaniWawAlefFix(String(str))
     .replace(/[\u064B-\u065F\u0610-\u061A\u06D6-\u06ED\u08D0-\u08E3]/g, '')
     .replace(/\u0670/g, 'ا')
     .replace(/[إأآٱٲٳٵ]/g, 'ا')
