@@ -37,6 +37,10 @@ let _mp3quranUrl: string | null = null;
 let _autoAdvancing = false;
 let _sleepTimer: ReturnType<typeof setTimeout> | null = null;
 let _sleepTimerMinutes = 0;
+let _sleepTimerStart: number = 0; // timestamp when timer was set
+let _audioRetryCount = 0;
+const MAX_AUDIO_RETRIES = 2;
+let _autoAdvanceSafetyTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function prepareAudioForNewSurah(): void {
   _mp3quranUrl = null;
@@ -113,6 +117,12 @@ export function playCurrentAyah(): void {
   } else {
     dom.audioPlayer.src = url;
     dom.audioPlayer.play().catch((e: unknown) => console.warn(e));
+  }
+
+  // Apply saved playback rate when starting a new audio source
+  const savedSpeed = storage.get<string>('playback_speed');
+  if (savedSpeed) {
+    dom.audioPlayer.playbackRate = parseFloat(savedSpeed);
   }
 
   state.isPlaying = true;
@@ -212,7 +222,13 @@ function onTimeUpdate(): void {
         console.warn('[Audio] Error during auto-advance:', e);
         _autoAdvancing = false; // Reset on error to prevent stuck state
       }
-      // _autoAdvancing is reset in onAudioPlay when next ayah starts
+      // Safety timeout: if onAudioPlay doesn't fire within 5s, reset _autoAdvancing
+      _autoAdvanceSafetyTimer = setTimeout(() => {
+        if (_autoAdvancing) {
+          console.warn('[Audio] Auto-advance safety timeout — resetting stuck state');
+          _autoAdvancing = false;
+        }
+      }, 5000);
       return;
     }
     const ayahStart = _getAyahStartTime();
@@ -306,9 +322,15 @@ export function bindAudioEvents(): void {
 
 function onAudioPlay(): void {
   _autoAdvancing = false;
+  _audioRetryCount = 0; // Reset retry count on successful play
+  if (_autoAdvanceSafetyTimer) {
+    clearTimeout(_autoAdvanceSafetyTimer);
+    _autoAdvanceSafetyTimer = null;
+  }
   state.isPlaying = true;
   document.body.classList.add('audio-playing');
   updatePlayPauseBtn();
+  updateSleepTimerDisplay();
   const vizCanvas = document.getElementById('audioVisualizer');
   if (vizCanvas) startVisualizer(vizCanvas as HTMLCanvasElement);
   if ('mediaSession' in navigator && state.surahData) {
@@ -318,6 +340,7 @@ function onAudioPlay(): void {
       title: ayah ? `${__('ayah')} ${ayah.numberInSurah}` : '',
       artist: surahData.name || __('app_title'),
       album: __('app_title'),
+      artwork: [{ src: '/icon-512.png', sizes: '512x512', type: 'image/png' }],
     });
   }
 }
@@ -332,10 +355,31 @@ function onAudioPause(): void {
 function onAudioError(): void {
   _autoAdvancing = false;
   _mp3quranUrl = null;
-  state.isPlaying = false;
-  document.body.classList.remove('audio-playing');
   stopWordTracking();
   stopVisualizer();
+
+  // Auto-retry: try the same ayah up to MAX_AUDIO_RETRIES times, then skip
+  if (_audioRetryCount < MAX_AUDIO_RETRIES && state.surahData && state.ayahsAudios) {
+    _audioRetryCount++;
+    console.warn(`[Audio] Retry ${_audioRetryCount}/${MAX_AUDIO_RETRIES} for ayah index ${state.currentAyahIndex}`);
+    showToast(`${__('audio_error')} (\u0645\u062d\u0627\u0648\u0644\u0629 ${_audioRetryCount}/${MAX_AUDIO_RETRIES})`, 'error');
+    setTimeout(() => playCurrentAyah(), 1500);
+    return;
+  }
+
+  // Exhausted retries — skip to next ayah if possible
+  _audioRetryCount = 0;
+  if (state.surahData && state.ayahsAudios && state.currentAyahIndex < state.ayahsAudios.length - 1) {
+    showToast(__('audio_error') + ' \u2014 ' + __('next_ayah'), 'error');
+    state.currentAyahIndex++;
+    highlightCurrentAyah();
+    setTimeout(() => playCurrentAyah(), 1000);
+    return;
+  }
+
+  // Can't skip — full stop
+  state.isPlaying = false;
+  document.body.classList.remove('audio-playing');
   updatePlayPauseBtn();
   showToast(__('audio_error'), 'error');
 }
@@ -519,6 +563,7 @@ export function setSleepTimer(minutes: number): void {
     return;
   }
   _sleepTimerMinutes = minutes;
+  _sleepTimerStart = Date.now();
   _sleepTimer = setTimeout(
     () => {
       if (dom.audioPlayer && !dom.audioPlayer.paused) {
@@ -529,10 +574,13 @@ export function setSleepTimer(minutes: number): void {
       }
       showToast(__('sleep_timer_stopped', String(minutes)), 'success');
       _sleepTimerMinutes = 0;
+      _sleepTimerStart = 0;
+      updateSleepTimerDisplay();
     },
     minutes * 60 * 1000
   );
   showToast(__('sleep_timer_set', String(minutes)), 'success');
+  updateSleepTimerDisplay();
 }
 
 /** Clear the active sleep timer. */
@@ -542,9 +590,41 @@ export function clearSleepTimer(): void {
     _sleepTimer = null;
   }
   _sleepTimerMinutes = 0;
+  _sleepTimerStart = 0;
+  updateSleepTimerDisplay();
 }
 
 /** Get the original sleep timer duration in minutes. */
 export function getSleepTimerMinutes(): number {
   return _sleepTimerMinutes;
 }
+
+/** Get the remaining time in minutes for the sleep timer (with decimal). */
+export function getSleepTimerRemaining(): number {
+  if (!_sleepTimerMinutes || !_sleepTimerStart) return 0;
+  const elapsed = (Date.now() - _sleepTimerStart) / (60 * 1000);
+  return Math.max(0, _sleepTimerMinutes - elapsed);
+}
+
+/** Update the sleep timer display in the player UI. */
+function updateSleepTimerDisplay(): void {
+  const el = document.getElementById('sleepTimerDisplay');
+  if (!el) return;
+  if (!_sleepTimerMinutes || !_sleepTimerStart) {
+    el.textContent = '';
+    el.style.display = 'none';
+    return;
+  }
+  el.style.display = 'inline';
+  const remaining = getSleepTimerRemaining();
+  const mins = Math.floor(remaining);
+  const secs = Math.floor((remaining - mins) * 60);
+  el.textContent = `${__('sleep_timer_remaining') ?? '\\u0645\\u062a\\u0628\\u0642\\u064a'} ${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Update the sleep timer countdown every 15 seconds
+setInterval(() => {
+  if (_sleepTimerMinutes && _sleepTimerStart) {
+    updateSleepTimerDisplay();
+  }
+}, 15000);

@@ -117,6 +117,8 @@ const tr: TranslationBundle = {
   no_audio: 'Bu sure için ses bağlantısı yok',
   no_audio_ayah: 'Bu ayet için ses yok',
   audio_error: '⚠️ Ses çalınamadı, başka bir ayet deneyin',
+  next_ayah: 'Sonraki ayete geçiliyor',
+  sleep_timer_remaining: 'Kalan',
   copied: '📋 Ayet kopyalandı',
   failed_copy: 'Ayet kopyalanamadı',
   loading_quran_db: 'Kuran veritabanı yükleniyor (sadece bir kez)...',

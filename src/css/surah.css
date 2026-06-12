@@ -96,6 +96,25 @@ body:not(.audio-playing) .ayah.current {
   color: transparent !important;
   text-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
   transition: all 0.5s ease;
+  cursor: pointer;
+  position: relative;
+}
+.ayah.hifdh-mode::after {
+  content: 'اضغط للكشف';
+  position: absolute;
+  right: 50%;
+  transform: translateX(50%);
+  top: -8px;
+  font-size: 9px;
+  color: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  animation: hifdhPulse 2s ease-in-out infinite;
+  white-space: nowrap;
+}
+@keyframes hifdhPulse {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.7; }
 }
 .ayah.hifdh-mode.revealed {
   color: var(--text-primary) !important;

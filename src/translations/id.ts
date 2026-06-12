@@ -117,6 +117,8 @@ const id: TranslationBundle = {
   no_audio: 'Tidak ada tautan audio untuk surah ini',
   no_audio_ayah: 'Tidak ada audio untuk ayah ini',
   audio_error: '⚠️ Gagal memutar audio, coba ayah lain',
+  next_ayah: 'Melanjut ke ayah berikutnya',
+  sleep_timer_remaining: 'Sisa',
   copied: '📋 Ayah disalin',
   failed_copy: 'Gagal mendapatkan ayah',
   loading_quran_db: "Memuat basis data Al-Qur'an (hanya sekali)...",

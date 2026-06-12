@@ -52,7 +52,9 @@ interface OrigRange {
 export { loadFullQuranText, getSearchHistory, clearSearchHistory };
 
 export function performExactSearch(query: string): void {
-  if (!query.trim() || query.length < 2) {
+  // Allow single-character queries for Arabic text (common roots like رب, صل)
+  const isArabic = /[\u0621-\u064A]/.test(query.trim());
+  if (!query.trim() || (!isArabic && query.length < 2) || (isArabic && query.length < 1)) {
     showToast(__('min_chars'), 'error');
     return;
   }

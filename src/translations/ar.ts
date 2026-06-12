@@ -117,6 +117,8 @@ const ar: TranslationBundle = {
   no_audio: 'لا توجد روابط صوت لهذه السورة',
   no_audio_ayah: 'لا يوجد صوت لهذه الآية',
   audio_error: '⚠️ تعذّر تشغيل الصوت، حاول آية أخرى',
+  next_ayah: 'الانتقال للآية التالية',
+  sleep_timer_remaining: 'متبقي',
   copied: '📋 تم نسخ الآية',
   failed_copy: 'فشل في الحصول على الآية',
   loading_quran_db: 'جاري تحميل قاعدة القرآن (مرة واحدة فقط)...',
