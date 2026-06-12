@@ -7,6 +7,7 @@ import { buildColorMap, tajweedColorWord } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
 import type { TajweedAnnotation } from './tajweed-data.js';
 import { escapeHtml } from './utils.js';
+import { highlightCurrentAyah } from './surah-loader.js';
 
 /** Shape of surahData when accessed in presentation functions. */
 interface SurahAyahData {
@@ -1229,10 +1230,7 @@ function navigateAyah(delta: number): void {
     playCurrentAyah();
   }
   // Sync main surah view highlight
-  const ayahEls = document.querySelectorAll('.ayah-card');
-  ayahEls.forEach((el: Element) => {
-    el.classList.toggle('current-ayah', (el as HTMLElement).dataset.ayahIndex === String(next));
-  });
+  highlightCurrentAyah();
   if (dom.presentationOverlay) {
     const pBody = dom.presentationBody;
     if (pBody) pBody.scrollTop = 0;

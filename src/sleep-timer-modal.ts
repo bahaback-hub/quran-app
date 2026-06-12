@@ -4,6 +4,7 @@
  */
 
 import { __ } from './i18n.js';
+import { trapFocus } from './a11y.js';
 
 /** Audio module interface with setSleepTimer method. */
 export interface AudioModule {
@@ -20,6 +21,9 @@ export function showSleepTimerModal(audioModule: AudioModule): void {
   const overlay = document.createElement('div');
   overlay.id = 'sleepTimerModal';
   overlay.className = 'modal-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', __('sleep_timer_title'));
 
   const modal = document.createElement('div');
   modal.className = 'modal-box';
@@ -63,17 +67,32 @@ export function showSleepTimerModal(audioModule: AudioModule): void {
     quickBtns.appendChild(btn);
   });
 
+  let focusCleanup: (() => void) | null = null;
+
   function close(): void {
+    if (focusCleanup) focusCleanup();
     overlay.remove();
   }
+
   confirmBtn.addEventListener('click', () => {
-    const mins = parseInt(input.value, 10);
-    if (mins > 0) audioModule.setSleepTimer(mins);
+    let mins = parseInt(input.value, 10);
+    if (isNaN(mins) || mins <= 0) {
+      close();
+      return;
+    }
+    mins = Math.min(mins, 180); // Enforce max
+    audioModule.setSleepTimer(mins);
     close();
   });
   cancelBtn.addEventListener('click', close);
   overlay.addEventListener('click', (e: MouseEvent) => {
     if (e.target === overlay) close();
+  });
+  overlay.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close();
+    }
   });
 
   btnRow.appendChild(cancelBtn);
@@ -85,6 +104,7 @@ export function showSleepTimerModal(audioModule: AudioModule): void {
   modal.appendChild(btnRow);
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  focusCleanup = trapFocus(overlay);
   input.focus();
   input.select();
 }

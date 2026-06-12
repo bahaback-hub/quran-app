@@ -100,7 +100,12 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.themeToggle?.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      toggleNightMode();
+      const btn = (e.target as HTMLElement).closest('.theme-btn') as HTMLElement | null;
+      if (btn?.dataset.theme) {
+        applyTheme(btn.dataset.theme as 'light' | 'sepia' | 'night');
+      } else {
+        toggleNightMode();
+      }
     }
   });
   dom.settingsToggleBtn?.addEventListener('click', openSettings);

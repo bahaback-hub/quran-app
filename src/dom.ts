@@ -12,6 +12,7 @@ interface DomMap {
   prayerTimesRows: HTMLElement | null;
   prayerCountdown: HTMLElement | null;
   bigClockTime: HTMLElement | null;
+  bigClockTime2: HTMLElement | null;
   bigClockDate: HTMLElement | null;
   bigClockHijri: HTMLElement | null;
   settingsPanel: HTMLElement | null;
@@ -175,6 +176,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'prayerTimesRows',
   'prayerCountdown',
   'bigClockTime',
+  'bigClockTime2',
   'bigClockDate',
   'bigClockHijri',
   'settingsPanel',

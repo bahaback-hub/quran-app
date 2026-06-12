@@ -24,6 +24,12 @@ function getLiveRegion(politeness: AriaPoliteness): HTMLDivElement {
       return region;
     }
   }
+  // Cap pool size at 4 — reuse oldest region if limit reached
+  if (_liveRegions.length >= 4) {
+    const oldest = _liveRegions[0];
+    delete oldest.dataset.busy;
+    return oldest;
+  }
   const el = document.createElement('div');
   el.setAttribute('aria-live', politeness);
   el.setAttribute('aria-atomic', 'true');
@@ -104,13 +110,15 @@ export function announceToScreenReader(message: string, politeness: AriaPolitene
 /*  3. manageFocusOnPanelOpen                                          */
 /* ================================================================== */
 
+let _a11yIdCounter = 0;
+
 /**
  * Move focus into a panel/drawer when it opens.
  */
 export function manageFocusOnPanelOpen(panelEl: HTMLElement, triggerEl?: HTMLElement): void {
   if (!panelEl) return;
   if (triggerEl) {
-    if (!triggerEl.id) triggerEl.id = '_a11y_trigger_' + Date.now();
+    if (!triggerEl.id) triggerEl.id = '_a11y_trigger_' + Date.now() + '_' + (++_a11yIdCounter);
     panelEl.dataset.a11yTriggerId = triggerEl.id;
   }
   if (!panelEl.hasAttribute('tabindex')) panelEl.setAttribute('tabindex', '-1');
@@ -197,4 +205,7 @@ export function initToggleSwitchAccessibility(): void {
     }
   });
   observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  // Disconnect observer after initial setup period to avoid performance overhead
+  // Toggle switches after this point will be handled by click event + keydown handler
+  setTimeout(() => observer.disconnect(), 10000);
 }

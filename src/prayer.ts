@@ -6,6 +6,7 @@ import { showToast } from './ui.js';
 import { pad2, formatTime12, timeStrToMinutes, escapeHtml } from './utils.js';
 import { prayerFetch } from './api-client.js';
 import { __ } from './i18n.js';
+import { updatePlayPauseBtn } from './audio.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -63,6 +64,7 @@ function updateDates(): void {
   if (dom.bigClockDate) dom.bigClockDate.textContent = greg;
   const timeStr = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
   if (dom.bigClockTime) dom.bigClockTime.textContent = timeStr;
+  if (dom.bigClockTime2) dom.bigClockTime2.textContent = timeStr;
   const collapsedClock = document.getElementById('collapsedClock');
   if (collapsedClock) collapsedClock.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
 }
@@ -186,6 +188,13 @@ export function testAzan(): void {
     stopAzan();
     showToast(__('azan_stopped'), '');
   } else {
+    // Pause Quran audio before playing azan
+    if (dom.audioPlayer && !dom.audioPlayer.paused) {
+      dom.audioPlayer.pause();
+      state.isPlaying = false;
+      document.body.classList.remove('audio-playing');
+      updatePlayPauseBtn();
+    }
     dom.azanPlayer.src = CONFIG.AZAN_FILE;
     dom.azanPlayer.load();
     dom.azanPlayer
@@ -232,6 +241,13 @@ export function checkAzanTime(): void {
       if (state.lastAzanFired === stamp) return;
       state.lastAzanFired = stamp;
       if (dom.azanPlayer) {
+        // Pause Quran audio before playing azan
+        if (dom.audioPlayer && !dom.audioPlayer.paused) {
+          dom.audioPlayer.pause();
+          state.isPlaying = false;
+          document.body.classList.remove('audio-playing');
+          updatePlayPauseBtn();
+        }
         dom.azanPlayer.src = CONFIG.AZAN_FILE;
         dom.azanPlayer.currentTime = 0;
         dom.azanPlayer
