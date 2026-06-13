@@ -78,6 +78,21 @@ const loadedFonts = new Set<string>();
 /** Tracks fonts currently being loaded (prevents duplicate loads). */
 const loadingFonts = new Map<string, Promise<boolean>>();
 
+/** Detect if running in Capacitor/Android WebView environment. */
+function isCapacitorEnv(): boolean {
+  try {
+    return !!(
+      (typeof globalThis !== 'undefined' && (
+        (globalThis as any).Capacitor?.isNativePlatform?.() ||
+        (globalThis as any).Capacitor?.isNative
+      )) ||
+      (typeof navigator !== 'undefined' && /wv|Android.*Capacitor/i.test(navigator.userAgent))
+    );
+  } catch { return false; }
+}
+
+const _isCapacitor = isCapacitorEnv();
+
 /* ===================== HELPERS ===================== */
 
 function getPageFont(pageNum: number, fontMap: Record<string, string> | null | undefined): string {
@@ -121,9 +136,21 @@ function getFontUrl(fontName: string): string {
  * and checking if the pixels are non-blank. This is the ONLY reliable
  * way to confirm the font works for Canvas rendering —
  * document.fonts.check() can return true even when Canvas can't use it.
+ *
+ * IMPORTANT: In Android WebView (Capacitor), Canvas verification is unreliable
+ * because WebView processes fonts differently. We use document.fonts.check()
+ * as a fallback verification method in that case.
  */
 function verifyFontOnCanvas(fontName: string): boolean {
   try {
+    // In Capacitor/Android WebView, skip pixel-level Canvas verification
+    // because it's unreliable — trust document.fonts API instead
+    if (_isCapacitor) {
+      const fontsCheck = document.fonts.check(`40px "${fontName}"`);
+      console.log(`[Mushaf] Capacitor: document.fonts.check for "${fontName}": ${fontsCheck}`);
+      return fontsCheck;
+    }
+
     const testSize = 40;
     const canvas = document.createElement('canvas');
     canvas.width = testSize * 2;
@@ -223,14 +250,16 @@ async function ensureFontLoaded(fontName: string): Promise<void> {
 /**
  * Internal font loading implementation with 3 strategies and retry logic.
  * Returns true if the font was loaded and verified on Canvas.
+ *
+ * In Capacitor/Android WebView, Canvas pixel verification is unreliable,
+ * so we trust document.fonts API and proceed with rendering even if
+ * pixel-level verification fails.
  */
 async function _doLoadFont(fontName: string): Promise<boolean> {
   const fontUrl = getFontUrl(fontName);
-  // Detect Capacitor/Android WebView — needs longer delays
-  const isCapacitor = typeof globalThis !== 'undefined' && ((globalThis as any).Capacitor?.isNativePlatform?.() || /wv/.test(navigator.userAgent));
-  const waitMs = isCapacitor ? 800 : 200;
+  const waitMs = _isCapacitor ? 1200 : 200;
 
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= (_isCapacitor ? 2 : 3); attempt++) {
     console.log(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})...`);
 
     // --- Strategy 1: Fetch as ArrayBuffer → FontFace (most reliable) ---
@@ -254,11 +283,18 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       // Longer delay for Android WebView font processing
       await new Promise<void>((r) => setTimeout(r, waitMs));
 
-      // Verify on Canvas
+      // Verify — in Capacitor, use document.fonts.check() instead of pixel verification
       const verified = verifyFontOnCanvas(fontName);
-      console.log(`[Mushaf] Strategy 1 Canvas verify for "${fontName}": ${verified}`);
+      console.log(`[Mushaf] Strategy 1 verify for "${fontName}": ${verified}`);
       if (verified) {
         console.log(`[Mushaf] Font "${fontName}" loaded successfully via ArrayBuffer`);
+        return true;
+      }
+
+      // In Capacitor: even if verification returns false, trust document.fonts
+      // and proceed — the font may work for Canvas even if check() returns false
+      if (_isCapacitor && document.fonts.check(`40px "${fontName}"`)) {
+        console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}", proceeding`);
         return true;
       }
     } catch (e) {
@@ -277,9 +313,14 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       await new Promise<void>((r) => setTimeout(r, waitMs));
 
       const verified = verifyFontOnCanvas(fontName);
-      console.log(`[Mushaf] Strategy 2 Canvas verify for "${fontName}": ${verified}`);
+      console.log(`[Mushaf] Strategy 2 verify for "${fontName}": ${verified}`);
       if (verified) {
         console.log(`[Mushaf] Font "${fontName}" loaded successfully via FontFace URL`);
+        return true;
+      }
+
+      if (_isCapacitor && document.fonts.check(`40px "${fontName}"`)) {
+        console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}" (strategy 2)`);
         return true;
       }
     } catch (e) {
@@ -314,27 +355,49 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
 
       // Wait and poll
       await document.fonts.ready;
-      const cssWaitMs = isCapacitor ? 1000 : 500;
+      const cssWaitMs = _isCapacitor ? 1500 : 500;
       await new Promise<void>((r) => setTimeout(r, cssWaitMs));
 
       const verified = verifyFontOnCanvas(fontName);
-      console.log(`[Mushaf] Strategy 3 Canvas verify for "${fontName}": ${verified}`);
+      console.log(`[Mushaf] Strategy 3 verify for "${fontName}": ${verified}`);
       if (verified) {
         console.log(`[Mushaf] Font "${fontName}" loaded successfully via CSS @font-face`);
+        return true;
+      }
+
+      if (_isCapacitor && document.fonts.check(`40px "${fontName}"`)) {
+        console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}" (strategy 3)`);
         return true;
       }
     } catch (e) {
       console.warn(`[Mushaf] CSS @font-face strategy failed for "${fontName}":`, e);
     }
 
-    if (attempt < 3) {
-      const delay = 500 * attempt;
+    if (attempt < (_isCapacitor ? 2 : 3)) {
+      const delay = _isCapacitor ? 800 : 500 * attempt;
       console.warn(`[Mushaf] All strategies failed for "${fontName}" (attempt ${attempt}), retrying in ${delay}ms...`);
       await new Promise<void>((r) => setTimeout(r, delay));
     }
   }
 
-  console.error(`[Mushaf] FAILED to load font "${fontName}" after 3 attempts. Quran text will appear as squares.`);
+  // FINAL FALLBACK for Capacitor: If the font was added to document.fonts at all,
+  // assume it's usable and proceed with rendering. Better to show potentially
+  // incorrect text than a blank page.
+  if (_isCapacitor) {
+    const fontFaces = document.fonts.values();
+    let found = false;
+    for (const ff of fontFaces) {
+      if (ff.family === fontName) { found = true; break; }
+    }
+    // Also check if a preload DOM element exists
+    const preloadEl = document.getElementById(`qcf-preload-${fontName}`);
+    if (found || preloadEl) {
+      console.warn(`[Mushaf] Capacitor FINAL FALLBACK: Font "${fontName}" found in document.fonts or DOM, proceeding`);
+      return true;
+    }
+  }
+
+  console.error(`[Mushaf] FAILED to load font "${fontName}" after all attempts. Quran text will appear as squares.`);
   return false;
 }
 
@@ -351,8 +414,65 @@ function getColors(): PageColors {
 
 /* ===================== RENDERING ===================== */
 
+/**
+ * Render a mushaf page onto a canvas element.
+ *
+ * For Capacitor/Android WebView, this function includes special handling:
+ * - Skips strict Canvas pixel verification (unreliable in WebView)
+ * - Adds a re-render mechanism after a delay (WebView sometimes needs
+ *   a second render pass for fonts to take effect)
+ * - Adds an overall timeout to prevent hanging
+ */
 export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
   console.log(`[Mushaf] renderPage(${pageNum}) starting...`);
+
+  // Add overall timeout for Capacitor to prevent hanging
+  if (_isCapacitor) {
+    const timeoutMs = 30000; // 30 second max
+    return Promise.race([
+      _renderPageInternal(pageNum, targetCanvas),
+      new Promise<RenderPageResult>((resolve) =>
+        setTimeout(() => {
+          console.error(`[Mushaf] renderPage(${pageNum}) timed out after ${timeoutMs}ms`);
+          // Try to render with whatever we have
+          _renderPageWithCurrentFonts(pageNum, targetCanvas).then(resolve);
+        }, timeoutMs)
+      )
+    ]);
+  }
+
+  return _renderPageInternal(pageNum, targetCanvas);
+}
+
+/**
+ * Attempt to render a page using whatever fonts are currently available,
+ * even if font loading failed. Better to show partial text than blank.
+ */
+async function _renderPageWithCurrentFonts(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
+  try {
+    const data = await loadPageData(pageNum);
+    if (!data) return { canvas: null, layout: null };
+
+    const pageFont = data.font || getPageFont(pageNum, null);
+    const canvas = targetCanvas || document.createElement('canvas');
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return { canvas: null, layout: data };
+
+    const colors = getColors();
+    ctx.fillStyle = colors.bg;
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    renderPageContent(ctx, data, pageFont, colors);
+    drawPageFrame(ctx, colors);
+    drawPageNumber(ctx, pageNum, colors);
+    return { canvas, layout: data };
+  } catch {
+    return { canvas: null, layout: null };
+  }
+}
+
+async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
   const data = await loadPageData(pageNum);
   if (!data) {
     console.error(`[Mushaf] Failed to load page data for page ${pageNum}`);
@@ -374,10 +494,14 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
 
   console.log(`[Mushaf] Page ${pageNum} needs fonts: ${[...pageFonts].join(', ')}`);
 
-  // Load all fonts in parallel
-  const fontResults = await Promise.all([...pageFonts].map((fn) => ensureFontLoaded(fn)));
-  const allFontsLoaded = fontResults.every(r => r === undefined || r === true);
-  console.log(`[Mushaf] Font loading results for page ${pageNum}: ${fontResults.length} fonts, success=${allFontsLoaded}`);
+  // Load all fonts in parallel with individual timeouts
+  const fontPromises = [...pageFonts].map((fn) =>
+    Promise.race([
+      ensureFontLoaded(fn),
+      new Promise<void>((resolve) => setTimeout(resolve, _isCapacitor ? 10000 : 5000))
+    ])
+  );
+  await Promise.all(fontPromises);
 
   // Ensure Reem Kufi is loaded for bismillah rendering
   try {
@@ -393,12 +517,19 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
     /* ignore */
   }
 
-  // Final Canvas verification — if the page font still doesn't work,
-  // try one more time with a longer wait
-  if (!loadedFonts.has(pageFont) || !verifyFontOnCanvas(pageFont)) {
-    console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
-    loadedFonts.delete(pageFont);
-    await ensureFontLoaded(pageFont);
+  // In Capacitor: skip the final Canvas verification re-check to avoid infinite loops
+  if (!_isCapacitor) {
+    // Final Canvas verification — if the page font still doesn't work,
+    // try one more time with a longer wait
+    if (!loadedFonts.has(pageFont) || !verifyFontOnCanvas(pageFont)) {
+      console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
+      loadedFonts.delete(pageFont);
+      await ensureFontLoaded(pageFont);
+    }
+  } else {
+    // In Capacitor: just wait a bit more for fonts to be processed
+    await new Promise<void>((r) => setTimeout(r, 500));
+    await document.fonts.ready;
   }
 
   const canvas = targetCanvas || document.createElement('canvas');
@@ -418,6 +549,33 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   drawPageNumber(ctx!, pageNum, colors);
 
   console.log(`[Mushaf] Page ${pageNum} rendered successfully`);
+
+  // In Capacitor: schedule a re-render after a delay, because Android WebView
+  // sometimes needs a second render pass for fonts to take effect on Canvas.
+  // This is a known WebView quirk where the first Canvas draw doesn't use
+  // the loaded font, but a subsequent draw does.
+  if (_isCapacitor) {
+    const reRenderDelay = 2000;
+    setTimeout(() => {
+      console.log(`[Mushaf] Capacitor: Re-rendering page ${pageNum} after ${reRenderDelay}ms delay`);
+      try {
+        const c = targetCanvas || document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement;
+        if (c && c.width === CANVAS_W) {
+          const ctx2 = c.getContext('2d');
+          if (ctx2) {
+            ctx2.fillStyle = colors.bg;
+            ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            renderPageContent(ctx2, data, pageFont, colors);
+            drawPageFrame(ctx2, colors);
+            drawPageNumber(ctx2, pageNum, colors);
+            console.log(`[Mushaf] Capacitor: Re-render of page ${pageNum} complete`);
+          }
+        }
+      } catch (e) {
+        console.warn('[Mushaf] Capacitor re-render failed:', e);
+      }
+    }, reRenderDelay);
+  }
 
   return { canvas, layout: data };
 }

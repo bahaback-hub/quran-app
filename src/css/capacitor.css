@@ -30,6 +30,8 @@ body.capacitor-native {
   padding-bottom: 140px !important;
 }
 
+/* ===== Mushaf mode fixes for Capacitor/Android ===== */
+
 /* Fix mushaf container width in Capacitor */
 body.capacitor-native .mushaf-container {
   max-width: 100%;
@@ -40,6 +42,67 @@ body.capacitor-native .mushaf-container {
 body.capacitor-native .mushaf-page-canvas {
   image-rendering: optimizeQuality;
   -webkit-transform: translateZ(0);
+  /* Ensure the canvas background is visible even when no text renders */
+  background: #f5f0e8;
+  min-height: 200px;
+}
+
+/* Night mode canvas background */
+body.night-mode.capacitor-native .mushaf-page-canvas {
+  background: #1a1e2b;
+}
+
+/* Ensure mushaf image wrapper is visible and centered */
+body.capacitor-native .mushaf-image-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  width: 100%;
+  position: relative;
+}
+
+/* Better mushaf navigation buttons for touch */
+body.capacitor-native .mushaf-page-nav-btn {
+  width: 48px;
+  height: 56px;
+  font-size: 26px;
+  opacity: 0.6;
+  min-width: 44px;
+  min-height: 44px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+body.capacitor-native .mushaf-page-nav-btn:hover {
+  opacity: 1;
+  background: rgba(217, 119, 6, 0.15);
+}
+
+/* Ensure mushaf header doesn't overflow on small screens */
+body.capacitor-native .mushaf-header-row {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+body.capacitor-native .mushaf-header-row .mushaf-surah-names {
+  font-size: 16px;
+}
+
+body.capacitor-native .mushaf-header-row .mushaf-surah-name {
+  font-size: 14px;
+  padding: 2px 8px;
+}
+
+/* Tajweed legend compact on mobile */
+body.capacitor-native .mushaf-tajweed-legend {
+  padding: 8px;
+  font-size: 12px;
+}
+
+body.capacitor-native .mushaf-tajweed-legend-item {
+  padding: 3px 6px;
+  font-size: 11px;
 }
 
 /* Fix panels in Capacitor - full width on mobile */

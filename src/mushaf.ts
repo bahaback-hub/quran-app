@@ -77,6 +77,12 @@ export async function toggleMushafMode(): Promise<void> {
     }
   });
   if (state.mushafMode) {
+    // Close any open panels (settings, favorites, etc.) when entering mushaf mode
+    // This prevents the "settings open" issue reported by users
+    dom.settingsPanel?.classList.remove('open');
+    dom.favoritesPanel?.classList.remove('open');
+    dom.adhkarPanel?.classList.remove('open');
+
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();
 
