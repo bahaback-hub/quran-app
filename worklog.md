@@ -93,3 +93,36 @@ Stage Summary:
 - Improved Capacitor-specific CSS for presentation overlay
 - Added comprehensive debug logging for easier troubleshooting
 - Built APK: /home/z/my-project/download/quran-app-v1.5-presentation-fix.apk
+
+---
+Task ID: v1.6
+Agent: Main Agent
+Task: Fix mushaf mode still having issues - comprehensive fix for both mushaf and presentation modes
+
+Work Log:
+- Analyzed all previous fixes and identified remaining issues:
+  1. Settings panel could still cover mushaf content in WebView (classList.remove('open') alone isn't reliable)
+  2. isCapacitorEnv() was only evaluated at module load time - could miss capacitor-native class added later
+  3. Three separate re-renders (2.5s, 5s, 8s) caused visual flicker
+  4. Panel inline styles were set but never cleared when leaving mushaf mode
+- Modified `src/mushaf.ts`:
+  - Re-added aggressive panel closing with BOTH class removal AND inline style.right = '-420px'
+  - Added panel style reset when LEAVING mushaf mode (style.right = '')
+  - This ensures panels are fully hidden in WebView and properly restored when exiting
+- Modified `src/mushaf-renderer.ts`:
+  - Added runtime isCapacitor() function that re-checks capacitor-native class at runtime
+  - Enhanced isCapacitorEnv() to also check document.documentElement.classList.contains('capacitor-native')
+  - Replaced all _isCapacitor references in _doLoadFont/renderPage/_renderPageInternal with isCapacitor() calls
+  - Reduced re-renders from 3 (2.5s/5s/8s) to 1 (3s) to eliminate flicker
+  - Increased initial wait from 800ms to 1000ms for better font processing
+  - Changed waitMs from 1500 to 1200 for better balance
+- Modified `src/css/capacitor.css`:
+  - Added CSS !important rules for panels when NOT .open: right: -420px !important
+  - This is a CSS-level safety net that works even if JS class changes don't trigger reflow in WebView
+  - Added position: relative and z-index: 1 to mushaf-container for proper stacking
+
+Stage Summary:
+- APK built: `/home/z/my-project/download/quran-app-v1.6-mushaf-presentation-fix.apk` (8.9 MB)
+- Key improvements: Runtime Capacitor detection, aggressive panel hiding, reduced re-render flicker
+- Both mushaf and presentation modes should now work correctly together
+- CSS !important rules ensure panels don't cover mushaf content even if JS fails
