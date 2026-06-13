@@ -66,8 +66,10 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,json,png}'],
-        offlineGoogleAnalytics: true,
+        offlineGoogleAnalytics: false,
         navigateFallback: 'index.html',
+        // Don't intercept same-origin requests — let Capacitor handle them
+        navigateFallbackDenylist: [/^\/assets\//],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/quran\/quran-uthmani/i,
