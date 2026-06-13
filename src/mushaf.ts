@@ -295,8 +295,21 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
       if (state.mushafMode) highlightMushafAyah(skipNav);
     } else {
       showToast(__('mushaf_page_error'), 'error');
+      // Show fallback error message in the container
+      const errorDiv = document.createElement('div');
+      errorDiv.style.cssText = 'text-align:center;padding:40px 20px;color:var(--text-primary);';
+      errorDiv.innerHTML = `
+        <p style="font-size:18px;margin-bottom:12px;">⚠️ فشل تحميل صفحة المصحف</p>
+        <p style="font-size:14px;opacity:0.7;">تأكد من اتصالك بالإنترنت وحاول مرة أخرى</p>
+        <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;border:2px solid var(--accent);border-radius:8px;background:var(--accent);color:#fff;font-size:16px;cursor:pointer;font-family:inherit;">إعادة المحاولة</button>
+      `;
+      canvasWrapper.appendChild(errorDiv);
       loadingBar.hide();
     }
+  }).catch((err) => {
+    console.error('[Mushaf] renderPage error:', err);
+    showToast(__('mushaf_page_error'), 'error');
+    loadingBar.hide();
   });
 
   preloadAdjacentLayouts(pageNum);
