@@ -325,6 +325,8 @@ async function loadApiAudio(
 
 let _loadCounter = 0;
 let currentSurahController: AbortController | null = null;
+/** Separate AbortController for background refresh — not cancelled when loading a new surah. */
+let _refreshController: AbortController | null = null;
 
 /**
  * Load a surah (text + audio + translation), render it, finalize.
@@ -411,8 +413,11 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     finalizeSurahLoad(opts);
     state.loadingSurah = null;
     // If online, still try to refresh the data in background (stale-while-revalidate)
+    // Use a SEPARATE AbortController so the refresh isn't cancelled when the user loads a different surah
     if (navigator.onLine) {
-      _refreshSurahFromAPI(surahNum, cacheKey, reciterInfo, isMp3quran, currentLoad, signal);
+      if (_refreshController) _refreshController.abort();
+      _refreshController = new AbortController();
+      _refreshSurahFromAPI(surahNum, cacheKey, reciterInfo, isMp3quran, currentLoad, _refreshController.signal);
     }
     return;
   }

@@ -422,6 +422,18 @@ function onAudioEnded(): void {
         return;
       }
     }
+    // If current ayah is before repeatFrom, jump to repeatFrom instead of advancing
+    if (currentNum < state.repeatFrom) {
+      const startIdx = surahData.ayahs.findIndex(
+        (a: { numberInSurah: number }) => a.numberInSurah === state.repeatFrom
+      );
+      if (startIdx !== -1) {
+        state.currentAyahIndex = startIdx;
+        highlightCurrentAyah();
+        playCurrentAyah();
+        return;
+      }
+    }
     nextAyah(true);
     return;
   }

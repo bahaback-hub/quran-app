@@ -69,6 +69,9 @@ let _hideControlsTimeout: ReturnType<typeof setTimeout> | null = null;
 
 /** Animation frame ID for canvas scene rendering. */
 let _sceneAnimationId: number | null = null;
+/** Cleanup function returned by the active scene renderer. Stored so we can
+ *  properly clean up nested animation loops (e.g., shooting stars inside stars scene). */
+let _sceneCleanup: (() => void) | null = null;
 
 /** Ken Burns animation variants — each uses a different pan/zoom direction. */
 const KEN_BURNS_ANIMATIONS = [
@@ -545,6 +548,11 @@ function applyAnimatedBg(overlay: HTMLElement, bgSrc: string): void {
 
 /** Remove the scene canvas and stop its animation loop. */
 function removeSceneCanvas(overlay: HTMLElement): void {
+  // Call the scene's own cleanup function first (handles nested animation loops)
+  if (_sceneCleanup) {
+    try { _sceneCleanup(); } catch { /* ignore */ }
+    _sceneCleanup = null;
+  }
   if (_sceneAnimationId !== null) {
     cancelAnimationFrame(_sceneAnimationId);
     _sceneAnimationId = null;
@@ -1081,7 +1089,11 @@ function startSceneAnimation(overlay: HTMLElement, sceneId: string): void {
 
   const renderer = SCENE_RENDERERS[sceneId];
   if (renderer) {
-    renderer(canvas);
+    const cleanup = renderer(canvas);
+    // Store the cleanup function so removeSceneCanvas can call it later
+    if (typeof cleanup === 'function') {
+      _sceneCleanup = cleanup;
+    }
   }
 
   // Handle resize
