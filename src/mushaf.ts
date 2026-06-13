@@ -63,6 +63,9 @@ interface SurahAudioResponse {
 /** Counter used to cancel stale page loads. */
 let _mushafLoadCounter = 0;
 
+/** AbortController for the surah-names fetch — cancelled when navigating to a new page. */
+let _surahNamesController: AbortController | null = null;
+
 /* ===================== TOGGLE MUSHAF MODE ===================== */
 
 /** Toggle between mushaf mode and surah mode. */
@@ -356,7 +359,12 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
 
   preloadAdjacentLayouts(pageNum);
 
-  fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`)
+  // Fetch surah names for the page header — cancel any previous in-flight request
+  if (_surahNamesController) _surahNamesController.abort();
+  _surahNamesController = new AbortController();
+  const surahNamesSignal = _surahNamesController.signal;
+
+  fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`, { signal: surahNamesSignal })
     .then((res) => res.json())
     .then((json: { data?: { ayahs?: { surah: { number: number; name: string } }[] } }) => {
       const ayahs = json?.data?.ayahs;
@@ -373,7 +381,8 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
           .join(' ');
       }
     })
-    .catch(() => {
+    .catch((err) => {
+      if ((err as Error).name === 'AbortError') return; // cancelled — expected
       console.warn('Failed to fetch ayah list for page', pageNum);
     });
 }
