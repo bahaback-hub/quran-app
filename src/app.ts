@@ -120,9 +120,9 @@ export async function initApp(): Promise<void> {
     startClock();
     scheduleNextAzanCheck();
     loadPrayerTimes();
-    import('./ayah-modal.js').then((m) => m.initAyahModal()).catch(() => {});
-    import('./presentation.js').then((m) => m.initPresentation()).catch(() => {});
-    import('./mushaf.js').then((m) => m.populateSurahOverlay()).catch(() => {});
+    import('./ayah-modal.js').then((m) => m.initAyahModal()).catch((e) => console.error('[App] Failed to init ayah modal:', e));
+    import('./presentation.js').then((m) => m.initPresentation()).catch((e) => console.error('[App] Failed to init presentation:', e));
+    import('./mushaf.js').then((m) => m.populateSurahOverlay()).catch((e) => console.error('[App] Failed to init mushaf overlay:', e));
     // Ensure full Quran text is loaded when online (non-blocking)
     if (navigator.onLine) fullQuranPromise.catch(console.warn);
   }, 0);

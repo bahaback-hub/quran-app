@@ -123,6 +123,13 @@ body.capacitor-native .tafsir-curtain {
 body.capacitor-native .presentation-overlay {
   /* Ensure presentation works without status bar issues */
   padding-top: env(safe-area-inset-top, 0);
+  /* Force high z-index for Android WebView */
+  z-index: 9999 !important;
+  /* Ensure fixed positioning works in WebView */
+  position: fixed !important;
+  inset: 0 !important;
+  /* Ensure visibility */
+  -webkit-transform: translateZ(0);
 }
 
 /* Better touch targets in Capacitor */

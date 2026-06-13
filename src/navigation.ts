@@ -70,8 +70,11 @@ export function initNavigation(): void {
     import('./mushaf.js').then((m) => m.toggleMushafMode());
   });
   dom.viewPresBtn?.addEventListener('click', () => {
-    if (state.mushafMode) import('./mushaf.js').then((m) => m.toggleMushafMode());
-    import('./presentation.js').then((m) => m.openPresentation()).catch(() => {});
+    // openPresentation() handles mushaf mode toggle internally — don't toggle here
+    // to avoid double-toggle race condition
+    import('./presentation.js').then((m) => m.openPresentation()).catch((err) => {
+      console.error('[Nav] Failed to open presentation:', err);
+    });
   });
 
   dom.pageSelect?.addEventListener('change', () => {
