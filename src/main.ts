@@ -24,6 +24,17 @@ if (isCapacitorNative || isAndroidWebView) {
       document.body.classList.add('capacitor-native');
     });
   }
+
+  // Hide splash screen when app is ready (safety net even with launchAutoHide)
+  const hideSplash = () => {
+    try {
+      if ((globalThis as any).Capacitor?.Plugins?.SplashScreen) {
+        (globalThis as any).Capacitor.Plugins.SplashScreen.hide({ fadeOutDuration: 300 });
+      }
+    } catch (e) { /* ignore */ }
+  };
+  document.addEventListener('DOMContentLoaded', () => setTimeout(hideSplash, 500));
+  setTimeout(hideSplash, 2000); // fallback
 }
 
 let _installEvent: BeforeInstallPromptEvent | null = null;

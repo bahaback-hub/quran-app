@@ -36,10 +36,11 @@ const config: CapacitorConfig = {
       backgroundColor: '#5c2e2e'
     },
     SplashScreen: {
-      launchAutoHide: false,
+      launchAutoHide: true,
       backgroundColor: '#1a1a2e',
       showSpinner: true,
-      spinnerColor: '#d97706'
+      spinnerColor: '#d97706',
+      androidScaleType: 'CENTER_CROP'
     }
   }
 };
