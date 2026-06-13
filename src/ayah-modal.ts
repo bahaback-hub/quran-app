@@ -354,17 +354,18 @@ function toggleModalAudio(): void {
   }
 
   // Use existing state audio if same surah is loaded
+  const cur = current; // capture to satisfy TS null check after early return above
   const surahData = state.surahData as Record<string, unknown> | null;
-  if (surahData?.number === current.surah && state.ayahsAudios?.length) {
+  if (surahData?.number === cur!.surah && state.ayahsAudios?.length) {
     // Find surah-internal index instead of using absolute Quran index
     const surahAyahs = (surahData as Record<string, unknown[]>).ayahs;
     let surahInternalIdx = -1;
     if (Array.isArray(surahAyahs)) {
       surahInternalIdx = surahAyahs.findIndex(
-        (a: unknown) => (a as Record<string, unknown>)?.numberInSurah === current.ayah
+        (a: unknown) => (a as Record<string, unknown>)?.numberInSurah === cur!.ayah
       );
     }
-    const audioIdx = surahInternalIdx >= 0 ? surahInternalIdx : current.ayah - 1;
+    const audioIdx = surahInternalIdx >= 0 ? surahInternalIdx : cur!.ayah - 1;
     const url: string | undefined = state.ayahsAudios[audioIdx];
     if (url) {
       player.src = url;

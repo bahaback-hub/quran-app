@@ -17,7 +17,7 @@ const ar: TranslationBundle = {
   play: '⏯ تشغيل',
   pause: '⏸ إيقاف',
   prev_ayah: '◀ سابقة',
-  next_ayah: 'تالية ▶',
+  next_ayah_btn: 'تالية ▶',
   prev_surah: '⏮ السورة السابقة',
   next_surah: 'السورة التالية ⏭',
   hifdh_mode: '🕋 حفظ',

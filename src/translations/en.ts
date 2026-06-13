@@ -17,7 +17,7 @@ const en: TranslationBundle = {
   play: '⏯ Play',
   pause: '⏸ Pause',
   prev_ayah: '◀ Prev',
-  next_ayah: 'Next ▶',
+  next_ayah_btn: 'Next ▶',
   prev_surah: '⏮ Prev Surah',
   next_surah: 'Next Surah ⏭',
   hifdh_mode: '🕋 Memorize',

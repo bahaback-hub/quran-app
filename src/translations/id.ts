@@ -17,7 +17,7 @@ const id: TranslationBundle = {
   play: '⏯ Putar',
   pause: '⏸ Jeda',
   prev_ayah: '◀ Sebelumnya',
-  next_ayah: 'Berikutnya ▶',
+  next_ayah_btn: 'Berikutnya ▶',
   prev_surah: '⏮ Surah Sebelumnya',
   next_surah: 'Surah Berikutnya ⏭',
   hifdh_mode: '🕋 Hafalkan',

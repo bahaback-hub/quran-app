@@ -17,7 +17,7 @@ const ms: TranslationBundle = {
   play: '⏯ Main',
   pause: '⏸ Jeda',
   prev_ayah: '◀ Sebelum',
-  next_ayah: 'Seterusnya ▶',
+  next_ayah_btn: 'Seterusnya ▶',
   prev_surah: '⏮ Surah Sebelum',
   next_surah: 'Surah Seterusnya ⏭',
   hifdh_mode: '🕋 Hafal',
