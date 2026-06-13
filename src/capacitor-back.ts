@@ -3,6 +3,7 @@ import { state } from './state.js';
 import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
+import { closePresentation } from './presentation.js';
 
 /** Capacitor App plugin interface. */
 interface CapacitorAppPlugin {
@@ -31,11 +32,9 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
   if (!app) return;
   try {
     app.addListener('backButton', () => {
-      // Close presentation overlay first
-      const presOverlay = document.querySelector('.presentation-overlay') as HTMLElement | null;
-      if (presOverlay && presOverlay.style.display !== 'none' && !presOverlay.classList.contains('hidden')) {
-        presOverlay.style.display = 'none';
-        presOverlay.classList.add('hidden');
+      // Close presentation overlay first — use proper close function
+      if (state.presentationMode) {
+        closePresentation();
         return;
       }
 

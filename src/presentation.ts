@@ -373,6 +373,11 @@ function injectStyles(): void {
       opacity: 1;
       pointer-events: auto;
     }
+    /* Close button ALWAYS visible — critical for mobile users to exit */
+    .presentation-overlay .presentation-close-btn {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
     /* Tajweed toggle always visible — important feature users need to discover */
     .presentation-overlay .pres-tajweed-btn {
       opacity: 1 !important;
@@ -412,11 +417,16 @@ function injectStyles(): void {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       padding: 40px 20px; overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .presentation-ayah-text {
       font-size: 60px; line-height: 1.8; text-align: center;
       color: #fff; max-width: 900px;
       word-spacing: 6px;
+      /* Allow long ayahs to shrink to fit screen */
+      font-size: clamp(24px, 6vw, 60px);
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .presentation-translation {
       font-size: 24px; line-height: 1.6; text-align: center;
@@ -446,9 +456,33 @@ function injectStyles(): void {
       to { opacity: 1; transform: scale(1); }
     }
     @media (max-width: 600px) {
-      .presentation-ayah-text { font-size: 32px; }
-      .presentation-body { padding: 20px 12px; }
-      .presentation-translation { font-size: 18px; }
+      .presentation-ayah-text { font-size: clamp(22px, 5.5vw, 32px); }
+      .presentation-body { padding: 16px 10px; overflow-y: auto !important; }
+      .presentation-translation { font-size: 16px; margin-top: 12px; }
+      /* Compact header for mobile: wrap buttons into two rows */
+      .presentation-header {
+        flex-wrap: wrap; gap: 6px; padding: 6px 4px;
+      }
+      .presentation-title {
+        font-size: 13px; width: 100%; order: -1; text-align: center;
+        margin-bottom: 2px;
+      }
+      .presentation-ayah-num {
+        font-size: 15px;
+      }
+      .presentation-header-btn, .presentation-close-btn {
+        font-size: 18px; padding: 6px 10px; border-radius: 6px;
+        min-width: 36px; min-height: 36px;
+      }
+      .presentation-close-btn {
+        font-size: 16px; padding: 6px 10px;
+      }
+      .presentation-footer { padding: 6px 0; }
+      .presentation-counter { font-size: 13px; }
+      /* Ensure body can scroll for long ayahs */
+      .presentation-inner {
+        padding: 8px !important;
+      }
     }
     @media (min-width: 1200px) {
       .presentation-ayah-text { font-size: 72px; }
@@ -1190,6 +1224,24 @@ function updateDisplay(): void {
   }
   if (dom.presentationAyahText)
     dom.presentationAyahText.innerHTML = buildAyahHtml(ayah.text, state.currentSurah, ayah.numberInSurah);
+
+  // Dynamic font size for long ayahs on mobile — shrink if text overflows
+  if (dom.presentationAyahText) {
+    const el = dom.presentationAyahText;
+    const textLen = ayah.text.length;
+    // On small screens, reduce font size for long ayahs
+    if (window.innerWidth <= 600) {
+      if (textLen > 300) {
+        el.style.fontSize = 'clamp(18px, 4vw, 22px)';
+      } else if (textLen > 200) {
+        el.style.fontSize = 'clamp(20px, 4.5vw, 26px)';
+      } else {
+        el.style.fontSize = ''; // use CSS default
+      }
+    } else {
+      el.style.fontSize = ''; // use CSS default on larger screens
+    }
+  }
   if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = String(ayah.numberInSurah);
   const surahName = surahData?.name || '';
   if (dom.presentationTitle) dom.presentationTitle.textContent = `${surahName} — ${__('ayah')} ${ayah.numberInSurah}`;
