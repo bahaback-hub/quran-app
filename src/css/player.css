@@ -13,6 +13,8 @@
   transition: all 0.3s ease;
   text-align: center;
   overflow: hidden;
+  /* Capacitor: ensure player sits above bottom nav */
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 .player:not(.collapsed) {
   padding: 12px 18px;

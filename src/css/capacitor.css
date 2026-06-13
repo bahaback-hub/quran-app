@@ -1,0 +1,116 @@
+/* Capacitor Android-specific fixes */
+
+/* Detect Capacitor native environment */
+:root {
+  --capacitor-bottom-nav: 56px;
+  --capacitor-player-offset: 56px;
+}
+
+/* Capacitor-specific: ensure controls are always visible on mobile */
+/* In Capacitor, the WebView is always "mobile-like" but we need full UI */
+body.capacitor-native .controls {
+  display: flex !important;
+}
+
+body.capacitor-native .bottom-nav {
+  display: flex !important;
+}
+
+/* Better player positioning in Capacitor */
+body.capacitor-native .player {
+  bottom: var(--capacitor-player-offset);
+}
+
+body.capacitor-native .player.collapsed {
+  bottom: var(--capacitor-player-offset);
+}
+
+/* Ensure body has enough padding for player + bottom nav */
+body.capacitor-native {
+  padding-bottom: 140px !important;
+}
+
+/* Fix mushaf container width in Capacitor */
+body.capacitor-native .mushaf-container {
+  max-width: 100%;
+  padding: 10px 5px;
+}
+
+/* Ensure canvas renders properly in WebView */
+body.capacitor-native .mushaf-page-canvas {
+  image-rendering: optimizeQuality;
+  -webkit-transform: translateZ(0);
+}
+
+/* Fix panels in Capacitor - full width on mobile */
+body.capacitor-native .settings-panel,
+body.capacitor-native .favorites-panel,
+body.capacitor-native .adhkar-panel {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Fix tafsir curtain for Capacitor mobile */
+body.capacitor-native .tafsir-curtain {
+  width: 100vw;
+  max-width: 100vw;
+}
+
+/* Presentation mode fixes for Capacitor */
+body.capacitor-native .presentation-overlay {
+  /* Ensure presentation works without status bar issues */
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Better touch targets in Capacitor */
+body.capacitor-native .view-mode-btn {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 18px;
+  padding: 8px 10px;
+}
+
+body.capacitor-native .control-card {
+  padding: 10px 14px;
+}
+
+/* Fix select dropdowns for Android */
+body.capacitor-native select {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 44px;
+  font-size: 16px;
+}
+
+/* Prevent text selection issues in WebView */
+body.capacitor-native .ayahs-container {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Fix header for Capacitor status bar */
+body.capacitor-native .header {
+  padding-top: calc(24px + env(safe-area-inset-top, 0));
+}
+
+/* Fix reading progress bar for Capacitor */
+body.capacitor-native .reading-progress {
+  top: env(safe-area-inset-top, 0);
+}
+
+/* Smooth scrolling for Capacitor */
+body.capacitor-native {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Fix modals for Capacitor */
+body.capacitor-native .modal-overlay {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Ensure keyboard doesn't break layout */
+body.capacitor-native {
+  min-height: 100vh;
+  min-height: 100dvh;
+}

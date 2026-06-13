@@ -31,6 +31,31 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
   if (!app) return;
   try {
     app.addListener('backButton', () => {
+      // Close presentation overlay first
+      const presOverlay = document.querySelector('.presentation-overlay') as HTMLElement | null;
+      if (presOverlay && presOverlay.style.display !== 'none' && !presOverlay.classList.contains('hidden')) {
+        presOverlay.style.display = 'none';
+        presOverlay.classList.add('hidden');
+        return;
+      }
+
+      // Close mushaf surah overlay
+      const mushafOverlay = document.getElementById('mushafSurahOverlay');
+      if (mushafOverlay && !mushafOverlay.classList.contains('hidden')) {
+        mushafOverlay.classList.add('hidden');
+        mushafOverlay.style.display = 'none';
+        return;
+      }
+
+      // Close surah secrets overlay
+      const secretsOverlay = document.getElementById('surahSecretsOverlay');
+      if (secretsOverlay && !secretsOverlay.classList.contains('hidden')) {
+        secretsOverlay.classList.add('hidden');
+        secretsOverlay.style.display = 'none';
+        return;
+      }
+
+      // Close any active panels/modals
       const activeElements: ActivePanel[] = [
         { el: document.getElementById('settingsPanel'), close: () => closeSettings() },
         {
@@ -57,8 +82,25 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
           return;
         }
       }
+
+      // Collapse player if expanded
       if (document.getElementById('player')?.classList.contains('collapsed') === false) {
         document.getElementById('player')?.classList.add('collapsed');
+        return;
+      }
+
+      // Exit mushaf mode back to surah mode
+      if (state.mushafMode) {
+        const viewSurahBtn = document.getElementById('viewSurahBtn') as HTMLButtonElement | null;
+        if (viewSurahBtn) viewSurahBtn.click();
+        return;
+      }
+
+      // If search is open, close it
+      const searchInputGroup = document.getElementById('searchInputGroup');
+      if (searchInputGroup && !searchInputGroup.classList.contains('hidden')) {
+        searchInputGroup.classList.add('hidden');
+        return;
       }
     });
   } catch (e: unknown) {

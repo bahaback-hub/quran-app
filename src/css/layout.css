@@ -481,7 +481,7 @@ body:not(.night-mode) .header-menu-btn:hover {
 /* منع الـ bounce/scrolling الزائد — حس تطبيقي */
 html {
   height: 100%;
-  overflow: hidden;
+  /* overflow: hidden can cause scroll issues in Android WebView */
 }
 body {
   height: 100%;
@@ -489,6 +489,8 @@ body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
+  /* Safe area padding for Capacitor/Android status bar */
+  padding-top: env(safe-area-inset-top, 0);
 }
 
 /* البوتوم ناف — أيقونات أكبر وإحساس تطبيقي */
@@ -520,7 +522,9 @@ body {
   align-items: stretch;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
   direction: rtl;
-  padding: 0 env(safe-area-inset-bottom, 0);
+  /* Safe area for Android gesture navigation */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  height: 56px;
 }
 .bottom-nav-btn {
   background: none;

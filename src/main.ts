@@ -5,6 +5,23 @@ import { initI18n } from './i18n.js';
 // Install global error handlers FIRST — before any other code runs
 initErrorBoundary();
 
+// Detect Capacitor native environment and add class to body
+if (typeof globalThis !== 'undefined' &&
+    ((globalThis as any).Capacitor?.isNativePlatform?.() ||
+     (globalThis as any).Capacitor?.isNative ||
+     window.Capacitor?.isNativePlatform?.())) {
+  document.documentElement.classList.add('capacitor-native');
+  document.body.classList.add('capacitor-native');
+  console.log('[Capacitor] Native platform detected, applying mobile fixes');
+}
+
+// Also detect via user agent for older Capacitor versions
+if (/Android.*Capacitor|wv/.test(navigator.userAgent) && !document.body.classList.contains('capacitor-native')) {
+  document.documentElement.classList.add('capacitor-native');
+  document.body.classList.add('capacitor-native');
+  console.log('[Capacitor] Android WebView detected via UA, applying mobile fixes');
+}
+
 let _installEvent: BeforeInstallPromptEvent | null = null;
 
 window.addEventListener('beforeinstallprompt', ((e: Event) => {
