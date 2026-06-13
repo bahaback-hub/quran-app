@@ -125,6 +125,7 @@ export async function toggleMushafMode(): Promise<void> {
         (surahData?.number === state.currentSurah && surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
       try {
         const res = await fetch(`${CONFIG.API_BASE}/ayah/${state.currentSurah}:${currentAyah}/quran-uthmani`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = (await res.json()) as AyahPageResponse;
         const page = data?.data?.page;
         if (page && page >= 1 && page <= 604) {
@@ -215,7 +216,7 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
     if (_mushafLoadCounter !== currentLoad) return;
   }
 
-  renderMushafPageImage(pageNum, skipNav);
+  renderMushafPageImage(pageNum, currentLoad, skipNav);
 
   requestAnimationFrame(() => {
     const newContainer = dom.surahContent?.querySelector('.mushaf-container');
@@ -250,7 +251,7 @@ export function getJuzForPage(pageNum: number): number {
 
 /* ===================== RENDER MUSHAF PAGE ===================== */
 
-function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
+function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: boolean): void {
   if (!dom.surahContent) return;
   const juz = getJuzForPage(pageNum);
 
@@ -333,6 +334,8 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
   dom.surahContent.appendChild(buildTajweedLegend());
 
   renderPage(pageNum, canvas).then(({ canvas: renderedCanvas, layout: layoutData }) => {
+    // Race condition guard: if user navigated to another page while rendering, discard this result
+    if (_mushafLoadCounter !== currentLoad) return;
     pageLayout = layoutData;
     state.currentPageLayout = layoutData as any;
     if (renderedCanvas && layoutData) {
@@ -365,7 +368,10 @@ function renderMushafPageImage(pageNum: number, skipNav?: boolean): void {
   const surahNamesSignal = _surahNamesController.signal;
 
   fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`, { signal: surahNamesSignal })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
     .then((json: { data?: { ayahs?: { surah: { number: number; name: string } }[] } }) => {
       const ayahs = json?.data?.ayahs;
       if (!ayahs?.length) return;
@@ -443,6 +449,7 @@ export function populateSurahOverlay(): void {
         loadingBar.show(`⏳ ${__('loading_surah')} ${surahName}...`);
         try {
           const res = await fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = (await res.json()) as AyahPageResponse;
           const page = data?.data?.page || 1;
           if (dom.pageSelect) dom.pageSelect.value = String(page);
@@ -511,6 +518,7 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
       if (!isOnPage) {
         try {
           const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = (await res.json()) as AyahPageResponse;
           const page = data?.data?.page;
           if (page && page !== state.currentPage) {
