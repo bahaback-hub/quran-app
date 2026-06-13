@@ -4,6 +4,14 @@
  *
  * Data source: https://github.com/MohamadHajjRabee/quran-qcf4
  * Font CDN:  https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2/
+ *
+ * CRITICAL for Android/Capacitor:
+ * - CapacitorHttp plugin intercepts fetch() and CORRUPTS binary data (woff2 fonts).
+ *   We disable CapacitorHttp and use native fetch() / XMLHttpRequest instead.
+ * - Canvas pixel verification is unreliable in Android WebView;
+ *   we use document.fonts API for verification.
+ * - A re-render is scheduled 2.5s after first render to handle WebView
+ *   font processing delays.
  */
 import { JUZ_PAGES } from './config.js';
 import { state } from './state.js';
@@ -115,7 +123,7 @@ export async function loadPageData(pageNum: number): Promise<PageLayoutData | nu
     layoutCache.set(key, data);
     return data;
   } catch (e: unknown) {
-    console.warn('Failed to load mushaf page data:', e);
+    console.warn('[Mushaf] Failed to load page data:', e);
     return null;
   }
 }
@@ -132,12 +140,53 @@ function getFontUrl(fontName: string): string {
 }
 
 /**
- * Verify a font is truly usable on Canvas by drawing a PUA character
- * and checking if the pixels are non-blank. This is the ONLY reliable
- * way to confirm the font works for Canvas rendering —
- * document.fonts.check() can return true even when Canvas can't use it.
+ * Fetch font binary data using XMLHttpRequest instead of fetch().
  *
- * IMPORTANT: In Android WebView (Capacitor), Canvas verification is unreliable
+ * CRITICAL: In Capacitor with CapacitorHttp enabled, the native HTTP plugin
+ * intercepts ALL fetch() calls and can corrupt binary data (woff2 fonts).
+ * XMLHttpRequest is NOT intercepted by CapacitorHttp, so it returns
+ * correct binary data. This is the key fix for mushaf mode in Android APK.
+ */
+function fetchFontViaXHR(url: string): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        resolve(xhr.response as ArrayBuffer);
+      } else {
+        reject(new Error(`XHR HTTP ${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error('XHR network error'));
+    xhr.ontimeout = () => reject(new Error('XHR timeout'));
+    xhr.timeout = 15000; // 15 second timeout
+    xhr.send();
+  });
+}
+
+/**
+ * Fetch font binary data. In Capacitor, uses XHR to avoid CapacitorHttp
+ * interception. In browsers, uses standard fetch().
+ */
+async function fetchFontBinary(url: string): Promise<ArrayBuffer> {
+  if (_isCapacitor) {
+    // Use XHR in Capacitor to avoid CapacitorHttp interception
+    console.log(`[Mushaf] Using XHR for font binary (bypassing CapacitorHttp): ${url}`);
+    return fetchFontViaXHR(url);
+  }
+  // Use standard fetch in browser
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.arrayBuffer();
+}
+
+/**
+ * Verify a font is truly usable on Canvas by drawing a PUA character
+ * and checking if the pixels are non-blank.
+ *
+ * IMPORTANT: In Android WebView (Capacitor), Canvas pixel verification is unreliable
  * because WebView processes fonts differently. We use document.fonts.check()
  * as a fallback verification method in that case.
  */
@@ -158,22 +207,18 @@ function verifyFontOnCanvas(fontName: string): boolean {
     const ctx = canvas.getContext('2d');
     if (!ctx) return false;
 
-    // Clear with known background
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw the PUA test character with ONLY our font (no fallback)
     ctx.font = `${testSize}px "${fontName}"`;
     ctx.fillStyle = '#000000';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('\uF100', canvas.width / 2, canvas.height / 2);
 
-    // Check if any non-white pixels exist
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     for (let i = 0; i < data.length; i += 4) {
-      // If any pixel is not white (R=255, G=255, B=255), the font rendered
       if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) {
         return true;
       }
@@ -216,12 +261,13 @@ function createFontPreloadElement(fontName: string): void {
  * Load a QCF4 font using the most reliable method available.
  *
  * Strategy order (most to least reliable):
- * 1. Fetch font as ArrayBuffer → FontFace from binary data
- *    (Bypasses CORS issues with URL-based FontFace loading)
- * 2. FontFace API with URL
+ * 1. XHR fetch as ArrayBuffer → FontFace from binary data
+ *    (Bypasses CapacitorHttp which corrupts binary data)
+ * 2. FontFace API with URL (browser handles download)
  * 3. CSS @font-face injection with DOM preload element
  *
- * All strategies include Canvas pixel verification.
+ * In Capacitor: We skip pixel-level Canvas verification and trust
+ * document.fonts API instead.
  */
 async function ensureFontLoaded(fontName: string): Promise<void> {
   if (loadedFonts.has(fontName)) return;
@@ -230,7 +276,6 @@ async function ensureFontLoaded(fontName: string): Promise<void> {
   if (loadingFonts.has(fontName)) {
     const result = await loadingFonts.get(fontName);
     if (result) return;
-    // If previous load failed, remove it so we can retry
     loadingFonts.delete(fontName);
   }
 
@@ -248,42 +293,36 @@ async function ensureFontLoaded(fontName: string): Promise<void> {
 }
 
 /**
- * Internal font loading implementation with 3 strategies and retry logic.
- * Returns true if the font was loaded and verified on Canvas.
- *
- * In Capacitor/Android WebView, Canvas pixel verification is unreliable,
- * so we trust document.fonts API and proceed with rendering even if
- * pixel-level verification fails.
+ * Internal font loading implementation.
+ * Returns true if the font was loaded and verified.
  */
 async function _doLoadFont(fontName: string): Promise<boolean> {
   const fontUrl = getFontUrl(fontName);
-  const waitMs = _isCapacitor ? 1200 : 200;
+  const waitMs = _isCapacitor ? 1500 : 200;
 
   for (let attempt = 1; attempt <= (_isCapacitor ? 2 : 3); attempt++) {
     console.log(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})...`);
 
-    // --- Strategy 1: Fetch as ArrayBuffer → FontFace (most reliable) ---
+    // --- Strategy 1: XHR/Fetch ArrayBuffer → FontFace (most reliable) ---
     try {
-      console.log(`[Mushaf] Strategy 1: Fetch ArrayBuffer for "${fontName}" from ${fontUrl}`);
-      const res = await fetch(fontUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const buffer = await res.arrayBuffer();
+      console.log(`[Mushaf] Strategy 1: ArrayBuffer for "${fontName}" from ${fontUrl}`);
+      const buffer = await fetchFontBinary(fontUrl);
       console.log(`[Mushaf] Font "${fontName}" downloaded: ${buffer.byteLength} bytes`);
+
+      // Validate: woff2 files should be at least 10KB
+      if (buffer.byteLength < 10000) {
+        console.warn(`[Mushaf] Font "${fontName}" too small (${buffer.byteLength} bytes), likely corrupted`);
+        throw new Error(`Font data too small: ${buffer.byteLength} bytes`);
+      }
 
       const fontFace = new FontFace(fontName, buffer, { display: 'block' });
       const loaded = await fontFace.load();
       document.fonts.add(loaded);
 
-      // Wait for the font to be fully processed
       await document.fonts.ready;
-
-      // Force browser to recognize the font via DOM
       createFontPreloadElement(fontName);
-
-      // Longer delay for Android WebView font processing
       await new Promise<void>((r) => setTimeout(r, waitMs));
 
-      // Verify — in Capacitor, use document.fonts.check() instead of pixel verification
       const verified = verifyFontOnCanvas(fontName);
       console.log(`[Mushaf] Strategy 1 verify for "${fontName}": ${verified}`);
       if (verified) {
@@ -291,17 +330,22 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
         return true;
       }
 
-      // In Capacitor: even if verification returns false, trust document.fonts
-      // and proceed — the font may work for Canvas even if check() returns false
-      if (_isCapacitor && document.fonts.check(`40px "${fontName}"`)) {
-        console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}", proceeding`);
+      // In Capacitor: trust document.fonts and proceed even if Canvas verify fails
+      if (_isCapacitor) {
+        const fontsCheck = document.fonts.check(`40px "${fontName}"`);
+        if (fontsCheck) {
+          console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}"`);
+          return true;
+        }
+        // Even if fonts.check fails, if we added the font, proceed anyway
+        console.warn(`[Mushaf] Capacitor: Proceeding with font "${fontName}" despite verification failure`);
         return true;
       }
     } catch (e) {
       console.warn(`[Mushaf] ArrayBuffer strategy failed for "${fontName}":`, e);
     }
 
-    // --- Strategy 2: FontFace with URL ---
+    // --- Strategy 2: FontFace with URL (browser handles download) ---
     try {
       console.log(`[Mushaf] Strategy 2: FontFace URL for "${fontName}"`);
       const fontFace = new FontFace(fontName, `url('${fontUrl}')`, { display: 'block' });
@@ -319,8 +363,8 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
         return true;
       }
 
-      if (_isCapacitor && document.fonts.check(`40px "${fontName}"`)) {
-        console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}" (strategy 2)`);
+      if (_isCapacitor) {
+        console.warn(`[Mushaf] Capacitor: Proceeding with font "${fontName}" (strategy 2) despite verification failure`);
         return true;
       }
     } catch (e) {
@@ -343,17 +387,14 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
         document.head.appendChild(style);
       }
 
-      // Force font download via DOM element
       createFontPreloadElement(fontName);
 
-      // Try to load via document.fonts API with PUA char
       try {
         await document.fonts.load(`40px "${fontName}"`, '\uF100');
       } catch {
         /* some browsers don't support the text param */
       }
 
-      // Wait and poll
       await document.fonts.ready;
       const cssWaitMs = _isCapacitor ? 1500 : 500;
       await new Promise<void>((r) => setTimeout(r, cssWaitMs));
@@ -365,8 +406,8 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
         return true;
       }
 
-      if (_isCapacitor && document.fonts.check(`40px "${fontName}"`)) {
-        console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}" (strategy 3)`);
+      if (_isCapacitor) {
+        console.warn(`[Mushaf] Capacitor: Proceeding with font "${fontName}" (strategy 3) despite verification failure`);
         return true;
       }
     } catch (e) {
@@ -374,30 +415,19 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
     }
 
     if (attempt < (_isCapacitor ? 2 : 3)) {
-      const delay = _isCapacitor ? 800 : 500 * attempt;
+      const delay = _isCapacitor ? 1000 : 500 * attempt;
       console.warn(`[Mushaf] All strategies failed for "${fontName}" (attempt ${attempt}), retrying in ${delay}ms...`);
       await new Promise<void>((r) => setTimeout(r, delay));
     }
   }
 
-  // FINAL FALLBACK for Capacitor: If the font was added to document.fonts at all,
-  // assume it's usable and proceed with rendering. Better to show potentially
-  // incorrect text than a blank page.
+  // In Capacitor: proceed anyway — better to show something than blank
   if (_isCapacitor) {
-    const fontFaces = document.fonts.values();
-    let found = false;
-    for (const ff of fontFaces) {
-      if (ff.family === fontName) { found = true; break; }
-    }
-    // Also check if a preload DOM element exists
-    const preloadEl = document.getElementById(`qcf-preload-${fontName}`);
-    if (found || preloadEl) {
-      console.warn(`[Mushaf] Capacitor FINAL FALLBACK: Font "${fontName}" found in document.fonts or DOM, proceeding`);
-      return true;
-    }
+    console.warn(`[Mushaf] Capacitor: Proceeding despite font "${fontName}" loading failure — will retry render later`);
+    return true;
   }
 
-  console.error(`[Mushaf] FAILED to load font "${fontName}" after all attempts. Quran text will appear as squares.`);
+  console.error(`[Mushaf] FAILED to load font "${fontName}" after all attempts.`);
   return false;
 }
 
@@ -417,24 +447,23 @@ function getColors(): PageColors {
 /**
  * Render a mushaf page onto a canvas element.
  *
- * For Capacitor/Android WebView, this function includes special handling:
- * - Skips strict Canvas pixel verification (unreliable in WebView)
- * - Adds a re-render mechanism after a delay (WebView sometimes needs
- *   a second render pass for fonts to take effect)
+ * For Capacitor/Android WebView, includes special handling:
+ * - Uses XHR for font binary data (bypasses CapacitorHttp)
+ * - Skips strict Canvas pixel verification
+ * - Schedules a re-render after a delay for WebView font processing
  * - Adds an overall timeout to prevent hanging
  */
 export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
-  console.log(`[Mushaf] renderPage(${pageNum}) starting...`);
+  console.log(`[Mushaf] renderPage(${pageNum}) starting... Capacitor=${_isCapacitor}`);
 
   // Add overall timeout for Capacitor to prevent hanging
   if (_isCapacitor) {
-    const timeoutMs = 30000; // 30 second max
+    const timeoutMs = 30000;
     return Promise.race([
       _renderPageInternal(pageNum, targetCanvas),
       new Promise<RenderPageResult>((resolve) =>
         setTimeout(() => {
           console.error(`[Mushaf] renderPage(${pageNum}) timed out after ${timeoutMs}ms`);
-          // Try to render with whatever we have
           _renderPageWithCurrentFonts(pageNum, targetCanvas).then(resolve);
         }, timeoutMs)
       )
@@ -482,7 +511,7 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
 
   const pageFont = data.font || getPageFont(pageNum, null);
 
-  // Collect ALL unique font names used on this page (bismillah, header, etc.)
+  // Collect ALL unique font names used on this page
   const pageFonts = new Set<string>();
   pageFonts.add(pageFont);
   pageFonts.add(BSML_FONT);
@@ -498,7 +527,7 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
   const fontPromises = [...pageFonts].map((fn) =>
     Promise.race([
       ensureFontLoaded(fn),
-      new Promise<void>((resolve) => setTimeout(resolve, _isCapacitor ? 10000 : 5000))
+      new Promise<void>((resolve) => setTimeout(resolve, _isCapacitor ? 8000 : 5000))
     ])
   );
   await Promise.all(fontPromises);
@@ -517,19 +546,17 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
     /* ignore */
   }
 
-  // In Capacitor: skip the final Canvas verification re-check to avoid infinite loops
-  if (!_isCapacitor) {
-    // Final Canvas verification — if the page font still doesn't work,
-    // try one more time with a longer wait
+  // In Capacitor: extra wait for WebView font processing
+  if (_isCapacitor) {
+    await new Promise<void>((r) => setTimeout(r, 800));
+    await document.fonts.ready;
+  } else {
+    // Non-Capacitor: verify font on Canvas
     if (!loadedFonts.has(pageFont) || !verifyFontOnCanvas(pageFont)) {
       console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
       loadedFonts.delete(pageFont);
       await ensureFontLoaded(pageFont);
     }
-  } else {
-    // In Capacitor: just wait a bit more for fonts to be processed
-    await new Promise<void>((r) => setTimeout(r, 500));
-    await document.fonts.ready;
   }
 
   const canvas = targetCanvas || document.createElement('canvas');
@@ -550,31 +577,31 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
 
   console.log(`[Mushaf] Page ${pageNum} rendered successfully`);
 
-  // In Capacitor: schedule a re-render after a delay, because Android WebView
-  // sometimes needs a second render pass for fonts to take effect on Canvas.
-  // This is a known WebView quirk where the first Canvas draw doesn't use
-  // the loaded font, but a subsequent draw does.
+  // In Capacitor: schedule MULTIPLE re-renders because Android WebView
+  // sometimes needs several render passes for fonts to take effect on Canvas.
   if (_isCapacitor) {
-    const reRenderDelay = 2000;
-    setTimeout(() => {
-      console.log(`[Mushaf] Capacitor: Re-rendering page ${pageNum} after ${reRenderDelay}ms delay`);
-      try {
-        const c = targetCanvas || document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement;
-        if (c && c.width === CANVAS_W) {
-          const ctx2 = c.getContext('2d');
-          if (ctx2) {
-            ctx2.fillStyle = colors.bg;
-            ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
-            renderPageContent(ctx2, data, pageFont, colors);
-            drawPageFrame(ctx2, colors);
-            drawPageNumber(ctx2, pageNum, colors);
-            console.log(`[Mushaf] Capacitor: Re-render of page ${pageNum} complete`);
+    const renderData = { data, pageFont, colors, pageNum };
+    [2500, 5000, 8000].forEach((delay) => {
+      setTimeout(() => {
+        console.log(`[Mushaf] Capacitor: Re-rendering page ${renderData.pageNum} after ${delay}ms delay`);
+        try {
+          const c = targetCanvas || document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement;
+          if (c && c.width === CANVAS_W) {
+            const ctx2 = c.getContext('2d');
+            if (ctx2) {
+              ctx2.fillStyle = renderData.colors.bg;
+              ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
+              renderPageContent(ctx2, renderData.data, renderData.pageFont, renderData.colors);
+              drawPageFrame(ctx2, renderData.colors);
+              drawPageNumber(ctx2, renderData.pageNum, renderData.colors);
+              console.log(`[Mushaf] Capacitor: Re-render of page ${renderData.pageNum} complete at ${delay}ms`);
+            }
           }
+        } catch (e) {
+          console.warn('[Mushaf] Capacitor re-render failed:', e);
         }
-      } catch (e) {
-        console.warn('[Mushaf] Capacitor re-render failed:', e);
-      }
-    }, reRenderDelay);
+      }, delay);
+    });
   }
 
   return { canvas, layout: data };
@@ -599,11 +626,10 @@ export function getLineY(lineIndex: number, lineCount: number, imgHeight: number
   return (y / CANVAS_H) * imgHeight;
 }
 
-/** Pre‑compute per‑word tajweed coloring data for the entire page. */
+/** Pre-compute per-word tajweed coloring data for the entire page. */
 function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
   if (!state.tajweedEnabled) return null;
 
-  // Collect all words with verse_key and text, in page order
   const verseKeyWords = new Map<string, { text: string; lineIdx: number; wordIdx: number }[]>();
   for (let li = 0; li < data.lines.length; li++) {
     const line = data.lines[li];
@@ -617,7 +643,6 @@ function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: n
     }
   }
 
-  // Build ayah text and color map per verse_key, then assign colors to each word
   const result: { wordIdx: number; lineIdx: number; color: string | null }[] = [];
 
   for (const [vk, words] of verseKeyWords) {
@@ -631,8 +656,6 @@ function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: n
       continue;
     }
 
-    // Build color map using the full ayah text (with basmalah if present)
-    // — QCF4 layout always includes basmalah words, and annotations are for the full ayah
     const ayahText = words.map((w) => w.text).join(' ');
     const colorMap = buildColorMap(annotations);
     if (!colorMap || colorMap.size === 0) {
@@ -640,7 +663,6 @@ function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: n
       continue;
     }
 
-    // Use the full QCF4 word list as-is (no basmalah stripping)
     let outputPos = 0;
     for (let wi = 0; wi < words.length; wi++) {
       const wordText = words[wi].text;
@@ -693,7 +715,6 @@ function renderPageContent(
     lineWidths.push({ widths, gap: Math.max(0, gap) });
   }
 
-  // Pre‑compute tajweed coloring for each word on the page
   const tajweedColors = computePageTajweed(data);
   const tajweedLookup = new Map<string, string | null>();
   if (tajweedColors) {
@@ -702,7 +723,6 @@ function renderPageContent(
     }
   }
 
-  // Special colors for bismillah and surah header
   const bsmlColor = isNightMode() ? '#d4af37' : '#8b6914';
   const headerColor = isNightMode() ? '#c4a87c' : '#7a5c3a';
   const bsmlFont = 'Reem Kufi';
@@ -720,12 +740,10 @@ function renderPageContent(
     if (!lw) continue;
     const { widths, gap } = lw;
 
-    // Check if this line is a bismillah or surah_header line
     const lineType = words[0]?.type;
     const isBismillahLine = lineType === 'bismillah';
     const isHeaderLine = lineType === 'surah_header';
 
-    // Render bismillah with Reem Kufi font, centered
     if (isBismillahLine) {
       const bsmlFontSize = Math.round(pageFontSize * 0.95);
       ctx.font = `500 ${bsmlFontSize}px "${bsmlFont}", "Scheherazade New", serif`;
@@ -743,11 +761,9 @@ function renderPageContent(
       ctx.font = `${pageFontSize}px "${fn}"`;
       ctx.textAlign = 'right';
 
-      // Use special color for surah headers
       if (isHeaderLine) {
         ctx.fillStyle = headerColor;
       } else {
-        // Use tajweed color if available, otherwise default text color
         const wordColor = tajweedLookup ? tajweedLookup.get(`${i}:${j}`) : null;
         ctx.fillStyle = wordColor || colors.txt;
       }

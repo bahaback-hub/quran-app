@@ -77,11 +77,35 @@ export async function toggleMushafMode(): Promise<void> {
     }
   });
   if (state.mushafMode) {
-    // Close any open panels (settings, favorites, etc.) when entering mushaf mode
-    // This prevents the "settings open" issue reported by users
-    dom.settingsPanel?.classList.remove('open');
-    dom.favoritesPanel?.classList.remove('open');
-    dom.adhkarPanel?.classList.remove('open');
+    // === AGGRESSIVELY close all open panels ===
+    // Close settings panel - use BOTH class removal AND inline style
+    // because some CSS transitions might keep it visible
+    if (dom.settingsPanel) {
+      dom.settingsPanel.classList.remove('open');
+      dom.settingsPanel.style.right = '-420px'; // Force hide via inline style
+    }
+    if (dom.favoritesPanel) {
+      dom.favoritesPanel.classList.remove('open');
+    }
+    if (dom.adhkarPanel) {
+      dom.adhkarPanel.classList.remove('open');
+    }
+    // Also close any open overlays
+    const mushafOverlay = document.getElementById('mushafSurahOverlay');
+    if (mushafOverlay) { mushafOverlay.classList.add('hidden'); mushafOverlay.style.display = 'none'; }
+    const secretsOverlay = document.getElementById('surahSecretsOverlay');
+    if (secretsOverlay) { secretsOverlay.classList.add('hidden'); secretsOverlay.style.display = 'none'; }
+
+    // Show immediate loading state in surahContent
+    if (dom.surahContent) {
+      dom.surahContent.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:16px;padding:40px;">
+          <div style="font-size:48px;animation:pulse 1.5s ease-in-out infinite;">📄</div>
+          <div style="font-size:18px;color:var(--text-secondary);text-align:center;">جاري تحميل صفحة المصحف...</div>
+          <div style="font-size:14px;color:var(--text-muted);text-align:center;">يتم تحميل خطوط المصحف وقد يستغرق بعض الوقت</div>
+        </div>
+      `;
+    }
 
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
     populatePageSelect();

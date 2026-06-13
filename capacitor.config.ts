@@ -28,8 +28,11 @@ const config: CapacitorConfig = {
     allowMixedContent: true
   },
   plugins: {
+    // IMPORTANT: CapacitorHttp is DISABLED because it intercepts ALL fetch() calls
+    // and corrupts binary data (woff2 fonts). The WebView's native fetch() handles
+    // CORS correctly with the permissive CSP and network_security_config.xml.
     CapacitorHttp: {
-      enabled: true
+      enabled: false
     },
     StatusBar: {
       style: 'DARK',

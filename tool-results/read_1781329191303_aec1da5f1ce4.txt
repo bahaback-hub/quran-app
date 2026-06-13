@@ -1,0 +1,783 @@
+     1→/**
+     2→ * Mushaf page renderer using QCF4 fonts from King Fahd Complex.
+     3→ * Renders exact Madinah Mushaf calligraphy on Canvas.
+     4→ *
+     5→ * Data source: https://github.com/MohamadHajjRabee/quran-qcf4
+     6→ * Font CDN:  https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2/
+     7→ */
+     8→import { JUZ_PAGES } from './config.js';
+     9→import { state } from './state.js';
+    10→import { buildColorMap } from './tajweed.js';
+    11→import { getAyahAnnotations } from './tajweed-data.js';
+    12→import type { TajweedAnnotation } from './tajweed-data.js';
+    13→
+    14→/* ===================== INTERFACES ===================== */
+    15→
+    16→/** A single word in a mushaf page line. */
+    17→export interface PageWord {
+    18→  char: string;
+    19→  font?: string;
+    20→  type?: string;
+    21→  verse_key?: string;
+    22→  location?: string;
+    23→  word?: string;
+    24→  text?: string;
+    25→}
+    26→
+    27→/** A single line in a mushaf page layout. */
+    28→export interface PageLine {
+    29→  words: PageWord[];
+    30→}
+    31→
+    32→/** Full layout data for a mushaf page (from QCF4 JSON). */
+    33→export interface PageLayoutData {
+    34→  font?: string;
+    35→  lines: PageLine[];
+    36→}
+    37→
+    38→/** Result of rendering a mushaf page. */
+    39→export interface RenderPageResult {
+    40→  canvas: HTMLCanvasElement | null;
+    41→  layout: PageLayoutData | null;
+    42→}
+    43→
+    44→/** Color set used for rendering mushaf pages. */
+    45→interface PageColors {
+    46→  bg: string;
+    47→  txt: string;
+    48→  frame: string;
+    49→  frameInner: string;
+    50→}
+    51→
+    52→/** Measured widths for a single line's words. */
+    53→interface LineWidths {
+    54→  widths: number[];
+    55→  gap: number;
+    56→}
+    57→
+    58→/* ===================== CONSTANTS ===================== */
+    59→
+    60→const PAGE_BASE = 'https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/pages/';
+    61→const FONT_BASE = 'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2/';
+    62→const BSML_FONT = 'QCF4_QBSML';
+    63→
+    64→export const CANVAS_W = 1080;
+    65→export const CANVAS_H = 1540;
+    66→export const PAD_H = 30;
+    67→export const PAD_V = 30;
+    68→export const TOP_OFFSET = 30;
+    69→export const BOTTOM_OFFSET = 50;
+    70→export const STD_LINES = 15;
+    71→
+    72→const LAYOUT_CACHE_MAX = 50; // LRU cache limit to prevent unbounded memory growth
+    73→const layoutCache = new Map<string, PageLayoutData>();
+    74→
+    75→/** Tracks fonts that have been verified as loaded and usable on Canvas. */
+    76→const loadedFonts = new Set<string>();
+    77→
+    78→/** Tracks fonts currently being loaded (prevents duplicate loads). */
+    79→const loadingFonts = new Map<string, Promise<boolean>>();
+    80→
+    81→/** Detect if running in Capacitor/Android WebView environment. */
+    82→function isCapacitorEnv(): boolean {
+    83→  try {
+    84→    return !!(
+    85→      (typeof globalThis !== 'undefined' && (
+    86→        (globalThis as any).Capacitor?.isNativePlatform?.() ||
+    87→        (globalThis as any).Capacitor?.isNative
+    88→      )) ||
+    89→      (typeof navigator !== 'undefined' && /wv|Android.*Capacitor/i.test(navigator.userAgent))
+    90→    );
+    91→  } catch { return false; }
+    92→}
+    93→
+    94→const _isCapacitor = isCapacitorEnv();
+    95→
+    96→/* ===================== HELPERS ===================== */
+    97→
+    98→function getPageFont(pageNum: number, fontMap: Record<string, string> | null | undefined): string {
+    99→  return fontMap?.[String(pageNum)] || `QCF4_Hafs_${String(Math.min(47, Math.ceil(pageNum / 13))).padStart(2, '0')}`;
+   100→}
+   101→
+   102→export async function loadPageData(pageNum: number): Promise<PageLayoutData | null> {
+   103→  const key = `qcf4-${pageNum}`;
+   104→  if (layoutCache.has(key)) return layoutCache.get(key)!;
+   105→  const padded = String(pageNum).padStart(3, '0');
+   106→  try {
+   107→    const res = await fetch(`${PAGE_BASE}${padded}.json`);
+   108→    if (!res.ok) return null;
+   109→    const data = (await res.json()) as PageLayoutData;
+   110→    // Evict oldest entry if cache is full (LRU policy)
+   111→    if (layoutCache.size >= LAYOUT_CACHE_MAX) {
+   112→      const firstKey = layoutCache.keys().next().value;
+   113→      if (firstKey !== undefined) layoutCache.delete(firstKey);
+   114→    }
+   115→    layoutCache.set(key, data);
+   116→    return data;
+   117→  } catch (e: unknown) {
+   118→    console.warn('Failed to load mushaf page data:', e);
+   119→    return null;
+   120→  }
+   121→}
+   122→
+   123→/**
+   124→ * Build the woff2 font URL for a given QCF4 font name.
+   125→ * BSML font uses a different naming convention than Hafs fonts.
+   126→ */
+   127→function getFontUrl(fontName: string): string {
+   128→  if (fontName === BSML_FONT) {
+   129→    return `${FONT_BASE}${BSML_FONT}.woff2`;
+   130→  }
+   131→  return `${FONT_BASE}${fontName}_W.woff2`;
+   132→}
+   133→
+   134→/**
+   135→ * Verify a font is truly usable on Canvas by drawing a PUA character
+   136→ * and checking if the pixels are non-blank. This is the ONLY reliable
+   137→ * way to confirm the font works for Canvas rendering —
+   138→ * document.fonts.check() can return true even when Canvas can't use it.
+   139→ *
+   140→ * IMPORTANT: In Android WebView (Capacitor), Canvas verification is unreliable
+   141→ * because WebView processes fonts differently. We use document.fonts.check()
+   142→ * as a fallback verification method in that case.
+   143→ */
+   144→function verifyFontOnCanvas(fontName: string): boolean {
+   145→  try {
+   146→    // In Capacitor/Android WebView, skip pixel-level Canvas verification
+   147→    // because it's unreliable — trust document.fonts API instead
+   148→    if (_isCapacitor) {
+   149→      const fontsCheck = document.fonts.check(`40px "${fontName}"`);
+   150→      console.log(`[Mushaf] Capacitor: document.fonts.check for "${fontName}": ${fontsCheck}`);
+   151→      return fontsCheck;
+   152→    }
+   153→
+   154→    const testSize = 40;
+   155→    const canvas = document.createElement('canvas');
+   156→    canvas.width = testSize * 2;
+   157→    canvas.height = testSize * 2;
+   158→    const ctx = canvas.getContext('2d');
+   159→    if (!ctx) return false;
+   160→
+   161→    // Clear with known background
+   162→    ctx.fillStyle = '#FFFFFF';
+   163→    ctx.fillRect(0, 0, canvas.width, canvas.height);
+   164→
+   165→    // Draw the PUA test character with ONLY our font (no fallback)
+   166→    ctx.font = `${testSize}px "${fontName}"`;
+   167→    ctx.fillStyle = '#000000';
+   168→    ctx.textAlign = 'center';
+   169→    ctx.textBaseline = 'middle';
+   170→    ctx.fillText('\uF100', canvas.width / 2, canvas.height / 2);
+   171→
+   172→    // Check if any non-white pixels exist
+   173→    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+   174→    const data = imageData.data;
+   175→    for (let i = 0; i < data.length; i += 4) {
+   176→      // If any pixel is not white (R=255, G=255, B=255), the font rendered
+   177→      if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) {
+   178→        return true;
+   179→      }
+   180→    }
+   181→
+   182→    return false;
+   183→  } catch {
+   184→    return false;
+   185→  }
+   186→}
+   187→
+   188→/**
+   189→ * Create a hidden DOM element that uses the font. This forces the browser
+   190→ * to download and parse the font binary, making it available for Canvas.
+   191→ * Some browsers (especially Android WebView) won't make fonts available
+   192→ * to Canvas unless they're used in the DOM first.
+   193→ */
+   194→function createFontPreloadElement(fontName: string): void {
+   195→  const id = `qcf-preload-${fontName}`;
+   196→  if (document.getElementById(id)) return;
+   197→
+   198→  const span = document.createElement('span');
+   199→  span.id = id;
+   200→  span.setAttribute('aria-hidden', 'true');
+   201→  span.style.cssText = `
+   202→    position: absolute;
+   203→    left: -9999px;
+   204→    top: -9999px;
+   205→    visibility: hidden;
+   206→    font-family: "${fontName}";
+   207→    font-size: 40px;
+   208→    pointer-events: none;
+   209→  `;
+   210→  // Use multiple PUA characters to ensure the browser loads the font
+   211→  span.textContent = '\uF100\uF101\uF102\uF103\uF104\uF105';
+   212→  document.body.appendChild(span);
+   213→}
+   214→
+   215→/**
+   216→ * Load a QCF4 font using the most reliable method available.
+   217→ *
+   218→ * Strategy order (most to least reliable):
+   219→ * 1. Fetch font as ArrayBuffer → FontFace from binary data
+   220→ *    (Bypasses CORS issues with URL-based FontFace loading)
+   221→ * 2. FontFace API with URL
+   222→ * 3. CSS @font-face injection with DOM preload element
+   223→ *
+   224→ * All strategies include Canvas pixel verification.
+   225→ */
+   226→async function ensureFontLoaded(fontName: string): Promise<void> {
+   227→  if (loadedFonts.has(fontName)) return;
+   228→
+   229→  // Deduplicate concurrent loads
+   230→  if (loadingFonts.has(fontName)) {
+   231→    const result = await loadingFonts.get(fontName);
+   232→    if (result) return;
+   233→    // If previous load failed, remove it so we can retry
+   234→    loadingFonts.delete(fontName);
+   235→  }
+   236→
+   237→  const loadPromise = _doLoadFont(fontName);
+   238→  loadingFonts.set(fontName, loadPromise);
+   239→
+   240→  try {
+   241→    const success = await loadPromise;
+   242→    if (success) {
+   243→      loadedFonts.add(fontName);
+   244→    }
+   245→  } finally {
+   246→    loadingFonts.delete(fontName);
+   247→  }
+   248→}
+   249→
+   250→/**
+   251→ * Internal font loading implementation with 3 strategies and retry logic.
+   252→ * Returns true if the font was loaded and verified on Canvas.
+   253→ *
+   254→ * In Capacitor/Android WebView, Canvas pixel verification is unreliable,
+   255→ * so we trust document.fonts API and proceed with rendering even if
+   256→ * pixel-level verification fails.
+   257→ */
+   258→async function _doLoadFont(fontName: string): Promise<boolean> {
+   259→  const fontUrl = getFontUrl(fontName);
+   260→  const waitMs = _isCapacitor ? 1200 : 200;
+   261→
+   262→  for (let attempt = 1; attempt <= (_isCapacitor ? 2 : 3); attempt++) {
+   263→    console.log(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})...`);
+   264→
+   265→    // --- Strategy 1: Fetch as ArrayBuffer → FontFace (most reliable) ---
+   266→    try {
+   267→      console.log(`[Mushaf] Strategy 1: Fetch ArrayBuffer for "${fontName}" from ${fontUrl}`);
+   268→      const res = await fetch(fontUrl);
+   269→      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+   270→      const buffer = await res.arrayBuffer();
+   271→      console.log(`[Mushaf] Font "${fontName}" downloaded: ${buffer.byteLength} bytes`);
+   272→
+   273→      const fontFace = new FontFace(fontName, buffer, { display: 'block' });
+   274→      const loaded = await fontFace.load();
+   275→      document.fonts.add(loaded);
+   276→
+   277→      // Wait for the font to be fully processed
+   278→      await document.fonts.ready;
+   279→
+   280→      // Force browser to recognize the font via DOM
+   281→      createFontPreloadElement(fontName);
+   282→
+   283→      // Longer delay for Android WebView font processing
+   284→      await new Promise<void>((r) => setTimeout(r, waitMs));
+   285→
+   286→      // Verify — in Capacitor, use document.fonts.check() instead of pixel verification
+   287→      const verified = verifyFontOnCanvas(fontName);
+   288→      console.log(`[Mushaf] Strategy 1 verify for "${fontName}": ${verified}`);
+   289→      if (verified) {
+   290→        console.log(`[Mushaf] Font "${fontName}" loaded successfully via ArrayBuffer`);
+   291→        return true;
+   292→      }
+   293→
+   294→      // In Capacitor: even if verification returns false, trust document.fonts
+   295→      // and proceed — the font may work for Canvas even if check() returns false
+   296→      if (_isCapacitor && document.fonts.check(`40px "${fontName}"`)) {
+   297→        console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}", proceeding`);
+   298→        return true;
+   299→      }
+   300→    } catch (e) {
+   301→      console.warn(`[Mushaf] ArrayBuffer strategy failed for "${fontName}":`, e);
+   302→    }
+   303→
+   304→    // --- Strategy 2: FontFace with URL ---
+   305→    try {
+   306→      console.log(`[Mushaf] Strategy 2: FontFace URL for "${fontName}"`);
+   307→      const fontFace = new FontFace(fontName, `url('${fontUrl}')`, { display: 'block' });
+   308→      const loaded = await fontFace.load();
+   309→      document.fonts.add(loaded);
+   310→
+   311→      await document.fonts.ready;
+   312→      createFontPreloadElement(fontName);
+   313→      await new Promise<void>((r) => setTimeout(r, waitMs));
+   314→
+   315→      const verified = verifyFontOnCanvas(fontName);
+   316→      console.log(`[Mushaf] Strategy 2 verify for "${fontName}": ${verified}`);
+   317→      if (verified) {
+   318→        console.log(`[Mushaf] Font "${fontName}" loaded successfully via FontFace URL`);
+   319→        return true;
+   320→      }
+   321→
+   322→      if (_isCapacitor && document.fonts.check(`40px "${fontName}"`)) {
+   323→        console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}" (strategy 2)`);
+   324→        return true;
+   325→      }
+   326→    } catch (e) {
+   327→      console.warn(`[Mushaf] FontFace URL strategy failed for "${fontName}":`, e);
+   328→    }
+   329→
+   330→    // --- Strategy 3: CSS @font-face + DOM preload ---
+   331→    try {
+   332→      console.log(`[Mushaf] Strategy 3: CSS @font-face for "${fontName}"`);
+   333→      const styleId = fontName === BSML_FONT ? 'qcf-basml' : `qcf-${fontName}`;
+   334→      if (!document.getElementById(styleId)) {
+   335→        const style = document.createElement('style');
+   336→        style.id = styleId;
+   337→        style.textContent = `
+   338→          @font-face {
+   339→            font-family: '${fontName}';
+   340→            src: url('${fontUrl}') format('woff2');
+   341→            font-display: block;
+   342→          }`;
+   343→        document.head.appendChild(style);
+   344→      }
+   345→
+   346→      // Force font download via DOM element
+   347→      createFontPreloadElement(fontName);
+   348→
+   349→      // Try to load via document.fonts API with PUA char
+   350→      try {
+   351→        await document.fonts.load(`40px "${fontName}"`, '\uF100');
+   352→      } catch {
+   353→        /* some browsers don't support the text param */
+   354→      }
+   355→
+   356→      // Wait and poll
+   357→      await document.fonts.ready;
+   358→      const cssWaitMs = _isCapacitor ? 1500 : 500;
+   359→      await new Promise<void>((r) => setTimeout(r, cssWaitMs));
+   360→
+   361→      const verified = verifyFontOnCanvas(fontName);
+   362→      console.log(`[Mushaf] Strategy 3 verify for "${fontName}": ${verified}`);
+   363→      if (verified) {
+   364→        console.log(`[Mushaf] Font "${fontName}" loaded successfully via CSS @font-face`);
+   365→        return true;
+   366→      }
+   367→
+   368→      if (_isCapacitor && document.fonts.check(`40px "${fontName}"`)) {
+   369→        console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}" (strategy 3)`);
+   370→        return true;
+   371→      }
+   372→    } catch (e) {
+   373→      console.warn(`[Mushaf] CSS @font-face strategy failed for "${fontName}":`, e);
+   374→    }
+   375→
+   376→    if (attempt < (_isCapacitor ? 2 : 3)) {
+   377→      const delay = _isCapacitor ? 800 : 500 * attempt;
+   378→      console.warn(`[Mushaf] All strategies failed for "${fontName}" (attempt ${attempt}), retrying in ${delay}ms...`);
+   379→      await new Promise<void>((r) => setTimeout(r, delay));
+   380→    }
+   381→  }
+   382→
+   383→  // FINAL FALLBACK for Capacitor: If the font was added to document.fonts at all,
+   384→  // assume it's usable and proceed with rendering. Better to show potentially
+   385→  // incorrect text than a blank page.
+   386→  if (_isCapacitor) {
+   387→    const fontFaces = document.fonts.values();
+   388→    let found = false;
+   389→    for (const ff of fontFaces) {
+   390→      if (ff.family === fontName) { found = true; break; }
+   391→    }
+   392→    // Also check if a preload DOM element exists
+   393→    const preloadEl = document.getElementById(`qcf-preload-${fontName}`);
+   394→    if (found || preloadEl) {
+   395→      console.warn(`[Mushaf] Capacitor FINAL FALLBACK: Font "${fontName}" found in document.fonts or DOM, proceeding`);
+   396→      return true;
+   397→    }
+   398→  }
+   399→
+   400→  console.error(`[Mushaf] FAILED to load font "${fontName}" after all attempts. Quran text will appear as squares.`);
+   401→  return false;
+   402→}
+   403→
+   404→function isNightMode(): boolean {
+   405→  return document.body.classList.contains('night-mode');
+   406→}
+   407→
+   408→function getColors(): PageColors {
+   409→  if (isNightMode()) {
+   410→    return { bg: '#1a1e2b', txt: '#d4c4a8', frame: '#4a4e5e', frameInner: '#3a3e4e' };
+   411→  }
+   412→  return { bg: '#f5f0e8', txt: '#1a1a1a', frame: '#c4a87c', frameInner: '#b8956a' };
+   413→}
+   414→
+   415→/* ===================== RENDERING ===================== */
+   416→
+   417→/**
+   418→ * Render a mushaf page onto a canvas element.
+   419→ *
+   420→ * For Capacitor/Android WebView, this function includes special handling:
+   421→ * - Skips strict Canvas pixel verification (unreliable in WebView)
+   422→ * - Adds a re-render mechanism after a delay (WebView sometimes needs
+   423→ *   a second render pass for fonts to take effect)
+   424→ * - Adds an overall timeout to prevent hanging
+   425→ */
+   426→export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
+   427→  console.log(`[Mushaf] renderPage(${pageNum}) starting...`);
+   428→
+   429→  // Add overall timeout for Capacitor to prevent hanging
+   430→  if (_isCapacitor) {
+   431→    const timeoutMs = 30000; // 30 second max
+   432→    return Promise.race([
+   433→      _renderPageInternal(pageNum, targetCanvas),
+   434→      new Promise<RenderPageResult>((resolve) =>
+   435→        setTimeout(() => {
+   436→          console.error(`[Mushaf] renderPage(${pageNum}) timed out after ${timeoutMs}ms`);
+   437→          // Try to render with whatever we have
+   438→          _renderPageWithCurrentFonts(pageNum, targetCanvas).then(resolve);
+   439→        }, timeoutMs)
+   440→      )
+   441→    ]);
+   442→  }
+   443→
+   444→  return _renderPageInternal(pageNum, targetCanvas);
+   445→}
+   446→
+   447→/**
+   448→ * Attempt to render a page using whatever fonts are currently available,
+   449→ * even if font loading failed. Better to show partial text than blank.
+   450→ */
+   451→async function _renderPageWithCurrentFonts(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
+   452→  try {
+   453→    const data = await loadPageData(pageNum);
+   454→    if (!data) return { canvas: null, layout: null };
+   455→
+   456→    const pageFont = data.font || getPageFont(pageNum, null);
+   457→    const canvas = targetCanvas || document.createElement('canvas');
+   458→    canvas.width = CANVAS_W;
+   459→    canvas.height = CANVAS_H;
+   460→    const ctx = canvas.getContext('2d');
+   461→    if (!ctx) return { canvas: null, layout: data };
+   462→
+   463→    const colors = getColors();
+   464→    ctx.fillStyle = colors.bg;
+   465→    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+   466→    renderPageContent(ctx, data, pageFont, colors);
+   467→    drawPageFrame(ctx, colors);
+   468→    drawPageNumber(ctx, pageNum, colors);
+   469→    return { canvas, layout: data };
+   470→  } catch {
+   471→    return { canvas: null, layout: null };
+   472→  }
+   473→}
+   474→
+   475→async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
+   476→  const data = await loadPageData(pageNum);
+   477→  if (!data) {
+   478→    console.error(`[Mushaf] Failed to load page data for page ${pageNum}`);
+   479→    return { canvas: null, layout: null };
+   480→  }
+   481→  console.log(`[Mushaf] Page ${pageNum} data loaded: ${data.lines?.length || 0} lines`);
+   482→
+   483→  const pageFont = data.font || getPageFont(pageNum, null);
+   484→
+   485→  // Collect ALL unique font names used on this page (bismillah, header, etc.)
+   486→  const pageFonts = new Set<string>();
+   487→  pageFonts.add(pageFont);
+   488→  pageFonts.add(BSML_FONT);
+   489→  for (const line of data.lines ?? []) {
+   490→    for (const w of line.words ?? []) {
+   491→      if (w.font) pageFonts.add(w.font);
+   492→    }
+   493→  }
+   494→
+   495→  console.log(`[Mushaf] Page ${pageNum} needs fonts: ${[...pageFonts].join(', ')}`);
+   496→
+   497→  // Load all fonts in parallel with individual timeouts
+   498→  const fontPromises = [...pageFonts].map((fn) =>
+   499→    Promise.race([
+   500→      ensureFontLoaded(fn),
+   501→      new Promise<void>((resolve) => setTimeout(resolve, _isCapacitor ? 10000 : 5000))
+   502→    ])
+   503→  );
+   504→  await Promise.all(fontPromises);
+   505→
+   506→  // Ensure Reem Kufi is loaded for bismillah rendering
+   507→  try {
+   508→    await document.fonts.load('500 40px "Reem Kufi"');
+   509→  } catch {
+   510→    /* ignore */
+   511→  }
+   512→
+   513→  // Wait for all fonts to be ready
+   514→  try {
+   515→    await document.fonts.ready;
+   516→  } catch {
+   517→    /* ignore */
+   518→  }
+   519→
+   520→  // In Capacitor: skip the final Canvas verification re-check to avoid infinite loops
+   521→  if (!_isCapacitor) {
+   522→    // Final Canvas verification — if the page font still doesn't work,
+   523→    // try one more time with a longer wait
+   524→    if (!loadedFonts.has(pageFont) || !verifyFontOnCanvas(pageFont)) {
+   525→      console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
+   526→      loadedFonts.delete(pageFont);
+   527→      await ensureFontLoaded(pageFont);
+   528→    }
+   529→  } else {
+   530→    // In Capacitor: just wait a bit more for fonts to be processed
+   531→    await new Promise<void>((r) => setTimeout(r, 500));
+   532→    await document.fonts.ready;
+   533→  }
+   534→
+   535→  const canvas = targetCanvas || document.createElement('canvas');
+   536→  canvas.width = CANVAS_W;
+   537→  canvas.height = CANVAS_H;
+   538→  const ctx = canvas.getContext('2d');
+   539→
+   540→  const colors = getColors();
+   541→
+   542→  ctx!.fillStyle = colors.bg;
+   543→  ctx!.fillRect(0, 0, CANVAS_W, CANVAS_H);
+   544→
+   545→  renderPageContent(ctx!, data, pageFont, colors);
+   546→
+   547→  drawPageFrame(ctx!, colors);
+   548→
+   549→  drawPageNumber(ctx!, pageNum, colors);
+   550→
+   551→  console.log(`[Mushaf] Page ${pageNum} rendered successfully`);
+   552→
+   553→  // In Capacitor: schedule a re-render after a delay, because Android WebView
+   554→  // sometimes needs a second render pass for fonts to take effect on Canvas.
+   555→  // This is a known WebView quirk where the first Canvas draw doesn't use
+   556→  // the loaded font, but a subsequent draw does.
+   557→  if (_isCapacitor) {
+   558→    const reRenderDelay = 2000;
+   559→    setTimeout(() => {
+   560→      console.log(`[Mushaf] Capacitor: Re-rendering page ${pageNum} after ${reRenderDelay}ms delay`);
+   561→      try {
+   562→        const c = targetCanvas || document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement;
+   563→        if (c && c.width === CANVAS_W) {
+   564→          const ctx2 = c.getContext('2d');
+   565→          if (ctx2) {
+   566→            ctx2.fillStyle = colors.bg;
+   567→            ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
+   568→            renderPageContent(ctx2, data, pageFont, colors);
+   569→            drawPageFrame(ctx2, colors);
+   570→            drawPageNumber(ctx2, pageNum, colors);
+   571→            console.log(`[Mushaf] Capacitor: Re-render of page ${pageNum} complete`);
+   572→          }
+   573→        }
+   574→      } catch (e) {
+   575→        console.warn('[Mushaf] Capacitor re-render failed:', e);
+   576→      }
+   577→    }, reRenderDelay);
+   578→  }
+   579→
+   580→  return { canvas, layout: data };
+   581→}
+   582→
+   583→function measureLine(ctx: CanvasRenderingContext2D, words: PageWord[], pageFont: string, fontSize: number): number[] {
+   584→  return words.map((w) => {
+   585→    const fn = w.font || pageFont;
+   586→    ctx.font = `${fontSize}px "${fn}"`;
+   587→    return ctx.measureText(w.char).width;
+   588→  });
+   589→}
+   590→
+   591→export function getLineY(lineIndex: number, lineCount: number, imgHeight: number): number {
+   592→  if (lineIndex <= 0) return 0;
+   593→  if (lineIndex >= lineCount) return imgHeight;
+   594→  const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
+   595→  const stdLineHeight = usableHeight / STD_LINES;
+   596→  const isShortPage = lineCount < STD_LINES;
+   597→  const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / Math.max(1, lineCount - 1) : stdLineHeight;
+   598→  const y = TOP_OFFSET + lineIndex * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2);
+   599→  return (y / CANVAS_H) * imgHeight;
+   600→}
+   601→
+   602→/** Pre‑compute per‑word tajweed coloring data for the entire page. */
+   603→function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
+   604→  if (!state.tajweedEnabled) return null;
+   605→
+   606→  // Collect all words with verse_key and text, in page order
+   607→  const verseKeyWords = new Map<string, { text: string; lineIdx: number; wordIdx: number }[]>();
+   608→  for (let li = 0; li < data.lines.length; li++) {
+   609→    const line = data.lines[li];
+   610→    if (!line?.words) continue;
+   611→    for (let wi = 0; wi < line.words.length; wi++) {
+   612→      const w = line.words[wi];
+   613→      if (w.verse_key && w.text && w.type === 'word') {
+   614→        if (!verseKeyWords.has(w.verse_key)) verseKeyWords.set(w.verse_key, []);
+   615→        verseKeyWords.get(w.verse_key)!.push({ text: w.text, lineIdx: li, wordIdx: wi });
+   616→      }
+   617→    }
+   618→  }
+   619→
+   620→  // Build ayah text and color map per verse_key, then assign colors to each word
+   621→  const result: { wordIdx: number; lineIdx: number; color: string | null }[] = [];
+   622→
+   623→  for (const [vk, words] of verseKeyWords) {
+   624→    const parts = vk.split(':');
+   625→    const surah = parseInt(parts[0], 10);
+   626→    const ayah = parseInt(parts[1], 10);
+   627→
+   628→    const annotations: TajweedAnnotation[] = getAyahAnnotations(surah, ayah);
+   629→    if (annotations.length === 0) {
+   630→      for (const w of words) result.push({ wordIdx: w.wordIdx, lineIdx: w.lineIdx, color: null });
+   631→      continue;
+   632→    }
+   633→
+   634→    // Build color map using the full ayah text (with basmalah if present)
+   635→    // — QCF4 layout always includes basmalah words, and annotations are for the full ayah
+   636→    const ayahText = words.map((w) => w.text).join(' ');
+   637→    const colorMap = buildColorMap(annotations);
+   638→    if (!colorMap || colorMap.size === 0) {
+   639→      for (const w of words) result.push({ wordIdx: w.wordIdx, lineIdx: w.lineIdx, color: null });
+   640→      continue;
+   641→    }
+   642→
+   643→    // Use the full QCF4 word list as-is (no basmalah stripping)
+   644→    let outputPos = 0;
+   645→    for (let wi = 0; wi < words.length; wi++) {
+   646→      const wordText = words[wi].text;
+   647→      let wordColor: string | null = null;
+   648→      for (let ci = 0; ci < wordText.length; ci++) {
+   649→        const c = colorMap.get(outputPos + ci);
+   650→        if (c) {
+   651→          wordColor = c;
+   652→          break;
+   653→        }
+   654→      }
+   655→      result.push({ wordIdx: words[wi].wordIdx, lineIdx: words[wi].lineIdx, color: wordColor });
+   656→      outputPos += wordText.length + 1;
+   657→    }
+   658→  }
+   659→
+   660→  return result;
+   661→}
+   662→
+   663→function renderPageContent(
+   664→  ctx: CanvasRenderingContext2D,
+   665→  data: PageLayoutData,
+   666→  pageFont: string,
+   667→  colors: PageColors
+   668→): void {
+   669→  const lines = data.lines;
+   670→  if (!lines || lines.length === 0) return;
+   671→
+   672→  const lineCount = lines.length;
+   673→  const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
+   674→  const availableW = CANVAS_W - PAD_H * 2;
+   675→
+   676→  const stdLineHeight = usableHeight / STD_LINES;
+   677→  const baseFontSize = Math.max(26, Math.min(55, stdLineHeight * 0.85));
+   678→  const pageFontSize = baseFontSize;
+   679→
+   680→  const isShortPage = lineCount < 15;
+   681→  const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / Math.max(1, lineCount - 1) : stdLineHeight;
+   682→
+   683→  const lineWidths: (LineWidths | null)[] = [];
+   684→  for (let i = 0; i < lineCount; i++) {
+   685→    const line = lines[i];
+   686→    if (!line?.words || line.words.length === 0) {
+   687→      lineWidths.push(null);
+   688→      continue;
+   689→    }
+   690→    const widths = measureLine(ctx, line.words, pageFont, pageFontSize);
+   691→    const totalW = widths.reduce((a: number, b: number) => a + b, 0);
+   692→    const gap = line.words.length > 1 ? (availableW - totalW) / (line.words.length - 1) : 0;
+   693→    lineWidths.push({ widths, gap: Math.max(0, gap) });
+   694→  }
+   695→
+   696→  // Pre‑compute tajweed coloring for each word on the page
+   697→  const tajweedColors = computePageTajweed(data);
+   698→  const tajweedLookup = new Map<string, string | null>();
+   699→  if (tajweedColors) {
+   700→    for (const entry of tajweedColors) {
+   701→      tajweedLookup.set(`${entry.lineIdx}:${entry.wordIdx}`, entry.color);
+   702→    }
+   703→  }
+   704→
+   705→  // Special colors for bismillah and surah header
+   706→  const bsmlColor = isNightMode() ? '#d4af37' : '#8b6914';
+   707→  const headerColor = isNightMode() ? '#c4a87c' : '#7a5c3a';
+   708→  const bsmlFont = 'Reem Kufi';
+   709→  const bsmlText = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
+   710→
+   711→  ctx.textBaseline = 'middle';
+   712→
+   713→  for (let i = 0; i < lineCount; i++) {
+   714→    const line = lines[i];
+   715→    if (!line?.words || line.words.length === 0) continue;
+   716→
+   717→    const y = TOP_OFFSET + i * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2);
+   718→    const words = line.words;
+   719→    const lw = lineWidths[i];
+   720→    if (!lw) continue;
+   721→    const { widths, gap } = lw;
+   722→
+   723→    // Check if this line is a bismillah or surah_header line
+   724→    const lineType = words[0]?.type;
+   725→    const isBismillahLine = lineType === 'bismillah';
+   726→    const isHeaderLine = lineType === 'surah_header';
+   727→
+   728→    // Render bismillah with Reem Kufi font, centered
+   729→    if (isBismillahLine) {
+   730→      const bsmlFontSize = Math.round(pageFontSize * 0.95);
+   731→      ctx.font = `500 ${bsmlFontSize}px "${bsmlFont}", "Scheherazade New", serif`;
+   732→      ctx.textAlign = 'center';
+   733→      ctx.fillStyle = bsmlColor;
+   734→      ctx.fillText(bsmlText, CANVAS_W / 2, y);
+   735→      continue;
+   736→    }
+   737→
+   738→    let x = CANVAS_W - PAD_H;
+   739→
+   740→    for (let j = 0; j < words.length; j++) {
+   741→      const w = words[j];
+   742→      const fn = w.font || pageFont;
+   743→      ctx.font = `${pageFontSize}px "${fn}"`;
+   744→      ctx.textAlign = 'right';
+   745→
+   746→      // Use special color for surah headers
+   747→      if (isHeaderLine) {
+   748→        ctx.fillStyle = headerColor;
+   749→      } else {
+   750→        // Use tajweed color if available, otherwise default text color
+   751→        const wordColor = tajweedLookup ? tajweedLookup.get(`${i}:${j}`) : null;
+   752→        ctx.fillStyle = wordColor || colors.txt;
+   753→      }
+   754→
+   755→      ctx.fillText(w.char, x, y);
+   756→      x -= widths[j] + gap;
+   757→    }
+   758→  }
+   759→}
+   760→
+   761→function drawPageNumber(ctx: CanvasRenderingContext2D, pageNum: number, _colors: PageColors): void {
+   762→  const cx = CANVAS_W / 2;
+   763→  const cy = CANVAS_H - 18;
+   764→  const numStr = pageNum.toLocaleString('ar-SA');
+   765→  ctx.font = 'bold 16px "Amiri", serif';
+   766→  ctx.textAlign = 'center';
+   767→  ctx.textBaseline = 'middle';
+   768→  ctx.fillStyle = isNightMode() ? '#6a6e7e' : '#8b6f5a';
+   769→  ctx.fillText(numStr, cx, cy);
+   770→}
+   771→
+   772→function drawPageFrame(ctx: CanvasRenderingContext2D, colors: PageColors): void {
+   773→  const m = 8;
+   774→  ctx.strokeStyle = colors.frame;
+   775→  ctx.lineWidth = 2;
+   776→  ctx.strokeRect(m, m, CANVAS_W - m * 2, CANVAS_H - m * 2);
+   777→
+   778→  ctx.strokeStyle = colors.frameInner;
+   779→  ctx.lineWidth = 1;
+   780→  const gap = 6;
+   781→  ctx.strokeRect(m + gap, m + gap, CANVAS_W - (m + gap) * 2, CANVAS_H - (m + gap) * 2);
+   782→}
+   783→
