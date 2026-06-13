@@ -2,6 +2,7 @@ import { __ } from './i18n.js';
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { CONFIG } from './config.js';
+import { storage } from './storage.js';
 import { togglePlayPause, updatePlayPauseBtn, playCurrentAyah } from './audio.js';
 import { buildColorMap, tajweedColorWord } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
@@ -1298,9 +1299,29 @@ export function togglePresentation(): void {
 }
 
 export function openPresentation(): void {
+  console.log('[Presentation] openPresentation() called, mushafMode=' + state.mushafMode);
+
+  // If in mushaf mode, toggle it off SYNCHRONOUSLY before showing presentation.
+  // We set the state directly instead of using the async toggleMushafMode to avoid
+  // race conditions where the toggle happens after the overlay is already shown.
   if (state.mushafMode) {
-    import('./mushaf.js').then((m: { toggleMushafMode: () => void }) => m.toggleMushafMode());
+    console.log('[Presentation] Exiting mushaf mode synchronously before opening presentation');
+    state.mushafMode = false;
+    storage.set('mushaf_mode', false);
+    if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
+    // Update view mode buttons to show surah mode (not mushaf)
+    document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
+      b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah');
+    });
+    // Re-render the surah content in the background (async, non-blocking)
+    import('./app.js').then(({ renderSurah }) => {
+      const surahData = state.surahData as any;
+      if (surahData && surahData.number === state.currentSurah) {
+        renderSurah(surahData);
+      }
+    }).catch(() => {});
   }
+
   state.presentationMode = true;
   // Sync presentation tajweed with global setting on open
   _presTajweedEnabled = state.tajweedEnabled;
@@ -1329,6 +1350,9 @@ export function openPresentation(): void {
   // Show controls initially, then auto-hide
   showControls();
   updateDisplay();
+
+  console.log('[Presentation] openPresentation() completed, overlay visible=' +
+    (dom.presentationOverlay ? !dom.presentationOverlay.classList.contains('hidden') : 'element-missing'));
 }
 
 export function closePresentation(): void {
@@ -1345,7 +1369,8 @@ export function closePresentation(): void {
   if (dom.presentationOverlay) {
     dom.presentationOverlay.classList.add('hidden');
     dom.presentationOverlay.style.display = 'none';
-    dom.presentationOverlay.classList.remove('pres-controls-visible');
+    dom.presentationOverlay.classList.remove('pres-controls-visible', 'pres-nature', 'pres-auto', 'pres-animated', 'pres-scene', 'pres-light');
+    dom.presentationOverlay.style.backgroundImage = '';
     removeAnimatedBgLayer(dom.presentationOverlay);
     removeSceneCanvas(dom.presentationOverlay);
   }
@@ -1432,7 +1457,17 @@ export function syncPresentation(): void {
 }
 
 export function initPresentation(): void {
+  console.log('[Presentation] initPresentation() called');
   injectStyles();
+
+  // Verify the presentation overlay exists in the DOM
+  const overlay = document.getElementById('presentationOverlay');
+  if (!overlay) {
+    console.error('[Presentation] ERROR: presentationOverlay element not found in DOM!');
+    return;
+  }
+  console.log('[Presentation] Overlay element found, binding event handlers...');
+
   if (dom.presentationCloseBtn) dom.presentationCloseBtn.addEventListener('click', closePresentation);
   if (dom.presentationPrevBtn) dom.presentationPrevBtn.addEventListener('click', () => navigateAyah(-1));
   if (dom.presentationNextBtn) dom.presentationNextBtn.addEventListener('click', () => navigateAyah(1));
@@ -1475,4 +1510,6 @@ export function initPresentation(): void {
   // Fullscreen change event
   document.addEventListener('fullscreenchange', handleFullscreenChange);
   document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+  console.log('[Presentation] initPresentation() completed successfully');
 }

@@ -77,12 +77,9 @@ export async function toggleMushafMode(): Promise<void> {
     }
   });
   if (state.mushafMode) {
-    // === AGGRESSIVELY close all open panels ===
-    // Close settings panel - use BOTH class removal AND inline style
-    // because some CSS transitions might keep it visible
+    // === Close all open panels ===
     if (dom.settingsPanel) {
       dom.settingsPanel.classList.remove('open');
-      dom.settingsPanel.style.right = '-420px'; // Force hide via inline style
     }
     if (dom.favoritesPanel) {
       dom.favoritesPanel.classList.remove('open');
@@ -92,9 +89,9 @@ export async function toggleMushafMode(): Promise<void> {
     }
     // Also close any open overlays
     const mushafOverlay = document.getElementById('mushafSurahOverlay');
-    if (mushafOverlay) { mushafOverlay.classList.add('hidden'); mushafOverlay.style.display = 'none'; }
+    if (mushafOverlay) { mushafOverlay.classList.add('hidden'); }
     const secretsOverlay = document.getElementById('surahSecretsOverlay');
-    if (secretsOverlay) { secretsOverlay.classList.add('hidden'); secretsOverlay.style.display = 'none'; }
+    if (secretsOverlay) { secretsOverlay.classList.add('hidden'); }
 
     // Show immediate loading state in surahContent
     if (dom.surahContent) {

@@ -65,3 +65,31 @@ Stage Summary:
 - Network security config added for Android 9+ compatibility
 - Settings panel aggressively closed with inline style override
 - Visible loading state added for user feedback
+
+---
+Task ID: 1
+Agent: main
+Task: Fix presentation mode (وضع العرض) that stopped working after mushaf mode fix
+
+Work Log:
+- Read and analyzed all relevant source files: presentation.ts, mushaf.ts, mushaf-renderer.ts, navigation.ts, capacitor.css, app.ts, state.ts, dom.ts, index.html
+- Identified root cause: Double toggleMushafMode race condition in navigation.ts AND openPresentation()
+  - When clicking presentation button while in mushaf mode, BOTH the navigation handler AND openPresentation() called toggleMushafMode()
+  - Since both are async dynamic imports, the second toggle would fire AFTER the first, re-enabling mushaf mode
+  - This left the user in both modes simultaneously, causing confusion
+- Also identified: settings panel inline style `style.right = '-420px'` was set when entering mushaf mode but never cleared when leaving
+- Fixed navigation.ts: Removed redundant mushaf toggle from presentation button handler (openPresentation handles it internally)
+- Fixed presentation.ts openPresentation(): Changed from async dynamic import toggleMushafMode to SYNCHRONOUS state.mushafMode = false to avoid race condition
+- Fixed presentation.ts closePresentation(): Clean up all CSS classes and inline styles on close (pres-nature, pres-auto, pres-animated, pres-scene, pres-light, backgroundImage)
+- Fixed mushaf.ts: Removed inline style overrides (style.right, style.display) that could cause stale DOM state
+- Updated capacitor.css: Added z-index: 9999 !important, position: fixed !important, inset: 0 !important, -webkit-transform: translateZ(0) for presentation overlay in Capacitor
+- Added debug logging throughout presentation.ts (initPresentation, openPresentation)
+- Changed error handling in app.ts from silent .catch(() => {}) to .catch(e => console.error(...))
+- Built v1.5 APK successfully
+
+Stage Summary:
+- Fixed double toggleMushafMode race condition (root cause of presentation mode failure)
+- Fixed stale inline styles from mushaf mode that could interfere with other UI elements
+- Improved Capacitor-specific CSS for presentation overlay
+- Added comprehensive debug logging for easier troubleshooting
+- Built APK: /home/z/my-project/download/quran-app-v1.5-presentation-fix.apk
