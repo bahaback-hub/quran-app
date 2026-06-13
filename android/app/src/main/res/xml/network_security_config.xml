@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <!-- Allow cleartext (HTTP) traffic for all domains -->
+  <base-config cleartextTrafficPermitted="true">
+    <trust-anchors>
+      <certificates src="system" />
+      <certificates src="user" />
+    </trust-anchors>
+  </base-config>
+
+  <!-- Specifically allow CDN domains used by the app -->
+  <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="true">cdn.jsdelivr.net</domain>
+    <domain includeSubdomains="true">raw.githubusercontent.com</domain>
+    <domain includeSubdomains="true">api.alquran.cloud</domain>
+    <domain includeSubdomains="true">api.aladhan.com</domain>
+    <domain includeSubdomains="true">cdn.islamic.network</domain>
+    <domain includeSubdomains="true">mp3quran.net</domain>
+    <domain includeSubdomains="true">fonts.gstatic.com</domain>
+    <domain includeSubdomains="true">api.quran.com</domain>
+  </domain-config>
+
+  <!-- Allow localhost for Capacitor WebView -->
+  <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="false">localhost</domain>
+    <domain includeSubdomains="false">10.0.2.2</domain>
+  </domain-config>
+</network-security-config>
