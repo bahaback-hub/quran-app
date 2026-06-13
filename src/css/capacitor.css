@@ -34,19 +34,25 @@ body.capacitor-native {
 
 /* Fix mushaf container width in Capacitor — fit to screen */
 body.capacitor-native .mushaf-container {
-  max-width: 100%;
-  padding: 10px 5px;
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 8px 0 !important;
   /* Prevent any horizontal overflow */
-  overflow-x: hidden;
-  box-sizing: border-box;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  /* Center the content */
+  margin: 0 auto !important;
 }
 
 /* CRITICAL: Prevent horizontal scrolling in mushaf mode */
 /* The surah-content area must not allow horizontal scroll */
 body.capacitor-native .surah-content {
-  overflow-x: hidden;
-  max-width: 100vw;
-  box-sizing: border-box;
+  overflow: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  /* Reset any scroll position */
+  scroll-behavior: auto;
 }
 
 /* Ensure canvas renders properly in WebView */
@@ -59,9 +65,12 @@ body.capacitor-native .mushaf-page-canvas {
   min-height: 200px;
   /* CRITICAL: Ensure canvas fits within screen width */
   max-width: 100% !important;
+  width: 100% !important;
   height: auto !important;
-  display: block;
-  box-sizing: border-box;
+  display: block !important;
+  box-sizing: border-box !important;
+  /* Prevent canvas from causing horizontal overflow */
+  object-fit: contain;
 }
 
 /* Night mode canvas background */
@@ -71,15 +80,17 @@ body.night-mode.capacitor-native .mushaf-page-canvas {
 
 /* Ensure mushaf image wrapper is visible and centered */
 body.capacitor-native .mushaf-image-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
   min-height: 300px;
-  width: 100%;
-  max-width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
   position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  /* CRITICAL: This is the key fix — wrapper must not exceed screen width */
+  margin: 0 auto !important;
 }
 
 /* Better mushaf navigation buttons for touch */
@@ -87,10 +98,10 @@ body.capacitor-native .mushaf-page-nav-btn {
   width: 48px;
   height: 56px;
   font-size: 26px;
-  opacity: 0.6;
+  opacity: 0.7;
   min-width: 44px;
   min-height: 44px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.08);
   border-radius: 8px;
 }
 
@@ -142,6 +153,18 @@ body.capacitor-native .adhkar-panel:not(.open) {
   left: -100% !important;
 }
 
+/* CRITICAL: When in mushaf mode, panels must NOT be visible at all
+   even if WebView allows horizontal scroll — hide them completely */
+body.capacitor-native .mushaf-active .settings-panel:not(.open),
+body.capacitor-native .mushaf-active .favorites-panel:not(.open) {
+  display: none !important;
+}
+
+body.capacitor-native .mushaf-active .adhkar-panel:not(.open) {
+  display: none !important;
+  visibility: hidden !important;
+}
+
 /* Also ensure panels don't cover mushaf when in mushaf mode */
 body.capacitor-native .mushaf-container {
   z-index: 1;
@@ -169,17 +192,32 @@ body.capacitor-native .tafsir-curtain {
 
 /* ===== Presentation mode fixes for Capacitor/Android ===== */
 
-/* Presentation overlay — CRITICAL for Android WebView */
-body.capacitor-native .presentation-overlay {
+/* CRITICAL: Override .hidden class for presentation overlay when active
+   The .hidden class uses display: none !important which prevents the overlay
+   from showing even when we set inline styles. We MUST use !important here
+   to override it, and we use a body class to signal when presentation is active. */
+body.capacitor-native .presentation-overlay.presentation-visible {
+  display: flex !important;
+  visibility: visible !important;
   /* Ensure presentation works without status bar issues */
   padding-top: env(safe-area-inset-top, 0);
   /* Force high z-index for Android WebView */
-  z-index: 9999 !important;
+  z-index: 99999 !important;
   /* Ensure fixed positioning works in WebView */
   position: fixed !important;
   inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
   /* Ensure visibility */
   -webkit-transform: translateZ(0);
+  opacity: 1 !important;
+  /* Ensure it's on top of everything */
+  background: var(--bg-primary, #1a1a2e);
 }
 
 /* Close button always visible on mobile — critical for usability */
@@ -310,4 +348,22 @@ body.capacitor-native,
 body.capacitor-native html {
   overflow-x: hidden !important;
   max-width: 100vw !important;
+}
+
+/* ===== MUSHAF MODE: Lock body scroll completely ===== */
+/* When mushaf mode is active, prevent any scroll that could reveal panels */
+body.capacitor-native.mushaf-active {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  /* Allow vertical scroll only for surah content */
+  overflow-y: auto !important;
+}
+
+/* ===== PRESENTATION MODE: Lock body scroll completely ===== */
+body.capacitor-native.presentation-active {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
 }

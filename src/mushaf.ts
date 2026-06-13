@@ -77,6 +77,10 @@ export async function toggleMushafMode(): Promise<void> {
     }
   });
   if (state.mushafMode) {
+    // === Add body class for CSS targeting ===
+    // This allows CSS to hide panels and prevent horizontal scroll
+    document.body.classList.add('mushaf-active');
+
     // === Close all open panels ===
     // Use correct CSS property for each panel:
     // settings/favorites use 'right' (slide from right)
@@ -89,6 +93,12 @@ export async function toggleMushafMode(): Promise<void> {
     }
     if (dom.adhkarPanel) {
       dom.adhkarPanel.classList.remove('open');
+      // CRITICAL: In Capacitor WebView, also hide the adhkar panel completely
+      // to prevent it from being revealed by horizontal scroll/swipe
+      if (document.documentElement.classList.contains('capacitor-native')) {
+        dom.adhkarPanel.style.display = 'none';
+        dom.adhkarPanel.style.visibility = 'hidden';
+      }
     }
     // Also close any open overlays
     const mushafOverlay = document.getElementById('mushafSurahOverlay');
@@ -135,10 +145,16 @@ export async function toggleMushafMode(): Promise<void> {
       updatePlayPauseBtn();
     }
   } else {
+    // === Remove body class ===
+    document.body.classList.remove('mushaf-active');
+
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
 
     // Reset any inline style overrides on panels when leaving mushaf mode
-    // (No inline styles to reset anymore — we only use class-based toggling)
+    if (dom.adhkarPanel) {
+      dom.adhkarPanel.style.display = '';
+      dom.adhkarPanel.style.visibility = '';
+    }
 
     const surahData = state.surahData as any;
     if (surahData && surahData.number === state.currentSurah) {

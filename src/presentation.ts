@@ -1327,13 +1327,19 @@ export function openPresentation(): void {
   _presTajweedEnabled = state.tajweedEnabled;
   injectStyles();
   if (dom.presentationOverlay) {
-    // CRITICAL: Use both class removal AND explicit inline display for Android WebView
-    // Some WebView versions don't properly apply CSS class changes
+    // CRITICAL: For Android WebView (Capacitor), we use a special CSS class
+    // `presentation-visible` that overrides `.hidden { display: none !important }`
+    // with `display: flex !important` — this is the ONLY reliable way to make
+    // the overlay visible in WebView because inline styles can lose to !important.
     dom.presentationOverlay.classList.remove('hidden');
+    dom.presentationOverlay.classList.add('presentation-visible');
+    // Also set inline styles as fallback for non-Capacitor browsers
     dom.presentationOverlay.style.display = 'flex';
     dom.presentationOverlay.style.position = 'fixed';
     dom.presentationOverlay.style.inset = '0';
-    dom.presentationOverlay.style.zIndex = '9999';
+    dom.presentationOverlay.style.zIndex = '99999';
+    dom.presentationOverlay.style.width = '100vw';
+    dom.presentationOverlay.style.height = '100vh';
     // Background mode is handled by updateDisplay()
     if (state.presBgMode === 'plain') {
       if (document.body.classList.contains('night-mode')) {
@@ -1374,12 +1380,16 @@ export function closePresentation(): void {
     }
   }
   if (dom.presentationOverlay) {
+    // Remove the presentation-visible class FIRST (it has display: flex !important)
+    dom.presentationOverlay.classList.remove('presentation-visible');
     dom.presentationOverlay.classList.add('hidden');
     dom.presentationOverlay.style.display = 'none';
     // Clear all inline positioning styles set by openPresentation
     dom.presentationOverlay.style.position = '';
     dom.presentationOverlay.style.inset = '';
     dom.presentationOverlay.style.zIndex = '';
+    dom.presentationOverlay.style.width = '';
+    dom.presentationOverlay.style.height = '';
     dom.presentationOverlay.classList.remove('pres-controls-visible', 'pres-nature', 'pres-auto', 'pres-animated', 'pres-scene', 'pres-light');
     dom.presentationOverlay.style.backgroundImage = '';
     removeAnimatedBgLayer(dom.presentationOverlay);
