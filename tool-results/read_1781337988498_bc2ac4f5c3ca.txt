@@ -1,0 +1,1005 @@
+     1→     1→<!doctype html>
+     2→     2→<html lang="ar" dir="rtl">
+     3→     3→  <head>
+     4→     4→    <meta charset="UTF-8" />
+     5→     5→    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content" />
+     6→     6→    <meta name="theme-color" content="#5c2e2e" />
+     7→     7→    <meta name="description" content="تطبيق القرآن الكريم — تلاوة، بحث، تفسير، ومواقيت الصلاة" />
+     8→     8→    <meta name="apple-mobile-web-app-capable" content="yes" />
+     9→     9→    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    10→    10→    <meta name="mobile-web-app-capable" content="yes" />
+    11→    11→    <meta
+    12→    12→      http-equiv="Content-Security-Policy"
+    13→    13→      content="default-src * 'self' data: blob: about:; script-src * 'self' 'unsafe-inline' 'unsafe-eval' blob: data:; style-src * 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src * 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src * 'self' data: https: blob: about:; media-src * 'self' https: blob: data:; connect-src * 'self' https: http: blob: data:; frame-src 'none';"
+    14→    14→    />
+    15→    15→    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    16→    16→    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    17→    17→    <title>القرآن الكريم - عائلة السليماني</title>
+    18→    18→    <link rel="icon" href="./icon-192.png" />
+    19→    19→    <link rel="apple-touch-icon" href="./icon-192.png" />
+    20→    20→    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    21→    21→    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    22→    22→    <link
+    23→    23→      rel="stylesheet"
+    24→    24→      href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Reem+Kufi:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap"
+    25→    25→      fetchpriority="high"
+    26→    26→    />
+    27→    27→    <link rel="preconnect" href="https://api.alquran.cloud" />
+    28→    28→    <link rel="preconnect" href="https://cdn.islamic.network" />
+    29→    29→    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    30→    30→    <link rel="dns-prefetch" href="https://server.mp3quran.net" />
+    31→    31→    <link rel="stylesheet" href="styles.css" />
+    32→    32→  </head>
+    33→    33→  <body>
+    34→    34→    <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="تقدم القراءة"></div>
+    35→    35→
+    36→    36→    <noscript>
+    37→    37→      <div style="background: #fee; color: #c33; padding: 20px; text-align: center; font-size: 18px">
+    38→    38→        ⚠️ هذا التطبيق يحتاج إلى تفعيل JavaScript في المتصفح ليعمل.
+    39→    39→      </div>
+    40→    40→    </noscript>
+    41→    41→
+    42→    42→    <a href="#surahContent" class="skip-link">تخطّي إلى المحتوى</a>
+    43→    43→
+    44→    44→    <div class="network-banner" id="networkBanner">🔌 لا يوجد اتصال بالإنترنت — بعض الميزات قد لا تعمل</div>
+    45→    45→
+    46→    46→    <div class="container">
+    47→    47→      <!-- ========== شريط مواقيت الصلاة ========== -->
+    48→    48→      <div class="prayer-bar collapsed" id="prayerBar" role="region" aria-label="مواقيت الصلاة">
+    49→    49→        <div class="prayer-bar-inner">
+    50→    50→          <div class="prayer-bar-items">
+    51→    51→            <div class="prayer-bar-item">
+    52→    52→              <svg
+    53→    53→                class="icon icon-xs"
+    54→    54→                width="14"
+    55→    55→                height="14"
+    56→    56→                viewBox="0 0 24 24"
+    57→    57→                fill="none"
+    58→    58→                stroke="currentColor"
+    59→    59→                stroke-width="2"
+    60→    60→              >
+    61→    61→                <circle cx="12" cy="12" r="10" />
+    62→    62→                <polyline points="12 6 12 12 16 14" />
+    63→    63→              </svg>
+    64→    64→              <span id="bigClockTime">--:--</span>
+    65→    65→            </div>
+    66→    66→            <div class="prayer-bar-item">
+    67→    67→              <svg
+    68→    68→                class="icon icon-xs"
+    69→    69→                width="14"
+    70→    70→                height="14"
+    71→    71→                viewBox="0 0 24 24"
+    72→    72→                fill="none"
+    73→    73→                stroke="currentColor"
+    74→    74→                stroke-width="2"
+    75→    75→              >
+    76→    76→                <path d="M6 22V12a6 6 0 0 1 12 0v10" />
+    77→    77→                <path d="M3 22h18" />
+    78→    78→                <path d="M9 22v-4a3 3 0 0 1 6 0v4" />
+    79→    79→                <path d="M12 2v4" />
+    80→    80→              </svg>
+    81→    81→              <span id="nextPrayerName">جاري التحميل...</span> <span id="nextPrayerTime">--:--</span>
+    82→    82→            </div>
+    83→    83→            <div class="prayer-bar-item">
+    84→    84→              <svg
+    85→    85→                class="icon icon-xs"
+    86→    86→                width="14"
+    87→    87→                height="14"
+    88→    88→                viewBox="0 0 24 24"
+    89→    89→                fill="none"
+    90→    90→                stroke="currentColor"
+    91→    91→                stroke-width="2"
+    92→    92→              >
+    93→    93→                <path d="M5 22h14" />
+    94→    94→                <path d="M5 2h14" />
+    95→    95→                <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+    96→    96→                <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+    97→    97→              </svg>
+    98→    98→              <span id="countdownDisplay">--:--:--</span>
+    99→    99→            </div>
+   100→   100→          </div>
+   101→   101→        </div>
+   102→   102→        <button class="collapse-bar-btn" id="collapseBarBtn" aria-label="طي شريط المواقيت">▲</button>
+   103→   103→        <button class="collapse-bar-btn" id="expandBarBtn" aria-label="توسيع شريط المواقيت">▼</button>
+   104→   104→        <div class="collapsed-preview">
+   105→   105→          <span class="clock-only" id="collapsedClock">--:--</span>
+   106→   106→          <span><span id="prayerCountdown">---</span></span>
+   107→   107→        </div>
+   108→   108→      </div>
+   109→   109→
+   110→   110→      <!-- ========== رأس الصفحة ========== -->
+   111→   111→      <header class="header">
+   112→   112→        <div class="header-menu-container">
+   113→   113→          <div class="header-actions">
+   114→   114→            <div class="theme-switcher" id="themeToggle" aria-label="تبديل المظهر">
+   115→   115→              <button class="theme-btn active" data-theme="light" title="الوضع النهاري">☀️</button>
+   116→   116→              <button class="theme-btn" data-theme="sepia" title="وضع السيبيا">📜</button>
+   117→   117→              <button class="theme-btn" data-theme="night" title="الوضع الليلي">🌙</button>
+   118→   118→            </div>
+   119→   119→            <button class="header-action-btn" id="settingsToggleBtn" title="الإعدادات" aria-label="الإعدادات">
+   120→   120→              <svg
+   121→   121→                class="icon icon-settings"
+   122→   122→                width="20"
+   123→   123→                height="20"
+   124→   124→                viewBox="0 0 24 24"
+   125→   125→                fill="none"
+   126→   126→                stroke="currentColor"
+   127→   127→                stroke-width="2"
+   128→   128→                stroke-linecap="round"
+   129→   129→                stroke-linejoin="round"
+   130→   130→              >
+   131→   131→                <circle cx="12" cy="12" r="3" />
+   132→   132→                <path
+   133→   133→                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+   134→   134→                />
+   135→   135→              </svg>
+   136→   136→            </button>
+   137→   137→          </div>
+   138→   138→        </div>
+   139→   139→        <div class="header-title-row">
+   140→   140→          <h1>
+   141→   141→            <svg
+   142→   142→              class="icon icon-quran"
+   143→   143→              width="28"
+   144→   144→              height="28"
+   145→   145→              viewBox="0 0 24 24"
+   146→   146→              fill="none"
+   147→   147→              stroke="currentColor"
+   148→   148→              stroke-width="1.5"
+   149→   149→              stroke-linecap="round"
+   150→   150→              stroke-linejoin="round"
+   151→   151→            >
+   152→   152→              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+   153→   153→              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+   154→   154→              <path d="M8 7h8" />
+   155→   155→              <path d="M8 11h6" />
+   156→   156→            </svg>
+   157→   157→            القرآن الكريم
+   158→   158→          </h1>
+   159→   159→          <div class="breadcrumbs" id="breadcrumbs">
+   160→   160→            <span class="breadcrumb-item" id="breadcrumbSurah">—</span>
+   161→   161→          </div>
+   162→   162→        </div>
+   163→   163→      </header>
+   164→   164→
+   165→   165→      <!-- ========== أدوات التحكم ========== -->
+   166→   166→      <section class="controls" aria-label="أدوات التحكم">
+   167→   167→        <div class="controls-row">
+   168→   168→          <div class="control-card">
+   169→   169→            <span class="control-card-title"
+   170→   170→              ><svg
+   171→   171→                class="icon icon-sm"
+   172→   172→                width="14"
+   173→   173→                height="14"
+   174→   174→                viewBox="0 0 24 24"
+   175→   175→                fill="none"
+   176→   176→                stroke="currentColor"
+   177→   177→                stroke-width="2"
+   178→   178→              >
+   179→   179→                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+   180→   180→                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+   181→   181→              </svg>
+   182→   182→              السورة</span
+   183→   183→            >
+   184→   184→            <div class="surah-reciter-group">
+   185→   185→              <select id="surahSelect" aria-label="اختيار السورة"></select>
+   186→   186→              <select id="pageSelect" aria-label="اختيار صفحة المصحف" class="hidden"></select>
+   187→   187→              <select id="reciterSelect" aria-label="اختيار القارئ"></select>
+   188→   188→            </div>
+   189→   189→            <input type="range" id="pageSlider" min="1" max="604" value="1" class="hidden" />
+   190→   190→          </div>
+   191→   191→          <div class="control-card">
+   192→   192→            <span class="control-card-title"
+   193→   193→              ><svg
+   194→   194→                class="icon icon-sm"
+   195→   195→                width="14"
+   196→   196→                height="14"
+   197→   197→                viewBox="0 0 24 24"
+   198→   198→                fill="none"
+   199→   199→                stroke="currentColor"
+   200→   200→                stroke-width="2"
+   201→   201→              >
+   202→   202→                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+   203→   203→                <circle cx="12" cy="12" r="3" />
+   204→   204→              </svg>
+   205→   205→              العرض</span
+   206→   206→            >
+   207→   207→            <div class="view-mode-group">
+   208→   208→              <button class="view-mode-btn active" id="viewSurahBtn" data-mode="surah" title="وضع السورة">📖</button>
+   209→   209→              <button class="view-mode-btn" id="viewMushafBtn" data-mode="mushaf" title="وضع المصحف">📄</button>
+   210→   210→              <button class="view-mode-btn" id="viewPresBtn" data-mode="presentation" title="وضع العرض">🖼️</button>
+   211→   211→              <button class="view-mode-btn view-mode-btn-trans hidden" id="translationToggle" title="الترجمة">
+   212→   212→                🌐
+   213→   213→              </button>
+   214→   214→            </div>
+   215→   215→            <span class="page-indicator hidden" id="pageIndicator">صفحة ١ من ٦٠٤</span>
+   216→   216→          </div>
+   217→   217→          <div class="control-card">
+   218→   218→            <span class="control-card-title"
+   219→   219→              ><svg
+   220→   220→                class="icon icon-sm"
+   221→   221→                width="14"
+   222→   222→                height="14"
+   223→   223→                viewBox="0 0 24 24"
+   224→   224→                fill="none"
+   225→   225→                stroke="currentColor"
+   226→   226→                stroke-width="2"
+   227→   227→              >
+   228→   228→                <circle cx="11" cy="11" r="8" />
+   229→   229→                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+   230→   230→              </svg>
+   231→   231→              بحث</span
+   232→   232→            >
+   233→   233→            <button class="search-toggle-btn" id="searchToggleBtn" title="بحث">
+   234→   234→              <svg
+   235→   235→                class="icon icon-sm"
+   236→   236→                width="14"
+   237→   237→                height="14"
+   238→   238→                viewBox="0 0 24 24"
+   239→   239→                fill="none"
+   240→   240→                stroke="currentColor"
+   241→   241→                stroke-width="2"
+   242→   242→              >
+   243→   243→                <circle cx="11" cy="11" r="8" />
+   244→   244→                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+   245→   245→              </svg>
+   246→   246→            </button>
+   247→   247→            <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق">📲</button>
+   248→   248→            <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
+   249→   249→            <div class="control-group search-input-group hidden" id="searchInputGroup">
+   250→   250→              <div class="search-input-wrapper">
+   251→   251→                <input
+   252→   252→                  id="searchInput"
+   253→   253→                  type="text"
+   254→   254→                  data-i18n-placeholder="search_placeholder"
+   255→   255→                  data-i18n-aria-label="search"
+   256→   256→                  placeholder="ابحث..."
+   257→   257→                  aria-label="مربع البحث"
+   258→   258→                  autocomplete="off"
+   259→   259→                />
+   260→   260→                <div class="search-autocomplete hidden" id="searchAutocomplete"></div>
+   261→   261→                <button class="kbd-toggle-btn" id="kbdToggleBtn" aria-label="إظهار لوحة المفاتيح" title="لوحة المفاتيح">
+   262→   262→                  ⌨
+   263→   263→                </button>
+   264→   264→                <button class="voice-search-btn" id="voiceSearchBtn" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
+   265→   265→              </div>
+   266→   266→              <div class="arabic-keyboard" id="arabicKeyboard" dir="ltr">
+   267→   267→                <div class="kbd-row">
+   268→   268→                  <button class="kbd-key" data-key="ذ">ذ</button>
+   269→   269→                  <button class="kbd-key" data-key="١">١</button>
+   270→   270→                  <button class="kbd-key" data-key="٢">٢</button>
+   271→   271→                  <button class="kbd-key" data-key="٣">٣</button>
+   272→   272→                  <button class="kbd-key" data-key="٤">٤</button>
+   273→   273→                  <button class="kbd-key" data-key="٥">٥</button>
+   274→   274→                  <button class="kbd-key" data-key="٦">٦</button>
+   275→   275→                  <button class="kbd-key" data-key="٧">٧</button>
+   276→   276→                  <button class="kbd-key" data-key="٨">٨</button>
+   277→   277→                  <button class="kbd-key" data-key="٩">٩</button>
+   278→   278→                  <button class="kbd-key" data-key="٠">٠</button>
+   279→   279→                  <button class="kbd-key" data-key="-">-</button>
+   280→   280→                  <button class="kbd-key" data-key="=">=</button>
+   281→   281→                </div>
+   282→   282→                <div class="kbd-row">
+   283→   283→                  <button class="kbd-key" data-key="ض">ض</button>
+   284→   284→                  <button class="kbd-key" data-key="ص">ص</button>
+   285→   285→                  <button class="kbd-key" data-key="ث">ث</button>
+   286→   286→                  <button class="kbd-key" data-key="ق">ق</button>
+   287→   287→                  <button class="kbd-key" data-key="ف">ف</button>
+   288→   288→                  <button class="kbd-key" data-key="غ">غ</button>
+   289→   289→                  <button class="kbd-key" data-key="ع">ع</button>
+   290→   290→                  <button class="kbd-key" data-key="ه">ه</button>
+   291→   291→                  <button class="kbd-key" data-key="خ">خ</button>
+   292→   292→                  <button class="kbd-key" data-key="ح">ح</button>
+   293→   293→                  <button class="kbd-key" data-key="ج">ج</button>
+   294→   294→                  <button class="kbd-key" data-key="د">د</button>
+   295→   295→                </div>
+   296→   296→                <div class="kbd-row">
+   297→   297→                  <button class="kbd-key" data-key="ش">ش</button>
+   298→   298→                  <button class="kbd-key" data-key="س">س</button>
+   299→   299→                  <button class="kbd-key" data-key="ي">ي</button>
+   300→   300→                  <button class="kbd-key" data-key="ب">ب</button>
+   301→   301→                  <button class="kbd-key" data-key="ل">ل</button>
+   302→   302→                  <button class="kbd-key" data-key="ا">ا</button>
+   303→   303→                  <button class="kbd-key" data-key="ت">ت</button>
+   304→   304→                  <button class="kbd-key" data-key="ن">ن</button>
+   305→   305→                  <button class="kbd-key" data-key="م">م</button>
+   306→   306→                  <button class="kbd-key" data-key="ك">ك</button>
+   307→   307→                  <button class="kbd-key" data-key="ط">ط</button>
+   308→   308→                </div>
+   309→   309→                <div class="kbd-row">
+   310→   310→                  <button class="kbd-key kbd-key-shift kbd-key-fixed" data-key="shift">⇧</button>
+   311→   311→                  <button class="kbd-key kbd-key-fixed" data-key="space">⎵</button>
+   312→   312→                  <button class="kbd-key kbd-key-backspace" data-key="backspace">⌫</button>
+   313→   313→                  <button class="kbd-key kbd-key-clear" data-key="clear">مسح</button>
+   314→   314→                </div>
+   315→   315→              </div>
+   316→   316→            </div>
+   317→   317→            <button class="btn btn-gold btn-sm" id="searchBtn" data-i18n="search" aria-label="بدء البحث">🔎 بحث</button>
+   318→   318→          </div>
+   319→   319→        </div>
+   320→   320→      </section>
+   321→   321→
+   322→   322→      <!-- ========== نتائج البحث ========== -->
+   323→   323→      <section class="search-results" id="searchResults" aria-live="polite"></section>
+   324→   324→
+   325→   325→      <!-- ========== محتوى السورة ========== -->
+   326→   326→      <main class="surah-content" id="surahContent" role="main" aria-label="نص السورة">
+   327→   327→        <p class="loading" id="surahSelectHint" data-i18n="select_hint">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
+   328→   328→      </main>
+   329→   329→
+   330→   330→      <!-- ========== التذييل ========== -->
+   331→   331→      <footer class="footer">
+   332→   332→        اللهم اجعل هذا العمل في ميزان أعمال عائلة السليماني — البيانات من
+   333→   333→        <a href="https://alquran.cloud/" target="_blank" rel="noopener" class="footer-link">AlQuran.cloud API</a>
+   334→   334→        و
+   335→   335→        <a href="https://github.com/spa5k/tafsir_api" target="_blank" rel="noopener" class="footer-link">Tafsir API</a>
+   336→   336→      </footer>
+   337→   337→    </div>
+   338→   338→
+   339→   339→    <!-- ========== المشغل العائم ========== -->
+   340→   340→    <div class="player collapsed" id="player" role="region" aria-label="مشغل التلاوة">
+   341→   341→      <div class="collapsed-content" id="collapsedContent">
+   342→   342→        <button class="floating-play-btn" id="collapsedPlayBtn" aria-label="تشغيل/إيقاف">
+   343→   343→          <svg class="icon icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+   344→   344→            <polygon points="5 3 19 12 5 21 5 3" />
+   345→   345→          </svg>
+   346→   346→        </button>
+   347→   347→        <div class="floating-info" id="collapsedInfo">—</div>
+   348→   348→      </div>
+   349→   349→
+   350→   350→      <div class="expanded-content">
+   351→   351→        <div class="expanded-header">
+   352→   352→          <span id="playerReciterName">—</span>
+   353→   353→          <span id="playerSurahName">—</span>
+   354→   354→          <button class="collapse-btn" id="collapsePlayerBtn" aria-label="إغلاق المشغل">✖</button>
+   355→   355→        </div>
+   356→   356→        <div class="current-ayah" id="playerCurrentAyah">—</div>
+   357→   357→        <span id="sleepTimerDisplay" style="display:none;font-size:11px;color:var(--accent);margin:0 8px;"></span>
+   358→   358→        <canvas class="audio-visualizer" id="audioVisualizer" width="300" height="40" aria-hidden="true"></canvas>
+   359→   359→        <div class="player-row">
+   360→   360→          <audio id="audioPlayer" controls preload="metadata"></audio>
+   361→   361→        </div>
+   362→   362→        <div class="player-buttons">
+   363→   363→          <button class="btn" id="prevSurahBtn" aria-label="السورة السابقة" title="السورة السابقة">⏮</button>
+   364→   364→          <button class="btn" id="prevAyahBtn" aria-label="الآية السابقة" title="الآية السابقة">◀</button>
+   365→   365→          <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف">⏯</button>
+   366→   366→          <button class="btn" id="nextAyahBtn" aria-label="الآية التالية" title="الآية التالية">▶</button>
+   367→   367→          <button class="btn" id="nextSurahBtn" aria-label="السورة التالية" title="السورة التالية">⏭</button>
+   368→   368→          <button class="btn btn-more" id="playerMoreBtn" aria-label="المزيد" title="المزيد">⁝</button>
+   369→   369→        </div>
+   370→   370→        <div class="player-more-row hidden" id="playerMoreRow">
+   371→   371→          <button class="btn btn-hifdh" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
+   372→   372→          <button class="btn btn-repeat" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
+   373→   373→          <button class="btn btn-select" id="selectModeBtn" aria-label="تحديد متعدد">☑️ تحديد</button>
+   374→   374→          <button
+   375→   375→            class="btn btn-bookmark"
+   376→   376→            id="bookmarkBtn"
+   377→   377→            aria-label="إشارة مرجعية"
+   378→   378→            title="نقرة: حفظ — نقرتان: انتقال"
+   379→   379→          >
+   380→   380→            🔖 علامة
+   381→   381→          </button>
+   382→   382→          <button class="btn btn-favorite" id="favoriteBtn" aria-label="إضافة للمفضلة">❤️ مفضلة</button>
+   383→   383→          <button class="btn btn-gold" id="shareBtn" aria-label="مشاركة الآية">📤 مشاركة</button>
+   384→   384→          <span class="speed-control speed-control-span">
+   385→   385→            <span>⏩</span>
+   386→   386→            <select id="speedSelect" aria-label="سرعة التلاوة" class="speed-select">
+   387→   387→              <option value="0.5">0.5x</option>
+   388→   388→              <option value="0.75">0.75x</option>
+   389→   389→              <option value="1" selected>1x</option>
+   390→   390→              <option value="1.25">1.25x</option>
+   391→   391→              <option value="1.5">1.5x</option>
+   392→   392→              <option value="2">2x</option>
+   393→   393→            </select>
+   394→   394→          </span>
+   395→   395→          <button class="btn btn-sleep" id="sleepTimerBtn" aria-label="مؤقت النوم" title="مؤقت النوم">😴 نوم</button>
+   396→   396→        </div>
+   397→   397→        <div class="select-mode-bar hidden" id="selectModeBar">
+   398→   398→          <span id="selectCount">0</span> آية محددة
+   399→   399→          <button class="btn btn-gold" id="selectShareBtn">📤 مشاركة المحدد</button>
+   400→   400→          <button class="btn" id="selectClearBtn">✖ إلغاء</button>
+   401→   401→        </div>
+   402→   402→        <div class="repeat-controls hidden" id="repeatControls">
+   403→   403→          <label
+   404→   404→            >من:
+   405→   405→            <select id="repeatFrom"></select
+   406→   406→          ></label>
+   407→   407→          <label
+   408→   408→            >إلى:
+   409→   409→            <select id="repeatTo"></select
+   410→   410→          ></label>
+   411→   411→          <label
+   412→   412→            >عدد المرات:
+   413→   413→            <select id="repeatTimes">
+   414→   414→              <option value="2">2</option>
+   415→   415→              <option value="3" selected>3</option>
+   416→   416→              <option value="5">5</option>
+   417→   417→              <option value="10">10</option>
+   418→   418→              <option value="20">20</option>
+   419→   419→            </select>
+   420→   420→          </label>
+   421→   421→        </div>
+   422→   422→        <div class="share-menu" id="shareMenu" role="menu">
+   423→   423→          <button data-share="native">📲 مشاركة عامة</button>
+   424→   424→          <button data-share="copy">📋 نسخ النص</button>
+   425→   425→          <button data-share="copy-simple">📋 نسخ مبسط (بدون تشكيل)</button>
+   426→   426→          <button data-share="whatsapp">💬 واتساب</button>
+   427→   427→          <button data-share="telegram">✈️ تيليجرام</button>
+   428→   428→        </div>
+   429→   429→      </div>
+   430→   430→    </div>
+   431→   431→
+   432→   432→    <!-- ========== ستارة التفسير ========== -->
+   433→   433→    <button class="tafsir-curtain-handle" id="tafsirCurtainHandle" data-i18n="tafsir" aria-label="فتح/إغلاق التفسير">
+   434→   434→      📜 التفسير
+   435→   435→    </button>
+   436→   436→    <aside class="tafsir-curtain" id="tafsirCurtain" aria-label="نافذة التفسير">
+   437→   437→      <div class="tafsir-curtain-header" id="tafsirCurtainHeader" data-i18n="tafsir">📜 التفسير</div>
+   438→   438→      <div class="tafsir-curtain-controls">
+   439→   439→        <select id="tafsirSelect" aria-label="اختيار التفسير">
+   440→   440→          <option value="ar-tafsir-muyassar">التفسير الميسّر</option>
+   441→   441→          <option value="ar-tafsir-al-tabari">تفسير الطبري</option>
+   442→   442→          <option value="ar-tafsir-ibn-kathir">تفسير ابن كثير</option>
+   443→   443→          <option value="ar-tafsir-as-saadi">تفسير السعدي</option>
+   444→   444→          <option value="ar-tafsir-al-baghawi">تفسير البغوي</option>
+   445→   445→          <option value="ar-tafsir-al-qurtubi">تفسير القرطبي</option>
+   446→   446→        </select>
+   447→   447→      </div>
+   448→   448→      <div class="tafsir-curtain-body" id="tafsirCurtainBody">
+   449→   449→        <p class="tafsir-no-ayah" data-i18n="tafsir_no_ayah">📖 اختر سورة وآية لعرض التفسير</p>
+   450→   450→      </div>
+   451→   451→    </aside>
+   452→   452→
+   453→   453→    <!-- ========== لوحة الإعدادات ========== -->
+   454→   454→    <aside class="settings-panel" id="settingsPanel" aria-label="لوحة الإعدادات">
+   455→   455→      <div class="settings-header">
+   456→   456→        <h2 data-i18n="settings">⚙️ الإعدادات</h2>
+   457→   457→        <button class="settings-close" id="settingsCloseBtn" aria-label="إغلاق الإعدادات">✖</button>
+   458→   458→      </div>
+   459→   459→
+   460→   460→      <div class="big-clock">
+   461→   461→        <div class="big-clock-time" id="bigClockTime2">--:--:--</div>
+   462→   462→        <div id="bigClockDate">---</div>
+   463→   463→        <div id="bigClockHijri">---</div>
+   464→   464→      </div>
+   465→   465→
+   466→   466→      <div class="settings-tabs" id="settingsTabs">
+   467→   467→        <button class="settings-tab active" data-tab="prayer">🕌 المواقيت</button>
+   468→   468→        <button class="settings-tab" data-tab="display">🎨 العرض</button>
+   469→   469→        <button class="settings-tab" data-tab="azan">🔔 الأذان</button>
+   470→   470→        <button class="settings-tab" data-tab="adhkar">🕌 الأذكار</button>
+   471→   471→        <button class="settings-tab" data-tab="language">🌐 اللغة</button>
+   472→   472→        <button class="settings-tab" data-tab="tools">⚙️ أدوات</button>
+   473→   473→      </div>
+   474→   474→
+   475→   475→      <div class="settings-tab-content active" data-tab="prayer">
+   476→   476→        <div class="settings-section">
+   477→   477→          <div class="prayer-times-list" id="prayerTimesRows">
+   478→   478→            <p class="centered-muted">⏳ جاري تحميل المواقيت...</p>
+   479→   479→          </div>
+   480→   480→        </div>
+   481→   481→        <div class="settings-section">
+   482→   482→          <div class="settings-section-title">📍 الموقع وطريقة الحساب</div>
+   483→   483→          <div class="settings-row">
+   484→   484→            <label for="cityInput" data-i18n="city">المدينة:</label>
+   485→   485→            <input type="text" id="cityInput" placeholder="مكة" />
+   486→   486→          </div>
+   487→   487→          <div class="settings-row">
+   488→   488→            <label for="countryInput" data-i18n="country">الدولة:</label>
+   489→   489→            <input type="text" id="countryInput" placeholder="SA" />
+   490→   490→          </div>
+   491→   491→          <div class="settings-row">
+   492→   492→            <label for="cityQuickSelect" data-i18n="quick_select">اختيار سريع:</label>
+   493→   493→            <select id="cityQuickSelect">
+   494→   494→              <option value="">— اختر —</option>
+   495→   495→              <option value="مكة|SA">مكة المكرمة</option>
+   496→   496→              <option value="المدينة|SA">المدينة المنورة</option>
+   497→   497→              <option value="الرياض|SA">الرياض</option>
+   498→   498→              <option value="القاهرة|EG">القاهرة</option>
+   499→   499→              <option value="دمشق|SY">دمشق</option>
+   500→   500→              <option value="عمان|JO">عمّان</option>
+   501→   501→              <option value="بغداد|IQ">بغداد</option>
+   502→   502→              <option value="الدوحة|QA">الدوحة</option>
+   503→   503→              <option value="الكويت|KW">الكويت</option>
+   504→   504→              <option value="دبي|AE">دبي</option>
+   505→   505→              <option value="بيروت|LB">بيروت</option>
+   506→   506→              <option value="الجزائر|DZ">الجزائر</option>
+   507→   507→              <option value="الرباط|MA">الرباط</option>
+   508→   508→              <option value="تونس|TN">تونس</option>
+   509→   509→              <option value="الخرطوم|SD">الخرطوم</option>
+   510→   510→              <option value="صنعاء|YE">صنعاء</option>
+   511→   511→              <option value="إسطنبول|TR">إسطنبول</option>
+   512→   512→            </select>
+   513→   513→          </div>
+   514→   514→          <div class="settings-row">
+   515→   515→            <label for="methodSelect" data-i18n="calculation_method">طريقة الحساب:</label>
+   516→   516→            <select id="methodSelect">
+   517→   517→              <option value="4">أم القرى — مكة</option>
+   518→   518→              <option value="5">الهيئة المصرية</option>
+   519→   519→              <option value="3">رابطة العالم الإسلامي</option>
+   520→   520→              <option value="2">ISNA — أمريكا الشمالية</option>
+   521→   521→              <option value="1">جامعة العلوم — كراتشي</option>
+   522→   522→              <option value="8">الديوان الكويتي</option>
+   523→   523→              <option value="9">قطر</option>
+   524→   524→              <option value="10">سنغافورة</option>
+   525→   525→              <option value="12">اتحاد علماء أوروبا</option>
+   526→   526→              <option value="13">ديانت — تركيا</option>
+   527→   527→            </select>
+   528→   528→          </div>
+   529→   529→          <div class="settings-row">
+   530→   530→            <button class="btn btn-gold" id="saveLocationBtn" data-i18n="save_location">
+   531→   531→              💾 حفظ الموقع وتحديث المواقيت
+   532→   532→            </button>
+   533→   533→          </div>
+   534→   534→        </div>
+   535→   535→      </div>
+   536→   536→
+   537→   537→      <div class="settings-tab-content" data-tab="display">
+   538→   538→        <div class="settings-section">
+   539→   539→          <div class="settings-section-title">🎨 العرض</div>
+   540→   540→          <div class="settings-row">
+   541→   541→            <label for="fontSizeSelect">حجم الخط:</label>
+   542→   542→            <select id="fontSizeSelect">
+   543→   543→              <option value="20">20</option>
+   544→   544→              <option value="24">24</option>
+   545→   545→              <option value="28" selected>28</option>
+   546→   546→              <option value="32">32</option>
+   547→   547→              <option value="36">36</option>
+   548→   548→              <option value="40">40</option>
+   549→   549→              <option value="44">44</option>
+   550→   550→            </select>
+   551→   551→          </div>
+   552→   552→          <div class="settings-row">
+   553→   553→            <label for="fontTypeSelect">نوع الخط:</label>
+   554→   554→            <select id="fontTypeSelect">
+   555→   555→              <option value="'Amiri','Traditional Arabic',serif" selected>أميري</option>
+   556→   556→              <option value="'Scheherazade New','Traditional Arabic',serif">شهرزاد</option>
+   557→   557→              <option value="'Traditional Arabic',serif">عربي تقليدي</option>
+   558→   558→              <option value="'Uthmanic Hafs','Traditional Arabic',serif">عثماني</option>
+   559→   559→              <option value="'Al Qalam','Traditional Arabic',serif">القلم</option>
+   560→   560→            </select>
+   561→   561→          </div>
+   562→   562→          <div class="settings-row">
+   563→   563→            <label for="lineSpacingSelect">تباعد الأسطر:</label>
+   564→   564→            <select id="lineSpacingSelect">
+   565→   565→              <option value="1.4">ضيق</option>
+   566→   566→              <option value="1.8" selected>عادي</option>
+   567→   567→              <option value="2.2">واسع</option>
+   568→   568→              <option value="2.6">واسع جداً</option>
+   569→   569→            </select>
+   570→   570→          </div>
+   571→   571→          <div class="settings-row">
+   572→   572→            <label>ألوان التجويد (المصحف المجود):</label>
+   573→   573→            <div class="toggle-switch on" id="tajweedToggle" role="switch" aria-label="ألوان التجويد"></div>
+   574→   574→          </div>
+   575→   575→          <div class="settings-row">
+   576→   576→            <label for="presBgSelect">خلفية وضع العرض:</label>
+   577→   577→            <select id="presBgSelect" aria-label="خلفية وضع العرض">
+   578→   578→              <option value="plain">صامتة</option>
+   579→   579→              <option value="nature">مناظر طبيعية</option>
+   580→   580→              <option value="singleNature">منظر طبيعي واحد</option>
+   581→   581→              <option value="animated">مناظر متحركة</option>
+   582→   582→              <option value="scene">منظر واحد متحرك</option>
+   583→   583→              <option value="auto">تلقائي (حسب الوقت)</option>
+   584→   584→            </select>
+   585→   585→          </div>
+   586→   586→          <div class="settings-row hidden" id="presBgNatureRow">
+   587→   587→            <label for="presBgNatureSelect">اختر المنظر الطبيعي:</label>
+   588→   588→            <select id="presBgNatureSelect" aria-label="اختر المنظر الطبيعي">
+   589→   589→              <option value="dawn">🌅 فجر</option>
+   590→   590→              <option value="morning">☁️ صباح</option>
+   591→   591→              <option value="afternoon">⛰️ ظهر</option>
+   592→   592→              <option value="sunset">🌇 غروب</option>
+   593→   593→              <option value="night">🌙 ليل</option>
+   594→   594→            </select>
+   595→   595→          </div>
+   596→   596→          <div class="settings-row hidden" id="presBgSceneRow">
+   597→   597→            <label for="presBgSceneSelect">اختر المنظر:</label>
+   598→   598→            <select id="presBgSceneSelect" aria-label="اختر المنظر المتحرك">
+   599→   599→              <option value="stars">سماء نجوم ✨</option>
+   600→   600→              <option value="waves">أمواج البحر 🌊</option>
+   601→   601→              <option value="aurora">شفق قطبي 🌌</option>
+   602→   602→              <option value="particles">جسيمات ذهبية ✦</option>
+   603→   603→              <option value="rain">مطر 🌧️</option>
+   604→   604→            </select>
+   605→   605→          </div>
+   606→   606→          <div class="settings-row">
+   607→   607→            <label>حفظ آخر موضع تلقائياً:</label>
+   608→   608→            <div class="toggle-switch on" id="autoSaveToggle" role="switch" aria-label="حفظ آخر موضع"></div>
+   609→   609→          </div>
+   610→   610→          <div class="settings-row">
+   611→   611→            <label for="translationSelect">الترجمة:</label>
+   612→   612→            <select id="translationSelect" aria-label="اختيار الترجمة">
+   613→   613→              <option value="">— بدون ترجمة —</option>
+   614→   614→              <option value="en.sahih">Sahih International</option>
+   615→   615→              <option value="en.pickthall">Pickthall</option>
+   616→   616→              <option value="en.yusufali">Yusuf Ali</option>
+   617→   617→              <option value="fr.hamidullah">Hamidullah (Français)</option>
+   618→   618→              <option value="ur.jalandhry">Jalandhry (اردو)</option>
+   619→   619→            </select>
+   620→   620→          </div>
+   621→   621→        </div>
+   622→   622→      </div>
+   623→   623→
+   624→   624→      <div class="settings-tab-content" data-tab="azan">
+   625→   625→        <div class="settings-section">
+   626→   626→          <div class="settings-section-title" data-i18n="azan">🔔 الأذان</div>
+   627→   627→          <div class="settings-row">
+   628→   628→            <label data-i18n="azan_enable">تنبيه الأذان:</label>
+   629→   629→            <div class="toggle-switch" id="azanToggle" role="switch" aria-label="تفعيل الأذان"></div>
+   630→   630→          </div>
+   631→   631→          <div class="settings-row">
+   632→   632→            <label data-i18n="azan_fajr">أذان الفجر:</label>
+   633→   633→            <div class="toggle-switch" id="azanFajrToggle" role="switch" aria-label="تفعيل أذان الفجر"></div>
+   634→   634→          </div>
+   635→   635→          <div class="settings-row">
+   636→   636→            <button class="btn" id="testAzanBtn" data-i18n="test_azan">▶️ اختبار الأذان</button>
+   637→   637→          </div>
+   638→   638→          <p class="azan-note">🎙️ الأذان بصوت الشيخ ناصر القطامي</p>
+   639→   639→        </div>
+   640→   640→      </div>
+   641→   641→
+   642→   642→      <div class="settings-tab-content" data-tab="adhkar">
+   643→   643→        <div class="settings-section">
+   644→   644→          <div class="settings-section-title">🕌 الأذكار</div>
+   645→   645→          <div class="settings-row">
+   646→   646→            <label>تفعيل التذكير العام:</label>
+   647→   647→            <div class="toggle-switch" id="adhkarEnabledToggle" role="switch" aria-label="تفعيل التذكير"></div>
+   648→   648→          </div>
+   649→   649→          <div class="settings-row">
+   650→   650→            <label>🔔 صوت التنبيه:</label>
+   651→   651→            <div class="toggle-switch" id="adhkarSoundToggle" role="switch" aria-label="صوت التنبيه"></div>
+   652→   652→          </div>
+   653→   653→          <div id="adhkarSettingsList"></div>
+   654→   654→        </div>
+   655→   655→      </div>
+   656→   656→
+   657→   657→      <div class="settings-tab-content" data-tab="language">
+   658→   658→        <div class="settings-section">
+   659→   659→          <div class="settings-section-title">🌐 Language / اللغة</div>
+   660→   660→          <div class="settings-row">
+   661→   661→            <label for="langSelect">اللغة / Language:</label>
+   662→   662→            <select id="langSelect">
+   663→   663→              <option value="ar">العربية</option>
+   664→   664→              <option value="en">English</option>
+   665→   665→              <option value="tr">Türkçe</option>
+   666→   666→              <option value="ms">Bahasa Melayu</option>
+   667→   667→              <option value="id">Bahasa Indonesia</option>
+   668→   668→            </select>
+   669→   669→          </div>
+   670→   670→        </div>
+   671→   671→      </div>
+   672→   672→
+   673→   673→      <div class="settings-tab-content" data-tab="tools">
+   674→   674→        <div class="settings-section">
+   675→   675→          <div class="settings-section-title">⚙️ أدوات</div>
+   676→   676→          <div class="settings-row">
+   677→   677→            <button class="btn btn-gold" id="exportSettingsBtn">📤 تصدير الإعدادات</button>
+   678→   678→          </div>
+   679→   679→          <div class="settings-row">
+   680→   680→            <button class="btn" id="importSettingsBtn">📥 استيراد الإعدادات</button>
+   681→   681→          </div>
+   682→   682→          <div class="settings-row">
+   683→   683→            <button class="btn btn-danger" id="resetSettingsBtn" data-i18n="reset_settings">
+   684→   684→              🔄 إعادة ضبط الإعدادات
+   685→   685→            </button>
+   686→   686→          </div>
+   687→   687→        </div>
+   688→   688→      </div>
+   689→   689→    </aside>
+   690→   690→
+   691→   691→    <!-- ========== لوحة الأذكار ========== -->
+   692→   692→    <aside class="adhkar-panel" id="adhkarPanel" aria-label="الأذكار">
+   693→   693→      <div class="adhkar-header">
+   694→   694→        <h2>🕌 الأذكار</h2>
+   695→   695→        <button class="adhkar-close" id="adhkarCloseBtn" aria-label="إغلاق الأذكار">✖</button>
+   696→   696→      </div>
+   697→   697→      <div class="adhkar-tabs" id="adhkarTabs"></div>
+   698→   698→      <div class="adhkar-content" id="adhkarContent">
+   699→   699→        <p class="centered-muted">🕌 اختر تبويباً لبدء الأذكار</p>
+   700→   700→      </div>
+   701→   701→    </aside>
+   702→   702→
+   703→   703→    <!-- ========== إشعار الأذكار ========== -->
+   704→   704→    <div class="adhkar-notification hidden" id="adhkarNotification" role="alert" aria-live="assertive">
+   705→   705→      <div class="adhkar-notification-inner">
+   706→   706→        <div class="adhkar-notification-icon" id="adhkarNotifIcon">🌅</div>
+   707→   707→        <div class="adhkar-notification-title" id="adhkarNotifTitle">🕌 حان وقت الأذكار</div>
+   708→   708→        <div class="adhkar-notification-text adhkar-notif-text" id="adhkarNotifText"></div>
+   709→   709→        <div class="adhkar-notification-progress adhkar-notif-progress" id="adhkarNotifProgress"></div>
+   710→   710→        <div class="adhkar-notification-actions">
+   711→   711→          <button class="btn btn-gold" id="adhkarNotifOpenBtn">🕌 فتح الأذكار</button>
+   712→   712→          <button class="btn btn-sm adhkar-notif-share-btn" id="adhkarNotifShareBtn">📋 نسخ</button>
+   713→   713→          <button class="btn" id="adhkarNotifDismissBtn">⏰ لاحقاً</button>
+   714→   714→        </div>
+   715→   715→      </div>
+   716→   716→    </div>
+   717→   717→
+   718→   718→    <!-- ========== إضافة ذكر شخصي ========== -->
+   719→   719→    <div class="adhkar-add-overlay hidden" id="adhkarAddOverlay" aria-label="إضافة ذكر جديد">
+   720→   720→      <div class="adhkar-add-inner">
+   721→   721→        <div class="adhkar-add-header">
+   722→   722→          <h3>📝 إضافة ذكر جديد</h3>
+   723→   723→          <button class="btn" id="adhkarAddCloseBtn">✖</button>
+   724→   724→        </div>
+   725→   725→        <div class="adhkar-add-body">
+   726→   726→          <div class="settings-row">
+   727→   727→            <label for="adhkarAddText">نص الذكر:</label>
+   728→   728→            <textarea id="adhkarAddText" rows="3" placeholder="اكتب الذكر هنا..."></textarea>
+   729→   729→          </div>
+   730→   730→          <div class="settings-row">
+   731→   731→            <label for="adhkarAddCount">عدد التكرار:</label>
+   732→   732→            <input type="number" id="adhkarAddCount" value="1" min="1" max="999" />
+   733→   733→          </div>
+   734→   734→          <div class="settings-row">
+   735→   735→            <label for="adhkarAddTime">وقت التذكير (اختياري):</label>
+   736→   736→            <input type="time" id="adhkarAddTime" />
+   737→   737→          </div>
+   738→   738→          <div class="settings-row">
+   739→   739→            <label for="adhkarAddDuration">مدة الإشعار (دقائق):</label>
+   740→   740→            <input type="number" id="adhkarAddDuration" value="1" min="1" max="60" />
+   741→   741→          </div>
+   742→   742→          <button class="btn btn-gold" id="adhkarAddSaveBtn">💾 حفظ الذكر</button>
+   743→   743→        </div>
+   744→   744→      </div>
+   745→   745→    </div>
+   746→   746→
+   747→   747→    <!-- ========== لوحة المفضلة ========== -->
+   748→   748→    <aside class="favorites-panel" id="favoritesPanel" aria-label="الآيات المفضلة">
+   749→   749→      <div class="favorites-header">
+   750→   750→        <h2>❤️ المفضلة</h2>
+   751→   751→        <button class="favorites-close" id="favoritesCloseBtn" aria-label="إغلاق المفضلة">✖</button>
+   752→   752→      </div>
+   753→   753→      <div class="favorites-export-row">
+   754→   754→        <button class="btn btn-sm export-btn" id="favExportTextBtn">📄 تصدير كنص</button>
+   755→   755→        <button class="btn btn-sm export-btn" id="favExportJsonBtn">💾 تصدير JSON</button>
+   756→   756→      </div>
+   757→   757→      <div id="favoritesList">
+   758→   758→        <p class="centered-muted">لا توجد آيات مفضلة بعد</p>
+   759→   759→      </div>
+   760→   760→    </aside>
+   761→   761→
+   762→   762→    <!-- ========== قائمة السور في وضع المصحف ========== -->
+   763→   763→    <div class="mushaf-surah-overlay hidden" id="mushafSurahOverlay" role="dialog" aria-label="قائمة السور">
+   764→   764→      <div class="mushaf-surah-overlay-inner">
+   765→   765→        <div class="mushaf-surah-overlay-header">
+   766→   766→          <h3>📖 اختر السورة</h3>
+   767→   767→          <button class="btn" id="mushafSurahOverlayClose">✖</button>
+   768→   768→        </div>
+   769→   769→        <div class="mushaf-surah-overlay-list" id="mushafSurahOverlayList"></div>
+   770→   770→      </div>
+   771→   771→    </div>
+   772→   772→
+   773→   773→    <!-- ========== وضع العرض (Presentation Mode) ========== -->
+   774→   774→    <div class="presentation-overlay hidden" id="presentationOverlay" role="dialog" aria-label="وضع العرض">
+   775→   775→      <div class="presentation-inner">
+   776→   776→        <div class="presentation-header">
+   777→   777→          <button class="presentation-header-btn" id="presentationPrevBtn" aria-label="الآية السابقة">⏮</button>
+   778→   778→          <span class="presentation-title" id="presentationTitle">—</span>
+   779→   779→          <span class="presentation-ayah-num" id="presentationAyahNum">—</span>
+   780→   780→          <button class="presentation-header-btn pres-control-btn" id="presPlayPauseBtn" aria-label="تشغيل / إيقاف">
+   781→   781→            ▶
+   782→   782→          </button>
+   783→   783→          <button class="presentation-header-btn pres-control-btn pres-tajweed-btn" id="presTajweedBtn" aria-label="ألوان التجويد" title="تشغيل/إيقاف ألوان التجويد">
+   784→   784→            🎨
+   785→   785→          </button>
+   786→   786→          <button class="presentation-header-btn pres-control-btn" id="presFullscreenBtn" aria-label="ملء الشاشة">
+   787→   787→            ⛶
+   788→   788→          </button>
+   789→   789→          <button class="presentation-header-btn" id="presentationNextBtn" aria-label="الآية التالية">⏭</button>
+   790→   790→          <button class="presentation-close-btn" id="presentationCloseBtn" aria-label="خروج">✖</button>
+   791→   791→        </div>
+   792→   792→        <div class="presentation-body" id="presentationBody">
+   793→   793→          <div class="presentation-ayah-text" id="presentationAyahText"></div>
+   794→   794→          <div class="presentation-translation hidden" id="presentationTranslation"></div>
+   795→   795→        </div>
+   796→   796→        <div class="presentation-footer">
+   797→   797→          <span class="presentation-counter" id="presentationCounter">٠ / ٠</span>
+   798→   798→        </div>
+   799→   799→      </div>
+   800→   800→    </div>
+   801→   801→
+   802→   802→    <!-- ========== مشغل الأذان (مخفي) ========== -->
+   803→   803→    <audio id="azanPlayer" preload="none"></audio>
+   804→   804→
+   805→   805→    <!-- ========== إشعار الأذان ========== -->
+   806→   806→    <div class="azan-notification hidden" id="azanNotification" role="alert" aria-live="assertive">
+   807→   807→      <div class="azan-notification-inner">
+   808→   808→        <div class="azan-notification-icon">🕌</div>
+   809→   809→        <div class="azan-notification-title">حان الآن وقت الصلاة</div>
+   810→   810→        <div class="azan-notification-prayer" id="azanNotifPrayer">---</div>
+   811→   811→        <div class="azan-notification-actions">
+   812→   812→          <button class="btn btn-gold" id="azanNotifStopBtn">⏹️ إيقاف الأذان</button>
+   813→   813→        </div>
+   814→   814→      </div>
+   815→   815→    </div>
+   816→   816→
+   817→   817→    <!-- ========== سرّ السورة ========== -->
+   818→   818→    <div class="surah-secrets-overlay hidden" id="surahSecretsOverlay" role="dialog" aria-label="سرّ السورة">
+   819→   819→      <div class="surah-secrets-overlay-inner">
+   820→   820→        <div class="surah-secrets-overlay-header">
+   821→   821→          <h3 id="surahSecretsTitle">🌟 سرّ السورة</h3>
+   822→   822→          <button class="btn" id="surahSecretsCloseBtn">✖</button>
+   823→   823→        </div>
+   824→   824→        <div class="surah-secrets-overlay-surah-name" id="surahSecretsSurahName"></div>
+   825→   825→        <div class="surah-secrets-overlay-body" id="surahSecretsBody"></div>
+   826→   826→      </div>
+   827→   827→    </div>
+   828→   828→
+   829→   829→    <!-- ========== نافذة الآية (مثل equran.me) ========== -->
+   830→   830→    <div class="ayah-modal hidden" id="ayahModal" role="dialog" aria-label="تفاصيل الآية">
+   831→   831→      <div class="ayah-modal-inner">
+   832→   832→        <div class="ayah-modal-header">
+   833→   833→          <button class="ayah-modal-close-btn" id="ayahModalCloseBtn">✖ إغلاق</button>
+   834→   834→          <span class="ayah-modal-title" id="ayahModalTitle">الآية — </span>
+   835→   835→        </div>
+   836→   836→        <div class="ayah-modal-badges">
+   837→   837→          <button class="btn btn-sm btn-outline" id="ayahModalBookmarkBtn">🔖 تحديد موضع الوقوف</button>
+   838→   838→          <button class="btn btn-sm btn-fav" id="ayahModalFavBtn">⭐ إضافة للمفضلة</button>
+   839→   839→        </div>
+   840→   840→        <div class="ayah-modal-nav" id="ayahModalNav">
+   841→   841→          <span class="ayah-modal-nav-btn" id="ayahModalNextBtn">← الآية التالية</span>
+   842→   842→        </div>
+   843→   843→        <div class="ayah-modal-text-box">
+   844→   844→          <div class="ayah-modal-text" id="ayahModalText"></div>
+   845→   845→        </div>
+   846→   846→        <div class="ayah-modal-meta">
+   847→   847→          <span class="ayah-modal-meta-item" id="ayahModalPage">📄 الصفحة: --</span>
+   848→   848→          <span class="ayah-modal-meta-item" id="ayahModalJuz">📖 الجزء: --</span>
+   849→   849→          <span class="ayah-modal-meta-item" id="ayahModalSurahAyah"></span>
+   850→   850→        </div>
+   851→   851→        <div class="ayah-modal-section">
+   852→   852→          <button class="btn btn-gold btn-block" id="ayahModalTafsirBtn">📖 صفحة التفسير الكاملة</button>
+   853→   853→        </div>
+   854→   854→        <div class="ayah-modal-actions">
+   855→   855→          <button class="btn btn-sm" id="ayahModalShareBtn">📤 مشاركة</button>
+   856→   856→          <button class="btn btn-sm" id="ayahModalCopyBtn">📋 نسخ بتشكيل</button>
+   857→   857→          <button class="btn btn-sm" id="ayahModalCopySimpleBtn">📋 نسخ بدون تشكيل</button>
+   858→   858→          <button class="btn btn-sm" id="ayahModalCopyTafsirBtn">📋 نسخ مع التفسير</button>
+   859→   859→        </div>
+   860→   860→        <div class="ayah-modal-audio" id="ayahModalAudio">
+   861→   861→          <div class="ayah-modal-audio-row">
+   862→   862→            <select class="ayah-modal-qari-select" id="ayahModalQariSelect"></select>
+   863→   863→            <button class="btn btn-gold btn-audio-play" id="ayahModalPlayBtn">▶️ تشغيل</button>
+   864→   864→          </div>
+   865→   865→          <div class="ayah-modal-audio-progress">
+   866→   866→            <span id="ayahModalAudioCurrent">0:00</span>
+   867→   867→            <input type="range" class="ayah-modal-audio-slider" id="ayahModalAudioSlider" min="0" max="100" value="0" />
+   868→   868→            <span id="ayahModalAudioDuration">0:00</span>
+   869→   869→          </div>
+   870→   870→          <label class="ayah-modal-repeat-label"> <input type="checkbox" id="ayahModalRepeatChk" /> 🔁 تكرار </label>
+   871→   871→          <button class="btn btn-sm btn-block" id="ayahModalDownloadBtn">⬇️ تنزيل الآية</button>
+   872→   872→          <audio id="ayahModalAudioPlayer" preload="none"></audio>
+   873→   873→        </div>
+   874→   874→        <div class="ayah-modal-tafsir-tabs" id="ayahModalTafsirTabs">
+   875→   875→          <button class="ayah-modal-tafsir-tab active" data-edition="ar-tafsir-muyassar">الميسر</button>
+   876→   876→          <button class="ayah-modal-tafsir-tab" data-edition="ar-tafsir-as-saadi">السعدي</button>
+   877→   877→          <button class="ayah-modal-tafsir-tab" data-edition="ar-tafsir-ibn-kathir">ابن كثير</button>
+   878→   878→          <button class="ayah-modal-tafsir-tab" data-edition="ar-tafsir-al-tabari">الطبري</button>
+   879→   879→        </div>
+   880→   880→        <div class="ayah-modal-tafsir-body" id="ayahModalTafsirBody">
+   881→   881→          <p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>
+   882→   882→        </div>
+   883→   883→      </div>
+   884→   884→    </div>
+   885→   885→
+   886→   886→    <!-- ========== رسائل Toast ========== -->
+   887→   887→    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+   888→   888→
+   889→   889→    <!-- ========== شريط التنقل السفلي (جوال/تابلت) ========== -->
+   890→   890→    <nav class="bottom-nav" id="bottomNav" aria-label="شريط التنقل">
+   891→   891→      <button
+   892→   892→        class="bottom-nav-btn active"
+   893→   893→        data-tab="quran"
+   894→   894→        data-i18n-aria-label="app_title"
+   895→   895→        aria-label="القرآن الكريم"
+   896→   896→      >
+   897→   897→        <svg
+   898→   898→          class="icon icon-nav"
+   899→   899→          width="20"
+   900→   900→          height="20"
+   901→   901→          viewBox="0 0 24 24"
+   902→   902→          fill="none"
+   903→   903→          stroke="currentColor"
+   904→   904→          stroke-width="1.5"
+   905→   905→        >
+   906→   906→          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+   907→   907→          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg
+   908→   908→        ><span data-i18n="app_title">القرآن</span>
+   909→   909→      </button>
+   910→   910→      <button class="bottom-nav-btn" data-tab="player" data-i18n-aria-label="play" aria-label="المشغل">
+   911→   911→        <svg
+   912→   912→          class="icon icon-nav"
+   913→   913→          width="20"
+   914→   914→          height="20"
+   915→   915→          viewBox="0 0 24 24"
+   916→   916→          fill="none"
+   917→   917→          stroke="currentColor"
+   918→   918→          stroke-width="1.5"
+   919→   919→        >
+   920→   920→          <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+   921→   921→          <path
+   922→   922→            d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"
+   923→   923→          /></svg
+   924→   924→        ><span data-i18n="play">المشغل</span>
+   925→   925→      </button>
+   926→   926→      <button class="bottom-nav-btn" data-tab="controls" data-i18n-aria-label="settings" aria-label="الأدوات">
+   927→   927→        <svg
+   928→   928→          class="icon icon-nav"
+   929→   929→          width="20"
+   930→   930→          height="20"
+   931→   931→          viewBox="0 0 24 24"
+   932→   932→          fill="none"
+   933→   933→          stroke="currentColor"
+   934→   934→          stroke-width="1.5"
+   935→   935→        >
+   936→   936→          <circle cx="12" cy="12" r="3" />
+   937→   937→          <path
+   938→   938→            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+   939→   939→          /></svg
+   940→   940→        ><span data-i18n="settings">أدوات</span>
+   941→   941→      </button>
+   942→   942→      <button class="bottom-nav-btn" data-tab="search" data-i18n-aria-label="all_quran" aria-label="البحث">
+   943→   943→        <svg
+   944→   944→          class="icon icon-nav"
+   945→   945→          width="20"
+   946→   946→          height="20"
+   947→   947→          viewBox="0 0 24 24"
+   948→   948→          fill="none"
+   949→   949→          stroke="currentColor"
+   950→   950→          stroke-width="1.5"
+   951→   951→        >
+   952→   952→          <circle cx="11" cy="11" r="8" />
+   953→   953→          <line x1="21" y1="21" x2="16.65" y2="16.65" /></svg
+   954→   954→        ><span data-i18n="all_quran">بحث</span>
+   955→   955→      </button>
+   956→   956→      <button class="bottom-nav-btn" data-tab="more" data-i18n-aria-label="settings" aria-label="القائمة">
+   957→   957→        <svg
+   958→   958→          class="icon icon-nav"
+   959→   959→          width="20"
+   960→   960→          height="20"
+   961→   961→          viewBox="0 0 24 24"
+   962→   962→          fill="none"
+   963→   963→          stroke="currentColor"
+   964→   964→          stroke-width="1.5"
+   965→   965→        >
+   966→   966→          <line x1="3" y1="6" x2="21" y2="6" />
+   967→   967→          <line x1="3" y1="12" x2="21" y2="12" />
+   968→   968→          <line x1="3" y1="18" x2="21" y2="18" /></svg
+   969→   969→        ><span data-i18n="settings">القائمة</span>
+   970→   970→      </button>
+   971→   971→    </nav>
+   972→   972→
+   973→   973→    <!-- ========== قمر عزم القبلة ========== -->
+   974→   974→    <div class="qibla-overlay hidden" id="qiblaOverlay" role="dialog" aria-label="اتجاه القبلة">
+   975→   975→      <div class="qibla-panel">
+   976→   976→        <h2>🧭 اتجاه القبلة</h2>
+   977→   977→        <div class="qibla-compass" id="qiblaCompass">
+   978→   978→          <div class="qibla-needle"></div>
+   979→   979→          <div class="qibla-center"></div>
+   980→   980→          <span class="qibla-label qibla-n">شمال</span>
+   981→   981→          <span class="qibla-label qibla-s">جنوب</span>
+   982→   982→          <span class="qibla-label qibla-e">شرق</span>
+   983→   983→          <span class="qibla-label qibla-w">غرب</span>
+   984→   984→        </div>
+   985→   985→        <div class="qibla-angle" id="qiblaAngle">---</div>
+   986→   986→        <div class="qibla-direction" id="qiblaDirection">جاري تحديد الموقع...</div>
+   987→   987→        <button class="qibla-close" id="qiblaCloseBtn">✖ إغلاق</button>
+   988→   988→      </div>
+   989→   989→    </div>
+   990→   990→
+   991→   991→    <!-- ========== إحصائيات القراءة ========== -->
+   992→   992→    <div class="settings-panel hidden" id="readingStatsPanel" role="dialog" aria-label="إحصائيات القراءة">
+   993→   993→      <div class="settings-panel-inner">
+   994→   994→        <div class="settings-header">
+   995→   995→          <h3>📊 إحصائيات القراءة</h3>
+   996→   996→          <button class="btn" id="readingStatsCloseBtn">✖</button>
+   997→   997→        </div>
+   998→   998→        <div id="readingStatsContent"></div>
+   999→   999→      </div>
+  1000→  1000→    </div>
+  1001→  1001→
+  1002→  1002→    <script type="module" src="./src/main.js"></script>
+  1003→  1003→  </body>
+  1004→  1004→</html>
+  1005→  1005→

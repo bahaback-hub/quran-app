@@ -93,12 +93,8 @@ export async function toggleMushafMode(): Promise<void> {
     }
     if (dom.adhkarPanel) {
       dom.adhkarPanel.classList.remove('open');
-      // CRITICAL: In Capacitor WebView, also hide the adhkar panel completely
-      // to prevent it from being revealed by horizontal scroll/swipe
-      if (document.documentElement.classList.contains('capacitor-native')) {
-        dom.adhkarPanel.style.display = 'none';
-        dom.adhkarPanel.style.visibility = 'hidden';
-      }
+      // CSS handles hiding panels in Capacitor via body.capacitor-native.mushaf-active
+      // No need for inline style overrides — the CSS rules use display:none !important
     }
     // Also close any open overlays
     const mushafOverlay = document.getElementById('mushafSurahOverlay');
@@ -150,11 +146,8 @@ export async function toggleMushafMode(): Promise<void> {
 
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
 
-    // Reset any inline style overrides on panels when leaving mushaf mode
-    if (dom.adhkarPanel) {
-      dom.adhkarPanel.style.display = '';
-      dom.adhkarPanel.style.visibility = '';
-    }
+    // No need to reset inline styles — CSS handles panel visibility automatically
+    // The body.mushaf-active class is removed above, which restores normal panel behavior
 
     const surahData = state.surahData as any;
     if (surahData && surahData.number === state.currentSurah) {

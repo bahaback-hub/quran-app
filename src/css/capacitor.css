@@ -44,15 +44,17 @@ body.capacitor-native .mushaf-container {
   margin: 0 auto !important;
 }
 
-/* CRITICAL: Prevent horizontal scrolling in mushaf mode */
-/* The surah-content area must not allow horizontal scroll */
+/* CRITICAL: Allow vertical scrolling while preventing horizontal scroll.
+   Previously used overflow:hidden which blocked ALL scrolling.
+   Now we allow overflow-y:auto so the user can scroll down to read Quran. */
 body.capacitor-native .surah-content {
-  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   max-width: 100vw !important;
   width: 100% !important;
   box-sizing: border-box !important;
-  /* Reset any scroll position */
   scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Ensure canvas renders properly in WebView */
@@ -93,7 +95,7 @@ body.capacitor-native .mushaf-image-wrapper {
   margin: 0 auto !important;
 }
 
-/* Better mushaf navigation buttons for touch */
+/* Better mushaf navigation buttons for touch — keep within container bounds */
 body.capacitor-native .mushaf-page-nav-btn {
   width: 48px;
   height: 56px;
@@ -103,6 +105,15 @@ body.capacitor-native .mushaf-page-nav-btn {
   min-height: 44px;
   background: rgba(0, 0, 0, 0.08);
   border-radius: 8px;
+}
+
+/* Keep nav buttons within the container — not 14px outside like in web */
+body.capacitor-native .mushaf-page-nav-prev {
+  right: 4px !important;
+}
+
+body.capacitor-native .mushaf-page-nav-next {
+  left: 4px !important;
 }
 
 body.capacitor-native .mushaf-page-nav-btn:hover {
@@ -137,30 +148,77 @@ body.capacitor-native .mushaf-tajweed-legend-item {
 }
 
 /* ===== Panel visibility fixes for Capacitor ===== */
+/* CRITICAL FIX: In Android WebView, panels positioned off-screen with left:-420px
+   cause horizontal overflow. When the user swipes left, the panel becomes visible.
+   FIX: Use display:none for closed panels instead of off-screen positioning.
+   This completely removes the element from the rendering tree so no horizontal
+   overflow can occur. */
 
-/* Settings panel slides from right — use 'right' property */
+/* Settings panel - slides from right */
 body.capacitor-native .settings-panel:not(.open) {
-  right: -420px !important;
+  right: -100% !important;
+  display: none !important;
+  visibility: hidden !important;
 }
 
-/* Favorites panel slides from right — use 'right' property */
+body.capacitor-native .settings-panel.open {
+  right: 0 !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Favorites panel - in web version slides from left (left:-420px),
+   but in Capacitor we move it to the right side to prevent left-swipe
+   from revealing it. We MUST reset the 'left' property to 'auto'. */
 body.capacitor-native .favorites-panel:not(.open) {
-  right: -420px !important;
+  left: auto !important;
+  right: -100% !important;
+  display: none !important;
+  visibility: hidden !important;
 }
 
-/* Adhkar panel slides from LEFT — use 'left' property, NOT 'right' */
+body.capacitor-native .favorites-panel.open {
+  left: auto !important;
+  right: 0 !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Adhkar panel - slides from left */
 body.capacitor-native .adhkar-panel:not(.open) {
   left: -100% !important;
-}
-
-/* CRITICAL: When in mushaf mode, panels must NOT be visible at all
-   even if WebView allows horizontal scroll — hide them completely */
-body.capacitor-native .mushaf-active .settings-panel:not(.open),
-body.capacitor-native .mushaf-active .favorites-panel:not(.open) {
   display: none !important;
+  visibility: hidden !important;
 }
 
-body.capacitor-native .mushaf-active .adhkar-panel:not(.open) {
+body.capacitor-native .adhkar-panel.open {
+  left: 0 !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Tafsir curtain - also needs display:none when not open to prevent overflow */
+body.capacitor-native .tafsir-curtain:not(.open) {
+  left: -100% !important;
+  display: none !important;
+  visibility: hidden !important;
+}
+
+body.capacitor-native .tafsir-curtain.open {
+  left: 0 !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* CRITICAL: When in mushaf mode, panels must NOT be visible at all.
+   Note: NO SPACE between .capacitor-native and .mushaf-active — both classes
+   are on the SAME element (document.body).
+   A space (descendant combinator) would look for .mushaf-active as a child,
+   which would NEVER match because .mushaf-active is on body itself. */
+body.capacitor-native.mushaf-active .settings-panel,
+body.capacitor-native.mushaf-active .favorites-panel,
+body.capacitor-native.mushaf-active .adhkar-panel,
+body.capacitor-native.mushaf-active .tafsir-curtain {
   display: none !important;
   visibility: hidden !important;
 }
@@ -350,15 +408,17 @@ body.capacitor-native html {
   max-width: 100vw !important;
 }
 
-/* ===== MUSHAF MODE: Lock body scroll completely ===== */
-/* When mushaf mode is active, prevent any scroll that could reveal panels */
+/* ===== MUSHAF MODE: Allow vertical scroll, prevent horizontal ===== */
+/* When mushaf mode is active, allow vertical scrolling to read the Quran
+   while preventing horizontal scroll that could reveal off-screen panels.
+   CRITICAL: Do NOT use position:fixed on the body — it breaks vertical
+   scrolling in Android WebView. The panels are hidden with display:none
+   via the rules above, so no horizontal overflow can occur. */
 body.capacitor-native.mushaf-active {
-  overflow: hidden !important;
-  position: fixed !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   width: 100% !important;
   max-width: 100vw !important;
-  /* Allow vertical scroll only for surah content */
-  overflow-y: auto !important;
 }
 
 /* ===== PRESENTATION MODE: Lock body scroll completely ===== */
