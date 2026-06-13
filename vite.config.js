@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// When building for Capacitor Android, disable PWA/Service Worker entirely
+const isCapacitorBuild = process.env.BUILD_TARGET === 'capacitor';
+
 export default defineConfig({
   base: './',
   root: '.',
@@ -39,7 +42,8 @@ export default defineConfig({
     strictPort: true
   },
   plugins: [
-    VitePWA({
+    // Disable PWA entirely for Capacitor builds — SW breaks Android WebView
+    ...(isCapacitorBuild ? [] : [VitePWA({
       registerType: 'prompt',
       injectRegister: 'auto',
       includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png'],
@@ -137,6 +141,6 @@ export default defineConfig({
           }
         ]
       }
-    })
+    })])
   ]
 });

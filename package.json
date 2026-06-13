@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --headed",
-    "android:build": "npm run build && npx cap sync",
+    "android:build": "BUILD_TARGET=capacitor npm run build && npx cap sync",
     "android:open": "npx cap open android",
     "android:run": "npm run android:build && npx cap run android",
     "lint": "eslint src/ e2e/ --no-warn-ignored",
