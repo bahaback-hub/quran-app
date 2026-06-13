@@ -228,14 +228,18 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
   const fontUrl = getFontUrl(fontName);
   // Detect Capacitor/Android WebView — needs longer delays
   const isCapacitor = typeof globalThis !== 'undefined' && ((globalThis as any).Capacitor?.isNativePlatform?.() || /wv/.test(navigator.userAgent));
-  const waitMs = isCapacitor ? 500 : 200;
+  const waitMs = isCapacitor ? 800 : 200;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
+    console.log(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})...`);
+
     // --- Strategy 1: Fetch as ArrayBuffer → FontFace (most reliable) ---
     try {
+      console.log(`[Mushaf] Strategy 1: Fetch ArrayBuffer for "${fontName}" from ${fontUrl}`);
       const res = await fetch(fontUrl);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const buffer = await res.arrayBuffer();
+      console.log(`[Mushaf] Font "${fontName}" downloaded: ${buffer.byteLength} bytes`);
 
       const fontFace = new FontFace(fontName, buffer, { display: 'block' });
       const loaded = await fontFace.load();
@@ -251,15 +255,19 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       await new Promise<void>((r) => setTimeout(r, waitMs));
 
       // Verify on Canvas
-      if (verifyFontOnCanvas(fontName)) {
+      const verified = verifyFontOnCanvas(fontName);
+      console.log(`[Mushaf] Strategy 1 Canvas verify for "${fontName}": ${verified}`);
+      if (verified) {
+        console.log(`[Mushaf] Font "${fontName}" loaded successfully via ArrayBuffer`);
         return true;
       }
     } catch (e) {
-      if (import.meta.env.DEV) console.warn(`[Mushaf] ArrayBuffer strategy failed for "${fontName}":`, e);
+      console.warn(`[Mushaf] ArrayBuffer strategy failed for "${fontName}":`, e);
     }
 
     // --- Strategy 2: FontFace with URL ---
     try {
+      console.log(`[Mushaf] Strategy 2: FontFace URL for "${fontName}"`);
       const fontFace = new FontFace(fontName, `url('${fontUrl}')`, { display: 'block' });
       const loaded = await fontFace.load();
       document.fonts.add(loaded);
@@ -268,15 +276,19 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       createFontPreloadElement(fontName);
       await new Promise<void>((r) => setTimeout(r, waitMs));
 
-      if (verifyFontOnCanvas(fontName)) {
+      const verified = verifyFontOnCanvas(fontName);
+      console.log(`[Mushaf] Strategy 2 Canvas verify for "${fontName}": ${verified}`);
+      if (verified) {
+        console.log(`[Mushaf] Font "${fontName}" loaded successfully via FontFace URL`);
         return true;
       }
     } catch (e) {
-      if (import.meta.env.DEV) console.warn(`[Mushaf] FontFace URL strategy failed for "${fontName}":`, e);
+      console.warn(`[Mushaf] FontFace URL strategy failed for "${fontName}":`, e);
     }
 
     // --- Strategy 3: CSS @font-face + DOM preload ---
     try {
+      console.log(`[Mushaf] Strategy 3: CSS @font-face for "${fontName}"`);
       const styleId = fontName === BSML_FONT ? 'qcf-basml' : `qcf-${fontName}`;
       if (!document.getElementById(styleId)) {
         const style = document.createElement('style');
@@ -302,18 +314,22 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
 
       // Wait and poll
       await document.fonts.ready;
-      await new Promise<void>((r) => setTimeout(r, 500));
+      const cssWaitMs = isCapacitor ? 1000 : 500;
+      await new Promise<void>((r) => setTimeout(r, cssWaitMs));
 
-      if (verifyFontOnCanvas(fontName)) {
+      const verified = verifyFontOnCanvas(fontName);
+      console.log(`[Mushaf] Strategy 3 Canvas verify for "${fontName}": ${verified}`);
+      if (verified) {
+        console.log(`[Mushaf] Font "${fontName}" loaded successfully via CSS @font-face`);
         return true;
       }
     } catch (e) {
-      if (import.meta.env.DEV) console.warn(`[Mushaf] CSS @font-face strategy failed for "${fontName}":`, e);
+      console.warn(`[Mushaf] CSS @font-face strategy failed for "${fontName}":`, e);
     }
 
     if (attempt < 3) {
       const delay = 500 * attempt;
-      if (import.meta.env.DEV) console.warn(`[Mushaf] All strategies failed for "${fontName}" (attempt ${attempt}), retrying in ${delay}ms...`);
+      console.warn(`[Mushaf] All strategies failed for "${fontName}" (attempt ${attempt}), retrying in ${delay}ms...`);
       await new Promise<void>((r) => setTimeout(r, delay));
     }
   }
@@ -336,8 +352,13 @@ function getColors(): PageColors {
 /* ===================== RENDERING ===================== */
 
 export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
+  console.log(`[Mushaf] renderPage(${pageNum}) starting...`);
   const data = await loadPageData(pageNum);
-  if (!data) return { canvas: null, layout: null };
+  if (!data) {
+    console.error(`[Mushaf] Failed to load page data for page ${pageNum}`);
+    return { canvas: null, layout: null };
+  }
+  console.log(`[Mushaf] Page ${pageNum} data loaded: ${data.lines?.length || 0} lines`);
 
   const pageFont = data.font || getPageFont(pageNum, null);
 
@@ -351,8 +372,12 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
     }
   }
 
+  console.log(`[Mushaf] Page ${pageNum} needs fonts: ${[...pageFonts].join(', ')}`);
+
   // Load all fonts in parallel
-  await Promise.all([...pageFonts].map((fn) => ensureFontLoaded(fn)));
+  const fontResults = await Promise.all([...pageFonts].map((fn) => ensureFontLoaded(fn)));
+  const allFontsLoaded = fontResults.every(r => r === undefined || r === true);
+  console.log(`[Mushaf] Font loading results for page ${pageNum}: ${fontResults.length} fonts, success=${allFontsLoaded}`);
 
   // Ensure Reem Kufi is loaded for bismillah rendering
   try {
@@ -371,7 +396,7 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   // Final Canvas verification — if the page font still doesn't work,
   // try one more time with a longer wait
   if (!loadedFonts.has(pageFont) || !verifyFontOnCanvas(pageFont)) {
-    if (import.meta.env.DEV) console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
+    console.warn(`[Mushaf] Font "${pageFont}" not verified on Canvas, attempting final reload...`);
     loadedFonts.delete(pageFont);
     await ensureFontLoaded(pageFont);
   }
@@ -391,6 +416,8 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   drawPageFrame(ctx!, colors);
 
   drawPageNumber(ctx!, pageNum, colors);
+
+  console.log(`[Mushaf] Page ${pageNum} rendered successfully`);
 
   return { canvas, layout: data };
 }
