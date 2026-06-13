@@ -17,7 +17,7 @@ const tr: TranslationBundle = {
   play: '⏯ Oynat',
   pause: '⏸ Duraklat',
   prev_ayah: '◀ Önceki',
-  next_ayah: 'Sonraki ▶',
+  next_ayah_btn: 'Sonraki ▶',
   prev_surah: '⏮ Önceki Sure',
   next_surah: 'Sonraki Sure ⏭',
   hifdh_mode: '🕋 Ezberle',
