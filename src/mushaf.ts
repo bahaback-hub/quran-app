@@ -77,20 +77,18 @@ export async function toggleMushafMode(): Promise<void> {
     }
   });
   if (state.mushafMode) {
-    // === Close all open panels AGGRESSIVELY ===
-    // Use both class removal AND inline style override to ensure panels
-    // are fully hidden in Android WebView (Capacitor)
+    // === Close all open panels ===
+    // Use correct CSS property for each panel:
+    // settings/favorites use 'right' (slide from right)
+    // adhkar uses 'left' (slide from left)
     if (dom.settingsPanel) {
       dom.settingsPanel.classList.remove('open');
-      dom.settingsPanel.style.right = '-420px';
     }
     if (dom.favoritesPanel) {
       dom.favoritesPanel.classList.remove('open');
-      dom.favoritesPanel.style.right = '-420px';
     }
     if (dom.adhkarPanel) {
       dom.adhkarPanel.classList.remove('open');
-      dom.adhkarPanel.style.right = '-420px';
     }
     // Also close any open overlays
     const mushafOverlay = document.getElementById('mushafSurahOverlay');
@@ -140,9 +138,7 @@ export async function toggleMushafMode(): Promise<void> {
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
 
     // Reset any inline style overrides on panels when leaving mushaf mode
-    if (dom.settingsPanel) dom.settingsPanel.style.right = '';
-    if (dom.favoritesPanel) dom.favoritesPanel.style.right = '';
-    if (dom.adhkarPanel) dom.adhkarPanel.style.right = '';
+    // (No inline styles to reset anymore — we only use class-based toggling)
 
     const surahData = state.surahData as any;
     if (surahData && surahData.number === state.currentSurah) {
