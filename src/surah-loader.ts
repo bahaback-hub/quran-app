@@ -105,6 +105,12 @@ async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Promise<vo
     const db = await openSurahDB();
     const tx = db.transaction('surahs', 'readwrite');
     tx.objectStore('surahs').put({ key, ...entry });
+    // Wait for the transaction to complete so errors are properly caught
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error('IDB transaction failed'));
+      tx.onabort = () => reject(tx.error || new Error('IDB transaction aborted'));
+    });
   } catch (err) {
     if (import.meta.env.DEV) console.warn('[IDB] Failed to cache surah:', err);
   }

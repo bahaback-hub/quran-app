@@ -164,3 +164,24 @@ Stage Summary:
 - Fixed mushaf horizontal scrolling by adding overflow-x: hidden and max-width constraints
 - Fixed adhkar panel closing (was using wrong CSS property - right instead of left)
 - Removed all inline style overrides from mushaf.ts to prevent stale DOM state
+
+---
+Task ID: v1.7-bugfix
+Agent: Main Agent
+Task: Fix confirmed code errors and tafsir CSS mistake
+
+Work Log:
+- Reviewed all 5 source files to assess current state of fixes
+- Confirmed errors #3 (AbortController), #12 (Notification), #15 (repeatFrom) were ALREADY fixed in previous sessions
+- Confirmed error #2 (scene animation) is already properly handled via _sceneCleanup pattern
+- Fixed capacitor.css: Removed `.tafsir-curtain` from mushaf-active hidden rule (was incorrectly hiding tafsir in mushaf mode)
+- Fixed surah-loader.ts: Added tx.oncomplete/tx.onerror/tx.onabort handlers to cacheSurahToIDB (Error #7)
+- Built project successfully with Vite
+
+Stage Summary:
+- 2 code changes applied:
+  1. capacitor.css: Removed `.tafsir-curtain` from `body.capacitor-native.mushaf-active` hidden panels rule
+  2. surah-loader.ts: Added proper IDB transaction completion/error handlers in `cacheSurahToIDB()`
+- Errors #3, #12, #15 were already fixed in previous sessions
+- Error #2 already properly handled via cleanup function pattern
+- Build verified successful

@@ -1,0 +1,819 @@
+     1→import { state, AppState } from './state.js';
+     2→import { copyToClipboard } from './utils.js';
+     3→import { dom } from './dom.js';
+     4→import { storage } from './storage.js';
+     5→import { showToast } from './ui.js';
+     6→import { escapeHtml } from './utils.js';
+     7→import { ADHKAR_DATA } from './adhkar-data.js';
+     8→import { __ } from './i18n.js';
+     9→
+    10→/* ===================== INTERFACES ===================== */
+    11→
+    12→/** Settings for a single adhkar category (toggle, time, duration). */
+    13→interface AdhkarCategorySettings {
+    14→  enabled: boolean;
+    15→  time: string;
+    16→  duration: number;
+    17→}
+    18→
+    19→/** A personal adhkar entry created by the user. */
+    20→interface PersonalAdhkarEntry {
+    21→  id: string;
+    22→  text: string;
+    23→  count: number;
+    24→  time: string | null;
+    25→  duration: number;
+    26→}
+    27→
+    28→/** Notification context for showing an adhkar notification. */
+    29→interface AdhkarNotifContext {
+    30→  id: string;
+    31→  _personalId?: string;
+    32→  icon: string;
+    33→  name: string;
+    34→  duration?: number;
+    35→}
+    36→
+    37→/** The full adhkar settings object stored in state. */
+    38→interface AdhkarSettings {
+    39→  adhkar_enabled: boolean;
+    40→  adhkar_sound: boolean;
+    41→  _resetDate: string;
+    42→  personal_adhkar: PersonalAdhkarEntry[];
+    43→  [key: string]: unknown;
+    44→}
+    45→
+    46→/* ===================== INIT ===================== */
+    47→
+    48→/** Deep-clone adhkar settings to avoid shallow copy issues with nested objects
+    49→ *  (e.g., personal_adhkar array). Uses structuredClone when available,
+    50→ *  falls back to JSON round-trip. */
+    51→function cloneAdhkarSettings(settings: Record<string, unknown> | null): Record<string, unknown> {
+    52→  if (!settings) return {};
+    53→  if (typeof structuredClone === 'function') return structuredClone(settings);
+    54→  return JSON.parse(JSON.stringify(settings));
+    55→}
+    56→
+    57→/** Initialize adhkar state — load settings from storage into state. */
+    58→export function initAdhkarState(): void {
+    59→  const saved = storage.get<AdhkarSettings>('adhkar_settings');
+    60→  if (saved) {
+    61→    state.adhkarSettings = saved;
+    62→  } else {
+    63→    state.adhkarSettings = getDefaultAdhkarSettings();
+    64→  }
+    65→}
+    66→
+    67→function getDefaultAdhkarSettings(): AdhkarSettings {
+    68→  const settings: AdhkarSettings = {
+    69→    adhkar_enabled: false,
+    70→    adhkar_sound: false,
+    71→    _resetDate: new Date().toDateString(),
+    72→    personal_adhkar: [],
+    73→  };
+    74→  for (const cat of ADHKAR_DATA.categories) {
+    75→    (settings as Record<string, unknown>)[cat.id] = {
+    76→      enabled: true,
+    77→      time: cat.defaultTime || '',
+    78→      duration: cat.defaultDuration ?? 1,
+    79→    };
+    80→    for (const item of cat.items) {
+    81→      settings[`item_${item.id}`] = 0;
+    82→    }
+    83→  }
+    84→  settings.personal_adhkar = [];
+    85→  return settings;
+    86→}
+    87→
+    88→/* ===================== LOAD / SAVE ===================== */
+    89→
+    90→/** Load adhkar settings from storage or set defaults; reset daily counters. */
+    91→export function loadAdhkarSettings(): void {
+    92→  const saved = storage.get<AdhkarSettings>('adhkar_settings');
+    93→  const defaults = getDefaultAdhkarSettings();
+    94→  if (saved) {
+    95→    for (const key of Object.keys(defaults)) {
+    96→      if (saved[key] === undefined) saved[key] = defaults[key];
+    97→    }
+    98→    state.adhkarSettings = saved as Record<string, unknown>;
+    99→  } else {
+   100→    state.adhkarSettings = defaults as unknown as Record<string, unknown>;
+   101→  }
+   102→  // Sync toggle UI with loaded state
+   103→  if (dom.adhkarEnabledToggle) {
+   104→    dom.adhkarEnabledToggle.classList.toggle('on', !!(state.adhkarSettings as AdhkarSettings).adhkar_enabled);
+   105→  }
+   106→  if (dom.adhkarSoundToggle) {
+   107→    dom.adhkarSoundToggle.classList.toggle('on', !!(state.adhkarSettings as AdhkarSettings).adhkar_sound);
+   108→  }
+   109→
+   110→  const today = new Date().toDateString();
+   111→  if ((state.adhkarSettings as AdhkarSettings)._resetDate !== today) {
+   112→    for (const key of Object.keys(state.adhkarSettings as AdhkarSettings)) {
+   113→      if (key.startsWith('item_')) (state.adhkarSettings as Record<string, unknown>)[key] = 0;
+   114→    }
+   115→    (state.adhkarSettings as AdhkarSettings)._resetDate = today;
+   116→    saveAdhkarSettings();
+   117→  }
+   118→}
+   119→
+   120→function saveAdhkarSettings(): void {
+   121→  storage.set('adhkar_settings', state.adhkarSettings);
+   122→}
+   123→
+   124→/* ===================== PANEL ===================== */
+   125→
+   126→/** Toggle the adhkar panel open/closed. */
+   127→export function toggleAdhkarPanel(): void {
+   128→  state.adhkarPanelOpen = !state.adhkarPanelOpen;
+   129→  dom.adhkarPanel?.classList.toggle('open', state.adhkarPanelOpen);
+   130→  if (state.adhkarPanelOpen) {
+   131→    renderAdhkarTabs();
+   132→    if (!state.adhkarActiveTab) state.adhkarActiveTab = ADHKAR_DATA.categories[0].id;
+   133→    switchAdhkarTab(state.adhkarActiveTab);
+   134→  }
+   135→}
+   136→
+   137→/** Close the adhkar panel. */
+   138→export function closeAdhkarPanel(): void {
+   139→  state.adhkarPanelOpen = false;
+   140→  dom.adhkarPanel?.classList.remove('open');
+   141→}
+   142→
+   143→function renderAdhkarTabs(): void {
+   144→  if (!dom.adhkarTabs) return;
+   145→  let html = '';
+   146→  for (const cat of ADHKAR_DATA.categories) {
+   147→    html += `<button class="adhkar-tab${state.adhkarActiveTab === cat.id ? ' active' : ''}" data-category="${cat.id}">${cat.icon} ${cat.name}</button>`;
+   148→  }
+   149→  html += `<button class="adhkar-tab${state.adhkarActiveTab === 'personal' ? ' active' : ''}" data-category="personal">${__('adhkar_personal')}</button>`;
+   150→  dom.adhkarTabs.innerHTML = html;
+   151→  dom.adhkarTabs.querySelectorAll('.adhkar-tab').forEach((btn: Element) => {
+   152→    btn.addEventListener('click', () => switchAdhkarTab((btn as HTMLElement).dataset.category as string));
+   153→  });
+   154→}
+   155→
+   156→function switchAdhkarTab(categoryId: string): void {
+   157→  state.adhkarActiveTab = categoryId;
+   158→  document
+   159→    .querySelectorAll('.adhkar-tab')
+   160→    .forEach((t: Element) => t.classList.toggle('active', (t as HTMLElement).dataset.category === categoryId));
+   161→  renderAdhkarCategory(categoryId);
+   162→}
+   163→
+   164→function renderAdhkarCategory(categoryId: string): void {
+   165→  if (!dom.adhkarContent) return;
+   166→  if (categoryId === 'personal') {
+   167→    renderPersonalAdhkar();
+   168→    return;
+   169→  }
+   170→  const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
+   171→  if (!cat) return;
+   172→  const settings = state.adhkarSettings as AdhkarSettings;
+   173→  const catSettings = (settings[cat.id] as Partial<AdhkarCategorySettings>) || {};
+   174→  const enabled = !!catSettings.enabled;
+   175→  const notifTime = catSettings.time || cat.defaultTime || '';
+   176→  const notifDur = catSettings.duration ?? cat.defaultDuration ?? 1;
+   177→  let html = `<div class="adhkar-category-title">${cat.icon} ${cat.name}</div>
+   178→    <div class="adhkar-category-options" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding:8px 12px;background:var(--controls-bg);border-radius:8px;">
+   179→      <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;">
+   180→        <div class="adhkar-cat-toggle toggle-switch${enabled ? ' on' : ''}" data-category="${cat.id}" role="switch" style="transform:scale(0.85);"></div>
+   181→        ${__('adhkar_time')}
+   182→      </label>
+   183→      <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
+   184→        ⏰ <input type="time" class="adhkar-cat-time" data-category="${cat.id}" value="${notifTime}" style="border:1px solid var(--border-soft);border-radius:6px;padding:2px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);width:80px;">
+   185→      </label>
+   186→      <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
+   187→        🔔 <input type="number" class="adhkar-cat-duration" data-category="${cat.id}" value="${notifDur}" min="1" max="60" style="border:1px solid var(--border-soft);border-radius:6px;padding:2px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);width:50px;"> ${__('minutes')}
+   188→      </label>
+   189→      <span style="font-size:11px;color:var(--text-muted);">${enabled ? __('notification_active') : __('notification_paused')}</span>
+   190→    </div>`;
+   191→  for (const item of cat.items) {
+   192→    const counter = (settings[`item_${item.id}`] as number) || 0;
+   193→    const remaining = Math.max(0, item.count - counter);
+   194→    const completed = counter >= item.count;
+   195→    const pct = Math.min(100, (counter / item.count) * 100);
+   196→    html += `<div class="adhkar-item${completed ? ' completed' : ''}" data-item-id="${item.id}" data-category="${categoryId}">
+   197→      <div class="adhkar-item-text">${item.text}</div>
+   198→      <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
+   199→      <div class="adhkar-item-meta">
+   200→        <span class="adhkar-item-count">🔄 ${item.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}</span>
+   201→        <span class="adhkar-item-reference">📚 ${item.reference}</span>
+   202→        <div class="adhkar-counter">
+   203→          <button class="adhkar-counter-btn${completed ? ' completed' : ''}" data-action="increment" data-item-id="${item.id}" data-category="${categoryId}">✓</button>
+   204→          <span class="adhkar-counter-text">${counter}</span>
+   205→        </div>
+   206→      </div>
+   207→    </div>`;
+   208→  }
+   209→  html += `<button class="adhkar-add-btn" data-action="reset" data-category="${categoryId}">${__('adhkar_reset')}</button>`;
+   210→  dom.adhkarContent.innerHTML = html;
+   211→
+   212→  const contentEl = dom.adhkarContent as HTMLElement & { _delegationBound?: boolean };
+   213→  if (!contentEl._delegationBound) {
+   214→    contentEl._delegationBound = true;
+   215→    contentEl.addEventListener('click', (e: MouseEvent) => {
+   216→      const target = e.target as HTMLElement;
+   217→      const actionBtn = target.closest('[data-action]') as HTMLElement | null;
+   218→      if (actionBtn) {
+   219→        const action = actionBtn.dataset.action;
+   220→        if (action === 'increment') {
+   221→          handleAdhkarCounter(actionBtn.dataset.itemId as string, actionBtn.dataset.category as string);
+   222→          return;
+   223→        }
+   224→        if (action === 'reset') {
+   225→          resetAdhkarCounters(actionBtn.dataset.category as string);
+   226→          return;
+   227→        }
+   228→      }
+   229→      const toggle = target.closest('.adhkar-cat-toggle') as HTMLElement | null;
+   230→      if (toggle) {
+   231→        const catId = toggle.dataset.category as string;
+   232→        const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   233→        const s = newSettings as Record<string, unknown>;
+   234→        if (!s[catId]) s[catId] = {} as AdhkarCategorySettings;
+   235→        (s[catId] as Partial<AdhkarCategorySettings>).enabled = toggle.classList.toggle('on');
+   236→        state.adhkarSettings = newSettings;
+   237→        saveAdhkarSettings();
+   238→        renderAdhkarCategory(catId);
+   239→        return;
+   240→      }
+   241→    });
+   242→    contentEl.addEventListener('change', (e: Event) => {
+   243→      const target = e.target as HTMLElement;
+   244→      if (target.classList.contains('adhkar-cat-time')) {
+   245→        const catId = (target as HTMLElement).dataset.category as string;
+   246→        const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   247→        const s = newSettings as Record<string, unknown>;
+   248→        if (!s[catId]) s[catId] = {} as AdhkarCategorySettings;
+   249→        (s[catId] as Partial<AdhkarCategorySettings>).time = (target as HTMLInputElement).value;
+   250→        state.adhkarSettings = newSettings;
+   251→        saveAdhkarSettings();
+   252→        return;
+   253→      }
+   254→      if (target.classList.contains('adhkar-cat-duration')) {
+   255→        const catId = (target as HTMLElement).dataset.category as string;
+   256→        const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   257→        const s = newSettings as Record<string, unknown>;
+   258→        if (!s[catId]) s[catId] = {} as AdhkarCategorySettings;
+   259→        (s[catId] as Partial<AdhkarCategorySettings>).duration = parseInt((target as HTMLInputElement).value, 10) || 1;
+   260→        state.adhkarSettings = newSettings;
+   261→        saveAdhkarSettings();
+   262→      }
+   263→    });
+   264→  }
+   265→}
+   266→
+   267→function updateAdhkarItemDOM(itemId: string, categoryId: string): void {
+   268→  const itemEl = dom.adhkarContent?.querySelector(`.adhkar-item[data-item-id="${itemId}"]`) as HTMLElement | null;
+   269→  if (!itemEl) return;
+   270→  const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
+   271→  if (!cat) return;
+   272→  const item = cat.items.find((i: { id: string }) => i.id === itemId);
+   273→  if (!item) return;
+   274→  const key = `item_${item.id}`;
+   275→  const settings = state.adhkarSettings as AdhkarSettings;
+   276→  const counter = (settings[key] as number) || 0;
+   277→  const remaining = Math.max(0, item.count - counter);
+   278→  const completed = counter >= item.count;
+   279→  const pct = Math.min(100, (counter / item.count) * 100);
+   280→  itemEl.classList.toggle('completed', completed);
+   281→  const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
+   282→  if (fill) fill.style.width = pct + '%';
+   283→  const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
+   284→  if (countSpan)
+   285→    countSpan.textContent = `🔄 ${item.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}`;
+   286→  const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
+   287→  if (counterText) counterText.textContent = String(counter);
+   288→  const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
+   289→  if (counterBtn) counterBtn.classList.toggle('completed', completed);
+   290→}
+   291→
+   292→function handleAdhkarCounter(itemId: string, categoryId: string): void {
+   293→  const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
+   294→  if (!cat) return;
+   295→  const item = cat.items.find((i: { id: string }) => i.id === itemId);
+   296→  if (!item) return;
+   297→  const key = `item_${item.id}`;
+   298→  const current = ((state.adhkarSettings as Record<string, unknown>)[key] as number) || 0;
+   299→  // Create new object to trigger Proxy notification
+   300→  const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   301→  if (current >= item.count) {
+   302→    newSettings[key] = 0;
+   303→  } else {
+   304→    newSettings[key] = current + 1;
+   305→  }
+   306→  state.adhkarSettings = newSettings;
+   307→  saveAdhkarSettings();
+   308→  updateAdhkarItemDOM(itemId, categoryId);
+   309→}
+   310→
+   311→function resetAdhkarCounters(categoryId: string): void {
+   312→  const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
+   313→  if (!cat) return;
+   314→  // Create new object to trigger Proxy notification
+   315→  const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   316→  for (const item of cat.items) {
+   317→    newSettings[`item_${item.id}`] = 0;
+   318→    updateAdhkarItemDOM(item.id, categoryId);
+   319→  }
+   320→  state.adhkarSettings = newSettings;
+   321→  saveAdhkarSettings();
+   322→  showToast(__('adhkar_reset'), 'success');
+   323→}
+   324→
+   325→/* ===== Personal Adhkar ===== */
+   326→
+   327→function renderPersonalAdhkar(): void {
+   328→  if (!dom.adhkarContent) return;
+   329→  const settings = state.adhkarSettings as AdhkarSettings;
+   330→  const personal = settings.personal_adhkar || [];
+   331→  let html = '<div class="adhkar-category-title">' + __('adhkar_personal') + '</div>';
+   332→  html += '<button class="adhkar-add-btn" id="openAddAdhkarBtn">' + __('adhkar_add') + '</button>';
+   333→  if (!personal.length) {
+   334→    html += '<p style="text-align:center;color:#888;padding:20px;">' + __('adhkar_no_personal') + '</p>';
+   335→  } else {
+   336→    for (const p of personal) {
+   337→      const counter = (settings[`item_personal_${p.id}`] as number) || 0;
+   338→      const remaining = Math.max(0, p.count - counter);
+   339→      const completed = counter >= p.count;
+   340→      const pct = Math.min(100, (counter / p.count) * 100);
+   341→      html += `<div class="adhkar-item${completed ? ' completed' : ''}" data-item-id="personal_${p.id}">
+   342→        <div class="adhkar-item-text">${escapeHtml(p.text)}</div>
+   343→        <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
+   344→        <div class="adhkar-item-meta">
+   345→          <span class="adhkar-item-count">🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}</span>
+   346→          <span class="adhkar-item-reference">${p.time ? '⏰ ' + p.time : ''}</span>
+   347→          <div class="adhkar-personal-actions">
+   348→            <button class="adhkar-personal-btn edit" data-action="edit-personal" data-id="${p.id}">✏️</button>
+   349→            <button class="adhkar-personal-btn delete" data-action="delete-personal" data-id="${p.id}">🗑️</button>
+   350→          </div>
+   351→          <div class="adhkar-counter">
+   352→            <button class="adhkar-counter-btn${completed ? ' completed' : ''}" data-action="increment-personal" data-id="${p.id}">✓</button>
+   353→            <span class="adhkar-counter-text">${counter}</span>
+   354→          </div>
+   355→        </div>
+   356→      </div>`;
+   357→    }
+   358→  }
+   359→  dom.adhkarContent.innerHTML = html;
+   360→
+   361→  document.getElementById('openAddAdhkarBtn')?.addEventListener('click', openAdhkarAddDialog);
+   362→  dom.adhkarContent.querySelectorAll('[data-action="increment-personal"]').forEach((btn: Element) => {
+   363→    btn.addEventListener('click', () => {
+   364→      const currentSettings = state.adhkarSettings as AdhkarSettings;
+   365→      const personalList = currentSettings.personal_adhkar || [];
+   366→      const p = personalList.find((x: PersonalAdhkarEntry) => x.id === (btn as HTMLElement).dataset.id);
+   367→      if (!p) return;
+   368→      const key = `item_personal_${p.id}`;
+   369→      const current = ((state.adhkarSettings as Record<string, unknown>)[key] as number) || 0;
+   370→      // Create new object to trigger Proxy notification
+   371→      const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   372→      if (current >= p.count) {
+   373→        (newSettings as Record<string, unknown>)[key] = 0;
+   374→      } else {
+   375→        (newSettings as Record<string, unknown>)[key] = current + 1;
+   376→      }
+   377→      state.adhkarSettings = newSettings;
+   378→      saveAdhkarSettings();
+   379→      const itemEl = dom.adhkarContent?.querySelector(
+   380→        `.adhkar-item[data-item-id="personal_${p.id}"]`
+   381→      ) as HTMLElement | null;
+   382→      if (itemEl) {
+   383→        const newCounter = ((newSettings as Record<string, unknown>)[key] as number) || 0;
+   384→        const newRemaining = Math.max(0, p.count - newCounter);
+   385→        const newCompleted = newCounter >= p.count;
+   386→        const newPct = Math.min(100, (newCounter / p.count) * 100);
+   387→        itemEl.classList.toggle('completed', newCompleted);
+   388→        const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
+   389→        if (fill) fill.style.width = newPct + '%';
+   390→        const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
+   391→        if (countSpan)
+   392→          countSpan.textContent = `🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${newRemaining}`;
+   393→        const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
+   394→        if (counterText) counterText.textContent = String(newCounter);
+   395→        const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
+   396→        if (counterBtn) counterBtn.classList.toggle('completed', newCompleted);
+   397→      }
+   398→    });
+   399→  });
+   400→  dom.adhkarContent.querySelectorAll('[data-action="edit-personal"]').forEach((btn: Element) => {
+   401→    btn.addEventListener('click', () => editPersonalAdhkar((btn as HTMLElement).dataset.id as string));
+   402→  });
+   403→  dom.adhkarContent.querySelectorAll('[data-action="delete-personal"]').forEach((btn: Element) => {
+   404→    btn.addEventListener('click', () => deletePersonalAdhkar((btn as HTMLElement).dataset.id as string));
+   405→  });
+   406→}
+   407→
+   408→function openAdhkarAddDialog(): void {
+   409→  if (!dom.adhkarAddOverlay) return;
+   410→  if (dom.adhkarAddText) dom.adhkarAddText.value = '';
+   411→  if (dom.adhkarAddCount) dom.adhkarAddCount.value = '1';
+   412→  if (dom.adhkarAddTime) dom.adhkarAddTime.value = '';
+   413→  if (dom.adhkarAddDuration) dom.adhkarAddDuration.value = '1';
+   414→  dom.adhkarAddOverlay.dataset.editId = '';
+   415→  dom.adhkarAddOverlay.classList.remove('hidden');
+   416→  dom.adhkarAddOverlay.style.display = 'flex';
+   417→}
+   418→
+   419→function closeAdhkarAddDialog(): void {
+   420→  if (dom.adhkarAddOverlay) {
+   421→    dom.adhkarAddOverlay.classList.add('hidden');
+   422→    dom.adhkarAddOverlay.style.display = 'none';
+   423→  }
+   424→}
+   425→
+   426→function savePersonalAdhkar(): void {
+   427→  const text = dom.adhkarAddText?.value.trim();
+   428→  if (!text) {
+   429→    showToast(__('adhkar_enter_text'), 'error');
+   430→    return;
+   431→  }
+   432→  const count = parseInt(dom.adhkarAddCount?.value ?? '1', 10) || 1;
+   433→  const time = dom.adhkarAddTime?.value || null;
+   434→  const duration = parseInt(dom.adhkarAddDuration?.value ?? '1', 10) || 1;
+   435→  const editId = dom.adhkarAddOverlay?.dataset.editId || '';
+   436→  const settings = state.adhkarSettings as AdhkarSettings;
+   437→  if (!settings.personal_adhkar) settings.personal_adhkar = [];
+   438→
+   439→  if (editId) {
+   440→    const p = settings.personal_adhkar.find((x: PersonalAdhkarEntry) => x.id === editId);
+   441→    if (p) {
+   442→      p.text = text;
+   443→      p.count = count;
+   444→      p.time = time;
+   445→      p.duration = duration;
+   446→    }
+   447→  } else {
+   448→    const newItem: PersonalAdhkarEntry = { id: 'pa_' + Date.now(), text, count, time, duration };
+   449→    settings.personal_adhkar.push(newItem);
+   450→  }
+   451→  saveAdhkarSettings();
+   452→  closeAdhkarAddDialog();
+   453→  renderPersonalAdhkar();
+   454→  showToast(editId ? __('adhkar_edited') : __('adhkar_saved'), 'success');
+   455→}
+   456→
+   457→function editPersonalAdhkar(id: string): void {
+   458→  const settings = state.adhkarSettings as AdhkarSettings;
+   459→  const p = settings.personal_adhkar?.find((x: PersonalAdhkarEntry) => x.id === id);
+   460→  if (!p) return;
+   461→  if (!dom.adhkarAddOverlay) return;
+   462→  dom.adhkarAddOverlay.classList.remove('hidden');
+   463→  dom.adhkarAddOverlay.style.display = 'flex';
+   464→  dom.adhkarAddOverlay.dataset.editId = id;
+   465→  if (dom.adhkarAddText) dom.adhkarAddText.value = p.text;
+   466→  if (dom.adhkarAddCount) dom.adhkarAddCount.value = String(p.count);
+   467→  if (dom.adhkarAddTime) dom.adhkarAddTime.value = p.time || '';
+   468→  if (dom.adhkarAddDuration) dom.adhkarAddDuration.value = String(p.duration || 1);
+   469→}
+   470→
+   471→function deletePersonalAdhkar(id: string): void {
+   472→  // Custom confirmation modal instead of browser confirm()
+   473→  const existing = document.getElementById('adhkarDeleteModal');
+   474→  if (existing) existing.remove();
+   475→
+   476→  const overlay = document.createElement('div');
+   477→  overlay.id = 'adhkarDeleteModal';
+   478→  overlay.style.cssText =
+   479→    'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);';
+   480→
+   481→  const modal = document.createElement('div');
+   482→  modal.style.cssText =
+   483→    'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:280px;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);';
+   484→
+   485→  const msg = document.createElement('p');
+   486→  msg.style.cssText = 'margin:0 0 20px;color:var(--text-secondary,#666);font-size:14px;';
+   487→  msg.textContent = __('adhkar_confirm_delete');
+   488→
+   489→  const btnRow = document.createElement('div');
+   490→  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
+   491→
+   492→  const confirmBtn = document.createElement('button');
+   493→  confirmBtn.textContent = __('delete');
+   494→  confirmBtn.style.cssText =
+   495→    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:#e74c3c;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;';
+   496→
+   497→  const cancelBtn = document.createElement('button');
+   498→  cancelBtn.textContent = __('close');
+   499→  cancelBtn.style.cssText =
+   500→    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);color:var(--text-primary);font-size:14px;cursor:pointer;font-family:inherit;';
+   501→
+   502→  function close(): void {
+   503→    overlay.remove();
+   504→  }
+   505→
+   506→  confirmBtn.addEventListener('click', () => {
+   507→    const settings = state.adhkarSettings as AdhkarSettings;
+   508→    settings.personal_adhkar = (settings.personal_adhkar || []).filter((x: PersonalAdhkarEntry) => x.id !== id);
+   509→    const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   510→    delete (newSettings as Record<string, unknown>)[`item_personal_${id}`];
+   511→    state.adhkarSettings = newSettings;
+   512→    saveAdhkarSettings();
+   513→    renderPersonalAdhkar();
+   514→    showToast(__('adhkar_deleted'), '');
+   515→    close();
+   516→  });
+   517→
+   518→  cancelBtn.addEventListener('click', close);
+   519→  overlay.addEventListener('click', (e: MouseEvent) => {
+   520→    if (e.target === overlay) close();
+   521→  });
+   522→
+   523→  btnRow.appendChild(cancelBtn);
+   524→  btnRow.appendChild(confirmBtn);
+   525→  modal.appendChild(msg);
+   526→  modal.appendChild(btnRow);
+   527→  overlay.appendChild(modal);
+   528→  document.body.appendChild(overlay);
+   529→  cancelBtn.focus();
+   530→}
+   531→
+   532→/* ===== Notifications ===== */
+   533→
+   534→let _adhkarAudioCtx: AudioContext | null = null;
+   535→function playNotificationSound(): void {
+   536→  try {
+   537→    if (!_adhkarAudioCtx) _adhkarAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+   538→    const ctx = _adhkarAudioCtx;
+   539→    const notes = [523.25, 659.25, 783.99];
+   540→    notes.forEach((freq: number, i: number) => {
+   541→      const osc = ctx.createOscillator();
+   542→      const gain = ctx.createGain();
+   543→      osc.type = 'sine';
+   544→      osc.frequency.value = freq;
+   545→      gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.15);
+   546→      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.4);
+   547→      osc.connect(gain);
+   548→      gain.connect(ctx.destination);
+   549→      osc.start(ctx.currentTime + i * 0.15);
+   550→      osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+   551→    });
+   552→  } catch (e: unknown) {
+   553→    console.warn('Notification sound failed:', e);
+   554→  }
+   555→}
+   556→
+   557→function showAdhkarNotification(cat: AdhkarNotifContext, notifDuration?: number): void {
+   558→  if (!dom.adhkarNotification) return;
+   559→  if (dom.adhkarNotifIcon) dom.adhkarNotifIcon.textContent = cat.icon || '🕌';
+   560→  if (dom.adhkarNotifTitle) dom.adhkarNotifTitle.textContent = `🕌 ${cat.name}`;
+   561→  dom.adhkarNotification.dataset.category = cat.id || 'personal';
+   562→  dom.adhkarNotification.classList.remove('hidden');
+   563→  dom.adhkarNotification.style.display = 'flex';
+   564→
+   565→  const settings = state.adhkarSettings as AdhkarSettings;
+   566→  if (settings.adhkar_sound) playNotificationSound();
+   567→
+   568→  const duration = (notifDuration || cat.duration || 1) * 60 * 1000;
+   569→  if (state.adhkarNotificationTimer) clearTimeout(state.adhkarNotificationTimer);
+   570→  state.adhkarNotificationTimer = setTimeout(() => {
+   571→    if (dom.adhkarNotification) {
+   572→      dom.adhkarNotification.classList.add('hidden');
+   573→      dom.adhkarNotification.style.display = 'none';
+   574→    }
+   575→  }, duration);
+   576→
+   577→  renderNotifAdhkarText(cat);
+   578→
+   579→  if ('Notification' in window && Notification.permission === 'granted') {
+   580→    new Notification('🕌 ' + cat.name, {
+   581→      body: cat.id === 'personal' ? cat.name || '' : __('adhkar_notification'),
+   582→      icon: '/icon-192.png',
+   583→      tag: 'adhkar-' + cat.id,
+   584→    });
+   585→  }
+   586→  // Note: We do NOT call Notification.requestPermission() here because
+   587→  // this function is called from setInterval (every 30s check) without a
+   588→  // user gesture. Modern browsers require a user gesture for requestPermission()
+   589→  // and will silently reject it otherwise. Permission should be requested only
+   590→  // from a user-initiated action (e.g., a button click in settings).
+   591→}
+   592→
+   593→function renderNotifAdhkarText(cat: AdhkarNotifContext): void {
+   594→  if (!dom.adhkarNotifText) return;
+   595→
+   596→  if (cat.id === 'personal') {
+   597→    dom.adhkarNotifText.textContent = cat.name || '';
+   598→    if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = '';
+   599→    if (dom.adhkarNotifShareBtn)
+   600→      dom.adhkarNotifShareBtn.onclick = () => {
+   601→        copyToClipboard(cat.name || '');
+   602→        showToast(__('copied'), 'success');
+   603→      };
+   604→    return;
+   605→  }
+   606→
+   607→  const category = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === cat.id);
+   608→  if (!category) return;
+   609→
+   610→  let text = '';
+   611→  let count = 0;
+   612→  let total = 0;
+   613→  const settings = state.adhkarSettings as AdhkarSettings;
+   614→  for (const item of category.items) {
+   615→    total++;
+   616→    const key = `item_${item.id}`;
+   617→    const counter = (settings[key] as number) || 0;
+   618→    if (counter < item.count) {
+   619→      if (text) text += '\n\n';
+   620→      text += item.text;
+   621→      count++;
+   622→    }
+   623→  }
+   624→
+   625→  if (!text) {
+   626→    dom.adhkarNotifText.textContent = __('adhkar_done');
+   627→    if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = '';
+   628→    if (dom.adhkarNotifShareBtn) dom.adhkarNotifShareBtn.style.display = 'none';
+   629→  } else {
+   630→    dom.adhkarNotifText.textContent = text;
+   631→    if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = `📖 ${count}/${total}`;
+   632→    if (dom.adhkarNotifShareBtn) {
+   633→      dom.adhkarNotifShareBtn.style.display = 'inline-block';
+   634→      dom.adhkarNotifShareBtn.onclick = () => {
+   635→        copyToClipboard(text);
+   636→        showToast(__('copied'), 'success');
+   637→      };
+   638→    }
+   639→  }
+   640→}
+   641→
+   642→function dismissAdhkarNotification(): void {
+   643→  if (dom.adhkarNotification) {
+   644→    dom.adhkarNotification.classList.add('hidden');
+   645→    dom.adhkarNotification.style.display = 'none';
+   646→  }
+   647→  if (state.adhkarNotificationTimer) {
+   648→    clearTimeout(state.adhkarNotificationTimer);
+   649→    state.adhkarNotificationTimer = null;
+   650→  }
+   651→}
+   652→
+   653→/** Check all adhkar categories and personal adhkar for pending notifications. */
+   654→export function checkAdhkarNotifications(): void {
+   655→  const settings = state.adhkarSettings as AdhkarSettings | null;
+   656→  if (!settings?.adhkar_enabled) return;
+   657→  const now = new Date();
+   658→  const curMin = now.getHours() * 60 + now.getMinutes();
+   659→  const today = now.toDateString();
+   660→
+   661→  for (const cat of ADHKAR_DATA.categories) {
+   662→    const catSettings = settings[cat.id] as Partial<AdhkarCategorySettings> | undefined;
+   663→    if (!catSettings?.enabled) continue;
+   664→    const notifTime = catSettings.time || cat.defaultTime;
+   665→    if (!notifTime) continue;
+   666→    const [h, m] = notifTime.split(':').map(Number);
+   667→    const catMin = h * 60 + m;
+   668→    const fireKey = cat.id + '_' + today;
+   669→    if (curMin >= catMin && state.lastAdhkarFired !== fireKey) {
+   670→      state.lastAdhkarFired = fireKey;
+   671→      const notifDuration = catSettings.duration ?? cat.defaultDuration ?? 1;
+   672→      showAdhkarNotification({ id: cat.id, icon: cat.icon, name: cat.name }, notifDuration);
+   673→      return;
+   674→    }
+   675→  }
+   676→
+   677→  for (const p of settings.personal_adhkar || []) {
+   678→    if (!p.time) continue;
+   679→    const [h, m] = p.time.split(':').map(Number);
+   680→    const pMin = h * 60 + m;
+   681→    const fireKey = 'personal_' + p.id + '_' + today;
+   682→    if (curMin >= pMin && state.lastAdhkarFired !== fireKey) {
+   683→      state.lastAdhkarFired = fireKey;
+   684→      showAdhkarNotification({
+   685→        id: 'personal',
+   686→        _personalId: p.id,
+   687→        icon: '📝',
+   688→        name: p.text,
+   689→        duration: p.duration || 1,
+   690→      });
+   691→      return;
+   692→    }
+   693→  }
+   694→}
+   695→
+   696→function openAdhkarPanelFromNotif(): void {
+   697→  const catId = dom.adhkarNotification?.dataset.category;
+   698→  if (!state.adhkarPanelOpen) toggleAdhkarPanel();
+   699→  if (catId) switchAdhkarTab(catId);
+   700→}
+   701→
+   702→/* ===== Settings list in settings panel ===== */
+   703→
+   704→/** Render adhkar toggle/time/duration rows inside the settings panel. */
+   705→export function renderAdhkarSettingsList(): void {
+   706→  if (!dom.adhkarSettingsList) return;
+   707→  const settings = state.adhkarSettings as AdhkarSettings;
+   708→  let html = '';
+   709→  for (const cat of ADHKAR_DATA.categories) {
+   710→    const s = (settings[cat.id] as Partial<AdhkarCategorySettings>) || {};
+   711→    html += `<div class="adhkar-setting-row">
+   712→      <div class="adhkar-setting-header">
+   713→        <span class="adhkar-setting-label">${cat.icon} ${cat.name}</span>
+   714→        <div class="adhkar-setting-toggle">
+   715→          <div class="toggle-switch${s.enabled ? ' on' : ''}" data-adhkar-toggle="${cat.id}" role="switch"></div>
+   716→        </div>
+   717→      </div>
+   718→      <div class="adhkar-setting-time">
+   719→        ⏰ <input type="time" data-adhkar-time="${cat.id}" value="${s.time || ''}">
+   720→        <span>🔔</span>
+   721→        <input type="number" data-adhkar-duration="${cat.id}" value="${s.duration ?? cat.defaultDuration ?? 1}" min="1" max="60" style="width:50px;"> ${__('minutes')}
+   722→      </div>
+   723→    </div>`;
+   724→  }
+   725→  dom.adhkarSettingsList.innerHTML = html;
+   726→
+   727→  dom.adhkarSettingsList.querySelectorAll('[data-adhkar-toggle]').forEach((el: Element) => {
+   728→    const htmlEl = el as HTMLElement;
+   729→    htmlEl.addEventListener('click', () => {
+   730→      const catId = htmlEl.dataset.adhkarToggle as string;
+   731→      const on = htmlEl.classList.toggle('on');
+   732→      const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   733→      const s = newSettings as Record<string, unknown>;
+   734→      if (!s[catId]) s[catId] = {} as AdhkarCategorySettings;
+   735→      (s[catId] as Partial<AdhkarCategorySettings>).enabled = on;
+   736→      state.adhkarSettings = newSettings;
+   737→      saveAdhkarSettings();
+   738→    });
+   739→  });
+   740→  dom.adhkarSettingsList.querySelectorAll('[data-adhkar-time]').forEach((el: Element) => {
+   741→    const htmlEl = el as HTMLInputElement;
+   742→    htmlEl.addEventListener('change', () => {
+   743→      const catId = htmlEl.dataset.adhkarTime as string;
+   744→      const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   745→      const s = newSettings as Record<string, unknown>;
+   746→      if (!s[catId]) s[catId] = {} as AdhkarCategorySettings;
+   747→      (s[catId] as Partial<AdhkarCategorySettings>).time = htmlEl.value;
+   748→      state.adhkarSettings = newSettings;
+   749→      saveAdhkarSettings();
+   750→    });
+   751→  });
+   752→  dom.adhkarSettingsList.querySelectorAll('[data-adhkar-duration]').forEach((el: Element) => {
+   753→    const htmlEl = el as HTMLInputElement;
+   754→    htmlEl.addEventListener('change', () => {
+   755→      const catId = htmlEl.dataset.adhkarDuration as string;
+   756→      const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   757→      const s = newSettings as Record<string, unknown>;
+   758→      if (!s[catId]) s[catId] = {} as AdhkarCategorySettings;
+   759→      (s[catId] as Partial<AdhkarCategorySettings>).duration = parseInt(htmlEl.value, 10) || 1;
+   760→      state.adhkarSettings = newSettings;
+   761→      saveAdhkarSettings();
+   762→    });
+   763→  });
+   764→}
+   765→
+   766→/* Wire up event listeners that need access to adhkar functions */
+   767→/** Bind all adhkar-related DOM event listeners. */
+   768→
+   769→/** Start a recurring timer to check adhkar notifications every 30 seconds. */
+   770→let _adhkarSchedulerInterval: ReturnType<typeof setInterval> | null = null;
+   771→
+   772→export function startAdhkarNotificationScheduler(): void {
+   773→  if (_adhkarSchedulerInterval) clearInterval(_adhkarSchedulerInterval);
+   774→  checkAdhkarNotifications();
+   775→  _adhkarSchedulerInterval = setInterval(checkAdhkarNotifications, 30_000);
+   776→}
+   777→
+   778→/** Stop the adhkar notification scheduler. */
+   779→export function stopAdhkarNotificationScheduler(): void {
+   780→  if (_adhkarSchedulerInterval) {
+   781→    clearInterval(_adhkarSchedulerInterval);
+   782→    _adhkarSchedulerInterval = null;
+   783→  }
+   784→}
+   785→
+   786→export function wireAdhkarEvents(): void {
+   787→  dom.adhkarBtn?.addEventListener('click', toggleAdhkarPanel);
+   788→  dom.adhkarCloseBtn?.addEventListener('click', closeAdhkarPanel);
+   789→  dom.adhkarNotifOpenBtn?.addEventListener('click', () => {
+   790→    dismissAdhkarNotification();
+   791→    if (!state.adhkarPanelOpen) toggleAdhkarPanel();
+   792→    const catId = dom.adhkarNotification?.dataset.category;
+   793→    if (catId) switchAdhkarTab(catId);
+   794→  });
+   795→  dom.adhkarNotifDismissBtn?.addEventListener('click', dismissAdhkarNotification);
+   796→  dom.adhkarAddCloseBtn?.addEventListener('click', closeAdhkarAddDialog);
+   797→  dom.adhkarAddSaveBtn?.addEventListener('click', savePersonalAdhkar);
+   798→  dom.adhkarAddOverlay?.addEventListener('click', (e: MouseEvent) => {
+   799→    if (e.target === dom.adhkarAddOverlay) closeAdhkarAddDialog();
+   800→  });
+   801→  dom.adhkarEnabledToggle?.addEventListener('click', () => {
+   802→    const on = dom.adhkarEnabledToggle!.classList.toggle('on');
+   803→    const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   804→    (newSettings as AdhkarSettings).adhkar_enabled = on;
+   805→    state.adhkarSettings = newSettings;
+   806→    saveAdhkarSettings();
+   807→  });
+   808→  dom.adhkarSoundToggle?.addEventListener('click', () => {
+   809→    const on = dom.adhkarSoundToggle!.classList.toggle('on');
+   810→    const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+   811→    (newSettings as AdhkarSettings).adhkar_sound = on;
+   812→    state.adhkarSettings = newSettings;
+   813→    saveAdhkarSettings();
+   814→  });
+   815→  dom.adhkarPanel?.addEventListener('click', (e: MouseEvent) => {
+   816→    if (e.target === dom.adhkarPanel) closeAdhkarPanel();
+   817→  });
+   818→}
+   819→

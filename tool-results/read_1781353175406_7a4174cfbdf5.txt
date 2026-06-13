@@ -1,0 +1,1549 @@
+     1→import { __ } from './i18n.js';
+     2→import { state } from './state.js';
+     3→import { dom } from './dom.js';
+     4→import { CONFIG } from './config.js';
+     5→import { storage } from './storage.js';
+     6→import { togglePlayPause, updatePlayPauseBtn, playCurrentAyah } from './audio.js';
+     7→import { buildColorMap, tajweedColorWord } from './tajweed.js';
+     8→import { getAyahAnnotations } from './tajweed-data.js';
+     9→import type { TajweedAnnotation } from './tajweed-data.js';
+    10→import { escapeHtml } from './utils.js';
+    11→import { highlightCurrentAyah } from './surah-loader.js';
+    12→
+    13→/** Shape of surahData when accessed in presentation functions. */
+    14→interface SurahAyahData {
+    15→  numberInSurah: number;
+    16→  text: string;
+    17→}
+    18→
+    19→interface SurahDataLike {
+    20→  name: string;
+    21→  ayahs: SurahAyahData[];
+    22→}
+    23→
+    24→interface TranslationAyahData {
+    25→  text: string;
+    26→}
+    27→
+    28→interface TranslationDataLike {
+    29→  ayahs: TranslationAyahData[];
+    30→}
+    31→
+    32→/** Available nature background images with their mood/time. */
+    33→const NATURE_BACKGROUNDS = [
+    34→  { src: 'backgrounds/dawn.jpg', mood: 'dawn', label: 'فجر' },
+    35→  { src: 'backgrounds/clouds.jpg', mood: 'morning', label: 'صباح' },
+    36→  { src: 'backgrounds/mountains.jpg', mood: 'afternoon', label: 'ظهر' },
+    37→  { src: 'backgrounds/sunset.jpg', mood: 'sunset', label: 'غروب' },
+    38→  { src: 'backgrounds/nightsky.jpg', mood: 'night', label: 'ليل' },
+    39→];
+    40→
+    41→/** Get a background image based on the current time of day. */
+    42→function getAutoBackground(): (typeof NATURE_BACKGROUNDS)[number] {
+    43→  const hour = new Date().getHours();
+    44→  if (hour >= 4 && hour < 7) return NATURE_BACKGROUNDS[0]; // dawn
+    45→  if (hour >= 7 && hour < 12) return NATURE_BACKGROUNDS[1]; // morning clouds
+    46→  if (hour >= 12 && hour < 16) return NATURE_BACKGROUNDS[2]; // afternoon mountains
+    47→  if (hour >= 16 && hour < 19) return NATURE_BACKGROUNDS[3]; // sunset
+    48→  return NATURE_BACKGROUNDS[4]; // night sky
+    49→}
+    50→
+    51→/** Get a specific nature background by its mood key. */
+    52→function getNatureBgByMood(mood: string): (typeof NATURE_BACKGROUNDS)[number] | null {
+    53→  return NATURE_BACKGROUNDS.find((bg) => bg.mood === mood) || null;
+    54→}
+    55→
+    56→/** Get a random nature background (cycles per ayah). */
+    57→function getRandomNatureBg(): (typeof NATURE_BACKGROUNDS)[number] {
+    58→  const idx = Math.floor(Math.random() * NATURE_BACKGROUNDS.length);
+    59→  return NATURE_BACKGROUNDS[idx];
+    60→}
+    61→
+    62→let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
+    63→
+    64→/** Presentation-local tajweed toggle — independent of the global setting. */
+    65→let _presTajweedEnabled = true;
+    66→
+    67→/** Timeout for auto-hiding presentation controls. */
+    68→let _hideControlsTimeout: ReturnType<typeof setTimeout> | null = null;
+    69→
+    70→/** Animation frame ID for canvas scene rendering. */
+    71→let _sceneAnimationId: number | null = null;
+    72→/** Cleanup function returned by the active scene renderer. Stored so we can
+    73→ *  properly clean up nested animation loops (e.g., shooting stars inside stars scene). */
+    74→let _sceneCleanup: (() => void) | null = null;
+    75→
+    76→/** Ken Burns animation variants — each uses a different pan/zoom direction. */
+    77→const KEN_BURNS_ANIMATIONS = [
+    78→  'kenBurns1', // zoom in + pan right
+    79→  'kenBurns2', // zoom out + pan left
+    80→  'kenBurns3', // zoom in + pan up
+    81→  'kenBurns4', // zoom out + pan down
+    82→  'kenBurns5', // slow zoom in center
+    83→];
+    84→
+    85→/** Pick a random Ken Burns animation name. */
+    86→function getRandomKenBurns(): string {
+    87→  return KEN_BURNS_ANIMATIONS[Math.floor(Math.random() * KEN_BURNS_ANIMATIONS.length)];
+    88→}
+    89→
+    90→function injectStyles(): void {
+    91→  if (document.getElementById('pres-styles')) return;
+    92→  const style = document.createElement('style');
+    93→  style.id = 'pres-styles';
+    94→  style.textContent = `
+    95→    .presentation-overlay {
+    96→      position: fixed; inset: 0; z-index: 5000;
+    97→      background: var(--bg-primary, #1a1a2e);
+    98→      display: flex; align-items: center; justify-content: center;
+    99→      direction: rtl; font-family: 'Scheherazade New', 'Amiri', serif;
+   100→      animation: presFadeIn 0.3s ease;
+   101→      transition: background-image 1.2s ease;
+   102→      background-size: cover;
+   103→      background-position: center;
+   104→      background-repeat: no-repeat;
+   105→      overflow: hidden;
+   106→    }
+   107→    .presentation-overlay.pres-nature,
+   108→    .presentation-overlay.pres-auto {
+   109→      background-size: cover;
+   110→      background-position: center;
+   111→    }
+   112→    .presentation-overlay.pres-nature::before,
+   113→    .presentation-overlay.pres-auto::before {
+   114→      content: '';
+   115→      position: absolute; inset: 0;
+   116→      background: rgba(0,0,0,0.35);
+   117→      z-index: 0;
+   118→    }
+   119→    .presentation-overlay.pres-nature .presentation-inner,
+   120→    .presentation-overlay.pres-auto .presentation-inner {
+   121→      position: relative; z-index: 1;
+   122→    }
+   123→
+   124→    /* ===== ANIMATED MODE ===== */
+   125→    .presentation-overlay.pres-animated {
+   126→      background-size: cover;
+   127→      background-position: center;
+   128→    }
+   129→    .presentation-overlay.pres-animated::before {
+   130→      content: '';
+   131→      position: absolute; inset: 0;
+   132→      background: rgba(0,0,0,0.3);
+   133→      z-index: 1;
+   134→    }
+   135→    .presentation-overlay.pres-animated::after {
+   136→      content: '';
+   137→      position: absolute;
+   138→      top: -20%; left: -20%;
+   139→      width: 140%; height: 140%;
+   140→      z-index: 0;
+   141→      pointer-events: none;
+   142→      background:
+   143→        radial-gradient(ellipse 600px 300px at 20% 30%, rgba(255,255,255,0.18) 0%, transparent 70%),
+   144→        radial-gradient(ellipse 500px 250px at 70% 50%, rgba(255,255,255,0.12) 0%, transparent 70%),
+   145→        radial-gradient(ellipse 700px 350px at 50% 70%, rgba(255,255,255,0.10) 0%, transparent 70%),
+   146→        radial-gradient(ellipse 400px 200px at 80% 20%, rgba(255,255,255,0.14) 0%, transparent 70%);
+   147→      animation: cloudDrift 25s ease-in-out infinite alternate;
+   148→    }
+   149→    .presentation-overlay.pres-animated .pres-bg-layer {
+   150→      position: absolute; inset: 0;
+   151→      background-size: cover;
+   152→      background-position: center;
+   153→      z-index: 0;
+   154→      animation: kenBurns1 24s ease-in-out infinite alternate;
+   155→    }
+   156→    .presentation-overlay.pres-animated .pres-bg-layer.kb2 { animation-name: kenBurns2; animation-duration: 28s; }
+   157→    .presentation-overlay.pres-animated .pres-bg-layer.kb3 { animation-name: kenBurns3; animation-duration: 22s; }
+   158→    .presentation-overlay.pres-animated .pres-bg-layer.kb4 { animation-name: kenBurns4; animation-duration: 26s; }
+   159→    .presentation-overlay.pres-animated .pres-bg-layer.kb5 { animation-name: kenBurns5; animation-duration: 30s; }
+   160→    .presentation-overlay.pres-animated .presentation-inner {
+   161→      position: relative; z-index: 2;
+   162→    }
+   163→
+   164→    /* Ken Burns keyframes — cinematic slow pan/zoom */
+   165→    @keyframes kenBurns1 {
+   166→      0%   { transform: scale(1)   translate(0, 0); }
+   167→      100% { transform: scale(1.12) translate(3%, -2%); }
+   168→    }
+   169→    @keyframes kenBurns2 {
+   170→      0%   { transform: scale(1.1) translate(2%, 1%); }
+   171→      100% { transform: scale(1)    translate(-2%, -1%); }
+   172→    }
+   173→    @keyframes kenBurns3 {
+   174→      0%   { transform: scale(1)   translate(0, 2%); }
+   175→      100% { transform: scale(1.08) translate(1%, -3%); }
+   176→    }
+   177→    @keyframes kenBurns4 {
+   178→      0%   { transform: scale(1.1) translate(-1%, -2%); }
+   179→      100% { transform: scale(1)    translate(2%, 1%); }
+   180→    }
+   181→    @keyframes kenBurns5 {
+   182→      0%   { transform: scale(1); }
+   183→      100% { transform: scale(1.15); }
+   184→    }
+   185→
+   186→    /* Floating cloud overlay animation */
+   187→    @keyframes cloudDrift {
+   188→      0%   { transform: translate(0, 0); }
+   189→      33%  { transform: translate(4%, 2%); }
+   190→      66%  { transform: translate(-3%, 1%); }
+   191→      100% { transform: translate(2%, -1%); }
+   192→    }
+   193→
+   194→    /* ===== SCENE MODE (Canvas Animated Background) ===== */
+   195→    .presentation-overlay.pres-scene {
+   196→      background: #0a0a1a;
+   197→    }
+   198→    .presentation-overlay.pres-scene .pres-canvas-bg {
+   199→      position: absolute; inset: 0;
+   200→      z-index: 0;
+   201→      width: 100%; height: 100%;
+   202→    }
+   203→    .presentation-overlay.pres-scene::before {
+   204→      content: '';
+   205→      position: absolute; inset: 0;
+   206→      background: rgba(0,0,0,0.15);
+   207→      z-index: 1;
+   208→    }
+   209→    .presentation-overlay.pres-scene .presentation-inner {
+   210→      position: relative; z-index: 2;
+   211→    }
+   212→    .presentation-overlay.pres-scene .presentation-ayah-text {
+   213→      color: #fff;
+   214→      text-shadow: 0 2px 16px rgba(0,0,0,0.8), 0 1px 4px rgba(0,0,0,0.6);
+   215→    }
+   216→    .presentation-overlay.pres-scene .presentation-translation {
+   217→      color: rgba(255,255,255,0.85);
+   218→      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+   219→    }
+   220→    .presentation-overlay.pres-scene .presentation-title {
+   221→      color: rgba(255,255,255,0.8);
+   222→    }
+   223→    .presentation-overlay.pres-scene .presentation-ayah-num {
+   224→      color: #ffe066;
+   225→    }
+   226→    .presentation-overlay.pres-scene .presentation-header {
+   227→      border-color: rgba(255,255,255,0.15);
+   228→    }
+   229→    .presentation-overlay.pres-scene .presentation-footer {
+   230→      border-color: rgba(255,255,255,0.15);
+   231→    }
+   232→    .presentation-overlay.pres-scene .presentation-counter {
+   233→      color: rgba(255,255,255,0.7);
+   234→    }
+   235→    .presentation-overlay.pres-scene .presentation-header-btn,
+   236→    .presentation-overlay.pres-scene .presentation-close-btn {
+   237→      color: #fff; background: rgba(255,255,255,0.15);
+   238→    }
+   239→    .presentation-overlay.pres-scene .presentation-header-btn:hover,
+   240→    .presentation-overlay.pres-scene .presentation-close-btn:hover {
+   241→      background: rgba(255,255,255,0.3);
+   242→    }
+   243→
+   244→    /* Animated mode text colors (same as nature) */
+   245→    .presentation-overlay.pres-animated .presentation-ayah-text {
+   246→      color: #fff;
+   247→      text-shadow: 0 2px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5);
+   248→    }
+   249→    .presentation-overlay.pres-animated .presentation-translation {
+   250→      color: rgba(255,255,255,0.85);
+   251→      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+   252→    }
+   253→    .presentation-overlay.pres-animated .presentation-title {
+   254→      color: rgba(255,255,255,0.8);
+   255→    }
+   256→    .presentation-overlay.pres-animated .presentation-ayah-num {
+   257→      color: #ffe066;
+   258→    }
+   259→    .presentation-overlay.pres-animated .presentation-header {
+   260→      border-color: rgba(255,255,255,0.15);
+   261→    }
+   262→    .presentation-overlay.pres-animated .presentation-footer {
+   263→      border-color: rgba(255,255,255,0.15);
+   264→    }
+   265→    .presentation-overlay.pres-animated .presentation-counter {
+   266→      color: rgba(255,255,255,0.7);
+   267→    }
+   268→    .presentation-overlay.pres-animated .presentation-header-btn,
+   269→    .presentation-overlay.pres-animated .presentation-close-btn {
+   270→      color: #fff; background: rgba(255,255,255,0.15);
+   271→    }
+   272→    .presentation-overlay.pres-animated .presentation-header-btn:hover,
+   273→    .presentation-overlay.pres-animated .presentation-close-btn:hover {
+   274→      background: rgba(255,255,255,0.3);
+   275→    }
+   276→
+   277→    .presentation-overlay.pres-light {
+   278→      background: #f5f0e8;
+   279→    }
+   280→    .presentation-overlay.pres-light .presentation-ayah-text {
+   281→      color: #1a1a1a;
+   282→    }
+   283→    .presentation-overlay.pres-nature .presentation-ayah-text,
+   284→    .presentation-overlay.pres-auto .presentation-ayah-text {
+   285→      color: #fff;
+   286→      text-shadow: 0 2px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5);
+   287→    }
+   288→    .presentation-overlay.pres-nature .presentation-translation,
+   289→    .presentation-overlay.pres-auto .presentation-translation {
+   290→      color: rgba(255,255,255,0.85);
+   291→      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+   292→    }
+   293→    .presentation-overlay.pres-nature .presentation-title,
+   294→    .presentation-overlay.pres-auto .presentation-title {
+   295→      color: rgba(255,255,255,0.8);
+   296→    }
+   297→    .presentation-overlay.pres-nature .presentation-ayah-num,
+   298→    .presentation-overlay.pres-auto .presentation-ayah-num {
+   299→      color: #ffe066;
+   300→    }
+   301→    .presentation-overlay.pres-nature .presentation-header,
+   302→    .presentation-overlay.pres-auto .presentation-header {
+   303→      border-color: rgba(255,255,255,0.15);
+   304→    }
+   305→    .presentation-overlay.pres-nature .presentation-footer,
+   306→    .presentation-overlay.pres-auto .presentation-footer {
+   307→      border-color: rgba(255,255,255,0.15);
+   308→    }
+   309→    .presentation-overlay.pres-nature .presentation-counter,
+   310→    .presentation-overlay.pres-auto .presentation-counter {
+   311→      color: rgba(255,255,255,0.7);
+   312→    }
+   313→    .presentation-overlay.pres-nature .presentation-header-btn,
+   314→    .presentation-overlay.pres-auto .presentation-header-btn,
+   315→    .presentation-overlay.pres-nature .presentation-close-btn,
+   316→    .presentation-overlay.pres-auto .presentation-close-btn {
+   317→      color: #fff; background: rgba(255,255,255,0.15);
+   318→    }
+   319→    .presentation-overlay.pres-nature .presentation-header-btn:hover,
+   320→    .presentation-overlay.pres-auto .presentation-header-btn:hover,
+   321→    .presentation-overlay.pres-nature .presentation-close-btn:hover,
+   322→    .presentation-overlay.pres-auto .presentation-close-btn:hover {
+   323→      background: rgba(255,255,255,0.3);
+   324→    }
+   325→    .presentation-inner {
+   326→      display: flex; flex-direction: column;
+   327→      width: 100%; height: 100%; max-width: 1200px;
+   328→      padding: 20px; box-sizing: border-box;
+   329→    }
+   330→    .presentation-header {
+   331→      display: flex; align-items: center; gap: 12px;
+   332→      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+   333→      flex-shrink: 0;
+   334→    }
+   335→    .presentation-overlay.pres-light .presentation-header {
+   336→      border-color: rgba(0,0,0,0.1);
+   337→    }
+   338→    .presentation-title {
+   339→      font-size: 16px; color: var(--text-muted, #aaa); flex: 1;
+   340→    }
+   341→    .presentation-overlay.pres-light .presentation-title {
+   342→      color: #666;
+   343→    }
+   344→    .presentation-ayah-num {
+   345→      font-size: 18px; color: var(--accent, #ffe066); font-weight: 700;
+   346→    }
+   347→    .presentation-overlay.pres-light .presentation-ayah-num {
+   348→      color: #8b6f5a;
+   349→    }
+   350→    .presentation-header-btn, .presentation-close-btn {
+   351→      background: rgba(255,255,255,0.1); border: none;
+   352→      color: #fff; font-size: 22px; padding: 8px 16px;
+   353→      border-radius: 8px; cursor: pointer; transition: background 0.2s;
+   354→    }
+   355→    .presentation-overlay.pres-light .presentation-header-btn,
+   356→    .presentation-overlay.pres-light .presentation-close-btn {
+   357→      color: #333; background: rgba(0,0,0,0.08);
+   358→    }
+   359→    .presentation-header-btn:hover, .presentation-close-btn:hover {
+   360→      background: rgba(255,255,255,0.2);
+   361→    }
+   362→    .presentation-overlay.pres-light .presentation-header-btn:hover,
+   363→    .presentation-overlay.pres-light .presentation-close-btn:hover {
+   364→      background: rgba(0,0,0,0.15);
+   365→    }
+   366→    .presentation-close-btn {
+   367→      font-size: 18px; padding: 8px 14px;
+   368→    }
+   369→
+   370→    /* ===== AUTO-HIDE CONTROL BUTTONS ===== */
+   371→    .pres-control-btn {
+   372→      opacity: 0;
+   373→      transition: opacity 0.5s ease, background 0.2s;
+   374→      pointer-events: none;
+   375→    }
+   376→    .presentation-overlay.pres-controls-visible .pres-control-btn {
+   377→      opacity: 1;
+   378→      pointer-events: auto;
+   379→    }
+   380→    /* Close button ALWAYS visible — critical for mobile users to exit */
+   381→    .presentation-overlay .presentation-close-btn {
+   382→      opacity: 1 !important;
+   383→      pointer-events: auto !important;
+   384→    }
+   385→    /* Tajweed toggle always visible — important feature users need to discover */
+   386→    .presentation-overlay .pres-tajweed-btn {
+   387→      opacity: 1 !important;
+   388→      pointer-events: auto !important;
+   389→    }
+   390→    .presentation-overlay .pres-tajweed-btn.pres-tajweed-off {
+   391→      opacity: 0.5 !important;
+   392→    }
+   393→
+   394→    /* ===== FULLSCREEN: HIDE ALL UI, SHOW ONLY AYAH ===== */
+   395→    .presentation-overlay:fullscreen .presentation-header,
+   396→    .presentation-overlay:fullscreen .presentation-footer,
+   397→    .presentation-overlay:fullscreen .presentation-translation {
+   398→      opacity: 0;
+   399→      transition: opacity 0.5s ease;
+   400→      pointer-events: none;
+   401→    }
+   402→    .presentation-overlay:fullscreen.pres-controls-visible .presentation-header,
+   403→    .presentation-overlay:fullscreen.pres-controls-visible .presentation-footer {
+   404→      opacity: 1;
+   405→      pointer-events: auto;
+   406→    }
+   407→    .presentation-overlay:fullscreen .presentation-body {
+   408→      justify-content: center;
+   409→    }
+   410→    .presentation-overlay:fullscreen .presentation-ayah-text {
+   411→      font-size: 80px;
+   412→    }
+   413→    @media (max-width: 600px) {
+   414→      .presentation-overlay:fullscreen .presentation-ayah-text { font-size: 40px; }
+   415→    }
+   416→    @media (min-width: 1200px) {
+   417→      .presentation-overlay:fullscreen .presentation-ayah-text { font-size: 90px; }
+   418→    }
+   419→
+   420→    .presentation-body {
+   421→      flex: 1; display: flex; flex-direction: column;
+   422→      align-items: center; justify-content: center;
+   423→      padding: 40px 20px; overflow-y: auto;
+   424→      -webkit-overflow-scrolling: touch;
+   425→    }
+   426→    .presentation-ayah-text {
+   427→      font-size: 60px; line-height: 1.8; text-align: center;
+   428→      color: #fff; max-width: 900px;
+   429→      word-spacing: 6px;
+   430→      /* Allow long ayahs to shrink to fit screen */
+   431→      font-size: clamp(24px, 6vw, 60px);
+   432→      overflow-wrap: break-word;
+   433→      word-break: break-word;
+   434→    }
+   435→    .presentation-translation {
+   436→      font-size: 24px; line-height: 1.6; text-align: center;
+   437→      color: rgba(255,255,255,0.7); margin-top: 24px;
+   438→      font-family: 'Segoe UI', Tahoma, sans-serif;
+   439→      max-width: 700px;
+   440→    }
+   441→    .presentation-overlay.pres-light .presentation-translation {
+   442→      color: rgba(0,0,0,0.6);
+   443→    }
+   444→    .presentation-footer {
+   445→      display: flex; align-items: center; justify-content: center;
+   446→      padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1);
+   447→      flex-shrink: 0;
+   448→    }
+   449→    .presentation-overlay.pres-light .presentation-footer {
+   450→      border-color: rgba(0,0,0,0.1);
+   451→    }
+   452→    .presentation-counter {
+   453→      font-size: 16px; color: var(--text-muted, #aaa);
+   454→    }
+   455→    .presentation-overlay.pres-light .presentation-counter {
+   456→      color: #666;
+   457→    }
+   458→    @keyframes presFadeIn {
+   459→      from { opacity: 0; transform: scale(0.96); }
+   460→      to { opacity: 1; transform: scale(1); }
+   461→    }
+   462→    @media (max-width: 600px) {
+   463→      .presentation-ayah-text { font-size: clamp(22px, 5.5vw, 32px); }
+   464→      .presentation-body { padding: 16px 10px; overflow-y: auto !important; }
+   465→      .presentation-translation { font-size: 16px; margin-top: 12px; }
+   466→      /* Compact header for mobile: wrap buttons into two rows */
+   467→      .presentation-header {
+   468→        flex-wrap: wrap; gap: 6px; padding: 6px 4px;
+   469→      }
+   470→      .presentation-title {
+   471→        font-size: 13px; width: 100%; order: -1; text-align: center;
+   472→        margin-bottom: 2px;
+   473→      }
+   474→      .presentation-ayah-num {
+   475→        font-size: 15px;
+   476→      }
+   477→      .presentation-header-btn, .presentation-close-btn {
+   478→        font-size: 18px; padding: 6px 10px; border-radius: 6px;
+   479→        min-width: 36px; min-height: 36px;
+   480→      }
+   481→      .presentation-close-btn {
+   482→        font-size: 16px; padding: 6px 10px;
+   483→      }
+   484→      .presentation-footer { padding: 6px 0; }
+   485→      .presentation-counter { font-size: 13px; }
+   486→      /* Ensure body can scroll for long ayahs */
+   487→      .presentation-inner {
+   488→        padding: 8px !important;
+   489→      }
+   490→    }
+   491→    @media (min-width: 1200px) {
+   492→      .presentation-ayah-text { font-size: 72px; }
+   493→    }
+   494→  `;
+   495→  document.head.appendChild(style);
+   496→}
+   497→
+   498→function buildAyahHtml(text: string, surahNum: number, ayahNum: number): string {
+   499→  let txt = text;
+   500→  let offsetAdj = 0;
+   501→  if (surahNum !== 1 && ayahNum === 1) {
+   502→    const stripped = txt.replace(
+   503→      /^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u,
+   504→      ''
+   505→    );
+   506→    offsetAdj = txt.length - stripped.length;
+   507→    txt = stripped;
+   508→  }
+   509→  if (!_presTajweedEnabled) return escapeHtml(txt);
+   510→  const annotations = getAyahAnnotations(surahNum, ayahNum);
+   511→  if (annotations.length === 0) return escapeHtml(txt);
+   512→  const adjusted =
+   513→    offsetAdj > 0
+   514→      ? annotations.map((ann: TajweedAnnotation) => ({
+   515→          rule: ann.rule,
+   516→          start: ann.start - offsetAdj,
+   517→          end: ann.end - offsetAdj,
+   518→        }))
+   519→      : annotations;
+   520→  const colorMap = buildColorMap(adjusted);
+   521→  const words = txt.split(/\s+/).filter((w) => w.length > 0);
+   522→  let outputPos = 0;
+   523→  return words
+   524→    .map((word: string, idx: number) => {
+   525→      const wordHtml = tajweedColorWord(word, outputPos, colorMap);
+   526→      outputPos += word.length + (idx < words.length - 1 ? 1 : 0); // +1 for space between words
+   527→      return wordHtml;
+   528→    })
+   529→    .join(' ');
+   530→}
+   531→
+   532→/** Remove any animated background layer from the overlay. */
+   533→function removeAnimatedBgLayer(overlay: HTMLElement): void {
+   534→  const existing = overlay.querySelector('.pres-bg-layer');
+   535→  if (existing) existing.remove();
+   536→}
+   537→
+   538→/** Create and insert the animated background image layer with a random Ken Burns effect. */
+   539→function applyAnimatedBg(overlay: HTMLElement, bgSrc: string): void {
+   540→  removeAnimatedBgLayer(overlay);
+   541→  const layer = document.createElement('div');
+   542→  layer.className = 'pres-bg-layer ' + getRandomKenBurns();
+   543→  layer.style.backgroundImage = `url('${bgSrc}')`;
+   544→  overlay.insertBefore(layer, overlay.firstChild);
+   545→}
+   546→
+   547→/* ===== CANVAS ANIMATED SCENES ===== */
+   548→
+   549→/** Remove the scene canvas and stop its animation loop. */
+   550→function removeSceneCanvas(overlay: HTMLElement): void {
+   551→  // Call the scene's own cleanup function first (handles nested animation loops)
+   552→  if (_sceneCleanup) {
+   553→    try { _sceneCleanup(); } catch { /* ignore */ }
+   554→    _sceneCleanup = null;
+   555→  }
+   556→  if (_sceneAnimationId !== null) {
+   557→    cancelAnimationFrame(_sceneAnimationId);
+   558→    _sceneAnimationId = null;
+   559→  }
+   560→  const existing = overlay.querySelector('.pres-canvas-bg');
+   561→  if (existing) {
+   562→    // Clean up resize listener
+   563→    const cleanup = (existing as unknown as Record<string, unknown>)._cleanupResize;
+   564→    if (typeof cleanup === 'function') {
+   565→      window.removeEventListener('resize', cleanup as EventListener);
+   566→    }
+   567→    existing.remove();
+   568→  }
+   569→}
+   570→
+   571→/** Star data for the stars scene. */
+   572→interface StarData {
+   573→  x: number; y: number;
+   574→  size: number; speed: number;
+   575→  brightness: number; phase: number;
+   576→}
+   577→
+   578→/** Shooting star data. */
+   579→interface ShootingStar {
+   580→  x: number; y: number;
+   581→  vx: number; vy: number;
+   582→  life: number; maxLife: number;
+   583→  length: number;
+   584→}
+   585→
+   586→/** Wave layer data for the waves scene. */
+   587→interface WaveLayer {
+   588→  amplitude: number; frequency: number;
+   589→  speed: number; yBase: number;
+   590→  color: string;
+   591→}
+   592→
+   593→/** Particle data for the particles scene. */
+   594→interface Particle {
+   595→  x: number; y: number;
+   596→  vx: number; vy: number;
+   597→  size: number; opacity: number;
+   598→  phase: number;
+   599→}
+   600→
+   601→/** Rain drop data. */
+   602→interface RainDrop {
+   603→  x: number; y: number;
+   604→  speed: number; length: number;
+   605→  opacity: number;
+   606→}
+   607→
+   608→/** Star scene — twinkling stars with occasional shooting stars. */
+   609→function renderStarsScene(canvas: HTMLCanvasElement): () => void {
+   610→  const ctx = canvas.getContext('2d')!;
+   611→  let stars: StarData[] = [];
+   612→  let shootingStars: ShootingStar[] = [];
+   613→  let time = 0;
+   614→
+   615→  function init(): void {
+   616→    const w = canvas.width;
+   617→    const h = canvas.height;
+   618→    stars = [];
+   619→    for (let i = 0; i < 250; i++) {
+   620→      stars.push({
+   621→        x: Math.random() * w,
+   622→        y: Math.random() * h,
+   623→        size: Math.random() * 2.5 + 0.5,
+   624→        speed: Math.random() * 0.02 + 0.005,
+   625→        brightness: Math.random(),
+   626→        phase: Math.random() * Math.PI * 2,
+   627→      });
+   628→    }
+   629→  }
+   630→  init();
+   631→
+   632→  function frame(): void {
+   633→    const w = canvas.width;
+   634→    const h = canvas.height;
+   635→    time += 0.016;
+   636→
+   637→    // Dark sky gradient
+   638→    const grad = ctx.createLinearGradient(0, 0, 0, h);
+   639→    grad.addColorStop(0, '#05050f');
+   640→    grad.addColorStop(0.5, '#0a0a2e');
+   641→    grad.addColorStop(1, '#101030');
+   642→    ctx.fillStyle = grad;
+   643→    ctx.fillRect(0, 0, w, h);
+   644→
+   645→    // Milky way band
+   646→    const mwGrad = ctx.createLinearGradient(0, h * 0.2, 0, h * 0.6);
+   647→    mwGrad.addColorStop(0, 'rgba(60, 50, 80, 0)');
+   648→    mwGrad.addColorStop(0.3, 'rgba(80, 60, 120, 0.06)');
+   649→    mwGrad.addColorStop(0.5, 'rgba(100, 80, 140, 0.08)');
+   650→    mwGrad.addColorStop(0.7, 'rgba(80, 60, 120, 0.06)');
+   651→    mwGrad.addColorStop(1, 'rgba(60, 50, 80, 0)');
+   652→    ctx.fillStyle = mwGrad;
+   653→    ctx.fillRect(0, 0, w, h);
+   654→
+   655→    // Draw twinkling stars
+   656→    for (const star of stars) {
+   657→      const twinkle = 0.5 + 0.5 * Math.sin(time * star.speed * 60 + star.phase);
+   658→      const alpha = star.brightness * twinkle;
+   659→      ctx.beginPath();
+   660→      ctx.arc(star.x, star.y, star.size * (0.7 + 0.3 * twinkle), 0, Math.PI * 2);
+   661→      ctx.fillStyle = `rgba(255, 255, 240, ${alpha})`;
+   662→      ctx.fill();
+   663→      // Glow for bigger stars
+   664→      if (star.size > 1.8) {
+   665→        ctx.beginPath();
+   666→        ctx.arc(star.x, star.y, star.size * 3, 0, Math.PI * 2);
+   667→        ctx.fillStyle = `rgba(200, 200, 255, ${alpha * 0.1})`;
+   668→        ctx.fill();
+   669→      }
+   670→    }
+   671→
+   672→    // Shooting stars
+   673→    if (Math.random() < 0.003) {
+   674→      shootingStars.push({
+   675→        x: Math.random() * w * 0.8,
+   676→        y: Math.random() * h * 0.3,
+   677→        vx: 4 + Math.random() * 4,
+   678→        vy: 2 + Math.random() * 2,
+   679→        life: 0,
+   680→        maxLife: 30 + Math.random() * 30,
+   681→        length: 40 + Math.random() * 60,
+   682→      });
+   683→    }
+   684→    for (let i = shootingStars.length - 1; i >= 0; i--) {
+   685→      const ss = shootingStars[i];
+   686→      ss.x += ss.vx;
+   687→      ss.y += ss.vy;
+   688→      ss.life++;
+   689→      const alpha = 1 - ss.life / ss.maxLife;
+   690→      if (alpha <= 0) { shootingStars.splice(i, 1); continue; }
+   691→      ctx.beginPath();
+   692→      ctx.moveTo(ss.x, ss.y);
+   693→      ctx.lineTo(ss.x - ss.vx * ss.length / 6, ss.y - ss.vy * ss.length / 6);
+   694→      const ssGrad = ctx.createLinearGradient(
+   695→        ss.x, ss.y,
+   696→        ss.x - ss.vx * ss.length / 6, ss.y - ss.vy * ss.length / 6
+   697→      );
+   698→      ssGrad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+   699→      ssGrad.addColorStop(1, `rgba(255, 255, 255, 0)`);
+   700→      ctx.strokeStyle = ssGrad;
+   701→      ctx.lineWidth = 2;
+   702→      ctx.stroke();
+   703→    }
+   704→
+   705→    _sceneAnimationId = requestAnimationFrame(frame);
+   706→  }
+   707→  frame();
+   708→  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+   709→}
+   710→
+   711→/** Ocean waves scene — animated waves with gradient sky. */
+   712→function renderWavesScene(canvas: HTMLCanvasElement): () => void {
+   713→  const ctx = canvas.getContext('2d')!;
+   714→  let time = 0;
+   715→
+   716→  const waveLayers: WaveLayer[] = [
+   717→    { amplitude: 25, frequency: 0.008, speed: 0.4, yBase: 0.45, color: 'rgba(10, 60, 120, 0.4)' },
+   718→    { amplitude: 20, frequency: 0.012, speed: 0.6, yBase: 0.52, color: 'rgba(15, 80, 160, 0.5)' },
+   719→    { amplitude: 18, frequency: 0.015, speed: 0.8, yBase: 0.58, color: 'rgba(20, 100, 180, 0.6)' },
+   720→    { amplitude: 15, frequency: 0.02, speed: 1.0, yBase: 0.64, color: 'rgba(25, 120, 200, 0.7)' },
+   721→    { amplitude: 12, frequency: 0.025, speed: 1.3, yBase: 0.70, color: 'rgba(30, 140, 210, 0.8)' },
+   722→    { amplitude: 8, frequency: 0.03, speed: 1.6, yBase: 0.78, color: 'rgba(35, 150, 220, 0.85)' },
+   723→    { amplitude: 5, frequency: 0.04, speed: 2.0, yBase: 0.85, color: 'rgba(40, 160, 230, 0.9)' },
+   724→  ];
+   725→
+   726→  function frame(): void {
+   727→    const w = canvas.width;
+   728→    const h = canvas.height;
+   729→    time += 0.016;
+   730→
+   731→    // Sky gradient (sunset-like)
+   732→    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.5);
+   733→    skyGrad.addColorStop(0, '#0d1b2a');
+   734→    skyGrad.addColorStop(0.3, '#1b2838');
+   735→    skyGrad.addColorStop(0.6, '#2d4059');
+   736→    skyGrad.addColorStop(0.85, '#4a6741');
+   737→    skyGrad.addColorStop(1, '#7a8450');
+   738→    ctx.fillStyle = skyGrad;
+   739→    ctx.fillRect(0, 0, w, h);
+   740→
+   741→    // Moon glow
+   742→    const moonX = w * 0.75;
+   743→    const moonY = h * 0.15;
+   744→    const moonGlow = ctx.createRadialGradient(moonX, moonY, 0, moonX, moonY, 120);
+   745→    moonGlow.addColorStop(0, 'rgba(255, 255, 200, 0.3)');
+   746→    moonGlow.addColorStop(0.3, 'rgba(255, 255, 200, 0.08)');
+   747→    moonGlow.addColorStop(1, 'rgba(255, 255, 200, 0)');
+   748→    ctx.fillStyle = moonGlow;
+   749→    ctx.fillRect(0, 0, w, h);
+   750→
+   751→    // Moon
+   752→    ctx.beginPath();
+   753→    ctx.arc(moonX, moonY, 20, 0, Math.PI * 2);
+   754→    ctx.fillStyle = 'rgba(255, 255, 220, 0.9)';
+   755→    ctx.fill();
+   756→
+   757→    // Draw waves back to front
+   758→    for (const wave of waveLayers) {
+   759→      ctx.beginPath();
+   760→      const baseY = h * wave.yBase;
+   761→      ctx.moveTo(0, h);
+   762→      for (let x = 0; x <= w; x += 3) {
+   763→        const y = baseY + Math.sin(x * wave.frequency + time * wave.speed) * wave.amplitude
+   764→          + Math.sin(x * wave.frequency * 0.5 + time * wave.speed * 0.7) * wave.amplitude * 0.5;
+   765→        ctx.lineTo(x, y);
+   766→      }
+   767→      ctx.lineTo(w, h);
+   768→      ctx.closePath();
+   769→      ctx.fillStyle = wave.color;
+   770→      ctx.fill();
+   771→    }
+   772→
+   773→    // Foam/sparkles on top wave
+   774→    for (let i = 0; i < 30; i++) {
+   775→      const fx = (i / 30) * w + Math.sin(time * 0.5 + i) * 20;
+   776→      const fy = h * 0.44 + Math.sin(fx * 0.008 + time * 0.4) * 25 - 5;
+   777→      const sparkle = 0.3 + 0.7 * Math.abs(Math.sin(time * 2 + i * 0.5));
+   778→      ctx.beginPath();
+   779→      ctx.arc(fx, fy, 1.5, 0, Math.PI * 2);
+   780→      ctx.fillStyle = `rgba(255, 255, 255, ${sparkle * 0.5})`;
+   781→      ctx.fill();
+   782→    }
+   783→
+   784→    _sceneAnimationId = requestAnimationFrame(frame);
+   785→  }
+   786→  frame();
+   787→  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+   788→}
+   789→
+   790→/** Aurora scene — northern lights effect. */
+   791→function renderAuroraScene(canvas: HTMLCanvasElement): () => void {
+   792→  const ctx = canvas.getContext('2d')!;
+   793→  let time = 0;
+   794→
+   795→  function frame(): void {
+   796→    const w = canvas.width;
+   797→    const h = canvas.height;
+   798→    time += 0.016;
+   799→
+   800→    // Dark sky
+   801→    const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+   802→    skyGrad.addColorStop(0, '#020810');
+   803→    skyGrad.addColorStop(0.4, '#050d1a');
+   804→    skyGrad.addColorStop(0.7, '#081020');
+   805→    skyGrad.addColorStop(1, '#0c1525');
+   806→    ctx.fillStyle = skyGrad;
+   807→    ctx.fillRect(0, 0, w, h);
+   808→
+   809→    // Stars
+   810→    for (let i = 0; i < 80; i++) {
+   811→      const sx = (Math.sin(i * 127.1 + 311.7) * 0.5 + 0.5) * w;
+   812→      const sy = (Math.sin(i * 269.5 + 183.3) * 0.5 + 0.5) * h * 0.6;
+   813→      const twinkle = 0.3 + 0.7 * Math.abs(Math.sin(time * 0.5 + i));
+   814→      ctx.beginPath();
+   815→      ctx.arc(sx, sy, 1, 0, Math.PI * 2);
+   816→      ctx.fillStyle = `rgba(255, 255, 240, ${twinkle * 0.6})`;
+   817→      ctx.fill();
+   818→    }
+   819→
+   820→    // Aurora bands — multiple semi-transparent curved shapes
+   821→    const auroraColors = [
+   822→      { r: 50, g: 255, b: 100 },  // green
+   823→      { r: 80, g: 200, b: 255 },  // blue
+   824→      { r: 150, g: 100, b: 255 }, // purple
+   825→      { r: 50, g: 255, b: 180 },  // teal
+   826→    ];
+   827→
+   828→    for (let band = 0; band < 4; band++) {
+   829→      const color = auroraColors[band];
+   830→      const yCenter = h * (0.15 + band * 0.1);
+   831→      const bandWidth = h * 0.15;
+   832→
+   833→      ctx.beginPath();
+   834→      ctx.moveTo(0, yCenter);
+   835→
+   836→      for (let x = 0; x <= w; x += 5) {
+   837→        const wave1 = Math.sin(x * 0.003 + time * 0.3 + band * 1.5) * 40;
+   838→        const wave2 = Math.sin(x * 0.006 + time * 0.5 + band * 0.8) * 25;
+   839→        const wave3 = Math.sin(x * 0.001 + time * 0.15 + band * 2.0) * 60;
+   840→        const y = yCenter + wave1 + wave2 + wave3;
+   841→        ctx.lineTo(x, y);
+   842→      }
+   843→
+   844→      for (let x = w; x >= 0; x -= 5) {
+   845→        const wave1 = Math.sin(x * 0.003 + time * 0.3 + band * 1.5) * 40;
+   846→        const wave2 = Math.sin(x * 0.006 + time * 0.5 + band * 0.8) * 25;
+   847→        const wave3 = Math.sin(x * 0.001 + time * 0.15 + band * 2.0) * 60;
+   848→        const y = yCenter + wave1 + wave2 + wave3 + bandWidth;
+   849→        ctx.lineTo(x, y);
+   850→      }
+   851→
+   852→      ctx.closePath();
+   853→
+   854→      const aGrad = ctx.createLinearGradient(0, yCenter - bandWidth, 0, yCenter + bandWidth * 2);
+   855→      aGrad.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+   856→      aGrad.addColorStop(0.3, `rgba(${color.r}, ${color.g}, ${color.b}, 0.08)`);
+   857→      aGrad.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, 0.12)`);
+   858→      aGrad.addColorStop(0.7, `rgba(${color.r}, ${color.g}, ${color.b}, 0.08)`);
+   859→      aGrad.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+   860→      ctx.fillStyle = aGrad;
+   861→      ctx.fill();
+   862→    }
+   863→
+   864→    // Vertical aurora rays
+   865→    for (let i = 0; i < 20; i++) {
+   866→      const rx = (i / 20) * w + Math.sin(time * 0.3 + i * 2) * 50;
+   867→      const rayHeight = 100 + Math.sin(time * 0.5 + i) * 50;
+   868→      const rayAlpha = 0.03 + 0.04 * Math.abs(Math.sin(time * 0.8 + i * 0.7));
+   869→      const colorIdx = i % auroraColors.length;
+   870→      const c = auroraColors[colorIdx];
+   871→
+   872→      const rayGrad = ctx.createLinearGradient(rx, h * 0.1, rx, h * 0.1 + rayHeight);
+   873→      rayGrad.addColorStop(0, `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
+   874→      rayGrad.addColorStop(0.5, `rgba(${c.r}, ${c.g}, ${c.b}, ${rayAlpha})`);
+   875→      rayGrad.addColorStop(1, `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
+   876→
+   877→      ctx.beginPath();
+   878→      ctx.moveTo(rx - 15, h * 0.1);
+   879→      ctx.lineTo(rx + 15, h * 0.1);
+   880→      ctx.lineTo(rx + 5, h * 0.1 + rayHeight);
+   881→      ctx.lineTo(rx - 5, h * 0.1 + rayHeight);
+   882→      ctx.closePath();
+   883→      ctx.fillStyle = rayGrad;
+   884→      ctx.fill();
+   885→    }
+   886→
+   887→    _sceneAnimationId = requestAnimationFrame(frame);
+   888→  }
+   889→  frame();
+   890→  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+   891→}
+   892→
+   893→/** Golden particles scene — floating dust motes. */
+   894→function renderParticlesScene(canvas: HTMLCanvasElement): () => void {
+   895→  const ctx = canvas.getContext('2d')!;
+   896→  let time = 0;
+   897→  let particles: Particle[] = [];
+   898→
+   899→  function init(): void {
+   900→    const w = canvas.width;
+   901→    const h = canvas.height;
+   902→    particles = [];
+   903→    for (let i = 0; i < 120; i++) {
+   904→      particles.push({
+   905→        x: Math.random() * w,
+   906→        y: Math.random() * h,
+   907→        vx: (Math.random() - 0.5) * 0.3,
+   908→        vy: -Math.random() * 0.5 - 0.1,
+   909→        size: Math.random() * 3 + 1,
+   910→        opacity: Math.random() * 0.5 + 0.2,
+   911→        phase: Math.random() * Math.PI * 2,
+   912→      });
+   913→    }
+   914→  }
+   915→  init();
+   916→
+   917→  function frame(): void {
+   918→    const w = canvas.width;
+   919→    const h = canvas.height;
+   920→    time += 0.016;
+   921→
+   922→    // Dark warm background
+   923→    const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.5, h * 0.4, Math.max(w, h) * 0.7);
+   924→    bgGrad.addColorStop(0, '#1a1510');
+   925→    bgGrad.addColorStop(0.5, '#0f0d08');
+   926→    bgGrad.addColorStop(1, '#080604');
+   927→    ctx.fillStyle = bgGrad;
+   928→    ctx.fillRect(0, 0, w, h);
+   929→
+   930→    // Warm light source glow
+   931→    const lightGlow = ctx.createRadialGradient(w * 0.5, h * 0.3, 0, w * 0.5, h * 0.3, w * 0.4);
+   932→    lightGlow.addColorStop(0, 'rgba(255, 200, 100, 0.08)');
+   933→    lightGlow.addColorStop(0.5, 'rgba(255, 180, 80, 0.03)');
+   934→    lightGlow.addColorStop(1, 'rgba(255, 150, 50, 0)');
+   935→    ctx.fillStyle = lightGlow;
+   936→    ctx.fillRect(0, 0, w, h);
+   937→
+   938→    // Draw and update particles
+   939→    for (const p of particles) {
+   940→      p.x += p.vx + Math.sin(time + p.phase) * 0.2;
+   941→      p.y += p.vy;
+   942→
+   943→      // Wrap around
+   944→      if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+   945→      if (p.x < -10) p.x = w + 10;
+   946→      if (p.x > w + 10) p.x = -10;
+   947→
+   948→      const pulse = 0.6 + 0.4 * Math.sin(time * 1.5 + p.phase);
+   949→      const alpha = p.opacity * pulse;
+   950→
+   951→      // Glow
+   952→      const glowGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+   953→      glowGrad.addColorStop(0, `rgba(255, 210, 100, ${alpha * 0.5})`);
+   954→      glowGrad.addColorStop(1, 'rgba(255, 180, 50, 0)');
+   955→      ctx.fillStyle = glowGrad;
+   956→      ctx.fillRect(p.x - p.size * 4, p.y - p.size * 4, p.size * 8, p.size * 8);
+   957→
+   958→      // Core
+   959→      ctx.beginPath();
+   960→      ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI * 2);
+   961→      ctx.fillStyle = `rgba(255, 220, 120, ${alpha})`;
+   962→      ctx.fill();
+   963→    }
+   964→
+   965→    _sceneAnimationId = requestAnimationFrame(frame);
+   966→  }
+   967→  frame();
+   968→  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+   969→}
+   970→
+   971→/** Rain scene — falling rain with lightning. */
+   972→function renderRainScene(canvas: HTMLCanvasElement): () => void {
+   973→  const ctx = canvas.getContext('2d')!;
+   974→  let time = 0;
+   975→  let drops: RainDrop[] = [];
+   976→  let lightningAlpha = 0;
+   977→  let nextLightning = 200 + Math.random() * 400;
+   978→
+   979→  function init(): void {
+   980→    const w = canvas.width;
+   981→    const h = canvas.height;
+   982→    drops = [];
+   983→    for (let i = 0; i < 200; i++) {
+   984→      drops.push({
+   985→        x: Math.random() * w,
+   986→        y: Math.random() * h,
+   987→        speed: 8 + Math.random() * 8,
+   988→        length: 15 + Math.random() * 20,
+   989→        opacity: 0.1 + Math.random() * 0.3,
+   990→      });
+   991→    }
+   992→  }
+   993→  init();
+   994→
+   995→  function frame(): void {
+   996→    const w = canvas.width;
+   997→    const h = canvas.height;
+   998→    time += 0.016;
+   999→
+  1000→    // Stormy sky
+  1001→    const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+  1002→    skyGrad.addColorStop(0, '#0a0c12');
+  1003→    skyGrad.addColorStop(0.3, '#111520');
+  1004→    skyGrad.addColorStop(0.6, '#1a1e2e');
+  1005→    skyGrad.addColorStop(1, '#0d1018');
+  1006→    ctx.fillStyle = skyGrad;
+  1007→    ctx.fillRect(0, 0, w, h);
+  1008→
+  1009→    // Lightning flash
+  1010→    if (time * 60 > nextLightning) {
+  1011→      lightningAlpha = 0.6;
+  1012→      nextLightning = time * 60 + 200 + Math.random() * 500;
+  1013→    }
+  1014→    if (lightningAlpha > 0) {
+  1015→      ctx.fillStyle = `rgba(180, 190, 255, ${lightningAlpha})`;
+  1016→      ctx.fillRect(0, 0, w, h);
+  1017→      lightningAlpha *= 0.85;
+  1018→      if (lightningAlpha < 0.01) lightningAlpha = 0;
+  1019→    }
+  1020→
+  1021→    // Cloud layer
+  1022→    for (let i = 0; i < 5; i++) {
+  1023→      const cx = (i / 5) * w + Math.sin(time * 0.1 + i * 3) * 40;
+  1024→      const cy = h * 0.05 + Math.sin(time * 0.05 + i) * 20;
+  1025→      const cw = 200 + Math.sin(i * 7.3) * 80;
+  1026→      const ch = 60 + Math.sin(i * 4.1) * 20;
+  1027→      const cloudGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, cw * 0.5);
+  1028→      cloudGrad.addColorStop(0, 'rgba(30, 35, 50, 0.6)');
+  1029→      cloudGrad.addColorStop(1, 'rgba(20, 25, 35, 0)');
+  1030→      ctx.fillStyle = cloudGrad;
+  1031→      ctx.fillRect(cx - cw, cy - ch, cw * 2, ch * 2);
+  1032→    }
+  1033→
+  1034→    // Rain drops
+  1035→    ctx.lineCap = 'round';
+  1036→    for (const d of drops) {
+  1037→      d.y += d.speed;
+  1038→      d.x -= 1; // Slight wind
+  1039→
+  1040→      if (d.y > h) {
+  1041→        d.y = -d.length;
+  1042→        d.x = Math.random() * w;
+  1043→      }
+  1044→      if (d.x < -20) d.x = w + 20;
+  1045→
+  1046→      ctx.beginPath();
+  1047→      ctx.moveTo(d.x, d.y);
+  1048→      ctx.lineTo(d.x - 1.5, d.y + d.length);
+  1049→      ctx.strokeStyle = `rgba(150, 170, 220, ${d.opacity})`;
+  1050→      ctx.lineWidth = 1;
+  1051→      ctx.stroke();
+  1052→    }
+  1053→
+  1054→    // Splash effects at bottom
+  1055→    for (let i = 0; i < 15; i++) {
+  1056→      const sx = (Math.sin(time * 3 + i * 17.3) * 0.5 + 0.5) * w;
+  1057→      const sy = h - 10 - Math.random() * 5;
+  1058→      const splashAlpha = 0.2 + 0.2 * Math.abs(Math.sin(time * 5 + i * 3.7));
+  1059→      ctx.beginPath();
+  1060→      ctx.arc(sx, sy, 2, 0, Math.PI * 2);
+  1061→      ctx.fillStyle = `rgba(150, 170, 220, ${splashAlpha})`;
+  1062→      ctx.fill();
+  1063→    }
+  1064→
+  1065→    _sceneAnimationId = requestAnimationFrame(frame);
+  1066→  }
+  1067→  frame();
+  1068→  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+  1069→}
+  1070→
+  1071→/** Map of scene ID to its render function. */
+  1072→const SCENE_RENDERERS: Record<string, (canvas: HTMLCanvasElement) => () => void> = {
+  1073→  stars: renderStarsScene,
+  1074→  waves: renderWavesScene,
+  1075→  aurora: renderAuroraScene,
+  1076→  particles: renderParticlesScene,
+  1077→  rain: renderRainScene,
+  1078→};
+  1079→
+  1080→/** Start a canvas scene animation on the given overlay. */
+  1081→function startSceneAnimation(overlay: HTMLElement, sceneId: string): void {
+  1082→  removeSceneCanvas(overlay);
+  1083→  const canvas = document.createElement('canvas');
+  1084→  canvas.className = 'pres-canvas-bg';
+  1085→  canvas.dataset.scene = sceneId;
+  1086→  canvas.width = window.innerWidth;
+  1087→  canvas.height = window.innerHeight;
+  1088→  overlay.insertBefore(canvas, overlay.firstChild);
+  1089→
+  1090→  const renderer = SCENE_RENDERERS[sceneId];
+  1091→  if (renderer) {
+  1092→    const cleanup = renderer(canvas);
+  1093→    // Store the cleanup function so removeSceneCanvas can call it later
+  1094→    if (typeof cleanup === 'function') {
+  1095→      _sceneCleanup = cleanup;
+  1096→    }
+  1097→  }
+  1098→
+  1099→  // Handle resize
+  1100→  const onResize = (): void => {
+  1101→    canvas.width = window.innerWidth;
+  1102→    canvas.height = window.innerHeight;
+  1103→  };
+  1104→  window.addEventListener('resize', onResize);
+  1105→  // Store cleanup reference on the canvas element
+  1106→  (canvas as unknown as Record<string, unknown>)._cleanupResize = onResize;
+  1107→}
+  1108→
+  1109→/** Show presentation control buttons and reset auto-hide timer. */
+  1110→function showControls(): void {
+  1111→  const overlay = dom.presentationOverlay;
+  1112→  if (!overlay) return;
+  1113→  overlay.classList.add('pres-controls-visible');
+  1114→  if (_hideControlsTimeout) clearTimeout(_hideControlsTimeout);
+  1115→  _hideControlsTimeout = setTimeout(() => {
+  1116→    hideControls();
+  1117→  }, 3000);
+  1118→}
+  1119→
+  1120→/** Hide presentation control buttons. */
+  1121→function hideControls(): void {
+  1122→  const overlay = dom.presentationOverlay;
+  1123→  if (!overlay) return;
+  1124→  overlay.classList.remove('pres-controls-visible');
+  1125→}
+  1126→
+  1127→/** Update the play/pause button icon based on current audio state. */
+  1128→function updatePresPlayPauseBtn(): void {
+  1129→  const btn = dom.presPlayPauseBtn;
+  1130→  if (!btn) return;
+  1131→  btn.textContent = state.isPlaying ? '⏸' : '▶';
+  1132→}
+  1133→
+  1134→/** Toggle tajweed colors in presentation mode only. */
+  1135→function togglePresTajweed(): void {
+  1136→  _presTajweedEnabled = !_presTajweedEnabled;
+  1137→  const btn = dom.presTajweedBtn;
+  1138→  if (btn) {
+  1139→    btn.classList.toggle('pres-tajweed-off', !_presTajweedEnabled);
+  1140→  }
+  1141→  updateDisplay();
+  1142→}
+  1143→
+  1144→/** Toggle fullscreen mode for the presentation overlay. */
+  1145→function togglePresFullscreen(): void {
+  1146→  const overlay = dom.presentationOverlay;
+  1147→  if (!overlay) return;
+  1148→  const fsElement = document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement;
+  1149→  if (fsElement) {
+  1150→    if (document.exitFullscreen) {
+  1151→      document.exitFullscreen().catch(() => {});
+  1152→    } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
+  1153→      (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
+  1154→    }
+  1155→  } else {
+  1156→    if (overlay.requestFullscreen) {
+  1157→      overlay.requestFullscreen().catch(() => {});
+  1158→    } else if ((overlay as unknown as { webkitRequestFullscreen?: () => Promise<void> }).webkitRequestFullscreen) {
+  1159→      (overlay as unknown as { webkitRequestFullscreen: () => Promise<void> }).webkitRequestFullscreen().catch(() => {});
+  1160→    }
+  1161→  }
+  1162→}
+  1163→
+  1164→/** Update the fullscreen button icon. */
+  1165→function updatePresFullscreenBtn(): void {
+  1166→  const btn = dom.presFullscreenBtn;
+  1167→  if (!btn) return;
+  1168→  const isFullscreen = !!(document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement);
+  1169→  btn.textContent = isFullscreen ? '⤓' : '⛶';
+  1170→}
+  1171→
+  1172→function updateDisplay(): void {
+  1173→  if (!state.presentationMode) return;
+  1174→
+  1175→  // Apply background based on presBgMode setting
+  1176→  const overlay = dom.presentationOverlay;
+  1177→  if (overlay) {
+  1178→    overlay.classList.remove('pres-nature', 'pres-auto', 'pres-animated', 'pres-scene');
+  1179→    if (state.presBgMode === 'nature') {
+  1180→      removeAnimatedBgLayer(overlay);
+  1181→      removeSceneCanvas(overlay);
+  1182→      const bg = getRandomNatureBg();
+  1183→      overlay.style.backgroundImage = `url('${bg.src}')`;
+  1184→      overlay.classList.add('pres-nature');
+  1185→      overlay.classList.remove('pres-light');
+  1186→    } else if (state.presBgMode === 'singleNature') {
+  1187→      removeAnimatedBgLayer(overlay);
+  1188→      removeSceneCanvas(overlay);
+  1189→      const bg = getNatureBgByMood(state.presBgNature) || getRandomNatureBg();
+  1190→      overlay.style.backgroundImage = `url('${bg.src}')`;
+  1191→      overlay.classList.add('pres-nature');
+  1192→      overlay.classList.remove('pres-light');
+  1193→    } else if (state.presBgMode === 'auto') {
+  1194→      removeAnimatedBgLayer(overlay);
+  1195→      removeSceneCanvas(overlay);
+  1196→      const bg = getAutoBackground();
+  1197→      overlay.style.backgroundImage = `url('${bg.src}')`;
+  1198→      overlay.classList.add('pres-auto');
+  1199→      overlay.classList.remove('pres-light');
+  1200→    } else if (state.presBgMode === 'animated') {
+  1201→      removeSceneCanvas(overlay);
+  1202→      overlay.style.backgroundImage = 'none';
+  1203→      const bg = getRandomNatureBg();
+  1204→      applyAnimatedBg(overlay, bg.src);
+  1205→      overlay.classList.add('pres-animated');
+  1206→      overlay.classList.remove('pres-light');
+  1207→    } else if (state.presBgMode === 'scene') {
+  1208→      removeAnimatedBgLayer(overlay);
+  1209→      overlay.style.backgroundImage = 'none';
+  1210→      // Only recreate canvas if scene changed or not running
+  1211→      const existingCanvas = overlay.querySelector('.pres-canvas-bg') as HTMLCanvasElement | null;
+  1212→      const currentScene = existingCanvas?.dataset.scene;
+  1213→      if (!existingCanvas || currentScene !== state.presBgScene) {
+  1214→        startSceneAnimation(overlay, state.presBgScene);
+  1215→      }
+  1216→      overlay.classList.add('pres-scene');
+  1217→      overlay.classList.remove('pres-light');
+  1218→    } else {
+  1219→      removeAnimatedBgLayer(overlay);
+  1220→      removeSceneCanvas(overlay);
+  1221→      overlay.style.backgroundImage = '';
+  1222→      if (!document.body.classList.contains('night-mode')) {
+  1223→        overlay.classList.add('pres-light');
+  1224→      }
+  1225→    }
+  1226→  }
+  1227→
+  1228→  const surahData = state.surahData as unknown as SurahDataLike | null;
+  1229→  const ayah = surahData?.ayahs?.[state.currentAyahIndex];
+  1230→  if (!ayah) {
+  1231→    if (dom.presentationAyahText) dom.presentationAyahText.innerHTML = '—';
+  1232→    if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = '—';
+  1233→    if (dom.presentationTitle) dom.presentationTitle.textContent = '—';
+  1234→    if (dom.presentationCounter) dom.presentationCounter.textContent = '٠ / ٠';
+  1235→    if (dom.presentationTranslation) dom.presentationTranslation.style.display = 'none';
+  1236→    return;
+  1237→  }
+  1238→  if (dom.presentationAyahText)
+  1239→    dom.presentationAyahText.innerHTML = buildAyahHtml(ayah.text, state.currentSurah, ayah.numberInSurah);
+  1240→
+  1241→  // Dynamic font size for long ayahs on mobile — shrink if text overflows
+  1242→  if (dom.presentationAyahText) {
+  1243→    const el = dom.presentationAyahText;
+  1244→    const textLen = ayah.text.length;
+  1245→    // On small screens, reduce font size for long ayahs
+  1246→    if (window.innerWidth <= 600) {
+  1247→      if (textLen > 300) {
+  1248→        el.style.fontSize = 'clamp(18px, 4vw, 22px)';
+  1249→      } else if (textLen > 200) {
+  1250→        el.style.fontSize = 'clamp(20px, 4.5vw, 26px)';
+  1251→      } else {
+  1252→        el.style.fontSize = ''; // use CSS default
+  1253→      }
+  1254→    } else {
+  1255→      el.style.fontSize = ''; // use CSS default on larger screens
+  1256→    }
+  1257→  }
+  1258→  if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = String(ayah.numberInSurah);
+  1259→  const surahName = surahData?.name || '';
+  1260→  if (dom.presentationTitle) dom.presentationTitle.textContent = `${surahName} — ${__('ayah')} ${ayah.numberInSurah}`;
+  1261→  const total = surahData?.ayahs?.length || 0;
+  1262→  if (dom.presentationCounter) dom.presentationCounter.textContent = `${ayah.numberInSurah} / ${total}`;
+  1263→  const translationData = state.translationData as unknown as TranslationDataLike | null;
+  1264→  if (state.translationEnabled && translationData?.ayahs?.[state.currentAyahIndex]) {
+  1265→    if (dom.presentationTranslation) {
+  1266→      dom.presentationTranslation.textContent = translationData.ayahs[state.currentAyahIndex].text;
+  1267→      dom.presentationTranslation.style.display = '';
+  1268→    }
+  1269→  } else {
+  1270→    if (dom.presentationTranslation) dom.presentationTranslation.style.display = 'none';
+  1271→  }
+  1272→  // Smooth crossfade transition: fade out → update already done above → fade in
+  1273→  if (_prevHighlightTimeout) clearTimeout(_prevHighlightTimeout);
+  1274→  const ayahEl = dom.presentationAyahText;
+  1275→  if (ayahEl) {
+  1276→    ayahEl.style.transition = 'opacity 0.4s ease';
+  1277→    ayahEl.style.opacity = '0.7';
+  1278→    _prevHighlightTimeout = setTimeout(() => {
+  1279→      if (ayahEl) ayahEl.style.opacity = '1';
+  1280→    }, 100);
+  1281→  }
+  1282→  // Update play/pause button state
+  1283→  updatePresPlayPauseBtn();
+  1284→}
+  1285→
+  1286→function navigateAyah(delta: number): void {
+  1287→  const surahData = state.surahData as unknown as SurahDataLike | null;
+  1288→  if (!surahData?.ayahs) return;
+  1289→  const next = state.currentAyahIndex + delta;
+  1290→  if (next < 0 || next >= surahData.ayahs.length) return;
+  1291→  state.currentAyahIndex = next;
+  1292→  updateDisplay();
+  1293→  // Sync audio: play the new ayah if audio was already playing
+  1294→  if (state.isPlaying) {
+  1295→    playCurrentAyah();
+  1296→  }
+  1297→  // Sync main surah view highlight
+  1298→  highlightCurrentAyah();
+  1299→  if (dom.presentationOverlay) {
+  1300→    const pBody = dom.presentationBody;
+  1301→    if (pBody) pBody.scrollTop = 0;
+  1302→  }
+  1303→}
+  1304→
+  1305→export function togglePresentation(): void {
+  1306→  if (state.presentationMode) {
+  1307→    closePresentation();
+  1308→  } else {
+  1309→    openPresentation();
+  1310→  }
+  1311→}
+  1312→
+  1313→export function openPresentation(): void {
+  1314→  console.log('[Presentation] openPresentation() called, mushafMode=' + state.mushafMode);
+  1315→
+  1316→  // If in mushaf mode, toggle it off SYNCHRONOUSLY before showing presentation.
+  1317→  // We set the state directly instead of using the async toggleMushafMode to avoid
+  1318→  // race conditions where the toggle happens after the overlay is already shown.
+  1319→  if (state.mushafMode) {
+  1320→    console.log('[Presentation] Exiting mushaf mode synchronously before opening presentation');
+  1321→    state.mushafMode = false;
+  1322→    storage.set('mushaf_mode', false);
+  1323→    if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
+  1324→    // Update view mode buttons to show surah mode (not mushaf)
+  1325→    document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
+  1326→      b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah');
+  1327→    });
+  1328→    // Re-render the surah content in the background (async, non-blocking)
+  1329→    import('./app.js').then(({ renderSurah }) => {
+  1330→      const surahData = state.surahData as any;
+  1331→      if (surahData && surahData.number === state.currentSurah) {
+  1332→        renderSurah(surahData);
+  1333→      }
+  1334→    }).catch(() => {});
+  1335→  }
+  1336→
+  1337→  state.presentationMode = true;
+  1338→  // Sync presentation tajweed with global setting on open
+  1339→  _presTajweedEnabled = state.tajweedEnabled;
+  1340→  injectStyles();
+  1341→  if (dom.presentationOverlay) {
+  1342→    // CRITICAL: For Android WebView (Capacitor), we use a special CSS class
+  1343→    // `presentation-visible` that overrides `.hidden { display: none !important }`
+  1344→    // with `display: flex !important` — this is the ONLY reliable way to make
+  1345→    // the overlay visible in WebView because inline styles can lose to !important.
+  1346→    dom.presentationOverlay.classList.remove('hidden');
+  1347→    dom.presentationOverlay.classList.add('presentation-visible');
+  1348→    // Also set inline styles as fallback for non-Capacitor browsers
+  1349→    dom.presentationOverlay.style.display = 'flex';
+  1350→    dom.presentationOverlay.style.position = 'fixed';
+  1351→    dom.presentationOverlay.style.inset = '0';
+  1352→    dom.presentationOverlay.style.zIndex = '99999';
+  1353→    dom.presentationOverlay.style.width = '100vw';
+  1354→    dom.presentationOverlay.style.height = '100vh';
+  1355→    // Background mode is handled by updateDisplay()
+  1356→    if (state.presBgMode === 'plain') {
+  1357→      if (document.body.classList.contains('night-mode')) {
+  1358→        dom.presentationOverlay.classList.remove('pres-light');
+  1359→      } else {
+  1360→        dom.presentationOverlay.classList.add('pres-light');
+  1361→      }
+  1362→    }
+  1363→  } else {
+  1364→    console.error('[Presentation] ERROR: presentationOverlay element not found in DOM!');
+  1365→  }
+  1366→  // Set initial tajweed button state
+  1367→  if (dom.presTajweedBtn) {
+  1368→    dom.presTajweedBtn.classList.toggle('pres-tajweed-off', !_presTajweedEnabled);
+  1369→  }
+  1370→  document.body.classList.add('presentation-active');
+  1371→  document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
+  1372→    b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'presentation');
+  1373→  });
+  1374→  document.addEventListener('keydown', handleKeyDown);
+  1375→  // Show controls initially, then auto-hide
+  1376→  showControls();
+  1377→  updateDisplay();
+  1378→
+  1379→  console.log('[Presentation] openPresentation() completed, overlay display=' +
+  1380→    (dom.presentationOverlay ? dom.presentationOverlay.style.display : 'element-missing'));
+  1381→}
+  1382→
+  1383→export function closePresentation(): void {
+  1384→  state.presentationMode = false;
+  1385→  // Exit fullscreen if active
+  1386→  const fsEl = document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement;
+  1387→  if (fsEl) {
+  1388→    if (document.exitFullscreen) {
+  1389→      document.exitFullscreen().catch(() => {});
+  1390→    } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
+  1391→      (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
+  1392→    }
+  1393→  }
+  1394→  if (dom.presentationOverlay) {
+  1395→    // Remove the presentation-visible class FIRST (it has display: flex !important)
+  1396→    dom.presentationOverlay.classList.remove('presentation-visible');
+  1397→    dom.presentationOverlay.classList.add('hidden');
+  1398→    dom.presentationOverlay.style.display = 'none';
+  1399→    // Clear all inline positioning styles set by openPresentation
+  1400→    dom.presentationOverlay.style.position = '';
+  1401→    dom.presentationOverlay.style.inset = '';
+  1402→    dom.presentationOverlay.style.zIndex = '';
+  1403→    dom.presentationOverlay.style.width = '';
+  1404→    dom.presentationOverlay.style.height = '';
+  1405→    dom.presentationOverlay.classList.remove('pres-controls-visible', 'pres-nature', 'pres-auto', 'pres-animated', 'pres-scene', 'pres-light');
+  1406→    dom.presentationOverlay.style.backgroundImage = '';
+  1407→    removeAnimatedBgLayer(dom.presentationOverlay);
+  1408→    removeSceneCanvas(dom.presentationOverlay);
+  1409→  }
+  1410→  if (_hideControlsTimeout) {
+  1411→    clearTimeout(_hideControlsTimeout);
+  1412→    _hideControlsTimeout = null;
+  1413→  }
+  1414→  document.body.classList.remove('presentation-active');
+  1415→  document.removeEventListener('keydown', handleKeyDown);
+  1416→  document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
+  1417→    b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah');
+  1418→  });
+  1419→}
+  1420→
+  1421→function handleKeyDown(e: KeyboardEvent): void {
+  1422→  if (
+  1423→    (e.target as HTMLElement).tagName === 'INPUT' ||
+  1424→    (e.target as HTMLElement).tagName === 'TEXTAREA' ||
+  1425→    (e.target as HTMLElement).tagName === 'SELECT'
+  1426→  )
+  1427→    return;
+  1428→  // Any key press shows controls
+  1429→  showControls();
+  1430→  switch (e.key) {
+  1431→    case 'Escape':
+  1432→      // If in fullscreen, only exit fullscreen — don't close presentation
+  1433→      const fsEl = document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement;
+  1434→      if (fsEl) {
+  1435→        e.preventDefault();
+  1436→        if (document.exitFullscreen) {
+  1437→          document.exitFullscreen().catch(() => {});
+  1438→        } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
+  1439→          (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
+  1440→        }
+  1441→      } else {
+  1442→        closePresentation();
+  1443→      }
+  1444→      break;
+  1445→    case 'ArrowRight':
+  1446→    case 'ArrowDown':
+  1447→      e.preventDefault();
+  1448→      navigateAyah(1);
+  1449→      break;
+  1450→    case 'ArrowLeft':
+  1451→    case 'ArrowUp':
+  1452→      e.preventDefault();
+  1453→      navigateAyah(-1);
+  1454→      break;
+  1455→    case ' ':
+  1456→      e.preventDefault();
+  1457→      togglePlayPause();
+  1458→      updatePlayPauseBtn();
+  1459→      updatePresPlayPauseBtn();
+  1460→      break;
+  1461→  }
+  1462→}
+  1463→
+  1464→/** Handle mouse/touch movement on presentation overlay — show controls. */
+  1465→function handleOverlayMouseMove(): void {
+  1466→  showControls();
+  1467→}
+  1468→
+  1469→/** Handle fullscreen change event — update button icon and resize canvas. */
+  1470→function handleFullscreenChange(): void {
+  1471→  updatePresFullscreenBtn();
+  1472→  // Resize canvas scene if active
+  1473→  const overlay = dom.presentationOverlay;
+  1474→  if (overlay && state.presBgMode === 'scene') {
+  1475→    const canvas = overlay.querySelector('.pres-canvas-bg') as HTMLCanvasElement | null;
+  1476→    if (canvas) {
+  1477→      setTimeout(() => {
+  1478→        canvas.width = window.innerWidth;
+  1479→        canvas.height = window.innerHeight;
+  1480→      }, 100);
+  1481→    }
+  1482→  }
+  1483→}
+  1484→
+  1485→export function syncPresentation(): void {
+  1486→  if (state.presentationMode) {
+  1487→    updateDisplay();
+  1488→    updatePresPlayPauseBtn();
+  1489→  }
+  1490→}
+  1491→
+  1492→export function initPresentation(): void {
+  1493→  console.log('[Presentation] initPresentation() called');
+  1494→  injectStyles();
+  1495→
+  1496→  // Verify the presentation overlay exists in the DOM
+  1497→  const overlay = document.getElementById('presentationOverlay');
+  1498→  if (!overlay) {
+  1499→    console.error('[Presentation] ERROR: presentationOverlay element not found in DOM!');
+  1500→    return;
+  1501→  }
+  1502→  console.log('[Presentation] Overlay element found, binding event handlers...');
+  1503→
+  1504→  if (dom.presentationCloseBtn) dom.presentationCloseBtn.addEventListener('click', closePresentation);
+  1505→  if (dom.presentationPrevBtn) dom.presentationPrevBtn.addEventListener('click', () => navigateAyah(-1));
+  1506→  if (dom.presentationNextBtn) dom.presentationNextBtn.addEventListener('click', () => navigateAyah(1));
+  1507→  dom.presentationOverlay?.addEventListener('click', (e: MouseEvent) => {
+  1508→    // Don't close on background click when in fullscreen
+  1509→    const inFs = !!(document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement);
+  1510→    if (e.target === dom.presentationOverlay && !inFs) closePresentation();
+  1511→  });
+  1512→
+  1513→  // Play/Pause button
+  1514→  if (dom.presPlayPauseBtn) {
+  1515→    dom.presPlayPauseBtn.addEventListener('click', () => {
+  1516→      togglePlayPause();
+  1517→      updatePlayPauseBtn();
+  1518→      updatePresPlayPauseBtn();
+  1519→      showControls(); // Reset auto-hide timer
+  1520→    });
+  1521→  }
+  1522→
+  1523→  // Tajweed toggle button (presentation-local)
+  1524→  if (dom.presTajweedBtn) {
+  1525→    dom.presTajweedBtn.addEventListener('click', () => {
+  1526→      togglePresTajweed();
+  1527→      showControls(); // Reset auto-hide timer
+  1528→    });
+  1529→  }
+  1530→
+  1531→  // Fullscreen toggle button
+  1532→  if (dom.presFullscreenBtn) {
+  1533→    dom.presFullscreenBtn.addEventListener('click', () => {
+  1534→      togglePresFullscreen();
+  1535→      showControls(); // Reset auto-hide timer
+  1536→    });
+  1537→  }
+  1538→
+  1539→  // Mouse/touch movement shows controls
+  1540→  dom.presentationOverlay?.addEventListener('mousemove', handleOverlayMouseMove);
+  1541→  dom.presentationOverlay?.addEventListener('touchstart', handleOverlayMouseMove, { passive: true });
+  1542→
+  1543→  // Fullscreen change event
+  1544→  document.addEventListener('fullscreenchange', handleFullscreenChange);
+  1545→  document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+  1546→
+  1547→  console.log('[Presentation] initPresentation() completed successfully');
+  1548→}
+  1549→

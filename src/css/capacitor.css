@@ -217,8 +217,7 @@ body.capacitor-native .tafsir-curtain.open {
    which would NEVER match because .mushaf-active is on body itself. */
 body.capacitor-native.mushaf-active .settings-panel,
 body.capacitor-native.mushaf-active .favorites-panel,
-body.capacitor-native.mushaf-active .adhkar-panel,
-body.capacitor-native.mushaf-active .tafsir-curtain {
+body.capacitor-native.mushaf-active .adhkar-panel {
   display: none !important;
   visibility: hidden !important;
 }
