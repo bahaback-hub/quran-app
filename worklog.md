@@ -126,3 +126,41 @@ Stage Summary:
 - Key improvements: Runtime Capacitor detection, aggressive panel hiding, reduced re-render flicker
 - Both mushaf and presentation modes should now work correctly together
 - CSS !important rules ensure panels don't cover mushaf content even if JS fails
+
+---
+Task ID: v1.6-fix2
+Agent: Main Agent
+Task: Fix presentation mode not working and mushaf mode showing partial page / horizontal scrolling
+
+Work Log:
+- User reported: presentation mode (وضع العرض) doesn't work; mushaf mode (وضع المصحف) shows partial page requiring horizontal scroll, and dragging left reveals adhkar panel
+- Root cause analysis:
+  1. Presentation overlay: openPresentation() used `style.display = ''` which relies on CSS class; Android WebView may not apply class changes reliably
+  2. Mushaf mode: canvas width could overflow on small screens; adhkar panel was being closed with wrong CSS property (`right` instead of `left`)
+  3. Horizontal scrolling was not properly prevented in Capacitor
+- Fixed `src/presentation.ts` openPresentation():
+  - Changed `style.display = ''` to `style.display = 'flex'` for explicit control
+  - Added inline styles for position/z-index/inset as backup for Android WebView
+  - Added error log when overlay element is missing
+- Fixed `src/presentation.ts` closePresentation():
+  - Added clearing of inline positioning styles (position, inset, zIndex)
+  - More thorough cleanup of all state
+- Fixed `src/mushaf.ts` toggleMushafMode():
+  - Removed incorrect `style.right = '-420px'` from adhkar panel (adhkar uses `left`, not `right`)
+  - Removed all inline style overrides on panels - use class-based toggling only
+  - This prevents stale inline styles from interfering with panel behavior
+- Fixed `src/css/capacitor.css`:
+  - Fixed adhkar panel hidden rule: changed from `right: -420px` to `left: -100%` (adhkar slides from left)
+  - Added `overflow-x: hidden` and `max-width: 100vw` to body/html in Capacitor
+  - Added `overflow-x: hidden` and `box-sizing: border-box` to surah-content in Capacitor
+  - Added `max-width: 100% !important` and `height: auto !important` to mushaf-page-canvas
+  - Added `overflow: hidden` to mushaf-image-wrapper
+  - Added `overflow-x: hidden` and `box-sizing: border-box` to mushaf-container
+- Built APK v1.6 successfully
+
+Stage Summary:
+- APK: `/home/z/my-project/download/quran-app-v1.6.apk` (9.3 MB)
+- Fixed presentation mode by using explicit inline display:flex instead of relying on CSS class
+- Fixed mushaf horizontal scrolling by adding overflow-x: hidden and max-width constraints
+- Fixed adhkar panel closing (was using wrong CSS property - right instead of left)
+- Removed all inline style overrides from mushaf.ts to prevent stale DOM state
