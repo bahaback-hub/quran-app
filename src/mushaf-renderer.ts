@@ -94,12 +94,22 @@ function isCapacitorEnv(): boolean {
         (globalThis as any).Capacitor?.isNativePlatform?.() ||
         (globalThis as any).Capacitor?.isNative
       )) ||
-      (typeof navigator !== 'undefined' && /wv|Android.*Capacitor/i.test(navigator.userAgent))
+      (typeof navigator !== 'undefined' && /wv|Android.*Capacitor/i.test(navigator.userAgent)) ||
+      (typeof document !== 'undefined' && document.documentElement.classList.contains('capacitor-native'))
     );
   } catch { return false; }
 }
 
 const _isCapacitor = isCapacitorEnv();
+
+/** Double-check Capacitor status at runtime (class might be added after module load). */
+function isCapacitor(): boolean {
+  if (_isCapacitor) return true;
+  // Re-check in case capacitor-native class was added after module load
+  try {
+    return typeof document !== 'undefined' && document.documentElement.classList.contains('capacitor-native');
+  } catch { return false; }
+}
 
 /* ===================== HELPERS ===================== */
 
@@ -171,7 +181,7 @@ function fetchFontViaXHR(url: string): Promise<ArrayBuffer> {
  * interception. In browsers, uses standard fetch().
  */
 async function fetchFontBinary(url: string): Promise<ArrayBuffer> {
-  if (_isCapacitor) {
+  if (isCapacitor()) {
     // Use XHR in Capacitor to avoid CapacitorHttp interception
     console.log(`[Mushaf] Using XHR for font binary (bypassing CapacitorHttp): ${url}`);
     return fetchFontViaXHR(url);
@@ -194,7 +204,7 @@ function verifyFontOnCanvas(fontName: string): boolean {
   try {
     // In Capacitor/Android WebView, skip pixel-level Canvas verification
     // because it's unreliable — trust document.fonts API instead
-    if (_isCapacitor) {
+    if (isCapacitor()) {
       const fontsCheck = document.fonts.check(`40px "${fontName}"`);
       console.log(`[Mushaf] Capacitor: document.fonts.check for "${fontName}": ${fontsCheck}`);
       return fontsCheck;
@@ -298,9 +308,10 @@ async function ensureFontLoaded(fontName: string): Promise<void> {
  */
 async function _doLoadFont(fontName: string): Promise<boolean> {
   const fontUrl = getFontUrl(fontName);
-  const waitMs = _isCapacitor ? 1500 : 200;
+  const capMode = isCapacitor();
+  const waitMs = capMode ? 1200 : 200;
 
-  for (let attempt = 1; attempt <= (_isCapacitor ? 2 : 3); attempt++) {
+  for (let attempt = 1; attempt <= (capMode ? 2 : 3); attempt++) {
     console.log(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})...`);
 
     // --- Strategy 1: XHR/Fetch ArrayBuffer → FontFace (most reliable) ---
@@ -331,7 +342,7 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       }
 
       // In Capacitor: trust document.fonts and proceed even if Canvas verify fails
-      if (_isCapacitor) {
+      if (capMode) {
         const fontsCheck = document.fonts.check(`40px "${fontName}"`);
         if (fontsCheck) {
           console.log(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}"`);
@@ -363,7 +374,7 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
         return true;
       }
 
-      if (_isCapacitor) {
+      if (capMode) {
         console.warn(`[Mushaf] Capacitor: Proceeding with font "${fontName}" (strategy 2) despite verification failure`);
         return true;
       }
@@ -396,7 +407,7 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       }
 
       await document.fonts.ready;
-      const cssWaitMs = _isCapacitor ? 1500 : 500;
+      const cssWaitMs = capMode ? 1500 : 500;
       await new Promise<void>((r) => setTimeout(r, cssWaitMs));
 
       const verified = verifyFontOnCanvas(fontName);
@@ -406,7 +417,7 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
         return true;
       }
 
-      if (_isCapacitor) {
+      if (capMode) {
         console.warn(`[Mushaf] Capacitor: Proceeding with font "${fontName}" (strategy 3) despite verification failure`);
         return true;
       }
@@ -414,15 +425,15 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       console.warn(`[Mushaf] CSS @font-face strategy failed for "${fontName}":`, e);
     }
 
-    if (attempt < (_isCapacitor ? 2 : 3)) {
-      const delay = _isCapacitor ? 1000 : 500 * attempt;
+    if (attempt < (capMode ? 2 : 3)) {
+      const delay = capMode ? 1000 : 500 * attempt;
       console.warn(`[Mushaf] All strategies failed for "${fontName}" (attempt ${attempt}), retrying in ${delay}ms...`);
       await new Promise<void>((r) => setTimeout(r, delay));
     }
   }
 
   // In Capacitor: proceed anyway — better to show something than blank
-  if (_isCapacitor) {
+  if (capMode) {
     console.warn(`[Mushaf] Capacitor: Proceeding despite font "${fontName}" loading failure — will retry render later`);
     return true;
   }
@@ -454,10 +465,11 @@ function getColors(): PageColors {
  * - Adds an overall timeout to prevent hanging
  */
 export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
-  console.log(`[Mushaf] renderPage(${pageNum}) starting... Capacitor=${_isCapacitor}`);
+  const capMode = isCapacitor();
+  console.log(`[Mushaf] renderPage(${pageNum}) starting... Capacitor=${capMode}`);
 
   // Add overall timeout for Capacitor to prevent hanging
-  if (_isCapacitor) {
+  if (capMode) {
     const timeoutMs = 30000;
     return Promise.race([
       _renderPageInternal(pageNum, targetCanvas),
@@ -502,6 +514,7 @@ async function _renderPageWithCurrentFonts(pageNum: number, targetCanvas?: HTMLC
 }
 
 async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
+  const capMode = isCapacitor();
   const data = await loadPageData(pageNum);
   if (!data) {
     console.error(`[Mushaf] Failed to load page data for page ${pageNum}`);
@@ -527,7 +540,7 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
   const fontPromises = [...pageFonts].map((fn) =>
     Promise.race([
       ensureFontLoaded(fn),
-      new Promise<void>((resolve) => setTimeout(resolve, _isCapacitor ? 8000 : 5000))
+      new Promise<void>((resolve) => setTimeout(resolve, capMode ? 8000 : 5000))
     ])
   );
   await Promise.all(fontPromises);
@@ -547,8 +560,8 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
   }
 
   // In Capacitor: extra wait for WebView font processing
-  if (_isCapacitor) {
-    await new Promise<void>((r) => setTimeout(r, 800));
+  if (capMode) {
+    await new Promise<void>((r) => setTimeout(r, 1000));
     await document.fonts.ready;
   } else {
     // Non-Capacitor: verify font on Canvas
@@ -577,31 +590,30 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
 
   console.log(`[Mushaf] Page ${pageNum} rendered successfully`);
 
-  // In Capacitor: schedule MULTIPLE re-renders because Android WebView
-  // sometimes needs several render passes for fonts to take effect on Canvas.
-  if (_isCapacitor) {
+  // In Capacitor: schedule a single well-timed re-render because Android WebView
+  // sometimes needs an extra render pass for fonts to take effect on Canvas.
+  // We do ONE re-render at 3 seconds (not 3 separate ones which cause flicker).
+  if (capMode) {
     const renderData = { data, pageFont, colors, pageNum };
-    [2500, 5000, 8000].forEach((delay) => {
-      setTimeout(() => {
-        console.log(`[Mushaf] Capacitor: Re-rendering page ${renderData.pageNum} after ${delay}ms delay`);
-        try {
-          const c = targetCanvas || document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement;
-          if (c && c.width === CANVAS_W) {
-            const ctx2 = c.getContext('2d');
-            if (ctx2) {
-              ctx2.fillStyle = renderData.colors.bg;
-              ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
-              renderPageContent(ctx2, renderData.data, renderData.pageFont, renderData.colors);
-              drawPageFrame(ctx2, renderData.colors);
-              drawPageNumber(ctx2, renderData.pageNum, renderData.colors);
-              console.log(`[Mushaf] Capacitor: Re-render of page ${renderData.pageNum} complete at ${delay}ms`);
-            }
+    setTimeout(() => {
+      console.log(`[Mushaf] Capacitor: Re-rendering page ${renderData.pageNum} after 3s delay`);
+      try {
+        const c = targetCanvas || document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement;
+        if (c && c.width === CANVAS_W) {
+          const ctx2 = c.getContext('2d');
+          if (ctx2) {
+            ctx2.fillStyle = renderData.colors.bg;
+            ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            renderPageContent(ctx2, renderData.data, renderData.pageFont, renderData.colors);
+            drawPageFrame(ctx2, renderData.colors);
+            drawPageNumber(ctx2, renderData.pageNum, renderData.colors);
+            console.log(`[Mushaf] Capacitor: Re-render of page ${renderData.pageNum} complete`);
           }
-        } catch (e) {
-          console.warn('[Mushaf] Capacitor re-render failed:', e);
         }
-      }, delay);
-    });
+      } catch (e) {
+        console.warn('[Mushaf] Capacitor re-render failed:', e);
+      }
+    }, 3000);
   }
 
   return { canvas, layout: data };

@@ -105,6 +105,28 @@ body.capacitor-native .mushaf-tajweed-legend-item {
   font-size: 11px;
 }
 
+/* CRITICAL: Ensure settings panel doesn't cover mushaf content in WebView */
+/* The panel uses right: -420px when closed and right: 0 when .open */
+/* In WebView, class changes sometimes don't trigger reflow properly, */
+/* so we also use inline style overrides in mushaf.ts */
+body.capacitor-native .settings-panel:not(.open) {
+  right: -420px !important;
+}
+
+body.capacitor-native .favorites-panel:not(.open) {
+  right: -420px !important;
+}
+
+body.capacitor-native .adhkar-panel:not(.open) {
+  right: -420px !important;
+}
+
+/* Also ensure panels don't cover mushaf when in mushaf mode */
+body.capacitor-native .mushaf-container {
+  z-index: 1;
+  position: relative;
+}
+
 /* Fix panels in Capacitor - full width on mobile */
 body.capacitor-native .settings-panel,
 body.capacitor-native .favorites-panel,
