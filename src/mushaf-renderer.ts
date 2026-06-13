@@ -226,6 +226,9 @@ async function ensureFontLoaded(fontName: string): Promise<void> {
  */
 async function _doLoadFont(fontName: string): Promise<boolean> {
   const fontUrl = getFontUrl(fontName);
+  // Detect Capacitor/Android WebView — needs longer delays
+  const isCapacitor = typeof globalThis !== 'undefined' && ((globalThis as any).Capacitor?.isNativePlatform?.() || /wv/.test(navigator.userAgent));
+  const waitMs = isCapacitor ? 500 : 200;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     // --- Strategy 1: Fetch as ArrayBuffer → FontFace (most reliable) ---
@@ -244,8 +247,8 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       // Force browser to recognize the font via DOM
       createFontPreloadElement(fontName);
 
-      // Small delay to let the browser process the font
-      await new Promise<void>((r) => setTimeout(r, 200));
+      // Longer delay for Android WebView font processing
+      await new Promise<void>((r) => setTimeout(r, waitMs));
 
       // Verify on Canvas
       if (verifyFontOnCanvas(fontName)) {
@@ -263,7 +266,7 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
 
       await document.fonts.ready;
       createFontPreloadElement(fontName);
-      await new Promise<void>((r) => setTimeout(r, 200));
+      await new Promise<void>((r) => setTimeout(r, waitMs));
 
       if (verifyFontOnCanvas(fontName)) {
         return true;

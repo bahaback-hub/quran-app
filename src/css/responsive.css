@@ -39,7 +39,7 @@
 @media (max-width: 600px) {
   body {
     padding: 10px;
-    padding-bottom: 260px;
+    padding-bottom: 120px;
   }
   .container {
     border-radius: 12px;
@@ -460,7 +460,7 @@
 @media (max-width: 600px) {
   body {
     padding: 8px;
-    padding-bottom: 80px;
+    padding-bottom: 120px;
   }
   .container {
     border-radius: 10px;
