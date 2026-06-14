@@ -13,7 +13,7 @@ import { updatePlayPauseBtn } from './audio.js';
 /** Shape of cached prayer times stored in localStorage. */
 interface CachedPrayerTimes {
   date: string;
-  timings: Record<string, unknown>;
+  timings: import('./types.js').PrayerTimes;
   city: string;
   country: string;
 }
@@ -114,7 +114,7 @@ export function getNextPrayerKey(): string | null {
   const nowMin = now.getHours() * 60 + now.getMinutes();
   // Use PRAYER_DISPLAY_ORDER which includes Sunrise for countdown display
   for (const key of PRAYER_DISPLAY_ORDER) {
-    const raw = state.prayerTimes[key] as string | undefined;
+    const raw = state.prayerTimes[key];
     if (!raw) continue;
     if (timeStrToMinutes(raw.split(' ')[0]) > nowMin) return key;
   }
@@ -127,7 +127,7 @@ function renderPrayerTimes(): void {
   const next = getNextPrayerKey();
   let html = '';
   for (const key of order) {
-    const raw = (state.prayerTimes[key] as string) || '';
+    const raw = state.prayerTimes[key] || '';
     const time24 = raw.split(' ')[0];
     const isNext = key === next;
     html += `<div class="prayer-row ${isNext ? 'next-prayer' : ''}">
@@ -145,7 +145,7 @@ function updateCountdowns(): void {
   if (!nextKey) return;
   const now = new Date();
   const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-  const raw = (state.prayerTimes[nextKey] as string) || '';
+  const raw = state.prayerTimes[nextKey] || '';
   const [hStr, mStr] = raw.split(' ')[0].split(':');
   let nextSec = parseInt(hStr, 10) * 3600 + parseInt(mStr, 10) * 60;
   if (nextSec <= nowSec) nextSec += 86400;
@@ -157,7 +157,7 @@ function updateCountdowns(): void {
   if (dom.countdownDisplay) dom.countdownDisplay.textContent = countdownText;
   if (dom.prayerCountdown)
     dom.prayerCountdown.textContent = `${__('prayer_countdown', getPrayerName(nextKey), countdownText)}`;
-  const time24 = ((state.prayerTimes[nextKey] as string) || '').split(' ')[0];
+  const time24 = (state.prayerTimes[nextKey] || '').split(' ')[0];
   if (dom.nextPrayerName) dom.nextPrayerName.textContent = getPrayerName(nextKey);
   if (dom.nextPrayerTime) dom.nextPrayerTime.textContent = formatTime12(time24);
 }
@@ -235,7 +235,7 @@ export function checkAzanTime(): void {
   const cur = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
   for (const key of PRAYER_ORDER) {
     if (key === 'Fajr' && !state.azanFajrEnabled) continue;
-    const raw = ((state.prayerTimes[key] as string) || '').split(' ')[0];
+    const raw = (state.prayerTimes[key] || '').split(' ')[0];
     if (raw === cur) {
       const stamp = key + '_' + now.toDateString() + '_' + cur;
       if (state.lastAzanFired === stamp) return;
@@ -277,7 +277,7 @@ export function scheduleNextAzanCheck(): void {
   let nextSec: number | null = null;
   for (const key of PRAYER_ORDER) {
     if (key === 'Fajr' && !state.azanFajrEnabled) continue;
-    const raw = ((state.prayerTimes[key] as string) || '').split(' ')[0];
+    const raw = (state.prayerTimes[key] || '').split(' ')[0];
     if (!raw) continue;
     const [h, m] = raw.split(':');
     const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
@@ -288,7 +288,7 @@ export function scheduleNextAzanCheck(): void {
   }
   // If all prayers have passed today, schedule for tomorrow's Fajr
   if (nextSec === null) {
-    const fajrRaw = ((state.prayerTimes['Fajr'] as string) || '').split(' ')[0];
+    const fajrRaw = (state.prayerTimes['Fajr'] || '').split(' ')[0];
     if (fajrRaw) {
       const [fh, fm] = fajrRaw.split(':');
       const fajrSec = parseInt(fh, 10) * 3600 + parseInt(fm, 10) * 60;
