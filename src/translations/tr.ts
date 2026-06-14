@@ -399,6 +399,28 @@ const tr: TranslationBundle = {
   onboarding_desc_4: '6 güvenilir tefsir ve birden çok dilde anlam çevirisi.',
   onboarding_desc_5: 'Ezan ve bildirimlerle doğru namaz vakitleri.',
   onboarding_desc_6: 'Gece modu, sepya modu, yazı tipi ve boşluk ayarları, favori dışa aktarma.',
+
+  // Update banner
+  update_available: 'Güncelleme mevcut',
+  update_now: 'Güncelle',
+
+  // Mushaf loading & error states
+  mushaf_loading_title: 'Mushaf sayfası yükleniyor...',
+  mushaf_loading_subtitle: 'Mushaf yazı tipleri yükleniyor, bu biraz zaman alabilir',
+  mushaf_load_failed: 'Mushaf sayfası yüklenemedi',
+  mushaf_check_connection: 'İnternet bağlantınızı kontrol edin ve tekrar deneyin',
+  mushaf_retry_reload: 'Tekrar Dene',
+
+  // Tajweed legend
+  tajweed_legend_title: 'Tecvit Renkleri',
+  tajweed_madd_2: 'Madd 2',
+  tajweed_madd_separated: 'Madd 2-4-6 & Ayrı',
+  tajweed_madd_6: 'Madd 6 (Zorunlu)',
+  tajweed_madd_connected: 'Bağlı Madd',
+  tajweed_ghunnah: 'Ghunnah, Ikhfa & Iqlab',
+  tajweed_shamsiyyah: 'Şemsiyye Lâm & Qalqalah',
+  tajweed_idgham: 'Hamzat Wasl & Idgham',
+  tajweed_sukoon: 'Sukoon',
 };
 
 export default tr;

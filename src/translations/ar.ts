@@ -398,6 +398,28 @@ const ar: TranslationBundle = {
   onboarding_desc_4: '6 تفاسير معتمدة وترجمة المعاني بلغات متعددة.',
   onboarding_desc_5: 'مواقيت دقيقة مع الأذان والتنبيهات.',
   onboarding_desc_6: 'الوضع الليلي، وضع السيبيا، تغيير الخط والمسافات، تصدير المفضلة.',
+
+  // Update banner
+  update_available: 'تحديث متوفر',
+  update_now: 'تحديث',
+
+  // Mushaf loading & error states
+  mushaf_loading_title: 'جاري تحميل صفحة المصحف...',
+  mushaf_loading_subtitle: 'يتم تحميل خطوط المصحف وقد يستغرق بعض الوقت',
+  mushaf_load_failed: 'فشل تحميل صفحة المصحف',
+  mushaf_check_connection: 'تأكد من اتصالك بالإنترنت وحاول مرة أخرى',
+  mushaf_retry_reload: 'إعادة المحاولة',
+
+  // Tajweed legend
+  tajweed_legend_title: 'ألوان التجويد',
+  tajweed_madd_2: 'مد ٢',
+  tajweed_madd_separated: 'مد ٢-٤-٦ والمنفصل',
+  tajweed_madd_6: 'مد ٦ (لازم)',
+  tajweed_madd_connected: 'مد متصل',
+  tajweed_ghunnah: 'الغنة والإخفاء والإقلاب',
+  tajweed_shamsiyyah: 'اللام الشمسية والقلقلة',
+  tajweed_idgham: 'همزة الوصل والإدغام',
+  tajweed_sukoon: 'السكون',
 };
 
 export default ar;

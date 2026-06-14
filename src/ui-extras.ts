@@ -156,7 +156,7 @@ export function updateReadingProgress(): void {
     }
     const container = dom.surahContent;
     if (!container || !state.surahData) return;
-    const ayahs = (state.surahData as Record<string, unknown>).ayahs;
+    const ayahs = state.surahData.ayahs;
     const total = Array.isArray(ayahs) ? ayahs.length : 1;
     const progress = Math.min(1, (state.currentAyahIndex + 1) / total);
     progressBar.style.transform = `scaleX(${progress})`;

@@ -8,6 +8,7 @@ import { highlightCurrentAyah } from './surah-loader.js';
 import { getReciterById } from './reciters.js';
 import { startVisualizer, stopVisualizer } from './audio-visualizer.js';
 import { __ } from './i18n.js';
+import type { SurahData } from './types.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -334,7 +335,8 @@ function onAudioPlay(): void {
   const vizCanvas = document.getElementById('audioVisualizer');
   if (vizCanvas) startVisualizer(vizCanvas as HTMLCanvasElement);
   if ('mediaSession' in navigator && state.surahData) {
-    const surahData = state.surahData as any;
+    const surahData: SurahData | null = state.surahData;
+    if (!surahData) return;
     const ayah = surahData.ayahs?.[state.currentAyahIndex];
     navigator.mediaSession.metadata = new MediaMetadata({
       title: ayah ? `${__('ayah')} ${ayah.numberInSurah}` : '',
@@ -392,11 +394,11 @@ export function updatePlayPauseBtn(): void {
 
 function onAudioEnded(): void {
   _mp3quranUrl = null;
-  if (!state.surahData || !state.ayahsAudios) return;
+  if (!state.surahData) return;
   stopWordTracking();
 
   if (state.repeatMode) {
-    const surahData = state.surahData as any;
+    const surahData: SurahData = state.surahData;
     const currentNum = surahData.ayahs[state.currentAyahIndex].numberInSurah;
     if (currentNum === state.repeatTo) {
       state.repeatCounter++;
@@ -438,7 +440,8 @@ function onAudioEnded(): void {
     return;
   }
 
-  const surahData = state.surahData as any;
+  const surahData: SurahData | null = state.surahData;
+  if (!surahData) return;
   if (state.currentAyahIndex === state.ayahsAudios.length - 1) {
     // Last ayah of the surah
     if (state.currentSurah >= CONFIG.SURAH_COUNT) {
@@ -516,7 +519,7 @@ export function toggleRepeat(): void {
   dom.repeatBtn?.classList.toggle('active', state.repeatMode);
   if (dom.repeatControls) dom.repeatControls.style.display = state.repeatMode ? 'flex' : 'none';
   if (state.repeatMode && state.surahData) {
-    const surahData = state.surahData as any;
+    const surahData: SurahData = state.surahData;
     state.repeatFrom = 1;
     state.repeatTo = surahData.ayahs.length;
     state.repeatTimes = 3;
@@ -593,6 +596,7 @@ export function setSleepTimer(minutes: number): void {
   );
   showToast(__('sleep_timer_set', String(minutes)), 'success');
   updateSleepTimerDisplay();
+  ensureSleepTimerInterval();
 }
 
 /** Clear the active sleep timer. */
@@ -635,8 +639,22 @@ function updateSleepTimerDisplay(): void {
 }
 
 // Update the sleep timer countdown every 15 seconds
-setInterval(() => {
-  if (_sleepTimerMinutes && _sleepTimerStart) {
-    updateSleepTimerDisplay();
+// Lazy-initialized: only starts the interval when first needed
+let _sleepTimerInterval: ReturnType<typeof setInterval> | null = null;
+
+function ensureSleepTimerInterval(): void {
+  if (_sleepTimerInterval) return;
+  _sleepTimerInterval = setInterval(() => {
+    if (_sleepTimerMinutes && _sleepTimerStart) {
+      updateSleepTimerDisplay();
+    }
+  }, 15000);
+}
+
+/** Stop the sleep timer display interval (for cleanup in tests or on app shutdown). */
+export function cleanupSleepTimerInterval(): void {
+  if (_sleepTimerInterval) {
+    clearInterval(_sleepTimerInterval);
+    _sleepTimerInterval = null;
   }
-}, 15000);
+}

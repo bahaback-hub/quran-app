@@ -1,15 +1,16 @@
 import { initErrorBoundary } from './error-boundary.js';
 import { initApp } from './app.js';
-import { initI18n } from './i18n.js';
+import { initI18n, __ } from './i18n.js';
+import type { CapacitorGlobal } from './types.js';
 
 // Install global error handlers FIRST — before any other code runs
 initErrorBoundary();
 
 // Detect Capacitor native environment
 const isCapacitorNative = typeof globalThis !== 'undefined' &&
-  ((globalThis as any).Capacitor?.isNativePlatform?.() ||
-   (globalThis as any).Capacitor?.isNative ||
-   (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform?.()));
+  ((globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNativePlatform?.() ||
+   (globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNative ||
+   (typeof window !== 'undefined' && (window as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNativePlatform?.()));
 
 const isAndroidWebView = typeof navigator !== 'undefined' && /wv|Android.*Capacitor/i.test(navigator.userAgent);
 
@@ -28,9 +29,8 @@ if (isCapacitorNative || isAndroidWebView) {
   // Hide splash screen when app is ready (safety net even with launchAutoHide)
   const hideSplash = () => {
     try {
-      if ((globalThis as any).Capacitor?.Plugins?.SplashScreen) {
-        (globalThis as any).Capacitor.Plugins.SplashScreen.hide({ fadeOutDuration: 300 });
-      }
+      const cap = (globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor;
+      cap?.Plugins?.SplashScreen?.hide?.({ fadeOutDuration: 300 });
     } catch (e) { /* ignore */ }
   };
   document.addEventListener('DOMContentLoaded', () => setTimeout(hideSplash, 500));
@@ -71,7 +71,7 @@ if (!isCapacitorNative && !isAndroidWebView && 'serviceWorker' in navigator) {
         const banner = document.createElement('div');
         banner.id = 'updateBanner';
         banner.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent,#5c2e2e);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
-        banner.innerHTML = '<span>تحديث متوفر</span><button onclick="location.reload()" style="background:#fff;color:#5c2e2e;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-weight:bold;font-family:inherit;">تحديث</button>';
+        banner.innerHTML = `<span>${__('update_available')}</span><button onclick="location.reload()" class="update-banner-btn">${__('update_now')}</button>`;
         document.body.appendChild(banner);
       }
     }
@@ -87,7 +87,7 @@ if (!isCapacitorNative && !isAndroidWebView && 'serviceWorker' in navigator) {
       const banner = document.createElement('div');
       banner.id = 'updateBanner';
       banner.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent,#5c2e2e);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
-      banner.innerHTML = '<span>تحديث متوفر</span><button onclick="location.reload()" style="background:#fff;color:#5c2e2e;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-weight:bold;font-family:inherit;">تحديث</button>';
+      banner.innerHTML = `<span>${__('update_available')}</span><button onclick="location.reload()" class="update-banner-btn">${__('update_now')}</button>`;
       document.body.appendChild(banner);
     }
 

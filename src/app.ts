@@ -66,8 +66,6 @@ export async function initApp(): Promise<void> {
   if (last && last.surah) {
     state.currentSurah = last.surah;
     await loadSurah(last.surah, { startAyah: last.ayahNumberInSurah || 1 });
-    // showContinueWidget disabled at startup — no popup on open
-    // setTimeout(() => showContinueWidget(last as unknown as Parameters<typeof showContinueWidget>[0]), 1200);
   } else {
     await loadSurah(1);
   }
@@ -95,9 +93,6 @@ export async function initApp(): Promise<void> {
   // Restore player state
   const savedPlayerCollapsed = storage.get<boolean>('player_collapsed');
   if (savedPlayerCollapsed === false && dom.player) dom.player.classList.remove('collapsed');
-
-  // Welcome screen is disabled by default — user should see a clean first impression.
-  // welcome screen removed
 
   window.addEventListener('online', updateNetworkBanner);
   window.addEventListener('offline', updateNetworkBanner);

@@ -91,8 +91,8 @@ function isCapacitorEnv(): boolean {
   try {
     return !!(
       (typeof globalThis !== 'undefined' && (
-        (globalThis as any).Capacitor?.isNativePlatform?.() ||
-        (globalThis as any).Capacitor?.isNative
+        (globalThis as unknown as { Capacitor?: { isNativePlatform?: () => boolean; isNative?: boolean } }).Capacitor?.isNativePlatform?.() ||
+        (globalThis as unknown as { Capacitor?: { isNativePlatform?: () => boolean; isNative?: boolean } }).Capacitor?.isNative
       )) ||
       (typeof navigator !== 'undefined' && /wv|Android.*Capacitor/i.test(navigator.userAgent)) ||
       (typeof document !== 'undefined' && document.documentElement.classList.contains('capacitor-native'))
