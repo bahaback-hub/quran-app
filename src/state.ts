@@ -22,7 +22,7 @@
  *   }); // ← subscribers notified once per key after batch completes
  */
 
-import type { SurahData } from './types.js';
+import type { SurahData, PrayerTimes, AdhkarSettings } from './types.js';
 import type { PageLayoutData } from './mushaf-renderer.js';
 import { CONFIG } from './config.js';
 import { resetInternalState } from './internal-state.js';
@@ -123,7 +123,7 @@ export interface AppState {
   city: string;
   country: string;
   method: string;
-  prayerTimes: Record<string, unknown> | null;
+  prayerTimes: PrayerTimes | null;
   lastAzanFired: string | null;
   favorites: FavoriteEntry[];
   bookmark: BookmarkEntry | null;
@@ -142,12 +142,10 @@ export interface AppState {
   translationEnabled: boolean;
   currentTranslation: string | null;
   translationData: Record<string, unknown> | null;
-  adhkarSettings: Record<string, unknown> | null;
+  adhkarSettings: AdhkarSettings | null;
   adhkarPanelOpen: boolean;
   adhkarActiveTab: string | null;
   lastAdhkarFired: string | null;
-  adhkarNotificationTimer: ReturnType<typeof setTimeout> | null;
-  adhkarIntervalId: ReturnType<typeof setInterval> | null;
 
   surahOffsets: SurahOffset[] | null;
   ayahTimings: number[];
@@ -221,8 +219,6 @@ export function createDefaultState(): AppState {
     adhkarPanelOpen: false,
     adhkarActiveTab: null,
     lastAdhkarFired: null,
-    adhkarNotificationTimer: null,
-    adhkarIntervalId: null,
 
     surahOffsets: null,
     ayahTimings: [],

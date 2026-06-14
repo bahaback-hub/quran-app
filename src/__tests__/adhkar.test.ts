@@ -68,6 +68,7 @@ describe('checkAdhkarNotifications', () => {
   beforeEach(() => {
     state.adhkarSettings = {
       adhkar_enabled: true,
+      adhkar_sound: false,
       morning: { enabled: true, time: '06:00', duration: 30 },
       evening: { enabled: false, time: '18:00', duration: 30 },
       item_m1: 0,

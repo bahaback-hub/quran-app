@@ -135,6 +135,48 @@ export interface WebkitDeviceOrientationEvent extends Event {
   requestPermission?: () => Promise<string>;
 }
 
+/* ===================== PRAYER TIMES ===================== */
+
+/** Prayer times from Aladhan API. */
+export interface PrayerTimes {
+  Fajr: string;
+  Sunrise: string;
+  Dhuhr: string;
+  Asr: string;
+  Maghrib: string;
+  Isha: string;
+  Imsak?: string;
+  Midnight?: string;
+  [key: string]: string | undefined; // Allow additional prayer names
+}
+
+/* ===================== ADHKAR ===================== */
+
+/** Settings for a single adhkar category (toggle, time, duration). */
+export interface AdhkarCategorySettings {
+  enabled: boolean;
+  time: string;
+  duration: number;
+}
+
+/** A personal adhkar entry created by the user. */
+export interface PersonalAdhkarEntry {
+  id: string;
+  text: string;
+  count: number;
+  time: string | null;
+  duration: number;
+}
+
+/** The full adhkar settings object stored in state. */
+export interface AdhkarSettings {
+  adhkar_enabled: boolean;
+  adhkar_sound: boolean;
+  _resetDate: string;
+  personal_adhkar: PersonalAdhkarEntry[];
+  [key: string]: unknown;
+}
+
 /* ===================== MISC TYPE HELPERS ===================== */
 
 /** Shape of surah data as used in presentation module. */

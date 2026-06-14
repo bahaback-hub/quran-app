@@ -5,6 +5,7 @@ import { loadSurah } from './surah-loader.js';
 import { stopClock, startClock } from './prayer.js';
 import { checkAdhkarNotifications } from './adhkar.js';
 import { __ } from './i18n.js';
+import { getAdhkarIntervalId, setAdhkarIntervalId } from './internal-state.js';
 
 /* ===================== CONTINUE WIDGET ===================== */
 
@@ -118,13 +119,14 @@ export function showContinueWidget(info: ContinueInfo): void {
 export function handleVisibilityChange(): void {
   if (document.hidden) {
     stopClock();
-    if (state.adhkarIntervalId) {
-      clearInterval(state.adhkarIntervalId);
-      state.adhkarIntervalId = null;
+    const intervalId = getAdhkarIntervalId();
+    if (intervalId) {
+      clearInterval(intervalId);
+      setAdhkarIntervalId(null);
     }
   } else {
     startClock();
-    if (!state.adhkarIntervalId) state.adhkarIntervalId = setInterval(checkAdhkarNotifications, 15000);
+    if (!getAdhkarIntervalId()) setAdhkarIntervalId(setInterval(checkAdhkarNotifications, 15000));
   }
 }
 

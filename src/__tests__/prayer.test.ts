@@ -32,6 +32,7 @@ describe('getNextPrayerKey', () => {
   it('should return a valid prayer key', () => {
     state.prayerTimes = {
       Fajr: '05:00 AM',
+      Sunrise: '06:30 AM',
       Dhuhr: '12:30 PM',
       Asr: '03:45 PM',
       Maghrib: '06:20 PM',

@@ -143,6 +143,25 @@ export function setEditPersonalAdhkarId(id: string | null): void {
   _editPersonalAdhkarId = id;
 }
 
+let _adhkarNotificationTimer: ReturnType<typeof setTimeout> | null = null;
+let _adhkarIntervalId: ReturnType<typeof setInterval> | null = null;
+
+// --- _adhkarNotificationTimer ---
+export function getAdhkarNotificationTimer(): ReturnType<typeof setTimeout> | null {
+  return _adhkarNotificationTimer;
+}
+export function setAdhkarNotificationTimer(val: ReturnType<typeof setTimeout> | null): void {
+  _adhkarNotificationTimer = val;
+}
+
+// --- _adhkarIntervalId ---
+export function getAdhkarIntervalId(): ReturnType<typeof setInterval> | null {
+  return _adhkarIntervalId;
+}
+export function setAdhkarIntervalId(val: ReturnType<typeof setInterval> | null): void {
+  _adhkarIntervalId = val;
+}
+
 /* ===================== RESET ===================== */
 
 /** Reset all internal state to defaults. Called during state reset. */
@@ -158,4 +177,6 @@ export function resetInternalState(): void {
   _allSearchMatches = null;
   _searchResultsPage = 1;
   _editPersonalAdhkarId = null;
+  _adhkarNotificationTimer = null;
+  _adhkarIntervalId = null;
 }
