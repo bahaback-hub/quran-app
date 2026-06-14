@@ -223,7 +223,7 @@ function playSpecificAyah(surah: number, ayah: number): void {
   if (state.currentSurah !== surah || !state.surahData) {
     loadSurah(surah, { startAyah: ayah, autoPlay: true });
   } else {
-    const ayahs = (state.surahData as Record<string, unknown> & { ayahs?: Array<{ numberInSurah: number }> }).ayahs;
+    const ayahs = state.surahData?.ayahs;
     const idx = ayahs?.findIndex((a) => a.numberInSurah === ayah) ?? -1;
     if (idx !== -1) {
       state.currentAyahIndex = idx;

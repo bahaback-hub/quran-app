@@ -1,11 +1,16 @@
 node_modules/
 dist/
+.next/
 .DS_Store
 *.log
 app.bundle.js
 .env
 .env.local
+bun.lock
+tsconfig.tsbuildinfo
 playwright-report/
 test-results/
 public/pages/
 coverage/
+.tool-results/
+worklog.md

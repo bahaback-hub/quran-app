@@ -618,3 +618,79 @@ body:not(.night-mode) .kbd-key:active {
   background: var(--accent);
   color: #fff;
 }
+
+/* ========== Mushaf Loading State ========== */
+.mushaf-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  padding: 40px;
+}
+.mushaf-loading-icon {
+  font-size: 48px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+.mushaf-loading-text {
+  font-size: 18px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.mushaf-loading-subtext {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ========== Mushaf Error Fallback ========== */
+.mushaf-error-fallback {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-primary);
+}
+.mushaf-error-title {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+.mushaf-error-subtitle {
+  font-size: 14px;
+  opacity: 0.7;
+}
+.mushaf-error-retry-btn {
+  margin-top: 16px;
+  padding: 8px 20px;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.mushaf-error-retry-btn:hover {
+  opacity: 0.9;
+}
+
+/* ========== Update Banner Button ========== */
+.update-banner-btn {
+  background: #fff;
+  color: var(--accent, #5c2e2e);
+  border: none;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: inherit;
+}
+
+/* ========== Mushaf Surah Overlay Row ========== */
+.mushaf-surah-overlay-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mushaf-surah-overlay-btn {
+  flex: 1;
+}

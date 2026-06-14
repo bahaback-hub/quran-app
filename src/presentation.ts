@@ -1327,7 +1327,7 @@ export function openPresentation(): void {
     });
     // Re-render the surah content in the background (async, non-blocking)
     import('./app.js').then(({ renderSurah }) => {
-      const surahData = state.surahData as any;
+      const surahData = state.surahData;
       if (surahData && surahData.number === state.currentSurah) {
         renderSurah(surahData);
       }

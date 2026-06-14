@@ -22,6 +22,9 @@
  *   }); // ← subscribers notified once per key after batch completes
  */
 
+import type { SurahData } from './types.js';
+import type { PageLayoutData } from './mushaf-renderer.js';
+
 /* ===================== INTERFACES ===================== */
 
 /** Surah list entry shape. */
@@ -98,7 +101,7 @@ export interface AppState {
   currentAyahIndex: number;
   currentReciter: string;
   currentTafsirEdition: string;
-  surahData: Record<string, unknown> | null;
+  surahData: SurahData | null;
   surahList: SurahInfo[];
   surahCache: Map<unknown, unknown>;
   ayahsAudios: string[];
@@ -154,7 +157,7 @@ export interface AppState {
   ayahTimings: number[];
   presentationMode: boolean;
   _updateReadingProgress: (() => void) | null;
-  currentPageLayout: Record<string, unknown> | null;
+  currentPageLayout: PageLayoutData | null;
   _allSearchMatches: QuranTextEntry[] | null;
   _searchResultsPage: number;
   _editPersonalAdhkarId: string | null;

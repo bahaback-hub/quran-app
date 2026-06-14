@@ -12,6 +12,7 @@ import { renderPage, loadPageData } from './mushaf-renderer.js';
 import type { PageLayoutData } from './mushaf-renderer.js';
 import { loadTafsirForSurahAyah } from './tafsir.js';
 import { __ } from './i18n.js';
+import type { SurahData } from './types.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -108,10 +109,10 @@ export async function toggleMushafMode(): Promise<void> {
     // Show immediate loading state in surahContent
     if (dom.surahContent) {
       dom.surahContent.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:16px;padding:40px;">
-          <div style="font-size:48px;animation:pulse 1.5s ease-in-out infinite;">📄</div>
-          <div style="font-size:18px;color:var(--text-secondary);text-align:center;">جاري تحميل صفحة المصحف...</div>
-          <div style="font-size:14px;color:var(--text-muted);text-align:center;">يتم تحميل خطوط المصحف وقد يستغرق بعض الوقت</div>
+        <div class="mushaf-loading-state">
+          <div class="mushaf-loading-icon">📄</div>
+          <div class="mushaf-loading-text">${__('mushaf_loading_title')}</div>
+          <div class="mushaf-loading-subtext">${__('mushaf_loading_subtitle')}</div>
         </div>
       `;
     }
@@ -120,7 +121,7 @@ export async function toggleMushafMode(): Promise<void> {
     populatePageSelect();
 
     if (state.currentSurah) {
-      const surahData = state.surahData as any;
+      const surahData: SurahData | null = state.surahData;
       const currentAyah =
         (surahData?.number === state.currentSurah && surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
       try {
@@ -153,9 +154,9 @@ export async function toggleMushafMode(): Promise<void> {
     // No need to reset inline styles — CSS handles panel visibility automatically
     // The body.mushaf-active class is removed above, which restores normal panel behavior
 
-    const surahData = state.surahData as any;
+    const surahData: SurahData | null = state.surahData;
     if (surahData && surahData.number === state.currentSurah) {
-      renderSurah(state.surahData as any);
+      renderSurah(surahData);
       highlightCurrentAyah();
       updatePlayerInfo();
     } else {
@@ -337,7 +338,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
     // Race condition guard: if user navigated to another page while rendering, discard this result
     if (_mushafLoadCounter !== currentLoad) return;
     pageLayout = layoutData;
-    state.currentPageLayout = layoutData as any;
+    state.currentPageLayout = layoutData;
     if (renderedCanvas && layoutData) {
       loadingBar.hide();
       if (state.mushafMode) highlightMushafAyah(skipNav);
@@ -345,11 +346,11 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
       showToast(__('mushaf_page_error'), 'error');
       // Show fallback error message in the container
       const errorDiv = document.createElement('div');
-      errorDiv.style.cssText = 'text-align:center;padding:40px 20px;color:var(--text-primary);';
+      errorDiv.className = 'mushaf-error-fallback';
       errorDiv.innerHTML = `
-        <p style="font-size:18px;margin-bottom:12px;">⚠️ فشل تحميل صفحة المصحف</p>
-        <p style="font-size:14px;opacity:0.7;">تأكد من اتصالك بالإنترنت وحاول مرة أخرى</p>
-        <button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;border:2px solid var(--accent);border-radius:8px;background:var(--accent);color:#fff;font-size:16px;cursor:pointer;font-family:inherit;">إعادة المحاولة</button>
+        <p class="mushaf-error-title">⚠️ ${__('mushaf_load_failed')}</p>
+        <p class="mushaf-error-subtitle">${__('mushaf_check_connection')}</p>
+        <button onclick="location.reload()" class="mushaf-error-retry-btn">${__('mushaf_retry_reload')}</button>
       `;
       canvasWrapper.appendChild(errorDiv);
       loadingBar.hide();
@@ -412,11 +413,10 @@ export function populateSurahOverlay(): void {
   dom.mushafSurahOverlayList.innerHTML = '';
   for (const s of state.surahList as SurahListEntry[]) {
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:8px;';
+    row.className = 'mushaf-surah-overlay-row';
     const btn = document.createElement('button');
     btn.className = 'mushaf-surah-overlay-btn';
     btn.textContent = `${s.number}. ${s.name} (${s.englishName})`;
-    btn.style.flex = '1';
     btn.dataset.surah = String(s.number);
     btn.dataset.surahName = s.name;
     row.appendChild(btn);
@@ -500,16 +500,16 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
   const canvasEl = wrapper?.querySelector('.mushaf-page-canvas') as HTMLCanvasElement | null;
   if (!wrapper || !canvasEl || !canvasEl.width) return;
 
-  const surahData = state.surahData as any;
+  const surahData: SurahData | null = state.surahData;
   const surah = surahData?.number;
   const ayah = surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah;
   if (!surah || !ayah) return;
 
   if (!skipNav) {
-    const layout = state.currentPageLayout as any;
+    const layout: PageLayoutData | null = state.currentPageLayout;
     if (layout) {
-      const isOnPage = layout.lines.some((line: any) =>
-        line.words?.some((w: any) => {
+      const isOnPage = layout.lines.some((line) =>
+        line.words?.some((w) => {
           const key = w.verse_key || w.location || '';
           const parts = key.split(':');
           return parts.length >= 2 && parseInt(parts[0], 10) === surah && parseInt(parts[1], 10) === ayah;
@@ -541,7 +541,7 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
     ayah,
     rect.width,
     rect.height,
-    state.currentPageLayout as any
+    state.currentPageLayout
   )) as AyahHighlightRect[];
   if (!rects.length) return;
 
@@ -578,8 +578,9 @@ function playMushafAyah(surahNum: number, ayahNum: number): void {
     return;
   }
   if (state.isPlaying) prepareAudioForNewSurah();
-  const surahData = state.surahData as any;
-  const idx = surahData.ayahs.findIndex((a: any) => a.numberInSurah === ayahNum);
+  const surahData: SurahData | null = state.surahData;
+  if (!surahData) return;
+  const idx = surahData.ayahs.findIndex((a) => a.numberInSurah === ayahNum);
   if (idx !== -1) {
     state.currentAyahIndex = idx;
     updatePlayerInfo();
@@ -596,20 +597,20 @@ function buildTajweedLegend(): HTMLElement {
 
   const title = document.createElement('div');
   title.className = 'mushaf-tajweed-legend-title';
-  title.textContent = 'ألوان التجويد';
+  title.textContent = __('tajweed_legend_title');
 
   const grid = document.createElement('div');
   grid.className = 'mushaf-tajweed-legend-grid';
 
   const entries: { color: string; label: string }[] = [
-    { color: '#ce9e00', label: 'مد ٢' },
-    { color: '#ff7b00', label: 'مد ٢-٤-٦ والمنفصل' },
-    { color: '#b50000', label: 'مد ٦ (لازم)' },
-    { color: '#f40000', label: 'مد متصل' },
-    { color: '#09b000', label: 'الغنة والإخفاء والإقلاب' },
-    { color: '#2fadff', label: 'اللام الشمسية والقلقلة' },
-    { color: '#a5a5a5', label: 'همزة الوصل والإدغام' },
-    { color: '#8e44ad', label: 'السكون' },
+    { color: '#ce9e00', label: __('tajweed_madd_2') },
+    { color: '#ff7b00', label: __('tajweed_madd_separated') },
+    { color: '#b50000', label: __('tajweed_madd_6') },
+    { color: '#f40000', label: __('tajweed_madd_connected') },
+    { color: '#09b000', label: __('tajweed_ghunnah') },
+    { color: '#2fadff', label: __('tajweed_shamsiyyah') },
+    { color: '#a5a5a5', label: __('tajweed_idgham') },
+    { color: '#8e44ad', label: __('tajweed_sukoon') },
   ];
 
   for (const entry of entries) {

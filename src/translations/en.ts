@@ -398,6 +398,28 @@ const en: TranslationBundle = {
   onboarding_desc_4: '6 trusted tafsirs and translation of meanings in multiple languages.',
   onboarding_desc_5: 'Accurate prayer times with athan and notifications.',
   onboarding_desc_6: 'Night mode, font and spacing adjustments, favorites export.',
+
+  // Update banner
+  update_available: 'Update available',
+  update_now: 'Update',
+
+  // Mushaf loading & error states
+  mushaf_loading_title: 'Loading mushaf page...',
+  mushaf_loading_subtitle: 'Loading mushaf fonts, this may take a moment',
+  mushaf_load_failed: 'Failed to load mushaf page',
+  mushaf_check_connection: 'Check your internet connection and try again',
+  mushaf_retry_reload: 'Retry',
+
+  // Tajweed legend
+  tajweed_legend_title: 'Tajweed Colors',
+  tajweed_madd_2: 'Madd 2',
+  tajweed_madd_separated: 'Madd 2-4-6 & Separated',
+  tajweed_madd_6: 'Madd 6 (Necessary)',
+  tajweed_madd_connected: 'Connected Madd',
+  tajweed_ghunnah: 'Ghunnah, Ikhfa & Iqlab',
+  tajweed_shamsiyyah: 'Shamsiyyah Lām & Qalqalah',
+  tajweed_idgham: 'Hamzat Wasl & Idgham',
+  tajweed_sukoon: 'Sukoon',
 };
 
 export default en;

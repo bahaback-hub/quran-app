@@ -398,6 +398,28 @@ const id: TranslationBundle = {
   onboarding_desc_4: '6 tafsir terpercaya dan terjemahan makna dalam berbagai bahasa.',
   onboarding_desc_5: 'Waktu sholat akurat dengan adzan dan notifikasi.',
   onboarding_desc_6: 'Mode malam, penyesuaian font dan jarak, ekspor favorit.',
+
+  // Update banner
+  update_available: 'Pembaruan tersedia',
+  update_now: 'Perbarui',
+
+  // Mushaf loading & error states
+  mushaf_loading_title: 'Memuat halaman mushaf...',
+  mushaf_loading_subtitle: 'Memuat font mushaf, ini mungkin memerlukan beberapa saat',
+  mushaf_load_failed: 'Gagal memuat halaman mushaf',
+  mushaf_check_connection: 'Periksa koneksi internet Anda dan coba lagi',
+  mushaf_retry_reload: 'Coba Lagi',
+
+  // Tajweed legend
+  tajweed_legend_title: 'Warna Tajwid',
+  tajweed_madd_2: 'Madd 2',
+  tajweed_madd_separated: 'Madd 2-4-6 & Terpisah',
+  tajweed_madd_6: 'Madd 6 (Wajib)',
+  tajweed_madd_connected: 'Madd Bersambung',
+  tajweed_ghunnah: 'Ghunnah, Ikhfa & Iqlab',
+  tajweed_shamsiyyah: 'Lām Syamsiyyah & Qalqalah',
+  tajweed_idgham: 'Hamzat Wasl & Idgham',
+  tajweed_sukoon: 'Sukun',
 };
 
 export default id;
