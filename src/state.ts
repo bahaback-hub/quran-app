@@ -141,7 +141,8 @@ export interface SurahStateSlice {
   currentTafsirEdition: string;
   surahData: SurahData | null;
   surahList: SurahInfo[];
-  surahCache: Map<unknown, unknown>;
+  /** Cache of previously loaded surahs, keyed by surah number. */
+  surahCache: Map<number, SurahData>;
   loadingSurah: number | null;
   pendingTafsirAfterLoad: string | null;
 }
@@ -206,7 +207,8 @@ export interface AppState {
   currentTafsirEdition: string;
   surahData: SurahData | null;
   surahList: SurahInfo[];
-  surahCache: Map<unknown, unknown>;
+  /** Cache of previously loaded surahs, keyed by surah number. */
+  surahCache: Map<number, SurahData>;
   ayahsAudios: string[];
   isPlaying: boolean;
   hifdhMode: boolean;
