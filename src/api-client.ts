@@ -8,6 +8,8 @@
  *   - Offline detection with user-friendly messages
  *   - AbortController support for cancellation
  *   - Full generic type safety — no `any` types
+ *   - Request deduplication — concurrent identical requests share one flight
+ *   - Automatic retry — transient failures (5xx, network) retried up to 2 times
  *
  * Usage:
  *   import { apiFetch, prayerFetch, tafsirFetch } from './api-client.js';
@@ -26,6 +28,12 @@ export interface FetchOptions {
   silent?: boolean;
   errorMsg?: string;
   expectJSON?: boolean;
+  /** Number of retry attempts for transient failures (5xx, network errors). Default: 1. Set to 0 to disable. */
+  retries?: number;
+  /** Delay in ms between retries. Default: 1000. */
+  retryDelay?: number;
+  /** Skip request deduplication for this call. Default: false. */
+  noDedup?: boolean;
 }
 
 interface TimeoutController {
@@ -47,6 +55,8 @@ export class HTTPError extends Error {
 /* ===================== CONSTANTS ===================== */
 
 const DEFAULT_TIMEOUT = 15000;
+const DEFAULT_RETRIES = 1;
+const DEFAULT_RETRY_DELAY = 1000;
 
 /** Arabic error messages by category */
 const ERROR_MESSAGES: Record<string, string> = {
@@ -123,10 +133,40 @@ function createTimeoutController(ms: number, externalSignal?: AbortSignal): Time
   return { controller, timerId };
 }
 
+/* ===================== REQUEST DEDUPLICATION ===================== */
+
+/**
+ * In-flight request deduplication map.
+ * Key: request URL, Value: shared Promise.
+ *
+ * When multiple callers request the same URL concurrently,
+ * they share a single network request instead of firing duplicates.
+ */
+const _inflightRequests = new Map<string, Promise<unknown>>();
+
+/**
+ * Deduplicate a request — if an identical URL is already in-flight, return its Promise.
+ * Otherwise, execute the request and cache the Promise until it settles.
+ */
+function deduplicateRequest<T>(url: string, exec: () => Promise<T>, noDedup: boolean): Promise<T> {
+  if (noDedup) return exec();
+
+  const existing = _inflightRequests.get(url) as Promise<T> | undefined;
+  if (existing) return existing;
+
+  const promise = exec().finally(() => {
+    _inflightRequests.delete(url);
+  });
+
+  _inflightRequests.set(url, promise);
+  return promise;
+}
+
 /* ===================== CORE FETCH ===================== */
 
 /**
- * Unified fetch wrapper with timeout, error handling, and toast notifications.
+ * Unified fetch wrapper with timeout, error handling, toast notifications,
+ * request deduplication, and automatic retry.
  *
  * @typeParam T - The expected response type (defaults to unknown).
  *   When `expectJSON` is true (default), the response is parsed as JSON and typed as T.
@@ -137,11 +177,87 @@ function createTimeoutController(ms: number, externalSignal?: AbortSignal): Time
  *   const surah = await safeFetch<SurahData>(url);
  *   // Raw response (non-JSON)
  *   const response = await safeFetch(url, { expectJSON: false });
+ *   // With retry for transient failures
+ *   const data = await safeFetch<SurahData>(url, { retries: 2 });
  */
 export async function safeFetch<T = unknown>(url: string, options: FetchOptions = {}): Promise<T> {
-  const { timeout = DEFAULT_TIMEOUT, signal: externalSignal, silent = false, errorMsg, expectJSON = true } = options;
+  const {
+    timeout = DEFAULT_TIMEOUT,
+    signal: externalSignal,
+    silent = false,
+    errorMsg,
+    expectJSON = true,
+    retries = DEFAULT_RETRIES,
+    retryDelay = DEFAULT_RETRY_DELAY,
+    noDedup = false,
+  } = options;
 
-  const { controller, timerId } = createTimeoutController(timeout, externalSignal);
+  return deduplicateRequest(url, () => _fetchWithRetry<T>(url, {
+    timeout, externalSignal, silent, errorMsg, expectJSON, retries, retryDelay,
+  }), noDedup);
+}
+
+/**
+ * Internal: execute fetch with automatic retry for transient failures.
+ * Retries on 5xx errors and network errors (not on 4xx, abort, or parse errors).
+ */
+async function _fetchWithRetry<T>(
+  url: string,
+  opts: {
+    timeout: number;
+    externalSignal?: AbortSignal;
+    silent: boolean;
+    errorMsg?: string;
+    expectJSON: boolean;
+    retries: number;
+    retryDelay: number;
+  }
+): Promise<T> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= opts.retries; attempt++) {
+    try {
+      return await _singleFetch<T>(url, opts, attempt > 0);
+    } catch (error: unknown) {
+      lastError = error;
+
+      // Don't retry on: aborts, 4xx client errors, or parse errors
+      if (error instanceof HTTPError && error.status < 500) break;
+      if (error instanceof DOMException && error.name === 'AbortError') break;
+
+      // Don't retry parse errors
+      const msg = (error as Error).message?.toLowerCase() ?? '';
+      if (msg.includes('json') || msg.includes('parse') || msg.includes('unexpected token')) break;
+
+      // Retry if we have attempts left
+      if (attempt < opts.retries) {
+        if (!opts.silent) {
+          console.info(`[API] Retrying (${attempt + 1}/${opts.retries}) ← ${url}`);
+        }
+        await new Promise(resolve => setTimeout(resolve, opts.retryDelay));
+        continue;
+      }
+    }
+  }
+
+  throw lastError;
+}
+
+/**
+ * Internal: execute a single fetch attempt with timeout and error handling.
+ */
+async function _singleFetch<T>(
+  url: string,
+  opts: {
+    timeout: number;
+    externalSignal?: AbortSignal;
+    silent: boolean;
+    errorMsg?: string;
+    expectJSON: boolean;
+  },
+  isRetry: boolean = false
+): Promise<T> {
+  const { controller, timerId } = createTimeoutController(opts.timeout, opts.externalSignal);
 
   try {
     const response = await fetch(url, {
@@ -154,8 +270,9 @@ export async function safeFetch<T = unknown>(url: string, options: FetchOptions 
     if (!response.ok) {
       const httpError = new HTTPError(response.status, response.statusText);
 
-      if (!silent) {
-        const msg = response.status >= 500 ? ERROR_MESSAGES.server : errorMsg || ERROR_MESSAGES.default;
+      // Only show toast on final attempt (not during retries)
+      if (!opts.silent && !isRetry) {
+        const msg = response.status >= 500 ? ERROR_MESSAGES.server : opts.errorMsg || ERROR_MESSAGES.default;
         showToastMsg(msg);
       }
 
@@ -163,11 +280,11 @@ export async function safeFetch<T = unknown>(url: string, options: FetchOptions 
       throw httpError;
     }
 
-    if (expectJSON) {
+    if (opts.expectJSON) {
       try {
         return (await response.json()) as T;
       } catch (parseError) {
-        if (!silent) showToastMsg(errorMsg || ERROR_MESSAGES.parse);
+        if (!opts.silent) showToastMsg(opts.errorMsg || ERROR_MESSAGES.parse);
         console.warn(`[API] JSON parse error ← ${url}`, parseError);
         throw parseError;
       }
@@ -185,8 +302,8 @@ export async function safeFetch<T = unknown>(url: string, options: FetchOptions 
     // Aborted requests are silent
     if (!classified) throw error;
 
-    if (!silent) {
-      showToastMsg(errorMsg || classified);
+    if (!opts.silent && !isRetry) {
+      showToastMsg(opts.errorMsg || classified);
     }
 
     console.warn(`[API] Request failed ← ${url}`, (error as Error).message || error);
