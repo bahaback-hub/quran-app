@@ -4,18 +4,19 @@
  * Features:
  *   1. Proxy-based reactivity — `state.xxx = yyy` automatically notifies subscribers
  *   2. `setState(partial)` — batch update with change event emission
- *   3. `subscribe(key, callback)` — react to specific state changes
+ *   3. `subscribe(key, callback)` — react to specific state changes (type-safe)
  *   4. `subscribeAll(callback)` — react to any state change
  *   5. `batch(fn)` — defer notifications until fn completes
  *   6. `resetState()` — clean reset to defaults
  *   7. Backward compatible — all existing code works unchanged
  *   8. Dev-mode logging — warns about missed notifications in development
+ *   9. Typed subscriptions — subscribe<K> gets (newVal: AppState[K], oldVal: AppState[K])
  *
  * Usage:
  *   import { state, setState, subscribe, batch } from './state.js';
  *   state.isPlaying = true;          // ← automatically notifies subscribers
  *   setState({ isPlaying: true });   // ← equivalent, also notifies
- *   subscribe('isPlaying', (newVal, oldVal) => { ... });
+ *   subscribe('isPlaying', (newVal, oldVal) => { ... });  // ← typed callback
  *   batch(() => {
  *     state.currentSurah = 5;
  *     state.currentAyahIndex = 0;
@@ -247,7 +248,19 @@ let _pendingChanges: Map<string, PendingChange> = new Map();
 
 /* ===================== SUBSCRIPTION SYSTEM ===================== */
 
+/** Untyped callback — used internally for storage. */
 type StateChangeCallback = (newValue: unknown, oldValue: unknown, key: string) => void;
+
+/**
+ * Typed callback for a specific state key K.
+ * The callback receives (newValue, oldValue) both typed as AppState[K].
+ *
+ * @typeParam K - A key of AppState to watch.
+ */
+export type TypedStateChangeCallback<K extends keyof AppState> = (
+  newValue: AppState[K],
+  oldValue: AppState[K]
+) => void;
 
 /** Map of key → array of callbacks. */
 const subscribers = new Map<string, StateChangeCallback[]>();
@@ -257,21 +270,48 @@ const wildcardSubscribers: StateChangeCallback[] = [];
 
 /**
  * Subscribe to changes on a specific state key.
+ *
+ * When called with a literal key (e.g. `'isPlaying'`), the callback
+ * parameters are automatically typed to match the state property type.
+ *
+ * @typeParam K - The specific key of AppState being watched.
  * @param key The state property name to watch
- * @param callback Called with (newValue, oldValue, key) when the value changes
+ * @param callback Called with (newValue, oldValue) when the value changes
  * @returns Unsubscribe function
+ *
+ * @example
+ *   // Typed: newVal and oldVal are both `boolean`
+ *   subscribe('isPlaying', (newVal, oldVal) => {
+ *     console.log(newVal); // boolean
+ *   });
+ *
+ *   // Untyped: for dynamic keys
+ *   subscribe(someKey, (newVal, oldVal, key) => {
+ *     console.log(key, newVal);
+ *   });
  */
-export function subscribe(key: string, callback: StateChangeCallback): () => void {
+export function subscribe<K extends keyof AppState>(
+  key: K,
+  callback: TypedStateChangeCallback<K>
+): () => void;
+export function subscribe(key: string, callback: StateChangeCallback): () => void;
+export function subscribe(key: string, callback: StateChangeCallback | TypedStateChangeCallback<keyof AppState>): () => void {
   if (!subscribers.has(key)) {
     subscribers.set(key, []);
   }
-  subscribers.get(key)!.push(callback);
+  // Wrap typed callback to match internal signature
+  const wrapped: StateChangeCallback =
+    'length' in callback && callback.length <= 2
+      ? (nv: unknown, ov: unknown, _k: string) => (callback as TypedStateChangeCallback<keyof AppState>)(nv, ov)
+      : callback as StateChangeCallback;
+
+  subscribers.get(key)!.push(wrapped);
 
   // Return unsubscribe function
   return () => {
     const list = subscribers.get(key);
     if (list) {
-      const idx = list.indexOf(callback);
+      const idx = list.indexOf(wrapped);
       if (idx !== -1) list.splice(idx, 1);
     }
   };
@@ -359,6 +399,11 @@ function createReactiveProxy(): AppState {
       // Skip notification if value hasn't changed (shallow comparison)
       if (oldValue === newValue) return true;
 
+      // Validate that the property exists on AppState (dev-time safety)
+      if (!(property in _rawState)) {
+        console.warn(`[State] Setting unknown property "${property}" on state. Consider adding it to AppState.`);
+      }
+
       // Apply the change to the raw state using Reflect (type-safe)
       Reflect.set(target, key, newValue);
 
@@ -408,6 +453,7 @@ export function setState(partial: Partial<AppState>): void {
  * This is useful for making multiple related changes without
  * triggering intermediate renders or side effects.
  *
+ * @typeParam T - Return type of the batched function.
  * @param fn Function containing state mutations
  *
  * @example
