@@ -163,8 +163,7 @@ interface DomMap {
   controls: HTMLElement | null;
 }
 
-export const dom: DomMap = {} as DomMap;
-
+/** All DOM IDs to cache — single source of truth for both initialization and cacheDom. */
 const DOM_IDS: (keyof DomMap)[] = [
   'cityName',
   'nextPrayerName',
@@ -214,6 +213,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'playerCurrentAyah',
   'collapsedInfo',
   'audioPlayer',
+  'audioPlayer2',
   'speedSelect',
   'prevAyahBtn',
   'nextAyahBtn',
@@ -324,7 +324,23 @@ const DOM_IDS: (keyof DomMap)[] = [
   'controls',
 ];
 
-/** Cache all DOM element references by ID. */
+/**
+ * Create a fully-typed DOM map with all properties initialized to null.
+ * This avoids the unsafe `{} as DomMap` cast by providing a proper default
+ * with all keys explicitly set, ensuring no undefined access surprises.
+ */
+function createEmptyDomMap(): DomMap {
+  const empty = {} as Record<string, HTMLElement | null>;
+  for (const id of DOM_IDS) {
+    empty[id] = null;
+  }
+  return empty as DomMap;
+}
+
+/** Cached DOM element references — all initialized to null, populated by cacheDom(). */
+export const dom: DomMap = createEmptyDomMap();
+
+/** Cache all DOM element references by ID. Called once during app initialization. */
 export function cacheDom(): void {
   for (const id of DOM_IDS) {
     // Dynamic property assignment on typed DOM map — cast required for indexed access
