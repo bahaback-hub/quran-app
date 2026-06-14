@@ -33,6 +33,7 @@ interface RepeatRange {
 
 /* ===================== MODULE STATE ===================== */
 
+/** Inject the loadSurah callback from app.ts (avoids circular import). */
 let _loadSurah: LoadSurahFn | null = null;
 export function setLoadSurah(fn: LoadSurahFn): void {
   _loadSurah = fn;
@@ -47,6 +48,10 @@ let _audioRetryCount = 0;
 const MAX_AUDIO_RETRIES = 2;
 let _autoAdvanceSafetyTimer: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * Reset audio state when switching surahs.
+ * Stops playback, clears caches, and resets audio elements.
+ */
 export function prepareAudioForNewSurah(): void {
   _mp3quranUrl = null;
   _autoAdvancing = false;
@@ -54,18 +59,29 @@ export function prepareAudioForNewSurah(): void {
   _cachedWordAyahIndex = -1;
   clearWordWeightsCache();
   state.isPlaying = false;
+  resetAudioPlayerUI();
+  resetAudioElement(dom.audioPlayer);
+  resetAudioElement(dom.audioPlayer2);
+}
+
+/**
+ * Reset the audio player UI to the stopped state.
+ * Separated from prepareAudioForNewSurah for testability.
+ */
+export function resetAudioPlayerUI(): void {
   document.body.classList.remove('audio-playing');
   updatePlayPauseBtn();
-  if (dom.audioPlayer) {
-    dom.audioPlayer.pause();
-    dom.audioPlayer.removeAttribute('src');
-    dom.audioPlayer.load();
-  }
-  if (dom.audioPlayer2) {
-    dom.audioPlayer2.pause();
-    dom.audioPlayer2.removeAttribute('src');
-    dom.audioPlayer2.load();
-  }
+}
+
+/**
+ * Reset a single audio element — pause, remove src, and reload.
+ * Pure DOM operation, separated for testability.
+ */
+export function resetAudioElement(player: HTMLAudioElement | null): void {
+  if (!player) return;
+  player.pause();
+  player.removeAttribute('src');
+  player.load();
 }
 
 /* ===================== MP3QURAN SEEK HELPERS ===================== */
@@ -99,7 +115,11 @@ function setStoppedState(): void {
 
 /* ===================== PLAYER ===================== */
 
-/** Play the current ayah audio. */
+/**
+ * Play the current ayah audio.
+ * Supports two modes: per-ayah files and MP3 Quran (single file with timing offsets).
+ * Applies saved playback speed and starts word-by-word tracking.
+ */
 export function playCurrentAyah(): void {
   if (!state.surahData || !state.ayahsAudios?.length) {
     showToast(__('no_audio'), 'error');
@@ -285,12 +305,16 @@ function onSeeking(): void {
 
 /* ===================== AUDIO EVENTS ===================== */
 
+/** Expand the collapsed audio player and persist the preference. */
 export function expandPlayer(): void {
   dom.player?.classList.remove('collapsed');
   storage.set('player_collapsed', false);
 }
 
-/** Toggle play/pause. */
+/**
+ * Toggle audio play/pause.
+ * If no audio source is loaded, starts playback from the current ayah.
+ */
 export function togglePlayPause(): void {
   if (!state.surahData || !dom.audioPlayer) return;
   hapticFeedback();
@@ -306,7 +330,10 @@ export function togglePlayPause(): void {
   }
 }
 
-/** Bind audio player events (ended, play, pause, error). */
+/**
+ * Bind all audio player DOM events and MediaSession action handlers.
+ * Should be called once during app initialization.
+ */
 export function bindAudioEvents(): void {
   if (dom.audioPlayer) {
     dom.audioPlayer.removeEventListener('ended', onAudioEnded);
@@ -397,6 +424,7 @@ function onAudioError(): void {
   showToast(__('audio_error'), 'error');
 }
 
+/** Update the play/pause button text to reflect current playback state. */
 export function updatePlayPauseBtn(): void {
   if (dom.playPauseBtn) {
     dom.playPauseBtn.textContent = state.isPlaying ? __('pause') : __('play');
@@ -450,10 +478,18 @@ function handleRepeatOnEnd(): boolean {
 function completeRepeat(): void {
   state.repeatMode = false;
   state.repeatCounter = 0;
-  dom.repeatBtn?.classList.remove('active');
-  if (dom.repeatControls) dom.repeatControls.style.display = 'none';
+  resetRepeatUI();
   showToast(__('repeat_complete'), 'success');
   setStoppedState();
+}
+
+/**
+ * Reset the repeat mode UI elements.
+ * Separated from completeRepeat for testability.
+ */
+export function resetRepeatUI(): void {
+  dom.repeatBtn?.classList.remove('active');
+  if (dom.repeatControls) dom.repeatControls.style.display = 'none';
 }
 
 /** Find the array index of an ayah by its numberInSurah. */
@@ -489,7 +525,10 @@ function onAudioEnded(): void {
 
 /* ===================== NAVIGATION ===================== */
 
-/** Go to next ayah (or next surah). */
+/**
+ * Advance to the next ayah, or the next surah if at the end.
+ * @param autoFromRepeat Whether this was triggered automatically by repeat mode
+ */
 export function nextAyah(autoFromRepeat: boolean): void {
   if (!state.surahData || !state.ayahsAudios) return;
   if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
@@ -506,7 +545,7 @@ export function nextAyah(autoFromRepeat: boolean): void {
   }
 }
 
-/** Go to previous ayah (or previous surah). */
+/** Go to the previous ayah, or the previous surah if at the beginning. */
 export function prevAyah(): void {
   if (!state.surahData) return;
   if (state.currentAyahIndex > 0) {
@@ -518,25 +557,39 @@ export function prevAyah(): void {
   }
 }
 
+/** Load the next surah, preserving current playback state. */
 export function nextSurah(): void {
   if (state.currentSurah < 114) _loadSurah?.(state.currentSurah + 1, { autoPlay: state.isPlaying });
 }
 
+/** Load the previous surah, preserving current playback state. */
 export function prevSurah(): void {
   if (state.currentSurah > 1) _loadSurah?.(state.currentSurah - 1, { autoPlay: state.isPlaying });
 }
 
 /* ===================== HIFDH & REPEAT ===================== */
 
-/** Toggle hifdh (memorization) mode. */
+/**
+ * Apply hifdh mode CSS classes to all ayah elements in the DOM.
+ * Separated from toggleHifdh for testability — pure DOM operation.
+ * @param enabled Whether hifdh mode is active
+ */
+export function applyHifdhUI(enabled: boolean): void {
+  dom.hifdhBtn?.classList.toggle('active', enabled);
+  document.querySelectorAll('.ayah').forEach((el: Element) => {
+    if (enabled) el.classList.add('hifdh-mode');
+    else el.classList.remove('hifdh-mode', 'revealed');
+  });
+}
+
+/**
+ * Toggle hifdh (memorization) mode.
+ * State change is separated from DOM update for testability.
+ */
 export function toggleHifdh(): void {
   hapticFeedback();
   state.hifdhMode = !state.hifdhMode;
-  dom.hifdhBtn?.classList.toggle('active', state.hifdhMode);
-  document.querySelectorAll('.ayah').forEach((el: Element) => {
-    if (state.hifdhMode) el.classList.add('hifdh-mode');
-    else el.classList.remove('hifdh-mode', 'revealed');
-  });
+  applyHifdhUI(state.hifdhMode);
   if (state.hifdhMode) highlightCurrentAyah();
   showToast(state.hifdhMode ? __('hifdh_on') : __('hifdh_off'), state.hifdhMode ? 'success' : '');
 }
@@ -602,7 +655,10 @@ export function populateRepeatUI(range: RepeatRange): void {
   };
 }
 
-/** Toggle repeat mode. */
+/**
+ * Toggle repeat mode on/off.
+ * When enabled, initializes the repeat range to the full surah and populates UI dropdowns.
+ */
 export function toggleRepeat(): void {
   hapticFeedback();
   state.repeatMode = !state.repeatMode;
@@ -624,7 +680,10 @@ export function toggleRepeat(): void {
 
 /* ===================== SLEEP TIMER ===================== */
 
-/** Set a sleep timer to pause audio after N minutes. */
+/**
+ * Set a sleep timer to pause audio after N minutes.
+ * @param minutes Duration in minutes. Set to 0 or negative to cancel.
+ */
 export function setSleepTimer(minutes: number): void {
   clearSleepTimer();
   if (minutes <= 0) {
@@ -651,7 +710,7 @@ export function setSleepTimer(minutes: number): void {
   ensureSleepTimerInterval();
 }
 
-/** Clear the active sleep timer. */
+/** Clear the active sleep timer and reset timer state. */
 export function clearSleepTimer(): void {
   if (_sleepTimer) {
     clearTimeout(_sleepTimer);
@@ -662,12 +721,12 @@ export function clearSleepTimer(): void {
   updateSleepTimerDisplay();
 }
 
-/** Get the original sleep timer duration in minutes. */
+/** Get the original sleep timer duration in minutes (0 if no timer is active). */
 export function getSleepTimerMinutes(): number {
   return _sleepTimerMinutes;
 }
 
-/** Get the remaining time in minutes for the sleep timer (with decimal). */
+/** Get the remaining time in minutes for the sleep timer, with fractional precision. */
 export function getSleepTimerRemaining(): number {
   if (!_sleepTimerMinutes || !_sleepTimerStart) return 0;
   const elapsed = (Date.now() - _sleepTimerStart) / (60 * 1000);
