@@ -98,7 +98,107 @@ export interface SearchWord {
   count: number;
 }
 
-/** Application state — shared across all modules. */
+/* ===================== DOMAIN SUB-INTERFACES ===================== */
+
+/**
+ * Audio & playback state — properties related to audio playback, recitation, and repeat.
+ * Extracted for documentation clarity; AppState composes these flat (no nesting).
+ */
+export interface AudioStateSlice {
+  currentReciter: string;
+  ayahsAudios: string[];
+  isPlaying: boolean;
+  hifdhMode: boolean;
+  repeatMode: boolean;
+  repeatFrom: number;
+  repeatTo: number;
+  repeatTimes: number;
+  repeatCounter: number;
+  playerCollapsed: boolean;
+  azanPlaying: boolean;
+  ayahTimings: number[];
+}
+
+/**
+ * Prayer & location state — properties related to prayer times, azan, and location.
+ */
+export interface PrayerStateSlice {
+  azanEnabled: boolean;
+  azanFajrEnabled: boolean;
+  city: string;
+  country: string;
+  method: string;
+  prayerTimes: PrayerTimes | null;
+  lastAzanFired: string | null;
+}
+
+/**
+ * Surah navigation state — properties for surah browsing and content.
+ */
+export interface SurahStateSlice {
+  currentSurah: number;
+  currentAyahIndex: number;
+  currentTafsirEdition: string;
+  surahData: SurahData | null;
+  surahList: SurahInfo[];
+  surahCache: Map<unknown, unknown>;
+  loadingSurah: number | null;
+  pendingTafsirAfterLoad: string | null;
+}
+
+/**
+ * UI & display state — properties controlling appearance and UI behavior.
+ */
+export interface UIStateSlice {
+  fontSize: number;
+  nightMode: boolean;
+  sepiaMode: boolean;
+  autoSave: boolean;
+  barCollapsed: boolean;
+  fontType: string;
+  lineSpacing: string;
+  tajweedEnabled: boolean;
+}
+
+/**
+ * Mushaf & presentation state — properties for mushaf mode and presentation mode.
+ */
+export interface MushafStateSlice {
+  mushafMode: boolean;
+  currentPage: number;
+  currentPageLayout: PageLayoutData | null;
+  surahOffsets: SurahOffset[] | null;
+  presentationMode: boolean;
+  presBgMode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene';
+  presBgScene: string;
+  presBgNature: string;
+}
+
+/**
+ * Search & translation state — properties for search functionality and translations.
+ */
+export interface SearchStateSlice {
+  fullQuranText: QuranTextEntry[] | null;
+  fullQuranLoaded: boolean;
+  searchWords: SearchWord[];
+  searchTrie: Record<string, unknown> | null;
+  searchPrefixMap: Map<string, unknown> | null;
+  translationEnabled: boolean;
+  currentTranslation: string | null;
+  translationData: Record<string, unknown> | null;
+}
+
+/**
+ * Adhkar state — properties for adhkar (remembrances) feature.
+ */
+export interface AdhkarStateSlice {
+  adhkarSettings: AdhkarSettings | null;
+  adhkarPanelOpen: boolean;
+  adhkarActiveTab: string | null;
+  lastAdhkarFired: string | null;
+}
+
+/** Application state — shared across all modules. Composes all domain slices flat. */
 export interface AppState {
   currentSurah: number;
   currentAyahIndex: number;
@@ -432,13 +532,17 @@ export const state: AppState = createReactiveProxy();
  * to `state.key = val`. Both trigger subscriber notifications. Use `setState`
  * for semantic clarity when setting multiple properties at once.
  *
+ * @typeParam K - Union of AppState keys being updated (auto-inferred).
  * @param partial Object with state properties to update
  *
  * @example
  *   setState({ isPlaying: true, currentAyahIndex: 5 });
  *   // Notifies subscribers for 'isPlaying' and 'currentAyahIndex' only
+ *
+ *   // Type-safe: only valid AppState keys accepted
+ *   setState({ invalidKey: true }); // ← TypeScript error
  */
-export function setState(partial: Partial<AppState>): void {
+export function setState<K extends keyof AppState>(partial: Pick<AppState, K>): void {
   for (const [key, newValue] of Object.entries(partial)) {
     Reflect.set(state, key, newValue);
     // The Proxy handler will call recordChange automatically
