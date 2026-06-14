@@ -25,6 +25,7 @@
 import type { SurahData } from './types.js';
 import type { PageLayoutData } from './mushaf-renderer.js';
 import { CONFIG } from './config.js';
+import { resetInternalState } from './internal-state.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -147,21 +148,11 @@ export interface AppState {
   lastAdhkarFired: string | null;
   adhkarNotificationTimer: ReturnType<typeof setTimeout> | null;
   adhkarIntervalId: ReturnType<typeof setInterval> | null;
-  _adhkarAudioCtx: AudioContext | null;
-  _selectMode: boolean;
-  _selectedAyahs: SelectedAyah[];
-  _voiceListening: boolean;
-  _voiceRecognition: unknown;
-  _smartTvState: number;
-  _smartTvAudioSrc: string;
+
   surahOffsets: SurahOffset[] | null;
   ayahTimings: number[];
   presentationMode: boolean;
-  _updateReadingProgress: (() => void) | null;
   currentPageLayout: PageLayoutData | null;
-  _allSearchMatches: QuranTextEntry[] | null;
-  _searchResultsPage: number;
-  _editPersonalAdhkarId: string | null;
   searchPrefixMap: Map<string, unknown> | null;
   fontType: string;
   lineSpacing: string;
@@ -232,21 +223,11 @@ export function createDefaultState(): AppState {
     lastAdhkarFired: null,
     adhkarNotificationTimer: null,
     adhkarIntervalId: null,
-    _adhkarAudioCtx: null,
-    _selectMode: false,
-    _selectedAyahs: [],
-    _voiceListening: false,
-    _voiceRecognition: null,
-    _smartTvState: 0,
-    _smartTvAudioSrc: '',
+
     surahOffsets: null,
     ayahTimings: [],
     presentationMode: false,
-    _updateReadingProgress: null,
     currentPageLayout: null,
-    _allSearchMatches: null,
-    _searchResultsPage: 1,
-    _editPersonalAdhkarId: null,
     searchPrefixMap: null,
     fontType: 'amiri',
     lineSpacing: '1.8',
@@ -464,6 +445,7 @@ export function resetState(): void {
       Reflect.set(state, key, value);
     }
   });
+  resetInternalState();
 }
 
 /* ===================== IMMUTABLE HELPERS ===================== */

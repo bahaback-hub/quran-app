@@ -5,7 +5,7 @@ import { escapeHtml, stripTashkeel, copyToClipboard } from './utils.js';
 import { CONFIG } from './config.js';
 import { loadSurah } from './app.js';
 import { storage } from './storage.js';
-import { RECITERS, getReciterById, buildAudioUrl } from './reciters.js';
+import { RECITERS, getReciterById, buildAudioUrl, getReciterDisplayName } from './reciters.js';
 import { fetchTafsirText } from './tafsir.js';
 import { apiFetch } from './api-client.js';
 import { __ } from './i18n.js';
@@ -102,6 +102,7 @@ function cache(): void {
     'ayahModalTafsirBody',
   ];
   for (const id of ids) {
+    // Dynamic property assignment on typed DOM map — cast required for indexed access
     (M as unknown as Record<string, HTMLElement | null>)[id] = document.getElementById(id);
   }
 }
@@ -316,7 +317,7 @@ function shareModalAyah(): void {
 function populateQaris(): void {
   if (!M.ayahModalQariSelect) return;
   M.ayahModalQariSelect.innerHTML = RECITERS.map(
-    (r: ReciterEntry) => `<option value="${r.id}">${r.name}</option>`
+    (r: ReciterEntry) => `<option value="${r.id}">${getReciterDisplayName(r)}</option>`
   ).join('');
 }
 

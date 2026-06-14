@@ -22,7 +22,7 @@ describe('i18n', () => {
   beforeEach(async () => {
     // Reset to no saved language — initI18n will use browser default
     const { storage } = await import('../storage.js');
-    storage.get.mockReturnValue(null);
+    (storage.get as ReturnType<typeof vi.fn>).mockReturnValue(null);
     await initI18n();
   });
 

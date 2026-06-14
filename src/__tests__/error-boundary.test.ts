@@ -32,7 +32,7 @@ describe('Error Boundary', () => {
   /* ===================== SYNC ERRORS (window.onerror) ===================== */
 
   it('should catch synchronous errors via window.onerror', () => {
-    window.onerror('Test error', 'test.js', 10, 5, new Error('Test error'));
+    window.onerror!('Test error', 'test.js', 10, 5, new Error('Test error'));
     const log = getErrorLog();
     expect(log.length).toBeGreaterThan(0);
     const entry = log[log.length - 1];
@@ -44,13 +44,13 @@ describe('Error Boundary', () => {
   });
 
   it('should return true from onerror to prevent default handling', () => {
-    const result = window.onerror('Test', 'test.js', 1, 1, new Error('Test'));
+    const result = window.onerror!('Test', 'test.js', 1, 1, new Error('Test'));
     expect(result).toBe(true);
   });
 
   it('should capture error stack when available', () => {
     const error = new Error('Stack test');
-    window.onerror('Stack test', 'test.js', 1, 1, error);
+    window.onerror!('Stack test', 'test.js', 1, 1, error);
     const log = getErrorLog();
     const entry = log[log.length - 1];
     expect(entry.stack).toBeTruthy();
@@ -89,20 +89,20 @@ describe('Error Boundary', () => {
   /* ===================== ERROR LOG ===================== */
 
   it('should accumulate errors in the log', () => {
-    window.onerror('Error 1', 'a.js', 1, 1, new Error('Error 1'));
-    window.onerror('Error 2', 'b.js', 2, 1, new Error('Error 2'));
+    window.onerror!('Error 1', 'a.js', 1, 1, new Error('Error 1'));
+    window.onerror!('Error 2', 'b.js', 2, 1, new Error('Error 2'));
     expect(getErrorLog().length).toBeGreaterThanOrEqual(2);
   });
 
   it('should trim log entries beyond MAX_LOG_ENTRIES', () => {
     for (let i = 0; i < 55; i++) {
-      window.onerror(`Error ${i}`, 'test.js', i, 1, new Error(`Error ${i}`));
+      window.onerror!(`Error ${i}`, 'test.js', i, 1, new Error(`Error ${i}`));
     }
     expect(getErrorLog().length).toBeLessThanOrEqual(50);
   });
 
   it('should clear the error log', () => {
-    window.onerror('Error', 'test.js', 1, 1, new Error('Error'));
+    window.onerror!('Error', 'test.js', 1, 1, new Error('Error'));
     clearErrorLog();
     expect(getErrorLog().length).toBe(0);
   });
@@ -110,7 +110,7 @@ describe('Error Boundary', () => {
   /* ===================== CRITICAL ERROR CLASSIFICATION ===================== */
 
   it('should show recovery overlay for critical errors (null DOM)', () => {
-    window.onerror(
+    window.onerror!(
       "Cannot read properties of null (reading 'dom')",
       'app.js',
       1,
@@ -124,28 +124,28 @@ describe('Error Boundary', () => {
   });
 
   it('should show recovery overlay for errors from app.js', () => {
-    window.onerror('Something broke', 'app.js', 1, 1, new Error('Something broke'));
+    window.onerror!('Something broke', 'app.js', 1, 1, new Error('Something broke'));
     const overlay = document.getElementById('errorRecoveryOverlay');
     expect(overlay).toBeTruthy();
     overlay?.remove();
   });
 
   it('should show recovery overlay for errors from main.js', () => {
-    window.onerror('Init failed', 'main.js', 1, 1, new Error('Init failed'));
+    window.onerror!('Init failed', 'main.js', 1, 1, new Error('Init failed'));
     const overlay = document.getElementById('errorRecoveryOverlay');
     expect(overlay).toBeTruthy();
     overlay?.remove();
   });
 
   it('should show recovery overlay for stack overflow', () => {
-    window.onerror('Maximum call stack size exceeded', 'test.js', 1, 1, new Error('Maximum call stack size exceeded'));
+    window.onerror!('Maximum call stack size exceeded', 'test.js', 1, 1, new Error('Maximum call stack size exceeded'));
     const overlay = document.getElementById('errorRecoveryOverlay');
     expect(overlay).toBeTruthy();
     overlay?.remove();
   });
 
   it('should NOT show recovery overlay for non-critical errors', () => {
-    window.onerror('Some minor issue', 'feature.js', 1, 1, new Error('Some minor issue'));
+    window.onerror!('Some minor issue', 'feature.js', 1, 1, new Error('Some minor issue'));
     const overlay = document.getElementById('errorRecoveryOverlay');
     expect(overlay).toBeNull();
   });
@@ -181,7 +181,7 @@ describe('Error Boundary', () => {
   /* ===================== RECOVERY OVERLAY ===================== */
 
   it('should create recovery overlay with correct buttons', () => {
-    window.onerror('Critical error', 'app.js', 1, 1, new Error('Critical error'));
+    window.onerror!('Critical error', 'app.js', 1, 1, new Error('Critical error'));
     const overlay = document.getElementById('errorRecoveryOverlay');
     expect(overlay).toBeTruthy();
     expect(document.getElementById('errorRecoveryReload')).toBeTruthy();
@@ -191,7 +191,7 @@ describe('Error Boundary', () => {
   });
 
   it('should have RTL direction class in recovery overlay', () => {
-    window.onerror('Critical error', 'app.js', 1, 1, new Error('Critical error'));
+    window.onerror!('Critical error', 'app.js', 1, 1, new Error('Critical error'));
     const overlay = document.getElementById('errorRecoveryOverlay');
     const backdrop = overlay?.querySelector('.error-overlay-backdrop');
     expect(backdrop).toBeTruthy();
@@ -199,7 +199,7 @@ describe('Error Boundary', () => {
   });
 
   it('should have technical details in a <details> element', () => {
-    window.onerror('Critical error', 'app.js', 1, 1, new Error('Critical error'));
+    window.onerror!('Critical error', 'app.js', 1, 1, new Error('Critical error'));
     const details = document.querySelector('#errorRecoveryOverlay details');
     expect(details).toBeTruthy();
     document.getElementById('errorRecoveryOverlay')?.remove();
@@ -208,18 +208,18 @@ describe('Error Boundary', () => {
   /* ===================== EDGE CASES ===================== */
 
   it('should handle onerror with missing parameters', () => {
-    expect(() => window.onerror('Just a message')).not.toThrow();
+    expect(() => window.onerror!('Just a message')).not.toThrow();
     const log = getErrorLog();
     expect(log.length).toBeGreaterThan(0);
   });
 
   it('should handle onerror with undefined error object', () => {
-    expect(() => window.onerror('Error', 'test.js', 1, 1, undefined)).not.toThrow();
+    expect(() => window.onerror!('Error', 'test.js', 1, 1, undefined)).not.toThrow();
   });
 
   it('should not create duplicate recovery overlays', () => {
-    window.onerror('Critical 1', 'app.js', 1, 1, new Error('Critical 1'));
-    window.onerror('Critical 2', 'app.js', 2, 1, new Error('Critical 2'));
+    window.onerror!('Critical 1', 'app.js', 1, 1, new Error('Critical 1'));
+    window.onerror!('Critical 2', 'app.js', 2, 1, new Error('Critical 2'));
     const overlays = document.querySelectorAll('#errorRecoveryOverlay');
     expect(overlays.length).toBe(1);
     overlays[0]?.remove();
@@ -237,7 +237,7 @@ describe('Error Boundary', () => {
 
   it('should include timestamp in error log entries', () => {
     const before = Date.now();
-    window.onerror('Timestamp test', 'test.js', 1, 1, new Error('Timestamp test'));
+    window.onerror!('Timestamp test', 'test.js', 1, 1, new Error('Timestamp test'));
     const log = getErrorLog();
     const entry = log[log.length - 1];
     expect(entry.timestamp).toBeGreaterThanOrEqual(before);

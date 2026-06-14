@@ -4,6 +4,7 @@ import { dom, cacheDom } from './dom.js';
 import { loadingBar } from './ui.js';
 import { getLang, applyTranslations } from './i18n.js';
 import { state, setState, resetState, batch, type AppState } from './state.js';
+import { setUpdateReadingProgress } from './internal-state.js';
 import { startClock, loadPrayerTimes, scheduleNextAzanCheck } from './prayer.js';
 import { loadFavorites } from './favorites.js';
 import { initAdhkarState, loadAdhkarSettings, startAdhkarNotificationScheduler } from './adhkar.js';
@@ -100,7 +101,7 @@ export async function initApp(): Promise<void> {
 
   document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  state._updateReadingProgress = updateReadingProgress;
+  setUpdateReadingProgress(updateReadingProgress);
   window.addEventListener('scroll', updateReadingProgress, { passive: true });
   updateReadingProgress();
 

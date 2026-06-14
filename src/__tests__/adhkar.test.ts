@@ -34,33 +34,33 @@ import { loadAdhkarSettings, checkAdhkarNotifications, toggleAdhkarPanel } from 
 describe('loadAdhkarSettings', () => {
   beforeEach(() => {
     state.adhkarSettings = null;
-    dom.adhkarEnabledToggle = document.createElement('div');
-    dom.adhkarSoundToggle = document.createElement('div');
+    dom.adhkarEnabledToggle = document.createElement('input');
+    dom.adhkarSoundToggle = document.createElement('input');
   });
 
   it('should initialize settings with defaults when none saved', () => {
     loadAdhkarSettings();
     expect(state.adhkarSettings).toBeTruthy();
-    expect(state.adhkarSettings.adhkar_enabled).toBe(false);
-    expect(state.adhkarSettings.morning.enabled).toBe(true);
-    expect(state.adhkarSettings.evening.enabled).toBe(true);
+    expect(state.adhkarSettings!.adhkar_enabled).toBe(false);
+    expect((state.adhkarSettings!.morning as { enabled: boolean }).enabled).toBe(true);
+    expect((state.adhkarSettings!.evening as { enabled: boolean }).enabled).toBe(true);
   });
 
   it('should reset daily counters on new day', () => {
     loadAdhkarSettings();
-    state.adhkarSettings.item_m1 = 10;
-    state.adhkarSettings._resetDate = 'yesterday';
+    state.adhkarSettings!.item_m1 = 10;
+    state.adhkarSettings!._resetDate = 'yesterday';
     loadAdhkarSettings();
-    expect(state.adhkarSettings.item_m1).toBe(0);
+    expect(state.adhkarSettings!.item_m1).toBe(0);
   });
 
   it('should sync toggle UI with loaded state', () => {
     loadAdhkarSettings();
-    expect(dom.adhkarEnabledToggle.classList.contains('on')).toBe(false);
-    state.adhkarSettings.adhkar_enabled = true;
+    expect(dom.adhkarEnabledToggle!.classList.contains('on')).toBe(false);
+    state.adhkarSettings!.adhkar_enabled = true;
     storage.set('adhkar_settings', state.adhkarSettings);
     loadAdhkarSettings();
-    expect(dom.adhkarEnabledToggle.classList.contains('on')).toBe(true);
+    expect(dom.adhkarEnabledToggle!.classList.contains('on')).toBe(true);
   });
 });
 
@@ -83,29 +83,28 @@ describe('checkAdhkarNotifications', () => {
     dom.adhkarNotifText = document.createElement('div');
     dom.adhkarNotifProgress = document.createElement('div');
     dom.adhkarNotifShareBtn = document.createElement('button');
-    // Mock style.display
-    dom.adhkarNotification.style = {};
+    dom.adhkarNotification!.style.display = '';
   });
 
   it('should fire notification when time matches for enabled category', () => {
     vi.setSystemTime(new Date('2025-01-01T06:00:00'));
     checkAdhkarNotifications();
-    expect(dom.adhkarNotification.style.display).toBe('flex');
+    expect(dom.adhkarNotification!.style.display).toBe('flex');
   });
 
   it('should not fire notification for disabled category', () => {
-    state.adhkarSettings.morning.enabled = false;
-    state.adhkarSettings.evening.enabled = false;
+    (state.adhkarSettings!.morning as { enabled: boolean }).enabled = false;
+    (state.adhkarSettings!.evening as { enabled: boolean }).enabled = false;
     vi.setSystemTime(new Date('2025-01-01T06:00:00'));
     checkAdhkarNotifications();
-    expect(dom.adhkarNotification.style.display).toBeFalsy();
+    expect(dom.adhkarNotification!.style.display).toBeFalsy();
   });
 
   it('should not fire if adhkar is disabled globally', () => {
-    state.adhkarSettings.adhkar_enabled = false;
+    state.adhkarSettings!.adhkar_enabled = false;
     vi.setSystemTime(new Date('2025-01-01T06:00:00'));
     checkAdhkarNotifications();
-    expect(dom.adhkarNotification.style.display).toBeFalsy();
+    expect(dom.adhkarNotification!.style.display).toBeFalsy();
   });
 });
 
@@ -120,13 +119,13 @@ describe('toggleAdhkarPanel', () => {
   it('should open the panel', () => {
     toggleAdhkarPanel();
     expect(state.adhkarPanelOpen).toBe(true);
-    expect(dom.adhkarPanel.classList.contains('open')).toBe(true);
+    expect(dom.adhkarPanel!.classList.contains('open')).toBe(true);
   });
 
   it('should close the panel', () => {
     toggleAdhkarPanel();
     toggleAdhkarPanel();
     expect(state.adhkarPanelOpen).toBe(false);
-    expect(dom.adhkarPanel.classList.contains('open')).toBe(false);
+    expect(dom.adhkarPanel!.classList.contains('open')).toBe(false);
   });
 });

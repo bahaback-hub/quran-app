@@ -69,7 +69,7 @@ describe('api-client', () => {
 
     it('should not show toast when silent is true', async () => {
       const { showToast } = await import('../ui.js');
-      showToast.mockClear();
+      (showToast as ReturnType<typeof vi.fn>).mockClear();
       globalThis.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 500,
@@ -90,7 +90,9 @@ describe('api-client', () => {
 
       try {
         await safeFetch('https://example.com/api', { errorMsg: 'خطأ مخصص' });
-      } catch {}
+      } catch {
+        // expected
+      }
       // Toast may or may not be called depending on debounce, but errorMsg should be used
     });
 

@@ -4,11 +4,11 @@ import { dom } from '../dom.js';
 Element.prototype.scrollIntoView = vi.fn();
 
 function setupDOM() {
-  const el = (tag) => document.createElement(tag);
+  const el = (tag: string) => document.createElement(tag);
   dom.surahContent = el('div');
   dom.player = el('div');
   dom.controls = el('div');
-  dom.searchInput = el('input');
+  dom.searchInput = el('input') as HTMLInputElement;
   dom.prevAyahBtn = el('button');
   dom.nextAyahBtn = el('button');
   dom.prevSurahBtn = el('button');
@@ -21,13 +21,13 @@ function setupDOM() {
   dom.collapsedPlayBtn = el('button');
   dom.playerMoreBtn = el('button');
   dom.playerMoreRow = el('div');
-  dom.speedSelect = el('select');
-  dom.audioPlayer = el('audio');
+  dom.speedSelect = el('select') as HTMLSelectElement;
+  dom.audioPlayer = el('audio') as HTMLAudioElement;
   dom.viewSurahBtn = el('button');
   dom.viewMushafBtn = el('button');
   dom.viewPresBtn = el('button');
-  dom.pageSelect = el('select');
-  dom.pageSlider = el('input');
+  dom.pageSelect = el('select') as HTMLSelectElement;
+  dom.pageSlider = el('input') as HTMLInputElement;
   dom.pageIndicator = el('div');
 }
 
@@ -39,21 +39,21 @@ describe('initNavigation', () => {
 
   it('should bind surah nav buttons', async () => {
     const { initNavigation } = await import('../navigation.js');
-    const spy = vi.spyOn(dom.prevAyahBtn, 'addEventListener');
+    const spy = vi.spyOn(dom.prevAyahBtn!, 'addEventListener');
     initNavigation();
     expect(spy).toHaveBeenCalledWith('click', expect.any(Function));
   });
 
   it('should bind player control buttons', async () => {
     const { initNavigation } = await import('../navigation.js');
-    const spy = vi.spyOn(dom.playPauseBtn, 'addEventListener');
+    const spy = vi.spyOn(dom.playPauseBtn!, 'addEventListener');
     initNavigation();
     expect(spy).toHaveBeenCalledWith('click', expect.any(Function));
   });
 
   it('should bind view mode toggles', async () => {
     const { initNavigation } = await import('../navigation.js');
-    const spy = vi.spyOn(dom.viewSurahBtn, 'addEventListener');
+    const spy = vi.spyOn(dom.viewSurahBtn!, 'addEventListener');
     initNavigation();
     expect(spy).toHaveBeenCalledWith('click', expect.any(Function));
   });
@@ -61,8 +61,8 @@ describe('initNavigation', () => {
   it('should collapse player on collapsePlayerBtn click', async () => {
     const { initNavigation } = await import('../navigation.js');
     initNavigation();
-    dom.collapsePlayerBtn.click();
-    expect(dom.player.classList.contains('collapsed')).toBe(true);
+    dom.collapsePlayerBtn!.click();
+    expect(dom.player!.classList.contains('collapsed')).toBe(true);
   });
 
   it('should navigate on bottom nav tab click', async () => {
@@ -84,7 +84,7 @@ describe('initNavigation', () => {
     btnControls.click();
     // Now 'quran' should trigger the switch case
     btnQuran.click();
-    expect(dom.surahContent.scrollIntoView).toHaveBeenCalled();
+    expect(dom.surahContent!.scrollIntoView).toHaveBeenCalled();
   });
 
   it('should handle player tab in bottom nav', async () => {
@@ -99,7 +99,7 @@ describe('initNavigation', () => {
     const { initNavigation } = await import('../navigation.js');
     initNavigation();
     btn.click();
-    expect(dom.player.scrollIntoView).toHaveBeenCalled();
+    expect(dom.player!.scrollIntoView).toHaveBeenCalled();
   });
 
   it('should handle search tab in bottom nav', async () => {
@@ -114,7 +114,7 @@ describe('initNavigation', () => {
     const { initNavigation } = await import('../navigation.js');
     initNavigation();
     btn.click();
-    expect(dom.controls.classList.contains('mobile-show')).toBe(true);
+    expect(dom.controls!.classList.contains('mobile-show')).toBe(true);
   });
 
   it('should handle speed select change', async () => {
@@ -122,9 +122,9 @@ describe('initNavigation', () => {
     initNavigation();
     const opt = document.createElement('option');
     opt.value = '1.5';
-    dom.speedSelect.appendChild(opt);
-    dom.speedSelect.value = '1.5';
-    dom.speedSelect.dispatchEvent(new Event('change'));
-    expect(dom.audioPlayer.playbackRate).toBe(1.5);
+    dom.speedSelect!.appendChild(opt);
+    dom.speedSelect!.value = '1.5';
+    dom.speedSelect!.dispatchEvent(new Event('change'));
+    expect(dom.audioPlayer!.playbackRate).toBe(1.5);
   });
 });

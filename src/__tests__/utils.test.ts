@@ -17,12 +17,12 @@ describe('escapeHtml', () => {
   });
 
   it('should handle null/undefined', () => {
-    expect(escapeHtml(null)).toBe('');
-    expect(escapeHtml(undefined)).toBe('');
+    expect(escapeHtml(null as unknown as string)).toBe('');
+    expect(escapeHtml(undefined as unknown as string)).toBe('');
   });
 
   it('should return empty string for null', () => {
-    expect(escapeHtml(null)).toBe('');
+    expect(escapeHtml(null as unknown as string)).toBe('');
   });
 });
 
@@ -64,7 +64,7 @@ describe('formatTime12', () => {
 
   it('should return em dash for invalid input', () => {
     expect(formatTime12('')).toBe('—');
-    expect(formatTime12(null)).toBe('—');
+    expect(formatTime12(null as unknown as string)).toBe('—');
   });
 });
 

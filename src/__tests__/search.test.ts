@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { escapeRegExp, normalizeExactText } from '../utils.js';
 
-const ARABIC_KEYBOARD_LAYOUT = [
+const ARABIC_KEYBOARD_LAYOUT: string[][] = [
   ['ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د'],
   ['ش', 'س', 'ي', 'ب', 'ل', 'ا', 'ت', 'ن', 'م', 'ك', 'ط'],
   ['ئ', 'ء', 'ؤ', 'ر', 'ى', 'ة', 'و', 'ز', 'ظ'],
@@ -62,15 +62,16 @@ describe('performExactSearch', () => {
         normalized: normalizeExactText('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ'),
       },
     ];
-    state._allSearchMatches = null;
-    state._searchResultsPage = 1;
+    const internalState = await import('../internal-state.js');
+    internalState.setAllSearchMatches(null);
+    internalState.setSearchResultsPage(1);
 
-    const dom = await import('../dom.js').then((m) => m.dom);
-    dom.searchResults = document.createElement('div');
+    const domModule = await import('../dom.js');
+    domModule.dom.searchResults = document.createElement('div');
 
     searchModule.performExactSearch('اللَّهِ');
-    expect(state._allSearchMatches).toBeTruthy();
-    expect(state._allSearchMatches.length).toBeGreaterThan(0);
+    expect(internalState.getAllSearchMatches()).toBeTruthy();
+    expect(internalState.getAllSearchMatches()!.length).toBeGreaterThan(0);
   });
 
   it('should show toast for short queries', async () => {
