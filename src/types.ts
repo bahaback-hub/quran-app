@@ -21,8 +21,10 @@ export interface SurahData {
   number: number;
   name: string;
   englishName: string;
+  englishNameTranslation?: string;
+  numberOfAyahs?: number;
+  revelationType?: string;
   ayahs: AyahEntry[];
-  [key: string]: unknown; // Index signature for compatibility with Record<string, unknown>
 }
 
 /* ===================== API RESPONSE TYPES ===================== */
