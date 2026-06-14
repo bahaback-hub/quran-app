@@ -11,6 +11,7 @@ const sampleAyahs = [
 const sampleSurah = {
   number: 1,
   name: 'سُورَةُ الفَاتِحَةِ',
+  englishName: 'Al-Faatiha',
   ayahs: sampleAyahs,
 };
 
@@ -25,7 +26,7 @@ describe('buildShareText', () => {
   });
 
   it('should format share text correctly', () => {
-    state.surahData = sampleSurah;
+    state.surahData = sampleSurah as typeof state.surahData;
     state.currentAyahIndex = 1;
     const text = buildShareText();
     expect(text).toContain('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ');
@@ -34,7 +35,7 @@ describe('buildShareText', () => {
   });
 
   it('should use current ayah', () => {
-    state.surahData = sampleSurah;
+    state.surahData = sampleSurah as typeof state.surahData;
     state.currentAyahIndex = 0;
     const text = buildShareText();
     expect(text).toContain('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ');

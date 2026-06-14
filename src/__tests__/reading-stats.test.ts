@@ -8,19 +8,19 @@ import {
 } from '../reading-stats.js';
 
 beforeEach(() => {
-  const store = {};
+  const store: Record<string, string> = {};
   globalThis.localStorage = {
-    getItem: (key) => (store[key] === undefined ? null : store[key]),
-    setItem: (key, val) => {
+    getItem: (key: string) => (store[key] === undefined ? null : store[key]),
+    setItem: (key: string, val: string) => {
       store[key] = String(val);
     },
-    removeItem: (key) => {
+    removeItem: (key: string) => {
       delete store[key];
     },
     clear: () => {
       Object.keys(store).forEach((k) => delete store[k]);
     },
-  };
+  } as Storage;
   resetReadingStats();
 });
 

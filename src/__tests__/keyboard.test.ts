@@ -62,14 +62,13 @@ import { stopAzan } from '../prayer.js';
 import { toggleTafsir, closeTafsir } from '../tafsir.js';
 
 // Helper to dispatch a keydown event
-function pressKey(key, opts = {}) {
+function pressKey(key: string, opts: Record<string, unknown> = {}) {
   const event = new KeyboardEvent('keydown', {
     key,
     bubbles: true,
-    ...opts,
   });
   // Override target since KeyboardEvent doesn't allow setting target directly
-  Object.defineProperty(event, 'target', { value: opts._target || document.body, writable: false });
+  Object.defineProperty(event, 'target', { value: (opts as { _target?: EventTarget })._target || document.body, writable: false });
   document.dispatchEvent(event);
 }
 
@@ -132,10 +131,10 @@ describe('keyboard shortcuts - input field handling', () => {
     const inputTarget = document.createElement('input');
     const blurSpy = vi.fn();
     inputTarget.blur = blurSpy;
-    dom.searchResults = { style: { display: 'block' } };
+    dom.searchResults = { style: { display: 'block' } } as unknown as HTMLElement;
     pressKey('Escape', { _target: inputTarget });
     expect(blurSpy).toHaveBeenCalled();
-    expect(dom.searchResults.style.display).toBe('none');
+    expect((dom.searchResults as unknown as { style: { display: string } }).style.display).toBe('none');
   });
 });
 
@@ -143,7 +142,7 @@ describe('keyboard shortcuts - Ctrl/Cmd combinations', () => {
   it('should focus search input on Ctrl+F and prevent default', () => {
     const focusSpy = vi.fn();
     const selectSpy = vi.fn();
-    dom.searchInput = { focus: focusSpy, select: selectSpy };
+    dom.searchInput = { focus: focusSpy, select: selectSpy } as unknown as HTMLInputElement;
     const event = new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true });
     vi.spyOn(event, 'preventDefault');
     document.dispatchEvent(event);
@@ -262,35 +261,35 @@ describe('keyboard shortcuts - Escape', () => {
   });
 
   it('should hide surah secrets overlay on Escape', () => {
-    dom.surahSecretsOverlay = { style: { display: 'block' }, classList: { add: vi.fn() } };
+    dom.surahSecretsOverlay = { style: { display: 'block' }, classList: { add: vi.fn() } } as unknown as HTMLElement;
     pressKey('Escape');
-    expect(dom.surahSecretsOverlay.style.display).toBe('none');
-    expect(dom.surahSecretsOverlay.classList.add).toHaveBeenCalledWith('hidden');
+    expect((dom.surahSecretsOverlay as unknown as { style: { display: string } }).style.display).toBe('none');
+    expect((dom.surahSecretsOverlay as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add).toHaveBeenCalledWith('hidden');
   });
 
   it('should hide search results on Escape', () => {
-    dom.searchResults = { style: { display: 'block' } };
+    dom.searchResults = { style: { display: 'block' } } as unknown as HTMLElement;
     pressKey('Escape');
-    expect(dom.searchResults.style.display).toBe('none');
+    expect((dom.searchResults as unknown as { style: { display: string } }).style.display).toBe('none');
   });
 
   it('should remove show class from share menu on Escape', () => {
-    dom.shareMenu = { classList: { remove: vi.fn() } };
+    dom.shareMenu = { classList: { remove: vi.fn() } } as unknown as HTMLElement;
     pressKey('Escape');
-    expect(dom.shareMenu.classList.remove).toHaveBeenCalledWith('show');
+    expect((dom.shareMenu as unknown as { classList: { remove: ReturnType<typeof vi.fn> } }).classList.remove).toHaveBeenCalledWith('show');
   });
 
   it('should collapse player if not already collapsed on Escape', () => {
-    const player = { classList: { contains: vi.fn().mockReturnValue(false), add: vi.fn() } };
+    const player = { classList: { contains: vi.fn().mockReturnValue(false), add: vi.fn() } } as unknown as HTMLElement;
     dom.player = player;
     pressKey('Escape');
-    expect(player.classList.add).toHaveBeenCalledWith('collapsed');
+    expect((dom.player as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add).toHaveBeenCalledWith('collapsed');
   });
 
   it('should not collapse player if already collapsed on Escape', () => {
-    const player = { classList: { contains: vi.fn().mockReturnValue(true), add: vi.fn() } };
+    const player = { classList: { contains: vi.fn().mockReturnValue(true), add: vi.fn() } } as unknown as HTMLElement;
     dom.player = player;
     pressKey('Escape');
-    expect(player.classList.add).not.toHaveBeenCalled();
+    expect((dom.player as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add).not.toHaveBeenCalled();
   });
 });

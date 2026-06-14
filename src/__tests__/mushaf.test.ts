@@ -35,12 +35,12 @@ describe('updatePageIndicator', () => {
 
   it('should set page indicator text', () => {
     updatePageIndicator(1);
-    expect(dom.pageIndicator.textContent).toContain('صفحة');
+    expect(dom.pageIndicator!.textContent).toContain('صفحة');
   });
 
   it('should update to another page', () => {
     updatePageIndicator(50);
-    expect(dom.pageIndicator.textContent).toContain('٥٠');
+    expect(dom.pageIndicator!.textContent).toContain('٥٠');
   });
 
   it('should do nothing if pageIndicator is falsy', () => {

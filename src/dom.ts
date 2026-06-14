@@ -327,6 +327,7 @@ const DOM_IDS: (keyof DomMap)[] = [
 /** Cache all DOM element references by ID. */
 export function cacheDom(): void {
   for (const id of DOM_IDS) {
+    // Dynamic property assignment on typed DOM map — cast required for indexed access
     (dom as unknown as Record<string, HTMLElement | null>)[id] = document.getElementById(id);
   }
 }

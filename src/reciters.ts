@@ -1,50 +1,54 @@
+import { __ } from './i18n.js';
+
 /** Represents a Quran reciter from either the AlQuran.cloud API or mp3quran.net. */
 export interface Reciter {
   id: string;
+  /** i18n key for the reciter's display name (resolved via getReciterDisplayName). */
   name: string;
   source: 'api' | 'mp3quran';
   server?: string;
 }
 
-/** List of available Quran reciters from multiple sources. */
+/** List of available Quran reciters from multiple sources.
+ *  The `name` field stores an i18n key — use `getReciterDisplayName()` to resolve it. */
 export const RECITERS: Reciter[] = [
   // ——— API sources (AlQuran.cloud) ———
-  { id: 'ar.alafasy', name: 'مشاري العفاسي', source: 'api' },
-  { id: 'ar.abdulbasitmurattal', name: 'عبد الباسط (مرتل)', source: 'api' },
-  { id: 'ar.abdulsamad', name: 'عبد الباسط (مجود)', source: 'api' },
-  { id: 'ar.abdurrahmaansudais', name: 'عبد الرحمن السديس', source: 'api' },
-  { id: 'ar.husary', name: 'محمود خليل الحصري', source: 'api' },
-  { id: 'ar.minshawi', name: 'المنشاوي (مرتل)', source: 'api' },
-  { id: 'ar.minshawimujawwad', name: 'المنشاوي (مجود)', source: 'api' },
-  { id: 'ar.muhammadayyoub', name: 'محمد أيوب', source: 'api' },
-  { id: 'ar.shaatree', name: 'أبو بكر الشاطري', source: 'api' },
-  { id: 'ar.abdullahbasfar', name: 'عبد الله باسفر', source: 'api' },
-  { id: 'ar.ahmedajamy', name: 'أحمد العجمي', source: 'api' },
+  { id: 'ar.alafasy', name: 'reciter_alafasy', source: 'api' },
+  { id: 'ar.abdulbasitmurattal', name: 'reciter_abdulbasit_murattal', source: 'api' },
+  { id: 'ar.abdulsamad', name: 'reciter_abdulsamad', source: 'api' },
+  { id: 'ar.abdurrahmaansudais', name: 'reciter_sudais', source: 'api' },
+  { id: 'ar.husary', name: 'reciter_husary', source: 'api' },
+  { id: 'ar.minshawi', name: 'reciter_minshawi_murattal', source: 'api' },
+  { id: 'ar.minshawimujawwad', name: 'reciter_minshawi_mujawwad', source: 'api' },
+  { id: 'ar.muhammadayyoub', name: 'reciter_ayyoub', source: 'api' },
+  { id: 'ar.shaatree', name: 'reciter_shaatree', source: 'api' },
+  { id: 'ar.abdullahbasfar', name: 'reciter_basfar', source: 'api' },
+  { id: 'ar.ahmedajamy', name: 'reciter_ajamy', source: 'api' },
 
   // ——— mp3quran.net sources (full surah audio) ———
-  { id: 's_gmd', name: 'سعد الغامدي', source: 'mp3quran', server: 'https://server7.mp3quran.net/s_gmd' },
-  { id: 'shur', name: 'سعود الشريم', source: 'mp3quran', server: 'https://server7.mp3quran.net/shur' },
-  { id: 's_bud', name: 'صلاح البدير', source: 'mp3quran', server: 'https://server6.mp3quran.net/s_bud' },
-  { id: 'bu_khtr', name: 'صلاح بو خاطر', source: 'mp3quran', server: 'https://server8.mp3quran.net/bu_khtr' },
-  { id: 'hthfi', name: 'علي الحذيفي', source: 'mp3quran', server: 'https://server9.mp3quran.net/hthfi' },
-  { id: 'a_jbr', name: 'علي جابر', source: 'mp3quran', server: 'https://server11.mp3quran.net/a_jbr' },
-  { id: 'frs_a', name: 'فارس عباد', source: 'mp3quran', server: 'https://server8.mp3quran.net/frs_a' },
-  { id: 'yasser', name: 'ياسر الدوسري', source: 'mp3quran', server: 'https://server11.mp3quran.net/yasser' },
+  { id: 's_gmd', name: 'reciter_ghamdi', source: 'mp3quran', server: 'https://server7.mp3quran.net/s_gmd' },
+  { id: 'shur', name: 'reciter_shuraim', source: 'mp3quran', server: 'https://server7.mp3quran.net/shur' },
+  { id: 's_bud', name: 'reciter_budayr', source: 'mp3quran', server: 'https://server6.mp3quran.net/s_bud' },
+  { id: 'bu_khtr', name: 'reciter_bukhatir', source: 'mp3quran', server: 'https://server8.mp3quran.net/bu_khtr' },
+  { id: 'hthfi', name: 'reciter_huthaify', source: 'mp3quran', server: 'https://server9.mp3quran.net/hthfi' },
+  { id: 'a_jbr', name: 'reciter_jaber', source: 'mp3quran', server: 'https://server11.mp3quran.net/a_jbr' },
+  { id: 'frs_a', name: 'reciter_abbad', source: 'mp3quran', server: 'https://server8.mp3quran.net/frs_a' },
+  { id: 'yasser', name: 'reciter_dosari', source: 'mp3quran', server: 'https://server11.mp3quran.net/yasser' },
   {
     id: 'salamah',
-    name: 'ياسر سلامة',
+    name: 'reciter_salamah',
     source: 'mp3quran',
     server: 'https://server12.mp3quran.net/salamah/Rewayat-Hafs-A-n-Assem',
   },
-  { id: 'qtm', name: 'ناصر القطامي', source: 'mp3quran', server: 'https://server6.mp3quran.net/qtm' },
-  { id: 'mtrod', name: 'عبد الله المطرود', source: 'mp3quran', server: 'https://server8.mp3quran.net/mtrod' },
-  { id: 'qasm', name: 'عبد المحسن القاسم', source: 'mp3quran', server: 'https://server8.mp3quran.net/qasm' },
-  { id: 'sds', name: 'عبد الرحمن السديس (mp3)', source: 'mp3quran', server: 'https://server11.mp3quran.net/sds' },
-  { id: 'maher', name: 'ماهر المعيقلي', source: 'mp3quran', server: 'https://server12.mp3quran.net/maher' },
-  { id: 'jbrl', name: 'محمد جبريل', source: 'mp3quran', server: 'https://server8.mp3quran.net/jbrl' },
-  { id: 'minsh', name: 'محمد صديق المنشاوي (mp3)', source: 'mp3quran', server: 'https://server10.mp3quran.net/minsh' },
-  { id: 'shaatree', name: 'أبو بكر الشاطري (mp3)', source: 'mp3quran', server: 'https://server11.mp3quran.net/shatri' },
-  { id: 'tnjy', name: 'خليفة الطنيجي', source: 'mp3quran', server: 'https://server12.mp3quran.net/tnjy' },
+  { id: 'qtm', name: 'reciter_qatami', source: 'mp3quran', server: 'https://server6.mp3quran.net/qtm' },
+  { id: 'mtrod', name: 'reciter_matroud', source: 'mp3quran', server: 'https://server8.mp3quran.net/mtrod' },
+  { id: 'qasm', name: 'reciter_qasim', source: 'mp3quran', server: 'https://server8.mp3quran.net/qasm' },
+  { id: 'sds', name: 'reciter_sudais_mp3', source: 'mp3quran', server: 'https://server11.mp3quran.net/sds' },
+  { id: 'maher', name: 'reciter_muaiqly', source: 'mp3quran', server: 'https://server12.mp3quran.net/maher' },
+  { id: 'jbrl', name: 'reciter_jibreel', source: 'mp3quran', server: 'https://server8.mp3quran.net/jbrl' },
+  { id: 'minsh', name: 'reciter_minshawi_mp3', source: 'mp3quran', server: 'https://server10.mp3quran.net/minsh' },
+  { id: 'shaatree', name: 'reciter_shaatree_mp3', source: 'mp3quran', server: 'https://server11.mp3quran.net/shatri' },
+  { id: 'tnjy', name: 'reciter_taniji', source: 'mp3quran', server: 'https://server12.mp3quran.net/tnjy' },
 ];
 
 /** Map of mp3quran reciter IDs → quran.com chapter_recitation IDs for real ayah timestamps. */
@@ -64,6 +68,12 @@ export const TIMING_API_IDS: Record<string, number> = {
   shaatree: 4,
   tnjy: 161,
 };
+
+/** Get the localized display name for a reciter.
+ *  The `name` field on Reciter stores an i18n key; this function resolves it. */
+export function getReciterDisplayName(reciter: Reciter): string {
+  return __(reciter.name);
+}
 
 /** Get a reciter object by its ID. */
 export function getReciterById(id: string): Reciter {

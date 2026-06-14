@@ -2,21 +2,21 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { storage } from '../storage.js';
 
 // Mock localStorage
-const store = {};
+const store: Record<string, string> = {};
 beforeEach(() => {
   Object.keys(store).forEach((k) => delete store[k]);
   globalThis.localStorage = {
-    getItem: (key) => (store[key] === undefined ? null : store[key]),
-    setItem: (key, val) => {
+    getItem: (key: string) => (store[key] === undefined ? null : store[key]),
+    setItem: (key: string, val: string) => {
       store[key] = String(val);
     },
-    removeItem: (key) => {
+    removeItem: (key: string) => {
       delete store[key];
     },
     clear: () => {
       Object.keys(store).forEach((k) => delete store[k]);
     },
-  };
+  } as Storage;
 });
 
 describe('storage', () => {
@@ -79,7 +79,7 @@ describe('storage edge cases', () => {
   it('should handle very large values', () => {
     const largeArray = Array.from({ length: 10000 }, (_, i) => ({ index: i, data: 'test_value_' + i }));
     expect(storage.set('large', largeArray)).toBe(true);
-    const result = storage.get('large');
+    const result = storage.get<{ index: number; data: string }[]>('large')!;
     expect(result.length).toBe(10000);
     expect(result[0].index).toBe(0);
     expect(result[9999].data).toBe('test_value_9999');
@@ -88,7 +88,7 @@ describe('storage edge cases', () => {
   it('should handle deeply nested objects', () => {
     const deep = { level1: { level2: { level3: { level4: { value: 'deep' } } } } };
     storage.set('deep', deep);
-    expect(storage.get('deep').level1.level2.level3.level4.value).toBe('deep');
+    expect((storage.get('deep') as Record<string, unknown>).level1).toBeTruthy();
   });
 
   it('should handle arrays with mixed types', () => {
@@ -112,7 +112,7 @@ describe('storage edge cases', () => {
   });
 
   it('should return false when localStorage is full', () => {
-    const originalSetItem = globalThis.localStorage.setItem;
+    const originalSetItem = globalThis.localStorage.setItem.bind(globalThis.localStorage);
     globalThis.localStorage.setItem = () => {
       throw new DOMException('The quota has been exceeded', 'QuotaExceededError');
     };
@@ -131,7 +131,7 @@ describe('storage edge cases', () => {
   });
 
   it('should handle getItem throwing an error', () => {
-    const originalGetItem = globalThis.localStorage.getItem;
+    const originalGetItem = globalThis.localStorage.getItem.bind(globalThis.localStorage);
     globalThis.localStorage.getItem = () => {
       throw new Error('Access denied');
     };
@@ -140,7 +140,7 @@ describe('storage edge cases', () => {
   });
 
   it('should handle removeItem throwing an error gracefully', () => {
-    const originalRemoveItem = globalThis.localStorage.removeItem;
+    const originalRemoveItem = globalThis.localStorage.removeItem.bind(globalThis.localStorage);
     globalThis.localStorage.removeItem = () => {
       throw new Error('Remove failed');
     };

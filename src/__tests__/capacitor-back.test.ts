@@ -25,8 +25,8 @@ describe('initCapacitorBackButton', () => {
     panel.style.display = 'flex';
     document.body.appendChild(panel);
 
-    let listener;
-    const addListener = vi.fn((_, cb) => {
+    let listener: (() => void) | undefined;
+    const addListener = vi.fn((_event: string, cb: () => void) => {
       listener = cb;
     });
     const { initCapacitorBackButton } = await import('../capacitor-back.js');
@@ -34,7 +34,7 @@ describe('initCapacitorBackButton', () => {
 
     expect(listener).toBeDefined();
     // Should not throw when lazy import fails
-    expect(() => listener()).not.toThrow();
+    expect(() => listener!()).not.toThrow();
   });
 
   it('should collapse player when no panel is open', async () => {
@@ -43,13 +43,13 @@ describe('initCapacitorBackButton', () => {
     player.classList.remove('collapsed');
     document.body.appendChild(player);
 
-    let listener;
-    const addListener = vi.fn((_, cb) => {
+    let listener: (() => void) | undefined;
+    const addListener = vi.fn((_event: string, cb: () => void) => {
       listener = cb;
     });
     const { initCapacitorBackButton } = await import('../capacitor-back.js');
     initCapacitorBackButton({ App: { addListener } });
-    listener();
+    listener!();
     expect(player.classList.contains('collapsed')).toBe(true);
   });
 
@@ -59,23 +59,23 @@ describe('initCapacitorBackButton', () => {
     player.classList.add('collapsed');
     document.body.appendChild(player);
 
-    let listener;
-    const addListener = vi.fn((_, cb) => {
+    let listener: (() => void) | undefined;
+    const addListener = vi.fn((_event: string, cb: () => void) => {
       listener = cb;
     });
     const { initCapacitorBackButton } = await import('../capacitor-back.js');
     initCapacitorBackButton({ App: { addListener } });
-    listener();
+    listener!();
     expect(player.classList.contains('collapsed')).toBe(true);
   });
 
   it('should fall back to global Capacitor when no plugins param', async () => {
     const addListener = vi.fn();
-    globalThis.Capacitor = { Plugins: { App: { addListener } } };
+    (globalThis as Record<string, unknown>).Capacitor = { Plugins: { App: { addListener } } };
     const { initCapacitorBackButton } = await import('../capacitor-back.js');
     initCapacitorBackButton();
     expect(addListener).toHaveBeenCalledWith('backButton', expect.any(Function));
-    delete globalThis.Capacitor;
+    delete (globalThis as Record<string, unknown>).Capacitor;
   });
 
   it('should handle addListener errors gracefully', async () => {

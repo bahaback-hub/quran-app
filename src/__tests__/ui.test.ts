@@ -10,17 +10,17 @@ beforeEach(() => {
 describe('showToast', () => {
   it('should set toast text', () => {
     showToast('test message');
-    expect(dom.toast.textContent).toBe('test message');
+    expect(dom.toast!.textContent).toBe('test message');
   });
 
   it('should add show class', () => {
     showToast('test');
-    expect(dom.toast.classList.contains('show')).toBe(true);
+    expect(dom.toast!.classList.contains('show')).toBe(true);
   });
 
   it('should add type class', () => {
     showToast('test', 'error');
-    expect(dom.toast.classList.contains('error')).toBe(true);
+    expect(dom.toast!.classList.contains('error')).toBe(true);
   });
 
   it('should handle missing toast element', () => {
@@ -43,14 +43,14 @@ describe('loadingBar', () => {
   it('should show loading bar', () => {
     loadingBar.init();
     loadingBar.show('loading...');
-    expect(loadingBar.el.classList.contains('active')).toBe(true);
-    expect(loadingBar.el.textContent).toBe('loading...');
+    expect(loadingBar.el!.classList.contains('active')).toBe(true);
+    expect(loadingBar.el!.textContent).toBe('loading...');
   });
 
   it('should hide loading bar', () => {
     loadingBar.init();
     loadingBar.show('loading...');
     loadingBar.hide();
-    expect(loadingBar.el.classList.contains('active')).toBe(false);
+    expect(loadingBar.el!.classList.contains('active')).toBe(false);
   });
 });

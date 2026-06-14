@@ -4,21 +4,21 @@ import { dom } from '../dom.js';
 import { storage } from '../storage.js';
 
 // Mock localStorage
-const store = {};
+const store: Record<string, string> = {};
 beforeEach(() => {
   Object.keys(store).forEach((k) => delete store[k]);
   globalThis.localStorage = {
-    getItem: (key) => (store[key] === undefined ? null : store[key]),
-    setItem: (key, val) => {
+    getItem: (key: string) => (store[key] === undefined ? null : store[key]),
+    setItem: (key: string, val: string) => {
       store[key] = String(val);
     },
-    removeItem: (key) => {
+    removeItem: (key: string) => {
       delete store[key];
     },
     clear: () => {
       Object.keys(store).forEach((k) => delete store[k]);
     },
-  };
+  } as Storage;
 });
 
 // Mock external dependencies
@@ -41,11 +41,11 @@ vi.mock('../ui.js', () => ({
 }));
 
 vi.mock('../i18n.js', () => ({
-  __: vi.fn((key) => key),
+  __: vi.fn((key: string) => key),
 }));
 
 vi.mock('../tajweed.js', () => ({
-  tajweedColorWord: vi.fn((word) => word),
+  tajweedColorWord: vi.fn((word: string) => word),
   buildColorMap: vi.fn(() => null),
 }));
 
@@ -67,16 +67,17 @@ vi.mock('../tafsir.js', () => ({
 
 vi.mock('../reciters.js', () => ({
   RECITERS: [
-    { id: 'ar.alafasy', name: 'Mishary Alafasy', source: 'api' },
-    { id: 'ar.husary', name: 'Mahmoud Khalil Al-Husary', source: 'mp3quran' },
+    { id: 'ar.alafasy', name: 'reciter_alafasy', source: 'api' },
+    { id: 'ar.husary', name: 'reciter_husary', source: 'mp3quran' },
   ],
-  getReciterById: vi.fn((id) => {
-    const map = {
-      'ar.alafasy': { id: 'ar.alafasy', name: 'Mishary Alafasy', source: 'api' },
-      'ar.husary': { id: 'ar.husary', name: 'Mahmoud Khalil Al-Husary', source: 'mp3quran' },
+  getReciterById: vi.fn((id: string) => {
+    const map: Record<string, { id: string; name: string; source: string }> = {
+      'ar.alafasy': { id: 'ar.alafasy', name: 'reciter_alafasy', source: 'api' },
+      'ar.husary': { id: 'ar.husary', name: 'reciter_husary', source: 'mp3quran' },
     };
     return map[id] || { id, name: id, source: 'api' };
   }),
+  getReciterDisplayName: vi.fn((r: { name: string }) => r.name.startsWith('reciter_') ? r.name.replace('reciter_', '') : r.name),
   buildAudioUrl: vi.fn(() => 'https://example.com/audio.mp3'),
   getTimingApiId: vi.fn(() => null),
 }));
@@ -113,27 +114,25 @@ describe('loadSurahList', () => {
     state.surahList = [];
     state.surahOffsets = null;
     state.currentSurah = 1;
-    dom.surahSelect = document.createElement('select');
+    dom.surahSelect = document.createElement('select') as HTMLSelectElement;
   });
 
   it('should load surah list from storage cache if valid', async () => {
-    const cachedList = FULL_SURAH_LIST;
-    vi.spyOn(storage, 'get').mockReturnValue(cachedList);
+    vi.spyOn(storage, 'get').mockReturnValue(FULL_SURAH_LIST);
 
     await loadSurahList();
 
-    expect(state.surahList).toEqual(cachedList);
+    expect(state.surahList).toEqual(FULL_SURAH_LIST);
     expect(state.surahOffsets).not.toBeNull();
   });
 
   it('should populate surah select when loaded from cache', async () => {
-    const cachedList = FULL_SURAH_LIST;
-    vi.spyOn(storage, 'get').mockReturnValue(cachedList);
+    vi.spyOn(storage, 'get').mockReturnValue(FULL_SURAH_LIST);
 
     await loadSurahList();
 
     // Should have default option + 114 surah options
-    const options = dom.surahSelect.querySelectorAll('option');
+    const options = dom.surahSelect!.querySelectorAll('option');
     expect(options.length).toBe(115); // 1 default + 114 surahs
     expect(options[0].textContent).toContain('select_surah');
     expect(options[1].value).toBe('1');
@@ -239,28 +238,28 @@ describe('buildSurahOffsets', () => {
 
   it('should calculate cumulative absolute ayah numbers correctly', () => {
     state.surahList = [
-      { number: 1, name: 'A', numberOfAyahs: 3 },
-      { number: 2, name: 'B', numberOfAyahs: 5 },
-      { number: 3, name: 'C', numberOfAyahs: 2 },
+      { number: 1, name: 'A', englishName: 'A', numberOfAyahs: 3 },
+      { number: 2, name: 'B', englishName: 'B', numberOfAyahs: 5 },
+      { number: 3, name: 'C', englishName: 'C', numberOfAyahs: 2 },
     ];
     buildSurahOffsets();
 
-    expect(state.surahOffsets[0].startAbs).toBe(1); // Surah 1 starts at ayah 1
-    expect(state.surahOffsets[1].startAbs).toBe(4); // Surah 2 starts at ayah 4 (1+3)
-    expect(state.surahOffsets[2].startAbs).toBe(9); // Surah 3 starts at ayah 9 (4+5)
+    expect(state.surahOffsets![0].startAbs).toBe(1); // Surah 1 starts at ayah 1
+    expect(state.surahOffsets![1].startAbs).toBe(4); // Surah 2 starts at ayah 4 (1+3)
+    expect(state.surahOffsets![2].startAbs).toBe(9); // Surah 3 starts at ayah 9 (4+5)
   });
 });
 
 describe('populateReciterSelect', () => {
   beforeEach(() => {
-    dom.reciterSelect = document.createElement('select');
+    dom.reciterSelect = document.createElement('select') as HTMLSelectElement;
     state.currentReciter = 'ar.alafasy';
   });
 
   it('should populate reciter select with RECITERS', () => {
     populateReciterSelect();
 
-    const options = dom.reciterSelect.querySelectorAll('option');
+    const options = dom.reciterSelect!.querySelectorAll('option');
     expect(options.length).toBe(2);
     expect(options[0].value).toBe('ar.alafasy');
     expect(options[1].value).toBe('ar.husary');
@@ -270,14 +269,14 @@ describe('populateReciterSelect', () => {
     state.currentReciter = 'ar.husary';
     populateReciterSelect();
 
-    expect(dom.reciterSelect.value).toBe('ar.husary');
+    expect(dom.reciterSelect!.value).toBe('ar.husary');
   });
 
   it('should use default reciter when state has none', () => {
     state.currentReciter = '';
     populateReciterSelect();
 
-    expect(dom.reciterSelect.value).toBe('ar.alafasy');
+    expect(dom.reciterSelect!.value).toBe('ar.alafasy');
   });
 
   it('should handle missing reciterSelect gracefully', () => {

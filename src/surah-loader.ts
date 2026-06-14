@@ -5,7 +5,7 @@ import { showToast, loadingBar } from './ui.js';
 import { __ } from './i18n.js';
 import { escapeHtml } from './utils.js';
 import { state, batch, immutablePush, immutableMapSet, immutableMapDelete, SurahInfo, SurahOffset } from './state.js';
-import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
+import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId, getReciterDisplayName } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
 import type { TajweedRule } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
@@ -193,7 +193,7 @@ function populateSurahSelect(): void {
 
 export function populateReciterSelect(): void {
   if (!dom.reciterSelect) return;
-  dom.reciterSelect.innerHTML = RECITERS.map((r: ReciterInfo) => `<option value="${r.id}">${r.name}</option>`).join('');
+  dom.reciterSelect.innerHTML = RECITERS.map((r: ReciterInfo) => `<option value="${r.id}">${getReciterDisplayName(r)}</option>`).join('');
   dom.reciterSelect.value = state.currentReciter || CONFIG.DEFAULT_RECITER;
 }
 

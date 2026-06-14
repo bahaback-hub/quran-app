@@ -2,53 +2,54 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { CONFIG } from '../config.js';
+import type { SurahData } from '../types.js';
 
 // Mock localStorage
-const store = {};
+const store: Record<string, string> = {};
 beforeEach(() => {
   Object.keys(store).forEach((k) => delete store[k]);
   globalThis.localStorage = {
-    getItem: (key) => (store[key] === undefined ? null : store[key]),
-    setItem: (key, val) => {
+    getItem: (key: string) => (store[key] === undefined ? null : store[key]),
+    setItem: (key: string, val: string) => {
       store[key] = String(val);
     },
-    removeItem: (key) => {
+    removeItem: (key: string) => {
       delete store[key];
     },
     clear: () => {
       Object.keys(store).forEach((k) => delete store[k]);
     },
-  };
+  } as Storage;
 });
 
 // In-memory store for tafsir cache entries
-const mockIDBData = {};
+const mockIDBData: Record<string, { key: string; val: string }> = {};
 
 // Create a fully functional mock IDBDatabase
 function createMockIDBDatabase() {
-  const storeNames = new Set();
+  const storeNames = new Set<string>();
   return {
     objectStoreNames: {
-      contains: (name) => storeNames.has(name),
+      contains: (name: string) => storeNames.has(name),
     },
-    createObjectStore: vi.fn((name, _opts) => {
+    createObjectStore: vi.fn((name: string, _opts?: unknown) => {
       storeNames.add(name);
       return {};
     }),
-    transaction: vi.fn((_storeName, _mode) => {
+    transaction: vi.fn((_storeName: string, _mode?: string) => {
       const data = mockIDBData;
       return {
         objectStore: vi.fn(() => ({
-          get: vi.fn((key) => {
-            const req = {};
+          get: vi.fn((key: string) => {
+            const req: { result: unknown; onsuccess?: ((ev: { target: { result: unknown } }) => void) | null } = { result: null, onsuccess: null };
             // Use queueMicrotask to simulate async IDB behavior
             queueMicrotask(() => {
               req.result = data[key] || null;
-              if (req.onsuccess) req.onsuccess({ target: req });
+              if (req.onsuccess) req.onsuccess({ target: { result: req.result } });
             });
             return req;
           }),
-          put: vi.fn((val) => {
+          put: vi.fn((val: { key: string; val: string }) => {
             data[val.key] = val;
           }),
         })),
@@ -57,7 +58,7 @@ function createMockIDBDatabase() {
   };
 }
 
-let mockDB = null;
+let mockDB: ReturnType<typeof createMockIDBDatabase> | null = null;
 
 beforeEach(() => {
   mockDB = createMockIDBDatabase();
@@ -65,7 +66,10 @@ beforeEach(() => {
 
   globalThis.indexedDB = {
     open: vi.fn(() => {
-      const request = {};
+      const request: { onupgradeneeded?: ((ev: { target: { result: unknown } }) => void) | null; onsuccess?: ((ev: { target: { result: unknown } }) => void) | null } = {
+        onupgradeneeded: null,
+        onsuccess: null,
+      };
       // Synchronously fire callbacks so they complete before the test
       // IDB first fires onupgradeneeded, then onsuccess
       queueMicrotask(() => {
@@ -76,9 +80,9 @@ beforeEach(() => {
           request.onsuccess({ target: { result: mockDB } });
         }
       });
-      return request;
+      return request as unknown as IDBOpenDBRequest;
     }),
-  };
+  } as unknown as IDBFactory;
 });
 
 import {
@@ -97,7 +101,7 @@ beforeEach(() => {
   dom.tafsirCurtainHandle = document.createElement('div');
   dom.tafsirCurtainHeader = document.createElement('div');
   dom.tafsirCurtainBody = document.createElement('div');
-  dom.tafsirSelect = document.createElement('select');
+  dom.tafsirSelect = document.createElement('select') as HTMLSelectElement;
 
   // Reset state
   state.surahData = null;
@@ -113,12 +117,12 @@ beforeEach(() => {
 describe('openTafsir', () => {
   it('should add open class to tafsir curtain', () => {
     openTafsir();
-    expect(dom.tafsirCurtain.classList.contains('open')).toBe(true);
+    expect(dom.tafsirCurtain!.classList.contains('open')).toBe(true);
   });
 
   it('should add open class to tafsir curtain handle', () => {
     openTafsir();
-    expect(dom.tafsirCurtainHandle.classList.contains('open')).toBe(true);
+    expect(dom.tafsirCurtainHandle!.classList.contains('open')).toBe(true);
   });
 
   it('should not throw when tafsirCurtain is null', () => {
@@ -129,15 +133,15 @@ describe('openTafsir', () => {
 
 describe('closeTafsir', () => {
   it('should remove open class from tafsir curtain', () => {
-    dom.tafsirCurtain.classList.add('open');
+    dom.tafsirCurtain!.classList.add('open');
     closeTafsir();
-    expect(dom.tafsirCurtain.classList.contains('open')).toBe(false);
+    expect(dom.tafsirCurtain!.classList.contains('open')).toBe(false);
   });
 
   it('should remove open class from tafsir curtain handle', () => {
-    dom.tafsirCurtainHandle.classList.add('open');
+    dom.tafsirCurtainHandle!.classList.add('open');
     closeTafsir();
-    expect(dom.tafsirCurtainHandle.classList.contains('open')).toBe(false);
+    expect(dom.tafsirCurtainHandle!.classList.contains('open')).toBe(false);
   });
 
   it('should not throw when tafsirCurtain is null', () => {
@@ -148,15 +152,15 @@ describe('closeTafsir', () => {
 
 describe('toggleTafsir', () => {
   it('should open tafsir when closed', () => {
-    expect(dom.tafsirCurtain.classList.contains('open')).toBe(false);
+    expect(dom.tafsirCurtain!.classList.contains('open')).toBe(false);
     toggleTafsir();
-    expect(dom.tafsirCurtain.classList.contains('open')).toBe(true);
+    expect(dom.tafsirCurtain!.classList.contains('open')).toBe(true);
   });
 
   it('should close tafsir when open', () => {
-    dom.tafsirCurtain.classList.add('open');
+    dom.tafsirCurtain!.classList.add('open');
     toggleTafsir();
-    expect(dom.tafsirCurtain.classList.contains('open')).toBe(false);
+    expect(dom.tafsirCurtain!.classList.contains('open')).toBe(false);
   });
 });
 
@@ -221,15 +225,16 @@ describe('loadTafsirForCurrentAyah', () => {
     state.surahData = null;
     await loadTafsirForCurrentAyah();
     // No error thrown, no side effects
-    expect(dom.tafsirCurtainHeader.textContent).toBe('');
+    expect(dom.tafsirCurtainHeader!.textContent).toBe('');
   });
 
   it('should set tafsir header with surah name and ayah number', async () => {
     state.surahData = {
       number: 1,
       name: 'الفاتحة',
+      englishName: 'Al-Fatiha',
       ayahs: [{ numberInSurah: 1, text: 'بِسْمِ اللَّهِ' }],
-    };
+    } as SurahData;
     state.currentAyahIndex = 0;
 
     globalThis.fetch = vi.fn().mockResolvedValue({
@@ -238,36 +243,38 @@ describe('loadTafsirForCurrentAyah', () => {
 
     await loadTafsirForCurrentAyah();
 
-    expect(dom.tafsirCurtainHeader.textContent).toContain('الفاتحة');
-    expect(dom.tafsirCurtainHeader.textContent).toContain('1');
+    expect(dom.tafsirCurtainHeader!.textContent).toContain('الفاتحة');
+    expect(dom.tafsirCurtainHeader!.textContent).toContain('1');
   });
 
   it('should return early when currentAyahIndex is out of range', async () => {
     state.surahData = {
       number: 1,
       name: 'الفاتحة',
+      englishName: 'Al-Fatiha',
       ayahs: [],
-    };
+    } as SurahData;
     state.currentAyahIndex = 0;
 
     await loadTafsirForCurrentAyah();
     // Should not throw
-    expect(dom.tafsirCurtainHeader.textContent).toBe('');
+    expect(dom.tafsirCurtainHeader!.textContent).toBe('');
   });
 
   it('should show error when fetch fails and no cache', async () => {
     state.surahData = {
       number: 1,
       name: 'الفاتحة',
+      englishName: 'Al-Fatiha',
       ayahs: [{ numberInSurah: 1, text: 'بِسْمِ اللَّهِ' }],
-    };
+    } as SurahData;
     state.currentAyahIndex = 0;
 
     globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
     await loadTafsirForCurrentAyah();
 
-    expect(dom.tafsirCurtainBody.innerHTML).toContain('tafsir-error');
+    expect(dom.tafsirCurtainBody!.innerHTML).toContain('tafsir-error');
   });
 });
 
@@ -285,7 +292,7 @@ describe('loadTafsirForSurahAyah', () => {
 
     await loadTafsirForSurahAyah(1, 1);
 
-    expect(dom.tafsirCurtainHeader.textContent).toContain('الفاتحة');
+    expect(dom.tafsirCurtainHeader!.textContent).toContain('الفاتحة');
   });
 
   it('should use fallback surah name when surah not in list', async () => {
@@ -295,7 +302,7 @@ describe('loadTafsirForSurahAyah', () => {
 
     await loadTafsirForSurahAyah(999, 1);
 
-    expect(dom.tafsirCurtainHeader.textContent).toContain('سورة 999');
+    expect(dom.tafsirCurtainHeader!.textContent).toContain('سورة 999');
   });
 
   it('should open tafsir curtain', async () => {
@@ -305,7 +312,7 @@ describe('loadTafsirForSurahAyah', () => {
 
     await loadTafsirForSurahAyah(1, 1);
 
-    expect(dom.tafsirCurtain.classList.contains('open')).toBe(true);
+    expect(dom.tafsirCurtain!.classList.contains('open')).toBe(true);
   });
 
   it('should show error when API fails', async () => {
@@ -313,7 +320,7 @@ describe('loadTafsirForSurahAyah', () => {
 
     await loadTafsirForSurahAyah(1, 1);
 
-    expect(dom.tafsirCurtainBody.innerHTML).toContain('tafsir-error');
+    expect(dom.tafsirCurtainBody!.innerHTML).toContain('tafsir-error');
   });
 
   it('should use CONFIG.DEFAULT_TAFSIR when no edition set', async () => {
@@ -338,6 +345,6 @@ describe('loadTafsirForSurahAyah', () => {
 
     await loadTafsirForSurahAyah(1, 1);
 
-    expect(dom.tafsirCurtainBody.innerHTML).toContain('تفسير الاخلاص');
+    expect(dom.tafsirCurtainBody!.innerHTML).toContain('تفسير الاخلاص');
   });
 });

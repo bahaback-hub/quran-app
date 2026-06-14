@@ -3,6 +3,7 @@ import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { renderSurah } from '../app.js';
 import { buildShareText } from '../share.js';
+import type { SurahData } from '../types.js';
 
 const sampleAyahs = [
   { numberInSurah: 1, text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ' },
@@ -10,7 +11,7 @@ const sampleAyahs = [
   { numberInSurah: 3, text: 'الرَّحْمَٰنِ الرَّحِيمِ' },
 ];
 
-const sampleSurah = {
+const sampleSurah: SurahData = {
   number: 1,
   name: 'سُورَةُ الفَاتِحَةِ',
   englishName: 'Al-Faatiha',
@@ -27,38 +28,38 @@ beforeEach(() => {
 describe('renderSurah', () => {
   it('should render surah title and ayahs', () => {
     renderSurah(sampleSurah);
-    expect(dom.surahContent.innerHTML).toContain('سُورَةُ الفَاتِحَةِ');
-    expect(dom.surahContent.innerHTML).toContain('Al-Faatiha');
+    expect(dom.surahContent!.innerHTML).toContain('سُورَةُ الفَاتِحَةِ');
+    expect(dom.surahContent!.innerHTML).toContain('Al-Faatiha');
   });
 
   it('should not render bismillah for surah 1', () => {
     renderSurah(sampleSurah);
-    expect(dom.surahContent.innerHTML).not.toContain('بِسْمِ اللَّهِ');
+    expect(dom.surahContent!.innerHTML).not.toContain('بِسْمِ اللَّهِ');
   });
 
   it('should render bismillah for surah 2', () => {
-    const surah2 = { ...sampleSurah, number: 2 };
+    const surah2: SurahData = { ...sampleSurah, number: 2 };
     renderSurah(surah2);
-    expect(dom.surahContent.innerHTML).toContain('بِسْمِ اللَّهِ');
+    expect(dom.surahContent!.innerHTML).toContain('بِسْمِ اللَّهِ');
   });
 
   it('should not render bismillah for surah 9', () => {
-    const surah9 = { ...sampleSurah, number: 9 };
+    const surah9: SurahData = { ...sampleSurah, number: 9 };
     renderSurah(surah9);
-    expect(dom.surahContent.innerHTML).not.toContain('بِسْمِ اللَّهِ');
+    expect(dom.surahContent!.innerHTML).not.toContain('بِسْمِ اللَّهِ');
   });
 
   it('should include ayah numbers', () => {
     renderSurah(sampleSurah);
     sampleAyahs.forEach((a) => {
-      expect(dom.surahContent.innerHTML).toContain(`>${a.numberInSurah}<`);
+      expect(dom.surahContent!.innerHTML).toContain(`>${a.numberInSurah}<`);
     });
   });
 
   it('should set font size from state', () => {
     state.fontSize = 36;
     renderSurah(sampleSurah);
-    expect(dom.surahContent.innerHTML).toContain('font-size:36px');
+    expect(dom.surahContent!.innerHTML).toContain('font-size:36px');
   });
 
   it('should return early if surahContent is falsy', () => {
@@ -142,8 +143,6 @@ describe('initState', () => {
       surahOffsets: null,
       ayahTimings: [],
       presentationMode: false,
-      _allSearchMatches: null,
-      _searchResultsPage: 1,
     });
 
     expect(state.currentSurah).toBe(1);
@@ -181,7 +180,8 @@ describe('initState', () => {
     expect(state.currentTranslation).toBeNull();
     expect(state.tajweedEnabled).toBe(true);
     expect(state.presentationMode).toBe(false);
-    expect(state._searchResultsPage).toBe(1);
+    const internalState = await import('../internal-state.js');
+    expect(internalState.getSearchResultsPage()).toBe(1);
   });
 
   it('should use correct default values from CONFIG', async () => {

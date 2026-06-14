@@ -61,7 +61,7 @@ describe('formatTime12Local', () => {
 
   it('should return em dash for empty', () => {
     expect(formatTime12('')).toBe('—');
-    expect(formatTime12(null)).toBe('—');
+    expect(formatTime12(null as unknown as string)).toBe('—');
   });
 });
 
@@ -74,6 +74,6 @@ describe('timeStrToMinutes', () => {
 
   it('should return 0 for empty input', () => {
     expect(timeStrToMinutes('')).toBe(0);
-    expect(timeStrToMinutes(null)).toBe(0);
+    expect(timeStrToMinutes(null as unknown as string)).toBe(0);
   });
 });

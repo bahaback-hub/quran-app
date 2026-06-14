@@ -18,14 +18,14 @@ describe('toggleHifdh', () => {
   it('should enable hifdh mode', () => {
     toggleHifdh();
     expect(state.hifdhMode).toBe(true);
-    expect(dom.hifdhBtn.classList.contains('active')).toBe(true);
+    expect(dom.hifdhBtn!.classList.contains('active')).toBe(true);
   });
 
   it('should disable hifdh mode', () => {
     toggleHifdh();
     toggleHifdh();
     expect(state.hifdhMode).toBe(false);
-    expect(dom.hifdhBtn.classList.contains('active')).toBe(false);
+    expect(dom.hifdhBtn!.classList.contains('active')).toBe(false);
   });
 
   it('should add hifdh-mode class to ayahs', () => {
@@ -52,16 +52,16 @@ describe('toggleRepeat', () => {
   it('should enable repeat mode', () => {
     toggleRepeat();
     expect(state.repeatMode).toBe(true);
-    expect(dom.repeatBtn.classList.contains('active')).toBe(true);
-    expect(dom.repeatControls.style.display).toBe('flex');
+    expect(dom.repeatBtn!.classList.contains('active')).toBe(true);
+    expect(dom.repeatControls!.style.display).toBe('flex');
   });
 
   it('should disable repeat mode', () => {
     toggleRepeat();
     toggleRepeat();
     expect(state.repeatMode).toBe(false);
-    expect(dom.repeatBtn.classList.contains('active')).toBe(false);
-    expect(dom.repeatControls.style.display).toBe('none');
+    expect(dom.repeatBtn!.classList.contains('active')).toBe(false);
+    expect(dom.repeatControls!.style.display).toBe('none');
   });
 
   it('should reset repeat counter on toggle', () => {

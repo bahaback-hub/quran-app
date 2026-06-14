@@ -244,8 +244,7 @@ describe('State Management', () => {
 
     it('should support unsubscribe during callback (no infinite loop)', () => {
       const callback = vi.fn();
-      /** @type {(() => void)|null} */
-      let unsub = null;
+      let unsub: (() => void) | null = null;
       unsub = subscribe('isPlaying', () => {
         callback();
         if (unsub) unsub();

@@ -1,4 +1,14 @@
-import { state, QuranTextEntry, SearchWord } from './state.js';
+import { state, type QuranTextEntry, type SearchWord } from './state.js';
+import {
+  getAllSearchMatches,
+  setAllSearchMatches,
+  getSearchResultsPage,
+  setSearchResultsPage,
+  getVoiceListening,
+  setVoiceListening,
+  getVoiceRecognition,
+  setVoiceRecognition,
+} from './internal-state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
@@ -67,8 +77,8 @@ export function performExactSearch(query: string): void {
   }
   addToSearchHistory(query.trim());
   const matches = performSearch(query);
-  state._allSearchMatches = matches;
-  state._searchResultsPage = 1;
+  setAllSearchMatches(matches);
+  setSearchResultsPage(1);
   renderSearchResults(matches.slice(0, SEARCH_PAGE_SIZE), query, matches.length > SEARCH_PAGE_SIZE);
 }
 
@@ -139,7 +149,7 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
     dom.searchResults.style.display = 'block';
     return;
   }
-  const totalResults = state._allSearchMatches?.length ?? matches.length;
+  const totalResults = getAllSearchMatches()?.length ?? matches.length;
   let html = `<div class="search-results-header">
     <span>✅ ${__('results_count')}: ${totalResults}</span>
     <button class="search-results-close" id="closeSearchResultsBtn" aria-label="${__('close')}">✖</button>
@@ -177,8 +187,8 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
       if (target.id === 'loadMoreSearchBtn') {
         const q = dom.searchResults!.dataset.query || '';
         const currentCount = dom.searchResults!.querySelectorAll('.search-result-item').length;
-        state._searchResultsPage = (state._searchResultsPage || 1) + 1;
-        const allMatches = state._allSearchMatches ?? [];
+        setSearchResultsPage((getSearchResultsPage() || 1) + 1);
+        const allMatches = getAllSearchMatches() ?? [];
         const nextBatch = allMatches.slice(0, currentCount + SEARCH_PAGE_SIZE);
         renderSearchResults(nextBatch, q, nextBatch.length < allMatches.length);
         return;
@@ -493,12 +503,12 @@ export function startVoiceSearch(): void {
     showToast(__('voice_search_unsupported'), 'error');
     return;
   }
-  if (state._voiceListening) return;
+  if (getVoiceListening()) return;
   const recognition = new SpeechRecognition();
   recognition.lang = 'ar-SA';
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
-  state._voiceListening = true;
+  setVoiceListening(true);
   dom.voiceSearchBtn?.classList.add('listening');
   showToast(__('voice_search_speaking'), 'success');
   recognition.onresult = (e: SpeechRecognitionEvent) => {
@@ -513,19 +523,19 @@ export function startVoiceSearch(): void {
   };
   recognition.onend = () => stopVoiceSearch();
   recognition.start();
-  state._voiceRecognition = recognition;
+  setVoiceRecognition(recognition);
 }
 
 function stopVoiceSearch(): void {
-  state._voiceListening = false;
+  setVoiceListening(false);
   dom.voiceSearchBtn?.classList.remove('listening');
-  if (state._voiceRecognition) {
+  if (getVoiceRecognition()) {
     try {
-      (state._voiceRecognition as SpeechRecognitionInstance).stop();
+      (getVoiceRecognition() as SpeechRecognitionInstance).stop();
     } catch (_e) {
       /* noop */
     }
-    state._voiceRecognition = null;
+    setVoiceRecognition(null);
   }
 }
 
