@@ -1,12 +1,9 @@
-import { state } from './state.js';
-import { CONFIG } from './config.js';
+import { state, type AppState } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { hapticFeedback } from './utils.js';
 import { highlightCurrentAyah } from './surah-loader.js';
-import { getReciterById } from './reciters.js';
-import { startVisualizer, stopVisualizer } from './audio-visualizer.js';
 import { __ } from './i18n.js';
 import type { SurahData } from './types.js';
 
@@ -27,6 +24,13 @@ interface WordWeightsResult {
   startTimes: number[];
 }
 
+/** Repeat range configuration — extracted from toggleRepeat for clarity. */
+interface RepeatRange {
+  from: number;
+  to: number;
+  times: number;
+}
+
 /* ===================== MODULE STATE ===================== */
 
 let _loadSurah: LoadSurahFn | null = null;
@@ -38,7 +42,7 @@ let _mp3quranUrl: string | null = null;
 let _autoAdvancing = false;
 let _sleepTimer: ReturnType<typeof setTimeout> | null = null;
 let _sleepTimerMinutes = 0;
-let _sleepTimerStart: number = 0; // timestamp when timer was set
+let _sleepTimerStart: number = 0;
 let _audioRetryCount = 0;
 const MAX_AUDIO_RETRIES = 2;
 let _autoAdvanceSafetyTimer: ReturnType<typeof setTimeout> | null = null;
@@ -77,6 +81,22 @@ function _getAyahEndTime(): number {
   return (next !== undefined ? next : 1) * dom.audioPlayer.duration;
 }
 
+/* ===================== PLAYBACK STATE HELPERS ===================== */
+
+/** Set playback state to playing and update UI. */
+function setPlayingState(): void {
+  state.isPlaying = true;
+  document.body.classList.add('audio-playing');
+  updatePlayPauseBtn();
+}
+
+/** Set playback state to stopped and update UI. */
+function setStoppedState(): void {
+  state.isPlaying = false;
+  document.body.classList.remove('audio-playing');
+  updatePlayPauseBtn();
+}
+
 /* ===================== PLAYER ===================== */
 
 /** Play the current ayah audio. */
@@ -97,7 +117,7 @@ export function playCurrentAyah(): void {
   if (isMp3quran && _mp3quranUrl === url && dom.audioPlayer.readyState >= 2) {
     dom.audioPlayer.currentTime = _getAyahStartTime();
     dom.audioPlayer.play().catch((e: unknown) => console.warn(e));
-    state.isPlaying = true;
+    setPlayingState();
     startWordTracking();
     return;
   }
@@ -126,7 +146,7 @@ export function playCurrentAyah(): void {
     dom.audioPlayer.playbackRate = parseFloat(savedSpeed);
   }
 
-  state.isPlaying = true;
+  setPlayingState();
   startWordTracking();
   if (!isMp3quran) preloadNextAyah();
 }
@@ -211,7 +231,6 @@ function onTimeUpdate(): void {
     if (currentTime >= endTime - 0.15) {
       if (_autoAdvancing) return;
       _autoAdvancing = true;
-      // Pause to prevent the real 'ended' event from firing after we handle it
       dom.audioPlayer.pause();
       try {
         if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
@@ -221,9 +240,8 @@ function onTimeUpdate(): void {
         }
       } catch (e) {
         console.warn('[Audio] Error during auto-advance:', e);
-        _autoAdvancing = false; // Reset on error to prevent stuck state
+        _autoAdvancing = false;
       }
-      // Safety timeout: if onAudioPlay doesn't fire within 5s, reset _autoAdvancing
       _autoAdvanceSafetyTimer = setTimeout(() => {
         if (_autoAdvancing) {
           console.warn('[Audio] Auto-advance safety timeout — resetting stuck state');
@@ -278,7 +296,6 @@ export function togglePlayPause(): void {
   hapticFeedback();
   if (dom.audioPlayer.paused) {
     if (!dom.audioPlayer.src || dom.audioPlayer.ended) {
-      // Replay current ayah instead of resetting to first ayah
       highlightCurrentAyah();
       playCurrentAyah();
     } else {
@@ -323,14 +340,12 @@ export function bindAudioEvents(): void {
 
 function onAudioPlay(): void {
   _autoAdvancing = false;
-  _audioRetryCount = 0; // Reset retry count on successful play
+  _audioRetryCount = 0;
   if (_autoAdvanceSafetyTimer) {
     clearTimeout(_autoAdvanceSafetyTimer);
     _autoAdvanceSafetyTimer = null;
   }
-  state.isPlaying = true;
-  document.body.classList.add('audio-playing');
-  updatePlayPauseBtn();
+  setPlayingState();
   updateSleepTimerDisplay();
   const vizCanvas = document.getElementById('audioVisualizer');
   if (vizCanvas) startVisualizer(vizCanvas as HTMLCanvasElement);
@@ -348,9 +363,7 @@ function onAudioPlay(): void {
 }
 
 function onAudioPause(): void {
-  state.isPlaying = false;
-  document.body.classList.remove('audio-playing');
-  updatePlayPauseBtn();
+  setStoppedState();
   stopVisualizer();
 }
 
@@ -380,9 +393,7 @@ function onAudioError(): void {
   }
 
   // Can't skip — full stop
-  state.isPlaying = false;
-  document.body.classList.remove('audio-playing');
-  updatePlayPauseBtn();
+  setStoppedState();
   showToast(__('audio_error'), 'error');
 }
 
@@ -392,70 +403,91 @@ export function updatePlayPauseBtn(): void {
   }
 }
 
+/* ===================== REPEAT LOGIC (extracted from onAudioEnded) ===================== */
+
+/**
+ * Handle repeat mode logic when an ayah ends.
+ * Returns true if repeat logic handled the transition (caller should not advance further).
+ */
+function handleRepeatOnEnd(): boolean {
+  if (!state.repeatMode || !state.surahData) return false;
+
+  const surahData: SurahData = state.surahData;
+  const currentNum = surahData.ayahs[state.currentAyahIndex].numberInSurah;
+
+  // Check if we've reached the end of the repeat range
+  if (currentNum === state.repeatTo) {
+    state.repeatCounter++;
+    if (state.repeatCounter >= state.repeatTimes) {
+      completeRepeat();
+      return true;
+    }
+    // Jump back to repeatFrom
+    const startIdx = findAyahIndex(surahData, state.repeatFrom);
+    if (startIdx !== -1) {
+      state.currentAyahIndex = startIdx;
+      highlightCurrentAyah();
+      playCurrentAyah();
+      return true;
+    }
+  }
+
+  // If current ayah is before repeatFrom, jump to repeatFrom
+  if (currentNum < state.repeatFrom) {
+    const startIdx = findAyahIndex(surahData, state.repeatFrom);
+    if (startIdx !== -1) {
+      state.currentAyahIndex = startIdx;
+      highlightCurrentAyah();
+      playCurrentAyah();
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/** Complete repeat mode — reset state and stop playback. */
+function completeRepeat(): void {
+  state.repeatMode = false;
+  state.repeatCounter = 0;
+  dom.repeatBtn?.classList.remove('active');
+  if (dom.repeatControls) dom.repeatControls.style.display = 'none';
+  showToast(__('repeat_complete'), 'success');
+  setStoppedState();
+}
+
+/** Find the array index of an ayah by its numberInSurah. */
+function findAyahIndex(surahData: SurahData, ayahNum: number): number {
+  return surahData.ayahs.findIndex((a: { numberInSurah: number }) => a.numberInSurah === ayahNum);
+}
+
+/* ===================== AUDIO END HANDLER ===================== */
+
 function onAudioEnded(): void {
   _mp3quranUrl = null;
   if (!state.surahData) return;
   stopWordTracking();
 
-  if (state.repeatMode) {
-    const surahData: SurahData = state.surahData;
-    const currentNum = surahData.ayahs[state.currentAyahIndex].numberInSurah;
-    if (currentNum === state.repeatTo) {
-      state.repeatCounter++;
-      if (state.repeatCounter >= state.repeatTimes) {
-        state.repeatMode = false;
-        state.repeatCounter = 0;
-        dom.repeatBtn?.classList.remove('active');
-        if (dom.repeatControls) dom.repeatControls.style.display = 'none';
-        showToast(__('repeat_complete'), 'success');
-        // Stop playback when repeat is complete
-        state.isPlaying = false;
-        document.body.classList.remove('audio-playing');
-        updatePlayPauseBtn();
-        return;
-      }
-      const startIdx = surahData.ayahs.findIndex(
-        (a: { numberInSurah: number }) => a.numberInSurah === state.repeatFrom
-      );
-      if (startIdx !== -1) {
-        state.currentAyahIndex = startIdx;
-        highlightCurrentAyah();
-        playCurrentAyah();
-        return;
-      }
-    }
-    // If current ayah is before repeatFrom, jump to repeatFrom instead of advancing
-    if (currentNum < state.repeatFrom) {
-      const startIdx = surahData.ayahs.findIndex(
-        (a: { numberInSurah: number }) => a.numberInSurah === state.repeatFrom
-      );
-      if (startIdx !== -1) {
-        state.currentAyahIndex = startIdx;
-        highlightCurrentAyah();
-        playCurrentAyah();
-        return;
-      }
-    }
-    nextAyah(true);
-    return;
-  }
+  // Handle repeat mode (separated for clarity)
+  if (handleRepeatOnEnd()) return;
 
   const surahData: SurahData | null = state.surahData;
   if (!surahData) return;
+
   if (state.currentAyahIndex === state.ayahsAudios.length - 1) {
     // Last ayah of the surah
-    if (state.currentSurah >= CONFIG.SURAH_COUNT) {
+    if (state.currentSurah >= 114) {
       // Last surah (114) — stop playback cleanly
-      showToast(`✅ ${__('surah_complete')} ${surahData.name}`, 'success');
-      state.isPlaying = false;
-      document.body.classList.remove('audio-playing');
-      updatePlayPauseBtn();
+      showToast(`${__('surah_complete')} ${surahData.name}`, 'success');
+      setStoppedState();
       return;
     }
-    showToast(`✅ ${__('surah_complete')} ${surahData.name}`, 'success');
+    showToast(`${__('surah_complete')} ${surahData.name}`, 'success');
   }
   nextAyah(true);
 }
+
+/* ===================== NAVIGATION ===================== */
 
 /** Go to next ayah (or next surah). */
 export function nextAyah(autoFromRepeat: boolean): void {
@@ -464,12 +496,10 @@ export function nextAyah(autoFromRepeat: boolean): void {
     state.currentAyahIndex++;
     highlightCurrentAyah();
     if (autoFromRepeat || state.isPlaying) playCurrentAyah();
-  } else if (state.currentSurah < CONFIG.SURAH_COUNT) {
+  } else if (state.currentSurah < 114) {
     if (state.mushafMode) {
       dom.audioPlayer?.pause();
-      state.isPlaying = false;
-      document.body.classList.remove('audio-playing');
-      updatePlayPauseBtn();
+      setStoppedState();
       return;
     }
     nextSurah();
@@ -489,7 +519,7 @@ export function prevAyah(): void {
 }
 
 export function nextSurah(): void {
-  if (state.currentSurah < CONFIG.SURAH_COUNT) _loadSurah?.(state.currentSurah + 1, { autoPlay: state.isPlaying });
+  if (state.currentSurah < 114) _loadSurah?.(state.currentSurah + 1, { autoPlay: state.isPlaying });
 }
 
 export function prevSurah(): void {
@@ -511,6 +541,67 @@ export function toggleHifdh(): void {
   showToast(state.hifdhMode ? __('hifdh_on') : __('hifdh_off'), state.hifdhMode ? 'success' : '');
 }
 
+/* ===================== REPEAT UI (separated from logic) ===================== */
+
+/**
+ * Compute the default repeat range for the current surah.
+ * Pure function — no side effects, easy to test.
+ */
+export function getDefaultRepeatRange(surahData: SurahData): RepeatRange {
+  return { from: 1, to: surahData.ayahs.length, times: 3 };
+}
+
+/**
+ * Populate repeat range dropdowns in the UI.
+ * Separated from toggleRepeat for testability and clarity.
+ */
+export function populateRepeatUI(range: RepeatRange): void {
+  if (!dom.repeatFrom || !dom.repeatTo || !dom.repeatTimes) return;
+
+  const fromOpts = document.createDocumentFragment();
+  const toOpts = document.createDocumentFragment();
+
+  for (let i = 1; i <= range.to; i++) {
+    const opt = document.createElement('option');
+    opt.value = String(i);
+    opt.textContent = String(i);
+    fromOpts.appendChild(opt);
+
+    const opt2 = document.createElement('option');
+    opt2.value = String(i);
+    opt2.textContent = String(i);
+    toOpts.appendChild(opt2);
+  }
+
+  dom.repeatFrom.replaceChildren(fromOpts);
+  dom.repeatTo.replaceChildren(toOpts);
+  dom.repeatFrom.value = String(range.from);
+  dom.repeatTo.value = String(range.to);
+  dom.repeatTimes.value = String(range.times);
+
+  // Bind change handlers
+  dom.repeatFrom.onchange = () => {
+    state.repeatFrom = parseInt(dom.repeatFrom!.value, 10);
+    if (state.repeatFrom > state.repeatTo) {
+      state.repeatTo = state.repeatFrom;
+      dom.repeatTo!.value = String(state.repeatTo);
+    }
+    state.repeatCounter = 0;
+  };
+  dom.repeatTo.onchange = () => {
+    state.repeatTo = parseInt(dom.repeatTo!.value, 10);
+    if (state.repeatTo < state.repeatFrom) {
+      state.repeatFrom = state.repeatTo;
+      dom.repeatFrom!.value = String(state.repeatFrom);
+    }
+    state.repeatCounter = 0;
+  };
+  dom.repeatTimes.onchange = () => {
+    state.repeatTimes = parseInt(dom.repeatTimes!.value, 10);
+    state.repeatCounter = 0;
+  };
+}
+
 /** Toggle repeat mode. */
 export function toggleRepeat(): void {
   hapticFeedback();
@@ -518,50 +609,13 @@ export function toggleRepeat(): void {
   state.repeatCounter = 0;
   dom.repeatBtn?.classList.toggle('active', state.repeatMode);
   if (dom.repeatControls) dom.repeatControls.style.display = state.repeatMode ? 'flex' : 'none';
+
   if (state.repeatMode && state.surahData) {
-    const surahData: SurahData = state.surahData;
-    state.repeatFrom = 1;
-    state.repeatTo = surahData.ayahs.length;
-    state.repeatTimes = 3;
-    if (dom.repeatFrom && dom.repeatTo && dom.repeatTimes) {
-      const opts = document.createDocumentFragment();
-      const opts2 = document.createDocumentFragment();
-      for (let i = 1; i <= surahData.ayahs.length; i++) {
-        const opt = document.createElement('option');
-        opt.value = String(i);
-        opt.textContent = String(i);
-        opts.appendChild(opt);
-        const opt2 = document.createElement('option');
-        opt2.value = String(i);
-        opt2.textContent = String(i);
-        opts2.appendChild(opt2);
-      }
-      dom.repeatFrom.replaceChildren(opts);
-      dom.repeatTo.replaceChildren(opts2);
-      dom.repeatFrom.value = String(state.repeatFrom);
-      dom.repeatTo.value = String(state.repeatTo);
-      dom.repeatTimes.value = String(state.repeatTimes);
-      dom.repeatFrom.onchange = () => {
-        state.repeatFrom = parseInt(dom.repeatFrom!.value, 10);
-        if (state.repeatFrom > state.repeatTo) {
-          state.repeatTo = state.repeatFrom;
-          dom.repeatTo!.value = String(state.repeatTo);
-        }
-        state.repeatCounter = 0;
-      };
-      dom.repeatTo.onchange = () => {
-        state.repeatTo = parseInt(dom.repeatTo!.value, 10);
-        if (state.repeatTo < state.repeatFrom) {
-          state.repeatFrom = state.repeatTo;
-          dom.repeatFrom!.value = String(state.repeatFrom);
-        }
-        state.repeatCounter = 0;
-      };
-      dom.repeatTimes.onchange = () => {
-        state.repeatTimes = parseInt(dom.repeatTimes!.value, 10);
-        state.repeatCounter = 0;
-      };
-    }
+    const range = getDefaultRepeatRange(state.surahData);
+    state.repeatFrom = range.from;
+    state.repeatTo = range.to;
+    state.repeatTimes = range.times;
+    populateRepeatUI(range);
     showToast(__('repeat_on'), 'success');
   } else {
     showToast(__('repeat_off'), '');
@@ -583,9 +637,7 @@ export function setSleepTimer(minutes: number): void {
     () => {
       if (dom.audioPlayer && !dom.audioPlayer.paused) {
         dom.audioPlayer.pause();
-        state.isPlaying = false;
-        document.body.classList.remove('audio-playing');
-        updatePlayPauseBtn();
+        setStoppedState();
       }
       showToast(__('sleep_timer_stopped', String(minutes)), 'success');
       _sleepTimerMinutes = 0;
@@ -635,11 +687,9 @@ function updateSleepTimerDisplay(): void {
   const remaining = getSleepTimerRemaining();
   const mins = Math.floor(remaining);
   const secs = Math.floor((remaining - mins) * 60);
-  el.textContent = `${__('sleep_timer_remaining') ?? '\\u0645\\u062a\\u0628\\u0642\\u064a'} ${mins}:${secs.toString().padStart(2, '0')}`;
+  el.textContent = `${__('sleep_timer_remaining') ?? '\u0645\u062a\u0628\u0642\u064a'} ${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-// Update the sleep timer countdown every 15 seconds
-// Lazy-initialized: only starts the interval when first needed
 let _sleepTimerInterval: ReturnType<typeof setInterval> | null = null;
 
 function ensureSleepTimerInterval(): void {
@@ -658,3 +708,6 @@ export function cleanupSleepTimerInterval(): void {
     _sleepTimerInterval = null;
   }
 }
+
+// Re-export for audio-visualizer (avoids circular import)
+import { startVisualizer, stopVisualizer } from './audio-visualizer.js';
