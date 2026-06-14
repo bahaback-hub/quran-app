@@ -9,33 +9,19 @@ import { getAyahAnnotations } from './tajweed-data.js';
 import type { TajweedAnnotation } from './tajweed-data.js';
 import { escapeHtml } from './utils.js';
 import { highlightCurrentAyah } from './surah-loader.js';
+import { getFullscreenElement, requestFullscreen, exitFullscreen, isFullscreen } from './types.js';
+import type { SurahDataLike, TranslationDataLike } from './types.js';
 
-/** Shape of surahData when accessed in presentation functions. */
-interface SurahAyahData {
-  numberInSurah: number;
-  text: string;
-}
-
-interface SurahDataLike {
-  name: string;
-  ayahs: SurahAyahData[];
-}
-
-interface TranslationAyahData {
-  text: string;
-}
-
-interface TranslationDataLike {
-  ayahs: TranslationAyahData[];
-}
+/** WeakMap for storing cleanup functions on canvas elements (replaces expando properties). */
+const _cleanupMap = new WeakMap<Element, () => void>();
 
 /** Available nature background images with their mood/time. */
 const NATURE_BACKGROUNDS = [
-  { src: 'backgrounds/dawn.jpg', mood: 'dawn', label: 'فجر' },
-  { src: 'backgrounds/clouds.jpg', mood: 'morning', label: 'صباح' },
-  { src: 'backgrounds/mountains.jpg', mood: 'afternoon', label: 'ظهر' },
-  { src: 'backgrounds/sunset.jpg', mood: 'sunset', label: 'غروب' },
-  { src: 'backgrounds/nightsky.jpg', mood: 'night', label: 'ليل' },
+  { src: 'backgrounds/dawn.jpg', mood: 'dawn', label: __('bg_dawn') },
+  { src: 'backgrounds/clouds.jpg', mood: 'morning', label: __('bg_morning') },
+  { src: 'backgrounds/mountains.jpg', mood: 'afternoon', label: __('bg_afternoon') },
+  { src: 'backgrounds/sunset.jpg', mood: 'sunset', label: __('bg_sunset') },
+  { src: 'backgrounds/nightsky.jpg', mood: 'night', label: __('bg_night') },
 ];
 
 /** Get a background image based on the current time of day. */
@@ -560,9 +546,10 @@ function removeSceneCanvas(overlay: HTMLElement): void {
   const existing = overlay.querySelector('.pres-canvas-bg');
   if (existing) {
     // Clean up resize listener
-    const cleanup = (existing as unknown as Record<string, unknown>)._cleanupResize;
+    const cleanup = _cleanupMap.get(existing);
     if (typeof cleanup === 'function') {
-      window.removeEventListener('resize', cleanup as EventListener);
+      window.removeEventListener('resize', cleanup);
+      _cleanupMap.delete(existing);
     }
     existing.remove();
   }
@@ -1102,8 +1089,8 @@ function startSceneAnimation(overlay: HTMLElement, sceneId: string): void {
     canvas.height = window.innerHeight;
   };
   window.addEventListener('resize', onResize);
-  // Store cleanup reference on the canvas element
-  (canvas as unknown as Record<string, unknown>)._cleanupResize = onResize;
+  // Store cleanup reference for the canvas element
+  _cleanupMap.set(canvas, onResize);
 }
 
 /** Show presentation control buttons and reset auto-hide timer. */
@@ -1145,19 +1132,11 @@ function togglePresTajweed(): void {
 function togglePresFullscreen(): void {
   const overlay = dom.presentationOverlay;
   if (!overlay) return;
-  const fsElement = document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement;
+  const fsElement = getFullscreenElement();
   if (fsElement) {
-    if (document.exitFullscreen) {
-      document.exitFullscreen().catch(() => {});
-    } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
-      (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
-    }
+    exitFullscreen().catch(() => {});
   } else {
-    if (overlay.requestFullscreen) {
-      overlay.requestFullscreen().catch(() => {});
-    } else if ((overlay as unknown as { webkitRequestFullscreen?: () => Promise<void> }).webkitRequestFullscreen) {
-      (overlay as unknown as { webkitRequestFullscreen: () => Promise<void> }).webkitRequestFullscreen().catch(() => {});
-    }
+    requestFullscreen(overlay).catch(() => {});
   }
 }
 
@@ -1165,8 +1144,7 @@ function togglePresFullscreen(): void {
 function updatePresFullscreenBtn(): void {
   const btn = dom.presFullscreenBtn;
   if (!btn) return;
-  const isFullscreen = !!(document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement);
-  btn.textContent = isFullscreen ? '⤓' : '⛶';
+  btn.textContent = isFullscreen() ? '⤓' : '⛶';
 }
 
 function updateDisplay(): void {
@@ -1225,13 +1203,13 @@ function updateDisplay(): void {
     }
   }
 
-  const surahData = state.surahData as unknown as SurahDataLike | null;
+  const surahData = state.surahData as SurahDataLike | null;
   const ayah = surahData?.ayahs?.[state.currentAyahIndex];
   if (!ayah) {
     if (dom.presentationAyahText) dom.presentationAyahText.innerHTML = '—';
     if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = '—';
     if (dom.presentationTitle) dom.presentationTitle.textContent = '—';
-    if (dom.presentationCounter) dom.presentationCounter.textContent = '٠ / ٠';
+    if (dom.presentationCounter) dom.presentationCounter.textContent = __('pres_counter_zero');
     if (dom.presentationTranslation) dom.presentationTranslation.style.display = 'none';
     return;
   }
@@ -1260,7 +1238,7 @@ function updateDisplay(): void {
   if (dom.presentationTitle) dom.presentationTitle.textContent = `${surahName} — ${__('ayah')} ${ayah.numberInSurah}`;
   const total = surahData?.ayahs?.length || 0;
   if (dom.presentationCounter) dom.presentationCounter.textContent = `${ayah.numberInSurah} / ${total}`;
-  const translationData = state.translationData as unknown as TranslationDataLike | null;
+  const translationData = state.translationData as TranslationDataLike | null;
   if (state.translationEnabled && translationData?.ayahs?.[state.currentAyahIndex]) {
     if (dom.presentationTranslation) {
       dom.presentationTranslation.textContent = translationData.ayahs[state.currentAyahIndex].text;
@@ -1284,7 +1262,7 @@ function updateDisplay(): void {
 }
 
 function navigateAyah(delta: number): void {
-  const surahData = state.surahData as unknown as SurahDataLike | null;
+  const surahData = state.surahData as SurahDataLike | null;
   if (!surahData?.ayahs) return;
   const next = state.currentAyahIndex + delta;
   if (next < 0 || next >= surahData.ayahs.length) return;
@@ -1383,13 +1361,8 @@ export function openPresentation(): void {
 export function closePresentation(): void {
   state.presentationMode = false;
   // Exit fullscreen if active
-  const fsEl = document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement;
-  if (fsEl) {
-    if (document.exitFullscreen) {
-      document.exitFullscreen().catch(() => {});
-    } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
-      (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
-    }
+  if (isFullscreen()) {
+    exitFullscreen().catch(() => {});
   }
   if (dom.presentationOverlay) {
     // Remove the presentation-visible class FIRST (it has display: flex !important)
@@ -1430,14 +1403,9 @@ function handleKeyDown(e: KeyboardEvent): void {
   switch (e.key) {
     case 'Escape':
       // If in fullscreen, only exit fullscreen — don't close presentation
-      const fsEl = document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement;
-      if (fsEl) {
+      if (isFullscreen()) {
         e.preventDefault();
-        if (document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {});
-        } else if ((document as unknown as { webkitExitFullscreen?: () => Promise<void> }).webkitExitFullscreen) {
-          (document as unknown as { webkitExitFullscreen: () => Promise<void> }).webkitExitFullscreen().catch(() => {});
-        }
+        exitFullscreen().catch(() => {});
       } else {
         closePresentation();
       }
@@ -1506,7 +1474,7 @@ export function initPresentation(): void {
   if (dom.presentationNextBtn) dom.presentationNextBtn.addEventListener('click', () => navigateAyah(1));
   dom.presentationOverlay?.addEventListener('click', (e: MouseEvent) => {
     // Don't close on background click when in fullscreen
-    const inFs = !!(document.fullscreenElement || (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement);
+    const inFs = isFullscreen();
     if (e.target === dom.presentationOverlay && !inFs) closePresentation();
   });
 

@@ -283,8 +283,8 @@ export function bindSearchEvents(): void {
   });
   dom.voiceSearchBtn?.addEventListener('click', startVoiceSearch);
   dom.installBtn?.addEventListener('click', () => {
-    if (typeof (window as unknown as { installPWA?: () => void }).installPWA === 'function')
-      (window as unknown as { installPWA: () => void }).installPWA();
+    if (typeof (window as Window & { installPWA?: () => void }).installPWA === 'function')
+      (window as Window & { installPWA: () => void }).installPWA();
   });
   dom.sleepTimerBtn?.addEventListener('click', () => {
     showSleepTimerModal(audioModule);

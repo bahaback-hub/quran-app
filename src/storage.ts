@@ -1,4 +1,5 @@
-import { CONFIG } from './config.js';
+/** Storage key prefix — must match CONFIG.STORAGE_PREFIX in config.ts. */
+const STORAGE_PREFIX = 'quran_app_';
 
 /** localStorage wrapper with JSON serialization and prefix. */
 export const storage = {
@@ -10,7 +11,7 @@ export const storage = {
    */
   get<T = unknown>(key: string, def: T | null = null): T | null {
     try {
-      const v = localStorage.getItem(CONFIG.STORAGE_PREFIX + key);
+      const v = localStorage.getItem(STORAGE_PREFIX + key);
       return v === null ? def : (JSON.parse(v) as T);
     } catch (e) {
       console.warn(`[storage] Failed to read key "${key}":`, e);
@@ -24,7 +25,7 @@ export const storage = {
    */
   set(key: string, val: unknown): boolean {
     try {
-      localStorage.setItem(CONFIG.STORAGE_PREFIX + key, JSON.stringify(val));
+      localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(val));
       return true;
     } catch (e) {
       console.warn(`[storage] Failed to write key "${key}" (quota exceeded?):`, e);
@@ -37,7 +38,7 @@ export const storage = {
    */
   remove(key: string): void {
     try {
-      localStorage.removeItem(CONFIG.STORAGE_PREFIX + key);
+      localStorage.removeItem(STORAGE_PREFIX + key);
     } catch (e) {
       console.warn(`[storage] Failed to remove key "${key}":`, e);
     }

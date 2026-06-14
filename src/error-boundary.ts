@@ -95,8 +95,8 @@ async function showDebouncedToast(msg: string): Promise<void> {
 
 /**
  * Show a full-screen recovery overlay for critical errors.
- * This is rendered with inline styles because the error may have
- * occurred before CSS fully loaded or may have broken the app shell.
+ * Uses dedicated CSS classes in components.css for styling,
+ * ensuring theme consistency and maintainability.
  */
 function showRecoveryOverlay(errorMsg: string): void {
   if (_recoveryVisible) return;
@@ -110,36 +110,27 @@ function showRecoveryOverlay(errorMsg: string): void {
   overlay.setAttribute('role', 'alertdialog');
   overlay.setAttribute('aria-label', __('error_title'));
   overlay.innerHTML = `
-    <div style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999999;
-                display:flex;align-items:center;justify-content:center;
-                font-family:system-ui,-apple-system,sans-serif;direction:rtl;">
-      <div style="background:#1e1e2e;color:#e0e0e0;border-radius:16px;padding:32px;
-                  max-width:420px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.5);">
-        <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
-        <h2 style="margin:0 0 12px;font-size:20px;color:#f87171;">${__('error_title')}</h2>
-        <p style="margin:0 0 24px;font-size:14px;color:#9ca3af;line-height:1.6;">
+    <div class="error-overlay-backdrop">
+      <div class="error-overlay-card">
+        <div class="error-overlay-icon">⚠️</div>
+        <h2 class="error-overlay-title">${__('error_title')}</h2>
+        <p class="error-overlay-description">
           ${__('error_description')}
         </p>
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-          <button id="errorRecoveryReload" style="padding:10px 24px;border-radius:8px;border:none;
-                  background:#6366f1;color:#fff;font-size:15px;cursor:pointer;font-weight:600;">
+        <div class="error-overlay-actions">
+          <button id="errorRecoveryReload" class="error-overlay-btn-reload">
             ${__('error_reload')}
           </button>
-          <button id="errorRecoveryHome" style="padding:10px 24px;border-radius:8px;border:none;
-                  background:#374151;color:#e0e0e0;font-size:15px;cursor:pointer;font-weight:600;">
+          <button id="errorRecoveryHome" class="error-overlay-btn-home">
             ${__('error_home')}
           </button>
-          <button id="errorRecoveryCopy" style="padding:10px 24px;border-radius:8px;border:none;
-                  background:#1f2937;color:#9ca3af;font-size:14px;cursor:pointer;">
+          <button id="errorRecoveryCopy" class="error-overlay-btn-copy">
             ${__('error_copy_details')}
           </button>
         </div>
-        <details style="margin-top:20px;text-align:right;cursor:pointer;">
-          <summary style="color:#6b7280;font-size:13px;">${__('error_technical')}</summary>
-          <pre id="errorRecoveryDetails" style="margin-top:8px;padding:12px;background:#111827;
-               border-radius:8px;overflow-x:auto;font-size:12px;color:#f87171;
-               white-space:pre-wrap;word-break:break-all;direction:ltr;text-align:left;
-               max-height:200px;overflow-y:auto;">${escapeForHtml(errorMsg)}</pre>
+        <details class="error-overlay-details">
+          <summary class="error-overlay-details-summary">${__('error_technical')}</summary>
+          <pre id="errorRecoveryDetails" class="error-overlay-details-pre">${escapeForHtml(errorMsg)}</pre>
         </details>
       </div>
     </div>`;
@@ -273,7 +264,7 @@ function handleUnhandledRejection(event: PromiseRejectionEvent): void {
  */
 function handleResourceError(event: Event): void {
   const target = event.target as HTMLElement | null;
-  if (!target || target === (window as unknown as HTMLElement) || target === (document as unknown as HTMLElement))
+  if (!target || (event.target as unknown) === window || (event.target as unknown) === document)
     return; // Not a resource error
 
   const tagName = target.tagName?.toLowerCase();

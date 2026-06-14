@@ -112,16 +112,16 @@ quran-app/
 ├── index.html          # نقطة الدخول
 ├── styles.css          # التنسيقات (RTL، الوضع الليلي)
 ├── src/                # منطق التطبيق (وحدات ES)
-│   ├── app.js          # التهيئة وربط الأحداث
-│   ├── audio.js        # التلاوة والحفظ والتكرار
-│   ├── search.js       # البحث والصوت ولوحة المفاتيح
-│   ├── mushaf.js       # عرض المصحف
-│   ├── prayer.js       # المواقيت والأذان
-│   ├── tafsir.js       # التفسير
-│   ├── adhkar.js       # الأذكار
+│   ├── app.ts          # التهيئة وربط الأحداث
+│   ├── audio.ts        # التلاوة والحفظ والتكرار
+│   ├── search.ts       # البحث والصوت ولوحة المفاتيح
+│   ├── mushaf.ts       # عرض المصحف
+│   ├── prayer.ts       # المواقيت والأذان
+│   ├── tafsir.ts       # التفسير
+│   ├── adhkar.ts       # الأذكار
 │   └── __tests__/      # الاختبارات
 ├── public/data/        # بيانات محلية للأوفلاين (قائمة السور، نص القرآن)
-└── vite.config.js      # Vite + PWA (Workbox — Service Worker واحد)
+└── vite.config.ts      # Vite + PWA (Workbox — Service Worker واحد)
 ```
 
 لتفاصيل الاتفاقيات والبنية، راجع [`AGENTS.md`](AGENTS.md).

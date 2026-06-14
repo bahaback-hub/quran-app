@@ -196,7 +196,7 @@ describe('fetchTafsirText', () => {
     });
 
     const result = await fetchTafsirText('ar-tafsir-muyassar', 1, 1);
-    expect(result).toBe('no_tafsir_available');
+    expect(result).toBe('⚠️ لا يوجد تفسير متاح');
   });
 
   it('should return null when API fetch fails', async () => {
@@ -295,7 +295,7 @@ describe('loadTafsirForSurahAyah', () => {
 
     await loadTafsirForSurahAyah(999, 1);
 
-    expect(dom.tafsirCurtainHeader.textContent).toContain('surah 999');
+    expect(dom.tafsirCurtainHeader.textContent).toContain('سورة 999');
   });
 
   it('should open tafsir curtain', async () => {

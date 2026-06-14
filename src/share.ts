@@ -24,7 +24,7 @@ interface SurahData {
 /** Build share text for the current ayah. */
 export function buildShareText(): string {
   if (!state.surahData) return '';
-  const surahData = state.surahData as unknown as SurahData;
+  const surahData = state.surahData;
   const a = surahData.ayahs[state.currentAyahIndex];
   if (!a) return '';
   return `${a.text} — ${surahData.name} — ${__('ayah')} ${a.numberInSurah}`;
@@ -55,7 +55,7 @@ export function shareCopy(): void {
 /** Copy current ayah text without diacritics. */
 export function shareCopySimple(): void {
   if (!state.surahData) return;
-  const surahData = state.surahData as unknown as SurahData;
+  const surahData = state.surahData;
   const a = surahData.ayahs[state.currentAyahIndex];
   if (!a) return;
   const text = `${stripTashkeel(a.text)} — ${surahData.name} — ${__('ayah')} ${a.numberInSurah}`;

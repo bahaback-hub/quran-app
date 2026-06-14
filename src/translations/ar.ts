@@ -420,6 +420,47 @@ const ar: TranslationBundle = {
   tajweed_shamsiyyah: 'اللام الشمسية والقلقلة',
   tajweed_idgham: 'همزة الوصل والإدغام',
   tajweed_sukoon: 'السكون',
+
+  // Prayer names (i18n for PRAYER_NAMES_AR)
+  prayer_fajr: 'الفجر',
+  prayer_sunrise: 'الشروق',
+  prayer_dhuhr: 'الظهر',
+  prayer_asr: 'العصر',
+  prayer_maghrib: 'المغرب',
+  prayer_isha: 'العشاء',
+
+  // City defaults
+  makkah: 'مكة',
+
+  // Juz & Sajdah labels
+  juz_num: 'الجزء {0}',
+  sajdah_wajib: 'سجدة واجبة',
+  sajdah_mustahab: 'سجدة مستحبة',
+
+  // Background mood labels
+  bg_dawn: 'فجر',
+  bg_morning: 'صباح',
+  bg_afternoon: 'ظهر',
+  bg_sunset: 'غروب',
+  bg_night: 'ليل',
+
+  // Presentation counter zero state
+  pres_counter_zero: '٠ / ٠',
+
+  // Minutes abbreviation
+  minutes_abbr: '{0} د',
+
+  // Invalid data error
+  invalid_data: 'بيانات غير صالحة',
+
+  // Individual weekday keys (for config.ts ARABIC_WEEKDAYS backward compat)
+  weekday_sunday: 'الأحد',
+  weekday_monday: 'الإثنين',
+  weekday_tuesday: 'الثلاثاء',
+  weekday_wednesday: 'الأربعاء',
+  weekday_thursday: 'الخميس',
+  weekday_friday: 'الجمعة',
+  weekday_saturday: 'السبت',
 };
 
 export default ar;

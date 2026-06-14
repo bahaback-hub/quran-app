@@ -264,3 +264,19 @@ export function getCalcMethodName(key: string): string {
 export function getWeekday(index: number): string {
   return currentBundle?.weekdays?.[index] || getArFallbackSync()?.weekdays?.[index] || '';
 }
+
+/** Mapping of English prayer keys to i18n translation keys. */
+const PRAYER_I18N_KEYS: Record<string, string> = {
+  Fajr: 'prayer_fajr',
+  Sunrise: 'prayer_sunrise',
+  Dhuhr: 'prayer_dhuhr',
+  Asr: 'prayer_asr',
+  Maghrib: 'prayer_maghrib',
+  Isha: 'prayer_isha',
+};
+
+/** Get the localized prayer name by its English key (e.g. 'Fajr' → 'الفجر'). */
+export function getPrayerName(key: string): string {
+  const i18nKey = PRAYER_I18N_KEYS[key];
+  return i18nKey ? __(i18nKey) : key;
+}

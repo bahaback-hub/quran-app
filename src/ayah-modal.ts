@@ -324,7 +324,7 @@ async function ensureModalAudio(): Promise<void> {
   if (!current) return;
   const reciterId: string = M.ayahModalQariSelect?.value || CONFIG.DEFAULT_RECITER;
   if (audioLoadSurah === current.surah && ayahAudios.length) return;
-  const reciterInfo: ReciterEntry = getReciterById(reciterId) as unknown as ReciterEntry;
+  const reciterInfo: ReciterEntry = getReciterById(reciterId) as ReciterEntry;
   if (reciterInfo.source === 'mp3quran') {
     ayahAudios = [buildAudioUrl(reciterInfo, current.surah)!];
     audioLoadSurah = current.surah;

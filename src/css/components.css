@@ -694,3 +694,222 @@ body:not(.night-mode) .kbd-key:active {
 .mushaf-surah-overlay-btn {
   flex: 1;
 }
+
+/* ========== Error Recovery Overlay ========== */
+.error-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, -apple-system, sans-serif;
+  direction: rtl;
+}
+.error-overlay-card {
+  background: #1e1e2e;
+  color: #e0e0e0;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+.error-overlay-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+.error-overlay-title {
+  margin: 0 0 12px;
+  font-size: 20px;
+  color: #f87171;
+}
+.error-overlay-description {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: #9ca3af;
+  line-height: 1.6;
+}
+.error-overlay-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.error-overlay-btn-reload {
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  background: #6366f1;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.error-overlay-btn-home {
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  background: #374151;
+  color: #e0e0e0;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.error-overlay-btn-copy {
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  background: #1f2937;
+  color: #9ca3af;
+  font-size: 14px;
+  cursor: pointer;
+}
+.error-overlay-details {
+  margin-top: 20px;
+  text-align: right;
+  cursor: pointer;
+}
+.error-overlay-details-summary {
+  color: #6b7280;
+  font-size: 13px;
+}
+.error-overlay-details-pre {
+  margin-top: 8px;
+  padding: 12px;
+  background: #111827;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 12px;
+  color: #f87171;
+  white-space: pre-wrap;
+  word-break: break-all;
+  direction: ltr;
+  text-align: left;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* ========== Adhkar Category Options ========== */
+.adhkar-category-options {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--controls-bg);
+  border-radius: 8px;
+}
+.adhkar-cat-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.adhkar-cat-label--time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+.adhkar-cat-toggle {
+  transform: scale(0.85);
+}
+.adhkar-cat-time-input {
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--select-bg);
+  color: var(--text-primary);
+  width: 80px;
+}
+.adhkar-cat-duration-input {
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--select-bg);
+  color: var(--text-primary);
+  width: 50px;
+}
+.adhkar-cat-status {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.adhkar-no-personal {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+}
+body.night-mode .adhkar-no-personal {
+  color: var(--text-muted);
+}
+.adhkar-setting-duration-input {
+  width: 50px;
+}
+
+/* ========== Search UI Inline Styles ========== */
+.search-load-more {
+  text-align: center;
+  padding: 12px;
+}
+.search-history-header {
+  font-size: 11px;
+  padding: 4px 8px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-soft);
+}
+.search-history-remove {
+  font-size: 10px;
+}
+
+/* ========== Tajweed Coloring (CSS classes) ========== */
+.tajweed-hamzat-wasl { color: #a5a5a5; }
+.tajweed-lam-shamsiyyah { color: #2fadff; }
+.tajweed-madd-2 { color: #ce9e00; }
+.tajweed-madd-246 { color: #ff7b00; }
+.tajweed-madd-6 { color: #b50000; }
+.tajweed-madd-munfasil { color: #ff7b00; }
+.tajweed-madd-muttasil { color: #f40000; }
+.tajweed-ghunnah { color: #09b000; }
+.tajweed-ikhfa { color: #09b000; }
+.tajweed-ikhfa-shafawi { color: #09b000; }
+.tajweed-iqlab { color: #09b000; }
+.tajweed-idghaam-ghunnah { color: #a5a5a5; }
+.tajweed-idghaam-no-ghunnah { color: #a5a5a5; }
+.tajweed-idghaam-mutajanisayn { color: #a5a5a5; }
+.tajweed-idghaam-mutaqaribayn { color: #a5a5a5; }
+.tajweed-idghaam-shafawi { color: #a5a5a5; }
+.tajweed-qalqalah { color: #2fadff; }
+.tajweed-silent { color: #8e44ad; }
+
+body.night-mode .tajweed-hamzat-wasl { color: #999999; }
+body.night-mode .tajweed-lam-shamsiyyah { color: #00deff; }
+body.night-mode .tajweed-madd-2 { color: #ffc1e0; }
+body.night-mode .tajweed-madd-246 { color: #ff8e3b; }
+body.night-mode .tajweed-madd-6 { color: #e30000; }
+body.night-mode .tajweed-madd-munfasil { color: #ff8e3b; }
+body.night-mode .tajweed-madd-muttasil { color: #ff5e8e; }
+body.night-mode .tajweed-ghunnah { color: #26b55d; }
+body.night-mode .tajweed-ikhfa { color: #26b55d; }
+body.night-mode .tajweed-ikhfa-shafawi { color: #26b55d; }
+body.night-mode .tajweed-iqlab { color: #26b55d; }
+body.night-mode .tajweed-idghaam-ghunnah { color: #999999; }
+body.night-mode .tajweed-idghaam-no-ghunnah { color: #999999; }
+body.night-mode .tajweed-idghaam-mutajanisayn { color: #999999; }
+body.night-mode .tajweed-idghaam-mutaqaribayn { color: #999999; }
+body.night-mode .tajweed-idghaam-shafawi { color: #999999; }
+body.night-mode .tajweed-qalqalah { color: #00deff; }
+body.night-mode .tajweed-silent { color: #af7ac5; }
+
+/* ========== Ayahs Container ========== */
+.ayahs-container {
+  font-size: var(--ayah-font-size, 28px);
+}

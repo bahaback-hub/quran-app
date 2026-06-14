@@ -59,7 +59,7 @@ export function showSleepTimerModal(audioModule: AudioModule): void {
   quickBtns.className = 'modal-quick-btns';
   [5, 10, 15, 30, 45, 60].forEach((mins: number) => {
     const btn = document.createElement('button');
-    btn.textContent = `${mins} د`;
+    btn.textContent = __('minutes_abbr', String(mins));
     btn.className = 'modal-quick-btn';
     btn.addEventListener('click', () => {
       input.value = String(mins);

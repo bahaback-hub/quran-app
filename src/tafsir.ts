@@ -190,7 +190,7 @@ function showTafsirError(): void {
 /** Load & render tafsir for the currently-selected ayah. */
 export async function loadTafsirForCurrentAyah(): Promise<void> {
   if (!state.surahData) return;
-  const surahData = state.surahData as unknown as SurahDataLike;
+  const surahData = state.surahData;
   const a = surahData.ayahs[state.currentAyahIndex];
   if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
   const edition = state.currentTafsirEdition;

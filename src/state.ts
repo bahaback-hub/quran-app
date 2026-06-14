@@ -24,6 +24,7 @@
 
 import type { SurahData } from './types.js';
 import type { PageLayoutData } from './mushaf-renderer.js';
+import { CONFIG } from './config.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -203,7 +204,7 @@ export function createDefaultState(): AppState {
     autoSave: true,
     azanEnabled: false,
     azanFajrEnabled: false,
-    city: 'مكة',
+    city: CONFIG.DEFAULT_CITY,
     country: 'SA',
     method: '4',
     prayerTimes: null,

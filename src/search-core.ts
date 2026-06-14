@@ -51,7 +51,7 @@ async function fetchQuranText(): Promise<QuranApiResponse> {
     res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
   }
   const data: QuranApiResponse = await res.json();
-  if (!data?.data?.surahs) throw new Error('بيانات غير صالحة');
+  if (!data?.data?.surahs) throw new Error(__('invalid_data'));
   return data;
 }
 
@@ -193,7 +193,7 @@ export function buildSearchWords(): void {
       if (list.length < MAX_SUGGESTIONS) list.push(entry);
     }
   }
-  state.searchPrefixMap = prefixMap as unknown as Map<string, unknown>;
+  state.searchPrefixMap = prefixMap;
 }
 
 export function addToSearchHistory(query: string): void {

@@ -133,7 +133,7 @@ export async function safeFetch(url: string, options: FetchOptions = {}): Promis
     if (!response.ok) {
       const httpError = new Error(`HTTP ${response.status}: ${response.statusText}`);
       httpError.name = 'HTTPError';
-      (httpError as unknown as Record<string, unknown>).status = response.status;
+      (httpError as Error & { status?: number }).status = response.status;
 
       if (!silent) {
         const msg = response.status >= 500 ? ERROR_MESSAGES.server : errorMsg || ERROR_MESSAGES.default;

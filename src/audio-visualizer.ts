@@ -43,7 +43,7 @@ export function stopVisualizer(): void {
     cancelAnimationFrame(_animId);
     _animId = null;
   }
-  const c = document.querySelector('#audioVisualizer.active') as unknown as HTMLCanvasElement | null;
+  const c = document.querySelector<HTMLCanvasElement>('#audioVisualizer.active');
   if (c) {
     c.classList.remove('active');
     const ctx: CanvasRenderingContext2D | null = c.getContext('2d');

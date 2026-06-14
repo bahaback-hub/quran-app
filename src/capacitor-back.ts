@@ -4,20 +4,12 @@ import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
 import { closePresentation } from './presentation.js';
+import { getCapacitor } from './types.js';
+import type { CapacitorPlugins } from './types.js';
 
 /** Capacitor App plugin interface. */
 interface CapacitorAppPlugin {
   addListener: (event: string, callback: () => void) => void;
-}
-
-/** Capacitor plugins shape. */
-interface CapacitorPlugins {
-  App?: CapacitorAppPlugin;
-}
-
-/** Capacitor global interface. */
-interface CapacitorGlobal {
-  Plugins?: CapacitorPlugins;
 }
 
 interface ActivePanel {
@@ -26,12 +18,11 @@ interface ActivePanel {
 }
 
 export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
-  const capGlobal = (typeof globalThis !== 'undefined' &&
-    (globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.Plugins) as CapacitorPlugins | undefined;
+  const capGlobal = getCapacitor()?.Plugins as CapacitorPlugins | undefined;
   const app = plugins?.App || capGlobal?.App;
   if (!app) return;
   try {
-    app.addListener('backButton', () => {
+    app.addListener?.('backButton', () => {
       // Close presentation overlay first — use proper close function
       if (state.presentationMode) {
         closePresentation();
