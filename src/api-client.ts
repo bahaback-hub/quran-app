@@ -7,11 +7,12 @@
  *   - Response validation
  *   - Offline detection with user-friendly messages
  *   - AbortController support for cancellation
+ *   - Full generic type safety — no `any` types
  *
  * Usage:
  *   import { apiFetch, prayerFetch, tafsirFetch } from './api-client.js';
- *   const data = await apiFetch('/surah/1');
- *   const times = await prayerFetch('?city=Makkah&country=SA&method=4');
+ *   const data = await apiFetch<SurahResponse>('/surah/1');
+ *   const times = await prayerFetch<PrayerResponse>('?city=Makkah&country=SA&method=4');
  */
 
 import { CONFIG } from './config.js';
@@ -30,6 +31,17 @@ export interface FetchOptions {
 interface TimeoutController {
   controller: AbortController;
   timerId: ReturnType<typeof setTimeout>;
+}
+
+/** HTTP error with status code — thrown for non-2xx responses. */
+export class HTTPError extends Error {
+  readonly status: number;
+
+  constructor(status: number, statusText: string) {
+    super(`HTTP ${status}: ${statusText}`);
+    this.name = 'HTTPError';
+    this.status = status;
+  }
 }
 
 /* ===================== CONSTANTS ===================== */
@@ -115,9 +127,18 @@ function createTimeoutController(ms: number, externalSignal?: AbortSignal): Time
 
 /**
  * Unified fetch wrapper with timeout, error handling, and toast notifications.
+ *
+ * @typeParam T - The expected response type (defaults to unknown).
+ *   When `expectJSON` is true (default), the response is parsed as JSON and typed as T.
+ *   When `expectJSON` is false, the raw Response object is returned.
+ *
+ * @example
+ *   // Type-safe JSON response
+ *   const surah = await safeFetch<SurahData>(url);
+ *   // Raw response (non-JSON)
+ *   const response = await safeFetch(url, { expectJSON: false });
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function safeFetch(url: string, options: FetchOptions = {}): Promise<any> {
+export async function safeFetch<T = unknown>(url: string, options: FetchOptions = {}): Promise<T> {
   const { timeout = DEFAULT_TIMEOUT, signal: externalSignal, silent = false, errorMsg, expectJSON = true } = options;
 
   const { controller, timerId } = createTimeoutController(timeout, externalSignal);
@@ -131,9 +152,7 @@ export async function safeFetch(url: string, options: FetchOptions = {}): Promis
 
     // Handle HTTP errors
     if (!response.ok) {
-      const httpError = new Error(`HTTP ${response.status}: ${response.statusText}`);
-      httpError.name = 'HTTPError';
-      (httpError as Error & { status?: number }).status = response.status;
+      const httpError = new HTTPError(response.status, response.statusText);
 
       if (!silent) {
         const msg = response.status >= 500 ? ERROR_MESSAGES.server : errorMsg || ERROR_MESSAGES.default;
@@ -146,7 +165,7 @@ export async function safeFetch(url: string, options: FetchOptions = {}): Promis
 
     if (expectJSON) {
       try {
-        return await response.json();
+        return (await response.json()) as T;
       } catch (parseError) {
         if (!silent) showToastMsg(errorMsg || ERROR_MESSAGES.parse);
         console.warn(`[API] JSON parse error ← ${url}`, parseError);
@@ -154,12 +173,12 @@ export async function safeFetch(url: string, options: FetchOptions = {}): Promis
       }
     }
 
-    return response;
+    return response as unknown as T;
   } catch (error: unknown) {
     clearTimeout(timerId);
 
     // Don't double-handle HTTP errors (already handled above)
-    if (error instanceof Error && error.name === 'HTTPError') throw error;
+    if (error instanceof HTTPError) throw error;
 
     const classified = classifyError(error as Error);
 
@@ -179,35 +198,51 @@ export async function safeFetch(url: string, options: FetchOptions = {}): Promis
 
 /**
  * Fetch from the Quran API (api.alquran.cloud).
+ *
+ * @typeParam T - The expected response shape from the Quran API.
+ *
+ * @example
+ *   const data = await apiFetch<SurahResponse>('/surah/1');
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function apiFetch(path: string, options?: FetchOptions): Promise<any> {
+export function apiFetch<T = unknown>(path: string, options?: FetchOptions): Promise<T> {
   const url = `${CONFIG.API_BASE}${path}`;
-  return safeFetch(url, options);
+  return safeFetch<T>(url, options);
 }
 
 /**
  * Fetch from the Prayer API (api.aladhan.com).
+ *
+ * @typeParam T - The expected response shape from the Prayer API.
+ *
+ * @example
+ *   const times = await prayerFetch<PrayerTimesResponse>('?city=Makkah&country=SA&method=4');
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function prayerFetch(query: string, options?: FetchOptions): Promise<any> {
+export function prayerFetch<T = unknown>(query: string, options?: FetchOptions): Promise<T> {
   const url = `${CONFIG.PRAYER_API}${query}`;
-  return safeFetch(url, { timeout: 20000, ...options });
+  return safeFetch<T>(url, { timeout: 20000, ...options });
 }
 
 /**
  * Fetch from the Tafsir API.
+ *
+ * @typeParam T - The expected response shape from the Tafsir API.
+ *
+ * @example
+ *   const tafsir = await tafsirFetch<TafsirResponse>('/ar-tafsir-muyassar/1/1.json');
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function tafsirFetch(path: string, options?: FetchOptions): Promise<any> {
+export function tafsirFetch<T = unknown>(path: string, options?: FetchOptions): Promise<T> {
   const url = `${CONFIG.TAFSIR_API}${path}`;
-  return safeFetch(url, { timeout: 10000, ...options });
+  return safeFetch<T>(url, { timeout: 10000, ...options });
 }
 
 /**
  * Generic JSON fetch for any URL (e.g. local files, CDN).
+ *
+ * @typeParam T - The expected JSON response shape.
+ *
+ * @example
+ *   const data = await jsonFetch<SurahList>('data/surah-list.json');
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function jsonFetch(url: string, options?: FetchOptions): Promise<any> {
-  return safeFetch(url, { expectJSON: true, ...options });
+export function jsonFetch<T = unknown>(url: string, options?: FetchOptions): Promise<T> {
+  return safeFetch<T>(url, { expectJSON: true, ...options });
 }
