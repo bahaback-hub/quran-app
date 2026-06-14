@@ -1,19 +1,40 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
-.next/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
 .DS_Store
-*.log
-app.bundle.js
+Thumbs.db
+
+# Environment
 .env
 .env.local
-bun.lock
-tsconfig.tsbuildinfo
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+
+# Playwright
 playwright-report/
 test-results/
-public/pages/
-coverage/
-.tool-results/
+
+# Capacitor
+android/app/src/main/assets/public/
+
+# Worklog (development artifact)
 worklog.md
-download/
-quran-app/
-skills/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
