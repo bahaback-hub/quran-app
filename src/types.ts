@@ -25,6 +25,37 @@ export interface SurahData {
   [key: string]: unknown; // Index signature for compatibility with Record<string, unknown>
 }
 
+/* ===================== API RESPONSE TYPES ===================== */
+
+/** Standard AlQuran.cloud API response wrapper. */
+export interface QuranApiResponse<T> {
+  code: number;
+  status: string;
+  data: T;
+}
+
+/** Surah list response from AlQuran.cloud. */
+export interface SurahListResponse {
+  code: number;
+  status: string;
+  data: SurahData[];
+}
+
+/** Prayer times response from Aladhan API. */
+export interface AladhanTimingsResponse {
+  code: number;
+  status: string;
+  data: {
+    timings: Record<string, string>;
+    date: {
+      hijri: { date: string; day: string; month: { number: number; en: string; ar: string }; year: string };
+      readable: string;
+      gregorian: { date: string; day: string; month: { number: number; en: string }; year: string };
+    };
+    meta: { method: { id: number; name: string } };
+  };
+}
+
 /* ===================== CAPACITOR ===================== */
 
 /** Capacitor global interface for native platform detection. */
@@ -51,6 +82,20 @@ export function isSurahData(value: unknown): value is SurahData {
     typeof obj.englishName === 'string' &&
     Array.isArray(obj.ayahs)
   );
+}
+
+/** Type guard: check if a value is a valid PrayerTimes object. */
+export function isPrayerTimes(value: unknown): value is Record<string, string | undefined> {
+  if (!value || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
+  return typeof obj.Fajr === 'string' && typeof obj.Maghrib === 'string';
+}
+
+/** Type guard: check if a value is a non-null object with specific keys. */
+export function hasKeys<K extends string>(value: unknown, ...keys: K[]): value is Record<K, unknown> {
+  if (!value || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
+  return keys.every((key) => key in obj);
 }
 
 /* ===================== CAPACITOR UTILITIES ===================== */
