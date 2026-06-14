@@ -1,3 +1,5 @@
+import { __ } from './i18n.js';
+
 /** Application configuration constants interface. */
 export interface AppConfig {
   API_BASE: string;
@@ -40,19 +42,19 @@ export const CONFIG: AppConfig = {
   DEFAULT_RECITER: 'ar.alafasy',
   DEFAULT_TAFSIR: 'ar-tafsir-muyassar',
   DEFAULT_METHOD: '4',
-  DEFAULT_CITY: 'مكة',
+  DEFAULT_CITY: __('makkah'),
   DEFAULT_COUNTRY: 'SA',
   CACHE_LIMIT: 20,
 };
 
-/** Arabic names for prayer times. */
+/** Localized names for prayer times (uses i18n). */
 export const PRAYER_NAMES_AR: Record<string, string> = {
-  Fajr: 'الفجر',
-  Sunrise: 'الشروق',
-  Dhuhr: 'الظهر',
-  Asr: 'العصر',
-  Maghrib: 'المغرب',
-  Isha: 'العشاء',
+  Fajr: __('prayer_fajr'),
+  Sunrise: __('prayer_sunrise'),
+  Dhuhr: __('prayer_dhuhr'),
+  Asr: __('prayer_asr'),
+  Maghrib: __('prayer_maghrib'),
+  Isha: __('prayer_isha'),
 };
 
 /** Ordered list of prayer keys for azan scheduling (excludes Sunrise — not a prayer). */
@@ -61,8 +63,16 @@ export const PRAYER_ORDER: string[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'
 /** Ordered list for countdown display (includes Sunrise). */
 export const PRAYER_DISPLAY_ORDER: string[] = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-/** Arabic weekday names. */
-export const ARABIC_WEEKDAYS: string[] = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+/** Localized weekday names (uses i18n). @deprecated Use getWeekday() from i18n.js instead. */
+export const ARABIC_WEEKDAYS: string[] = [
+  __('weekday_sunday'),
+  __('weekday_monday'),
+  __('weekday_tuesday'),
+  __('weekday_wednesday'),
+  __('weekday_thursday'),
+  __('weekday_friday'),
+  __('weekday_saturday'),
+];
 
 /** Starting page numbers for each Juz (30 entries). */
 export const JUZ_PAGES: number[] = [

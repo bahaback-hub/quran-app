@@ -70,13 +70,13 @@ describe('getFormattedStats', () => {
   it('should format time correctly', () => {
     addReadingTime(90);
     const stats = getFormattedStats();
-    expect(stats.formattedTime).toContain('stats_hours_mins');
+    expect(stats.formattedTime).toContain('ساعة');
   });
 
   it('should format minutes only', () => {
     addReadingTime(30);
     const stats = getFormattedStats();
-    expect(stats.formattedTime).toContain('stats_mins');
+    expect(stats.formattedTime).toContain('دقيقة');
   });
 
   it('should count unique surahs', () => {

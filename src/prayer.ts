@@ -1,11 +1,11 @@
 import { state } from './state.js';
-import { CONFIG, PRAYER_NAMES_AR, PRAYER_ORDER, PRAYER_DISPLAY_ORDER, ARABIC_WEEKDAYS } from './config.js';
+import { CONFIG, PRAYER_ORDER, PRAYER_DISPLAY_ORDER } from './config.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { pad2, formatTime12, timeStrToMinutes, escapeHtml } from './utils.js';
 import { prayerFetch } from './api-client.js';
-import { __ } from './i18n.js';
+import { __, getPrayerName, getWeekday } from './i18n.js';
 import { updatePlayPauseBtn } from './audio.js';
 
 /* ===================== INTERFACES ===================== */
@@ -58,7 +58,7 @@ function updateDates(): void {
   } catch (e) {
     console.warn('Date update failed:', e);
   }
-  if (dom.weekdayDisplay) dom.weekdayDisplay.textContent = ARABIC_WEEKDAYS[now.getDay()];
+  if (dom.weekdayDisplay) dom.weekdayDisplay.textContent = getWeekday(now.getDay());
   const greg = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
   if (dom.gregorianDateDisplay) dom.gregorianDateDisplay.textContent = greg;
   if (dom.bigClockDate) dom.bigClockDate.textContent = greg;
@@ -131,7 +131,7 @@ function renderPrayerTimes(): void {
     const time24 = raw.split(' ')[0];
     const isNext = key === next;
     html += `<div class="prayer-row ${isNext ? 'next-prayer' : ''}">
-      <span class="prayer-name">${escapeHtml(PRAYER_NAMES_AR[key] || key)}</span>
+      <span class="prayer-name">${escapeHtml(getPrayerName(key))}</span>
       <span class="prayer-time">${formatTime12(time24)}</span>
     </div>`;
   }
@@ -156,9 +156,9 @@ function updateCountdowns(): void {
   const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
   if (dom.countdownDisplay) dom.countdownDisplay.textContent = countdownText;
   if (dom.prayerCountdown)
-    dom.prayerCountdown.textContent = `${__('prayer_countdown', PRAYER_NAMES_AR[nextKey], countdownText)}`;
+    dom.prayerCountdown.textContent = `${__('prayer_countdown', getPrayerName(nextKey), countdownText)}`;
   const time24 = ((state.prayerTimes[nextKey] as string) || '').split(' ')[0];
-  if (dom.nextPrayerName) dom.nextPrayerName.textContent = PRAYER_NAMES_AR[nextKey];
+  if (dom.nextPrayerName) dom.nextPrayerName.textContent = getPrayerName(nextKey);
   if (dom.nextPrayerTime) dom.nextPrayerTime.textContent = formatTime12(time24);
 }
 
@@ -214,13 +214,13 @@ export function testAzan(): void {
 
 function showAzanNotification(prayerKey: string): void {
   if (!dom.azanNotification || !dom.azanNotifPrayer) return;
-  dom.azanNotifPrayer.textContent = `🕋 ${__('prayer')} ${PRAYER_NAMES_AR[prayerKey]}`;
+  dom.azanNotifPrayer.textContent = `🕋 ${__('prayer')} ${getPrayerName(prayerKey)}`;
   dom.azanNotification.classList.remove('hidden');
   dom.azanNotification.style.display = 'flex';
 
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification(__('prayer_time_come'), {
-      body: `${__('prayer')} ${PRAYER_NAMES_AR[prayerKey]}`,
+      body: `${__('prayer')} ${getPrayerName(prayerKey)}`,
       icon: '/icon-192.png',
       tag: 'azan-' + prayerKey,
     });
@@ -389,9 +389,7 @@ export function showQiblaCompass(): void {
       _qiblaOrientationHandler = handleOrientation as (ev: DeviceOrientationEvent) => void;
 
       if (window.DeviceOrientationEvent) {
-        const DOE = DeviceOrientationEvent as unknown as {
-          requestPermission?: () => Promise<string>;
-        };
+        const DOE = DeviceOrientationEvent as unknown as import('./types.js').WebkitDeviceOrientationEvent;
         if (typeof DOE.requestPermission === 'function') {
           DOE.requestPermission()
             .then((permState: string) => {

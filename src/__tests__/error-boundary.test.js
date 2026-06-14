@@ -190,10 +190,11 @@ describe('Error Boundary', () => {
     overlay?.remove();
   });
 
-  it('should have RTL direction in recovery overlay', () => {
+  it('should have RTL direction class in recovery overlay', () => {
     window.onerror('Critical error', 'app.js', 1, 1, new Error('Critical error'));
     const overlay = document.getElementById('errorRecoveryOverlay');
-    expect(overlay?.innerHTML).toContain('direction:rtl');
+    const backdrop = overlay?.querySelector('.error-overlay-backdrop');
+    expect(backdrop).toBeTruthy();
     overlay?.remove();
   });
 

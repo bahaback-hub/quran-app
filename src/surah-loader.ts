@@ -7,6 +7,7 @@ import { escapeHtml } from './utils.js';
 import { state, batch, immutablePush, immutableMapSet, immutableMapDelete, SurahInfo, SurahOffset } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
+import type { TajweedRule } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
 import { SURAH_SECRETS } from './surahs-data.js';
 import { isSajdaAyah, isJuzStart } from './quran-meta.js';
@@ -128,7 +129,7 @@ async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEntry | nu
         if (!result) { resolve(null); return; }
         // Extract the CachedSurahEntry fields (exclude the 'key' property)
         const { key: _k, ...entry } = result;
-        resolve(entry as unknown as CachedSurahEntry);
+        resolve(entry as CachedSurahEntry);
       };
       req.onerror = () => resolve(null);
     });
@@ -600,7 +601,7 @@ function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string
     offsetAdj = txt.length - stripped.length;
     txt = stripped;
   }
-  let colorMap: Map<number, string> | null = null;
+  let colorMap: Map<number, TajweedRule> | null = null;
   if (state.tajweedEnabled) {
     const annotations: TajweedAnnotation[] = getAyahAnnotations(textData.number, a.numberInSurah);
     if (annotations.length > 0) {
@@ -619,14 +620,14 @@ function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string
   // Juz marker: if this ayah starts a new juz, insert a divider
   const juzNum = isJuzStart(textData.number, a.numberInSurah);
   if (juzNum !== null) {
-    html += `<div class="juz-marker"><span class="juz-label">الجزء ${juzNum}</span></div>`;
+    html += `<div class="juz-marker"><span class="juz-label">${__('juz_num', String(juzNum))}</span></div>`;
   }
   html += `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
   html += buildAyahWordsHtml(txt, i, colorMap);
   // Sajda indicator
   const sajda = isSajdaAyah(textData.number, a.numberInSurah);
   if (sajda.isSajda) {
-    const sajdaTitle = sajda.type === 'obligatory' ? 'سجدة واجبة' : 'سجدة مستحبة';
+    const sajdaTitle = sajda.type === 'obligatory' ? __('sajdah_wajib') : __('sajdah_mustahab');
     html += ` <span class="sajda-indicator" title="${sajdaTitle}">۩</span>`;
   }
   html += ` <span class="ayah-number"><span class="ayah-number-inner">${a.numberInSurah}</span></span>`;
@@ -707,7 +708,7 @@ export function renderSurah(textData: SurahTextData): void {
     html +=
       '<div class="bismillah-wrapper"><span class="bismillah-ornament">﴿</span><p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><span class="bismillah-ornament">﴾</span></div>';
   }
-  html += `<div class="ayahs-container" style="font-size:${state.fontSize}px"></div>`;
+  html += `<div class="ayahs-container" style="--ayah-font-size:${state.fontSize}px"></div>`;
   dom.surahContent.innerHTML = html;
   initAyahDelegation();
   renderAyahChunk(textData, 0, VIRTUAL_CHUNK_SIZE);
@@ -726,7 +727,7 @@ export function renderSurah(textData: SurahTextData): void {
   }
 }
 
-function buildAyahWordsHtml(text: string, ayahIdx: number, colorMap: Map<number, string> | null): string {
+function buildAyahWordsHtml(text: string, ayahIdx: number, colorMap: Map<number, TajweedRule> | null): string {
   const words = text.split(/\s+/).filter((w) => w.length > 0);
   const useTajweed = state.tajweedEnabled && colorMap;
   let outputPos = 0;

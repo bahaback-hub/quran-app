@@ -38,7 +38,7 @@ function saveFavorites(): void {
 export function toggleFavorite(): void {
   hapticFeedback();
   if (!state.surahData) return;
-  const surahData = state.surahData as unknown as SurahData;
+  const surahData = state.surahData;
   const a = surahData.ayahs[state.currentAyahIndex];
   const key = `${state.currentSurah}:${a.numberInSurah}`;
   const idx = state.favorites.findIndex((f: FavoriteEntry) => f.key === key);
@@ -231,7 +231,7 @@ export function wireFavoritesExport(): void {
 export function setBookmark(): void {
   hapticFeedback();
   if (!state.surahData) return;
-  const surahData = state.surahData as unknown as SurahData;
+  const surahData = state.surahData;
   const a = surahData.ayahs[state.currentAyahIndex];
   state.bookmark = {
     surah: state.currentSurah,

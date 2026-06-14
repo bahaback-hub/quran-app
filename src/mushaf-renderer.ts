@@ -15,9 +15,10 @@
  */
 import { JUZ_PAGES } from './config.js';
 import { state } from './state.js';
-import { buildColorMap } from './tajweed.js';
+import { buildColorMap, getTajweedColor } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
 import type { TajweedAnnotation } from './tajweed-data.js';
+import { isCapacitorNative } from './types.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -90,10 +91,7 @@ const loadingFonts = new Map<string, Promise<boolean>>();
 function isCapacitorEnv(): boolean {
   try {
     return !!(
-      (typeof globalThis !== 'undefined' && (
-        (globalThis as unknown as { Capacitor?: { isNativePlatform?: () => boolean; isNative?: boolean } }).Capacitor?.isNativePlatform?.() ||
-        (globalThis as unknown as { Capacitor?: { isNativePlatform?: () => boolean; isNative?: boolean } }).Capacitor?.isNative
-      )) ||
+      isCapacitorNative() ||
       (typeof navigator !== 'undefined' && /wv|Android.*Capacitor/i.test(navigator.userAgent)) ||
       (typeof document !== 'undefined' && document.documentElement.classList.contains('capacitor-native'))
     );
@@ -680,9 +678,9 @@ function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: n
       const wordText = words[wi].text;
       let wordColor: string | null = null;
       for (let ci = 0; ci < wordText.length; ci++) {
-        const c = colorMap.get(outputPos + ci);
-        if (c) {
-          wordColor = c;
+        const rule = colorMap.get(outputPos + ci);
+        if (rule) {
+          wordColor = getTajweedColor(rule);
           break;
         }
       }

@@ -37,22 +37,21 @@ npm run build
 
 ```
 src/
-  state.js        — كائن الحالة العام
-  app.js          — المنسق الرئيسي
-  audio.js        — مشغل الصوت
-  surah-loader.js — تحميل السور
-  search.js       — البحث
-  mushaf.js       — المصحف
-  prayer.js       — مواقيت الصلاة، القبلة
-  tafsir.js       — التفسير
-  i18n.js         — الترجمات
+  state.ts        — كائن الحالة العام
+  app.ts          — المنسق الرئيسي
+  audio.ts        — مشغل الصوت
+  surah-loader.ts — تحميل السور
+  search.ts       — البحث
+  mushaf.ts       — المصحف
+  prayer.ts       — مواقيت الصلاة، القبلة
+  tafsir.ts       — التفسير
+  i18n.ts         — الترجمات
   translations/   — ملفات اللغات
-  config.js       — الثوابت
-  dom.js          — مراجع DOM
-  ui.js           — Toast، شريط التحميل
-  utils.js        — دوال مساعدة
-  storage.js      — التخزين المحلي
-  state.js        — الحالة العامة
+  config.ts       — الثوابت
+  dom.ts          — مراجع DOM
+  ui.ts           — Toast، شريط التحميل
+  utils.ts        — دوال مساعدة
+  storage.ts      — التخزين المحلي
   __tests__/      — اختبارات الوحدة
 e2e/              — اختبارات E2E
 ```
@@ -60,10 +59,10 @@ e2e/              — اختبارات E2E
 ## قواعد الكود
 
 - **الدوال**: استخدم `function` declarations (ليس arrow/const)
-- **الحالة**: كل الحالة في `state.js` — لا تنشئ متغيرات عامة خاصة بالوحدة
+- **الحالة**: كل الحالة في `state.ts` — لا تنشئ متغيرات عامة خاصة بالوحدة
 - **التعليقات**: أضف JSDoc لكل دالة مُصدَّرة
 - **الاختبارات**: أضف اختبارات لكل وظيفة جديدة
-- **الترجمات**: أضف ملف لغة جديد في `src/translations/` وسجله في `src/i18n.js`
+- **الترجمات**: أضف ملف لغة جديد في `src/translations/` وسجله في `src/i18n.ts`
 
 ## سير العمل
 

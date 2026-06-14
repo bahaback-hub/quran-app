@@ -97,7 +97,7 @@ export function loadAdhkarSettings(): void {
     }
     state.adhkarSettings = saved as Record<string, unknown>;
   } else {
-    state.adhkarSettings = defaults as unknown as Record<string, unknown>;
+    state.adhkarSettings = defaults;
   }
   // Sync toggle UI with loaded state
   if (dom.adhkarEnabledToggle) {
@@ -175,18 +175,18 @@ function renderAdhkarCategory(categoryId: string): void {
   const notifTime = catSettings.time || cat.defaultTime || '';
   const notifDur = catSettings.duration ?? cat.defaultDuration ?? 1;
   let html = `<div class="adhkar-category-title">${cat.icon} ${cat.name}</div>
-    <div class="adhkar-category-options" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding:8px 12px;background:var(--controls-bg);border-radius:8px;">
-      <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;">
-        <div class="adhkar-cat-toggle toggle-switch${enabled ? ' on' : ''}" data-category="${cat.id}" role="switch" style="transform:scale(0.85);"></div>
+    <div class="adhkar-category-options">
+      <label class="adhkar-cat-label">
+        <div class="adhkar-cat-toggle toggle-switch${enabled ? ' on' : ''}" data-category="${cat.id}" role="switch"></div>
         ${__('adhkar_time')}
       </label>
-      <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
-        ⏰ <input type="time" class="adhkar-cat-time" data-category="${cat.id}" value="${notifTime}" style="border:1px solid var(--border-soft);border-radius:6px;padding:2px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);width:80px;">
+      <label class="adhkar-cat-label--time">
+        ⏰ <input type="time" class="adhkar-cat-time adhkar-cat-time-input" data-category="${cat.id}" value="${notifTime}">
       </label>
-      <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
-        🔔 <input type="number" class="adhkar-cat-duration" data-category="${cat.id}" value="${notifDur}" min="1" max="60" style="border:1px solid var(--border-soft);border-radius:6px;padding:2px 6px;font-size:12px;font-family:inherit;background:var(--select-bg);color:var(--text-primary);width:50px;"> ${__('minutes')}
+      <label class="adhkar-cat-label--time">
+        🔔 <input type="number" class="adhkar-cat-duration adhkar-cat-duration-input" data-category="${cat.id}" value="${notifDur}" min="1" max="60"> ${__('minutes')}
       </label>
-      <span style="font-size:11px;color:var(--text-muted);">${enabled ? __('notification_active') : __('notification_paused')}</span>
+      <span class="adhkar-cat-status">${enabled ? __('notification_active') : __('notification_paused')}</span>
     </div>`;
   for (const item of cat.items) {
     const counter = (settings[`item_${item.id}`] as number) || 0;
@@ -331,7 +331,7 @@ function renderPersonalAdhkar(): void {
   let html = '<div class="adhkar-category-title">' + __('adhkar_personal') + '</div>';
   html += '<button class="adhkar-add-btn" id="openAddAdhkarBtn">' + __('adhkar_add') + '</button>';
   if (!personal.length) {
-    html += '<p style="text-align:center;color:#888;padding:20px;">' + __('adhkar_no_personal') + '</p>';
+    html += '<p class="adhkar-no-personal">' + __('adhkar_no_personal') + '</p>';
   } else {
     for (const p of personal) {
       const counter = (settings[`item_personal_${p.id}`] as number) || 0;
@@ -718,7 +718,7 @@ export function renderAdhkarSettingsList(): void {
       <div class="adhkar-setting-time">
         ⏰ <input type="time" data-adhkar-time="${cat.id}" value="${s.time || ''}">
         <span>🔔</span>
-        <input type="number" data-adhkar-duration="${cat.id}" value="${s.duration ?? cat.defaultDuration ?? 1}" min="1" max="60" style="width:50px;"> ${__('minutes')}
+        <input type="number" data-adhkar-duration="${cat.id}" value="${s.duration ?? cat.defaultDuration ?? 1}" min="1" max="60" class="adhkar-setting-duration-input"> ${__('minutes')}
       </div>
     </div>`;
   }

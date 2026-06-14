@@ -1,20 +1,17 @@
 import { initErrorBoundary } from './error-boundary.js';
 import { initApp } from './app.js';
 import { initI18n, __ } from './i18n.js';
-import type { CapacitorGlobal } from './types.js';
+import { isCapacitorNative, getCapacitor } from './types.js';
 
 // Install global error handlers FIRST — before any other code runs
 initErrorBoundary();
 
 // Detect Capacitor native environment
-const isCapacitorNative = typeof globalThis !== 'undefined' &&
-  ((globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNativePlatform?.() ||
-   (globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNative ||
-   (typeof window !== 'undefined' && (window as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNativePlatform?.()));
+const isCapNative = isCapacitorNative();
 
 const isAndroidWebView = typeof navigator !== 'undefined' && /wv|Android.*Capacitor/i.test(navigator.userAgent);
 
-if (isCapacitorNative || isAndroidWebView) {
+if (isCapNative || isAndroidWebView) {
   document.documentElement.classList.add('capacitor-native');
   console.log('[Capacitor] Native platform detected, applying mobile fixes');
   // Apply class after DOM is ready
@@ -29,7 +26,7 @@ if (isCapacitorNative || isAndroidWebView) {
   // Hide splash screen when app is ready (safety net even with launchAutoHide)
   const hideSplash = () => {
     try {
-      const cap = (globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor;
+      const cap = getCapacitor();
       cap?.Plugins?.SplashScreen?.hide?.({ fadeOutDuration: 300 });
     } catch (e) { /* ignore */ }
   };
@@ -41,7 +38,7 @@ let _installEvent: BeforeInstallPromptEvent | null = null;
 
 window.addEventListener('beforeinstallprompt', ((e: Event) => {
   // Don't show install prompt in Capacitor native app
-  if (isCapacitorNative || isAndroidWebView) return;
+  if (isCapNative || isAndroidWebView) return;
   e.preventDefault();
   _installEvent = e as BeforeInstallPromptEvent;
   const btn = document.getElementById('installBtn');
@@ -59,7 +56,7 @@ window.installPWA = function (): void {
 
 // Service Worker — DISABLE in Capacitor native app to avoid conflicts
 // The SW intercepts fetch requests and breaks Capacitor's WebView loading
-if (!isCapacitorNative && !isAndroidWebView && 'serviceWorker' in navigator) {
+if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
   let _swUpdateToastShown = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!_swUpdateToastShown) {
@@ -107,7 +104,7 @@ if (!isCapacitorNative && !isAndroidWebView && 'serviceWorker' in navigator) {
       });
     });
   }).catch(() => { /* SW not available */ });
-} else if (isCapacitorNative || isAndroidWebView) {
+} else if (isCapNative || isAndroidWebView) {
   // Unregister any existing service worker in Capacitor
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(registrations => {

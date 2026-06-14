@@ -78,7 +78,7 @@ describe('buildShareText', () => {
     const text = buildShareText();
     expect(text).toContain('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ');
     expect(text).toContain('سُورَةُ الفَاتِحَةِ');
-    expect(text).toContain('ayah 2');
+    expect(text).toContain('آية 2');
   });
 
   it('should use current ayah', () => {
@@ -86,7 +86,7 @@ describe('buildShareText', () => {
     state.currentAyahIndex = 0;
     const text = buildShareText();
     expect(text).toContain('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ');
-    expect(text).toContain('ayah 1');
+    expect(text).toContain('آية 1');
   });
 });
 

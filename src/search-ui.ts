@@ -51,6 +51,9 @@ interface OrigRange {
 
 export { loadFullQuranText, getSearchHistory, clearSearchHistory };
 
+/** Track which elements have had delegation listeners bound (replaces expando properties). */
+const _delegationBoundElements = new Set<HTMLElement>();
+
 export function performExactSearch(query: string): void {
   // Allow single-character queries for Arabic text (common roots like رب, صل)
   const isArabic = /[\u0621-\u064A]/.test(query.trim());
@@ -156,15 +159,15 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
     </div>`;
   }
   if (hasMore) {
-    html += `<div style="text-align:center;padding:12px;">
+    html += `<div class="search-load-more">
       <button class="btn btn-gold" id="loadMoreSearchBtn">${__('load_more', String(Math.min(SEARCH_PAGE_SIZE, totalResults - matches.length)))}</button>
     </div>`;
   }
   dom.searchResults.innerHTML = html;
   dom.searchResults.style.display = 'block';
 
-  if (!(dom.searchResults as unknown as Record<string, boolean>)._delegationBound) {
-    (dom.searchResults as unknown as Record<string, boolean>)._delegationBound = true;
+  if (!_delegationBoundElements.has(dom.searchResults)) {
+    _delegationBoundElements.add(dom.searchResults);
     dom.searchResults.addEventListener('click', (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target.id === 'closeSearchResultsBtn') {
@@ -300,7 +303,7 @@ function showSearchHistory(): void {
     return;
   }
   let html =
-    '<div class="search-history-header" style="font-size:11px;padding:4px 8px;color:var(--text-muted);border-bottom:1px solid var(--border-soft);">' +
+    '<div class="search-history-header">' +
     __('search_history_title') +
     '</div>';
   for (let i = 0; i < history.length; i++) {
@@ -311,7 +314,7 @@ function showSearchHistory(): void {
       '<span>' +
       escapeHtml(history[i]) +
       '</span>' +
-      '<span class="count" style="font-size:10px;">✕</span>' +
+      '<span class="count search-history-remove">✕</span>' +
       '</div>';
   }
   dropdown.innerHTML = html;
@@ -475,13 +478,13 @@ interface SpeechRecognitionConstructor {
 export function startVoiceSearch(): void {
   const SpeechRecognition =
     (
-      window as unknown as {
+      window as Window & {
         SpeechRecognition?: SpeechRecognitionConstructor;
         webkitSpeechRecognition?: SpeechRecognitionConstructor;
       }
     ).SpeechRecognition ||
     (
-      window as unknown as {
+      window as Window & {
         SpeechRecognition?: SpeechRecognitionConstructor;
         webkitSpeechRecognition?: SpeechRecognitionConstructor;
       }
