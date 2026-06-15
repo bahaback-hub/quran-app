@@ -102,15 +102,20 @@ describe('safeFetch', () => {
 
   it('should abort request after timeout', async () => {
     // Simulate a slow request that gets aborted
-    mockFetch.mockImplementationOnce(() => new Promise((_, reject) => {
-      setTimeout(() => reject(new DOMException('The operation was aborted', 'AbortError')), 100);
-    }));
+    mockFetch.mockImplementationOnce(
+      () =>
+        new Promise((_, reject) => {
+          setTimeout(() => reject(new DOMException('The operation was aborted', 'AbortError')), 100);
+        }),
+    );
 
-    await expect(safeFetch('https://example.com/api', {
-      timeout: 10,
-      retries: 0,
-      silent: true,
-    })).rejects.toThrow();
+    await expect(
+      safeFetch('https://example.com/api', {
+        timeout: 10,
+        retries: 0,
+        silent: true,
+      }),
+    ).rejects.toThrow();
   });
 });
 
@@ -177,12 +182,10 @@ describe('Retry mechanism', () => {
   });
 
   it('should retry on 5xx errors', async () => {
-    mockFetch
-      .mockRejectedValueOnce(new HTTPError(500, 'Internal Server Error'))
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ data: 'success' }),
-      });
+    mockFetch.mockRejectedValueOnce(new HTTPError(500, 'Internal Server Error')).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ data: 'success' }),
+    });
 
     // This won't actually retry because HTTPError is thrown, not a network error
     // The retry logic in _fetchWithRetry handles this
@@ -208,12 +211,10 @@ describe('Retry mechanism', () => {
   });
 
   it('should retry on network errors', async () => {
-    mockFetch
-      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ data: 'success' }),
-      });
+    mockFetch.mockRejectedValueOnce(new TypeError('Failed to fetch')).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ data: 'success' }),
+    });
 
     const result = await safeFetch<{ data: string }>('https://example.com/api', {
       retries: 1,
@@ -238,10 +239,7 @@ describe('Convenience methods', () => {
     });
 
     await apiFetch('/surah/1');
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://api.alquran.cloud/v1/surah/1',
-      expect.anything()
-    );
+    expect(mockFetch).toHaveBeenCalledWith('https://api.alquran.cloud/v1/surah/1', expect.anything());
   });
 
   it('prayerFetch should prepend PRAYER_API URL with longer timeout', async () => {
@@ -251,10 +249,7 @@ describe('Convenience methods', () => {
     });
 
     await prayerFetch('?city=Makkah');
-    expect(mockFetch).toHaveBeenCalledWith(
-      'https://api.aladhan.com/v1/timingsByCity?city=Makkah',
-      expect.anything()
-    );
+    expect(mockFetch).toHaveBeenCalledWith('https://api.aladhan.com/v1/timingsByCity?city=Makkah', expect.anything());
   });
 
   it('tafsirFetch should prepend TAFSIR_API URL', async () => {
@@ -266,7 +261,7 @@ describe('Convenience methods', () => {
     await tafsirFetch('/ar-tafsir-muyassar/1/1.json');
     expect(mockFetch).toHaveBeenCalledWith(
       'https://cdn.jsdelivr.net/gh/tafsir/ar-tafsir-muyassar/1/1.json',
-      expect.anything()
+      expect.anything(),
     );
   });
 
