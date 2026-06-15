@@ -534,6 +534,70 @@ export function bindMiscEvents(): void {
 }
 
 /**
+ * Open the help/guide panel.
+ */
+function openHelp(): void {
+  if (dom.helpPanel) {
+    dom.helpPanel.classList.add('open');
+  }
+}
+
+/**
+ * Close the help/guide panel.
+ */
+function closeHelp(): void {
+  if (dom.helpPanel) {
+    dom.helpPanel.classList.remove('open');
+  }
+}
+
+/**
+ * Bind help panel events: open/close toggle, accordion sections, first-use auto-open.
+ */
+export function bindHelpEvents(): void {
+  dom.helpToggleBtn?.addEventListener('click', openHelp);
+  dom.helpCloseBtn?.addEventListener('click', closeHelp);
+
+  // Close help when clicking outside
+  document.addEventListener('click', (e: MouseEvent) => {
+    if (
+      dom.helpPanel?.classList.contains('open') &&
+      !dom.helpPanel.contains(e.target as Node) &&
+      e.target !== dom.helpToggleBtn
+    ) {
+      closeHelp();
+    }
+  });
+
+  // Accordion toggle for help sections
+  dom.helpPanel?.addEventListener('click', (e: MouseEvent) => {
+    const toggle = (e.target as HTMLElement).closest('.help-section-toggle') as HTMLElement | null;
+    if (!toggle) {
+      return;
+    }
+    const section = toggle.dataset['section'];
+    if (!section) {
+      return;
+    }
+    const content = dom.helpPanel?.querySelector(`.help-section-content[data-section="${section}"]`);
+    if (content) {
+      content.classList.toggle('open');
+    }
+    const icon = toggle.querySelector('.help-toggle-icon');
+    if (icon) {
+      icon.textContent = content?.classList.contains('open') ? '▲' : '▼';
+    }
+  });
+
+  // Auto-open help on first use
+  const seen = storage.get<boolean>('help_seen', false);
+  if (!seen) {
+    storage.set('help_seen', true);
+    openHelp();
+  }
+}
+
+/**
  * Register all application event bindings at once.
  */
 export function bindAllEvents(): void {
@@ -547,4 +611,5 @@ export function bindAllEvents(): void {
   bindGlobalClickHandler();
   bindHeaderMenuEvents();
   bindMiscEvents();
+  bindHelpEvents();
 }
