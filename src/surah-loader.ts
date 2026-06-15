@@ -1004,7 +1004,8 @@ function initAyahDelegation(): void {
   }
   _ayahDelegationBound = true;
   dom.surahContent.addEventListener('click', (e: MouseEvent) => {
-    const ayahEl = (e.target as HTMLElement).closest('.ayah') as HTMLElement | null;
+    const target = e.target as HTMLElement;
+    const ayahEl = target.closest('.ayah') as HTMLElement | null;
     if (!ayahEl) {
       return;
     }
@@ -1019,6 +1020,19 @@ function initAyahDelegation(): void {
     if (!a) {
       return;
     }
+
+    // If the user clicked on the ayah NUMBER (not the text), play from this ayah
+    if (target.closest('.ayah-number')) {
+      import('./audio.js').then((audio: typeof import('./audio.js')) => {
+        state.currentAyahIndex = idx;
+        audio.playCurrentAyah();
+        highlightCurrentAyah();
+        updatePlayerInfo();
+      });
+      return;
+    }
+
+    // Default: click on ayah text opens the modal
     import('./ayah-modal.js').then(
       (m: {
         openAyahModal: (opts: { surah: number; ayah: number; text: string; surahName: string; index: number }) => void;
