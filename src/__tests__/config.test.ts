@@ -93,9 +93,18 @@ describe('CONFIG', () => {
 
   it('should satisfy AppConfig interface', () => {
     const requiredKeys: (keyof AppConfig)[] = [
-      'API_BASE', 'TAFSIR_API', 'PRAYER_API', 'AZAN_FILE',
-      'SURAH_COUNT', 'STORAGE_PREFIX', 'DEFAULT_RECITER', 'DEFAULT_TAFSIR',
-      'DEFAULT_METHOD', 'DEFAULT_CITY', 'DEFAULT_COUNTRY', 'CACHE_LIMIT',
+      'API_BASE',
+      'TAFSIR_API',
+      'PRAYER_API',
+      'AZAN_FILE',
+      'SURAH_COUNT',
+      'STORAGE_PREFIX',
+      'DEFAULT_RECITER',
+      'DEFAULT_TAFSIR',
+      'DEFAULT_METHOD',
+      'DEFAULT_CITY',
+      'DEFAULT_COUNTRY',
+      'CACHE_LIMIT',
     ];
     for (const key of requiredKeys) {
       expect(CONFIG).toHaveProperty(key);
