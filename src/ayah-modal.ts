@@ -1,7 +1,8 @@
 import { state, immutablePush, immutableSplice } from './state.js';
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
-import { escapeHtml, stripTashkeel, copyToClipboard } from './utils.js';
+import { stripTashkeel, copyToClipboard } from './utils.js';
+import { qariOption, tafsirLoading, tafsirContent, tafsirErrorMessage, escapeHtml } from './templates.js';
 import { CONFIG } from './config.js';
 import { loadSurah } from './app.js';
 import { storage } from './storage.js';
@@ -317,7 +318,7 @@ function shareModalAyah(): void {
 function populateQaris(): void {
   if (!M.ayahModalQariSelect) return;
   M.ayahModalQariSelect.innerHTML = RECITERS.map(
-    (r: ReciterEntry) => `<option value="${r.id}">${getReciterDisplayName(r)}</option>`
+    (r: ReciterEntry) => qariOption(r.id, getReciterDisplayName(r))
   ).join('');
 }
 
@@ -467,16 +468,16 @@ function downloadModalAyah(): void {
 async function loadTafsirTab(edition: string): Promise<void> {
   if (!current || !edition) return;
   activateTab(edition);
-  M.ayahModalTafsirBody!.innerHTML = `<p class="tafsir-loading">${__('tafsir_loading')}</p>`;
+  M.ayahModalTafsirBody!.innerHTML = tafsirLoading();
   try {
     const text: string | null = await fetchTafsirText(edition, current.surah, current.ayah);
     if (text) {
-      M.ayahModalTafsirBody!.innerHTML = `<p class="tafsir-text">${escapeHtml(text)}</p>`;
+      M.ayahModalTafsirBody!.innerHTML = tafsirContent(text);
     } else {
-      M.ayahModalTafsirBody!.innerHTML = `<p class="tafsir-error">${__('no_tafsir_available')}</p>`;
+      M.ayahModalTafsirBody!.innerHTML = tafsirErrorMessage(__('no_tafsir_available'));
     }
   } catch {
-    M.ayahModalTafsirBody!.innerHTML = `<p class="tafsir-error">${__('tafsir_error')}</p>`;
+    M.ayahModalTafsirBody!.innerHTML = tafsirErrorMessage(__('tafsir_error'));
   }
 }
 
