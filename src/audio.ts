@@ -618,11 +618,25 @@ function onAudioEnded(): void {
     // Last ayah of the surah
     if (state.currentSurah >= 114) {
       // Last surah (114) — stop playback cleanly
-      showToast(`${__('surah_complete')} ${surahData.name}`, 'success');
+      if (state.autoPlayNext) {
+        showToast(`${__('surah_complete')} ${surahData.name} — ${__('khatma_complete')}`, 'success');
+      } else {
+        showToast(`${__('surah_complete')} ${surahData.name}`, 'success');
+      }
       setStoppedState();
       return;
     }
     showToast(`${__('surah_complete')} ${surahData.name}`, 'success');
+
+    // Auto-play next surah only if the toggle is enabled
+    if (state.autoPlayNext) {
+      nextSurah();
+      return;
+    }
+
+    // Default behavior: stop playback at the end of the surah
+    setStoppedState();
+    return;
   }
   nextAyah(true);
 }
