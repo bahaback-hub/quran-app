@@ -22,6 +22,7 @@ import { showToast } from './ui.js';
 import { hapticFeedback } from './utils.js';
 import { highlightCurrentAyah } from './surah-loader.js';
 import { __ } from './i18n.js';
+import { getCachedAudioUrl } from './audio-cache.js';
 import type { SurahData } from './types.js';
 
 /* ===================== INTERFACES ===================== */
@@ -146,11 +147,30 @@ function setStoppedState(): void {
 /* ===================== PLAYER ===================== */
 
 /**
+ * Resolve an audio URL, checking the offline cache first.
+ * Returns a cached Object URL if available, otherwise the original URL.
+ * Object URLs from the cache must be revoked after use to free memory.
+ */
+async function resolveAudioUrl(originalUrl: string): Promise<string> {
+  try {
+    const cachedUrl = await getCachedAudioUrl(originalUrl);
+    if (cachedUrl) {
+      return cachedUrl;
+    }
+  } catch {
+    // Cache lookup failed — fall through to original URL
+  }
+  return originalUrl;
+}
+
+/**
  * Play the current ayah audio.
  * Supports two modes: per-ayah files and MP3 Quran (single file with timing offsets).
  * Applies saved playback speed and starts word-by-word tracking.
+ * Checks the offline audio cache first — if a cached version exists, it is used
+ * instead of the network URL, enabling offline playback.
  */
-export function playCurrentAyah(): void {
+export async function playCurrentAyah(): Promise<void> {
   if (!state.surahData || !state.ayahsAudios?.length) {
     showToast(__('no_audio'), 'error');
     return;
@@ -176,8 +196,11 @@ export function playCurrentAyah(): void {
 
   _mp3quranUrl = isMp3quran ? url : null;
 
+  // Resolve the audio URL — check offline cache first
+  const resolvedUrl = await resolveAudioUrl(url);
+
   if (isMp3quran) {
-    dom.audioPlayer.src = url;
+    dom.audioPlayer.src = resolvedUrl;
     dom.audioPlayer.addEventListener(
       'loadedmetadata',
       function onMeta(): void {
@@ -188,7 +211,7 @@ export function playCurrentAyah(): void {
       { once: true },
     );
   } else {
-    dom.audioPlayer.src = url;
+    dom.audioPlayer.src = resolvedUrl;
     dom.audioPlayer.play().catch((e: unknown) => console.warn(e));
   }
 
