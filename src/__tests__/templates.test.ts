@@ -83,9 +83,7 @@ describe('escapeHtml', () => {
   });
 
   it('should escape a full XSS payload', () => {
-    expect(escapeHtml('<script>alert("xss")</script>')).toBe(
-      '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
-    );
+    expect(escapeHtml('<script>alert("xss")</script>')).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
   });
 
   it('should return empty string for null', () => {
@@ -101,9 +99,7 @@ describe('escapeHtml', () => {
   });
 
   it('should handle mixed special characters', () => {
-    expect(escapeHtml('<a href="x">&amp;</a>')).toBe(
-      '&lt;a href=&quot;x&quot;&gt;&amp;amp;&lt;/a&gt;'
-    );
+    expect(escapeHtml('<a href="x">&amp;</a>')).toBe('&lt;a href=&quot;x&quot;&gt;&amp;amp;&lt;/a&gt;');
   });
 });
 
