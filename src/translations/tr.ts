@@ -328,6 +328,12 @@ export default {
   download_audio_deleted: 'Önbellekteki ses silindi',
   download_audio_no_data: 'İndirilecek ses verisi yok',
 
+  // === Sürekli Çalma ===
+  autoplay_next: '🔗 Sürekli',
+  autoplay_next_enabled: 'Sürekli çalma etkin — bir sonraki sure otomatik çalınacak',
+  autoplay_next_disabled: 'Sürekli çalma devre dışı — sure sonunda duracak',
+  khatma_complete: 'Hatim tamamlandı',
+
   // === Erişilebilirlik ===
   a11y_panel_opened: '{0} açıldı',
   a11y_panel_closed: '{0} kapatıldı',
