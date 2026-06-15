@@ -4,7 +4,14 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast, loadingBar } from './ui.js';
 import { toArabicNumeral } from './utils.js';
-import { mushafLoadingState, surahLoadingMessage, mushafHeaderRow, mushafErrorFallback, mushafSurahNameSpan, surahSecretsBody } from './templates.js';
+import {
+  mushafLoadingState,
+  surahLoadingMessage,
+  mushafHeaderRow,
+  mushafErrorFallback,
+  mushafSurahNameSpan,
+  surahSecretsBody,
+} from './templates.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from './app.js';
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from './audio.js';
@@ -76,9 +83,9 @@ export async function toggleMushafMode(): Promise<void> {
   state.mushafMode = !state.mushafMode;
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
     if (state.mushafMode) {
-      b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'mushaf');
+      b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'mushaf');
     } else {
-      b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah');
+      b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'surah');
     }
   });
   if (state.mushafMode) {
@@ -103,16 +110,22 @@ export async function toggleMushafMode(): Promise<void> {
     }
     // Also close any open overlays
     const mushafOverlay = document.getElementById('mushafSurahOverlay');
-    if (mushafOverlay) { mushafOverlay.classList.add('hidden'); }
+    if (mushafOverlay) {
+      mushafOverlay.classList.add('hidden');
+    }
     const secretsOverlay = document.getElementById('surahSecretsOverlay');
-    if (secretsOverlay) { secretsOverlay.classList.add('hidden'); }
+    if (secretsOverlay) {
+      secretsOverlay.classList.add('hidden');
+    }
 
     // Show immediate loading state in surahContent
     if (dom.surahContent) {
       dom.surahContent.innerHTML = mushafLoadingState();
     }
 
-    if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
+    if (dom.pageIndicator) {
+      dom.pageIndicator.style.display = 'inline';
+    }
     populatePageSelect();
 
     if (state.currentSurah) {
@@ -121,7 +134,9 @@ export async function toggleMushafMode(): Promise<void> {
         (surahData?.number === state.currentSurah && surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
       try {
         const res = await fetch(`${CONFIG.API_BASE}/ayah/${state.currentSurah}:${currentAyah}/quran-uthmani`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
         const data = (await res.json()) as AyahPageResponse;
         const page = data?.data?.page;
         if (page && page >= 1 && page <= 604) {
@@ -144,7 +159,9 @@ export async function toggleMushafMode(): Promise<void> {
     // === Remove body class ===
     document.body.classList.remove('mushaf-active');
 
-    if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
+    if (dom.pageIndicator) {
+      dom.pageIndicator.style.display = 'none';
+    }
 
     // No need to reset inline styles — CSS handles panel visibility automatically
     // The body.mushaf-active class is removed above, which restores normal panel behavior
@@ -155,7 +172,7 @@ export async function toggleMushafMode(): Promise<void> {
       highlightCurrentAyah();
       updatePlayerInfo();
     } else {
-      let surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
+      const surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
       dom.surahContent!.innerHTML = surahLoadingMessage();
       setTimeout(() => loadSurah(surahToLoad), 50);
     }
@@ -166,7 +183,9 @@ export async function toggleMushafMode(): Promise<void> {
 /* ===================== PAGE SELECT ===================== */
 
 function populatePageSelect(): void {
-  if (!dom.pageSelect) return;
+  if (!dom.pageSelect) {
+    return;
+  }
   dom.pageSelect.innerHTML = '';
   for (let i = 1; i <= 604; i++) {
     const opt = document.createElement('option');
@@ -175,7 +194,9 @@ function populatePageSelect(): void {
     dom.pageSelect.appendChild(opt);
   }
   dom.pageSelect.value = String(state.currentPage);
-  if (dom.pageSlider) dom.pageSlider.value = String(state.currentPage);
+  if (dom.pageSlider) {
+    dom.pageSlider.value = String(state.currentPage);
+  }
 }
 
 /** Update the page indicator text to show current page. */
@@ -190,11 +211,15 @@ export function updatePageIndicator(pageNum: number): void {
 
 /** Load and render a mushaf page image. */
 export async function loadPage(pageNum: number, skipNav?: boolean, force?: boolean): Promise<void> {
-  if (!pageNum) return;
+  if (!pageNum) {
+    return;
+  }
   _mushafLoadCounter++;
   const currentLoad = _mushafLoadCounter;
   const hasContainer = !!dom.surahContent?.querySelector('.mushaf-container');
-  if (!force && hasContainer && pageNum === state.currentPage) return;
+  if (!force && hasContainer && pageNum === state.currentPage) {
+    return;
+  }
   const prevPage = state.currentPage;
   const direction = pageNum > prevPage ? 'left' : 'right';
   state.currentPage = pageNum;
@@ -209,7 +234,9 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
     oldContainer.classList.add(flipOut);
     await new Promise<void>((r) => setTimeout(r, 300));
     // Abort if user navigated to a different page during animation
-    if (_mushafLoadCounter !== currentLoad) return;
+    if (_mushafLoadCounter !== currentLoad) {
+      return;
+    }
   }
 
   renderMushafPageImage(pageNum, currentLoad, skipNav);
@@ -225,7 +252,7 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
         () => {
           newContainer.classList.remove('mushaf-flipping', flipIn);
         },
-        { once: true }
+        { once: true },
       );
     }
   });
@@ -237,7 +264,7 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
 export function getJuzForPage(pageNum: number): number {
   let juz = 1;
   for (let i = JUZ_PAGES.length - 1; i >= 0; i--) {
-    if (pageNum >= JUZ_PAGES[i]) {
+    if (pageNum >= JUZ_PAGES[i]!) {
       juz = i + 1;
       break;
     }
@@ -248,7 +275,9 @@ export function getJuzForPage(pageNum: number): number {
 /* ===================== RENDER MUSHAF PAGE ===================== */
 
 function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: boolean): void {
-  if (!dom.surahContent) return;
+  if (!dom.surahContent) {
+    return;
+  }
   const juz = getJuzForPage(pageNum);
 
   const container = document.createElement('div');
@@ -272,7 +301,9 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
 
   const clickHandler = async (e: MouseEvent): Promise<void> => {
     const target = e.target as Element;
-    if (target.closest('.mushaf-page-nav')) return;
+    if (target.closest('.mushaf-page-nav')) {
+      return;
+    }
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -282,7 +313,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
       y,
       rect.width,
       rect.height,
-      pageLayout
+      pageLayout,
     )) as AyahClickResult | null;
     if (result) {
       playMushafAyah(result.surah, result.ayah);
@@ -302,7 +333,9 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   navPrev.setAttribute('aria-label', __('previous_page'));
   navPrev.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
-    if (state.currentPage > 1) loadPage(state.currentPage - 1, true);
+    if (state.currentPage > 1) {
+      loadPage(state.currentPage - 1, true);
+    }
   });
 
   const navNext = document.createElement('button');
@@ -311,7 +344,9 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   navNext.setAttribute('aria-label', __('next_page'));
   navNext.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
-    if (state.currentPage < 604) loadPage(state.currentPage + 1, true);
+    if (state.currentPage < 604) {
+      loadPage(state.currentPage + 1, true);
+    }
   });
 
   container.appendChild(header);
@@ -324,50 +359,64 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   dom.surahContent.appendChild(container);
   dom.surahContent.appendChild(buildTajweedLegend());
 
-  renderPage(pageNum, canvas).then(({ canvas: renderedCanvas, layout: layoutData }) => {
-    // Race condition guard: if user navigated to another page while rendering, discard this result
-    if (_mushafLoadCounter !== currentLoad) return;
-    pageLayout = layoutData;
-    state.currentPageLayout = layoutData;
-    if (renderedCanvas && layoutData) {
-      loadingBar.hide();
-      if (state.mushafMode) highlightMushafAyah(skipNav);
-    } else {
+  renderPage(pageNum, canvas)
+    .then(({ canvas: renderedCanvas, layout: layoutData }) => {
+      // Race condition guard: if user navigated to another page while rendering, discard this result
+      if (_mushafLoadCounter !== currentLoad) {
+        return;
+      }
+      pageLayout = layoutData;
+      state.currentPageLayout = layoutData;
+      if (renderedCanvas && layoutData) {
+        loadingBar.hide();
+        if (state.mushafMode) {
+          highlightMushafAyah(skipNav);
+        }
+      } else {
+        showToast(__('mushaf_page_error'), 'error');
+        // Show fallback error message in the container
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'mushaf-error-fallback';
+        errorDiv.innerHTML = mushafErrorFallback();
+        canvasWrapper.appendChild(errorDiv);
+        loadingBar.hide();
+      }
+    })
+    .catch((err) => {
+      console.error('[Mushaf] renderPage error:', err);
       showToast(__('mushaf_page_error'), 'error');
-      // Show fallback error message in the container
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'mushaf-error-fallback';
-      errorDiv.innerHTML = mushafErrorFallback();
-      canvasWrapper.appendChild(errorDiv);
       loadingBar.hide();
-    }
-  }).catch((err) => {
-    console.error('[Mushaf] renderPage error:', err);
-    showToast(__('mushaf_page_error'), 'error');
-    loadingBar.hide();
-  });
+    });
 
   preloadAdjacentLayouts(pageNum);
 
   // Fetch surah names for the page header — cancel any previous in-flight request
-  if (_surahNamesController) _surahNamesController.abort();
+  if (_surahNamesController) {
+    _surahNamesController.abort();
+  }
   _surahNamesController = new AbortController();
   const surahNamesSignal = _surahNamesController.signal;
 
   fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`, { signal: surahNamesSignal })
     .then((res) => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       return res.json();
     })
     .then((json: { data?: { ayahs?: { surah: { number: number; name: string } }[] } }) => {
       const ayahs = json?.data?.ayahs;
-      if (!ayahs?.length) return;
+      if (!ayahs?.length) {
+        return;
+      }
 
       const surahNamesEl = document.getElementById('mushafSurahNames');
       if (surahNamesEl) {
         const seen: Record<number, string> = {};
         ayahs.forEach((a: { surah: { number: number; name: string } }) => {
-          if (!seen[a.surah.number]) seen[a.surah.number] = a.surah.name;
+          if (!seen[a.surah.number]) {
+            seen[a.surah.number] = a.surah.name;
+          }
         });
         surahNamesEl.innerHTML = Object.values(seen)
           .map((n) => mushafSurahNameSpan(n))
@@ -375,7 +424,9 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
       }
     })
     .catch((err) => {
-      if ((err as Error).name === 'AbortError') return; // cancelled — expected
+      if ((err as Error).name === 'AbortError') {
+        return;
+      } // cancelled — expected
       console.warn('Failed to fetch ayah list for page', pageNum);
     });
 }
@@ -384,8 +435,12 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
 
 function preloadAdjacentLayouts(pageNum: number): void {
   const toPreload: number[] = [];
-  if (pageNum > 1) toPreload.push(pageNum - 1);
-  if (pageNum < 604) toPreload.push(pageNum + 1);
+  if (pageNum > 1) {
+    toPreload.push(pageNum - 1);
+  }
+  if (pageNum < 604) {
+    toPreload.push(pageNum + 1);
+  }
 
   for (const p of toPreload) {
     loadPageData(p).catch(() => {});
@@ -395,7 +450,9 @@ function preloadAdjacentLayouts(pageNum: number): void {
 /* ===================== SURAH OVERLAY ===================== */
 
 export function populateSurahOverlay(): void {
-  if (!dom.mushafSurahOverlayList || !state.surahList.length) return;
+  if (!dom.mushafSurahOverlayList || !state.surahList.length) {
+    return;
+  }
   dom.mushafSurahOverlayList.innerHTML = '';
   for (const s of state.surahList as SurahListEntry[]) {
     const row = document.createElement('div');
@@ -403,8 +460,8 @@ export function populateSurahOverlay(): void {
     const btn = document.createElement('button');
     btn.className = 'mushaf-surah-overlay-btn';
     btn.textContent = `${s.number}. ${s.name} (${s.englishName})`;
-    btn.dataset.surah = String(s.number);
-    btn.dataset.surahName = s.name;
+    btn.dataset['surah'] = String(s.number);
+    btn.dataset['surahName'] = s.name;
     row.appendChild(btn);
     if (SURAH_SECRETS[s.number]) {
       const secretBtn = document.createElement('button');
@@ -412,8 +469,8 @@ export function populateSurahOverlay(): void {
       secretBtn.textContent = 'ℹ️';
       secretBtn.title = __('surah_info_title');
       secretBtn.setAttribute('aria-label', `${__('surah_info_for', s.name)}`);
-      secretBtn.dataset.surah = String(s.number);
-      secretBtn.dataset.surahName = s.name;
+      secretBtn.dataset['surah'] = String(s.number);
+      secretBtn.dataset['surahName'] = s.name;
       row.appendChild(secretBtn);
     }
     dom.mushafSurahOverlayList.appendChild(row);
@@ -425,8 +482,8 @@ export function populateSurahOverlay(): void {
     overlayList.addEventListener('click', async (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target.classList.contains('mushaf-surah-overlay-btn')) {
-        const surahNum = parseInt(target.dataset.surah!, 10);
-        const surahName = target.dataset.surahName || '';
+        const surahNum = parseInt(target.dataset['surah']!, 10);
+        const surahName = target.dataset['surahName'] || '';
         dom.mushafSurahOverlay!.classList.add('hidden');
         dom.mushafSurahOverlay!.style.display = 'none';
         state.currentSurah = surahNum;
@@ -435,11 +492,17 @@ export function populateSurahOverlay(): void {
         loadingBar.show(`⏳ ${__('loading_surah')} ${surahName}...`);
         try {
           const res = await fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
           const data = (await res.json()) as AyahPageResponse;
           const page = data?.data?.page || 1;
-          if (dom.pageSelect) dom.pageSelect.value = String(page);
-          if (dom.pageSlider) dom.pageSlider.value = String(page);
+          if (dom.pageSelect) {
+            dom.pageSelect.value = String(page);
+          }
+          if (dom.pageSlider) {
+            dom.pageSlider.value = String(page);
+          }
           loadPage(page, true);
         } catch {
           showToast(__('mushaf_page_not_found'), 'error');
@@ -450,7 +513,7 @@ export function populateSurahOverlay(): void {
       }
       if (target.classList.contains('surah-secret-btn')) {
         e.stopPropagation();
-        showSurahSecret(parseInt(target.dataset.surah!, 10), target.dataset.surahName || '');
+        showSurahSecret(parseInt(target.dataset['surah']!, 10), target.dataset['surahName'] || '');
       }
     });
   }
@@ -459,7 +522,9 @@ export function populateSurahOverlay(): void {
 /* ===================== SURAH SECRETS ===================== */
 
 export function showSurahSecret(surahNum: number, surahName?: string): void {
-  if (!dom.surahSecretsOverlay || !dom.surahSecretsBody || !dom.surahSecretsTitle || !dom.surahSecretsSurahName) return;
+  if (!dom.surahSecretsOverlay || !dom.surahSecretsBody || !dom.surahSecretsTitle || !dom.surahSecretsSurahName) {
+    return;
+  }
   const secret = SURAH_SECRETS[surahNum];
   if (!secret) {
     showToast(__('mushaf_no_secret'), 'error');
@@ -477,15 +542,21 @@ export function showSurahSecret(surahNum: number, surahName?: string): void {
 
 /** Update the mushaf page highlight overlay to mark the current ayah. */
 export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
-  if (!state.mushafMode) return;
+  if (!state.mushafMode) {
+    return;
+  }
   const wrapper = dom.surahContent?.querySelector('.mushaf-image-wrapper') as HTMLElement | null;
   const canvasEl = wrapper?.querySelector('.mushaf-page-canvas') as HTMLCanvasElement | null;
-  if (!wrapper || !canvasEl || !canvasEl.width) return;
+  if (!wrapper || !canvasEl || !canvasEl.width) {
+    return;
+  }
 
   const surahData: SurahData | null = state.surahData;
   const surah = surahData?.number;
   const ayah = surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah;
-  if (!surah || !ayah) return;
+  if (!surah || !ayah) {
+    return;
+  }
 
   if (!skipNav) {
     const layout: PageLayoutData | null = state.currentPageLayout;
@@ -494,13 +565,15 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
         line.words?.some((w) => {
           const key = w.verse_key || w.location || '';
           const parts = key.split(':');
-          return parts.length >= 2 && parseInt(parts[0], 10) === surah && parseInt(parts[1], 10) === ayah;
-        })
+          return parts.length >= 2 && parseInt(parts[0]!, 10) === surah && parseInt(parts[1]!, 10) === ayah;
+        }),
       );
       if (!isOnPage) {
         try {
           const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
           const data = (await res.json()) as AyahPageResponse;
           const page = data?.data?.page;
           if (page && page !== state.currentPage) {
@@ -515,7 +588,9 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
   }
 
   const rect = canvasEl.getBoundingClientRect();
-  if (!rect.width || !rect.height) return;
+  if (!rect.width || !rect.height) {
+    return;
+  }
 
   const rects = (await getAyahHighlightRects(
     state.currentPage,
@@ -523,9 +598,11 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
     ayah,
     rect.width,
     rect.height,
-    state.currentPageLayout
+    state.currentPageLayout,
   )) as AyahHighlightRect[];
-  if (!rects.length) return;
+  if (!rects.length) {
+    return;
+  }
 
   const wrapperRect = wrapper.getBoundingClientRect();
   const imgLeft = rect.left - wrapperRect.left;
@@ -559,9 +636,13 @@ function playMushafAyah(surahNum: number, ayahNum: number): void {
     loadSurah(surahNum, { startAyah: ayahNum, autoPlay: true });
     return;
   }
-  if (state.isPlaying) prepareAudioForNewSurah();
+  if (state.isPlaying) {
+    prepareAudioForNewSurah();
+  }
   const surahData: SurahData | null = state.surahData;
-  if (!surahData) return;
+  if (!surahData) {
+    return;
+  }
   const idx = surahData.ayahs.findIndex((a) => a.numberInSurah === ayahNum);
   if (idx !== -1) {
     state.currentAyahIndex = idx;
