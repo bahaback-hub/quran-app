@@ -76,11 +76,9 @@ function togglePresFullscreen(): void {
   }
   const fsElement = getFullscreenElement();
   if (fsElement) {
-    // eslint-disable-next-line no-empty-function
-    exitFullscreen().catch(() => {});
+    exitFullscreen().catch(() => { /* noop */ });
   } else {
-    // eslint-disable-next-line no-empty-function
-    requestFullscreen(overlay).catch(() => {});
+    requestFullscreen(overlay).catch(() => { /* noop */ });
   }
 }
 
@@ -295,8 +293,7 @@ export function openPresentation(): void {
           renderSurah(surahData);
         }
       })
-      // eslint-disable-next-line no-empty-function
-      .catch(() => {});
+      .catch(() => { /* noop */ });
   }
 
   state.presentationMode = true;
@@ -351,8 +348,7 @@ export function closePresentation(): void {
   state.presentationMode = false;
   // Exit fullscreen if active
   if (isFullscreen()) {
-    // eslint-disable-next-line no-empty-function
-    exitFullscreen().catch(() => {});
+    exitFullscreen().catch(() => { /* noop */ });
   }
   if (dom.presentationOverlay) {
     // Remove the presentation-visible class FIRST (it has display: flex !important)
@@ -403,8 +399,7 @@ function handleKeyDown(e: KeyboardEvent): void {
       // If in fullscreen, only exit fullscreen — don't close presentation
       if (isFullscreen()) {
         e.preventDefault();
-        // eslint-disable-next-line no-empty-function
-        exitFullscreen().catch(() => {});
+        exitFullscreen().catch(() => { /* noop */ });
       } else {
         closePresentation();
       }
