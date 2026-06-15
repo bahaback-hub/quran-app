@@ -63,7 +63,7 @@ export function pad2(n: number): string {
  */
 export function toArabicNumeral(num: number | string): string {
   const digits = '٠١٢٣٤٥٦٧٨٩';
-  return String(num).replace(/\d/g, (d) => digits[parseInt(d, 10)]);
+  return String(num).replace(/\d/g, (d) => digits[parseInt(d, 10)]!);
 }
 
 /**
@@ -77,8 +77,10 @@ export function toArabicNumeral(num: number | string): string {
  *   formatTime12('08:00') // → '8:00 ص'
  */
 export function formatTime12(time24: string): string {
-  if (!time24) return '—';
-  const [h, m] = time24.split(':');
+  if (!time24) {
+    return '—';
+  }
+  const [h, m] = time24.split(':') as [string, string];
   let hour = parseInt(h, 10);
   const period = hour >= 12 ? 'م' : 'ص';
   hour = hour % 12 || 12;
@@ -96,8 +98,10 @@ export function formatTime12(time24: string): string {
  *   timeStrToMinutes('14:00') // → 840
  */
 export function timeStrToMinutes(t: string): number {
-  if (!t) return 0;
-  const [h, m] = t.split(':');
+  if (!t) {
+    return 0;
+  }
+  const [h, m] = t.split(':') as [string, string];
   return parseInt(h, 10) * 60 + parseInt(m, 10);
 }
 
@@ -127,9 +131,11 @@ export function stripTashkeel(str: string): string {
  * @returns Text with وٰة patterns converted to اة
  */
 function uthmaniWawAlefFix(str: string): string {
-  return String(str)
-    // وٰة (waw + optional diacritics + dagger alif + optional diacritics + ta marbuta)
-    .replace(/و[\u064B-\u065F]*\u0670[\u064B-\u065F]*ة/g, 'اة');
+  return (
+    String(str)
+      // وٰة (waw + optional diacritics + dagger alif + optional diacritics + ta marbuta)
+      .replace(/و[\u064B-\u065F]*\u0670[\u064B-\u065F]*ة/g, 'اة')
+  );
 }
 
 /**
@@ -164,8 +170,7 @@ function normalizeArabic(str: string): string {
  *   normalizeExactText('الصِّرَٰطَ') // → 'الصرط'
  */
 export function normalizeExactText(str: string): string {
-  return normalizeArabic(str)
-    .replace(/\u0670/g, '');
+  return normalizeArabic(str).replace(/\u0670/g, '');
 }
 
 /**
@@ -257,5 +262,7 @@ export function copyToClipboard(text: string): void {
  *   hapticFeedback(50)     // Longer 50ms buzz
  */
 export function hapticFeedback(pattern: number = 10): void {
-  if (navigator.vibrate) navigator.vibrate(pattern);
+  if (navigator.vibrate) {
+    navigator.vibrate(pattern);
+  }
 }
