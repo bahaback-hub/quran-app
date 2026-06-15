@@ -7,6 +7,7 @@ import { getCapacitor } from './types.js';
 import type { CapacitorPlugins } from './types.js';
 
 /** Capacitor App plugin interface. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface CapacitorAppPlugin {
   addListener: (event: string, callback: () => void) => void;
 }
@@ -26,7 +27,12 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
     app.addListener?.('backButton', () => {
       // Close presentation overlay first — use proper close function
       if (state.presentationMode) {
-        import('./presentation.js').then((m) => m.closePresentation()).catch(() => {});
+        import('./presentation.js')
+          .then((m) => m.closePresentation())
+          .catch(
+            // eslint-disable-next-line no-empty-function
+            () => {},
+          );
         return;
       }
 
