@@ -5,24 +5,7 @@ import { showToast } from './ui.js';
 import { hapticFeedback, copyToClipboard } from './utils.js';
 import { __ } from './i18n.js';
 import { loadSurah } from './surah-loader.js';
-import { favoritesEmptyMessage, favoriteMeta, escapeHtml } from './templates.js';
-
-/* ===================== INTERFACES ===================== */
-
-/** Ayah data shape from surahData.ayahs[] */
-interface AyahData {
-  numberInSurah: number;
-  text: string;
-  number?: number;
-  audio?: string;
-}
-
-/** Surah data shape from state.surahData */
-interface SurahData {
-  name: string;
-  ayahs: AyahData[];
-  number?: number;
-}
+import { favoritesEmptyMessage, favoriteMeta } from './templates.js';
 
 /* ===================== FAVORITES ===================== */
 
@@ -146,7 +129,10 @@ export function renderFavorites(): void {
         const ayah = target.dataset['ayah'] || '';
         const shareText = `${text} — ${surahName} — ${__('ayah')} ${ayah}`;
         if (navigator.share) {
-          navigator.share({ title: __('app_title'), text: shareText }).catch(() => {});
+          navigator.share({ title: __('app_title'), text: shareText }).catch(
+            // eslint-disable-next-line no-empty-function
+            () => {},
+          );
         } else {
           copyToClipboard(shareText);
           showToast(__('copied'), 'success');
