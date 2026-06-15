@@ -1,6 +1,22 @@
-/** Cached DOM element references. */
+/**
+ * DOM Cache Module for Quran App.
+ *
+ * Provides a centralized, type-safe cache of all DOM element references
+ * used throughout the application. Elements are looked up once by ID
+ * during initialization (cacheDom) and stored in a typed proxy object.
+ *
+ * This approach:
+ *   - Eliminates repeated document.getElementById() calls at runtime
+ *   - Provides TypeScript type narrowing (HTMLSelectElement vs HTMLElement)
+ *   - Serves as a single source of truth for all DOM IDs
+ *   - Makes DOM refactoring safer (compile-time errors on typos)
+ *
+ * IMPORTANT: cacheDom() must be called AFTER injectOverlays() in the
+ * app initialization sequence, otherwise dynamically injected elements
+ * won't be found.
+ */
 
-/** Map of DOM IDs to their element types. */
+/** Map of DOM IDs to their element types — each property is nullable until cacheDom() runs. */
 interface DomMap {
   cityName: HTMLElement | null;
   nextPrayerName: HTMLElement | null;
@@ -163,7 +179,10 @@ interface DomMap {
   controls: HTMLElement | null;
 }
 
-/** All DOM IDs to cache — single source of truth for both initialization and cacheDom. */
+/**
+ * All DOM IDs to cache — single source of truth for both initialization and cacheDom.
+ * Order matches the DOM structure for readability; new elements should be appended.
+ */
 const DOM_IDS: (keyof DomMap)[] = [
   'cityName',
   'nextPrayerName',
@@ -340,7 +359,15 @@ function createEmptyDomMap(): DomMap {
 /** Cached DOM element references — all initialized to null, populated by cacheDom(). */
 export const dom: DomMap = createEmptyDomMap();
 
-/** Cache all DOM element references by ID. Called once during app initialization. */
+/**
+ * Cache all DOM element references by ID.
+ *
+ * Iterates over DOM_IDS, looks up each element via document.getElementById(),
+ * and stores the result in the typed `dom` object. Called once during app
+ * initialization, after injectOverlays() has injected dynamic panels.
+ *
+ * Elements not found in the DOM will remain null in the dom object.
+ */
 export function cacheDom(): void {
   for (const id of DOM_IDS) {
     // Dynamic property assignment on typed DOM map — cast required for indexed access
