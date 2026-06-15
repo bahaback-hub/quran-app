@@ -19,7 +19,9 @@ interface ContinueInfo {
 }
 
 function injectContinueWidgetStyles(): void {
-  if (document.getElementById(CONTINUE_WIDGET_STYLES_ID)) return;
+  if (document.getElementById(CONTINUE_WIDGET_STYLES_ID)) {
+    return;
+  }
   const style = document.createElement('style');
   style.id = CONTINUE_WIDGET_STYLES_ID;
   style.textContent = `
@@ -61,7 +63,9 @@ function injectContinueWidgetStyles(): void {
 export function showContinueWidget(info: ContinueInfo): void {
   injectContinueWidgetStyles();
   const existing = document.getElementById('continueWidget');
-  if (existing) existing.remove();
+  if (existing) {
+    existing.remove();
+  }
 
   const widget = document.createElement('div');
   widget.id = 'continueWidget';
@@ -84,7 +88,7 @@ export function showContinueWidget(info: ContinueInfo): void {
     strong,
     `${__('continue_ayah', String(info.ayahNumberInSurah))}`,
     document.createElement('br'),
-    small
+    small,
   );
 
   const closeBtn = document.createElement('button');
@@ -102,7 +106,9 @@ export function showContinueWidget(info: ContinueInfo): void {
       return;
     }
     widget.remove();
-    if (dom.surahSelect) dom.surahSelect.value = String(info.surah);
+    if (dom.surahSelect) {
+      dom.surahSelect.value = String(info.surah);
+    }
     loadSurah(info.surah, { startAyah: info.ayahNumberInSurah || 1 });
   });
 
@@ -110,7 +116,9 @@ export function showContinueWidget(info: ContinueInfo): void {
 
   setTimeout(() => {
     const w = document.getElementById('continueWidget');
-    if (w) w.remove();
+    if (w) {
+      w.remove();
+    }
   }, 8000);
 }
 
@@ -126,14 +134,18 @@ export function handleVisibilityChange(): void {
     }
   } else {
     startClock();
-    if (!getAdhkarIntervalId()) setAdhkarIntervalId(setInterval(checkAdhkarNotifications, 15000));
+    if (!getAdhkarIntervalId()) {
+      setAdhkarIntervalId(setInterval(checkAdhkarNotifications, 15000));
+    }
   }
 }
 
 /* ===================== NETWORK BANNER ===================== */
 
 export function updateNetworkBanner(): void {
-  if (!dom.networkBanner) return;
+  if (!dom.networkBanner) {
+    return;
+  }
   if (!navigator.onLine) {
     dom.networkBanner.classList.add('show');
     dom.networkBanner.classList.remove('online');
@@ -146,18 +158,24 @@ export function updateNetworkBanner(): void {
 
 let _progressPending = false;
 export function updateReadingProgress(): void {
-  if (_progressPending) return;
+  if (_progressPending) {
+    return;
+  }
   _progressPending = true;
   requestAnimationFrame(() => {
     _progressPending = false;
     const progressBar = document.getElementById('readingProgress');
-    if (!progressBar) return;
+    if (!progressBar) {
+      return;
+    }
     if (state.mushafMode) {
       progressBar.style.transform = `scaleX(${state.currentPage / 604})`;
       return;
     }
     const container = dom.surahContent;
-    if (!container || !state.surahData) return;
+    if (!container || !state.surahData) {
+      return;
+    }
     const ayahs = state.surahData.ayahs;
     const total = Array.isArray(ayahs) ? ayahs.length : 1;
     const progress = Math.min(1, (state.currentAyahIndex + 1) / total);
