@@ -1,21 +1,13 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
-import {
-  togglePlayPause,
-  nextAyah,
-  prevAyah,
-  nextSurah,
-  prevSurah,
-  toggleHifdh,
-  toggleRepeat,
-  expandPlayer,
-} from './audio.js';
-import { toggleNightMode, applyFontSize, openSettings, closeSettings } from './settings.js';
-import { toggleFavorite, setBookmark, gotoBookmark, openFavorites, closeFavorites } from './favorites.js';
+import { togglePlayPause, nextAyah, prevAyah, prevSurah, nextSurah, toggleHifdh, toggleRepeat } from './audio.js';
+import { toggleNightMode, applyFontSize, closeSettings } from './settings.js';
+import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './favorites.js';
 import { stopAzan } from './prayer.js';
 import { toggleTafsir, closeTafsir } from './tafsir.js';
 import { storage } from './storage.js';
 
+/** Register global keyboard shortcuts for playback, navigation, and UI toggles. */
 export function initKeyboardShortcuts(): void {
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape' && state.azanPlaying) {
@@ -98,10 +90,12 @@ export function initKeyboardShortcuts(): void {
         if (state.presentationMode) {
           import('./presentation.js')
             .then((m: { closePresentation: () => void }) => m.closePresentation())
+            // eslint-disable-next-line no-empty-function
             .catch(() => {});
         } else {
           import('./presentation.js')
             .then((m: { openPresentation: () => void }) => m.openPresentation())
+            // eslint-disable-next-line no-empty-function
             .catch(() => {});
         }
         break;
@@ -141,6 +135,8 @@ export function initKeyboardShortcuts(): void {
           dom.player.classList.add('collapsed');
           storage.set('player_collapsed', true);
         }
+        break;
+      default:
         break;
     }
   });
