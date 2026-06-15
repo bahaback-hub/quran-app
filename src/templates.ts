@@ -36,8 +36,9 @@ import { __ } from './i18n.js';
  *   escapeHtml('<script>alert("xss")</script>')
  *   // → '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
  */
-export function escapeHtml(text: string): string {
-  return text
+export function escapeHtml(text: string | null | undefined): string {
+  if (text == null) return '';
+  return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -391,7 +392,7 @@ export function tafsirContent(text: string): string {
  * @param message Error message to display (will be escaped)
  * @returns HTML string for the error message
  */
-export function tafsirErrorMessage(message: string): string {
+export function tafsirErrorMessage(message: string = __('no_tafsir_available') || 'التفسير غير متاح'): string {
   return `<p class="tafsir-error">${escapeHtml(message)}</p>`;
 }
 
