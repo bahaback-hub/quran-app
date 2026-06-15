@@ -23,7 +23,7 @@ import { loadFullQuranText } from './search-ui.js';
 import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
 import { initNavigation } from './navigation.js';
-import { initToggleSwitchAccessibility } from './a11y.js';
+import { initToggleSwitchAccessibility, initReducedMotionDetection } from './a11y.js';
 import { loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect } from './surah-loader.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { handleVisibilityChange, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
@@ -95,6 +95,7 @@ export async function initApp(): Promise<void> {
   initKeyboardShortcuts();
   initCapacitorBackButton();
   initToggleSwitchAccessibility();
+  initReducedMotionDetection();
 
   // Set language selector to current language
   if (dom.langSelect) {
