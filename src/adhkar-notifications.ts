@@ -32,7 +32,9 @@ let _adhkarAudioCtx: AudioContext | null = null;
 
 function playNotificationSound(): void {
   try {
-    if (!_adhkarAudioCtx) _adhkarAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!_adhkarAudioCtx) {
+      _adhkarAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
     const ctx = _adhkarAudioCtx;
     const notes = [523.25, 659.25, 783.99];
     notes.forEach((freq: number, i: number) => {
@@ -55,25 +57,37 @@ function playNotificationSound(): void {
 /* ===================== SHOW / RENDER NOTIFICATION ===================== */
 
 export function showAdhkarNotification(cat: AdhkarNotifContext, notifDuration?: number): void {
-  if (!dom.adhkarNotification) return;
-  if (dom.adhkarNotifIcon) dom.adhkarNotifIcon.textContent = cat.icon || '🕌';
-  if (dom.adhkarNotifTitle) dom.adhkarNotifTitle.textContent = `🕌 ${cat.name}`;
-  dom.adhkarNotification.dataset.category = cat.id || 'personal';
+  if (!dom.adhkarNotification) {
+    return;
+  }
+  if (dom.adhkarNotifIcon) {
+    dom.adhkarNotifIcon.textContent = cat.icon || '🕌';
+  }
+  if (dom.adhkarNotifTitle) {
+    dom.adhkarNotifTitle.textContent = `🕌 ${cat.name}`;
+  }
+  dom.adhkarNotification.dataset['category'] = cat.id || 'personal';
   dom.adhkarNotification.classList.remove('hidden');
   dom.adhkarNotification.style.display = 'flex';
 
   const settings = state.adhkarSettings!;
-  if (settings.adhkar_sound) playNotificationSound();
+  if (settings.adhkar_sound) {
+    playNotificationSound();
+  }
 
   const duration = (notifDuration || cat.duration || 1) * 60 * 1000;
   const existingTimer = getAdhkarNotificationTimer();
-  if (existingTimer) clearTimeout(existingTimer);
-  setAdhkarNotificationTimer(setTimeout(() => {
-    if (dom.adhkarNotification) {
-      dom.adhkarNotification.classList.add('hidden');
-      dom.adhkarNotification.style.display = 'none';
-    }
-  }, duration));
+  if (existingTimer) {
+    clearTimeout(existingTimer);
+  }
+  setAdhkarNotificationTimer(
+    setTimeout(() => {
+      if (dom.adhkarNotification) {
+        dom.adhkarNotification.classList.add('hidden');
+        dom.adhkarNotification.style.display = 'none';
+      }
+    }, duration),
+  );
 
   renderNotifAdhkarText(cat);
 
@@ -92,21 +106,28 @@ export function showAdhkarNotification(cat: AdhkarNotifContext, notifDuration?: 
 }
 
 export function renderNotifAdhkarText(cat: AdhkarNotifContext): void {
-  if (!dom.adhkarNotifText) return;
+  if (!dom.adhkarNotifText) {
+    return;
+  }
 
   if (cat.id === 'personal') {
     dom.adhkarNotifText.textContent = cat.name || '';
-    if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = '';
-    if (dom.adhkarNotifShareBtn)
+    if (dom.adhkarNotifProgress) {
+      dom.adhkarNotifProgress.textContent = '';
+    }
+    if (dom.adhkarNotifShareBtn) {
       dom.adhkarNotifShareBtn.onclick = () => {
         copyToClipboard(cat.name || '');
         showToast(__('copied'), 'success');
       };
+    }
     return;
   }
 
   const category = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === cat.id);
-  if (!category) return;
+  if (!category) {
+    return;
+  }
 
   let text = '';
   let count = 0;
@@ -117,7 +138,9 @@ export function renderNotifAdhkarText(cat: AdhkarNotifContext): void {
     const key = `item_${item.id}`;
     const counter = (settings[key] as number) || 0;
     if (counter < item.count) {
-      if (text) text += '\n\n';
+      if (text) {
+        text += '\n\n';
+      }
       text += item.text;
       count++;
     }
@@ -125,11 +148,17 @@ export function renderNotifAdhkarText(cat: AdhkarNotifContext): void {
 
   if (!text) {
     dom.adhkarNotifText.textContent = __('adhkar_done');
-    if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = '';
-    if (dom.adhkarNotifShareBtn) dom.adhkarNotifShareBtn.style.display = 'none';
+    if (dom.adhkarNotifProgress) {
+      dom.adhkarNotifProgress.textContent = '';
+    }
+    if (dom.adhkarNotifShareBtn) {
+      dom.adhkarNotifShareBtn.style.display = 'none';
+    }
   } else {
     dom.adhkarNotifText.textContent = text;
-    if (dom.adhkarNotifProgress) dom.adhkarNotifProgress.textContent = `📖 ${count}/${total}`;
+    if (dom.adhkarNotifProgress) {
+      dom.adhkarNotifProgress.textContent = `📖 ${count}/${total}`;
+    }
     if (dom.adhkarNotifShareBtn) {
       dom.adhkarNotifShareBtn.style.display = 'inline-block';
       dom.adhkarNotifShareBtn.onclick = () => {
@@ -159,17 +188,25 @@ export function dismissAdhkarNotification(): void {
 /** Check all adhkar categories and personal adhkar for pending notifications. */
 export function checkAdhkarNotifications(): void {
   const settings = state.adhkarSettings;
-  if (!settings?.adhkar_enabled) return;
+  if (!settings?.adhkar_enabled) {
+    return;
+  }
   const now = new Date();
   const curMin = now.getHours() * 60 + now.getMinutes();
   const today = now.toDateString();
 
   for (const cat of ADHKAR_DATA.categories) {
     const catSettings = settings[cat.id] as Partial<AdhkarCategorySettings> | undefined;
-    if (!catSettings?.enabled) continue;
+    if (!catSettings?.enabled) {
+      continue;
+    }
     const notifTime = catSettings.time || cat.defaultTime;
-    if (!notifTime) continue;
-    const [h, m] = notifTime.split(':').map(Number);
+    if (!notifTime) {
+      continue;
+    }
+    const timeParts = notifTime.split(':').map(Number);
+    const h = timeParts[0]!;
+    const m = timeParts[1]!;
     const catMin = h * 60 + m;
     const fireKey = cat.id + '_' + today;
     if (curMin >= catMin && state.lastAdhkarFired !== fireKey) {
@@ -181,8 +218,12 @@ export function checkAdhkarNotifications(): void {
   }
 
   for (const p of settings.personal_adhkar || []) {
-    if (!p.time) continue;
-    const [h, m] = p.time.split(':').map(Number);
+    if (!p.time) {
+      continue;
+    }
+    const timeParts = p.time.split(':').map(Number);
+    const h = timeParts[0]!;
+    const m = timeParts[1]!;
     const pMin = h * 60 + m;
     const fireKey = 'personal_' + p.id + '_' + today;
     if (curMin >= pMin && state.lastAdhkarFired !== fireKey) {
@@ -205,7 +246,9 @@ export function checkAdhkarNotifications(): void {
 let _adhkarSchedulerInterval: ReturnType<typeof setInterval> | null = null;
 
 export function startAdhkarNotificationScheduler(): void {
-  if (_adhkarSchedulerInterval) clearInterval(_adhkarSchedulerInterval);
+  if (_adhkarSchedulerInterval) {
+    clearInterval(_adhkarSchedulerInterval);
+  }
   checkAdhkarNotifications();
   _adhkarSchedulerInterval = setInterval(checkAdhkarNotifications, 30_000);
 }
