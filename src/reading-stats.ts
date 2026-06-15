@@ -1,7 +1,6 @@
 import { __ } from './i18n.js';
-import { state } from './state.js';
 import { storage } from './storage.js';
-import { readingStatsGrid, escapeHtml } from './templates.js';
+import { readingStatsGrid } from './templates.js';
 
 const STATS_KEY = 'reading_stats';
 
