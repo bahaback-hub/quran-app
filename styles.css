@@ -15,3 +15,13 @@
 @import './src/css/responsive.css';
 @import './src/css/accessibility.css';
 @import './src/css/capacitor.css';
+
+/* Virtual Scrolling — chunk containers for windowed rendering */
+.virtual-chunk {
+  contain: layout style;
+  content-visibility: auto;
+}
+.virtual-chunk[data-spacer="true"] {
+  contain: strict;
+  content-visibility: hidden;
+}
