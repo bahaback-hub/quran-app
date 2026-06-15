@@ -317,6 +317,17 @@ export default {
   a11y_you_are_offline: 'Çevrimdışısınız',
   a11y_you_are_online: 'İnternet bağlantısı geri yüklendi',
 
+  // === Ses Önbelleği ===
+  download_audio: '📥 İndir',
+  download_audio_start: 'Çevrimdışı kullanım için ses indiriliyor...',
+  download_audio_progress: 'Ses indiriliyor: {0}/{1}',
+  download_audio_done: 'Ses indirildi — çevrimdışı dinleyebilirsiniz',
+  download_audio_error: 'Ses indirme başarısız',
+  download_audio_cached: 'Ses zaten önbellekte',
+  download_audio_delete: 'Önbellekteki sesi sil',
+  download_audio_deleted: 'Önbellekteki ses silindi',
+  download_audio_no_data: 'İndirilecek ses verisi yok',
+
   // === Erişilebilirlik ===
   a11y_panel_opened: '{0} açıldı',
   a11y_panel_closed: '{0} kapatıldı',
