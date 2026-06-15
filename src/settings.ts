@@ -1,5 +1,4 @@
-import { state, AppState } from './state.js';
-import { CONFIG } from './config.js';
+import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
@@ -544,6 +543,7 @@ export function importSettings(): void {
       try {
         const data = JSON.parse(ev.target?.result as string) as Record<string, unknown>;
         let imported = 0;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         let skipped = 0;
         Object.entries(data).forEach(([k, v]: [string, unknown]) => {
           if (v !== null && v !== undefined && ALLOWED_SETTINGS_KEYS.has(k)) {
