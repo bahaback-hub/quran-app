@@ -282,4 +282,17 @@ export default {
 
   settings_imported: '{0} pengaturan diimpor',
   failed_ayah: 'Ayat gagal',
+
+  // === Luring ===
+  offline_banner: '🔌 Tidak ada koneksi internet — beberapa fitur mungkin tidak berfungsi',
+  a11y_you_are_offline: 'Anda sedang luring',
+  a11y_you_are_online: 'Koneksi internet dipulihkan',
+
+  // === Aksesibilitas ===
+  a11y_panel_opened: '{0} dibuka',
+  a11y_panel_closed: '{0} ditutup',
+  a11y_skip_to_content: 'Lewati ke konten',
+  a11y_offline_notice: 'Pemberitahuan luring',
+  a11y_reading_progress: 'Kemajuan bacaan',
+  reduced_motion_enabled: 'Gerakan dikurangi diaktifkan',
 };
