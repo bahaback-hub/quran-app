@@ -13,9 +13,13 @@ import { __ } from './i18n.js';
 export function applyFontSize(size: number): void {
   state.fontSize = size;
   const container = document.querySelector('.ayahs-container') as HTMLElement | null;
-  if (container) container.style.fontSize = size + 'px';
+  if (container) {
+    container.style.fontSize = size + 'px';
+  }
   storage.set('font_size', size);
-  if (dom.fontSizeSelect) dom.fontSizeSelect.value = String(size);
+  if (dom.fontSizeSelect) {
+    dom.fontSizeSelect.value = String(size);
+  }
 }
 
 /* ===================== NIGHT MODE ===================== */
@@ -31,12 +35,14 @@ export function applyNightMode(enabled: boolean): void {
     document.body.classList.remove('night-mode');
   }
   storage.set('night_mode', enabled);
-  if (enabled) storage.set('sepia_mode', false);
+  if (enabled) {
+    storage.set('sepia_mode', false);
+  }
   updateThemeButtons();
   if (state.mushafMode && state.currentPage) {
     import('./mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
-        m.loadPage(state.currentPage, true, true)
+        m.loadPage(state.currentPage, true, true),
     );
   }
 }
@@ -58,12 +64,14 @@ export function applySepiaMode(enabled: boolean): void {
     document.body.classList.remove('sepia-mode');
   }
   storage.set('sepia_mode', enabled);
-  if (enabled) storage.set('night_mode', false);
+  if (enabled) {
+    storage.set('night_mode', false);
+  }
   updateThemeButtons();
   if (state.mushafMode && state.currentPage) {
     import('./mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
-        m.loadPage(state.currentPage, true, true)
+        m.loadPage(state.currentPage, true, true),
     );
   }
 }
@@ -84,11 +92,17 @@ export function applyTheme(theme: 'light' | 'sepia' | 'night'): void {
 function updateThemeButtons(): void {
   const buttons = document.querySelectorAll('.theme-btn');
   buttons.forEach((btn) => {
-    const btnTheme = (btn as HTMLElement).dataset.theme as string;
+    const btnTheme = (btn as HTMLElement).dataset['theme'] as string;
     let isActive = false;
-    if (btnTheme === 'light' && !state.nightMode && !state.sepiaMode) isActive = true;
-    if (btnTheme === 'sepia' && state.sepiaMode) isActive = true;
-    if (btnTheme === 'night' && state.nightMode) isActive = true;
+    if (btnTheme === 'light' && !state.nightMode && !state.sepiaMode) {
+      isActive = true;
+    }
+    if (btnTheme === 'sepia' && state.sepiaMode) {
+      isActive = true;
+    }
+    if (btnTheme === 'night' && state.nightMode) {
+      isActive = true;
+    }
     btn.classList.toggle('active', isActive);
   });
 }
@@ -99,14 +113,18 @@ function updateThemeButtons(): void {
 export function initSystemThemeDetection(): void {
   // If user already has an explicit preference, don't override
   const hasExplicitPref = storage.get('night_mode') !== undefined && storage.get('night_mode') !== null;
-  if (hasExplicitPref) return;
+  if (hasExplicitPref) {
+    return;
+  }
 
   const mql = window.matchMedia('(prefers-color-scheme: dark)');
 
   function applySystemTheme(e: MediaQueryListEvent | MediaQueryList): void {
     // Only apply if user hasn't set an explicit preference
     const stillNoPref = storage.get('night_mode') === undefined || storage.get('night_mode') === null;
-    if (!stillNoPref) return;
+    if (!stillNoPref) {
+      return;
+    }
 
     if (e.matches) {
       if (!document.body.classList.contains('night-mode')) {
@@ -121,8 +139,12 @@ export function initSystemThemeDetection(): void {
     }
     // Update the theme toggle icon
     const checkbox = dom.themeToggle?.querySelector('.theme-switch-check') as HTMLInputElement | null;
-    if (checkbox) checkbox.checked = e.matches;
-    if (dom.themeToggle) dom.themeToggle.setAttribute('aria-checked', String(e.matches));
+    if (checkbox) {
+      checkbox.checked = e.matches;
+    }
+    if (dom.themeToggle) {
+      dom.themeToggle.setAttribute('aria-checked', String(e.matches));
+    }
   }
 
   // Apply initial system preference
@@ -143,9 +165,13 @@ export function initSystemThemeDetection(): void {
 export function applyFontType(type: string): void {
   state.fontType = type;
   const container = document.querySelector('.ayahs-container') as HTMLElement | null;
-  if (container) container.style.fontFamily = type;
+  if (container) {
+    container.style.fontFamily = type;
+  }
   storage.set('font_type', type);
-  if (dom.fontTypeSelect) dom.fontTypeSelect.value = type;
+  if (dom.fontTypeSelect) {
+    dom.fontTypeSelect.value = type;
+  }
 }
 
 /* ===================== LINE SPACING ===================== */
@@ -154,9 +180,13 @@ export function applyFontType(type: string): void {
 export function applyLineSpacing(spacing: string): void {
   state.lineSpacing = spacing;
   const container = document.querySelector('.ayahs-container') as HTMLElement | null;
-  if (container) container.style.lineHeight = spacing;
+  if (container) {
+    container.style.lineHeight = spacing;
+  }
   storage.set('line_spacing', spacing);
-  if (dom.lineSpacingSelect) dom.lineSpacingSelect.value = spacing;
+  if (dom.lineSpacingSelect) {
+    dom.lineSpacingSelect.value = spacing;
+  }
 }
 
 /* ===================== PRESENTATION BACKGROUND ===================== */
@@ -165,7 +195,9 @@ export function applyLineSpacing(spacing: string): void {
 export function applyPresBgMode(mode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene'): void {
   state.presBgMode = mode;
   storage.set('pres_bg_mode', mode);
-  if (dom.presBgSelect) dom.presBgSelect.value = mode;
+  if (dom.presBgSelect) {
+    dom.presBgSelect.value = mode;
+  }
   // Show/hide sub-selectors
   if (dom.presBgSceneRow) {
     dom.presBgSceneRow.classList.toggle('hidden', mode !== 'scene');
@@ -183,7 +215,9 @@ export function applyPresBgMode(mode: 'plain' | 'nature' | 'singleNature' | 'aut
 export function applyPresBgScene(scene: string): void {
   state.presBgScene = scene;
   storage.set('pres_bg_scene', scene);
-  if (dom.presBgSceneSelect) dom.presBgSceneSelect.value = scene;
+  if (dom.presBgSceneSelect) {
+    dom.presBgSceneSelect.value = scene;
+  }
   // Update presentation display if currently in scene mode
   if (state.presentationMode && state.presBgMode === 'scene') {
     import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
@@ -194,7 +228,9 @@ export function applyPresBgScene(scene: string): void {
 export function applyPresBgNature(nature: string): void {
   state.presBgNature = nature;
   storage.set('pres_bg_nature', nature);
-  if (dom.presBgNatureSelect) dom.presBgNatureSelect.value = nature;
+  if (dom.presBgNatureSelect) {
+    dom.presBgNatureSelect.value = nature;
+  }
   // Update presentation display if currently in singleNature mode
   if (state.presentationMode && state.presBgMode === 'singleNature') {
     import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
@@ -207,19 +243,23 @@ export function applyPresBgNature(nature: string): void {
 export function initSettingsTabs(): void {
   try {
     const tabsContainer = dom.settingsPanel?.querySelector('#settingsTabs') as HTMLElement | null;
-    if (!tabsContainer) return;
+    if (!tabsContainer) {
+      return;
+    }
     const tabs = tabsContainer.querySelectorAll('.settings-tab');
     tabs.forEach((tab: Element) => {
       tab.addEventListener('click', () => {
-        const tabName = (tab as HTMLElement).dataset.tab;
+        const tabName = (tab as HTMLElement).dataset['tab'];
         tabs.forEach((t: Element) => t.classList.remove('active'));
         tab.classList.add('active');
         const contents = dom.settingsPanel?.querySelectorAll('.settings-tab-content');
         contents?.forEach((c: Element) => c.classList.remove('active'));
         const target = dom.settingsPanel?.querySelector(
-          `.settings-tab-content[data-tab="${tabName}"]`
+          `.settings-tab-content[data-tab="${tabName}"]`,
         ) as HTMLElement | null;
-        if (target) target.classList.add('active');
+        if (target) {
+          target.classList.add('active');
+        }
       });
     });
   } catch (e: unknown) {
@@ -242,7 +282,9 @@ export function openSettings(): void {
 /** Close the settings panel and stop azan if playing. */
 export function closeSettings(): void {
   dom.settingsPanel?.classList.remove('open');
-  if (state.azanPlaying) stopAzan();
+  if (state.azanPlaying) {
+    stopAzan();
+  }
 }
 
 /** Save city/country/method and reload prayer times. */
@@ -267,7 +309,9 @@ export function saveLocationSettings(): void {
 export function resetSettings(): void {
   // Custom confirmation modal instead of browser confirm()
   const existing = document.getElementById('resetConfirmModal');
-  if (existing) existing.remove();
+  if (existing) {
+    existing.remove();
+  }
 
   const overlay = document.createElement('div');
   overlay.id = 'resetConfirmModal';
@@ -346,7 +390,9 @@ export function resetSettings(): void {
 
   cancelBtn.addEventListener('click', close);
   overlay.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === overlay) close();
+    if (e.target === overlay) {
+      close();
+    }
   });
 
   btnRow.appendChild(cancelBtn);
@@ -475,7 +521,8 @@ const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
   tajweed_enabled: (v) => typeof v === 'boolean',
   night_mode_set_by_user: (v) => typeof v === 'boolean',
   surah_list: (v) => Array.isArray(v),
-  pres_bg_mode: (v) => typeof v === 'string' && ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene'].includes(v),
+  pres_bg_mode: (v) =>
+    typeof v === 'string' && ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene'].includes(v),
   pres_bg_scene: (v) => typeof v === 'string' && ['stars', 'waves', 'aurora', 'particles', 'rain'].includes(v),
   pres_bg_nature: (v) => typeof v === 'string' && ['dawn', 'morning', 'afternoon', 'sunset', 'night'].includes(v),
   sepia_mode: (v) => typeof v === 'boolean',
@@ -489,7 +536,9 @@ export function importSettings(): void {
   input.accept = '.json';
   input.onchange = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev: ProgressEvent<FileReader>) => {
       try {
@@ -525,7 +574,9 @@ export function importSettings(): void {
 /** Restore all settings from localStorage into the state object and update UI. */
 export function restoreSettings(): void {
   const fs = storage.get<number>('font_size');
-  if (fs) applyFontSize(fs);
+  if (fs) {
+    applyFontSize(fs);
+  }
   const nm = storage.get<boolean>('night_mode');
   if (nm === true) {
     applyNightMode(true);
@@ -535,45 +586,92 @@ export function restoreSettings(): void {
     applySepiaMode(true);
   }
   const city = storage.get<string>('city');
-  if (city) state.city = city;
-  const country = storage.get<string>('country');
-  if (country) state.country = country;
-  const method = storage.get<string>('method');
-  if (method) state.method = method;
-  const azan = storage.get<boolean>('azan_enabled');
-  if (azan !== undefined && azan !== null) state.azanEnabled = azan;
-  const azanFajr = storage.get<boolean>('azan_fajr_enabled');
-  if (azanFajr !== undefined && azanFajr !== null) state.azanFajrEnabled = azanFajr;
-  const as = storage.get<boolean>('auto_save');
-  if (as === false) state.autoSave = false;
-  const rec = storage.get<string>('reciter');
-  if (rec) state.currentReciter = rec;
-  const taf = storage.get<string>('tafsir_edition');
-  if (taf) state.currentTafsirEdition = taf;
-  const bar = storage.get<boolean>('bar_collapsed');
-  if (bar === false) state.barCollapsed = false;
-  const transEnabled = storage.get<boolean>('translation_enabled');
-  if (transEnabled) state.translationEnabled = true;
-  const transEdition = storage.get<string>('translation_edition');
-  if (transEdition) state.currentTranslation = transEdition;
-
-  if (dom.cityInput) dom.cityInput.value = state.city;
-  if (dom.countryInput) dom.countryInput.value = state.country;
-  if (dom.methodSelect) dom.methodSelect.value = state.method;
-  if (dom.azanToggle) dom.azanToggle.classList.toggle('on', state.azanEnabled);
-  if (dom.azanFajrToggle) dom.azanFajrToggle.classList.toggle('on', state.azanFajrEnabled);
-  if (dom.autoSaveToggle) dom.autoSaveToggle.classList.toggle('on', state.autoSave);
-  if (dom.reciterSelect) dom.reciterSelect.value = state.currentReciter;
-  if (dom.tafsirSelect) dom.tafsirSelect.value = state.currentTafsirEdition;
-  if (dom.translationSelect) {
-    if (state.translationEnabled && state.currentTranslation) dom.translationSelect.value = state.currentTranslation;
-    else dom.translationSelect.value = '';
+  if (city) {
+    state.city = city;
   }
-  if (dom.fontSizeSelect) dom.fontSizeSelect.value = String(state.fontSize);
+  const country = storage.get<string>('country');
+  if (country) {
+    state.country = country;
+  }
+  const method = storage.get<string>('method');
+  if (method) {
+    state.method = method;
+  }
+  const azan = storage.get<boolean>('azan_enabled');
+  if (azan !== undefined && azan !== null) {
+    state.azanEnabled = azan;
+  }
+  const azanFajr = storage.get<boolean>('azan_fajr_enabled');
+  if (azanFajr !== undefined && azanFajr !== null) {
+    state.azanFajrEnabled = azanFajr;
+  }
+  const as = storage.get<boolean>('auto_save');
+  if (as === false) {
+    state.autoSave = false;
+  }
+  const rec = storage.get<string>('reciter');
+  if (rec) {
+    state.currentReciter = rec;
+  }
+  const taf = storage.get<string>('tafsir_edition');
+  if (taf) {
+    state.currentTafsirEdition = taf;
+  }
+  const bar = storage.get<boolean>('bar_collapsed');
+  if (bar === false) {
+    state.barCollapsed = false;
+  }
+  const transEnabled = storage.get<boolean>('translation_enabled');
+  if (transEnabled) {
+    state.translationEnabled = true;
+  }
+  const transEdition = storage.get<string>('translation_edition');
+  if (transEdition) {
+    state.currentTranslation = transEdition;
+  }
+
+  if (dom.cityInput) {
+    dom.cityInput.value = state.city;
+  }
+  if (dom.countryInput) {
+    dom.countryInput.value = state.country;
+  }
+  if (dom.methodSelect) {
+    dom.methodSelect.value = state.method;
+  }
+  if (dom.azanToggle) {
+    dom.azanToggle.classList.toggle('on', state.azanEnabled);
+  }
+  if (dom.azanFajrToggle) {
+    dom.azanFajrToggle.classList.toggle('on', state.azanFajrEnabled);
+  }
+  if (dom.autoSaveToggle) {
+    dom.autoSaveToggle.classList.toggle('on', state.autoSave);
+  }
+  if (dom.reciterSelect) {
+    dom.reciterSelect.value = state.currentReciter;
+  }
+  if (dom.tafsirSelect) {
+    dom.tafsirSelect.value = state.currentTafsirEdition;
+  }
+  if (dom.translationSelect) {
+    if (state.translationEnabled && state.currentTranslation) {
+      dom.translationSelect.value = state.currentTranslation;
+    } else {
+      dom.translationSelect.value = '';
+    }
+  }
+  if (dom.fontSizeSelect) {
+    dom.fontSizeSelect.value = String(state.fontSize);
+  }
   const ft = storage.get<string>('font_type');
-  if (ft) applyFontType(ft);
+  if (ft) {
+    applyFontType(ft);
+  }
   const ls = storage.get<string>('line_spacing');
-  if (ls) applyLineSpacing(ls);
+  if (ls) {
+    applyLineSpacing(ls);
+  }
   const speed = storage.get<string>('playback_speed');
   if (speed && dom.speedSelect && dom.audioPlayer) {
     dom.speedSelect.value = speed;
@@ -582,13 +680,23 @@ export function restoreSettings(): void {
   const tajweed = storage.get<boolean>('tajweed_enabled');
   if (tajweed === false) {
     state.tajweedEnabled = false;
-    if (dom.tajweedToggle) dom.tajweedToggle.classList.remove('on');
+    if (dom.tajweedToggle) {
+      dom.tajweedToggle.classList.remove('on');
+    }
   } else {
     state.tajweedEnabled = true;
-    if (dom.tajweedToggle) dom.tajweedToggle.classList.add('on');
+    if (dom.tajweedToggle) {
+      dom.tajweedToggle.classList.add('on');
+    }
   }
   const presBg = storage.get<string>('pres_bg_mode');
-  if (presBg === 'nature' || presBg === 'singleNature' || presBg === 'auto' || presBg === 'animated' || presBg === 'scene') {
+  if (
+    presBg === 'nature' ||
+    presBg === 'singleNature' ||
+    presBg === 'auto' ||
+    presBg === 'animated' ||
+    presBg === 'scene'
+  ) {
     applyPresBgMode(presBg);
   }
   const presBgScene = storage.get<string>('pres_bg_scene');
