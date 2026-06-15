@@ -23,10 +23,14 @@ interface SurahData {
 
 /** Build share text for the current ayah. */
 export function buildShareText(): string {
-  if (!state.surahData) return '';
+  if (!state.surahData) {
+    return '';
+  }
   const surahData = state.surahData;
   const a = surahData.ayahs[state.currentAyahIndex];
-  if (!a) return '';
+  if (!a) {
+    return '';
+  }
   return `${a.text} — ${surahData.name} — ${__('ayah')} ${a.numberInSurah}`;
 }
 
@@ -38,7 +42,9 @@ export function toggleShareMenu(): void {
 /** Share using native Web Share API or fallback to clipboard. */
 export function shareNative(): void {
   const text = buildShareText();
-  if (!text) return;
+  if (!text) {
+    return;
+  }
   if (navigator.share) {
     navigator.share({ title: __('app_title'), text }).catch(() => {});
   } else {
@@ -54,10 +60,14 @@ export function shareCopy(): void {
 
 /** Copy current ayah text without diacritics. */
 export function shareCopySimple(): void {
-  if (!state.surahData) return;
+  if (!state.surahData) {
+    return;
+  }
   const surahData = state.surahData;
   const a = surahData.ayahs[state.currentAyahIndex];
-  if (!a) return;
+  if (!a) {
+    return;
+  }
   const text = `${stripTashkeel(a.text)} — ${surahData.name} — ${__('ayah')} ${a.numberInSurah}`;
   copyToClipboard(text);
   showToast(__('share_copied_simple'), 'success');
@@ -66,16 +76,20 @@ export function shareCopySimple(): void {
 /** Share current ayah via WhatsApp. */
 export function shareWhatsApp(): void {
   const text = buildShareText();
-  if (!text) return;
+  if (!text) {
+    return;
+  }
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 }
 
 /** Share current ayah via Telegram. */
 export function shareTelegram(): void {
   const text = buildShareText();
-  if (!text) return;
+  if (!text) {
+    return;
+  }
   window.open(
     `https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`,
-    '_blank'
+    '_blank',
   );
 }
