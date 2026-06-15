@@ -8,6 +8,7 @@ import { prayerFetch } from './api-client.js';
 import { __, getPrayerName, getWeekday } from './i18n.js';
 import { prayerTimesRows } from './templates.js';
 import { updatePlayPauseBtn } from './audio.js';
+import { calculatePrayerTimesLocally } from './prayer-local.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -96,6 +97,28 @@ export async function loadPrayerTimes(): Promise<void> {
   const city = dom.cityInput?.value.trim() || state.city;
   const country = dom.countryInput?.value.trim() || state.country;
   const method = dom.methodSelect?.value || state.method;
+
+  // ── Strategy 1: Local calculation (offline-capable, no API needed) ──
+  try {
+    const localTimes = await calculatePrayerTimesLocally(method);
+    if (localTimes) {
+      state.prayerTimes = localTimes;
+      storage.set('cached_prayer_times', {
+        date: new Date().toDateString(),
+        timings: localTimes,
+        city,
+        country,
+      });
+      renderPrayerTimes();
+      checkAzanTime();
+      scheduleNextAzanCheck();
+      return;
+    }
+  } catch (e) {
+    console.warn('[Prayer] Local calculation failed, falling back to API:', e);
+  }
+
+  // ── Strategy 2: Remote API (requires internet) ──
   const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,6 +138,7 @@ export async function loadPrayerTimes(): Promise<void> {
     }
     throw new Error('Invalid response');
   } catch {
+    // ── Strategy 3: LocalStorage cache (offline fallback) ──
     const cached = storage.get<CachedPrayerTimes>('cached_prayer_times');
     if (cached && cached.city === city && cached.country === country) {
       // Accept cache from today or up to 3 days ago (prayer times shift ~1 min/day)

@@ -33,6 +33,7 @@ export default defineConfig({
           if (id.includes('/presentation') || id.includes('/pres-')) return 'feature-presentation';
           if (id.includes('/tajweed')) return 'feature-tajweed';
           if (id.includes('/search-')) return 'feature-search';
+          if (id.includes('adhan') || id.includes('/prayer-local')) return 'feature-prayer-local';
         }
       }
     }
@@ -53,7 +54,7 @@ export default defineConfig({
     ...(isCapacitorBuild ? [] : [VitePWA({
       registerType: 'prompt',
       injectRegister: 'auto',
-      includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png'],
+      includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'fonts/*.ttf', 'fonts/fonts.css', 'data/*.json'],
       manifest: {
         name: 'القرآن الكريم',
         short_name: 'القرآن',
@@ -76,7 +77,7 @@ export default defineConfig({
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,json,png}'],
+        globPatterns: ['**/*.{js,css,html,json,png,ttf}'],
         offlineGoogleAnalytics: false,
         navigateFallback: 'index.html',
         // Don't intercept same-origin requests — let Capacitor handle them
@@ -144,6 +145,15 @@ export default defineConfig({
             options: {
               cacheName: 'mushaf-fonts',
               expiration: { maxEntries: 50, maxAgeSeconds: 86400 * 365 }
+            }
+          },
+          // Cache self-hosted fonts locally (precache covers this, but runtime cache ensures freshness)
+          {
+            urlPattern: /\/fonts\/.*\.(ttf|css)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'app-fonts',
+              expiration: { maxEntries: 10, maxAgeSeconds: 86400 * 365 }
             }
           }
         ]

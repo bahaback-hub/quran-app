@@ -1,0 +1,55 @@
+/**
+ * Self-hosted Arabic fonts — replaces Google Fonts CDN.
+ *
+ * Benefits:
+ *   - Eliminates external dependency on fonts.googleapis.com / fonts.gstatic.com
+ *   - Enables SRI (Subresource Integrity) for all resources
+ *   - Reduces DNS lookups and connection overhead
+ *   - Works fully offline after first load (PWA caches via Workbox)
+ *   - No tracking by Google Fonts
+ *   - font-display: swap ensures text is visible immediately
+ */
+
+/* ── Amiri (Arabic serif — body text) ── */
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./amiri-regular-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./amiri-italic-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./amiri-bold-700.ttf') format('truetype');
+}
+
+/* ── Scheherazade New (Arabic Naskh — Quran text) ── */
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./scheherazade-regular-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./scheherazade-bold-700.ttf') format('truetype');
+}
