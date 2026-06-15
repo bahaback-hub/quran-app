@@ -5,7 +5,7 @@
  * into JavaScript template literals, which are injected into the DOM
  * during initialization (before cacheDom runs). This approach:
  *
- *   1. Reduces the initial HTML payload — index.html is ~200 lines smaller
+ *   1. Reduces the initial HTML payload — index.html is ~375 lines smaller
  *   2. Keeps overlay HTML co-located with the modules that use them
  *   3. Makes overlays easier to find, modify, and test
  *   4. Maintains full backward compatibility — all DOM IDs are preserved
@@ -13,6 +13,8 @@
  * IMPORTANT: injectOverlays() MUST be called before cacheDom() in the
  * app initialization sequence, otherwise dom.ts won't find these elements.
  */
+
+import { settingsPanelHTML, floatingPlayerHTML, arabicKeyboardHTML } from './templates.js';
 
 /* ===================== ADHKAR NOTIFICATION ===================== */
 
@@ -225,8 +227,31 @@ const readingStatsPanelHTML = `
  * Each overlay is inserted as raw HTML using a template element for
  * safe parsing, then appended to the body. This preserves all DOM
  * IDs and structure expected by dom.ts.
+ *
+ * Large panels (settings, player, keyboard) are injected alongside
+ * the existing overlays, all before cacheDom() runs.
  */
 export function injectOverlays(): void {
+  // Inject the floating player, tafsir curtain, settings panel, and
+  // other body-level panels BEFORE the overlay wrapper so they appear
+  // in the correct DOM order relative to the static HTML elements.
+  const bodyFragments = [
+    floatingPlayerHTML(),
+    settingsPanelHTML(),
+  ];
+
+  const bodyWrapper = document.createElement('div');
+  bodyWrapper.id = 'injected-panels';
+  bodyWrapper.innerHTML = bodyFragments.join('\n');
+  document.body.appendChild(bodyWrapper);
+
+  // Inject the Arabic keyboard into its mount point in the search input group
+  const kbdMount = document.getElementById('arabicKeyboardMount');
+  if (kbdMount) {
+    kbdMount.innerHTML = arabicKeyboardHTML();
+  }
+
+  // Existing overlay fragments (dialogs, modals, notifications)
   const overlayFragments = [
     adhkarNotificationHTML,
     adhkarAddOverlayHTML,
