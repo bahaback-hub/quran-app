@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { CONFIG } from './config.js';
 import { dom } from './dom.js';
 import { escapeHtml } from './utils.js';
+import { tafsirLoading, tafsirContent, tafsirErrorMessage } from './templates.js';
 import { tafsirFetch } from './api-client.js';
 import { __ } from './i18n.js';
 
@@ -178,12 +179,12 @@ function setTafsirHeader(surahName: string, ayahNum: number): void {
 }
 
 function showTafsirLoading(): void {
-  dom.tafsirCurtainBody!.innerHTML = `<p class="tafsir-loading">${__('tafsir_loading')}</p>`;
+  dom.tafsirCurtainBody!.innerHTML = tafsirLoading();
   dom.tafsirCurtainBody!.scrollTop = 0;
 }
 
 function showTafsirError(): void {
-  dom.tafsirCurtainBody!.innerHTML = `<p class="tafsir-error">${__('tafsir_error')}</p>`;
+  dom.tafsirCurtainBody!.innerHTML = tafsirErrorMessage(__('tafsir_error'));
   dom.tafsirCurtainBody!.scrollTop = 0;
 }
 
