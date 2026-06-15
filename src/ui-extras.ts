@@ -141,16 +141,35 @@ export function handleVisibilityChange(): void {
 
 /* ===================== NETWORK BANNER ===================== */
 
+/** Previous online state — used to announce changes to screen readers. */
+let _wasOnline: boolean | null = null;
+
+/**
+ * Update the network banner visibility based on connection status.
+ * Announces state changes to screen readers via ARIA live regions.
+ */
 export function updateNetworkBanner(): void {
   if (!dom.networkBanner) {
     return;
   }
-  if (!navigator.onLine) {
+  const isOnline = navigator.onLine;
+  if (!isOnline) {
     dom.networkBanner.classList.add('show');
     dom.networkBanner.classList.remove('online');
   } else {
     dom.networkBanner.classList.remove('show');
   }
+
+  // Announce connection state changes to screen readers
+  if (_wasOnline !== null && _wasOnline !== isOnline) {
+    import('./a11y.js').then(({ announceToScreenReader }) => {
+      announceToScreenReader(
+        isOnline ? __('a11y_you_are_online') : __('a11y_you_are_offline'),
+        isOnline ? 'polite' : 'assertive',
+      );
+    }).catch(() => { /* a11y module not available */ });
+  }
+  _wasOnline = isOnline;
 }
 
 /* ===================== READING PROGRESS ===================== */
