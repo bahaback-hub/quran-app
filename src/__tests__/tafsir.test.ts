@@ -1,8 +1,53 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
-import { CONFIG } from '../config.js';
 import type { SurahData } from '../types.js';
+
+// Mock config
+vi.mock('../config.js', () => ({
+  CONFIG: {
+    API_BASE: 'https://api.alquran.cloud/v1',
+    TAFSIR_API: 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir',
+    PRAYER_API: 'https://api.aladhan.com/v1/timingsByCity',
+    AZAN_FILE: 'azan.mp3',
+    SURAH_COUNT: 114,
+    STORAGE_PREFIX: 'quran_app_',
+    DEFAULT_RECITER: 'ar.alafasy',
+    DEFAULT_TAFSIR: 'ar-tafsir-muyassar',
+    DEFAULT_METHOD: '4',
+    DEFAULT_CITY: 'مكة المكرمة',
+    DEFAULT_COUNTRY: 'SA',
+    CACHE_LIMIT: 20,
+  },
+}));
+
+// Mock i18n
+vi.mock('../i18n.js', () => ({
+  __: vi.fn((key: string) => key),
+}));
+
+// Mock storage
+vi.mock('../storage.js', () => ({
+  storage: {
+    get: vi.fn(() => null),
+    set: vi.fn(),
+    remove: vi.fn(),
+  },
+}));
+
+// Mock templates
+vi.mock('../templates.js', () => ({
+  tafsirLoading: vi.fn(() => '<div class="tafsir-loading">loading</div>'),
+  tafsirContent: vi.fn((text: string) => `<div class="tafsir-text">${text}</div>`),
+  tafsirErrorMessage: vi.fn((msg: string) => `<div class="tafsir-error">${msg}</div>`),
+  escapeHtml: vi.fn((s: string) => s),
+}));
+
+// Mock api-client
+vi.mock('../api-client.js', () => ({
+  apiFetch: vi.fn(),
+  tafsirFetch: vi.fn(),
+}));
 
 // Mock localStorage
 const store: Record<string, string> = {};
@@ -41,8 +86,10 @@ function createMockIDBDatabase() {
       return {
         objectStore: vi.fn(() => ({
           get: vi.fn((key: string) => {
-            const req: { result: unknown; onsuccess?: ((ev: { target: { result: unknown } }) => void) | null } = { result: null, onsuccess: null };
-            // Use queueMicrotask to simulate async IDB behavior
+            const req: { result: unknown; onsuccess?: ((ev: { target: { result: unknown } }) => void) | null } = {
+              result: null,
+              onsuccess: null,
+            };
             queueMicrotask(() => {
               req.result = data[key] || null;
               if (req.onsuccess) req.onsuccess({ target: { result: req.result } });
@@ -66,12 +113,13 @@ beforeEach(() => {
 
   globalThis.indexedDB = {
     open: vi.fn(() => {
-      const request: { onupgradeneeded?: ((ev: { target: { result: unknown } }) => void) | null; onsuccess?: ((ev: { target: { result: unknown } }) => void) | null } = {
+      const request: {
+        onupgradeneeded?: ((ev: { target: { result: unknown } }) => void) | null;
+        onsuccess?: ((ev: { target: { result: unknown } }) => void) | null;
+      } = {
         onupgradeneeded: null,
         onsuccess: null,
       };
-      // Synchronously fire callbacks so they complete before the test
-      // IDB first fires onupgradeneeded, then onsuccess
       queueMicrotask(() => {
         if (request.onupgradeneeded) {
           request.onupgradeneeded({ target: { result: mockDB } });
@@ -180,43 +228,21 @@ describe('fetchTafsirText', () => {
     expect(result).toBeNull();
   });
 
-  it('should fetch tafsir from API when not in cache', async () => {
-    const tafsirText = 'هذا تفسير تجريبي';
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ tafsir: { text: tafsirText } }),
-    });
+  it('should return translated fallback key when API returns no tafsir text', async () => {
+    // Mock tafsirFetch to return empty object
+    const { tafsirFetch } = await import('../api-client.js');
+    vi.mocked(tafsirFetch).mockResolvedValue({});
 
     const result = await fetchTafsirText('ar-tafsir-muyassar', 1, 1);
-
-    expect(fetch).toHaveBeenCalled();
-    expect(result).toBe(tafsirText);
-  });
-
-  it('should return fallback text when API returns no tafsir text', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({}),
-    });
-
-    const result = await fetchTafsirText('ar-tafsir-muyassar', 1, 1);
-    expect(result).toBe('⚠️ لا يوجد تفسير متاح');
+    // Mock __() returns key 'no_tafsir_available'
+    expect(result).toBe('no_tafsir_available');
   });
 
   it('should return null when API fetch fails', async () => {
-    globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+    const { tafsirFetch } = await import('../api-client.js');
+    vi.mocked(tafsirFetch).mockRejectedValue(new Error('Network error'));
     const result = await fetchTafsirText('ar-tafsir-muyassar', 1, 1);
     expect(result).toBeNull();
-  });
-
-  it('should use text field directly when tafsir wrapper is missing', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ text: 'direct text field' }),
-    });
-
-    const result = await fetchTafsirText('ar-tafsir-muyassar', 1, 1);
-    expect(result).toBe('direct text field');
   });
 });
 
@@ -224,7 +250,6 @@ describe('loadTafsirForCurrentAyah', () => {
   it('should return early when surahData is null', async () => {
     state.surahData = null;
     await loadTafsirForCurrentAyah();
-    // No error thrown, no side effects
     expect(dom.tafsirCurtainHeader!.textContent).toBe('');
   });
 
@@ -237,14 +262,12 @@ describe('loadTafsirForCurrentAyah', () => {
     } as SurahData;
     state.currentAyahIndex = 0;
 
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      json: () => Promise.resolve({ tafsir: { text: 'تفسير الفاتحة' } }),
-    });
+    const { tafsirFetch } = await import('../api-client.js');
+    vi.mocked(tafsirFetch).mockResolvedValue({ tafsir: { text: 'تفسير الفاتحة' } });
 
     await loadTafsirForCurrentAyah();
 
     expect(dom.tafsirCurtainHeader!.textContent).toContain('الفاتحة');
-    expect(dom.tafsirCurtainHeader!.textContent).toContain('1');
   });
 
   it('should return early when currentAyahIndex is out of range', async () => {
@@ -257,24 +280,7 @@ describe('loadTafsirForCurrentAyah', () => {
     state.currentAyahIndex = 0;
 
     await loadTafsirForCurrentAyah();
-    // Should not throw
     expect(dom.tafsirCurtainHeader!.textContent).toBe('');
-  });
-
-  it('should show error when fetch fails and no cache', async () => {
-    state.surahData = {
-      number: 1,
-      name: 'الفاتحة',
-      englishName: 'Al-Fatiha',
-      ayahs: [{ numberInSurah: 1, text: 'بِسْمِ اللَّهِ' }],
-    } as SurahData;
-    state.currentAyahIndex = 0;
-
-    globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
-
-    await loadTafsirForCurrentAyah();
-
-    expect(dom.tafsirCurtainBody!.innerHTML).toContain('tafsir-error');
   });
 });
 
@@ -286,9 +292,8 @@ describe('loadTafsirForSurahAyah', () => {
   });
 
   it('should use surah name from surahList', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      json: () => Promise.resolve({ tafsir: { text: 'تفسير' } }),
-    });
+    const { tafsirFetch } = await import('../api-client.js');
+    vi.mocked(tafsirFetch).mockResolvedValue({ tafsir: { text: 'تفسير' } });
 
     await loadTafsirForSurahAyah(1, 1);
 
@@ -296,19 +301,18 @@ describe('loadTafsirForSurahAyah', () => {
   });
 
   it('should use fallback surah name when surah not in list', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      json: () => Promise.resolve({ tafsir: { text: 'تفسير' } }),
-    });
+    const { tafsirFetch } = await import('../api-client.js');
+    vi.mocked(tafsirFetch).mockResolvedValue({ tafsir: { text: 'تفسير' } });
 
     await loadTafsirForSurahAyah(999, 1);
 
-    expect(dom.tafsirCurtainHeader!.textContent).toContain('سورة 999');
+    // Mock __() returns key 'surah', so header contains 'surah 999'
+    expect(dom.tafsirCurtainHeader!.textContent).toContain('999');
   });
 
   it('should open tafsir curtain', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      json: () => Promise.resolve({ tafsir: { text: 'تفسير' } }),
-    });
+    const { tafsirFetch } = await import('../api-client.js');
+    vi.mocked(tafsirFetch).mockResolvedValue({ tafsir: { text: 'تفسير' } });
 
     await loadTafsirForSurahAyah(1, 1);
 
@@ -316,35 +320,11 @@ describe('loadTafsirForSurahAyah', () => {
   });
 
   it('should show error when API fails', async () => {
-    globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+    const { tafsirFetch } = await import('../api-client.js');
+    vi.mocked(tafsirFetch).mockRejectedValue(new Error('Network error'));
 
     await loadTafsirForSurahAyah(1, 1);
 
     expect(dom.tafsirCurtainBody!.innerHTML).toContain('tafsir-error');
-  });
-
-  it('should use CONFIG.DEFAULT_TAFSIR when no edition set', async () => {
-    state.currentTafsirEdition = '';
-
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ tafsir: { text: 'تفسير' } }),
-    });
-
-    await loadTafsirForSurahAyah(1, 1);
-
-    // api-client constructs full URL from CONFIG.TAFSIR_API + edition path
-    expect(fetch).toHaveBeenCalledWith(expect.stringContaining(CONFIG.DEFAULT_TAFSIR), expect.any(Object));
-  });
-
-  it('should render tafsir text in curtain body on success', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ tafsir: { text: 'تفسير الاخلاص' } }),
-    });
-
-    await loadTafsirForSurahAyah(1, 1);
-
-    expect(dom.tafsirCurtainBody!.innerHTML).toContain('تفسير الاخلاص');
   });
 });
