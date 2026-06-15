@@ -28,9 +28,13 @@ let _hideControlsTimeout: ReturnType<typeof setTimeout> | null = null;
 /** Show presentation control buttons and reset auto-hide timer. */
 function showControls(): void {
   const overlay = dom.presentationOverlay;
-  if (!overlay) return;
+  if (!overlay) {
+    return;
+  }
   overlay.classList.add('pres-controls-visible');
-  if (_hideControlsTimeout) clearTimeout(_hideControlsTimeout);
+  if (_hideControlsTimeout) {
+    clearTimeout(_hideControlsTimeout);
+  }
   _hideControlsTimeout = setTimeout(() => {
     hideControls();
   }, 3000);
@@ -39,14 +43,18 @@ function showControls(): void {
 /** Hide presentation control buttons. */
 function hideControls(): void {
   const overlay = dom.presentationOverlay;
-  if (!overlay) return;
+  if (!overlay) {
+    return;
+  }
   overlay.classList.remove('pres-controls-visible');
 }
 
 /** Update the play/pause button icon based on current audio state. */
 function updatePresPlayPauseBtn(): void {
   const btn = dom.presPlayPauseBtn;
-  if (!btn) return;
+  if (!btn) {
+    return;
+  }
   btn.textContent = state.isPlaying ? '⏸' : '▶';
 }
 
@@ -63,7 +71,9 @@ function togglePresTajweed(): void {
 /** Toggle fullscreen mode for the presentation overlay. */
 function togglePresFullscreen(): void {
   const overlay = dom.presentationOverlay;
-  if (!overlay) return;
+  if (!overlay) {
+    return;
+  }
   const fsElement = getFullscreenElement();
   if (fsElement) {
     exitFullscreen().catch(() => {});
@@ -75,12 +85,16 @@ function togglePresFullscreen(): void {
 /** Update the fullscreen button icon. */
 function updatePresFullscreenBtn(): void {
   const btn = dom.presFullscreenBtn;
-  if (!btn) return;
+  if (!btn) {
+    return;
+  }
   btn.textContent = isFullscreen() ? '⤓' : '⛶';
 }
 
 function updateDisplay(): void {
-  if (!state.presentationMode) return;
+  if (!state.presentationMode) {
+    return;
+  }
 
   // Apply background based on presBgMode setting
   const overlay = dom.presentationOverlay;
@@ -119,7 +133,7 @@ function updateDisplay(): void {
       overlay.style.backgroundImage = 'none';
       // Only recreate canvas if scene changed or not running
       const existingCanvas = overlay.querySelector('.pres-canvas-bg') as HTMLCanvasElement | null;
-      const currentScene = existingCanvas?.dataset.scene;
+      const currentScene = existingCanvas?.dataset['scene'];
       if (!existingCanvas || currentScene !== state.presBgScene) {
         startSceneAnimation(overlay, state.presBgScene);
       }
@@ -138,15 +152,31 @@ function updateDisplay(): void {
   const surahData = state.surahData as SurahDataLike | null;
   const ayah = surahData?.ayahs?.[state.currentAyahIndex];
   if (!ayah) {
-    if (dom.presentationAyahText) dom.presentationAyahText.textContent = '—';
-    if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = '—';
-    if (dom.presentationTitle) dom.presentationTitle.textContent = '—';
-    if (dom.presentationCounter) dom.presentationCounter.textContent = __('pres_counter_zero');
-    if (dom.presentationTranslation) dom.presentationTranslation.style.display = 'none';
+    if (dom.presentationAyahText) {
+      dom.presentationAyahText.textContent = '—';
+    }
+    if (dom.presentationAyahNum) {
+      dom.presentationAyahNum.textContent = '—';
+    }
+    if (dom.presentationTitle) {
+      dom.presentationTitle.textContent = '—';
+    }
+    if (dom.presentationCounter) {
+      dom.presentationCounter.textContent = __('pres_counter_zero');
+    }
+    if (dom.presentationTranslation) {
+      dom.presentationTranslation.style.display = 'none';
+    }
     return;
   }
-  if (dom.presentationAyahText)
-    dom.presentationAyahText.innerHTML = buildAyahHtml(ayah.text, state.currentSurah, ayah.numberInSurah, _presTajweedEnabled);
+  if (dom.presentationAyahText) {
+    dom.presentationAyahText.innerHTML = buildAyahHtml(
+      ayah.text,
+      state.currentSurah,
+      ayah.numberInSurah,
+      _presTajweedEnabled,
+    );
+  }
 
   // Dynamic font size for long ayahs on mobile — shrink if text overflows
   if (dom.presentationAyahText) {
@@ -165,28 +195,40 @@ function updateDisplay(): void {
       el.style.fontSize = ''; // use CSS default on larger screens
     }
   }
-  if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = String(ayah.numberInSurah);
+  if (dom.presentationAyahNum) {
+    dom.presentationAyahNum.textContent = String(ayah.numberInSurah);
+  }
   const surahName = surahData?.name || '';
-  if (dom.presentationTitle) dom.presentationTitle.textContent = `${surahName} — ${__('ayah')} ${ayah.numberInSurah}`;
+  if (dom.presentationTitle) {
+    dom.presentationTitle.textContent = `${surahName} — ${__('ayah')} ${ayah.numberInSurah}`;
+  }
   const total = surahData?.ayahs?.length || 0;
-  if (dom.presentationCounter) dom.presentationCounter.textContent = `${ayah.numberInSurah} / ${total}`;
+  if (dom.presentationCounter) {
+    dom.presentationCounter.textContent = `${ayah.numberInSurah} / ${total}`;
+  }
   const translationData = state.translationData as TranslationDataLike | null;
   if (state.translationEnabled && translationData?.ayahs?.[state.currentAyahIndex]) {
     if (dom.presentationTranslation) {
-      dom.presentationTranslation.textContent = translationData.ayahs[state.currentAyahIndex].text;
+      dom.presentationTranslation.textContent = translationData.ayahs[state.currentAyahIndex]!.text;
       dom.presentationTranslation.style.display = '';
     }
   } else {
-    if (dom.presentationTranslation) dom.presentationTranslation.style.display = 'none';
+    if (dom.presentationTranslation) {
+      dom.presentationTranslation.style.display = 'none';
+    }
   }
   // Smooth crossfade transition: fade out → update already done above → fade in
-  if (_prevHighlightTimeout) clearTimeout(_prevHighlightTimeout);
+  if (_prevHighlightTimeout) {
+    clearTimeout(_prevHighlightTimeout);
+  }
   const ayahEl = dom.presentationAyahText;
   if (ayahEl) {
     ayahEl.style.transition = 'opacity 0.4s ease';
     ayahEl.style.opacity = '0.7';
     _prevHighlightTimeout = setTimeout(() => {
-      if (ayahEl) ayahEl.style.opacity = '1';
+      if (ayahEl) {
+        ayahEl.style.opacity = '1';
+      }
     }, 100);
   }
   // Update play/pause button state
@@ -195,9 +237,13 @@ function updateDisplay(): void {
 
 function navigateAyah(delta: number): void {
   const surahData = state.surahData as SurahDataLike | null;
-  if (!surahData?.ayahs) return;
+  if (!surahData?.ayahs) {
+    return;
+  }
   const next = state.currentAyahIndex + delta;
-  if (next < 0 || next >= surahData.ayahs.length) return;
+  if (next < 0 || next >= surahData.ayahs.length) {
+    return;
+  }
   state.currentAyahIndex = next;
   updateDisplay();
   // Sync audio: play the new ayah if audio was already playing
@@ -208,7 +254,9 @@ function navigateAyah(delta: number): void {
   highlightCurrentAyah();
   if (dom.presentationOverlay) {
     const pBody = dom.presentationBody;
-    if (pBody) pBody.scrollTop = 0;
+    if (pBody) {
+      pBody.scrollTop = 0;
+    }
   }
 }
 
@@ -230,18 +278,22 @@ export function openPresentation(): void {
     console.log('[Presentation] Exiting mushaf mode synchronously before opening presentation');
     state.mushafMode = false;
     storage.set('mushaf_mode', false);
-    if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
+    if (dom.pageIndicator) {
+      dom.pageIndicator.style.display = 'none';
+    }
     // Update view mode buttons to show surah mode (not mushaf)
     document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
-      b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah');
+      b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'surah');
     });
     // Re-render the surah content in the background (async, non-blocking)
-    import('./app.js').then(({ renderSurah }) => {
-      const surahData = state.surahData;
-      if (surahData && surahData.number === state.currentSurah) {
-        renderSurah(surahData);
-      }
-    }).catch(() => {});
+    import('./app.js')
+      .then(({ renderSurah }) => {
+        const surahData = state.surahData;
+        if (surahData && surahData.number === state.currentSurah) {
+          renderSurah(surahData);
+        }
+      })
+      .catch(() => {});
   }
 
   state.presentationMode = true;
@@ -279,15 +331,17 @@ export function openPresentation(): void {
   }
   document.body.classList.add('presentation-active');
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
-    b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'presentation');
+    b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'presentation');
   });
   document.addEventListener('keydown', handleKeyDown);
   // Show controls initially, then auto-hide
   showControls();
   updateDisplay();
 
-  console.log('[Presentation] openPresentation() completed, overlay display=' +
-    (dom.presentationOverlay ? dom.presentationOverlay.style.display : 'element-missing'));
+  console.log(
+    '[Presentation] openPresentation() completed, overlay display=' +
+      (dom.presentationOverlay ? dom.presentationOverlay.style.display : 'element-missing'),
+  );
 }
 
 export function closePresentation(): void {
@@ -307,7 +361,14 @@ export function closePresentation(): void {
     dom.presentationOverlay.style.zIndex = '';
     dom.presentationOverlay.style.width = '';
     dom.presentationOverlay.style.height = '';
-    dom.presentationOverlay.classList.remove('pres-controls-visible', 'pres-nature', 'pres-auto', 'pres-animated', 'pres-scene', 'pres-light');
+    dom.presentationOverlay.classList.remove(
+      'pres-controls-visible',
+      'pres-nature',
+      'pres-auto',
+      'pres-animated',
+      'pres-scene',
+      'pres-light',
+    );
     dom.presentationOverlay.style.backgroundImage = '';
     removeAnimatedBgLayer(dom.presentationOverlay);
     removeSceneCanvas(dom.presentationOverlay);
@@ -319,7 +380,7 @@ export function closePresentation(): void {
   document.body.classList.remove('presentation-active');
   document.removeEventListener('keydown', handleKeyDown);
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
-    b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah');
+    b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'surah');
   });
 }
 
@@ -328,8 +389,9 @@ function handleKeyDown(e: KeyboardEvent): void {
     (e.target as HTMLElement).tagName === 'INPUT' ||
     (e.target as HTMLElement).tagName === 'TEXTAREA' ||
     (e.target as HTMLElement).tagName === 'SELECT'
-  )
+  ) {
     return;
+  }
   // Any key press shows controls
   showControls();
   switch (e.key) {
@@ -401,13 +463,21 @@ export function initPresentation(): void {
   }
   console.log('[Presentation] Overlay element found, binding event handlers...');
 
-  if (dom.presentationCloseBtn) dom.presentationCloseBtn.addEventListener('click', closePresentation);
-  if (dom.presentationPrevBtn) dom.presentationPrevBtn.addEventListener('click', () => navigateAyah(-1));
-  if (dom.presentationNextBtn) dom.presentationNextBtn.addEventListener('click', () => navigateAyah(1));
+  if (dom.presentationCloseBtn) {
+    dom.presentationCloseBtn.addEventListener('click', closePresentation);
+  }
+  if (dom.presentationPrevBtn) {
+    dom.presentationPrevBtn.addEventListener('click', () => navigateAyah(-1));
+  }
+  if (dom.presentationNextBtn) {
+    dom.presentationNextBtn.addEventListener('click', () => navigateAyah(1));
+  }
   dom.presentationOverlay?.addEventListener('click', (e: MouseEvent) => {
     // Don't close on background click when in fullscreen
     const inFs = isFullscreen();
-    if (e.target === dom.presentationOverlay && !inFs) closePresentation();
+    if (e.target === dom.presentationOverlay && !inFs) {
+      closePresentation();
+    }
   });
 
   // Play/Pause button
