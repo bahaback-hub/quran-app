@@ -1,6 +1,7 @@
 import { __ } from './i18n.js';
 import { state } from './state.js';
 import { storage } from './storage.js';
+import { readingStatsGrid, escapeHtml } from './templates.js';
 
 const STATS_KEY = 'reading_stats';
 
@@ -115,32 +116,12 @@ export function resetReadingStats(): void {
 export function renderReadingStats(container: HTMLElement | null): void {
   if (!container) return;
   const stats = getFormattedStats();
-  container.innerHTML = `
-    <div class="reading-stats-grid">
-      <div class="stat-card">
-        <div class="stat-number">${stats.totalAyahs}</div>
-        <div class="stat-label">${__('stats_ayahs_read')}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">${stats.formattedTime}</div>
-        <div class="stat-label">${__('stats_reading_time')}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">${stats.uniqueSurahs}</div>
-        <div class="stat-label">${__('stats_surahs_read')}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">${stats.streakDays}</div>
-        <div class="stat-label">${__('stats_streak_days')}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">${stats.sessionsCount}</div>
-        <div class="stat-label">${__('stats_sessions')}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">${stats.lastSession}</div>
-        <div class="stat-label">${__('stats_last_read')}</div>
-      </div>
-    </div>
-  `;
+  container.innerHTML = readingStatsGrid([
+    { icon: '', label: __('stats_ayahs_read'), value: stats.totalAyahs },
+    { icon: '', label: __('stats_reading_time'), value: stats.formattedTime },
+    { icon: '', label: __('stats_surahs_read'), value: stats.uniqueSurahs },
+    { icon: '', label: __('stats_streak_days'), value: stats.streakDays },
+    { icon: '', label: __('stats_sessions'), value: stats.sessionsCount },
+    { icon: '', label: __('stats_last_read'), value: stats.lastSession },
+  ]);
 }
