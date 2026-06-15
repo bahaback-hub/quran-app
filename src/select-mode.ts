@@ -1,3 +1,11 @@
+/**
+ * @module select-mode
+ * @description Ayah multi-selection mode for the Quran app. Allows users to
+ * toggle select mode, select/deselect individual ayahs, share all selected
+ * ayahs at once (via native share or clipboard), and clear the selection.
+ * Visual feedback is provided through CSS classes and a selection count bar.
+ */
+
 import { __ } from './i18n.js';
 import { type SelectedAyah } from './state.js';
 import {
@@ -58,8 +66,7 @@ export function shareSelected(): void {
   }
   text = text.trim();
   if (navigator.share) {
-    // eslint-disable-next-line no-empty-function
-    navigator.share({ title: __('app_title'), text }).catch(() => {});
+    navigator.share({ title: __('app_title'), text }).catch(() => { /* noop */ });
   } else {
     copyToClipboard(text);
     showToast(`${__('select_mode_copied', String(sorted.length))}`, 'success');
