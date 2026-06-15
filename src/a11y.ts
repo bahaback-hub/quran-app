@@ -237,3 +237,106 @@ export function initToggleSwitchAccessibility(): void {
   // Toggle switches after this point will be handled by click event + keydown handler
   setTimeout(() => observer.disconnect(), 10000);
 }
+
+/* ================================================================== */
+/*  7. prefersReducedMotion                                            */
+/* ================================================================== */
+
+/** Whether the user has requested reduced motion via OS/browser settings. */
+let _reducedMotion = false;
+
+/**
+ * Check if the user prefers reduced motion.
+ * When true, animations and transitions should be minimized or disabled.
+ */
+export function prefersReducedMotion(): boolean {
+  return _reducedMotion;
+}
+
+/**
+ * Initialize reduced motion detection.
+ * Listens for changes to the `prefers-reduced-motion` media query and
+ * applies a `reduced-motion` class to `<html>` when active.
+ */
+export function initReducedMotionDetection(): void {
+  if (typeof window.matchMedia !== 'function') {
+    return;
+  }
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  _reducedMotion = mq.matches;
+
+  function apply(): void {
+    _reducedMotion = mq.matches;
+    if (_reducedMotion) {
+      document.documentElement.classList.add('reduced-motion');
+    } else {
+      document.documentElement.classList.remove('reduced-motion');
+    }
+  }
+
+  apply();
+
+  // Modern browsers: addEventListener
+  if ('addEventListener' in mq) {
+    mq.addEventListener('change', apply);
+  } else {
+    // Fallback for older browsers
+    (mq as unknown as { addListener: (cb: () => void) => void }).addListener(apply);
+  }
+}
+
+/* ================================================================== */
+/*  8. initDialogAccessibility                                          */
+/* ================================================================== */
+
+/**
+ * Enhance a dialog/modal element with proper accessibility attributes:
+ *   - Sets `aria-modal="true"` for screen reader context
+ *   - Traps focus inside when open
+ *   - Adds keyboard dismiss (Escape) support
+ *
+ * @param dialogEl The dialog element to enhance
+ * @param closeCallback Function to call when dialog should close
+ * @returns Cleanup function to remove event listeners
+ */
+export function initDialogAccessibility(
+  dialogEl: HTMLElement,
+  closeCallback: () => void,
+): () => void {
+  if (!dialogEl) {
+    return () => { /* noop */ };
+  }
+
+  // Set aria-modal for screen reader context
+  dialogEl.setAttribute('aria-modal', 'true');
+
+  // Trap focus inside dialog
+  const cleanupTrap = trapFocus(dialogEl);
+
+  // Add Escape key dismiss
+  const cleanupDismiss = addKeyboardDismiss(dialogEl, closeCallback);
+
+  return () => {
+    cleanupTrap();
+    cleanupDismiss();
+  };
+}
+
+/* ================================================================== */
+/*  9. syncAriaExpanded                                                 */
+/* ================================================================== */
+
+/**
+ * Sync the `aria-expanded` attribute on a toggle button based on the
+ * visibility of its associated panel. Should be called whenever the
+ * panel is shown or hidden.
+ *
+ * @param triggerEl The toggle button element
+ * @param isExpanded Whether the panel is currently expanded/visible
+ */
+export function syncAriaExpanded(triggerEl: HTMLElement | null, isExpanded: boolean): void {
+  if (!triggerEl) {
+    return;
+  }
+  triggerEl.setAttribute('aria-expanded', String(isExpanded));
+}
