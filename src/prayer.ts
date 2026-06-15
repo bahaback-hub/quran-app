@@ -3,9 +3,10 @@ import { CONFIG, PRAYER_ORDER, PRAYER_DISPLAY_ORDER } from './config.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { pad2, formatTime12, timeStrToMinutes, escapeHtml } from './utils.js';
+import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
 import { prayerFetch } from './api-client.js';
 import { __, getPrayerName, getWeekday } from './i18n.js';
+import { prayerTimesRows } from './templates.js';
 import { updatePlayPauseBtn } from './audio.js';
 
 /* ===================== INTERFACES ===================== */
@@ -125,17 +126,12 @@ function renderPrayerTimes(): void {
   if (!state.prayerTimes) return;
   const order: string[] = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
   const next = getNextPrayerKey();
-  let html = '';
-  for (const key of order) {
-    const raw = state.prayerTimes[key] || '';
+  const times = order.map(key => {
+    const raw = state.prayerTimes![key] || '';
     const time24 = raw.split(' ')[0];
-    const isNext = key === next;
-    html += `<div class="prayer-row ${isNext ? 'next-prayer' : ''}">
-      <span class="prayer-name">${escapeHtml(getPrayerName(key))}</span>
-      <span class="prayer-time">${formatTime12(time24)}</span>
-    </div>`;
-  }
-  if (dom.prayerTimesRows) dom.prayerTimesRows.innerHTML = html;
+    return { name: getPrayerName(key), time: formatTime12(time24), isNext: key === next };
+  });
+  if (dom.prayerTimesRows) dom.prayerTimesRows.innerHTML = prayerTimesRows(times);
   updateCountdowns();
 }
 
