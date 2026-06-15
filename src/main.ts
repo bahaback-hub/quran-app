@@ -29,7 +29,9 @@ if (isCapNative || isAndroidWebView) {
     try {
       const cap = getCapacitor();
       cap?.Plugins?.SplashScreen?.hide?.({ fadeOutDuration: 300 });
-    } catch (e) { /* ignore */ }
+    } catch (e) {
+      /* ignore */
+    }
   };
   document.addEventListener('DOMContentLoaded', () => setTimeout(hideSplash, 500));
   setTimeout(hideSplash, 2000); // fallback
@@ -39,11 +41,15 @@ let _installEvent: BeforeInstallPromptEvent | null = null;
 
 window.addEventListener('beforeinstallprompt', ((e: Event) => {
   // Don't show install prompt in Capacitor native app
-  if (isCapNative || isAndroidWebView) return;
+  if (isCapNative || isAndroidWebView) {
+    return;
+  }
   e.preventDefault();
   _installEvent = e as BeforeInstallPromptEvent;
   const btn = document.getElementById('installBtn');
-  if (btn) btn.style.display = '';
+  if (btn) {
+    btn.style.display = '';
+  }
 }) as EventListener);
 
 window.installPWA = function (): void {
@@ -68,52 +74,63 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
       } else {
         const banner = document.createElement('div');
         banner.id = 'updateBanner';
-        banner.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent,#5c2e2e);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
+        banner.style.cssText =
+          'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent,#5c2e2e);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
         banner.innerHTML = updateBanner();
         document.body.appendChild(banner);
       }
     }
   });
 
-  navigator.serviceWorker.ready.then((reg) => {
-    function showUpdateNotification(): void {
-      const el = document.getElementById('updateBanner');
-      if (el) {
-        el.style.display = 'flex';
+  navigator.serviceWorker.ready
+    .then((reg) => {
+      function showUpdateNotification(): void {
+        const el = document.getElementById('updateBanner');
+        if (el) {
+          el.style.display = 'flex';
+          return;
+        }
+        const banner = document.createElement('div');
+        banner.id = 'updateBanner';
+        banner.style.cssText =
+          'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent,#5c2e2e);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
+        banner.innerHTML = updateBanner();
+        document.body.appendChild(banner);
+      }
+
+      if (reg.waiting) {
+        showUpdateNotification();
         return;
       }
-      const banner = document.createElement('div');
-      banner.id = 'updateBanner';
-      banner.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent,#5c2e2e);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
-      banner.innerHTML = updateBanner();
-      document.body.appendChild(banner);
-    }
 
-    if (reg.waiting) {
-      showUpdateNotification();
-      return;
-    }
-
-    reg.addEventListener('updatefound', () => {
-      const newWorker = reg.installing;
-      if (!newWorker) return;
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          showUpdateNotification();
-          newWorker.postMessage({ type: 'SKIP_WAITING' });
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        if (!newWorker) {
+          return;
         }
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateNotification();
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
       });
+    })
+    .catch(() => {
+      /* SW not available */
     });
-  }).catch(() => { /* SW not available */ });
 } else if (isCapNative || isAndroidWebView) {
   // Unregister any existing service worker in Capacitor
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(registrations => {
-      for (const reg of registrations) {
-        reg.unregister();
-        console.log('[Capacitor] Unregistered service worker to prevent conflicts');
-      }
-    }).catch(() => {});
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) => {
+        for (const reg of registrations) {
+          reg.unregister();
+          console.log('[Capacitor] Unregistered service worker to prevent conflicts');
+        }
+      })
+      .catch(() => {});
   }
 }
 
