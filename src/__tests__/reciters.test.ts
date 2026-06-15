@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { RECITERS, getReciterById, padSurah, buildAudioUrl, hasTimingApi, getTimingApiId, getReciterDisplayName } from '../reciters.js';
+import {
+  RECITERS,
+  getReciterById,
+  padSurah,
+  buildAudioUrl,
+  hasTimingApi,
+  getTimingApiId,
+  getReciterDisplayName,
+} from '../reciters.js';
 import type { Reciter } from '../reciters.js';
 
 describe('RECITERS', () => {
@@ -45,7 +53,12 @@ describe('padSurah', () => {
 
 describe('buildAudioUrl', () => {
   it('should build mp3quran url', () => {
-    const reciter = { source: 'mp3quran' as const, server: 'https://server7.mp3quran.net/s_gmd', id: 'test', name: 'test' };
+    const reciter = {
+      source: 'mp3quran' as const,
+      server: 'https://server7.mp3quran.net/s_gmd',
+      id: 'test',
+      name: 'test',
+    };
     const url = buildAudioUrl(reciter, 1);
     expect(url).toBe('https://server7.mp3quran.net/s_gmd/001.mp3');
   });
