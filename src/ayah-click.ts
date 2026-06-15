@@ -43,13 +43,13 @@ function getAyahFromWord(word: LayoutWord): AyahInfo | null {
   if (word.verse_key) {
     const parts = word.verse_key.split(':');
     if (parts.length >= 2) {
-      return { surah: parseInt(parts[0], 10), ayah: parseInt(parts[1], 10) };
+      return { surah: parseInt(parts[0]!, 10), ayah: parseInt(parts[1]!, 10) };
     }
   }
   if (word.location) {
     const parts = word.location.split(':');
     if (parts.length >= 2) {
-      return { surah: parseInt(parts[0], 10), ayah: parseInt(parts[1], 10) };
+      return { surah: parseInt(parts[0]!, 10), ayah: parseInt(parts[1]!, 10) };
     }
   }
   return null;
@@ -61,12 +61,16 @@ export async function handlePageClick(
   clickY: number,
   imgWidth: number,
   imgHeight: number,
-  layout: PageLayout | null
+  layout: PageLayout | null,
 ): Promise<AyahInfo | null> {
-  if (!layout) return null;
+  if (!layout) {
+    return null;
+  }
 
   const totalLines = layout.lines.length;
-  if (totalLines === 0) return null;
+  if (totalLines === 0) {
+    return null;
+  }
 
   let lineIndex = -1;
   for (let i = 0; i < totalLines; i++) {
@@ -80,13 +84,19 @@ export async function handlePageClick(
   if (lineIndex < 0) {
     lineIndex = Math.min(totalLines - 1, Math.floor(clickY / (imgHeight / totalLines)));
   }
-  if (lineIndex < 0 || lineIndex >= totalLines) return null;
+  if (lineIndex < 0 || lineIndex >= totalLines) {
+    return null;
+  }
 
   const line = layout.lines[lineIndex];
-  if (!line || !line.words || line.words.length === 0) return null;
+  if (!line || !line.words || line.words.length === 0) {
+    return null;
+  }
 
   const words = line.words.filter((w: LayoutWord) => w.type !== 'end');
-  if (words.length === 0) return null;
+  if (words.length === 0) {
+    return null;
+  }
 
   const charCounts = words.map((w: LayoutWord) => Math.max(1, arabicCharCount(w.char || w.word || '')));
   const totalChars = charCounts.reduce((a: number, b: number) => a + b, 0);
@@ -95,12 +105,14 @@ export async function handlePageClick(
 
   let cumWidth = 0;
   for (let i = 0; i < words.length; i++) {
-    const wordWidth = (charCounts[i] / totalChars) * imgWidth;
+    const wordWidth = (charCounts[i]! / totalChars) * imgWidth;
     const wordStart = cumWidth;
     const wordEnd = cumWidth + wordWidth;
     if (rtlX >= wordStart && rtlX <= wordEnd) {
-      const info = getAyahFromWord(words[i]);
-      if (info) return info;
+      const info = getAyahFromWord(words[i]!);
+      if (info) {
+        return info;
+      }
     }
     cumWidth += wordWidth;
   }
@@ -114,31 +126,41 @@ export async function getAyahHighlightRects(
   ayah: number,
   imgWidth: number,
   imgHeight: number,
-  layout: PageLayout | null
+  layout: PageLayout | null,
 ): Promise<HighlightRect[]> {
-  if (!layout) return [];
+  if (!layout) {
+    return [];
+  }
 
   const totalLines = layout.lines.length;
-  if (totalLines === 0) return [];
+  if (totalLines === 0) {
+    return [];
+  }
   const lineHeight = imgHeight / totalLines;
 
   const rects: HighlightRect[] = [];
 
   for (let lineIndex = 0; lineIndex < totalLines; lineIndex++) {
     const line = layout.lines[lineIndex];
-    if (!line || !line.words || line.words.length === 0) continue;
+    if (!line || !line.words || line.words.length === 0) {
+      continue;
+    }
 
     const words = line.words.filter((w: LayoutWord) => w.type !== 'end');
-    if (words.length === 0) continue;
+    if (words.length === 0) {
+      continue;
+    }
 
     const ayahWordIndices: number[] = [];
     for (let i = 0; i < words.length; i++) {
-      const info = getAyahFromWord(words[i]);
+      const info = getAyahFromWord(words[i]!);
       if (info && info.surah === surah && info.ayah === ayah) {
         ayahWordIndices.push(i);
       }
     }
-    if (ayahWordIndices.length === 0) continue;
+    if (ayahWordIndices.length === 0) {
+      continue;
+    }
 
     const charCounts = words.map((w: LayoutWord) => Math.max(1, arabicCharCount(w.char || w.word || '')));
     const totalChars = charCounts.reduce((a: number, b: number) => a + b, 0);
@@ -147,17 +169,23 @@ export async function getAyahHighlightRects(
     let maxRtl = -Infinity;
     let cumWidth = 0;
     for (let i = 0; i < words.length; i++) {
-      const wordWidth = (charCounts[i] / totalChars) * imgWidth;
+      const wordWidth = (charCounts[i]! / totalChars) * imgWidth;
       const wordStart = cumWidth;
       const wordEnd = cumWidth + wordWidth;
       if (ayahWordIndices.includes(i)) {
-        if (wordStart < minRtl) minRtl = wordStart;
-        if (wordEnd > maxRtl) maxRtl = wordEnd;
+        if (wordStart < minRtl) {
+          minRtl = wordStart;
+        }
+        if (wordEnd > maxRtl) {
+          maxRtl = wordEnd;
+        }
       }
       cumWidth += wordWidth;
     }
 
-    if (maxRtl <= minRtl) continue;
+    if (maxRtl <= minRtl) {
+      continue;
+    }
 
     const lineTop = getLineY(lineIndex, totalLines, imgHeight);
     const nextLineTop = getLineY(lineIndex + 1, totalLines, imgHeight);
