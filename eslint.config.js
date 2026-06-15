@@ -57,6 +57,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', 'android/', '.tmp/', 'coverage/', 'src/translations/'],
+    ignores: ['dist/', 'node_modules/', 'android/', '.tmp/', 'coverage/', 'src/translations/', 'src/__tests__/'],
   },
 );
