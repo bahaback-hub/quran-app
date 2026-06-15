@@ -96,8 +96,7 @@ export async function loadSurahList(): Promise<void> {
     dom.surahSelect.innerHTML = surahSelectLoading();
   }
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data: any = await apiFetch('/surah', { silent: true });
+    const data: { data?: unknown[] } = await apiFetch('/surah', { silent: true }) as { data?: unknown[] };
     if (data?.data) {
       state.surahList = data.data;
       state.surahOffsets = null;
@@ -105,13 +104,11 @@ export async function loadSurahList(): Promise<void> {
       populateSurahSelect();
       return;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_e) {
+  } catch {
     /* fall through to local fallback */
   }
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const localData: any = await jsonFetch('data/surah-list.json', { silent: true });
+    const localData = await jsonFetch('data/surah-list.json', { silent: true }) as unknown[];
     if (localData && localData.length === CONFIG.SURAH_COUNT) {
       state.surahList = localData;
       state.surahOffsets = null;
@@ -119,8 +116,7 @@ export async function loadSurahList(): Promise<void> {
       populateSurahSelect();
       return;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_e) {
+  } catch {
     /* no local fallback */
   }
   if (dom.surahSelect) {
@@ -191,11 +187,10 @@ async function fetchAyahTimings(reciterId: string, surahNum: number, ayahs: Ayah
     return null;
   }
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data: any = await jsonFetch(
+    const data: { audio_file?: { timestamps?: TimestampEntry[] } } = await jsonFetch(
       `https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`,
       { silent: true, timeout: 8000 },
-    );
+    ) as { audio_file?: { timestamps?: TimestampEntry[] } };
     if (!data) {
       return null;
     }
@@ -245,8 +240,7 @@ interface AbsToSurahAyahResult {
   ayahNumInSurah: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function absToSurahAyah(absNum: number): AbsToSurahAyahResult | null {
+function _absToSurahAyah(absNum: number): AbsToSurahAyahResult | null {
   if (!state.surahOffsets) {
     buildSurahOffsets();
   }
@@ -261,8 +255,7 @@ function absToSurahAyah(absNum: number): AbsToSurahAyahResult | null {
   return null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getAbsNumber(surah: number, ayah: number): number | null {
+function _getAbsNumber(surah: number, ayah: number): number | null {
   if (!state.surahOffsets) {
     buildSurahOffsets();
   }
@@ -309,8 +302,7 @@ async function loadApiAudio(
   signal: AbortSignal,
 ): Promise<AudioResult | null> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const json: any = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true });
+    const json: { data?: { ayahs?: AyahEntry[] } } = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true }) as { data?: { ayahs?: AyahEntry[] } };
     const data = json?.data;
     if (!data?.ayahs?.length) {
       throw new Error(__('no_audio_data'));
@@ -449,11 +441,10 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const textJson: any = await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
+    const textJson: { data?: SurahTextData } = await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
       signal,
       errorMsg: __('failed_load_surah'),
-    });
+    }) as { data?: SurahTextData };
     const textData: SurahTextData = textJson?.data;
     if (!textData?.ayahs?.length) {
       throw new Error(__('invalid_surah_data'));
@@ -867,12 +858,7 @@ export function highlightCurrentAyah(): void {
     cur.scrollIntoView({ behavior: 'instant', block: 'center' });
   }
   updatePlayerInfo();
-  import('./presentation.js')
-    .then((m: { syncPresentation: () => void }) => m.syncPresentation())
-    .catch(
-      // eslint-disable-next-line no-empty-function
-      () => {},
-    );
+  import('./presentation.js').then((m: { syncPresentation: () => void }) => m.syncPresentation()).catch(() => { /* noop */ });
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) {
     loadTafsirForCurrentAyah();
   }
