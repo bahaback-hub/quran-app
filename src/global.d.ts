@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // Window extensions (non-standard browser APIs)
 interface Window {
   toastTimeout?: ReturnType<typeof setTimeout>;
@@ -17,13 +16,13 @@ interface Element {
   style: CSSStyleDeclaration;
 }
 interface EventTarget {
-  result?: any;
+  result?: unknown;
   tagName?: string;
   blur?(): void;
 }
 
 // Cross-module functions - hoisted in concat build
-declare function loadSurah(surahNum: number, opts?: Record<string, any>): Promise<void>;
+declare function loadSurah(surahNum: number, opts?: Record<string, unknown>): Promise<void>;
 declare function highlightCurrentAyah(): void;
 declare function playCurrentAyah(): void;
 declare function updatePlayerInfo(): void;
