@@ -1,8 +1,10 @@
 import js from '@eslint/js';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
-export default [
+export default tseslint.config(
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     languageOptions: {
       ecmaVersion: 2024,
@@ -17,9 +19,10 @@ export default [
       },
     },
     rules: {
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
-      'no-undef': 'error',
+      'no-undef': 'off', // TypeScript handles this
       'no-empty': ['error', { allowEmptyCatch: true }],
       'no-prototype-builtins': 'off',
       'prefer-const': 'warn',
@@ -28,8 +31,6 @@ export default [
       'eqeqeq': ['error', 'always', { null: 'ignore' }],
       // Prevent accidental assignment in conditions
       'no-cond-assign': ['error', 'except-parens'],
-      // Disallow unnecessary return statements
-      'no-useless-return': 'warn',
       // Require default case in switch statements
       'default-case': 'warn',
       // Enforce consistent brace style for control statements
@@ -38,8 +39,6 @@ export default [
       'no-empty-function': 'warn',
       // Disallow unnecessary concatenation
       'no-useless-concat': 'warn',
-      // Disallow redundant return statements
-      'no-useless-return': 'off',
       // Disallow unnecessary escape characters
       'no-useless-escape': 'warn',
     },
@@ -54,9 +53,10 @@ export default [
     files: ['src/__tests__/**/*.ts', 'src/__tests__/**/*.js', 'e2e/**/*.js', 'e2e/**/*.ts'],
     rules: {
       'no-console': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', 'android/', '.tmp/', 'coverage/'],
+    ignores: ['dist/', 'node_modules/', 'android/', '.tmp/', 'coverage/', 'src/translations/'],
   },
-];
+);
