@@ -68,7 +68,10 @@ function pressKey(key: string, opts: Record<string, unknown> = {}) {
     bubbles: true,
   });
   // Override target since KeyboardEvent doesn't allow setting target directly
-  Object.defineProperty(event, 'target', { value: (opts as { _target?: EventTarget })._target || document.body, writable: false });
+  Object.defineProperty(event, 'target', {
+    value: (opts as { _target?: EventTarget })._target || document.body,
+    writable: false,
+  });
   document.dispatchEvent(event);
 }
 
@@ -264,7 +267,9 @@ describe('keyboard shortcuts - Escape', () => {
     dom.surahSecretsOverlay = { style: { display: 'block' }, classList: { add: vi.fn() } } as unknown as HTMLElement;
     pressKey('Escape');
     expect((dom.surahSecretsOverlay as unknown as { style: { display: string } }).style.display).toBe('none');
-    expect((dom.surahSecretsOverlay as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add).toHaveBeenCalledWith('hidden');
+    expect(
+      (dom.surahSecretsOverlay as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add,
+    ).toHaveBeenCalledWith('hidden');
   });
 
   it('should hide search results on Escape', () => {
@@ -276,20 +281,26 @@ describe('keyboard shortcuts - Escape', () => {
   it('should remove show class from share menu on Escape', () => {
     dom.shareMenu = { classList: { remove: vi.fn() } } as unknown as HTMLElement;
     pressKey('Escape');
-    expect((dom.shareMenu as unknown as { classList: { remove: ReturnType<typeof vi.fn> } }).classList.remove).toHaveBeenCalledWith('show');
+    expect(
+      (dom.shareMenu as unknown as { classList: { remove: ReturnType<typeof vi.fn> } }).classList.remove,
+    ).toHaveBeenCalledWith('show');
   });
 
   it('should collapse player if not already collapsed on Escape', () => {
     const player = { classList: { contains: vi.fn().mockReturnValue(false), add: vi.fn() } } as unknown as HTMLElement;
     dom.player = player;
     pressKey('Escape');
-    expect((dom.player as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add).toHaveBeenCalledWith('collapsed');
+    expect(
+      (dom.player as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add,
+    ).toHaveBeenCalledWith('collapsed');
   });
 
   it('should not collapse player if already collapsed on Escape', () => {
     const player = { classList: { contains: vi.fn().mockReturnValue(true), add: vi.fn() } } as unknown as HTMLElement;
     dom.player = player;
     pressKey('Escape');
-    expect((dom.player as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add).not.toHaveBeenCalled();
+    expect(
+      (dom.player as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add,
+    ).not.toHaveBeenCalled();
   });
 });
