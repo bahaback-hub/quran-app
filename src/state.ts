@@ -346,7 +346,7 @@ const _rawState: AppState = createDefaultState();
 let _batchDepth = 0;
 
 /** Changes accumulated during a batch, keyed by property name. */
-let _pendingChanges: Map<string, PendingChange> = new Map();
+const _pendingChanges: Map<string, PendingChange> = new Map();
 
 /* ===================== SUBSCRIPTION SYSTEM ===================== */
 
@@ -359,10 +359,7 @@ type StateChangeCallback = (newValue: unknown, oldValue: unknown, key: string) =
  *
  * @typeParam K - A key of AppState to watch.
  */
-export type TypedStateChangeCallback<K extends keyof AppState> = (
-  newValue: AppState[K],
-  oldValue: AppState[K]
-) => void;
+export type TypedStateChangeCallback<K extends keyof AppState> = (newValue: AppState[K], oldValue: AppState[K]) => void;
 
 /** Map of key → array of callbacks. */
 const subscribers = new Map<string, StateChangeCallback[]>();
@@ -392,20 +389,24 @@ const wildcardSubscribers: StateChangeCallback[] = [];
  *     console.log(key, newVal);
  *   });
  */
-export function subscribe<K extends keyof AppState>(
-  key: K,
-  callback: TypedStateChangeCallback<K>
-): () => void;
+export function subscribe<K extends keyof AppState>(key: K, callback: TypedStateChangeCallback<K>): () => void;
 export function subscribe(key: string, callback: StateChangeCallback): () => void;
-export function subscribe(key: string, callback: StateChangeCallback | TypedStateChangeCallback<keyof AppState>): () => void {
+export function subscribe(
+  key: string,
+  callback: StateChangeCallback | TypedStateChangeCallback<keyof AppState>,
+): () => void {
   if (!subscribers.has(key)) {
     subscribers.set(key, []);
   }
   // Wrap typed callback to match internal signature
   const wrapped: StateChangeCallback =
     'length' in callback && callback.length <= 2
-      ? (nv: unknown, ov: unknown, _k: string) => (callback as TypedStateChangeCallback<keyof AppState>)(nv as AppState[keyof AppState], ov as AppState[keyof AppState])
-      : callback as StateChangeCallback;
+      ? (nv: unknown, ov: unknown, _k: string) =>
+          (callback as TypedStateChangeCallback<keyof AppState>)(
+            nv as AppState[keyof AppState],
+            ov as AppState[keyof AppState],
+          )
+      : (callback as StateChangeCallback);
 
   subscribers.get(key)!.push(wrapped);
 
@@ -414,7 +415,9 @@ export function subscribe(key: string, callback: StateChangeCallback | TypedStat
     const list = subscribers.get(key);
     if (list) {
       const idx = list.indexOf(wrapped);
-      if (idx !== -1) list.splice(idx, 1);
+      if (idx !== -1) {
+        list.splice(idx, 1);
+      }
     }
   };
 }
@@ -428,7 +431,9 @@ export function subscribeAll(callback: StateChangeCallback): () => void {
   wildcardSubscribers.push(callback);
   return () => {
     const idx = wildcardSubscribers.indexOf(callback);
-    if (idx !== -1) wildcardSubscribers.splice(idx, 1);
+    if (idx !== -1) {
+      wildcardSubscribers.splice(idx, 1);
+    }
   };
 }
 
@@ -499,7 +504,9 @@ function createReactiveProxy(): AppState {
       const oldValue = Reflect.get(target, key) as unknown;
 
       // Skip notification if value hasn't changed (shallow comparison)
-      if (oldValue === newValue) return true;
+      if (oldValue === newValue) {
+        return true;
+      }
 
       // Validate that the property exists on AppState (dev-time safety)
       if (!(property in _rawState)) {
@@ -625,7 +632,7 @@ export function immutableSplice<K extends keyof AppState>(
   target: AppState,
   key: K,
   start: number,
-  deleteCount: number = 1
+  deleteCount: number = 1,
 ): void {
   const arr = target[key] as unknown[];
   const next = [...arr];
@@ -643,7 +650,7 @@ export function immutableMapSet<K extends keyof AppState>(
   target: AppState,
   key: K,
   mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never,
-  mapValue: AppState[K] extends Map<infer MK, infer MV> ? MV : never
+  mapValue: AppState[K] extends Map<infer MK, infer MV> ? MV : never,
 ): void {
   const map = new Map(target[key] as Map<unknown, unknown>);
   map.set(mapKey, mapValue);
@@ -659,7 +666,7 @@ export function immutableMapSet<K extends keyof AppState>(
 export function immutableMapDelete<K extends keyof AppState>(
   target: AppState,
   key: K,
-  mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never
+  mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never,
 ): void {
   const map = new Map(target[key] as Map<unknown, unknown>);
   map.delete(mapKey);
@@ -675,7 +682,7 @@ export function immutableMapDelete<K extends keyof AppState>(
 export function immutableFilter<K extends keyof AppState>(
   target: AppState,
   key: K,
-  predicate: AppState[K] extends Array<infer T> ? (value: T, index: number, array: T[]) => unknown : never
+  predicate: AppState[K] extends Array<infer T> ? (value: T, index: number, array: T[]) => unknown : never,
 ): void {
   const arr = target[key] as unknown[];
   Reflect.set(target, key, arr.filter(predicate as (value: unknown, index: number, array: unknown[]) => unknown));
