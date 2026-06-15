@@ -317,6 +317,17 @@ export default {
   a11y_you_are_offline: 'Anda sedang luring',
   a11y_you_are_online: 'Koneksi internet dipulihkan',
 
+  // === Cache Audio ===
+  download_audio: '📥 Unduh',
+  download_audio_start: 'Mengunduh audio untuk penggunaan luring...',
+  download_audio_progress: 'Mengunduh audio: {0}/{1}',
+  download_audio_done: 'Audio diunduh — Anda dapat mendengarkan secara luring',
+  download_audio_error: 'Gagal mengunduh audio',
+  download_audio_cached: 'Audio sudah disimpan',
+  download_audio_delete: 'Hapus audio yang disimpan',
+  download_audio_deleted: 'Audio yang disimpan telah dihapus',
+  download_audio_no_data: 'Tidak ada data audio untuk diunduh',
+
   // === Aksesibilitas ===
   a11y_panel_opened: '{0} dibuka',
   a11y_panel_closed: '{0} ditutup',
