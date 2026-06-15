@@ -19,7 +19,10 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write 'src/**/*.{js,ts}'",
     "format:check": "prettier --check 'src/**/*.{js,ts}'",
-    "release": "npm run lint && npm run typecheck && npm test && npm run build"
+    "release": "npm run lint && npm run typecheck && npm test && npm run build",
+    "build:analyze": "vite build && node scripts/generate-csp-hashes.mjs",
+    "test:a11y": "npm run build && npx serve dist -p 4173 & sleep 3 && node scripts/a11y-audit.mjs",
+    "test:all": "npm run lint && npm run typecheck && npm test && npm run test:e2e"
   },
   "engines": {
     "node": ">=22"
