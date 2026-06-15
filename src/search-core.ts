@@ -7,6 +7,7 @@ import { __ } from './i18n.js';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_SEARCH_HISTORY = 10;
+/** Maximum number of search results rendered per page. */
 export const SEARCH_PAGE_SIZE = 50;
 
 /** Raw Quran API response shape. */
@@ -97,6 +98,7 @@ function cacheInIndexedDB(db: IDBDatabase, ayahs: QuranTextEntry[]): void {
 
 let _loadingPromise: Promise<void> | null = null;
 
+/** Load the full Quran text into `state.fullQuranText`, fetching from IndexedDB cache or the remote API as needed. Deduplicates concurrent calls. */
 export async function loadFullQuranText(): Promise<void> {
   if (state.fullQuranLoaded) {
     return;
@@ -164,6 +166,7 @@ function generateArabicVariants(normQuery: string): string[] {
   return [...new Set(variants)];
 }
 
+/** Search the full Quran text for the given query, returning matching ayah entries. Falls back to relaxed normalisation if no exact matches are found. */
 export function performSearch(query: string): QuranTextEntry[] {
   if (!state.fullQuranText) {
     return [];
@@ -181,6 +184,7 @@ export function performSearch(query: string): QuranTextEntry[] {
   return matches;
 }
 
+/** Build the search-word frequency list and prefix-lookup map from the loaded Quran text for autocomplete suggestions. */
 export function buildSearchWords(): void {
   if (!state.fullQuranText || state.searchWords?.length) {
     return;
@@ -219,6 +223,7 @@ export function buildSearchWords(): void {
   state.searchPrefixMap = prefixMap;
 }
 
+/** Add a search query to the persisted search history, keeping at most `MAX_SEARCH_HISTORY` entries. */
 export function addToSearchHistory(query: string): void {
   const history = getSearchHistory().filter((h) => h !== query);
   history.unshift(query);
@@ -228,10 +233,12 @@ export function addToSearchHistory(query: string): void {
   storage.set(SEARCH_HISTORY_KEY, history);
 }
 
+/** Retrieve the persisted search history list. */
 export function getSearchHistory(): string[] {
   return storage.get<string[]>(SEARCH_HISTORY_KEY, []) ?? [];
 }
 
+/** Clear the persisted search history and show a toast confirmation. */
 export function clearSearchHistory(): void {
   storage.remove(SEARCH_HISTORY_KEY);
   showToast(__('search_history_cleared'), '');
