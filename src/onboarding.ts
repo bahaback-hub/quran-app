@@ -49,7 +49,9 @@ export function hasSeenOnboarding(): unknown {
 }
 
 export function startOnboarding(): void {
-  if (hasSeenOnboarding()) return;
+  if (hasSeenOnboarding()) {
+    return;
+  }
   storage.set('onboarding_seen', true);
   showOnboarding();
 }
@@ -89,21 +91,23 @@ function showOnboarding(): void {
       background: var(--border, #d4c9a8);
       transition: all 0.3s ease; display: inline-block;
     `;
-    if (i === 0) dot.style.background = 'var(--accent, #d4af37)';
+    if (i === 0) {
+      dot.style.background = 'var(--accent, #d4af37)';
+    }
     dotContainer.appendChild(dot);
     dots.push(dot);
   }
 
   const iconEl = document.createElement('div');
   iconEl.style.cssText = 'font-size: 56px; margin-bottom: 16px;';
-  iconEl.textContent = STEPS[0].icon;
+  iconEl.textContent = STEPS[0]!.icon;
 
   const titleEl = document.createElement('h2');
   titleEl.style.cssText = `
     font-size: 24px; color: var(--text-primary, #1a1a1a);
     margin-bottom: 12px; font-weight: bold;
   `;
-  titleEl.textContent = STEPS[0].title;
+  titleEl.textContent = STEPS[0]!.title;
 
   const descEl = document.createElement('p');
   descEl.style.cssText = `
@@ -111,7 +115,7 @@ function showOnboarding(): void {
     color: var(--text-secondary, #2c3e50);
     margin-bottom: 28px;
   `;
-  descEl.textContent = STEPS[0].desc;
+  descEl.textContent = STEPS[0]!.desc;
 
   const navRow = document.createElement('div');
   navRow.style.cssText = 'display: flex; gap: 12px; justify-content: center;';
@@ -145,7 +149,7 @@ function showOnboarding(): void {
   let stepIdx = 0;
 
   function updateStep(): void {
-    const s = STEPS[stepIdx];
+    const s = STEPS[stepIdx]!;
     iconEl.textContent = s.icon;
     titleEl.textContent = s.title;
     descEl.textContent = s.desc;
