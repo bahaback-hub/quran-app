@@ -30,10 +30,14 @@ let countdownInterval: ReturnType<typeof setInterval> | null = null;
 
 export function startClock(): void {
   updateDates();
-  if (countdownInterval) clearInterval(countdownInterval);
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
   countdownInterval = setInterval(() => {
     updateDates();
-    if (state.prayerTimes) updateCountdowns();
+    if (state.prayerTimes) {
+      updateCountdowns();
+    }
   }, 1000);
 }
 
@@ -54,20 +58,36 @@ function updateDates(): void {
   const now = new Date();
   try {
     const hijri = _hijriFormatter.format(now);
-    if (dom.hijriDateDisplay) dom.hijriDateDisplay.textContent = hijri;
-    if (dom.bigClockHijri) dom.bigClockHijri.textContent = '📅 ' + hijri;
+    if (dom.hijriDateDisplay) {
+      dom.hijriDateDisplay.textContent = hijri;
+    }
+    if (dom.bigClockHijri) {
+      dom.bigClockHijri.textContent = '📅 ' + hijri;
+    }
   } catch (e) {
     console.warn('Date update failed:', e);
   }
-  if (dom.weekdayDisplay) dom.weekdayDisplay.textContent = getWeekday(now.getDay());
+  if (dom.weekdayDisplay) {
+    dom.weekdayDisplay.textContent = getWeekday(now.getDay());
+  }
   const greg = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
-  if (dom.gregorianDateDisplay) dom.gregorianDateDisplay.textContent = greg;
-  if (dom.bigClockDate) dom.bigClockDate.textContent = greg;
+  if (dom.gregorianDateDisplay) {
+    dom.gregorianDateDisplay.textContent = greg;
+  }
+  if (dom.bigClockDate) {
+    dom.bigClockDate.textContent = greg;
+  }
   const timeStr = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
-  if (dom.bigClockTime) dom.bigClockTime.textContent = timeStr;
-  if (dom.bigClockTime2) dom.bigClockTime2.textContent = timeStr;
+  if (dom.bigClockTime) {
+    dom.bigClockTime.textContent = timeStr;
+  }
+  if (dom.bigClockTime2) {
+    dom.bigClockTime2.textContent = timeStr;
+  }
   const collapsedClock = document.getElementById('collapsedClock');
-  if (collapsedClock) collapsedClock.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+  if (collapsedClock) {
+    collapsedClock.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+  }
 }
 
 /* ===================== PRAYER TIMES ===================== */
@@ -79,7 +99,7 @@ export async function loadPrayerTimes(): Promise<void> {
   const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = await prayerFetch(query, { errorMsg: __('failed_prayer') });
+    const data: any = await prayerFetch(query, { errorMsg: __('failed_prayer') });
     if (data?.data?.timings) {
       state.prayerTimes = data.data.timings;
       storage.set('cached_prayer_times', {
@@ -110,52 +130,75 @@ export async function loadPrayerTimes(): Promise<void> {
 
 /** Get the next prayer key based on current time (includes Sunrise for countdown). */
 export function getNextPrayerKey(): string | null {
-  if (!state.prayerTimes) return null;
+  if (!state.prayerTimes) {
+    return null;
+  }
   const now = new Date();
   const nowMin = now.getHours() * 60 + now.getMinutes();
   // Use PRAYER_DISPLAY_ORDER which includes Sunrise for countdown display
   for (const key of PRAYER_DISPLAY_ORDER) {
     const raw = state.prayerTimes[key];
-    if (!raw) continue;
-    if (timeStrToMinutes(raw.split(' ')[0]) > nowMin) return key;
+    if (!raw) {
+      continue;
+    }
+    if (timeStrToMinutes(raw.split(' ')[0]!) > nowMin) {
+      return key;
+    }
   }
   return 'Fajr';
 }
 
 function renderPrayerTimes(): void {
-  if (!state.prayerTimes) return;
+  if (!state.prayerTimes) {
+    return;
+  }
   const order: string[] = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
   const next = getNextPrayerKey();
-  const times = order.map(key => {
+  const times = order.map((key) => {
     const raw = state.prayerTimes![key] || '';
-    const time24 = raw.split(' ')[0];
+    const time24 = raw.split(' ')[0]!;
     return { name: getPrayerName(key), time: formatTime12(time24), isNext: key === next };
   });
-  if (dom.prayerTimesRows) dom.prayerTimesRows.innerHTML = prayerTimesRows(times);
+  if (dom.prayerTimesRows) {
+    dom.prayerTimesRows.innerHTML = prayerTimesRows(times);
+  }
   updateCountdowns();
 }
 
 function updateCountdowns(): void {
-  if (!state.prayerTimes) return;
+  if (!state.prayerTimes) {
+    return;
+  }
   const nextKey = getNextPrayerKey();
-  if (!nextKey) return;
+  if (!nextKey) {
+    return;
+  }
   const now = new Date();
   const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
   const raw = state.prayerTimes[nextKey] || '';
-  const [hStr, mStr] = raw.split(' ')[0].split(':');
+  const [hStr, mStr] = raw.split(' ')[0]!.split(':') as [string, string];
   let nextSec = parseInt(hStr, 10) * 3600 + parseInt(mStr, 10) * 60;
-  if (nextSec <= nowSec) nextSec += 86400;
+  if (nextSec <= nowSec) {
+    nextSec += 86400;
+  }
   const diffSec = nextSec - nowSec;
   const h = Math.floor(diffSec / 3600);
   const m = Math.floor((diffSec % 3600) / 60);
   const s = diffSec % 60;
   const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
-  if (dom.countdownDisplay) dom.countdownDisplay.textContent = countdownText;
-  if (dom.prayerCountdown)
+  if (dom.countdownDisplay) {
+    dom.countdownDisplay.textContent = countdownText;
+  }
+  if (dom.prayerCountdown) {
     dom.prayerCountdown.textContent = `${__('prayer_countdown', getPrayerName(nextKey), countdownText)}`;
-  const time24 = (state.prayerTimes[nextKey] || '').split(' ')[0];
-  if (dom.nextPrayerName) dom.nextPrayerName.textContent = getPrayerName(nextKey);
-  if (dom.nextPrayerTime) dom.nextPrayerTime.textContent = formatTime12(time24);
+  }
+  const time24 = (state.prayerTimes[nextKey] || '').split(' ')[0]!;
+  if (dom.nextPrayerName) {
+    dom.nextPrayerName.textContent = getPrayerName(nextKey);
+  }
+  if (dom.nextPrayerTime) {
+    dom.nextPrayerTime.textContent = formatTime12(time24);
+  }
 }
 
 /* ===================== AZAN ===================== */
@@ -168,18 +211,24 @@ export function hideAzanNotification(): void {
 }
 
 export function stopAzan(): void {
-  if (!dom.azanPlayer) return;
+  if (!dom.azanPlayer) {
+    return;
+  }
   dom.azanPlayer.pause();
   dom.azanPlayer.currentTime = 0;
   dom.azanPlayer.removeAttribute('src');
   dom.azanPlayer.load();
   state.azanPlaying = false;
-  if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('test_azan');
+  if (dom.testAzanBtn) {
+    dom.testAzanBtn.textContent = __('test_azan');
+  }
   hideAzanNotification();
 }
 
 export function testAzan(): void {
-  if (!dom.azanPlayer) return;
+  if (!dom.azanPlayer) {
+    return;
+  }
   if (state.azanPlaying) {
     stopAzan();
     showToast(__('azan_stopped'), '');
@@ -197,7 +246,9 @@ export function testAzan(): void {
       .play()
       .then(() => {
         state.azanPlaying = true;
-        if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('stop_azan');
+        if (dom.testAzanBtn) {
+          dom.testAzanBtn.textContent = __('stop_azan');
+        }
         if (dom.azanNotification && dom.azanNotifPrayer) {
           dom.azanNotifPrayer.textContent = __('test_azan');
           dom.azanNotification.classList.remove('hidden');
@@ -209,7 +260,9 @@ export function testAzan(): void {
 }
 
 function showAzanNotification(prayerKey: string): void {
-  if (!dom.azanNotification || !dom.azanNotifPrayer) return;
+  if (!dom.azanNotification || !dom.azanNotifPrayer) {
+    return;
+  }
   dom.azanNotifPrayer.textContent = `🕋 ${__('prayer')} ${getPrayerName(prayerKey)}`;
   dom.azanNotification.classList.remove('hidden');
   dom.azanNotification.style.display = 'flex';
@@ -226,15 +279,21 @@ function showAzanNotification(prayerKey: string): void {
 }
 
 export function checkAzanTime(): void {
-  if (!state.prayerTimes || !state.azanEnabled) return;
+  if (!state.prayerTimes || !state.azanEnabled) {
+    return;
+  }
   const now = new Date();
   const cur = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
   for (const key of PRAYER_ORDER) {
-    if (key === 'Fajr' && !state.azanFajrEnabled) continue;
+    if (key === 'Fajr' && !state.azanFajrEnabled) {
+      continue;
+    }
     const raw = (state.prayerTimes[key] || '').split(' ')[0];
     if (raw === cur) {
       const stamp = key + '_' + now.toDateString() + '_' + cur;
-      if (state.lastAzanFired === stamp) return;
+      if (state.lastAzanFired === stamp) {
+        return;
+      }
       state.lastAzanFired = stamp;
       if (dom.azanPlayer) {
         // Pause Quran audio before playing azan
@@ -250,7 +309,9 @@ export function checkAzanTime(): void {
           .play()
           .then(() => {
             state.azanPlaying = true;
-            if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('stop_azan');
+            if (dom.testAzanBtn) {
+              dom.testAzanBtn.textContent = __('stop_azan');
+            }
             showAzanNotification(key);
           })
           .catch((e: unknown) => console.warn(e));
@@ -263,7 +324,9 @@ export function checkAzanTime(): void {
 let azanTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function scheduleNextAzanCheck(): void {
-  if (azanTimer) clearTimeout(azanTimer);
+  if (azanTimer) {
+    clearTimeout(azanTimer);
+  }
   if (!state.prayerTimes || !state.azanEnabled) {
     azanTimer = setTimeout(scheduleNextAzanCheck, 60000);
     return;
@@ -272,10 +335,14 @@ export function scheduleNextAzanCheck(): void {
   const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
   let nextSec: number | null = null;
   for (const key of PRAYER_ORDER) {
-    if (key === 'Fajr' && !state.azanFajrEnabled) continue;
+    if (key === 'Fajr' && !state.azanFajrEnabled) {
+      continue;
+    }
     const raw = (state.prayerTimes[key] || '').split(' ')[0];
-    if (!raw) continue;
-    const [h, m] = raw.split(':');
+    if (!raw) {
+      continue;
+    }
+    const [h, m] = raw.split(':') as [string, string];
     const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
     if (prayerSec > nowSec) {
       nextSec = prayerSec;
@@ -286,7 +353,7 @@ export function scheduleNextAzanCheck(): void {
   if (nextSec === null) {
     const fajrRaw = (state.prayerTimes['Fajr'] || '').split(' ')[0];
     if (fajrRaw) {
-      const [fh, fm] = fajrRaw.split(':');
+      const [fh, fm] = fajrRaw.split(':') as [string, string];
       const fajrSec = parseInt(fh, 10) * 3600 + parseInt(fm, 10) * 60;
       nextSec = fajrSec + 86400; // Tomorrow's Fajr
     } else {
@@ -307,7 +374,9 @@ export function scheduleNextAzanCheck(): void {
 /* ===================== PRAYER BAR TOGGLE ===================== */
 
 export function togglePrayerBar(): void {
-  if (!dom.prayerBar) return;
+  if (!dom.prayerBar) {
+    return;
+  }
   state.barCollapsed = !state.barCollapsed;
   if (state.barCollapsed) {
     dom.prayerBar.classList.add('collapsed');
@@ -334,14 +403,18 @@ export function calculateQibla(lat: number, lng: number): number {
   const y = Math.sin(dLng);
   const x = Math.cos(userLat) * Math.tan(kaabaLat) - Math.sin(userLat) * Math.cos(dLng);
   let qibla = (Math.atan2(y, x) * 180) / Math.PI;
-  if (qibla < 0) qibla += 360;
+  if (qibla < 0) {
+    qibla += 360;
+  }
   return qibla;
 }
 
 /** Show the Qibla compass overlay. */
 export function showQiblaCompass(): void {
   const overlay = document.getElementById('qiblaOverlay');
-  if (!overlay) return;
+  if (!overlay) {
+    return;
+  }
   overlay.classList.remove('hidden');
   overlay.style.display = 'flex';
 
@@ -350,7 +423,9 @@ export function showQiblaCompass(): void {
   const angleDisplay = document.getElementById('qiblaAngle');
 
   if (!navigator.geolocation) {
-    if (direction) direction.textContent = __('location_not_supported');
+    if (direction) {
+      direction.textContent = __('location_not_supported');
+    }
     return;
   }
 
@@ -374,7 +449,9 @@ export function showQiblaCompass(): void {
 
       const handleOrientation = (e: DeviceOrientationEventiOS): void => {
         let heading = e.alpha || 0;
-        if (e.webkitCompassHeading) heading = e.webkitCompassHeading;
+        if (e.webkitCompassHeading) {
+          heading = e.webkitCompassHeading;
+        }
         const adjusted = qiblaAngle - heading;
         if (compass) {
           compass.style.transform = `rotate(${adjusted}deg)`;
@@ -411,13 +488,15 @@ export function showQiblaCompass(): void {
           __('prayer_dirs_nw'),
         ];
         const idx = Math.round(qiblaAngle / 45) % 8;
-        direction.textContent = `${__('qibla_direction', dirs[idx], String(Math.round(qiblaAngle)))}`;
+        direction.textContent = `${__('qibla_direction', dirs[idx]!, String(Math.round(qiblaAngle)))}`;
       }
     },
     () => {
-      if (direction) direction.textContent = __('qibla_location_failed');
+      if (direction) {
+        direction.textContent = __('qibla_location_failed');
+      }
     },
-    { enableHighAccuracy: true }
+    { enableHighAccuracy: true },
   );
 }
 
