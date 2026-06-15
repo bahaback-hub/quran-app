@@ -14,6 +14,14 @@ import {
 } from './audio.js';
 import { openSettings } from './settings.js';
 
+/**
+ * Initialize all navigation event listeners for the app.
+ * Binds surah navigation, player controls, view mode toggles, page selectors,
+ * and bottom navigation tab handling. Should be called once during app startup.
+ *
+ * @example
+ * initNavigation(); // call after cacheDom()
+ */
 export function initNavigation(): void {
   /* ========== SURAH NAV BUTTONS ========== */
   dom.prevAyahBtn?.addEventListener('click', prevAyah);
