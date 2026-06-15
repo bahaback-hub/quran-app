@@ -56,7 +56,9 @@ interface AyahPageResponse {
  */
 export function bindNavigationEvents(): void {
   dom.surahSelect?.addEventListener('change', () => {
-    if (!dom.surahSelect!.value) return;
+    if (!dom.surahSelect!.value) {
+      return;
+    }
     const surahNum = parseInt(dom.surahSelect!.value, 10);
     if (state.mushafMode) {
       state.currentSurah = surahNum;
@@ -64,8 +66,12 @@ export function bindNavigationEvents(): void {
         .then((res) => res.json())
         .then((data: AyahPageResponse) => {
           const page = data?.data?.page || 1;
-          if (dom.pageSelect) dom.pageSelect.value = String(page);
-          if (dom.pageSlider) dom.pageSlider.value = String(page);
+          if (dom.pageSelect) {
+            dom.pageSelect.value = String(page);
+          }
+          if (dom.pageSlider) {
+            dom.pageSlider.value = String(page);
+          }
           import('./mushaf.js').then((m) => m.loadPage(page, true)); // lazy: mushaf not in main chunk
         })
         .catch(() => showToast(__('mushaf_page_not_found'), 'error'));
@@ -77,7 +83,9 @@ export function bindNavigationEvents(): void {
   dom.reciterSelect?.addEventListener('change', () => {
     state.currentReciter = dom.reciterSelect!.value;
     storage.set('reciter', state.currentReciter);
-    if (state.currentSurah) loadSurah(state.currentSurah);
+    if (state.currentSurah) {
+      loadSurah(state.currentSurah);
+    }
   });
 }
 
@@ -92,17 +100,17 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.themeToggle?.addEventListener('click', (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const btn = target.closest('.theme-btn') as HTMLElement | null;
-    if (btn?.dataset.theme) {
+    if (btn?.dataset['theme']) {
       e.preventDefault();
-      applyTheme(btn.dataset.theme as 'light' | 'sepia' | 'night');
+      applyTheme(btn.dataset['theme'] as 'light' | 'sepia' | 'night');
     }
   });
   dom.themeToggle?.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       const btn = (e.target as HTMLElement).closest('.theme-btn') as HTMLElement | null;
-      if (btn?.dataset.theme) {
-        applyTheme(btn.dataset.theme as 'light' | 'sepia' | 'night');
+      if (btn?.dataset['theme']) {
+        applyTheme(btn.dataset['theme'] as 'light' | 'sepia' | 'night');
       } else {
         toggleNightMode();
       }
@@ -125,11 +133,15 @@ export function bindHeaderAndSettingsEvents(): void {
  */
 export function bindAzanEvents(): void {
   dom.azanNotification?.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === dom.azanNotification) stopAzan();
+    if (e.target === dom.azanNotification) {
+      stopAzan();
+    }
   });
   dom.azanPlayer?.addEventListener('ended', () => {
     state.azanPlaying = false;
-    if (dom.testAzanBtn) dom.testAzanBtn.textContent = __('test_azan');
+    if (dom.testAzanBtn) {
+      dom.testAzanBtn.textContent = __('test_azan');
+    }
     hideAzanNotification();
   });
 }
@@ -142,7 +154,9 @@ export function bindTafsirEvents(): void {
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect!.value;
     storage.set('tafsir_edition', state.currentTafsirEdition);
-    if (dom.tafsirCurtain?.classList.contains('open')) loadTafsirForCurrentAyah();
+    if (dom.tafsirCurtain?.classList.contains('open')) {
+      loadTafsirForCurrentAyah();
+    }
   });
 
   dom.translationSelect?.addEventListener('change', () => {
@@ -156,7 +170,9 @@ export function bindTafsirEvents(): void {
     }
     storage.set('translation_enabled', state.translationEnabled);
     storage.set('translation_edition', state.currentTranslation);
-    if (state.currentSurah) loadSurah(state.currentSurah);
+    if (state.currentSurah) {
+      loadSurah(state.currentSurah);
+    }
   });
 }
 
@@ -165,26 +181,30 @@ export function bindTafsirEvents(): void {
  */
 export function bindDisplaySettingsEvents(): void {
   dom.fontSizeSelect?.addEventListener('change', (e: Event) =>
-    applyFontSize(parseInt((e.target as HTMLSelectElement).value, 10))
+    applyFontSize(parseInt((e.target as HTMLSelectElement).value, 10)),
   );
   dom.fontTypeSelect?.addEventListener('change', (e: Event) => applyFontType((e.target as HTMLSelectElement).value));
   dom.lineSpacingSelect?.addEventListener('change', (e: Event) =>
-    applyLineSpacing((e.target as HTMLSelectElement).value)
+    applyLineSpacing((e.target as HTMLSelectElement).value),
   );
   dom.presBgSelect?.addEventListener('change', (e: Event) =>
-    applyPresBgMode((e.target as HTMLSelectElement).value as 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene')
+    applyPresBgMode(
+      (e.target as HTMLSelectElement).value as 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene',
+    ),
   );
   dom.presBgSceneSelect?.addEventListener('change', (e: Event) =>
-    applyPresBgScene((e.target as HTMLSelectElement).value)
+    applyPresBgScene((e.target as HTMLSelectElement).value),
   );
   dom.presBgNatureSelect?.addEventListener('change', (e: Event) =>
-    applyPresBgNature((e.target as HTMLSelectElement).value)
+    applyPresBgNature((e.target as HTMLSelectElement).value),
   );
   dom.tajweedToggle?.addEventListener('click', () => {
     state.tajweedEnabled = dom.tajweedToggle!.classList.toggle('on');
     storage.set('tajweed_enabled', state.tajweedEnabled);
     const reload = () => {
-      if (state.currentSurah) loadSurah(state.currentSurah);
+      if (state.currentSurah) {
+        loadSurah(state.currentSurah);
+      }
     };
     if (state.tajweedEnabled) {
       loadTajweedAnnotations().then(reload);
@@ -212,7 +232,7 @@ export function bindDisplaySettingsEvents(): void {
       setLang(newLang as 'ar' | 'en' | 'tr' | 'ms' | 'id').then(() => {
         showToast(
           __('language') + ': ' + (AVAILABLE_LANGUAGES.find((l) => l.code === newLang)?.nativeName || newLang),
-          'success'
+          'success',
         );
       });
     }
@@ -221,9 +241,13 @@ export function bindDisplaySettingsEvents(): void {
   dom.cityQuickSelect?.addEventListener('change', () => {
     const v = dom.cityQuickSelect!.value;
     if (v) {
-      const [city, country] = v.split('|');
-      if (dom.cityInput) dom.cityInput.value = city;
-      if (dom.countryInput) dom.countryInput.value = country;
+      const [city, country] = v.split('|') as [string, string];
+      if (dom.cityInput) {
+        dom.cityInput.value = city;
+      }
+      if (dom.countryInput) {
+        dom.countryInput.value = country;
+      }
     }
   });
 }
@@ -241,31 +265,31 @@ export function bindPanelsAndShareEvents(): void {
     btn.addEventListener('click', () => {
       shareNative();
       toggleShareMenu();
-    })
+    }),
   );
   document.querySelectorAll('[data-share="copy"]').forEach((btn) =>
     btn.addEventListener('click', () => {
       shareCopy();
       toggleShareMenu();
-    })
+    }),
   );
   document.querySelectorAll('[data-share="copy-simple"]').forEach((btn) =>
     btn.addEventListener('click', () => {
       shareCopySimple();
       toggleShareMenu();
-    })
+    }),
   );
   document.querySelectorAll('[data-share="whatsapp"]').forEach((btn) =>
     btn.addEventListener('click', () => {
       shareWhatsApp();
       toggleShareMenu();
-    })
+    }),
   );
   document.querySelectorAll('[data-share="telegram"]').forEach((btn) =>
     btn.addEventListener('click', () => {
       shareTelegram();
       toggleShareMenu();
-    })
+    }),
   );
 }
 
@@ -275,16 +299,21 @@ export function bindPanelsAndShareEvents(): void {
 export function bindSearchEvents(): void {
   dom.searchBtn?.addEventListener('click', () => {
     const q = dom.searchInput?.value.trim();
-    if (!q) return;
+    if (!q) {
+      return;
+    }
     performExactSearch(q);
   });
   dom.searchInput?.addEventListener('keypress', (e: KeyboardEvent) => {
-    if (e.key === 'Enter') dom.searchBtn?.click();
+    if (e.key === 'Enter') {
+      dom.searchBtn?.click();
+    }
   });
   dom.voiceSearchBtn?.addEventListener('click', startVoiceSearch);
   dom.installBtn?.addEventListener('click', () => {
-    if (typeof (window as Window & { installPWA?: () => void }).installPWA === 'function')
+    if (typeof (window as Window & { installPWA?: () => void }).installPWA === 'function') {
       (window as Window & { installPWA: () => void }).installPWA();
+    }
   });
   dom.sleepTimerBtn?.addEventListener('click', () => {
     showSleepTimerModal(audioModule);
@@ -298,8 +327,9 @@ export function bindSearchEvents(): void {
  */
 export function bindGlobalClickHandler(): void {
   document.addEventListener('click', (e: MouseEvent) => {
-    if (!dom.shareMenu?.contains(e.target as Node) && e.target !== dom.shareBtn)
+    if (!dom.shareMenu?.contains(e.target as Node) && e.target !== dom.shareBtn) {
       dom.shareMenu?.classList.remove('show');
+    }
     const settingsTarget = e.target as HTMLElement;
     const isSettingsTrigger =
       settingsTarget === dom.settingsToggleBtn ||
@@ -309,20 +339,23 @@ export function bindGlobalClickHandler(): void {
       dom.settingsPanel?.classList.contains('open') &&
       !dom.settingsPanel.contains(e.target as Node) &&
       !isSettingsTrigger
-    )
+    ) {
       closeSettings();
+    }
     if (
       dom.favoritesPanel?.classList.contains('open') &&
       !dom.favoritesPanel.contains(e.target as Node) &&
       e.target !== dom.favoritesOpenBtn
-    )
+    ) {
       closeFavorites();
+    }
     if (
       dom.adhkarPanel?.classList.contains('open') &&
       !dom.adhkarPanel.contains(e.target as Node) &&
       e.target !== dom.adhkarBtn
-    )
+    ) {
       closeAdhkarPanel();
+    }
   });
 }
 
@@ -339,8 +372,12 @@ export function bindMiscEvents(): void {
     if (dom.searchInputGroup) {
       dom.searchInputGroup.classList.toggle('hidden');
     }
-    if (dom.searchToggleBtn) dom.searchToggleBtn.classList.toggle('active');
-    if (dom.searchInputGroup?.classList.contains('hidden') === false) dom.searchInput?.focus();
+    if (dom.searchToggleBtn) {
+      dom.searchToggleBtn.classList.toggle('active');
+    }
+    if (dom.searchInputGroup?.classList.contains('hidden') === false) {
+      dom.searchInput?.focus();
+    }
   });
 
   dom.mushafSurahOverlayClose?.addEventListener('click', () => {
@@ -372,7 +409,9 @@ export function bindMiscEvents(): void {
 
   dom.qiblaCloseBtn?.addEventListener('click', hideQiblaCompass);
   dom.qiblaOverlay?.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === dom.qiblaOverlay) hideQiblaCompass();
+    if (e.target === dom.qiblaOverlay) {
+      hideQiblaCompass();
+    }
   });
 
   dom.readingStatsCloseBtn?.addEventListener('click', () => {
