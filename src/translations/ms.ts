@@ -282,4 +282,17 @@ export default {
 
   settings_imported: '{0} tetapan diimport',
   failed_ayah: 'Ayat gagal',
+
+  // === Luar Talian ===
+  offline_banner: '🔌 Tiada sambungan internet — sesetengah ciri mungkin tidak berfungsi',
+  a11y_you_are_offline: 'Anda di luar talian',
+  a11y_you_are_online: 'Sambungan internet dipulihkan',
+
+  // === Kebolehcapaian ===
+  a11y_panel_opened: '{0} dibuka',
+  a11y_panel_closed: '{0} ditutup',
+  a11y_skip_to_content: 'Langkau ke kandungan',
+  a11y_offline_notice: 'Notis luar talian',
+  a11y_reading_progress: 'Kemajuan bacaan',
+  reduced_motion_enabled: 'Pergerakan dikurangkan diaktifkan',
 };
