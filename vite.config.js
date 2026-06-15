@@ -126,7 +126,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/cdn\.islamic\.network\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'quran-audio',
+              cacheName: 'islamic-cdn',
               expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 }
             }
           },

@@ -84,6 +84,7 @@ export default {
   next_ayah: 'Ayat Seterusnya',
   last_ayah_in_quran: 'Ayat terakhir dalam Al-Quran',
   cached_prayer: 'Waktu solat yang dicache',
+  cached_prayer_stale: 'Waktu solat dari cache lama — mungkin berbeza beberapa minit',
   failed_prayer: 'Gagal memuatkan waktu solat',
 
   // === Pemain Audio ===

@@ -116,15 +116,19 @@ export async function loadPrayerTimes(): Promise<void> {
     throw new Error('Invalid response');
   } catch {
     const cached = storage.get<CachedPrayerTimes>('cached_prayer_times');
-    if (cached && cached.date === new Date().toDateString() && cached.city === city && cached.country === country) {
-      state.prayerTimes = cached.timings;
-      renderPrayerTimes();
-      checkAzanTime();
-      scheduleNextAzanCheck();
-      // showToast(__('cached_prayer'), 'success');
-    } else {
-      // showToast(__('failed_prayer'), 'error');
+    if (cached && cached.city === city && cached.country === country) {
+      // Accept cache from today or up to 3 days ago (prayer times shift ~1 min/day)
+      const cacheAge = (Date.now() - new Date(cached.date).getTime()) / (1000 * 60 * 60 * 24);
+      if (cacheAge <= 3) {
+        state.prayerTimes = cached.timings;
+        renderPrayerTimes();
+        checkAzanTime();
+        scheduleNextAzanCheck();
+        showToast(cacheAge < 0.5 ? __('cached_prayer') : __('cached_prayer_stale'), 'info');
+        return;
+      }
     }
+    showToast(__('failed_prayer'), 'error');
   }
 }
 
