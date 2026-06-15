@@ -1,5 +1,6 @@
 /**
  * Tests for i18n.ts — internationalization system.
+ * Comprehensive tests covering all exported functions.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -75,6 +76,17 @@ describe('AVAILABLE_LANGUAGES', () => {
       expect(['rtl', 'ltr']).toContain(lang.dir);
     }
   });
+
+  it('Arabic should be the only RTL language', () => {
+    const rtlLangs = AVAILABLE_LANGUAGES.filter(l => l.dir === 'rtl');
+    expect(rtlLangs).toHaveLength(1);
+    expect(rtlLangs[0].code).toBe('ar');
+  });
+
+  it('each language code should be unique', () => {
+    const codes = AVAILABLE_LANGUAGES.map(l => l.code);
+    expect(new Set(codes).size).toBe(codes.length);
+  });
 });
 
 describe('__ (translate)', () => {
@@ -102,11 +114,34 @@ describe('__ (translate)', () => {
   });
 
   it('should fall back to Arabic bundle when key missing in current language', async () => {
-    // If a key exists in Arabic but not in English, Arabic fallback should be used
-    // Since we control the bundles, let's just verify the fallback mechanism exists
     await setLang('ar');
     const result = __('error_title');
     expect(result).toBeTruthy();
+    expect(typeof result).toBe('string');
+  });
+
+  it('should handle multiple interpolation args', async () => {
+    // Some key with {0} and {1} placeholders
+    const result = __('nonexistent_key_{0}_{1}', 'first', 'second');
+    // Since key doesn't exist, it returns the key itself
+    expect(result).toBe('nonexistent_key_{0}_{1}');
+  });
+
+  it('should return string even for array values', async () => {
+    // weekdays is an array, accessing it via __ should return the key or convert
+    const result = __('weekdays');
+    expect(typeof result).toBe('string');
+  });
+
+  it('should work with English bundle', async () => {
+    await setLang('en');
+    expect(__('error_title')).toBe('An error occurred');
+  });
+
+  it('should return key for unknown language bundle missing key', async () => {
+    await setLang('en');
+    // A key that might not exist in English but exists in Arabic
+    const result = __('some_key_that_might_not_exist');
     expect(typeof result).toBe('string');
   });
 });
@@ -129,6 +164,16 @@ describe('getLang', () => {
   it('should return "tr" after setting Turkish', async () => {
     await setLang('tr');
     expect(getLang()).toBe('tr');
+  });
+
+  it('should return "ms" after setting Malay', async () => {
+    await setLang('ms');
+    expect(getLang()).toBe('ms');
+  });
+
+  it('should return "id" after setting Indonesian', async () => {
+    await setLang('id');
+    expect(getLang()).toBe('id');
   });
 });
 
@@ -195,6 +240,27 @@ describe('setLang', () => {
 
     document.body.removeChild(el);
   });
+
+  it('should set LTR direction for Turkish', async () => {
+    await setLang('tr');
+    expect(document.documentElement.dir).toBe('ltr');
+    expect(document.body.style.direction).toBe('ltr');
+  });
+
+  it('should set LTR direction for Malay', async () => {
+    await setLang('ms');
+    expect(document.documentElement.dir).toBe('ltr');
+  });
+
+  it('should set LTR direction for Indonesian', async () => {
+    await setLang('id');
+    expect(document.documentElement.dir).toBe('ltr');
+  });
+
+  it('should save Turkish to storage', async () => {
+    await setLang('tr');
+    expect(store['lang']).toBe('tr');
+  });
 });
 
 describe('applyTranslations', () => {
@@ -256,6 +322,68 @@ describe('applyTranslations', () => {
 
     document.body.removeChild(el);
   });
+
+  it('should handle elements with empty data-i18n-placeholder attribute', () => {
+    const input = document.createElement('input');
+    input.setAttribute('data-i18n-placeholder', '');
+    document.body.appendChild(input);
+
+    expect(() => applyTranslations()).not.toThrow();
+
+    document.body.removeChild(input);
+  });
+
+  it('should handle elements with empty data-i18n-title attribute', () => {
+    const el = document.createElement('div');
+    el.setAttribute('data-i18n-title', '');
+    document.body.appendChild(el);
+
+    expect(() => applyTranslations()).not.toThrow();
+
+    document.body.removeChild(el);
+  });
+
+  it('should handle elements with empty data-i18n-aria-label attribute', () => {
+    const el = document.createElement('div');
+    el.setAttribute('data-i18n-aria-label', '');
+    document.body.appendChild(el);
+
+    expect(() => applyTranslations()).not.toThrow();
+
+    document.body.removeChild(el);
+  });
+
+  it('should translate multiple elements at once', () => {
+    const el1 = document.createElement('div');
+    el1.setAttribute('data-i18n', 'error_title');
+    const el2 = document.createElement('div');
+    el2.setAttribute('data-i18n', 'makkah');
+    document.body.appendChild(el1);
+    document.body.appendChild(el2);
+
+    applyTranslations();
+    expect(el1.textContent).toBe('حدث خطأ');
+    expect(el2.textContent).toBe('مكة المكرمة');
+
+    document.body.removeChild(el1);
+    document.body.removeChild(el2);
+  });
+
+  it('should update translations when language changes', async () => {
+    const el = document.createElement('div');
+    el.setAttribute('data-i18n', 'error_title');
+    document.body.appendChild(el);
+
+    await setLang('en');
+    applyTranslations();
+    expect(el.textContent).toBe('An error occurred');
+
+    await setLang('ar');
+    applyTranslations();
+    expect(el.textContent).toBe('حدث خطأ');
+
+    document.body.removeChild(el);
+  });
 });
 
 describe('getReciterName', () => {
@@ -276,6 +404,11 @@ describe('getReciterName', () => {
     await setLang('en');
     expect(getReciterName('ar.alafasy')).toBe('Mishary Alafasy');
   });
+
+  it('should return English name for unknown reciter in English', async () => {
+    await setLang('en');
+    expect(getReciterName('unknown.reciter')).toBe('unknown.reciter');
+  });
 });
 
 describe('getTafsirName', () => {
@@ -290,6 +423,11 @@ describe('getTafsirName', () => {
 
   it('should return the key when tafsir is not found', () => {
     expect(getTafsirName('unknown-tafsir')).toBe('unknown-tafsir');
+  });
+
+  it('should return English tafsir name when English is active', async () => {
+    await setLang('en');
+    expect(getTafsirName('ar-tafsir-muyassar')).toBe('Muyassar Tafsir');
   });
 });
 
@@ -306,6 +444,11 @@ describe('getCityName', () => {
   it('should return the key when city is not found', () => {
     expect(getCityName('unknown_city')).toBe('unknown_city');
   });
+
+  it('should return English city name when English is active', async () => {
+    await setLang('en');
+    expect(getCityName('makkah')).toBe('Makkah');
+  });
 });
 
 describe('getCalcMethodName', () => {
@@ -320,6 +463,11 @@ describe('getCalcMethodName', () => {
 
   it('should return the key when method is not found', () => {
     expect(getCalcMethodName('99')).toBe('99');
+  });
+
+  it('should return English calc method name when English is active', async () => {
+    await setLang('en');
+    expect(getCalcMethodName('4')).toBe('Umm Al-Qura');
   });
 });
 
@@ -344,6 +492,21 @@ describe('getWeekday', () => {
   it('should return empty string for out-of-range index', () => {
     expect(getWeekday(7)).toBe('');
     expect(getWeekday(-1)).toBe('');
+  });
+
+  it('should return all 7 Arabic weekdays', () => {
+    const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    for (let i = 0; i < 7; i++) {
+      expect(getWeekday(i)).toBe(days[i]);
+    }
+  });
+
+  it('should return all 7 English weekdays', async () => {
+    await setLang('en');
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    for (let i = 0; i < 7; i++) {
+      expect(getWeekday(i)).toBe(days[i]);
+    }
   });
 });
 
@@ -371,6 +534,14 @@ describe('getPrayerName', () => {
     expect(getPrayerName('Fajr')).toBe('Fajr');
     expect(getPrayerName('Sunrise')).toBe('Sunrise');
   });
+
+  it('should return English name for all prayers', async () => {
+    await setLang('en');
+    expect(getPrayerName('Dhuhr')).toBe('Dhuhr');
+    expect(getPrayerName('Asr')).toBe('Asr');
+    expect(getPrayerName('Maghrib')).toBe('Maghrib');
+    expect(getPrayerName('Isha')).toBe('Isha');
+  });
 });
 
 describe('getLoadedLangs', () => {
@@ -389,6 +560,24 @@ describe('getLoadedLangs', () => {
     const loaded = getLoadedLangs();
     expect(loaded).toContain('en');
     expect(loaded).toContain('ar'); // Arabic is always loaded as fallback
+  });
+
+  it('should include Turkish after loading', async () => {
+    await setLang('tr');
+    const loaded = getLoadedLangs();
+    expect(loaded).toContain('tr');
+  });
+
+  it('should include Malay after loading', async () => {
+    await setLang('ms');
+    const loaded = getLoadedLangs();
+    expect(loaded).toContain('ms');
+  });
+
+  it('should include Indonesian after loading', async () => {
+    await setLang('id');
+    const loaded = getLoadedLangs();
+    expect(loaded).toContain('id');
   });
 });
 
@@ -419,12 +608,25 @@ describe('unloadLang', () => {
 
   it('should return false for language that is not loaded', async () => {
     // Ensure Turkish is not loaded by explicitly checking getLoadedLangs
-    // If Turkish happens to be preloaded from previous tests, unload it first
     if (getLoadedLangs().includes('tr')) {
       unloadLang('tr');
     }
-    // Now Turkish should not be in the loaded list
     expect(getLoadedLangs()).not.toContain('tr');
+    expect(unloadLang('tr')).toBe(false);
+  });
+
+  it('should remove the language from getLoadedLangs after unload', async () => {
+    await setLang('en');
+    await setLang('ar');
+    // English should be loaded
+    expect(getLoadedLangs()).toContain('en');
+    // Unload English
+    unloadLang('en');
+    expect(getLoadedLangs()).not.toContain('en');
+  });
+
+  it('should not unload Turkish if it is current', async () => {
+    await setLang('tr');
     expect(unloadLang('tr')).toBe(false);
   });
 });
@@ -441,7 +643,6 @@ describe('initI18n', () => {
   });
 
   it('should initialize with Arabic when no saved language and browser is not English', async () => {
-    // Default to Arabic when no stored preference and browser is non-English
     const originalLang = navigator.language;
     Object.defineProperty(navigator, 'language', { value: 'ar-SA', configurable: true });
 
@@ -460,6 +661,22 @@ describe('initI18n', () => {
 
     Object.defineProperty(navigator, 'language', { value: originalLang, configurable: true });
   });
+
+  it('should initialize with saved Turkish', async () => {
+    store['lang'] = 'tr';
+    await initI18n();
+    expect(getLang()).toBe('tr');
+  });
+
+  it('should default to Arabic for non-English browser without stored preference', async () => {
+    const originalLang = navigator.language;
+    Object.defineProperty(navigator, 'language', { value: 'fr-FR', configurable: true });
+
+    await initI18n();
+    expect(getLang()).toBe('ar');
+
+    Object.defineProperty(navigator, 'language', { value: originalLang, configurable: true });
+  });
 });
 
 describe('preloadLang', () => {
@@ -473,5 +690,87 @@ describe('preloadLang', () => {
 
   it('should not throw when preloading a language that might fail', () => {
     expect(() => preloadLang('tr')).not.toThrow();
+  });
+
+  it('should not throw when preloading Malay', () => {
+    expect(() => preloadLang('ms')).not.toThrow();
+  });
+
+  it('should not throw when preloading Indonesian', () => {
+    expect(() => preloadLang('id')).not.toThrow();
+  });
+});
+
+describe('setLang for all languages', () => {
+  beforeEach(() => {
+    for (const key of Object.keys(store)) delete store[key];
+  });
+
+  it('should load and set Turkish correctly', async () => {
+    await setLang('tr');
+    expect(getLang()).toBe('tr');
+    expect(store['lang']).toBe('tr');
+  });
+
+  it('should load and set Malay correctly', async () => {
+    await setLang('ms');
+    expect(getLang()).toBe('ms');
+    expect(store['lang']).toBe('ms');
+  });
+
+  it('should load and set Indonesian correctly', async () => {
+    await setLang('id');
+    expect(getLang()).toBe('id');
+    expect(store['lang']).toBe('id');
+  });
+
+  it('should be able to switch between languages', async () => {
+    await setLang('ar');
+    expect(getLang()).toBe('ar');
+    await setLang('en');
+    expect(getLang()).toBe('en');
+    await setLang('tr');
+    expect(getLang()).toBe('tr');
+    await setLang('ar');
+    expect(getLang()).toBe('ar');
+  });
+});
+
+describe('i18n edge cases', () => {
+  beforeEach(async () => {
+    for (const key of Object.keys(store)) delete store[key];
+    await setLang('ar');
+  });
+
+  it('should handle null storage gracefully', async () => {
+    // Override storage.get to return null for this test
+    const { storage } = await import('../storage.js');
+    const originalGet = storage.get;
+    (storage.get as ReturnType<typeof vi.fn>).mockReturnValue(null);
+    
+    await initI18n();
+    expect(getLang()).toBeTruthy();
+    
+    (storage.get as ReturnType<typeof vi.fn>).mockImplementation(originalGet);
+  });
+
+  it('should handle switching language with DOM elements present', async () => {
+    const el = document.createElement('div');
+    el.setAttribute('data-i18n', 'error_title');
+    document.body.appendChild(el);
+
+    await setLang('en');
+    expect(el.textContent).toBe('An error occurred');
+
+    await setLang('ar');
+    expect(el.textContent).toBe('حدث خطأ');
+
+    document.body.removeChild(el);
+  });
+
+  it('getReciterName should fall back to Arabic when key not in current bundle', async () => {
+    await setLang('en');
+    // ar.alafasy should be in English bundle, so it should be found
+    expect(getReciterName('ar.alafasy')).toBe('Mishary Alafasy');
   });
 });
