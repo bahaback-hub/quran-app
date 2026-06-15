@@ -1,3 +1,20 @@
+/**
+ * Audio Player Module for Quran App.
+ *
+ * Manages all audio playback functionality including:
+ *   - Per-ayah audio files and MP3 Quran (single-file with timing offsets)
+ *   - Word-by-word highlighting synced to audio position
+ *   - Automatic ayah/surah advancement with configurable repeat modes
+ *   - Hifdh (memorization) mode that blurs ayah text for recall practice
+ *   - Sleep timer with countdown display
+ *   - MediaSession API integration for lock-screen controls
+ *   - Audio error auto-retry (up to 2 attempts) with skip-on-failure
+ *   - Audio visualization via canvas-based waveform renderer
+ *
+ * Architecture note: setLoadSurah() is called by app.ts during initialization
+ * to inject the surah-loading callback, avoiding circular imports.
+ */
+
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
