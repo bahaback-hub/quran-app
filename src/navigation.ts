@@ -68,7 +68,12 @@ export function initNavigation(): void {
 
   /* ========== VIEW MODE TOGGLES ========== */
   dom.viewSurahBtn?.addEventListener('click', () => {
-    import('./presentation.js').then((m) => m.closePresentation()).catch(() => {});
+    import('./presentation.js')
+      .then((m) => m.closePresentation())
+      .catch(
+        // eslint-disable-next-line no-empty-function
+        () => {},
+      );
     if (state.mushafMode) {
       import('./mushaf.js').then((m) => m.toggleMushafMode());
     }
@@ -86,7 +91,12 @@ export function initNavigation(): void {
     }
   });
   dom.viewMushafBtn?.addEventListener('click', () => {
-    import('./presentation.js').then((m) => m.closePresentation()).catch(() => {});
+    import('./presentation.js')
+      .then((m) => m.closePresentation())
+      .catch(
+        // eslint-disable-next-line no-empty-function
+        () => {},
+      );
     import('./mushaf.js').then((m) => m.toggleMushafMode());
   });
   dom.viewPresBtn?.addEventListener('click', () => {
@@ -173,6 +183,8 @@ export function initNavigation(): void {
       case 'more':
         openSettings();
         dom.controls?.classList.remove('mobile-show');
+        break;
+      default:
         break;
     }
   });
