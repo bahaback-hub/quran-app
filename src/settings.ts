@@ -543,19 +543,18 @@ export function importSettings(): void {
       try {
         const data = JSON.parse(ev.target?.result as string) as Record<string, unknown>;
         let imported = 0;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        let skipped = 0;
+        let _skipped = 0;
         Object.entries(data).forEach(([k, v]: [string, unknown]) => {
           if (v !== null && v !== undefined && ALLOWED_SETTINGS_KEYS.has(k)) {
             const validator = SETTING_TYPE_VALIDATORS[k];
             if (validator && !validator(v)) {
-              skipped++;
+              _skipped++;
               return;
             }
             storage.set(k, v);
             imported++;
           } else {
-            skipped++;
+            _skipped++;
           }
         });
         showToast(`${__('success')} ${__('settings_imported', String(imported))}`, 'success');
