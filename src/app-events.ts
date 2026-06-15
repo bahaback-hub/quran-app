@@ -368,6 +368,36 @@ async function handleDownloadAudio(): Promise<void> {
 }
 
 /**
+ * Toggle auto-play next surah mode.
+ * When enabled, playback continues to the next surah automatically.
+ * When disabled, playback stops at the end of each surah.
+ * State is persisted to localStorage.
+ */
+function handleAutoPlayNextToggle(): void {
+  state.autoPlayNext = !state.autoPlayNext;
+  storage.set('auto_play_next', state.autoPlayNext);
+  if (dom.autoPlayNextBtn) {
+    dom.autoPlayNextBtn.classList.toggle('active', state.autoPlayNext);
+  }
+  showToast(
+    state.autoPlayNext ? __('autoplay_next_enabled') : __('autoplay_next_disabled'),
+    'success',
+  );
+}
+
+/**
+ * Initialize the auto-play next surah button state from localStorage.
+ * Restores the toggle state and updates the button appearance.
+ */
+export function initAutoPlayNextButton(): void {
+  const saved = storage.get<boolean>('auto_play_next', false);
+  state.autoPlayNext = saved === true;
+  if (dom.autoPlayNextBtn) {
+    dom.autoPlayNextBtn.classList.toggle('active', state.autoPlayNext);
+  }
+}
+
+/**
  * Bind search controls.
  */
 export function bindSearchEvents(): void {
@@ -393,6 +423,10 @@ export function bindSearchEvents(): void {
     showSleepTimerModal(audioModule);
   });
   dom.downloadAudioBtn?.addEventListener('click', handleDownloadAudio);
+
+  // Auto-play next surah toggle
+  dom.autoPlayNextBtn?.addEventListener('click', handleAutoPlayNextToggle);
+
   initKeyboard();
   initSearchAutocomplete();
 }
