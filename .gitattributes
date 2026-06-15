@@ -1,0 +1,34 @@
+# Git attributes — ensure consistent behavior across platforms
+
+# Auto-detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# Source code
+*.ts text diff=typescript
+*.js text diff=javascript
+*.css text diff=css
+*.html text diff=html
+*.json text
+*.yml text diff=yaml
+*.yaml text diff=yaml
+
+# Documentation
+*.md text diff=markdown
+*.txt text
+
+# Shell scripts
+*.sh text eol=lf
+
+# Binary files — prevent Git from altering them
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mp3 binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary
+*.zip binary
