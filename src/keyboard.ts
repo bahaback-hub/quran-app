@@ -1,13 +1,36 @@
+/**
+ * @module keyboard
+ * @description Keyboard shortcuts for the Quran app. Registers global keydown
+ * listeners that provide quick access to playback controls (play/pause, next/prev
+ * ayah/surah), bookmark & favorite toggling, tafsir, night mode, mushaf mode,
+ * presentation mode, font size adjustment, and panel dismissal via Escape.
+ */
+
 import { state } from './state.js';
 import { dom } from './dom.js';
-import { togglePlayPause, nextAyah, prevAyah, prevSurah, nextSurah, toggleHifdh, toggleRepeat } from './audio.js';
+import {
+  togglePlayPause,
+  nextAyah,
+  prevAyah,
+  nextSurah,
+  prevSurah,
+  toggleHifdh,
+  toggleRepeat,
+} from './audio.js';
 import { toggleNightMode, applyFontSize, closeSettings } from './settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './favorites.js';
 import { stopAzan } from './prayer.js';
 import { toggleTafsir, closeTafsir } from './tafsir.js';
 import { storage } from './storage.js';
 
-/** Register global keyboard shortcuts for playback, navigation, and UI toggles. */
+/**
+ * Initialize global keyboard shortcut listeners.
+ * Binds keydown events for playback, navigation, toggles, and Escape dismissal.
+ * Should be called once during app startup.
+ *
+ * @example
+ * initKeyboardShortcuts(); // call after cacheDom()
+ */
 export function initKeyboardShortcuts(): void {
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape' && state.azanPlaying) {
@@ -90,13 +113,11 @@ export function initKeyboardShortcuts(): void {
         if (state.presentationMode) {
           import('./presentation.js')
             .then((m: { closePresentation: () => void }) => m.closePresentation())
-            // eslint-disable-next-line no-empty-function
-            .catch(() => {});
+            .catch(() => { /* noop */ });
         } else {
           import('./presentation.js')
             .then((m: { openPresentation: () => void }) => m.openPresentation())
-            // eslint-disable-next-line no-empty-function
-            .catch(() => {});
+            .catch(() => { /* noop */ });
         }
         break;
       case 'g':
