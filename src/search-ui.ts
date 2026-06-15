@@ -12,7 +12,8 @@ import {
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { escapeHtml, escapeRegExp, copyToClipboard, normalizeExactText, normalizeRelaxed } from './utils.js';
+import { escapeRegExp, copyToClipboard, normalizeExactText, normalizeRelaxed } from './utils.js';
+import { searchEmptyResults, searchResultsHeader, searchResultCard, searchLoadMoreButton, searchHistoryItem, searchAutocompleteItem, escapeHtml } from './templates.js';
 import { loadSurah, highlightCurrentAyah } from './app.js';
 import { playCurrentAyah } from './audio.js';
 import {
@@ -145,33 +146,19 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
   if (!dom.searchResults) return;
   dom.searchResults.innerHTML = '';
   if (!matches.length) {
-    dom.searchResults.innerHTML = `<div class="search-empty">❌ ${__('no_results')}</div>`;
+    dom.searchResults.innerHTML = searchEmptyResults();
     dom.searchResults.style.display = 'block';
     return;
   }
   const totalResults = getAllSearchMatches()?.length ?? matches.length;
-  let html = `<div class="search-results-header">
-    <span>✅ ${__('results_count')}: ${totalResults}</span>
-    <button class="search-results-close" id="closeSearchResultsBtn" aria-label="${__('close')}">✖</button>
-  </div>`;
+  let html = searchResultsHeader(totalResults);
   for (const m of matches) {
     const highlighted = buildSearchHighlight(m.text, query);
     const fi = state.fullQuranText?.indexOf(m) ?? -1;
-    html += `<div class="search-result-item" data-surah="${m.surah}" data-ayah="${m.ayah}" data-surahname="${escapeHtml(m.surahName || '')}" data-fulltext-index="${fi}">
-      <div class="search-result-title">${escapeHtml(m.surahName || '')} — ${__('ayah')} ${m.ayah}</div>
-      <div class="search-result-text">${highlighted}</div>
-      <div class="search-result-actions">
-        <button class="search-play" data-surah="${m.surah}" data-ayah="${m.ayah}">${__('search_play')}</button>
-        <button class="search-copy" data-surah="${m.surah}" data-ayah="${m.ayah}">${__('search_copy')}</button>
-        <button class="search-share" data-surah="${m.surah}" data-ayah="${m.ayah}">${__('search_share')}</button>
-        <button class="search-goto" data-surah="${m.surah}" data-ayah="${m.ayah}">${__('search_goto')}</button>
-      </div>
-    </div>`;
+    html += searchResultCard({ surah: m.surah, ayah: m.ayah, surahName: m.surahName || '', fulltextIndex: fi, highlighted });
   }
   if (hasMore) {
-    html += `<div class="search-load-more">
-      <button class="btn btn-gold" id="loadMoreSearchBtn">${__('load_more', String(Math.min(SEARCH_PAGE_SIZE, totalResults - matches.length)))}</button>
-    </div>`;
+    html += searchLoadMoreButton(Math.min(SEARCH_PAGE_SIZE, totalResults - matches.length));
   }
   dom.searchResults.innerHTML = html;
   dom.searchResults.style.display = 'block';
@@ -317,15 +304,7 @@ function showSearchHistory(): void {
     __('search_history_title') +
     '</div>';
   for (let i = 0; i < history.length; i++) {
-    html +=
-      '<div class="search-autocomplete-item search-history-item" data-index="' +
-      i +
-      '">' +
-      '<span>' +
-      escapeHtml(history[i]) +
-      '</span>' +
-      '<span class="count search-history-remove">✕</span>' +
-      '</div>';
+    html += searchHistoryItem(history[i], i);
   }
   dropdown.innerHTML = html;
   dropdown.style.display = 'block';
@@ -384,17 +363,7 @@ export function initSearchAutocomplete(): void {
       }
       let html = '';
       for (let i = 0; i < suggestions.length; i++) {
-        html +=
-          '<div class="search-autocomplete-item" data-index="' +
-          i +
-          '">' +
-          '<span>' +
-          escapeHtml(suggestions[i].word) +
-          '</span>' +
-          '<span class="count">' +
-          suggestions[i].count +
-          '</span>' +
-          '</div>';
+        html += searchAutocompleteItem(suggestions[i].word, suggestions[i].count, i);
       }
       dropdown.innerHTML = html;
       dropdown.style.display = 'block';
