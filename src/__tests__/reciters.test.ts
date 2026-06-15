@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   RECITERS,
   getReciterById,
@@ -9,6 +9,11 @@ import {
   getReciterDisplayName,
 } from '../reciters.js';
 import type { Reciter } from '../reciters.js';
+
+// Mock i18n for getReciterDisplayName
+vi.mock('../i18n.js', () => ({
+  getReciterName: (id: string) => id.replace(/reciter_/, '').replace(/_/g, ' '),
+}));
 
 describe('RECITERS', () => {
   it('should have at least 10 reciters', () => {
