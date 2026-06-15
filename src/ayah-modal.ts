@@ -117,7 +117,9 @@ export function initAyahModal(): void {
 /* ===================== OPEN / CLOSE ===================== */
 
 export function openAyahModal(data: ModalAyahData): void {
-  if (!modalEl || !data) return;
+  if (!modalEl || !data) {
+    return;
+  }
   let idx: number = data.index;
   if (idx === -1 && state.fullQuranText) {
     idx = state.fullQuranText.findIndex((a) => a.surah === data.surah && a.ayah === data.ayah);
@@ -138,7 +140,9 @@ export function openAyahModal(data: ModalAyahData): void {
 }
 
 export function closeAyahModal(): void {
-  if (!modalEl) return;
+  if (!modalEl) {
+    return;
+  }
   modalEl.classList.add('hidden');
   modalEl.style.display = 'none';
   document.body.style.overflow = '';
@@ -149,10 +153,14 @@ export function closeAyahModal(): void {
 function bind(): void {
   M.ayahModalCloseBtn?.addEventListener('click', closeAyahModal);
   modalEl?.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === modalEl) closeAyahModal();
+    if (e.target === modalEl) {
+      closeAyahModal();
+    }
   });
   document.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && !modalEl?.classList.contains('hidden')) closeAyahModal();
+    if (e.key === 'Escape' && !modalEl?.classList.contains('hidden')) {
+      closeAyahModal();
+    }
   });
   M.ayahModalNextBtn?.addEventListener('click', goToNextAyah);
   M.ayahModalBookmarkBtn?.addEventListener('click', saveBookmark);
@@ -173,30 +181,38 @@ function bind(): void {
   const audioSlider = M.ayahModalAudioSlider;
   audioPlayer?.addEventListener('timeupdate', onAudioTime);
   audioPlayer?.addEventListener('loadedmetadata', () => {
-    if (audioSlider) audioSlider.max = String(Math.floor(audioPlayer.duration || 0));
+    if (audioSlider) {
+      audioSlider.max = String(Math.floor(audioPlayer.duration || 0));
+    }
     M.ayahModalAudioDuration!.textContent = formatTime(audioPlayer?.duration || 0);
   });
   audioPlayer?.addEventListener('ended', onAudioEnded);
   audioSlider?.addEventListener('input', () => {
-    if (audioPlayer) audioPlayer.currentTime = parseFloat(audioSlider.value);
+    if (audioPlayer) {
+      audioPlayer.currentTime = parseFloat(audioSlider.value);
+    }
   });
   M.ayahModalDownloadBtn?.addEventListener('click', downloadModalAyah);
   M.ayahModalTafsirTabs?.addEventListener('click', (e: MouseEvent) => {
     const tab = (e.target as HTMLElement).closest('.ayah-modal-tafsir-tab') as HTMLElement | null;
-    if (tab) loadTafsirTab(tab.dataset.edition as string);
+    if (tab) {
+      loadTafsirTab(tab.dataset['edition'] as string);
+    }
   });
 }
 
 /* ===================== NAVIGATION ===================== */
 
 function goToNextAyah(): void {
-  if (!current || !state.fullQuranText) return;
+  if (!current || !state.fullQuranText) {
+    return;
+  }
   const idx: number = current.index + 1;
   if (idx >= state.fullQuranText.length) {
     showToast(__('last_ayah_in_quran'), 'error');
     return;
   }
-  const next = state.fullQuranText[idx];
+  const next = state.fullQuranText[idx]!;
   current = { surah: next.surah, ayah: next.ayah, text: next.text, surahName: next.surahName, index: idx };
   M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(next.ayah), next.surahName)}`;
   M.ayahModalText!.textContent = next.text;
@@ -204,15 +220,17 @@ function goToNextAyah(): void {
   updateNav();
   updateFavBtn();
   loadMeta();
-  loadTafsirTab(document.querySelector('.ayah-modal-tafsir-tab.active')?.dataset?.edition || 'ar-tafsir-muyassar');
+  loadTafsirTab(document.querySelector('.ayah-modal-tafsir-tab.active')?.dataset?.['edition'] || 'ar-tafsir-muyassar');
   resetAudio();
 }
 
 function updateNav(): void {
-  if (!current || !state.fullQuranText) return;
+  if (!current || !state.fullQuranText) {
+    return;
+  }
   const next: number = current.index + 1;
   if (next < state.fullQuranText.length) {
-    const n = state.fullQuranText[next];
+    const n = state.fullQuranText[next]!;
     M.ayahModalNextBtn!.textContent = `${__('next_ayah_label', String(n.ayah), n.surahName)}`;
     M.ayahModalNav!.style.display = '';
   } else {
@@ -223,7 +241,9 @@ function updateNav(): void {
 /* ===================== META ===================== */
 
 async function loadMeta(): Promise<void> {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   M.ayahModalPage!.textContent = __('page_loading');
   M.ayahModalJuz!.textContent = __('juz_loading');
   try {
@@ -242,7 +262,9 @@ async function loadMeta(): Promise<void> {
 /* ===================== BOOKMARK & FAVORITE ===================== */
 
 function saveBookmark(): void {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   storage.set('bookmark', {
     surah: current.surah,
     surahName: current.surahName,
@@ -254,7 +276,9 @@ function saveBookmark(): void {
 }
 
 function toggleModalFav(): void {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   const key: string = `${current.surah}:${current.ayah}`;
   const idx: number = state.favorites.findIndex((f) => f.key === key);
   if (idx !== -1) {
@@ -276,7 +300,9 @@ function toggleModalFav(): void {
 }
 
 function updateFavBtn(): void {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   const key: string = `${current.surah}:${current.ayah}`;
   const isFav: boolean = state.favorites.some((f) => f.key === key);
   M.ayahModalFavBtn!.textContent = isFav ? __('in_favorites') : __('add_to_favorites');
@@ -286,16 +312,20 @@ function updateFavBtn(): void {
 /* ===================== COPY & SHARE ===================== */
 
 function copyModalAyah(simple: boolean): void {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   const text: string = simple ? stripTashkeel(current.text) : current.text;
   copyToClipboard(text);
   showToast(simple ? __('copy_simple') : __('copy_text'), 'success');
 }
 
 async function copyModalWithTafsir(): Promise<void> {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   const edition: string =
-    document.querySelector('.ayah-modal-tafsir-tab.active')?.dataset?.edition || 'ar-tafsir-muyassar';
+    document.querySelector('.ayah-modal-tafsir-tab.active')?.dataset?.['edition'] || 'ar-tafsir-muyassar';
   const tafsir: string | null = await fetchTafsirText(edition, current.surah, current.ayah);
   const text: string = `${current.text}\n\n${tafsir || ''}`;
   copyToClipboard(text);
@@ -303,7 +333,9 @@ async function copyModalWithTafsir(): Promise<void> {
 }
 
 function shareModalAyah(): void {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   const text: string = `﴿${current.text}﴾ — ${current.surahName}، ${__('ayah')} ${current.ayah}`;
   if (navigator.share) {
     navigator.share({ title: __('app_title'), text }).catch(() => {});
@@ -316,16 +348,22 @@ function shareModalAyah(): void {
 /* ===================== AUDIO ===================== */
 
 function populateQaris(): void {
-  if (!M.ayahModalQariSelect) return;
-  M.ayahModalQariSelect.innerHTML = RECITERS.map(
-    (r: ReciterEntry) => qariOption(r.id, getReciterDisplayName(r))
-  ).join('');
+  if (!M.ayahModalQariSelect) {
+    return;
+  }
+  M.ayahModalQariSelect.innerHTML = RECITERS.map((r: ReciterEntry) => qariOption(r.id, getReciterDisplayName(r))).join(
+    '',
+  );
 }
 
 async function ensureModalAudio(): Promise<void> {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   const reciterId: string = M.ayahModalQariSelect?.value || CONFIG.DEFAULT_RECITER;
-  if (audioLoadSurah === current.surah && ayahAudios.length) return;
+  if (audioLoadSurah === current.surah && ayahAudios.length) {
+    return;
+  }
   const reciterInfo: ReciterEntry = getReciterById(reciterId) as ReciterEntry;
   if (reciterInfo.source === 'mp3quran') {
     ayahAudios = [buildAudioUrl(reciterInfo, current.surah)!];
@@ -346,9 +384,13 @@ async function ensureModalAudio(): Promise<void> {
 }
 
 function toggleModalAudio(): void {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   const player: HTMLAudioElement | null = M.ayahModalAudioPlayer;
-  if (!player) return;
+  if (!player) {
+    return;
+  }
   if (!player.paused) {
     player.pause();
     M.ayahModalPlayBtn!.textContent = __('ayah_modal_play');
@@ -358,13 +400,13 @@ function toggleModalAudio(): void {
   // Use existing state audio if same surah is loaded
   const cur = current; // capture to satisfy TS null check after early return above
   const surahData = state.surahData as Record<string, unknown> | null;
-  if (surahData?.number === cur!.surah && state.ayahsAudios?.length) {
+  if (surahData?.['number'] === cur!.surah && state.ayahsAudios?.length) {
     // Find surah-internal index instead of using absolute Quran index
-    const surahAyahs = (surahData as Record<string, unknown[]>).ayahs;
+    const surahAyahs = (surahData as Record<string, unknown[]>)['ayahs'];
     let surahInternalIdx = -1;
     if (Array.isArray(surahAyahs)) {
       surahInternalIdx = surahAyahs.findIndex(
-        (a: unknown) => (a as Record<string, unknown>)?.numberInSurah === cur!.ayah
+        (a: unknown) => (a as Record<string, unknown>)?.['numberInSurah'] === cur!.ayah,
       );
     }
     const audioIdx = surahInternalIdx >= 0 ? surahInternalIdx : cur!.ayah - 1;
@@ -382,7 +424,9 @@ function toggleModalAudio(): void {
   }
 
   ensureModalAudio().then(() => {
-    if (!current) return;
+    if (!current) {
+      return;
+    }
     const url: string | undefined = ayahAudios[0];
     if (!url) {
       showToast(__('no_audio_ayah'), 'error');
@@ -428,9 +472,13 @@ function resetAudio(): void {
 function onAudioTime(): void {
   const p: HTMLAudioElement | null = M.ayahModalAudioPlayer;
   const slider: HTMLInputElement | null = M.ayahModalAudioSlider;
-  if (!p || !p.duration) return;
+  if (!p || !p.duration) {
+    return;
+  }
   M.ayahModalAudioCurrent!.textContent = formatTime(p.currentTime);
-  if (slider) slider.value = String(Math.floor(p.currentTime));
+  if (slider) {
+    slider.value = String(Math.floor(p.currentTime));
+  }
 }
 
 function onAudioEnded(): void {
@@ -444,14 +492,18 @@ function onAudioEnded(): void {
 }
 
 function formatTime(secs: number): string {
-  if (!secs || !isFinite(secs)) return '0:00';
+  if (!secs || !isFinite(secs)) {
+    return '0:00';
+  }
   const m: number = Math.floor(secs / 60);
   const s: number = Math.floor(secs % 60);
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
 function downloadModalAyah(): void {
-  if (!current) return;
+  if (!current) {
+    return;
+  }
   const player: HTMLAudioElement | null = M.ayahModalAudioPlayer;
   if (!player || !player.src) {
     showToast(__('play_ayah_first'), 'error');
@@ -466,7 +518,9 @@ function downloadModalAyah(): void {
 /* ===================== TAFSIR TABS ===================== */
 
 async function loadTafsirTab(edition: string): Promise<void> {
-  if (!current || !edition) return;
+  if (!current || !edition) {
+    return;
+  }
   activateTab(edition);
   M.ayahModalTafsirBody!.innerHTML = tafsirLoading();
   try {
@@ -483,6 +537,6 @@ async function loadTafsirTab(edition: string): Promise<void> {
 
 function activateTab(edition: string): void {
   M.ayahModalTafsirTabs?.querySelectorAll('.ayah-modal-tafsir-tab').forEach((t: Element) => {
-    t.classList.toggle('active', t.dataset.edition === edition);
+    t.classList.toggle('active', t.dataset['edition'] === edition);
   });
 }
