@@ -70,7 +70,9 @@ export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Pro
       tx.onabort = () => reject(tx.error || new Error('IDB transaction aborted'));
     });
   } catch (err) {
-    if (import.meta.env.DEV) console.warn('[IDB] Failed to cache surah:', err);
+    if (import.meta.env.DEV) {
+      console.warn('[IDB] Failed to cache surah:', err);
+    }
   }
 }
 
@@ -91,8 +93,20 @@ export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEnt
       const tx = db.transaction('surahs', 'readonly');
       const req = tx.objectStore('surahs').get(key);
       req.onsuccess = () => {
-        const result = req.result as { key: string; text: SurahTextData; audios?: (string | null)[]; timings?: number[]; audio?: { ayahs: AyahEntry[] }; translation: Record<string, unknown> | null } | undefined;
-        if (!result) { resolve(null); return; }
+        const result = req.result as
+          | {
+              key: string;
+              text: SurahTextData;
+              audios?: (string | null)[];
+              timings?: number[];
+              audio?: { ayahs: AyahEntry[] };
+              translation: Record<string, unknown> | null;
+            }
+          | undefined;
+        if (!result) {
+          resolve(null);
+          return;
+        }
         // Extract the CachedSurahEntry fields (exclude the 'key' property)
         const { key: _k, ...entry } = result;
         resolve(entry as CachedSurahEntry);
