@@ -278,4 +278,35 @@ describe('Translation bundle consistency', () => {
       }
     }
   });
+
+  it('all bundles should have offline and a11y keys', async () => {
+    const [ar, en, tr, ms, id] = await Promise.all([
+      import('../translations/ar'),
+      import('../translations/en'),
+      import('../translations/tr'),
+      import('../translations/ms'),
+      import('../translations/id'),
+    ]);
+
+    const a11yKeys = [
+      'offline_banner',
+      'a11y_you_are_offline',
+      'a11y_you_are_online',
+      'a11y_panel_opened',
+      'a11y_panel_closed',
+      'a11y_skip_to_content',
+      'a11y_offline_notice',
+      'a11y_reading_progress',
+      'reduced_motion_enabled',
+    ];
+    const bundles = [ar.default, en.default, tr.default, ms.default, id.default];
+    const names = ['ar', 'en', 'tr', 'ms', 'id'];
+
+    for (let i = 0; i < bundles.length; i++) {
+      for (const key of a11yKeys) {
+        expect(bundles[i][key], `${names[i]} should have ${key}`).toBeTruthy();
+        expect(typeof bundles[i][key], `${names[i]}.${key} should be string`).toBe('string');
+      }
+    }
+  });
 });
