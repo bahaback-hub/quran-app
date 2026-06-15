@@ -1,3 +1,11 @@
+/**
+ * @module search-core
+ * @description Search engine core for the Quran app. Handles loading the full
+ * Quran text (from IndexedDB cache or remote API), normalizing and indexing it
+ * for fast exact and relaxed search, building a prefix-based autocomplete index,
+ * and managing search history persistence.
+ */
+
 import { state, QuranTextEntry, SearchWord } from './state.js';
 import { CONFIG } from './config.js';
 import { storage } from './storage.js';
@@ -7,7 +15,7 @@ import { __ } from './i18n.js';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_SEARCH_HISTORY = 10;
-/** Maximum number of search results rendered per page. */
+/** Number of search results shown per page in the UI. */
 export const SEARCH_PAGE_SIZE = 50;
 
 /** Raw Quran API response shape. */
@@ -98,7 +106,18 @@ function cacheInIndexedDB(db: IDBDatabase, ayahs: QuranTextEntry[]): void {
 
 let _loadingPromise: Promise<void> | null = null;
 
-/** Load the full Quran text into `state.fullQuranText`, fetching from IndexedDB cache or the remote API as needed. Deduplicates concurrent calls. */
+/**
+ * Load the full Quran text into application state.
+ * Checks IndexedDB first for a cached copy; if not found, fetches from
+ * the local JSON file or remote API, normalizes all ayah texts, caches
+ * the result in IndexedDB, and triggers search word index building.
+ * Subsequent calls are no-ops if the text is already loaded.
+ *
+ * @returns A promise that resolves when the Quran text is fully loaded.
+ *
+ * @example
+ * await loadFullQuranText(); // call during app initialization
+ */
 export async function loadFullQuranText(): Promise<void> {
   if (state.fullQuranLoaded) {
     return;
@@ -166,7 +185,18 @@ function generateArabicVariants(normQuery: string): string[] {
   return [...new Set(variants)];
 }
 
-/** Search the full Quran text for the given query, returning matching ayah entries. Falls back to relaxed normalisation if no exact matches are found. */
+/**
+ * Perform a normalized search across the full Quran text.
+ * First tries exact-normalized matching (with/without ال prefix), then
+ * falls back to relaxed normalization if no exact matches are found.
+ *
+ * @param query - The search query string.
+ * @returns An array of matching QuranTextEntry objects.
+ *
+ * @example
+ * const matches = performSearch('الرحمن');
+ * const matches2 = performSearch('mercy');
+ */
 export function performSearch(query: string): QuranTextEntry[] {
   if (!state.fullQuranText) {
     return [];
@@ -184,7 +214,16 @@ export function performSearch(query: string): QuranTextEntry[] {
   return matches;
 }
 
-/** Build the search-word frequency list and prefix-lookup map from the loaded Quran text for autocomplete suggestions. */
+/**
+ * Build the search word frequency index and prefix-based autocomplete map
+ * from the loaded full Quran text. Populates `state.searchWords` (sorted by
+ * frequency) and `state.searchPrefixMap` (up to 8 suggestions per prefix,
+ * max prefix length 5). Called automatically after loading Quran text.
+ * No-op if words are already built or text is not loaded.
+ *
+ * @example
+ * buildSearchWords(); // called internally after loadFullQuranText()
+ */
 export function buildSearchWords(): void {
   if (!state.fullQuranText || state.searchWords?.length) {
     return;
@@ -223,7 +262,16 @@ export function buildSearchWords(): void {
   state.searchPrefixMap = prefixMap;
 }
 
-/** Add a search query to the persisted search history, keeping at most `MAX_SEARCH_HISTORY` entries. */
+/**
+ * Add a query string to the search history.
+ * Removes duplicates, prepends the new query, and trims the list to
+ * a maximum of 10 entries before persisting to localStorage.
+ *
+ * @param query - The search query to add.
+ *
+ * @example
+ * addToSearchHistory('الرحمن');
+ */
 export function addToSearchHistory(query: string): void {
   const history = getSearchHistory().filter((h) => h !== query);
   history.unshift(query);
@@ -233,12 +281,24 @@ export function addToSearchHistory(query: string): void {
   storage.set(SEARCH_HISTORY_KEY, history);
 }
 
-/** Retrieve the persisted search history list. */
+/**
+ * Retrieve the search history from localStorage.
+ *
+ * @returns An array of past search query strings (most recent first).
+ *
+ * @example
+ * const history = getSearchHistory(); // ['الرحمن', 'الله', ...]
+ */
 export function getSearchHistory(): string[] {
   return storage.get<string[]>(SEARCH_HISTORY_KEY, []) ?? [];
 }
 
-/** Clear the persisted search history and show a toast confirmation. */
+/**
+ * Clear the search history from localStorage and show a confirmation toast.
+ *
+ * @example
+ * clearSearchHistory();
+ */
 export function clearSearchHistory(): void {
   storage.remove(SEARCH_HISTORY_KEY);
   showToast(__('search_history_cleared'), '');
