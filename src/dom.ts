@@ -177,6 +177,9 @@ interface DomMap {
   sleepTimerBtn: HTMLElement | null;
   downloadAudioBtn: HTMLElement | null;
   autoPlayNextBtn: HTMLElement | null;
+  helpToggleBtn: HTMLElement | null;
+  helpPanel: HTMLElement | null;
+  helpCloseBtn: HTMLElement | null;
   networkBanner: HTMLElement | null;
   controls: HTMLElement | null;
 }
@@ -343,6 +346,9 @@ const DOM_IDS: (keyof DomMap)[] = [
   'sleepTimerBtn',
   'downloadAudioBtn',
   'autoPlayNextBtn',
+  'helpToggleBtn',
+  'helpPanel',
+  'helpCloseBtn',
   'networkBanner',
   'controls',
 ];
