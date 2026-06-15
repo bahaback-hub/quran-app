@@ -41,17 +41,6 @@ const loadingPromises: Partial<Record<LangCode, Promise<TranslationBundle>>> = {
 /** Always keep Arabic loaded as the fallback language. */
 let _arFallback: TranslationBundle | null = null;
 
-/** Get the Arabic fallback bundle, loading it lazily on first access. */
-async function getArFallback(): Promise<TranslationBundle> {
-  if (_arFallback) {
-    return _arFallback;
-  }
-  const mod = await import('./translations/ar');
-  _arFallback = mod.default;
-  translations.ar = _arFallback;
-  return _arFallback;
-}
-
 /** Get the Arabic fallback synchronously (returns null if not yet loaded). */
 function getArFallbackSync(): TranslationBundle | null {
   return _arFallback;
