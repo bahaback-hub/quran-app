@@ -138,7 +138,7 @@ function updateDisplay(): void {
   const surahData = state.surahData as SurahDataLike | null;
   const ayah = surahData?.ayahs?.[state.currentAyahIndex];
   if (!ayah) {
-    if (dom.presentationAyahText) dom.presentationAyahText.innerHTML = '—';
+    if (dom.presentationAyahText) dom.presentationAyahText.textContent = '—';
     if (dom.presentationAyahNum) dom.presentationAyahNum.textContent = '—';
     if (dom.presentationTitle) dom.presentationTitle.textContent = '—';
     if (dom.presentationCounter) dom.presentationCounter.textContent = __('pres_counter_zero');
