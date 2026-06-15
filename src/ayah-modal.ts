@@ -337,10 +337,7 @@ function shareModalAyah(): void {
   }
   const text: string = `﴿${current.text}﴾ — ${current.surahName}، ${__('ayah')} ${current.ayah}`;
   if (navigator.share) {
-    navigator.share({ title: __('app_title'), text }).catch(
-      // eslint-disable-next-line no-empty-function
-      () => {},
-    );
+    navigator.share({ title: __('app_title'), text }).catch(() => { /* noop */ });
   } else {
     copyToClipboard(text);
     showToast(__('copy_for_share'), 'success');
@@ -489,8 +486,7 @@ function onAudioEnded(): void {
   M.ayahModalPlayBtn!.textContent = __('ayah_modal_play');
   if (chk?.checked && player) {
     player.currentTime = 0;
-    // eslint-disable-next-line no-empty-function
-    player.play().catch(() => {});
+    player.play().catch(() => { /* noop */ });
   }
 }
 
