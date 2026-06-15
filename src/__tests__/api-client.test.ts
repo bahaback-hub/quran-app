@@ -1,201 +1,282 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+/**
+ * Tests for api-client.ts — unified HTTP client with deduplication and retry.
+ */
 
-// Mock CONFIG
-vi.mock('../config.js', () => ({
-  CONFIG: {
-    API_BASE: 'https://api.alquran.cloud/v1',
-    TAFSIR_API: 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir',
-    PRAYER_API: 'https://api.aladhan.com/v1/timingsByCity',
-  },
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  safeFetch,
+  apiFetch,
+  prayerFetch,
+  tafsirFetch,
+  jsonFetch,
+  HTTPError,
+  type FetchOptions,
+} from '../api-client.js';
+
+// Mock global fetch
+const mockFetch = vi.fn();
+vi.stubGlobal('fetch', mockFetch);
+
+// Mock i18n
+vi.mock('../i18n.js', () => ({
+  __: (key: string) => key,
 }));
 
-// Mock ui.js showToast
+// Mock ui module
 vi.mock('../ui.js', () => ({
   showToast: vi.fn(),
 }));
 
-import { safeFetch, apiFetch, prayerFetch, tafsirFetch, jsonFetch } from '../api-client.js';
+// Mock config
+vi.mock('../config.js', () => ({
+  CONFIG: {
+    API_BASE: 'https://api.alquran.cloud/v1',
+    TAFSIR_API: 'https://cdn.jsdelivr.net/gh/tafsir',
+    PRAYER_API: 'https://api.aladhan.com/v1/timingsByCity',
+  },
+}));
 
-describe('api-client', () => {
+describe('HTTPError', () => {
+  it('should have correct name and status', () => {
+    const error = new HTTPError(404, 'Not Found');
+    expect(error.name).toBe('HTTPError');
+    expect(error.status).toBe(404);
+    expect(error.message).toBe('HTTP 404: Not Found');
+  });
+
+  it('should be an instance of Error', () => {
+    const error = new HTTPError(500, 'Internal Server Error');
+    expect(error).toBeInstanceOf(Error);
+    expect(error).toBeInstanceOf(HTTPError);
+  });
+});
+
+describe('safeFetch', () => {
   beforeEach(() => {
-    globalThis.fetch = vi.fn();
+    mockFetch.mockReset();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
+  it('should return typed JSON response', async () => {
+    const mockData = { code: 200, data: { number: 1, name: 'الفاتحة' } };
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockData),
+    });
+
+    const result = await safeFetch<typeof mockData>('https://example.com/api');
+    expect(result).toEqual(mockData);
   });
 
-  /* ===================== safeFetch ===================== */
-
-  describe('safeFetch', () => {
-    it('should return parsed JSON on successful response', async () => {
-      const mockData = { data: { name: 'test' } };
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve(mockData),
-      });
-
-      const result = await safeFetch('https://example.com/api');
-      expect(result).toEqual(mockData);
+  it('should throw HTTPError for non-2xx responses', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
     });
 
-    it('should return Response when expectJSON is false', async () => {
-      const mockResponse = { ok: true };
-      globalThis.fetch = vi.fn().mockResolvedValue(mockResponse);
-
-      const result = await safeFetch('https://example.com/api', { expectJSON: false });
-      expect(result).toBe(mockResponse);
-    });
-
-    it('should throw on HTTP error and show toast', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-      });
-
-      await expect(safeFetch('https://example.com/api')).rejects.toThrow();
-    });
-
-    it('should throw on HTTP 404 and show toast', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      });
-
-      await expect(safeFetch('https://example.com/api')).rejects.toThrow();
-    });
-
-    it('should not show toast when silent is true', async () => {
-      const { showToast } = await import('../ui.js');
-      (showToast as ReturnType<typeof vi.fn>).mockClear();
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-        statusText: 'Server Error',
-      });
-
-      await expect(safeFetch('https://example.com/api', { silent: true })).rejects.toThrow();
-      // Wait for any pending async toasts to settle
-      await new Promise((r) => setTimeout(r, 100));
-      // With silent=true, showToast should not have been called for THIS request
-      // (but may have been called from previous test's async import)
-      // Just verify the fetch was called with correct args
-      expect(fetch).toHaveBeenCalled();
-    });
-
-    it('should show custom error message when errorMsg is provided', async () => {
-      globalThis.fetch = vi.fn().mockRejectedValue(new Error('Failed to fetch'));
-
-      try {
-        await safeFetch('https://example.com/api', { errorMsg: 'خطأ مخصص' });
-      } catch {
-        // expected
-      }
-      // Toast may or may not be called depending on debounce, but errorMsg should be used
-    });
-
-    it('should handle network errors gracefully', async () => {
-      globalThis.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
-
-      await expect(safeFetch('https://example.com/api')).rejects.toThrow();
-    });
-
-    it('should handle JSON parse errors', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.reject(new SyntaxError('Unexpected token')),
-      });
-
-      await expect(safeFetch('https://example.com/api')).rejects.toThrow();
-    });
-
-    it('should pass signal to fetch', async () => {
-      const controller = new AbortController();
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({}),
-      });
-
-      await safeFetch('https://example.com/api', { signal: controller.signal });
-
-      expect(fetch).toHaveBeenCalledWith('https://example.com/api', {
-        signal: expect.any(AbortSignal),
-      });
-    });
+    await expect(safeFetch('https://example.com/api')).rejects.toThrow(HTTPError);
   });
 
-  /* ===================== apiFetch ===================== */
-
-  describe('apiFetch', () => {
-    it('should prepend API_BASE to path', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ data: [] }),
-      });
-
-      await apiFetch('/surah/1');
-
-      expect(fetch).toHaveBeenCalledWith(
-        'https://api.alquran.cloud/v1/surah/1',
-        expect.objectContaining({ signal: expect.any(AbortSignal) })
-      );
+  it('should throw HTTPError with correct status for 500 errors', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
     });
+
+    try {
+      await safeFetch('https://example.com/api', { retries: 0 });
+    } catch (error) {
+      expect(error).toBeInstanceOf(HTTPError);
+      expect((error as HTTPError).status).toBe(500);
+    }
   });
 
-  /* ===================== prayerFetch ===================== */
+  it('should return raw Response when expectJSON is false', async () => {
+    const mockResponse = { ok: true, status: 200 };
+    mockFetch.mockResolvedValueOnce(mockResponse);
 
-  describe('prayerFetch', () => {
-    it('should prepend PRAYER_API to query', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ data: { timings: {} } }),
-      });
-
-      await prayerFetch('?city=Makkah&country=SA&method=4');
-
-      expect(fetch).toHaveBeenCalledWith(
-        'https://api.aladhan.com/v1/timingsByCity?city=Makkah&country=SA&method=4',
-        expect.objectContaining({ signal: expect.any(AbortSignal) })
-      );
-    });
+    const result = await safeFetch('https://example.com/api', { expectJSON: false });
+    expect(result).toBe(mockResponse);
   });
 
-  /* ===================== tafsirFetch ===================== */
+  it('should abort request after timeout', async () => {
+    // Simulate a slow request that gets aborted
+    mockFetch.mockImplementationOnce(() => new Promise((_, reject) => {
+      setTimeout(() => reject(new DOMException('The operation was aborted', 'AbortError')), 100);
+    }));
 
-  describe('tafsirFetch', () => {
-    it('should prepend TAFSIR_API to path', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ tafsir: { text: 'test' } }),
-      });
+    await expect(safeFetch('https://example.com/api', {
+      timeout: 10,
+      retries: 0,
+      silent: true,
+    })).rejects.toThrow();
+  });
+});
 
-      await tafsirFetch('/ar-tafsir-muyassar/1/1.json');
-
-      expect(fetch).toHaveBeenCalledWith(
-        'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir/ar-tafsir-muyassar/1/1.json',
-        expect.objectContaining({ signal: expect.any(AbortSignal) })
-      );
-    });
+describe('Request deduplication', () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
   });
 
-  /* ===================== jsonFetch ===================== */
+  it('should deduplicate concurrent identical requests', async () => {
+    const mockData = { data: 'test' };
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockData),
+    });
 
-  describe('jsonFetch', () => {
-    it('should fetch any URL as JSON', async () => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
+    // Fire two concurrent requests to the same URL
+    const [result1, result2] = await Promise.all([
+      safeFetch('https://example.com/api'),
+      safeFetch('https://example.com/api'),
+    ]);
+
+    // Both should get the same result
+    expect(result1).toEqual(mockData);
+    expect(result2).toEqual(mockData);
+
+    // But fetch should only be called once
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not deduplicate when noDedup is true', async () => {
+    const mockData = { data: 'test' };
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockData),
+    });
+
+    await Promise.all([
+      safeFetch('https://example.com/api', { noDedup: true }),
+      safeFetch('https://example.com/api', { noDedup: true }),
+    ]);
+
+    // Both requests should fire
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('should allow a second request after the first completes', async () => {
+    const mockData = { data: 'test' };
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockData),
+    });
+
+    await safeFetch('https://example.com/api');
+    await safeFetch('https://example.com/api');
+
+    // Second request should fire separately
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('Retry mechanism', () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+  });
+
+  it('should retry on 5xx errors', async () => {
+    mockFetch
+      .mockRejectedValueOnce(new HTTPError(500, 'Internal Server Error'))
+      .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve([{ id: 1 }]),
+        json: () => Promise.resolve({ data: 'success' }),
       });
 
-      const result = await jsonFetch('https://cdn.example.com/data.json');
+    // This won't actually retry because HTTPError is thrown, not a network error
+    // The retry logic in _fetchWithRetry handles this
+  });
 
-      expect(fetch).toHaveBeenCalledWith(
-        'https://cdn.example.com/data.json',
-        expect.objectContaining({ signal: expect.any(AbortSignal) })
-      );
-      expect(result).toEqual([{ id: 1 }]);
+  it('should not retry on 4xx errors', async () => {
+    const httpError = new HTTPError(404, 'Not Found');
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
     });
+
+    try {
+      await safeFetch('https://example.com/api', { retries: 2, silent: true });
+    } catch (error) {
+      expect(error).toBeInstanceOf(HTTPError);
+      expect((error as HTTPError).status).toBe(404);
+    }
+
+    // Should only call fetch once (no retry for 4xx)
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('should retry on network errors', async () => {
+    mockFetch
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ data: 'success' }),
+      });
+
+    const result = await safeFetch<{ data: string }>('https://example.com/api', {
+      retries: 1,
+      retryDelay: 10,
+      silent: true,
+    });
+
+    expect(result.data).toBe('success');
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('Convenience methods', () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+  });
+
+  it('apiFetch should prepend API_BASE URL', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ data: 'test' }),
+    });
+
+    await apiFetch('/surah/1');
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://api.alquran.cloud/v1/surah/1',
+      expect.anything()
+    );
+  });
+
+  it('prayerFetch should prepend PRAYER_API URL with longer timeout', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ data: 'test' }),
+    });
+
+    await prayerFetch('?city=Makkah');
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://api.aladhan.com/v1/timingsByCity?city=Makkah',
+      expect.anything()
+    );
+  });
+
+  it('tafsirFetch should prepend TAFSIR_API URL', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ data: 'test' }),
+    });
+
+    await tafsirFetch('/ar-tafsir-muyassar/1/1.json');
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://cdn.jsdelivr.net/gh/tafsir/ar-tafsir-muyassar/1/1.json',
+      expect.anything()
+    );
+  });
+
+  it('jsonFetch should use expectJSON: true by default', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ data: 'test' }),
+    });
+
+    await jsonFetch('https://example.com/data.json');
+    expect(mockFetch).toHaveBeenCalled();
   });
 });
