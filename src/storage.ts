@@ -1,3 +1,16 @@
+/**
+ * Storage Module for Quran App.
+ *
+ * Thin wrapper around localStorage providing:
+ *   - Automatic JSON serialization/deserialization
+ *   - Consistent key prefixing (quran_app_*) to avoid collisions
+ *   - Graceful error handling (quota exceeded, parse errors)
+ *   - Type-safe get/set with generics
+ *
+ * All keys are prefixed with STORAGE_PREFIX ('quran_app_') internally.
+ * Callers use unprefixed keys (e.g., storage.get('font_size') reads 'quran_app_font_size').
+ */
+
 /** Storage key prefix — must match CONFIG.STORAGE_PREFIX in config.ts. */
 const STORAGE_PREFIX = 'quran_app_';
 
