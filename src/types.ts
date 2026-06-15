@@ -74,7 +74,13 @@ export interface CapacitorGlobal {
   };
 }
 
-/** Type guard: check if a value is valid SurahData. */
+/**
+ * Type guard: check if a value is valid SurahData.
+ * Validates required fields: number (number), name (string), englishName (string), ayahs (array).
+ *
+ * @param value The value to check
+ * @returns True if value is a valid SurahData object
+ */
 export function isSurahData(value: unknown): value is SurahData {
   if (!value || typeof value !== 'object') return false;
   const obj = value as Record<string, unknown>;
@@ -86,14 +92,28 @@ export function isSurahData(value: unknown): value is SurahData {
   );
 }
 
-/** Type guard: check if a value is a valid PrayerTimes object. */
+/**
+ * Type guard: check if a value is a valid PrayerTimes object.
+ * Validates that Fajr and Maghrib fields are strings.
+ *
+ * @param value The value to check
+ * @returns True if value has Fajr and Maghrib as strings
+ */
 export function isPrayerTimes(value: unknown): value is Record<string, string | undefined> {
   if (!value || typeof value !== 'object') return false;
   const obj = value as Record<string, unknown>;
   return typeof obj.Fajr === 'string' && typeof obj.Maghrib === 'string';
 }
 
-/** Type guard: check if a value is a non-null object with specific keys. */
+/**
+ * Type guard: check if a value is a non-null object with specific keys.
+ * Useful for validating API response shapes at runtime.
+ *
+ * @typeParam K - The keys to check for
+ * @param value The value to check
+ * @param keys The keys that must exist on the object
+ * @returns True if value is an object containing all specified keys
+ */
 export function hasKeys<K extends string>(value: unknown, ...keys: K[]): value is Record<K, unknown> {
   if (!value || typeof value !== 'object') return false;
   const obj = value as Record<string, unknown>;
@@ -102,7 +122,12 @@ export function hasKeys<K extends string>(value: unknown, ...keys: K[]): value i
 
 /* ===================== CAPACITOR UTILITIES ===================== */
 
-/** Safely access the Capacitor global object. Returns undefined if not available. */
+/**
+ * Safely access the Capacitor global object.
+ * Checks both globalThis and window for the Capacitor namespace.
+ *
+ * @returns The Capacitor global object, or undefined if not running on Capacitor
+ */
 export function getCapacitor(): CapacitorGlobal | undefined {
   if (typeof globalThis !== 'undefined' && 'Capacitor' in globalThis) {
     return (globalThis as unknown as { Capacitor?: CapacitorGlobal }).Capacitor;
@@ -113,7 +138,12 @@ export function getCapacitor(): CapacitorGlobal | undefined {
   return undefined;
 }
 
-/** Check if the app is running on a Capacitor native platform. */
+/**
+ * Check if the app is running on a Capacitor native platform (Android/iOS).
+ * Uses isNativePlatform() method if available, falls back to isNative flag.
+ *
+ * @returns True if running as a native Capacitor app
+ */
 export function isCapacitorNative(): boolean {
   const cap = getCapacitor();
   if (!cap) return false;
@@ -159,7 +189,12 @@ export async function exitFullscreen(): Promise<void> {
   throw new Error('Fullscreen API not supported');
 }
 
-/** Check if currently in fullscreen mode. */
+/**
+ * Check if currently in fullscreen mode.
+ * Handles both standard and webkit-prefixed fullscreen APIs.
+ *
+ * @returns True if any element is currently in fullscreen
+ */
 export function isFullscreen(): boolean {
   return !!getFullscreenElement();
 }
