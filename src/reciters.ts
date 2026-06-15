@@ -77,7 +77,7 @@ export function getReciterDisplayName(reciter: Reciter): string {
 
 /** Get a reciter object by its ID. */
 export function getReciterById(id: string): Reciter {
-  return RECITERS.find((r) => r.id === id) || RECITERS[0];
+  return RECITERS.find((r) => r.id === id) || RECITERS[0]!;
 }
 
 /** Pad a surah number to 3 digits (e.g. 1 → "001"). */
