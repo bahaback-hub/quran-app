@@ -76,8 +76,10 @@ function togglePresFullscreen(): void {
   }
   const fsElement = getFullscreenElement();
   if (fsElement) {
+    // eslint-disable-next-line no-empty-function
     exitFullscreen().catch(() => {});
   } else {
+    // eslint-disable-next-line no-empty-function
     requestFullscreen(overlay).catch(() => {});
   }
 }
@@ -293,6 +295,7 @@ export function openPresentation(): void {
           renderSurah(surahData);
         }
       })
+      // eslint-disable-next-line no-empty-function
       .catch(() => {});
   }
 
@@ -348,6 +351,7 @@ export function closePresentation(): void {
   state.presentationMode = false;
   // Exit fullscreen if active
   if (isFullscreen()) {
+    // eslint-disable-next-line no-empty-function
     exitFullscreen().catch(() => {});
   }
   if (dom.presentationOverlay) {
@@ -399,6 +403,7 @@ function handleKeyDown(e: KeyboardEvent): void {
       // If in fullscreen, only exit fullscreen — don't close presentation
       if (isFullscreen()) {
         e.preventDefault();
+        // eslint-disable-next-line no-empty-function
         exitFullscreen().catch(() => {});
       } else {
         closePresentation();
@@ -419,6 +424,8 @@ function handleKeyDown(e: KeyboardEvent): void {
       togglePlayPause();
       updatePlayPauseBtn();
       updatePresPlayPauseBtn();
+      break;
+    default:
       break;
   }
 }
