@@ -38,14 +38,6 @@ interface AyahHighlightRect {
   height: number;
 }
 
-/** Shape of surahData when accessed in mushaf module. */
-interface SurahDataLike {
-  number: number;
-  name: string;
-  englishName: string;
-  ayahs: { numberInSurah: number; number: number; audio: string }[];
-}
-
 /** Shape of the ayah API response (for page lookup). */
 interface AyahPageResponse {
   data?: {
@@ -58,13 +50,6 @@ interface SurahListEntry {
   number: number;
   name: string;
   englishName: string;
-}
-
-/** Shape of the surah audio API response. */
-interface SurahAudioResponse {
-  data?: {
-    ayahs?: { audio: string; numberInSurah: number }[];
-  };
 }
 
 /* ===================== MODULE STATE ===================== */
@@ -151,6 +136,7 @@ export async function toggleMushafMode(): Promise<void> {
     populateSurahOverlay();
     loadPage(state.currentPage);
     if (wasPlaying && dom.audioPlayer?.paused) {
+      // eslint-disable-next-line no-empty-function
       dom.audioPlayer.play().catch(() => {});
       state.isPlaying = true;
       updatePlayPauseBtn();
@@ -443,6 +429,7 @@ function preloadAdjacentLayouts(pageNum: number): void {
   }
 
   for (const p of toPreload) {
+    // eslint-disable-next-line no-empty-function
     loadPageData(p).catch(() => {});
   }
 }
