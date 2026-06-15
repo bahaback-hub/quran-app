@@ -50,13 +50,15 @@ vi.mock('../ui.js', () => ({
   showToast: vi.fn(),
 }));
 
-// Mock the utils module
-vi.mock('../utils.js', () => ({
-  hapticFeedback: vi.fn(),
-  escapeHtml: (text: string) =>
-    text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;'),
-}));
+// Mock the utils module — must export ALL public functions to avoid
+// "No export defined" errors in tests that import utils directly.
+vi.mock('../utils.js', async (importOriginal) => {
+  const actual = await importOriginal() as Record<string, unknown>;
+  return {
+    ...actual,
+    hapticFeedback: vi.fn(),
+  };
+});
 
 // Mock the dom module
 vi.mock('../dom.js', () => ({
