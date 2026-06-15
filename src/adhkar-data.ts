@@ -1,4 +1,3 @@
-/** A single adhkar (remembrance) entry with its text, repetition count, and source reference. */
 export interface AdhkarItem {
   id: string;
   text: string;
@@ -6,7 +5,6 @@ export interface AdhkarItem {
   reference: string;
 }
 
-/** A group of related adhkar items sharing a common time or theme, such as morning or evening adhkar. */
 export interface AdhkarCategory {
   id: string;
   icon: string;
@@ -16,12 +14,10 @@ export interface AdhkarCategory {
   items: AdhkarItem[];
 }
 
-/** Top-level container for all adhkar categories used in the adhkar notification feature. */
 export interface AdhkarData {
   categories: AdhkarCategory[];
 }
 
-/** Pre-loaded adhkar dataset organised by time-of-day categories (morning, evening, sleep, etc.). */
 export const ADHKAR_DATA: AdhkarData = {
   categories: [
     {
