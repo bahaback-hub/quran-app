@@ -17,8 +17,8 @@
     "android:run": "npm run android:build && npx cap run android",
     "lint": "eslint src/ --no-warn-ignored",
     "lint:fix": "eslint src/ --fix",
-    "format": "prettier --write 'src/**/*.{js,ts,css}'",
-    "format:check": "prettier --check 'src/**/*.{js,ts,css}'"
+    "format": "prettier --write 'src/**/*.{js,ts}'",
+    "format:check": "prettier --check 'src/**/*.{js,ts}'"
   },
   "engines": {
     "node": ">=22"
