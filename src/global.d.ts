@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Window extensions (non-standard browser APIs)
 interface Window {
   toastTimeout?: ReturnType<typeof setTimeout>;
