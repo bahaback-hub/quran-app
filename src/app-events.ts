@@ -27,7 +27,13 @@ import {
   initSettingsTabs,
 } from './settings.js';
 import { togglePrayerBar, testAzan, stopAzan, hideQiblaCompass, hideAzanNotification } from './prayer.js';
-import { toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
+import {
+  toggleFavorite,
+  openFavorites,
+  closeFavorites,
+  setBookmark,
+  gotoBookmark,
+} from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah } from './surah-loader.js';
 import { performExactSearch, initKeyboard, initSearchAutocomplete, startVoiceSearch } from './search-ui.js';
