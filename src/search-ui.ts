@@ -13,7 +13,15 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { escapeRegExp, copyToClipboard, normalizeExactText, normalizeRelaxed } from './utils.js';
-import { searchEmptyResults, searchResultsHeader, searchResultCard, searchLoadMoreButton, searchHistoryItem, searchAutocompleteItem, escapeHtml } from './templates.js';
+import {
+  searchEmptyResults,
+  searchResultsHeader,
+  searchResultCard,
+  searchLoadMoreButton,
+  searchHistoryItem,
+  searchAutocompleteItem,
+  escapeHtml,
+} from './templates.js';
 import { loadSurah, highlightCurrentAyah } from './app.js';
 import { playCurrentAyah } from './audio.js';
 import {
@@ -88,7 +96,9 @@ const _highlightCache = new Map<string, string>();
 function buildSearchHighlight(text: string, query: string): string {
   const cacheKey = text + '\n' + query;
   const cached = _highlightCache.get(cacheKey);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
   const normQuery = normalizeExactText(query);
   if (!normQuery) {
     const r = escapeHtml(text);
@@ -100,7 +110,7 @@ function buildSearchHighlight(text: string, query: string): string {
   const map: number[] = [];
   let normIdx = 0;
   for (let i = 0; i < text.length; i++) {
-    if (diacriticRE.test(text[i])) {
+    if (diacriticRE.test(text[i]!)) {
       map.push(-1);
     } else {
       map.push(normIdx);
@@ -113,16 +123,24 @@ function buildSearchHighlight(text: string, query: string): string {
   while ((m = re.exec(normText)) !== null) {
     matches.push({ start: m.index, end: m.index + normQuery.length });
   }
-  if (!matches.length) return escapeHtml(text);
+  if (!matches.length) {
+    return escapeHtml(text);
+  }
   const origRanges: OrigRange[] = matches
     .map((match) => {
       let origStart = -1,
         origEnd = -1;
       for (let i = 0; i < map.length; i++) {
-        if (map[i] === match.start && origStart === -1) origStart = i;
-        if (map[i] === match.end - 1) origEnd = i;
+        if (map[i] === match.start && origStart === -1) {
+          origStart = i;
+        }
+        if (map[i] === match.end - 1) {
+          origEnd = i;
+        }
       }
-      if (origEnd === -1) origEnd = text.length - 1;
+      if (origEnd === -1) {
+        origEnd = text.length - 1;
+      }
       return { start: origStart, end: origEnd + 1 };
     })
     .filter((r) => r.start !== -1);
@@ -136,14 +154,18 @@ function buildSearchHighlight(text: string, query: string): string {
   result += escapeHtml(text.slice(lastEnd));
   if (_highlightCache.size > 200) {
     const first = _highlightCache.keys().next().value;
-    if (first) _highlightCache.delete(first);
+    if (first) {
+      _highlightCache.delete(first);
+    }
   }
   _highlightCache.set(cacheKey, result);
   return result;
 }
 
 function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: boolean): void {
-  if (!dom.searchResults) return;
+  if (!dom.searchResults) {
+    return;
+  }
   dom.searchResults.innerHTML = '';
   if (!matches.length) {
     dom.searchResults.innerHTML = searchEmptyResults();
@@ -155,7 +177,13 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
   for (const m of matches) {
     const highlighted = buildSearchHighlight(m.text, query);
     const fi = state.fullQuranText?.indexOf(m) ?? -1;
-    html += searchResultCard({ surah: m.surah, ayah: m.ayah, surahName: m.surahName || '', fulltextIndex: fi, highlighted });
+    html += searchResultCard({
+      surah: m.surah,
+      ayah: m.ayah,
+      surahName: m.surahName || '',
+      fulltextIndex: fi,
+      highlighted,
+    });
   }
   if (hasMore) {
     html += searchLoadMoreButton(Math.min(SEARCH_PAGE_SIZE, totalResults - matches.length));
@@ -172,7 +200,7 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
         return;
       }
       if (target.id === 'loadMoreSearchBtn') {
-        const q = dom.searchResults!.dataset.query || '';
+        const q = dom.searchResults!.dataset['query'] || '';
         const currentCount = dom.searchResults!.querySelectorAll('.search-result-item').length;
         setSearchResultsPage((getSearchResultsPage() || 1) + 1);
         const allMatches = getAllSearchMatches() ?? [];
@@ -182,41 +210,49 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
       }
       const playBtn = target.closest('.search-play') as HTMLElement | null;
       if (playBtn) {
-        playSpecificAyah(parseInt(playBtn.dataset.surah!, 10), parseInt(playBtn.dataset.ayah!, 10));
+        playSpecificAyah(parseInt(playBtn.dataset['surah']!, 10), parseInt(playBtn.dataset['ayah']!, 10));
         return;
       }
       const copyBtn = target.closest('.search-copy') as HTMLElement | null;
       if (copyBtn) {
-        copySpecificAyah(parseInt(copyBtn.dataset.surah!, 10), parseInt(copyBtn.dataset.ayah!, 10));
+        copySpecificAyah(parseInt(copyBtn.dataset['surah']!, 10), parseInt(copyBtn.dataset['ayah']!, 10));
         return;
       }
       const shareBtn = target.closest('.search-share') as HTMLElement | null;
       if (shareBtn) {
-        shareSpecificAyah(parseInt(shareBtn.dataset.surah!, 10), parseInt(shareBtn.dataset.ayah!, 10));
+        shareSpecificAyah(parseInt(shareBtn.dataset['surah']!, 10), parseInt(shareBtn.dataset['ayah']!, 10));
         return;
       }
       const gotoBtn = target.closest('.search-goto') as HTMLElement | null;
       if (gotoBtn) {
-        const s = parseInt(gotoBtn.dataset.surah!, 10);
-        const a = parseInt(gotoBtn.dataset.ayah!, 10);
-        if (dom.surahSelect) dom.surahSelect.value = String(s);
+        const s = parseInt(gotoBtn.dataset['surah']!, 10);
+        const a = parseInt(gotoBtn.dataset['ayah']!, 10);
+        if (dom.surahSelect) {
+          dom.surahSelect.value = String(s);
+        }
         loadSurah(s, { startAyah: a });
         return;
       }
-      if (target.closest('.search-result-actions')) return;
+      if (target.closest('.search-result-actions')) {
+        return;
+      }
       const item = target.closest('.search-result-item') as HTMLElement | null;
-      if (!item) return;
-      const s = parseInt(item.dataset.surah!, 10);
-      const a = parseInt(item.dataset.ayah!, 10);
-      const idx = parseInt(item.dataset.fulltextIndex!, 10);
+      if (!item) {
+        return;
+      }
+      const s = parseInt(item.dataset['surah']!, 10);
+      const a = parseInt(item.dataset['ayah']!, 10);
+      const idx = parseInt(item.dataset['fulltextIndex']!, 10);
       const ayahObj = state.fullQuranText?.[idx];
-      if (!ayahObj) return;
+      if (!ayahObj) {
+        return;
+      }
       import('./ayah-modal.js').then((m: AyahModalModule) =>
-        m.openAyahModal({ surah: s, ayah: a, text: ayahObj.text, surahName: item.dataset.surahname!, index: idx })
+        m.openAyahModal({ surah: s, ayah: a, text: ayahObj.text, surahName: item.dataset['surahname']!, index: idx }),
       );
     });
   }
-  dom.searchResults.dataset.query = query;
+  dom.searchResults.dataset['query'] = query;
 }
 
 function playSpecificAyah(surah: number, ayah: number): void {
@@ -237,7 +273,9 @@ async function copySpecificAyah(surah: number, ayah: number): Promise<void> {
   let text = '';
   if (state.fullQuranLoaded) {
     const ayahObj = state.fullQuranText?.find((a) => a.surah === surah && a.ayah === ayah);
-    if (ayahObj) text = ayahObj.text;
+    if (ayahObj) {
+      text = ayahObj.text;
+    }
   }
   if (!text) {
     try {
@@ -262,7 +300,9 @@ async function shareSpecificAyah(surah: number, ayah: number): Promise<void> {
   let text = '';
   if (state.fullQuranLoaded) {
     const ayahObj = state.fullQuranText?.find((a) => a.surah === surah && a.ayah === ayah);
-    if (ayahObj) text = ayahObj.text;
+    if (ayahObj) {
+      text = ayahObj.text;
+    }
   }
   if (!text) {
     try {
@@ -278,7 +318,9 @@ async function shareSpecificAyah(surah: number, ayah: number): Promise<void> {
     : `${__('ayah')} ${ayah} ${__('surah')} ${surahName.trim()}`;
   if (navigator.share) {
     navigator.share({ title: __('app_title'), text: shareMsg }).catch((err) => {
-      if (err.name !== 'AbortError') console.warn('Share failed:', err);
+      if (err.name !== 'AbortError') {
+        console.warn('Share failed:', err);
+      }
     });
   } else {
     copyToClipboard(shareMsg);
@@ -293,18 +335,17 @@ let _acIndex: number = -1;
 function showSearchHistory(): void {
   const dropdown = document.getElementById('searchAutocomplete');
   const input = dom.searchInput;
-  if (!dropdown) return;
+  if (!dropdown) {
+    return;
+  }
   const history = getSearchHistory();
   if (!history.length) {
     dropdown.style.display = 'none';
     return;
   }
-  let html =
-    '<div class="search-history-header">' +
-    __('search_history_title') +
-    '</div>';
+  let html = '<div class="search-history-header">' + __('search_history_title') + '</div>';
   for (let i = 0; i < history.length; i++) {
-    html += searchHistoryItem(history[i], i);
+    html += searchHistoryItem(history[i]!, i);
   }
   dropdown.innerHTML = html;
   dropdown.style.display = 'block';
@@ -315,13 +356,15 @@ function showSearchHistory(): void {
       const span = el.querySelector('span');
       if ((e.target as HTMLElement).classList.contains('count')) {
         const history2 = getSearchHistory();
-        const idx = parseInt((el as HTMLElement).dataset.index!, 10);
+        const idx = parseInt((el as HTMLElement).dataset['index']!, 10);
         history2.splice(idx, 1);
         storage.set('search_history', history2);
         showSearchHistory();
         return;
       }
-      if (input) input.value = span!.textContent!;
+      if (input) {
+        input.value = span!.textContent!;
+      }
       dropdown.style.display = 'none';
       performExactSearch(input!.value);
     });
@@ -331,10 +374,14 @@ function showSearchHistory(): void {
 export function initSearchAutocomplete(): void {
   const input = dom.searchInput;
   const dropdown = document.getElementById('searchAutocomplete');
-  if (!input || !dropdown) return;
+  if (!input || !dropdown) {
+    return;
+  }
 
   input.addEventListener('focus', () => {
-    if (!input.value.trim()) showSearchHistory();
+    if (!input.value.trim()) {
+      showSearchHistory();
+    }
   });
 
   let acTimer: ReturnType<typeof setTimeout> | null = null;
@@ -352,8 +399,12 @@ export function initSearchAutocomplete(): void {
         normVal.length <= 5 ? (state.searchPrefixMap?.get(normVal) as SearchWord[] | undefined) || [] : [];
       if (!suggestions.length) {
         for (const w of state.searchWords) {
-          if (suggestions.length >= 8) break;
-          if (w.word.startsWith(normVal)) suggestions.push(w);
+          if (suggestions.length >= 8) {
+            break;
+          }
+          if (w.word.startsWith(normVal)) {
+            suggestions.push(w);
+          }
         }
       }
       if (!suggestions.length) {
@@ -363,7 +414,7 @@ export function initSearchAutocomplete(): void {
       }
       let html = '';
       for (let i = 0; i < suggestions.length; i++) {
-        html += searchAutocompleteItem(suggestions[i].word, suggestions[i].count, i);
+        html += searchAutocompleteItem(suggestions[i]!.word, suggestions[i]!.count, i);
       }
       dropdown.innerHTML = html;
       dropdown.style.display = 'block';
@@ -379,16 +430,20 @@ export function initSearchAutocomplete(): void {
         el.addEventListener('mouseenter', () => {
           dropdown.querySelectorAll('.search-autocomplete-item').forEach((c) => c.classList.remove('active'));
           el.classList.add('active');
-          _acIndex = parseInt(el.dataset.index!, 10);
+          _acIndex = parseInt(el.dataset['index']!, 10);
         });
       });
     }, 150);
   });
 
   input.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (dropdown.style.display === 'none') return;
+    if (dropdown.style.display === 'none') {
+      return;
+    }
     const items = dropdown.querySelectorAll('.search-autocomplete-item');
-    if (!items.length) return;
+    if (!items.length) {
+      return;
+    }
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       _acIndex = Math.min(_acIndex + 1, items.length - 1);
@@ -396,7 +451,9 @@ export function initSearchAutocomplete(): void {
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       _acIndex = _acIndex - 1;
-      if (_acIndex < -1) _acIndex = -1;
+      if (_acIndex < -1) {
+        _acIndex = -1;
+      }
       items.forEach((c, i) => c.classList.toggle('active', i === _acIndex));
     } else if (e.key === 'Enter' && _acIndex >= 0) {
       e.preventDefault();
@@ -472,7 +529,9 @@ export function startVoiceSearch(): void {
     showToast(__('voice_search_unsupported'), 'error');
     return;
   }
-  if (getVoiceListening()) return;
+  if (getVoiceListening()) {
+    return;
+  }
   const recognition = new SpeechRecognition();
   recognition.lang = 'ar-SA';
   recognition.interimResults = false;
@@ -481,8 +540,10 @@ export function startVoiceSearch(): void {
   dom.voiceSearchBtn?.classList.add('listening');
   showToast(__('voice_search_speaking'), 'success');
   recognition.onresult = (e: SpeechRecognitionEvent) => {
-    const transcript = e.results[0][0].transcript;
-    if (dom.searchInput) dom.searchInput.value = transcript;
+    const transcript = e.results[0]![0]!.transcript;
+    if (dom.searchInput) {
+      dom.searchInput.value = transcript;
+    }
     dom.searchBtn?.click();
     stopVoiceSearch();
   };
@@ -514,15 +575,19 @@ let _shiftActive = false;
 
 function toggleKeyboard(): void {
   const kbd = document.getElementById('arabicKeyboard');
-  if (!kbd) return;
+  if (!kbd) {
+    return;
+  }
   kbd.classList.toggle('open');
   dom.kbdToggleBtn?.classList.toggle('active');
 }
 
 function handleKeyClick(e: MouseEvent): void {
-  const key = (e.currentTarget as HTMLElement).dataset.key!;
+  const key = (e.currentTarget as HTMLElement).dataset['key']!;
   const input = dom.searchInput;
-  if (!input) return;
+  if (!input) {
+    return;
+  }
   const start = input.selectionStart || input.value.length;
   const end = input.selectionEnd || input.value.length;
 
@@ -557,22 +622,26 @@ function handleKeyClick(e: MouseEvent): void {
       '=': '+',
     };
     const reverseMap: Record<string, string> = {};
-    for (const [k2, v] of Object.entries(shiftMap)) reverseMap[v] = k2;
+    for (const [k2, v] of Object.entries(shiftMap)) {
+      reverseMap[v] = k2;
+    }
     document.querySelectorAll('.kbd-key[data-key]').forEach((k) => {
       const el = k as HTMLElement;
-      const val = el.dataset.key;
-      if (!val || val === 'space' || val === 'backspace' || val === 'clear' || val === 'shift') return;
+      const val = el.dataset['key'];
+      if (!val || val === 'space' || val === 'backspace' || val === 'clear' || val === 'shift') {
+        return;
+      }
       if (_shiftActive) {
         const shifted = shiftMap[val];
         if (shifted) {
           el.textContent = shifted;
-          el.dataset.key = shifted;
+          el.dataset['key'] = shifted;
         }
       } else {
         const unshifted = reverseMap[val];
         if (unshifted) {
           el.textContent = unshifted;
-          el.dataset.key = unshifted;
+          el.dataset['key'] = unshifted;
         }
       }
     });
@@ -593,7 +662,9 @@ export function initKeyboard(): void {
   document.addEventListener('click', (e: MouseEvent) => {
     const kbd = document.getElementById('arabicKeyboard');
     const toggle = dom.kbdToggleBtn;
-    if (!kbd || !toggle) return;
+    if (!kbd || !toggle) {
+      return;
+    }
     const target = e.target as Node;
     if (!kbd.contains(target) && target !== toggle && !toggle.contains(target)) {
       kbd.classList.remove('open');
