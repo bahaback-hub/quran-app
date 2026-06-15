@@ -235,10 +235,7 @@ export function injectOverlays(): void {
   // Inject the floating player, tafsir curtain, settings panel, and
   // other body-level panels BEFORE the overlay wrapper so they appear
   // in the correct DOM order relative to the static HTML elements.
-  const bodyFragments = [
-    floatingPlayerHTML(),
-    settingsPanelHTML(),
-  ];
+  const bodyFragments = [floatingPlayerHTML(), settingsPanelHTML()];
 
   const bodyWrapper = document.createElement('div');
   bodyWrapper.id = 'injected-panels';
