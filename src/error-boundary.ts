@@ -14,6 +14,7 @@
  */
 
 import { __ } from './i18n.js';
+import { errorRecoveryOverlay } from './templates.js';
 
 /* ===================== CONFIG ===================== */
 
@@ -109,63 +110,23 @@ function showRecoveryOverlay(errorMsg: string): void {
   overlay.id = 'errorRecoveryOverlay';
   overlay.setAttribute('role', 'alertdialog');
   overlay.setAttribute('aria-label', __('error_title'));
-  overlay.innerHTML = `
-    <div class="error-overlay-backdrop">
-      <div class="error-overlay-card">
-        <div class="error-overlay-icon">⚠️</div>
-        <h2 class="error-overlay-title">${__('error_title')}</h2>
-        <p class="error-overlay-description">
-          ${__('error_description')}
-        </p>
-        <div class="error-overlay-actions">
-          <button id="errorRecoveryReload" class="error-overlay-btn-reload">
-            ${__('error_reload')}
-          </button>
-          <button id="errorRecoveryHome" class="error-overlay-btn-home">
-            ${__('error_home')}
-          </button>
-          <button id="errorRecoveryCopy" class="error-overlay-btn-copy">
-            ${__('error_copy_details')}
-          </button>
-        </div>
-        <details class="error-overlay-details">
-          <summary class="error-overlay-details-summary">${__('error_technical')}</summary>
-          <pre id="errorRecoveryDetails" class="error-overlay-details-pre">${escapeForHtml(errorMsg)}</pre>
-        </details>
-      </div>
-    </div>`;
+  overlay.innerHTML = errorRecoveryOverlay(errorMsg, errorMsg);
 
   document.body.appendChild(overlay);
 
-  // Bind recovery buttons
-  document.getElementById('errorRecoveryReload')?.addEventListener('click', () => location.reload());
-  document.getElementById('errorRecoveryHome')?.addEventListener('click', () => {
-    overlay.remove();
-    _recoveryVisible = false;
-    window.location.hash = '';
-    location.reload();
-  });
-  document.getElementById('errorRecoveryCopy')?.addEventListener('click', () => {
-    const details = document.getElementById('errorRecoveryDetails')?.textContent || '';
-    navigator.clipboard
-      ?.writeText(details)
-      .then(() => {
-        const btn = document.getElementById('errorRecoveryCopy');
-        if (btn) btn.textContent = __('error_copied');
-      })
-      .catch(() => {});
-  });
-}
-
-/**
- * Minimal HTML escaper for the recovery overlay (no dependency on utils.js).
- */
-function escapeForHtml(str: string): string {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  // Bind copy button
+  const copyBtn = overlay.querySelector('#errorCopyBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      const details = overlay.querySelector('pre')?.textContent || '';
+      navigator.clipboard
+        ?.writeText(details)
+        .then(() => {
+          copyBtn.textContent = __('error_copied');
+        })
+        .catch(() => {});
+    });
+  }
 }
 
 /* ===================== ERROR CLASSIFICATION ===================== */
