@@ -1,8 +1,7 @@
 import { state, immutablePush, immutableSplice } from './state.js';
-import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { stripTashkeel, copyToClipboard } from './utils.js';
-import { qariOption, tafsirLoading, tafsirContent, tafsirErrorMessage, escapeHtml } from './templates.js';
+import { qariOption, tafsirLoading, tafsirContent, tafsirErrorMessage } from './templates.js';
 import { CONFIG } from './config.js';
 import { loadSurah } from './app.js';
 import { storage } from './storage.js';
@@ -338,7 +337,10 @@ function shareModalAyah(): void {
   }
   const text: string = `﴿${current.text}﴾ — ${current.surahName}، ${__('ayah')} ${current.ayah}`;
   if (navigator.share) {
-    navigator.share({ title: __('app_title'), text }).catch(() => {});
+    navigator.share({ title: __('app_title'), text }).catch(
+      // eslint-disable-next-line no-empty-function
+      () => {},
+    );
   } else {
     copyToClipboard(text);
     showToast(__('copy_for_share'), 'success');
@@ -487,6 +489,7 @@ function onAudioEnded(): void {
   M.ayahModalPlayBtn!.textContent = __('ayah_modal_play');
   if (chk?.checked && player) {
     player.currentTime = 0;
+    // eslint-disable-next-line no-empty-function
     player.play().catch(() => {});
   }
 }
