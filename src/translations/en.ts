@@ -317,6 +317,17 @@ export default {
   a11y_you_are_offline: 'You are offline',
   a11y_you_are_online: 'Internet connection restored',
 
+  // === Audio Cache ===
+  download_audio: '📥 Download',
+  download_audio_start: 'Downloading audio for offline use...',
+  download_audio_progress: 'Downloading audio: {0}/{1}',
+  download_audio_done: 'Audio downloaded — you can listen offline',
+  download_audio_error: 'Failed to download audio',
+  download_audio_cached: 'Audio already cached',
+  download_audio_delete: 'Delete cached audio',
+  download_audio_deleted: 'Cached audio deleted',
+  download_audio_no_data: 'No audio data available to download',
+
   // === Accessibility ===
   a11y_panel_opened: '{0} opened',
   a11y_panel_closed: '{0} closed',
