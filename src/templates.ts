@@ -20,7 +20,6 @@
  */
 
 import type { SurahInfo, FavoriteEntry } from './state.js';
-import type { SurahData } from './types.js';
 import { __ } from './i18n.js';
 
 /* ===================== ESCAPE UTILITY ===================== */
