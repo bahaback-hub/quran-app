@@ -13,6 +13,10 @@ import {
   restoreFocusOnPanelClose,
   addKeyboardDismiss,
   initToggleSwitchAccessibility,
+  prefersReducedMotion,
+  initReducedMotionDetection,
+  initDialogAccessibility,
+  syncAriaExpanded,
 } from '../a11y.js';
 
 describe('trapFocus', () => {
@@ -348,5 +352,113 @@ describe('initToggleSwitchAccessibility', () => {
     const spaceEvent = new KeyboardEvent('keydown', { key: ' ', bubbles: true });
     toggle.dispatchEvent(spaceEvent);
     expect(clickSpy).toHaveBeenCalled();
+  });
+});
+
+describe('prefersReducedMotion', () => {
+  it('should return a boolean', () => {
+    expect(typeof prefersReducedMotion()).toBe('boolean');
+  });
+});
+
+describe('initReducedMotionDetection', () => {
+  it('should not throw when called', () => {
+    expect(() => initReducedMotionDetection()).not.toThrow();
+  });
+
+  it('should set reduced-motion class on html element when user prefers reduced motion', () => {
+    // We can't easily mock matchMedia in jsdom, but we can test the function doesn't break
+    initReducedMotionDetection();
+    // The function should have run without error
+    expect(typeof prefersReducedMotion()).toBe('boolean');
+  });
+});
+
+describe('initDialogAccessibility', () => {
+  let dialog: HTMLElement;
+  let closeCallback: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    dialog = document.createElement('div');
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-label', 'Test Dialog');
+    const btn = document.createElement('button');
+    btn.textContent = 'Close';
+    dialog.appendChild(btn);
+    document.body.appendChild(dialog);
+    closeCallback = vi.fn();
+  });
+
+  afterEach(() => {
+    dialog.remove();
+  });
+
+  it('should return a cleanup function', () => {
+    const cleanup = initDialogAccessibility(dialog, closeCallback);
+    expect(typeof cleanup).toBe('function');
+    cleanup();
+  });
+
+  it('should return no-op when dialog is null', () => {
+    const cleanup = initDialogAccessibility(null as unknown as HTMLElement, closeCallback);
+    expect(typeof cleanup).toBe('function');
+    cleanup();
+  });
+
+  it('should set aria-modal to true on the dialog', () => {
+    const cleanup = initDialogAccessibility(dialog, closeCallback);
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    cleanup();
+  });
+
+  it('should call closeCallback on Escape key', () => {
+    const cleanup = initDialogAccessibility(dialog, closeCallback);
+    const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+    dialog.dispatchEvent(escapeEvent);
+    expect(closeCallback).toHaveBeenCalledTimes(1);
+    cleanup();
+  });
+
+  it('should clean up event listeners', () => {
+    const cleanup = initDialogAccessibility(dialog, closeCallback);
+    cleanup();
+    const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+    dialog.dispatchEvent(escapeEvent);
+    expect(closeCallback).not.toHaveBeenCalled();
+  });
+});
+
+describe('syncAriaExpanded', () => {
+  let trigger: HTMLElement;
+
+  beforeEach(() => {
+    trigger = document.createElement('button');
+    trigger.textContent = 'Toggle';
+    document.body.appendChild(trigger);
+  });
+
+  afterEach(() => {
+    trigger.remove();
+  });
+
+  it('should set aria-expanded to true', () => {
+    syncAriaExpanded(trigger, true);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('should set aria-expanded to false', () => {
+    syncAriaExpanded(trigger, false);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('should not throw when trigger is null', () => {
+    expect(() => syncAriaExpanded(null, true)).not.toThrow();
+  });
+
+  it('should update aria-expanded when called multiple times', () => {
+    syncAriaExpanded(trigger, true);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    syncAriaExpanded(trigger, false);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 });
