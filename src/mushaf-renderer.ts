@@ -712,8 +712,7 @@ function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: n
       continue;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const ayahText = words.map((w) => w.text).join(' ');
+    const _ayahText = words.map((w) => w.text).join(' ');
     const colorMap = buildColorMap(annotations);
     if (!colorMap || colorMap.size === 0) {
       for (const w of words) {
