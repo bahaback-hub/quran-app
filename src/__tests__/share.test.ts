@@ -1,7 +1,34 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { copyToClipboard } from '../utils.js';
-import { buildShareText } from '../share.js';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
+
+// Mock i18n — __() returns key (matching setup-i18n.ts mock)
+vi.mock('../i18n.js', () => ({
+  __: (key: string, ...args: string[]) => {
+    let val = key;
+    args.forEach((arg, i) => {
+      val = val.replace(`{${i}}`, arg);
+    });
+    return val;
+  },
+  setLocale: vi.fn(),
+  getCurrentLocale: vi.fn(() => 'ar'),
+  loadLocale: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock('../storage.js', () => ({
+  storage: {
+    get: vi.fn(() => null),
+    set: vi.fn(),
+    remove: vi.fn(),
+  },
+}));
+
+vi.mock('../ui.js', () => ({
+  showToast: vi.fn(),
+}));
+
+import { buildShareText } from '../share.js';
+import { copyToClipboard } from '../utils.js';
 
 const sampleAyahs = [
   { numberInSurah: 1, text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ' },
@@ -31,7 +58,8 @@ describe('buildShareText', () => {
     const text = buildShareText();
     expect(text).toContain('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ');
     expect(text).toContain('سُورَةُ الفَاتِحَةِ');
-    expect(text).toContain('آية 2');
+    // Mock __() returns key 'ayah', not Arabic 'آية'
+    expect(text).toContain('ayah 2');
   });
 
   it('should use current ayah', () => {
@@ -39,7 +67,7 @@ describe('buildShareText', () => {
     state.currentAyahIndex = 0;
     const text = buildShareText();
     expect(text).toContain('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ');
-    expect(text).toContain('آية 1');
+    expect(text).toContain('ayah 1');
   });
 });
 
