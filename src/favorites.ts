@@ -2,9 +2,10 @@ import { state, immutablePush, immutableSplice, FavoriteEntry, BookmarkEntry } f
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { escapeHtml, hapticFeedback, copyToClipboard } from './utils.js';
+import { hapticFeedback, copyToClipboard } from './utils.js';
 import { __ } from './i18n.js';
 import { loadSurah } from './surah-loader.js';
+import { favoritesEmptyMessage, favoriteMeta, escapeHtml } from './templates.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -66,7 +67,7 @@ export function toggleFavorite(): void {
 export function renderFavorites(): void {
   if (!dom.favoritesList) return;
   if (!state.favorites.length) {
-    dom.favoritesList.innerHTML = `<p class="favorites-empty">${__('no_favorites')}</p>`;
+    dom.favoritesList.innerHTML = favoritesEmptyMessage();
     return;
   }
   const fragment = document.createDocumentFragment();
@@ -76,7 +77,7 @@ export function renderFavorites(): void {
     item.dataset.key = f.key || '';
     const meta = document.createElement('div');
     meta.className = 'favorite-meta';
-    meta.innerHTML = `<strong>${escapeHtml(f.surahName || '')}</strong> — ${__('ayah')} ${escapeHtml(String(f.ayah || ''))}`;
+    meta.innerHTML = favoriteMeta(f.surahName || '', f.ayah || '');
     const textDiv = document.createElement('div');
     textDiv.className = 'favorite-text';
     textDiv.textContent = f.text || '';
@@ -155,7 +156,7 @@ export function renderFavorites(): void {
           const item = dom.favoritesList?.querySelector(`.favorite-item[data-key="${CSS.escape(key)}"]`);
           if (item) item.remove();
           if (!state.favorites.length && dom.favoritesList)
-            dom.favoritesList.innerHTML = `<p class="favorites-empty">${__('no_favorites')}</p>`;
+            dom.favoritesList.innerHTML = favoritesEmptyMessage();
           showToast(__('removed_from_favorites'), '');
         }
         return;
