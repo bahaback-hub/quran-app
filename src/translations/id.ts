@@ -328,6 +328,12 @@ export default {
   download_audio_deleted: 'Audio yang disimpan telah dihapus',
   download_audio_no_data: 'Tidak ada data audio untuk diunduh',
 
+  // === Putar Otomatis ===
+  autoplay_next: '🔗 Berkelanjutan',
+  autoplay_next_enabled: 'Putar berkelanjutan diaktifkan — akan memutar surah berikutnya secara otomatis',
+  autoplay_next_disabled: 'Putar berkelanjutan dinonaktifkan — akan berhenti di akhir surah',
+  khatma_complete: 'Khatam selesai',
+
   // === Aksesibilitas ===
   a11y_panel_opened: '{0} dibuka',
   a11y_panel_closed: '{0} ditutup',
