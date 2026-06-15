@@ -19,7 +19,9 @@ interface ActivePanel {
 export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
   const capGlobal = getCapacitor()?.Plugins as CapacitorPlugins | undefined;
   const app = plugins?.App || capGlobal?.App;
-  if (!app) return;
+  if (!app) {
+    return;
+  }
   try {
     app.addListener?.('backButton', () => {
       // Close presentation overlay first — use proper close function
@@ -50,7 +52,9 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
         {
           el: document.getElementById('adhkarPanel'),
           close: () => {
-            if (state.adhkarPanelOpen) closeAdhkarPanel();
+            if (state.adhkarPanelOpen) {
+              closeAdhkarPanel();
+            }
           },
         },
         { el: document.getElementById('favoritesPanel'), close: () => closeFavorites() },
@@ -62,10 +66,10 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
       ];
       for (const { el, close } of activeElements) {
         // Check visibility using CSS classes (open/hidden) not inline display
-        const isVisible = el && (
-          el.classList.contains('open') ||
-          (!el.classList.contains('hidden') && el.style.display && el.style.display !== 'none')
-        );
+        const isVisible =
+          el &&
+          (el.classList.contains('open') ||
+            (!el.classList.contains('hidden') && el.style.display && el.style.display !== 'none'));
         if (isVisible) {
           close();
           return;
@@ -81,7 +85,9 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
       // Exit mushaf mode back to surah mode
       if (state.mushafMode) {
         const viewSurahBtn = document.getElementById('viewSurahBtn') as HTMLButtonElement | null;
-        if (viewSurahBtn) viewSurahBtn.click();
+        if (viewSurahBtn) {
+          viewSurahBtn.click();
+        }
         return;
       }
 
