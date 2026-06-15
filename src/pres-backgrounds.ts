@@ -15,11 +15,19 @@ export const NATURE_BACKGROUNDS = [
 /** Get a background image based on the current time of day. */
 export function getAutoBackground(): (typeof NATURE_BACKGROUNDS)[number] {
   const hour = new Date().getHours();
-  if (hour >= 4 && hour < 7) return NATURE_BACKGROUNDS[0]; // dawn
-  if (hour >= 7 && hour < 12) return NATURE_BACKGROUNDS[1]; // morning clouds
-  if (hour >= 12 && hour < 16) return NATURE_BACKGROUNDS[2]; // afternoon mountains
-  if (hour >= 16 && hour < 19) return NATURE_BACKGROUNDS[3]; // sunset
-  return NATURE_BACKGROUNDS[4]; // night sky
+  if (hour >= 4 && hour < 7) {
+    return NATURE_BACKGROUNDS[0]!;
+  } // dawn
+  if (hour >= 7 && hour < 12) {
+    return NATURE_BACKGROUNDS[1]!;
+  } // morning clouds
+  if (hour >= 12 && hour < 16) {
+    return NATURE_BACKGROUNDS[2]!;
+  } // afternoon mountains
+  if (hour >= 16 && hour < 19) {
+    return NATURE_BACKGROUNDS[3]!;
+  } // sunset
+  return NATURE_BACKGROUNDS[4]!; // night sky
 }
 
 /** Get a specific nature background by its mood key. */
@@ -30,7 +38,7 @@ export function getNatureBgByMood(mood: string): (typeof NATURE_BACKGROUNDS)[num
 /** Get a random nature background (cycles per ayah). */
 export function getRandomNatureBg(): (typeof NATURE_BACKGROUNDS)[number] {
   const idx = Math.floor(Math.random() * NATURE_BACKGROUNDS.length);
-  return NATURE_BACKGROUNDS[idx];
+  return NATURE_BACKGROUNDS[idx]!;
 }
 
 /** Animation frame ID for canvas scene rendering. */
@@ -50,13 +58,15 @@ const KEN_BURNS_ANIMATIONS = [
 
 /** Pick a random Ken Burns animation name. */
 export function getRandomKenBurns(): string {
-  return KEN_BURNS_ANIMATIONS[Math.floor(Math.random() * KEN_BURNS_ANIMATIONS.length)];
+  return KEN_BURNS_ANIMATIONS[Math.floor(Math.random() * KEN_BURNS_ANIMATIONS.length)]!;
 }
 
 /** Remove any animated background layer from the overlay. */
 export function removeAnimatedBgLayer(overlay: HTMLElement): void {
   const existing = overlay.querySelector('.pres-bg-layer');
-  if (existing) existing.remove();
+  if (existing) {
+    existing.remove();
+  }
 }
 
 /** Create and insert the animated background image layer with a random Ken Burns effect. */
@@ -74,7 +84,11 @@ export function applyAnimatedBg(overlay: HTMLElement, bgSrc: string): void {
 export function removeSceneCanvas(overlay: HTMLElement): void {
   // Call the scene's own cleanup function first (handles nested animation loops)
   if (_sceneCleanup) {
-    try { _sceneCleanup(); } catch { /* ignore */ }
+    try {
+      _sceneCleanup();
+    } catch {
+      /* ignore */
+    }
     _sceneCleanup = null;
   }
   if (_sceneAnimationId !== null) {
@@ -95,38 +109,51 @@ export function removeSceneCanvas(overlay: HTMLElement): void {
 
 /** Star data for the stars scene. */
 interface StarData {
-  x: number; y: number;
-  size: number; speed: number;
-  brightness: number; phase: number;
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  brightness: number;
+  phase: number;
 }
 
 /** Shooting star data. */
 interface ShootingStar {
-  x: number; y: number;
-  vx: number; vy: number;
-  life: number; maxLife: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
   length: number;
 }
 
 /** Wave layer data for the waves scene. */
 interface WaveLayer {
-  amplitude: number; frequency: number;
-  speed: number; yBase: number;
+  amplitude: number;
+  frequency: number;
+  speed: number;
+  yBase: number;
   color: string;
 }
 
 /** Particle data for the particles scene. */
 interface Particle {
-  x: number; y: number;
-  vx: number; vy: number;
-  size: number; opacity: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  opacity: number;
   phase: number;
 }
 
 /** Rain drop data. */
 interface RainDrop {
-  x: number; y: number;
-  speed: number; length: number;
+  x: number;
+  y: number;
+  speed: number;
+  length: number;
   opacity: number;
 }
 
@@ -134,7 +161,7 @@ interface RainDrop {
 function renderStarsScene(canvas: HTMLCanvasElement): () => void {
   const ctx = canvas.getContext('2d')!;
   let stars: StarData[] = [];
-  let shootingStars: ShootingStar[] = [];
+  const shootingStars: ShootingStar[] = [];
   let time = 0;
 
   function init(): void {
@@ -207,18 +234,23 @@ function renderStarsScene(canvas: HTMLCanvasElement): () => void {
       });
     }
     for (let i = shootingStars.length - 1; i >= 0; i--) {
-      const ss = shootingStars[i];
+      const ss = shootingStars[i]!;
       ss.x += ss.vx;
       ss.y += ss.vy;
       ss.life++;
       const alpha = 1 - ss.life / ss.maxLife;
-      if (alpha <= 0) { shootingStars.splice(i, 1); continue; }
+      if (alpha <= 0) {
+        shootingStars.splice(i, 1);
+        continue;
+      }
       ctx.beginPath();
       ctx.moveTo(ss.x, ss.y);
-      ctx.lineTo(ss.x - ss.vx * ss.length / 6, ss.y - ss.vy * ss.length / 6);
+      ctx.lineTo(ss.x - (ss.vx * ss.length) / 6, ss.y - (ss.vy * ss.length) / 6);
       const ssGrad = ctx.createLinearGradient(
-        ss.x, ss.y,
-        ss.x - ss.vx * ss.length / 6, ss.y - ss.vy * ss.length / 6
+        ss.x,
+        ss.y,
+        ss.x - (ss.vx * ss.length) / 6,
+        ss.y - (ss.vy * ss.length) / 6,
       );
       ssGrad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
       ssGrad.addColorStop(1, `rgba(255, 255, 255, 0)`);
@@ -230,7 +262,12 @@ function renderStarsScene(canvas: HTMLCanvasElement): () => void {
     _sceneAnimationId = requestAnimationFrame(frame);
   }
   frame();
-  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+  return () => {
+    if (_sceneAnimationId !== null) {
+      cancelAnimationFrame(_sceneAnimationId);
+      _sceneAnimationId = null;
+    }
+  };
 }
 
 /** Ocean waves scene — animated waves with gradient sky. */
@@ -243,7 +280,7 @@ function renderWavesScene(canvas: HTMLCanvasElement): () => void {
     { amplitude: 20, frequency: 0.012, speed: 0.6, yBase: 0.52, color: 'rgba(15, 80, 160, 0.5)' },
     { amplitude: 18, frequency: 0.015, speed: 0.8, yBase: 0.58, color: 'rgba(20, 100, 180, 0.6)' },
     { amplitude: 15, frequency: 0.02, speed: 1.0, yBase: 0.64, color: 'rgba(25, 120, 200, 0.7)' },
-    { amplitude: 12, frequency: 0.025, speed: 1.3, yBase: 0.70, color: 'rgba(30, 140, 210, 0.8)' },
+    { amplitude: 12, frequency: 0.025, speed: 1.3, yBase: 0.7, color: 'rgba(30, 140, 210, 0.8)' },
     { amplitude: 8, frequency: 0.03, speed: 1.6, yBase: 0.78, color: 'rgba(35, 150, 220, 0.85)' },
     { amplitude: 5, frequency: 0.04, speed: 2.0, yBase: 0.85, color: 'rgba(40, 160, 230, 0.9)' },
   ];
@@ -285,8 +322,10 @@ function renderWavesScene(canvas: HTMLCanvasElement): () => void {
       const baseY = h * wave.yBase;
       ctx.moveTo(0, h);
       for (let x = 0; x <= w; x += 3) {
-        const y = baseY + Math.sin(x * wave.frequency + time * wave.speed) * wave.amplitude
-          + Math.sin(x * wave.frequency * 0.5 + time * wave.speed * 0.7) * wave.amplitude * 0.5;
+        const y =
+          baseY +
+          Math.sin(x * wave.frequency + time * wave.speed) * wave.amplitude +
+          Math.sin(x * wave.frequency * 0.5 + time * wave.speed * 0.7) * wave.amplitude * 0.5;
         ctx.lineTo(x, y);
       }
       ctx.lineTo(w, h);
@@ -309,7 +348,12 @@ function renderWavesScene(canvas: HTMLCanvasElement): () => void {
     _sceneAnimationId = requestAnimationFrame(frame);
   }
   frame();
-  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+  return () => {
+    if (_sceneAnimationId !== null) {
+      cancelAnimationFrame(_sceneAnimationId);
+      _sceneAnimationId = null;
+    }
+  };
 }
 
 /** Aurora scene — northern lights effect. */
@@ -344,14 +388,14 @@ function renderAuroraScene(canvas: HTMLCanvasElement): () => void {
 
     // Aurora bands — multiple semi-transparent curved shapes
     const auroraColors = [
-      { r: 50, g: 255, b: 100 },  // green
-      { r: 80, g: 200, b: 255 },  // blue
+      { r: 50, g: 255, b: 100 }, // green
+      { r: 80, g: 200, b: 255 }, // blue
       { r: 150, g: 100, b: 255 }, // purple
-      { r: 50, g: 255, b: 180 },  // teal
+      { r: 50, g: 255, b: 180 }, // teal
     ];
 
     for (let band = 0; band < 4; band++) {
-      const color = auroraColors[band];
+      const color = auroraColors[band]!;
       const yCenter = h * (0.15 + band * 0.1);
       const bandWidth = h * 0.15;
 
@@ -392,7 +436,7 @@ function renderAuroraScene(canvas: HTMLCanvasElement): () => void {
       const rayHeight = 100 + Math.sin(time * 0.5 + i) * 50;
       const rayAlpha = 0.03 + 0.04 * Math.abs(Math.sin(time * 0.8 + i * 0.7));
       const colorIdx = i % auroraColors.length;
-      const c = auroraColors[colorIdx];
+      const c = auroraColors[colorIdx]!;
 
       const rayGrad = ctx.createLinearGradient(rx, h * 0.1, rx, h * 0.1 + rayHeight);
       rayGrad.addColorStop(0, `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
@@ -412,7 +456,12 @@ function renderAuroraScene(canvas: HTMLCanvasElement): () => void {
     _sceneAnimationId = requestAnimationFrame(frame);
   }
   frame();
-  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+  return () => {
+    if (_sceneAnimationId !== null) {
+      cancelAnimationFrame(_sceneAnimationId);
+      _sceneAnimationId = null;
+    }
+  };
 }
 
 /** Golden particles scene — floating dust motes. */
@@ -466,9 +515,16 @@ function renderParticlesScene(canvas: HTMLCanvasElement): () => void {
       p.y += p.vy;
 
       // Wrap around
-      if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
-      if (p.x < -10) p.x = w + 10;
-      if (p.x > w + 10) p.x = -10;
+      if (p.y < -10) {
+        p.y = h + 10;
+        p.x = Math.random() * w;
+      }
+      if (p.x < -10) {
+        p.x = w + 10;
+      }
+      if (p.x > w + 10) {
+        p.x = -10;
+      }
 
       const pulse = 0.6 + 0.4 * Math.sin(time * 1.5 + p.phase);
       const alpha = p.opacity * pulse;
@@ -490,7 +546,12 @@ function renderParticlesScene(canvas: HTMLCanvasElement): () => void {
     _sceneAnimationId = requestAnimationFrame(frame);
   }
   frame();
-  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+  return () => {
+    if (_sceneAnimationId !== null) {
+      cancelAnimationFrame(_sceneAnimationId);
+      _sceneAnimationId = null;
+    }
+  };
 }
 
 /** Rain scene — falling rain with lightning. */
@@ -540,7 +601,9 @@ function renderRainScene(canvas: HTMLCanvasElement): () => void {
       ctx.fillStyle = `rgba(180, 190, 255, ${lightningAlpha})`;
       ctx.fillRect(0, 0, w, h);
       lightningAlpha *= 0.85;
-      if (lightningAlpha < 0.01) lightningAlpha = 0;
+      if (lightningAlpha < 0.01) {
+        lightningAlpha = 0;
+      }
     }
 
     // Cloud layer
@@ -566,7 +629,9 @@ function renderRainScene(canvas: HTMLCanvasElement): () => void {
         d.y = -d.length;
         d.x = Math.random() * w;
       }
-      if (d.x < -20) d.x = w + 20;
+      if (d.x < -20) {
+        d.x = w + 20;
+      }
 
       ctx.beginPath();
       ctx.moveTo(d.x, d.y);
@@ -590,7 +655,12 @@ function renderRainScene(canvas: HTMLCanvasElement): () => void {
     _sceneAnimationId = requestAnimationFrame(frame);
   }
   frame();
-  return () => { if (_sceneAnimationId !== null) { cancelAnimationFrame(_sceneAnimationId); _sceneAnimationId = null; } };
+  return () => {
+    if (_sceneAnimationId !== null) {
+      cancelAnimationFrame(_sceneAnimationId);
+      _sceneAnimationId = null;
+    }
+  };
 }
 
 /** Map of scene ID to its render function. */
@@ -607,7 +677,7 @@ export function startSceneAnimation(overlay: HTMLElement, sceneId: string): void
   removeSceneCanvas(overlay);
   const canvas = document.createElement('canvas');
   canvas.className = 'pres-canvas-bg';
-  canvas.dataset.scene = sceneId;
+  canvas.dataset['scene'] = sceneId;
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   overlay.insertBefore(canvas, overlay.firstChild);
