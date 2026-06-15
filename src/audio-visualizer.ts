@@ -5,7 +5,9 @@ let _animId: number | null = null;
  * (does NOT use Web Audio API, so it won't interfere with audio output).
  */
 export function startVisualizer(canvas: HTMLCanvasElement): void {
-  if (!canvas || !document.getElementById('audioPlayer')) return;
+  if (!canvas || !document.getElementById('audioPlayer')) {
+    return;
+  }
   if (_animId) {
     cancelAnimationFrame(_animId);
     _animId = null;
@@ -16,7 +18,9 @@ export function startVisualizer(canvas: HTMLCanvasElement): void {
 
 function drawAnimatedBars(canvas: HTMLCanvasElement): void {
   const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
-  if (!ctx) return;
+  if (!ctx) {
+    return;
+  }
   const w: number = canvas.width;
   const h: number = canvas.height;
   const barCount: number = 12;
@@ -47,6 +51,8 @@ export function stopVisualizer(): void {
   if (c) {
     c.classList.remove('active');
     const ctx: CanvasRenderingContext2D | null = c.getContext('2d');
-    if (ctx) ctx.clearRect(0, 0, c.width, c.height);
+    if (ctx) {
+      ctx.clearRect(0, 0, c.width, c.height);
+    }
   }
 }
