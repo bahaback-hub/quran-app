@@ -478,6 +478,16 @@ function onAudioPlay(): void {
 }
 
 function onAudioPause(): void {
+  // When audio ends naturally, the browser fires both 'pause' and 'ended' events.
+  // The 'ended' handler manages surah transitions (including autoPlayNext).
+  // We must NOT set isPlaying=false here if the audio ended naturally,
+  // otherwise nextSurah() will see autoPlay=false and won't auto-play.
+  if (dom.audioPlayer?.ended) {
+    // Audio ended naturally — let onAudioEnded handle the state transition.
+    // Only stop the visualizer; don't change isPlaying.
+    stopVisualizer();
+    return;
+  }
   setStoppedState();
   stopVisualizer();
 }
