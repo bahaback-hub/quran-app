@@ -26,8 +26,7 @@ export interface TranslationEdition {
 function env(key: string, fallback: string): string {
   try {
     return import.meta.env[key] || fallback;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_e) {
+  } catch {
     return fallback;
   }
 }
