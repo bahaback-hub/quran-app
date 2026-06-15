@@ -1,8 +1,20 @@
+/**
+ * Application Initialization Module.
+ *
+ * Orchestrates the 3-phase bootstrap sequence:
+ *   Phase 1 — Critical path: state, DOM cache, settings, surah list, first surah load
+ *   Phase 2 — Event bindings: navigation, keyboard, accessibility, language, visibility
+ *   Phase 3 — Deferred: clock, prayer, adhkar, favorites, modals, search index
+ *
+ * Re-exports core surah-loader functions for use by other modules.
+ */
+
+import { CONFIG } from './config.js';
 import { storage } from './storage.js';
 import { dom, cacheDom } from './dom.js';
 import { loadingBar } from './ui.js';
 import { getLang, applyTranslations } from './i18n.js';
-import { state, resetState } from './state.js';
+import { state, setState, resetState, batch, type AppState } from './state.js';
 import { setUpdateReadingProgress } from './internal-state.js';
 import { startClock, loadPrayerTimes, scheduleNextAzanCheck } from './prayer.js';
 import { loadFavorites } from './favorites.js';
@@ -15,7 +27,7 @@ import { initNavigation } from './navigation.js';
 import { initToggleSwitchAccessibility } from './a11y.js';
 import { loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect } from './surah-loader.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
-import { handleVisibilityChange, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
+import { showContinueWidget, handleVisibilityChange, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents } from './app-events.js';
 import { injectOverlays } from './overlays.js';
@@ -37,8 +49,11 @@ interface LastPosition {
   timestamp?: number;
 }
 
+/**
+ * Reset application state to defaults.
+ * Called at the beginning of initApp to ensure a clean state.
+ */
 function initState(): void {
-  // Reset to defaults first (using resetState which goes through the Proxy)
   resetState();
 }
 
