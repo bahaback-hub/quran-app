@@ -1,3 +1,11 @@
+/**
+ * @module search-ui
+ * @description Search UI controller for the Quran app. Manages the search interface
+ * including exact search execution, search result rendering with diacritic-aware
+ * highlighting, autocomplete suggestions, search history, voice search via the
+ * Web Speech API, and an on-screen Arabic keyboard for input.
+ */
+
 import { state, type QuranTextEntry, type SearchWord } from './state.js';
 import {
   getAllSearchMatches,
@@ -35,7 +43,8 @@ import {
 import { CONFIG } from './config.js';
 import { __ } from './i18n.js';
 
-/* ===================== TYPES ===================== */
+
+/** Data shape for opening the ayah modal. */
 interface ModalAyahData {
   surah: number;
   ayah: number;
@@ -66,6 +75,18 @@ export { loadFullQuranText, getSearchHistory, clearSearchHistory };
 /** Track which elements have had delegation listeners bound (replaces expando properties). */
 const _delegationBoundElements = new Set<HTMLElement>();
 
+/**
+ * Perform an exact normalized search and render the results.
+ * Validates minimum query length (1 char for Arabic, 2 for other scripts),
+ * adds the query to search history, delegates to the search engine core,
+ * and renders the first page of results.
+ *
+ * @param query - The search query string.
+ *
+ * @example
+ * performExactSearch('الله');   // Arabic search
+ * performExactSearch('mercy');  // English search
+ */
 export function performExactSearch(query: string): void {
   // Allow single-character queries for Arabic text (common roots like رب, صل)
   const isArabic = /[\u0621-\u064A]/.test(query.trim());
@@ -364,6 +385,16 @@ function showSearchHistory(): void {
   });
 }
 
+/**
+ * Initialize the search autocomplete dropdown.
+ * Binds focus, input (debounced 150ms), keydown (arrow navigation),
+ * and document click (outside-dismiss) listeners on the search input
+ * and autocomplete dropdown. Shows search history when the input is empty
+ * and focused, and word suggestions as the user types.
+ *
+ * @example
+ * initSearchAutocomplete(); // call after DOM is ready
+ */
 export function initSearchAutocomplete(): void {
   const input = dom.searchInput;
   const dropdown = document.getElementById('searchAutocomplete');
@@ -504,6 +535,15 @@ interface SpeechRecognitionConstructor {
   new (): SpeechRecognitionInstance;
 }
 
+/**
+ * Start voice search using the Web Speech API (SpeechRecognition).
+ * Configures recognition for Arabic (ar-SA), shows a listening indicator,
+ * and auto-fills the search input with the recognized transcript.
+ * Falls back to an error toast if the API is unavailable.
+ *
+ * @example
+ * startVoiceSearch(); // typically bound to a microphone button click
+ */
 export function startVoiceSearch(): void {
   const SpeechRecognition =
     (
@@ -555,8 +595,7 @@ function stopVoiceSearch(): void {
   if (getVoiceRecognition()) {
     try {
       (getVoiceRecognition() as SpeechRecognitionInstance).stop();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_e) {
+    } catch {
       /* noop */
     }
     setVoiceRecognition(null);
@@ -647,6 +686,15 @@ function handleKeyClick(e: MouseEvent): void {
   input.focus();
 }
 
+/**
+ * Initialize the on-screen Arabic keyboard.
+ * Binds toggle button click, individual key presses (letters, space,
+ * backspace, clear, shift), and an outside-click dismiss handler.
+ * Should be called once during app startup.
+ *
+ * @example
+ * initKeyboard(); // call after cacheDom()
+ */
 export function initKeyboard(): void {
   dom.kbdToggleBtn = document.getElementById('kbdToggleBtn');
   dom.kbdToggleBtn?.addEventListener('click', toggleKeyboard);
