@@ -10,7 +10,7 @@
   background: var(--panel-bg, #fff);
   border-left: 3px solid var(--accent);
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
-  z-index: 600;
+  z-index: 950;
   transform: translateX(100%);
   transition: transform 0.3s ease;
   overflow-y: auto;
