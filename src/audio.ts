@@ -25,7 +25,7 @@ interface WordWeightsResult {
 }
 
 /** Repeat range configuration — extracted from toggleRepeat for clarity. */
-interface RepeatRange {
+export interface RepeatRange {
   from: number;
   to: number;
   times: number;
@@ -231,7 +231,7 @@ function getCachedWordWeights(ayahIndex: number): WordWeightsResult | null {
   const startTimes: number[] = [];
   for (let i = 0; i < words.length; i++) {
     startTimes.push(cumTime);
-    cumTime += (weights[i] / totalWeight) * speechRatio + pauseRatio;
+    cumTime += (weights[i]! / totalWeight) * speechRatio + pauseRatio;
   }
   const result: WordWeightsResult = { wordCount: words.length, startTimes };
   _wordWeightsCache.set(ayahIndex, result);
@@ -289,7 +289,7 @@ function onTimeUpdate(): void {
   const startTimes = wordData.startTimes.map((t: number) => t * duration);
   let wordIndex = wordData.wordCount - 1;
   for (let i = wordData.wordCount - 1; i >= 0; i--) {
-    if (currentTime >= startTimes[i]) {
+    if (currentTime >= startTimes[i]!) {
       wordIndex = i;
       break;
     }
@@ -301,7 +301,7 @@ function onTimeUpdate(): void {
   }
   if (!_cachedWordEls) return;
   for (let i = 0; i < _cachedWordEls.length; i++) {
-    _cachedWordEls[i].classList.toggle('current-word', i <= wordIndex);
+    _cachedWordEls[i]!.classList.toggle('current-word', i <= wordIndex);
   }
 }
 
@@ -454,7 +454,7 @@ function handleRepeatOnEnd(): boolean {
   if (!state.repeatMode || !state.surahData) return false;
 
   const surahData: SurahData = state.surahData;
-  const currentNum = surahData.ayahs[state.currentAyahIndex].numberInSurah;
+  const currentNum = surahData.ayahs[state.currentAyahIndex]!.numberInSurah;
 
   // Check if we've reached the end of the repeat range
   if (currentNum === state.repeatTo) {
