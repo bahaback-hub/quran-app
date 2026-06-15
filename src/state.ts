@@ -649,10 +649,8 @@ export function immutableSplice<K extends keyof AppState>(
 export function immutableMapSet<K extends keyof AppState>(
   target: AppState,
   key: K,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  mapValue: AppState[K] extends Map<infer MK, infer MV> ? MV : never,
+  mapKey: AppState[K] extends Map<infer _MK, infer _MV> ? _MK : never,
+  mapValue: AppState[K] extends Map<infer _MK2, infer _MV2> ? _MV2 : never,
 ): void {
   const map = new Map(target[key] as Map<unknown, unknown>);
   map.set(mapKey, mapValue);
@@ -668,8 +666,7 @@ export function immutableMapSet<K extends keyof AppState>(
 export function immutableMapDelete<K extends keyof AppState>(
   target: AppState,
   key: K,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  mapKey: AppState[K] extends Map<infer MK, infer MV> ? MK : never,
+  mapKey: AppState[K] extends Map<infer _MK3, infer _MV3> ? _MK3 : never,
 ): void {
   const map = new Map(target[key] as Map<unknown, unknown>);
   map.delete(mapKey);
