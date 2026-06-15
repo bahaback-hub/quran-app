@@ -4,23 +4,6 @@ import { stripTashkeel, copyToClipboard } from './utils.js';
 import { state } from './state.js';
 import { __ } from './i18n.js';
 
-/* ===================== INTERFACES ===================== */
-
-/** Ayah data shape from surahData.ayahs[] */
-interface AyahData {
-  numberInSurah: number;
-  text: string;
-  number?: number;
-  audio?: string;
-}
-
-/** Surah data shape from state.surahData */
-interface SurahData {
-  name: string;
-  ayahs: AyahData[];
-  number?: number;
-}
-
 /** Build share text for the current ayah. */
 export function buildShareText(): string {
   if (!state.surahData) {
@@ -46,6 +29,7 @@ export function shareNative(): void {
     return;
   }
   if (navigator.share) {
+    // eslint-disable-next-line no-empty-function
     navigator.share({ title: __('app_title'), text }).catch(() => {});
   } else {
     shareCopy();
