@@ -124,11 +124,20 @@ function populateSurahSelect(): void {
   dom.surahSelect.value = String(state.currentSurah);
 }
 
+/**
+ * Populate the reciter dropdown with available reciter options.
+ * Uses the RECITERS list and current selection to render option elements.
+ */
 export function populateReciterSelect(): void {
   if (!dom.reciterSelect) return;
   dom.reciterSelect.innerHTML = reciterOptions(RECITERS.map((r: ReciterInfo) => ({ id: r.id, name: getReciterDisplayName(r) })), state.currentReciter || CONFIG.DEFAULT_RECITER);
 }
 
+/**
+ * Build surah offset mappings from the surah list.
+ * Computes cumulative ayah counts and absolute starting positions
+ * for each surah, enabling quick ayah-to-surah lookups.
+ */
 export function buildSurahOffsets(): void {
   if (state.surahOffsets || !state.surahList.length) return;
   state.surahOffsets = [];
@@ -738,6 +747,11 @@ export function highlightCurrentAyah(): void {
   if (state.mushafMode) import('./mushaf.js').then((m: { highlightMushafAyah: () => void }) => m.highlightMushafAyah());
 }
 
+/**
+ * Update the player UI elements with current surah and ayah information.
+ * Refreshes surah name, reciter name, current ayah preview,
+ * and collapsed player info text.
+ */
 export function updatePlayerInfo(): void {
   const surahData: SurahData | null = state.surahData;
   if (!surahData) return;
@@ -770,6 +784,11 @@ function saveCurrentPosition(): void {
 
 /* ===================== TRANSLATION ===================== */
 
+/**
+ * Toggle the translation overlay on/off.
+ * Persists the preference to storage and reloads the current surah
+ * with or without translation data.
+ */
 export function toggleTranslation(): void {
   state.translationEnabled = !state.translationEnabled;
   storage.set('translation_enabled', state.translationEnabled);
