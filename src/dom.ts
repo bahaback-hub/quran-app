@@ -63,9 +63,9 @@ interface DomMap {
   favoriteBtn: HTMLElement | null;
   shareBtn: HTMLElement | null;
   repeatControls: HTMLElement | null;
-  repeatFrom: HTMLInputElement | null;
-  repeatTo: HTMLInputElement | null;
-  repeatTimes: HTMLInputElement | null;
+  repeatFrom: HTMLSelectElement | null;
+  repeatTo: HTMLSelectElement | null;
+  repeatTimes: HTMLSelectElement | null;
   shareMenu: HTMLElement | null;
   azanPlayer: HTMLAudioElement | null;
   toast: HTMLElement | null;
@@ -334,7 +334,7 @@ function createEmptyDomMap(): DomMap {
   for (const id of DOM_IDS) {
     empty[id] = null;
   }
-  return empty as DomMap;
+  return empty as unknown as DomMap;
 }
 
 /** Cached DOM element references — all initialized to null, populated by cacheDom(). */
