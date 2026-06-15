@@ -14,7 +14,7 @@
  * app initialization sequence, otherwise dom.ts won't find these elements.
  */
 
-import { settingsPanelHTML, floatingPlayerHTML, arabicKeyboardHTML } from './templates.js';
+import { settingsPanelHTML, floatingPlayerHTML, arabicKeyboardHTML, helpPanelHTML } from './templates.js';
 
 /* ===================== ADHKAR NOTIFICATION ===================== */
 
@@ -235,7 +235,7 @@ export function injectOverlays(): void {
   // Inject the floating player, tafsir curtain, settings panel, and
   // other body-level panels BEFORE the overlay wrapper so they appear
   // in the correct DOM order relative to the static HTML elements.
-  const bodyFragments = [floatingPlayerHTML(), settingsPanelHTML()];
+  const bodyFragments = [floatingPlayerHTML(), settingsPanelHTML(), helpPanelHTML()];
 
   const bodyWrapper = document.createElement('div');
   bodyWrapper.id = 'injected-panels';
