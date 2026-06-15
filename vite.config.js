@@ -73,6 +73,22 @@ export default defineConfig({
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+        ],
+        shortcuts: [
+          {
+            name: 'مواقيت الصلاة',
+            short_name: 'الصلاة',
+            description: 'عرض مواقيت الصلاة',
+            url: './#prayer',
+            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'استماع',
+            short_name: 'استماع',
+            description: 'الاستماع إلى القرآن الكريم',
+            url: './#audio',
+            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
+          }
         ]
       },
       workbox: {
@@ -83,6 +99,14 @@ export default defineConfig({
         // Don't intercept same-origin requests — let Capacitor handle them
         navigateFallbackDenylist: [/^\/assets\//],
         runtimeCaching: [
+          {
+            urlPattern: /\/fonts\/.*\.(ttf|css)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'self-hosted-fonts',
+              expiration: { maxEntries: 10, maxAgeSeconds: 86400 * 365 }
+            }
+          },
           {
             urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/quran\/quran-uthmani/i,
             handler: 'CacheFirst',
