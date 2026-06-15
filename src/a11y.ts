@@ -57,6 +57,7 @@ const FOCUSABLE_SELECTOR =
  */
 export function trapFocus(container: HTMLElement): () => void {
   if (!container) {
+    // eslint-disable-next-line no-empty-function
     return () => {};
   }
 
@@ -183,6 +184,7 @@ export function restoreFocusOnPanelClose(triggerEl?: HTMLElement | null, panelEl
  */
 export function addKeyboardDismiss(element: HTMLElement, callback: () => void): () => void {
   if (!element || typeof callback !== 'function') {
+    // eslint-disable-next-line no-empty-function
     return () => {};
   }
   function onKeyDown(e: KeyboardEvent): void {
