@@ -132,10 +132,7 @@ function showRecoveryOverlay(errorMsg: string): void {
         .then(() => {
           copyBtn.textContent = __('error_copied');
         })
-        .catch(
-          // eslint-disable-next-line no-empty-function
-          () => {},
-        );
+        .catch(() => { /* noop */ });
     });
   }
 }
