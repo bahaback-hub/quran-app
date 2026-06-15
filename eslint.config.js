@@ -28,13 +28,13 @@ export default tseslint.config(
       'prefer-const': 'warn',
       'no-var': 'error',
       // Strict equality — prevents accidental type coercion bugs
-      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
       // Prevent accidental assignment in conditions
       'no-cond-assign': ['error', 'except-parens'],
       // Require default case in switch statements
       'default-case': 'warn',
       // Enforce consistent brace style for control statements
-      'curly': ['error', 'all'],
+      curly: ['error', 'all'],
       // Disallow empty block statements (except catch)
       'no-empty-function': 'warn',
       // Disallow unnecessary concatenation
