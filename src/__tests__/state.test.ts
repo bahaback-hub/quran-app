@@ -114,13 +114,17 @@ describe('subscribe', () => {
   });
 
   it('should isolate subscriber errors', () => {
-    const errorCb = vi.fn(() => { throw new Error('test'); });
+    const errorCb = vi.fn(() => {
+      throw new Error('test');
+    });
     const normalCb = vi.fn();
     subscribe('isPlaying', errorCb);
     subscribe('isPlaying', normalCb);
 
     // Should not throw
-    expect(() => { state.isPlaying = true; }).not.toThrow();
+    expect(() => {
+      state.isPlaying = true;
+    }).not.toThrow();
     expect(normalCb).toHaveBeenCalled();
   });
 });
@@ -271,7 +275,12 @@ describe('Immutable helpers', () => {
   describe('immutablePush', () => {
     it('should add items to array immutably', () => {
       const entry: FavoriteEntry = {
-        key: '1-1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: Date.now(),
+        key: '1-1',
+        surah: 1,
+        surahName: 'الفاتحة',
+        ayah: 1,
+        text: 'بسم الله',
+        timestamp: Date.now(),
       };
       immutablePush(state, 'favorites', entry);
       expect(state.favorites).toHaveLength(1);
@@ -282,7 +291,12 @@ describe('Immutable helpers', () => {
       const callback = vi.fn();
       subscribe('favorites', callback);
       immutablePush(state, 'favorites', {
-        key: '1-1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: Date.now(),
+        key: '1-1',
+        surah: 1,
+        surahName: 'الفاتحة',
+        ayah: 1,
+        text: 'بسم الله',
+        timestamp: Date.now(),
       });
       expect(callback).toHaveBeenCalled();
     });
@@ -306,7 +320,7 @@ describe('Immutable helpers', () => {
         { key: '1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'a', timestamp: 1 },
         { key: '2', surah: 2, surahName: 'البقرة', ayah: 1, text: 'b', timestamp: 2 },
       ];
-      immutableFilter(state, 'favorites', f => f.surah !== 1);
+      immutableFilter(state, 'favorites', (f) => f.surah !== 1);
       expect(state.favorites).toHaveLength(1);
       expect(state.favorites[0].surah).toBe(2);
     });
