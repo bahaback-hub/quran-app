@@ -1,3 +1,19 @@
+/**
+ * Settings Module for Quran App.
+ *
+ * Manages all user-configurable preferences including visual themes,
+ * font settings, prayer location, audio preferences, and presentation
+ * backgrounds. Each setting is persisted to localStorage via the storage
+ * module and synchronized with the reactive state object.
+ *
+ * Architecture:
+ *   - Each setting has an `apply*` function that updates state + DOM + storage
+ *   - `restoreSettings()` reads all saved values on startup and applies them
+ *   - Import/export functions allow users to backup and transfer settings
+ *   - Type validators ensure imported settings match expected schemas
+ *   - Custom confirmation modal replaces browser confirm() for reset
+ */
+
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
@@ -453,8 +469,8 @@ export function exportSettings(): void {
   showToast(__('success'), 'success');
 }
 
-/** Allowlist of valid setting keys for import validation. */
-const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
+/** Allowlist of valid setting keys for import validation. Exported for testing. */
+export const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'font_size',
   'night_mode',
   'city',
@@ -490,8 +506,8 @@ const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'reading_stats',
 ]);
 
-/** Type validators for setting keys — ensures imported values match expected types. */
-const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
+/** Type validators for setting keys — ensures imported values match expected types. Exported for testing. */
+export const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
   font_size: (v) => typeof v === 'number',
   night_mode: (v) => typeof v === 'boolean',
   city: (v) => typeof v === 'string',
