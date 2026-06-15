@@ -136,8 +136,7 @@ export async function toggleMushafMode(): Promise<void> {
     populateSurahOverlay();
     loadPage(state.currentPage);
     if (wasPlaying && dom.audioPlayer?.paused) {
-      // eslint-disable-next-line no-empty-function
-      dom.audioPlayer.play().catch(() => {});
+      dom.audioPlayer.play().catch(() => { /* noop */ });
       state.isPlaying = true;
       updatePlayPauseBtn();
     }
@@ -429,8 +428,7 @@ function preloadAdjacentLayouts(pageNum: number): void {
   }
 
   for (const p of toPreload) {
-    // eslint-disable-next-line no-empty-function
-    loadPageData(p).catch(() => {});
+    loadPageData(p).catch(() => { /* noop */ });
   }
 }
 
