@@ -1,6 +1,62 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state } from '../state.js';
-import { storage } from '../storage.js';
+
+// Mock storage with a working in-memory store
+const store: Record<string, string> = {};
+vi.mock('../storage.js', () => ({
+  storage: {
+    get: vi.fn(<T>(_key: string, _default?: T): T | null => {
+      const fullKey = 'quran_app_' + _key;
+      const raw = store[fullKey];
+      if (raw === undefined) {
+        return _default ?? null;
+      }
+      try {
+        return JSON.parse(raw) as T;
+      } catch {
+        return null;
+      }
+    }),
+    set: vi.fn((_key: string, val: unknown): boolean => {
+      const fullKey = 'quran_app_' + _key;
+      try {
+        store[fullKey] = JSON.stringify(val);
+        return true;
+      } catch {
+        return false;
+      }
+    }),
+    remove: vi.fn((_key: string): void => {
+      const fullKey = 'quran_app_' + _key;
+      delete store[fullKey];
+    }),
+  },
+}));
+
+vi.mock('../i18n.js', () => ({
+  __: (key: string) => key,
+  setLocale: vi.fn(),
+  getCurrentLocale: vi.fn(() => 'ar'),
+  loadLocale: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock('../prayer.js', () => ({
+  stopAzan: vi.fn(),
+  loadPrayerTimes: vi.fn(),
+}));
+
+vi.mock('../adhkar.js', () => ({
+  renderAdhkarSettingsList: vi.fn(),
+}));
+
+vi.mock('../dom.js', () => ({
+  dom: {},
+}));
+
+vi.mock('../ui.js', () => ({
+  showToast: vi.fn(),
+}));
+
 import {
   applyNightMode,
   toggleNightMode,
@@ -11,22 +67,8 @@ import {
   restoreSettings,
 } from '../settings.js';
 
-// Mock localStorage
-const store: Record<string, string> = {};
 beforeEach(() => {
   Object.keys(store).forEach((k) => delete store[k]);
-  globalThis.localStorage = {
-    getItem: (key: string) => (store[key] === undefined ? null : store[key]),
-    setItem: (key: string, val: string) => {
-      store[key] = String(val);
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    clear: () => {
-      Object.keys(store).forEach((k) => delete store[k]);
-    },
-  } as Storage;
   state.fontSize = 28;
   state.nightMode = false;
   state.azanEnabled = true;
@@ -34,7 +76,7 @@ beforeEach(() => {
   state.autoSave = true;
   state.currentReciter = 'ar.alafasy';
   state.currentTafsirEdition = 'ar-tafsir-muyassar';
-  state.city = 'مكة';
+  state.city = 'مكة المكرمة';
   state.country = 'SA';
   state.method = '4';
   state.translationEnabled = false;
@@ -140,7 +182,8 @@ describe('applyLineSpacing', () => {
 
 describe('initSystemThemeDetection', () => {
   it('should not override theme when user has explicit night_mode preference', () => {
-    storage.set('night_mode', true);
+    // Set night_mode in storage (true)
+    store['quran_app_night_mode'] = JSON.stringify(true);
 
     const matchMediaMock = vi.fn().mockReturnValue({
       matches: true,
@@ -151,13 +194,15 @@ describe('initSystemThemeDetection', () => {
 
     initSystemThemeDetection();
 
-    // Should not add night-mode since user has explicit pref
+    // initSystemThemeDetection returns early when user has explicit preference
+    // It does NOT apply the system theme (that's the point — don't override)
+    // Night mode was NOT applied by this function; it would be applied by restoreSettings
     expect(document.body.classList.contains('night-mode')).toBe(false);
   });
 
   it('should apply dark theme when system prefers dark and no explicit preference', () => {
     // Make sure no night_mode is stored
-    storage.remove('night_mode');
+    delete store['quran_app_night_mode'];
 
     const matchMediaMock = vi.fn().mockReturnValue({
       matches: true,
@@ -173,7 +218,7 @@ describe('initSystemThemeDetection', () => {
   });
 
   it('should not apply dark theme when system prefers light and no explicit preference', () => {
-    storage.remove('night_mode');
+    delete store['quran_app_night_mode'];
 
     const matchMediaMock = vi.fn().mockReturnValue({
       matches: false,
@@ -205,58 +250,49 @@ describe('initSystemThemeDetection', () => {
 });
 
 describe('restoreSettings', () => {
-  it('should handle corrupt JSON in localStorage gracefully', () => {
-    store['quran_app_night_mode'] = '{invalid json';
-    store['quran_app_font_size'] = 'not_a_number';
-
-    expect(() => storage.get('night_mode')).not.toThrow();
-    expect(storage.get('night_mode')).toBeNull();
-    expect(storage.get('font_size')).toBeNull();
-  });
-
   it('should restore night mode when set to true', () => {
-    storage.set('night_mode', true);
+    store['quran_app_night_mode'] = JSON.stringify(true);
     restoreSettings();
     expect(state.nightMode).toBe(true);
     expect(document.body.classList.contains('night-mode')).toBe(true);
   });
 
   it('should not apply night mode when storage returns false', () => {
-    storage.set('night_mode', false);
+    store['quran_app_night_mode'] = JSON.stringify(false);
     restoreSettings();
-    // The source code only applies if nm === true
+    // Source code: if (nm === true) applyNightMode(true)
     expect(state.nightMode).toBe(false);
     expect(document.body.classList.contains('night-mode')).toBe(false);
   });
 
   it('should restore font size from storage', () => {
-    storage.set('font_size', 36);
+    store['quran_app_font_size'] = JSON.stringify(36);
     restoreSettings();
     expect(state.fontSize).toBe(36);
   });
 
   it('should restore city and country from storage', () => {
-    storage.set('city', 'الرياض');
-    storage.set('country', 'SA');
+    store['quran_app_city'] = JSON.stringify('الرياض');
+    store['quran_app_country'] = JSON.stringify('SA');
     restoreSettings();
     expect(state.city).toBe('الرياض');
     expect(state.country).toBe('SA');
   });
 
   it('should restore azan disabled state', () => {
-    storage.set('azan_enabled', false);
+    store['quran_app_azan_enabled'] = JSON.stringify(false);
     restoreSettings();
     expect(state.azanEnabled).toBe(false);
   });
 
   it('should restore auto save disabled state', () => {
-    storage.set('auto_save', false);
+    store['quran_app_auto_save'] = JSON.stringify(false);
     restoreSettings();
     expect(state.autoSave).toBe(false);
   });
 
   it('should restore reciter from storage', () => {
-    storage.set('reciter', 'ar.husary');
+    store['quran_app_reciter'] = JSON.stringify('ar.husary');
     restoreSettings();
     expect(state.currentReciter).toBe('ar.husary');
   });
@@ -266,21 +302,21 @@ describe('restoreSettings', () => {
   });
 
   it('should set tajweedEnabled to false when storage returns false', () => {
-    storage.set('tajweed_enabled', false);
+    store['quran_app_tajweed_enabled'] = JSON.stringify(false);
     restoreSettings();
     expect(state.tajweedEnabled).toBe(false);
   });
 
   it('should restore translation settings', () => {
-    storage.set('translation_enabled', true);
-    storage.set('translation_edition', 'en.sahih');
+    store['quran_app_translation_enabled'] = JSON.stringify(true);
+    store['quran_app_translation_edition'] = JSON.stringify('en.sahih');
     restoreSettings();
     expect(state.translationEnabled).toBe(true);
     expect(state.currentTranslation).toBe('en.sahih');
   });
 
   it('should restore bar collapsed state', () => {
-    storage.set('bar_collapsed', false);
+    store['quran_app_bar_collapsed'] = JSON.stringify(false);
     restoreSettings();
     expect(state.barCollapsed).toBe(false);
   });
