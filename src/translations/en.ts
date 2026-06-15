@@ -282,4 +282,17 @@ export default {
 
   settings_imported: '{0} settings imported',
   failed_ayah: 'Failed ayah',
+
+  // === Offline ===
+  offline_banner: '🔌 No internet connection — some features may not work',
+  a11y_you_are_offline: 'You are offline',
+  a11y_you_are_online: 'Internet connection restored',
+
+  // === Accessibility ===
+  a11y_panel_opened: '{0} opened',
+  a11y_panel_closed: '{0} closed',
+  a11y_skip_to_content: 'Skip to content',
+  a11y_offline_notice: 'Offline notice',
+  a11y_reading_progress: 'Reading progress',
+  reduced_motion_enabled: 'Reduced motion enabled',
 };
