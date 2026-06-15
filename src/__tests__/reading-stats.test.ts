@@ -1,4 +1,57 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { state } from '../state.js';
+
+// Mock i18n — __() returns key with interpolation
+vi.mock('../i18n.js', () => ({
+  __: (key: string, ...args: string[]) => {
+    let val = key;
+    args.forEach((arg, i) => {
+      val = val.replace(`{${i}}`, arg);
+    });
+    return val;
+  },
+  setLocale: vi.fn(),
+  getCurrentLocale: vi.fn(() => 'ar'),
+  loadLocale: vi.fn(() => Promise.resolve()),
+}));
+
+// Mock storage with a working in-memory store
+const store: Record<string, string> = {};
+vi.mock('../storage.js', () => ({
+  storage: {
+    get: vi.fn(<T>(_key: string, _default?: T): T | null => {
+      const fullKey = 'quran_app_' + _key;
+      const raw = store[fullKey];
+      if (raw === undefined) {
+        return _default ?? null;
+      }
+      try {
+        return JSON.parse(raw) as T;
+      } catch {
+        return null;
+      }
+    }),
+    set: vi.fn((_key: string, val: unknown): boolean => {
+      const fullKey = 'quran_app_' + _key;
+      try {
+        store[fullKey] = JSON.stringify(val);
+        return true;
+      } catch {
+        return false;
+      }
+    }),
+    remove: vi.fn((_key: string): void => {
+      const fullKey = 'quran_app_' + _key;
+      delete store[fullKey];
+    }),
+  },
+}));
+
+vi.mock('../templates.js', () => ({
+  readingStatsGrid: vi.fn(() => '<div>stats</div>'),
+  escapeHtml: vi.fn((s: string) => s),
+}));
+
 import {
   getReadingStats,
   recordReadingSession,
@@ -8,19 +61,7 @@ import {
 } from '../reading-stats.js';
 
 beforeEach(() => {
-  const store: Record<string, string> = {};
-  globalThis.localStorage = {
-    getItem: (key: string) => (store[key] === undefined ? null : store[key]),
-    setItem: (key: string, val: string) => {
-      store[key] = String(val);
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    clear: () => {
-      Object.keys(store).forEach((k) => delete store[k]);
-    },
-  } as Storage;
+  Object.keys(store).forEach((k) => delete store[k]);
   resetReadingStats();
 });
 
@@ -70,13 +111,16 @@ describe('getFormattedStats', () => {
   it('should format time correctly', () => {
     addReadingTime(90);
     const stats = getFormattedStats();
-    expect(stats.formattedTime).toContain('ساعة');
+    // Mock __() returns key with args: 'stats_hours_mins' → 'stats_hours_mins'
+    // With interpolation: 'stats_hours_mins1 30' (key + args)
+    expect(stats.formattedTime).toContain('stats_hours_mins');
   });
 
   it('should format minutes only', () => {
     addReadingTime(30);
     const stats = getFormattedStats();
-    expect(stats.formattedTime).toContain('دقيقة');
+    // Mock __() returns key: 'stats_mins' with args
+    expect(stats.formattedTime).toContain('stats_mins');
   });
 
   it('should count unique surahs', () => {
