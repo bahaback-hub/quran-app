@@ -317,6 +317,17 @@ export default {
   a11y_you_are_offline: 'Anda di luar talian',
   a11y_you_are_online: 'Sambungan internet dipulihkan',
 
+  // === Cache Audio ===
+  download_audio: '📥 Muat Turun',
+  download_audio_start: 'Memuat turun audio untuk kegunaan luar talian...',
+  download_audio_progress: 'Memuat turun audio: {0}/{1}',
+  download_audio_done: 'Audio dimuat turun — anda boleh mendengar di luar talian',
+  download_audio_error: 'Gagal memuat turun audio',
+  download_audio_cached: 'Audio sudah disimpan',
+  download_audio_delete: 'Padam audio yang disimpan',
+  download_audio_deleted: 'Audio yang disimpan telah dipadam',
+  download_audio_no_data: 'Tiada data audio untuk dimuat turun',
+
   // === Kebolehcapaian ===
   a11y_panel_opened: '{0} dibuka',
   a11y_panel_closed: '{0} ditutup',
