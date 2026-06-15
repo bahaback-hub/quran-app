@@ -19,6 +19,7 @@ import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { showContinueWidget, handleVisibilityChange, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents } from './app-events.js';
+import { injectOverlays } from './overlays.js';
 
 export {
   loadSurah,
@@ -49,6 +50,7 @@ export async function initApp(): Promise<void> {
   // ========== PHASE 1: CRITICAL PATH ==========
   initState();
   setLoadSurah(loadSurah);
+  injectOverlays(); // Must run before cacheDom — injects overlay HTML into DOM
   cacheDom();
   restoreSettings();
   initSystemThemeDetection();
