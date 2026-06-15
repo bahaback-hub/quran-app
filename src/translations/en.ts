@@ -84,6 +84,7 @@ export default {
   next_ayah: 'Next Ayah',
   last_ayah_in_quran: 'Last ayah in the Quran',
   cached_prayer: 'Cached prayer times',
+  cached_prayer_stale: 'Prayer times from stale cache — may differ by a few minutes',
   failed_prayer: 'Failed to load prayer times',
 
   // === Audio Player ===

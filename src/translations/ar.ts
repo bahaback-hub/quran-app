@@ -84,6 +84,7 @@ export default {
   next_ayah: 'الآية التالية',
   last_ayah_in_quran: 'آخر آية في القرآن',
   cached_prayer: 'مواقيت الصلاة المخزنة مؤقتاً',
+  cached_prayer_stale: 'مواقيت الصلاة من ذاكرة مؤقتة قديمة — قد تختلف بدقائق',
   failed_prayer: 'فشل تحميل مواقيت الصلاة',
 
   // === المشغل الصوتي ===

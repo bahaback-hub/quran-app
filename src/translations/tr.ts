@@ -84,6 +84,7 @@ export default {
   next_ayah: 'Sonraki Ayet',
   last_ayah_in_quran: 'Kur\'an\'daki son ayet',
   cached_prayer: 'Önbelleğe alınmış namaz vakitleri',
+  cached_prayer_stale: 'Eski önbellekten namaz vakitleri — birkaç dakika farklılık gösterebilir',
   failed_prayer: 'Namaz vakitleri yüklenemedi',
 
   // === Ses Oynatıcı ===
