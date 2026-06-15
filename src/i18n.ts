@@ -43,7 +43,9 @@ let _arFallback: TranslationBundle | null = null;
 
 /** Get the Arabic fallback bundle, loading it lazily on first access. */
 async function getArFallback(): Promise<TranslationBundle> {
-  if (_arFallback) return _arFallback;
+  if (_arFallback) {
+    return _arFallback;
+  }
   const mod = await import('./translations/ar');
   _arFallback = mod.default;
   translations.ar = _arFallback;
@@ -65,10 +67,14 @@ let currentBundle: TranslationBundle | null = null;
  */
 async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
   // Return cached translation if already loaded
-  if (translations[lang]) return translations[lang]!;
+  if (translations[lang]) {
+    return translations[lang]!;
+  }
 
   // Return existing loading promise if one is in progress
-  if (loadingPromises[lang]) return loadingPromises[lang]!;
+  if (loadingPromises[lang]) {
+    return loadingPromises[lang]!;
+  }
 
   const moduleMap: Record<LangCode, () => Promise<{ default: TranslationBundle }>> = {
     ar: () => import('./translations/ar'),
@@ -79,7 +85,9 @@ async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
   };
 
   const loader = moduleMap[lang];
-  if (!loader) throw new Error(`Unknown language: ${lang}`);
+  if (!loader) {
+    throw new Error(`Unknown language: ${lang}`);
+  }
 
   // Create and cache the loading promise to prevent duplicate loads
   const promise = loader()
@@ -88,7 +96,9 @@ async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
       delete loadingPromises[lang]; // Clean up promise after load
 
       // Cache Arabic fallback when it loads
-      if (lang === 'ar') _arFallback = mod.default;
+      if (lang === 'ar') {
+        _arFallback = mod.default;
+      }
 
       if (import.meta.env.DEV) {
         console.info(`[i18n] Loaded "${lang}" bundle (${Object.keys(mod.default).length} keys)`);
@@ -124,8 +134,12 @@ export function preloadLang(lang: LangCode): void {
  */
 export function unloadLang(lang: LangCode): boolean {
   // Never unload Arabic (fallback) or the current language
-  if (lang === 'ar' || lang === currentLang) return false;
-  if (!translations[lang]) return false;
+  if (lang === 'ar' || lang === currentLang) {
+    return false;
+  }
+  if (!translations[lang]) {
+    return false;
+  }
 
   delete translations[lang];
   if (import.meta.env.DEV) {
@@ -173,12 +187,16 @@ export async function initI18n(): Promise<void> {
 function getPreloadCandidates(current: LangCode): LangCode[] {
   // Always suggest English as the most common alternate
   const candidates: LangCode[] = [];
-  if (current !== 'en') candidates.push('en');
+  if (current !== 'en') {
+    candidates.push('en');
+  }
   // Add the user's browser language if different and supported
   const browserLang = (navigator.language || '').slice(0, 2);
   if (browserLang !== current && browserLang !== 'en') {
     const supported = AVAILABLE_LANGUAGES.find((l) => l.code === browserLang);
-    if (supported) candidates.push(supported.code);
+    if (supported) {
+      candidates.push(supported.code);
+    }
   }
   return candidates.slice(0, 2); // Max 2 preloads to save bandwidth
 }
@@ -202,19 +220,27 @@ export async function setLang(lang: LangCode): Promise<void> {
 export function applyTranslations(): void {
   for (const el of document.querySelectorAll('[data-i18n]')) {
     const key = el.getAttribute('data-i18n');
-    if (key) el.textContent = __(key);
+    if (key) {
+      el.textContent = __(key);
+    }
   }
   for (const el of document.querySelectorAll('[data-i18n-placeholder]')) {
     const key = el.getAttribute('data-i18n-placeholder');
-    if (key) (el as HTMLInputElement).placeholder = __(key);
+    if (key) {
+      (el as HTMLInputElement).placeholder = __(key);
+    }
   }
   for (const el of document.querySelectorAll('[data-i18n-title]')) {
     const key = el.getAttribute('data-i18n-title');
-    if (key) (el as HTMLElement).title = __(key);
+    if (key) {
+      (el as HTMLElement).title = __(key);
+    }
   }
   for (const el of document.querySelectorAll('[data-i18n-aria-label]')) {
     const key = el.getAttribute('data-i18n-aria-label');
-    if (key) el.setAttribute('aria-label', __(key));
+    if (key) {
+      el.setAttribute('aria-label', __(key));
+    }
   }
 }
 
@@ -230,11 +256,13 @@ export function __(key: string, ...args: string[]): string {
     const arFallback = getArFallbackSync();
     val = arFallback?.[key];
   }
-  if (val === undefined) return key;
+  if (val === undefined) {
+    return key;
+  }
 
   if (args.length > 0) {
     val = String(val).replace(/\{(\d+)\}/g, (match, index: string) => {
-      return args[parseInt(index, 10)] !== undefined ? args[parseInt(index, 10)] : match;
+      return args[parseInt(index, 10)] !== undefined ? args[parseInt(index, 10)]! : match;
     });
   }
   return String(val);
