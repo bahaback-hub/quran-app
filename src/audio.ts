@@ -35,6 +35,13 @@ interface RepeatRange {
 
 /** Inject the loadSurah callback from app.ts (avoids circular import). */
 let _loadSurah: LoadSurahFn | null = null;
+
+/**
+ * Inject the loadSurah callback from app.ts.
+ * Required to avoid circular imports — app.ts calls this during initialization.
+ *
+ * @param fn The function to call when loading a new surah
+ */
 export function setLoadSurah(fn: LoadSurahFn): void {
   _loadSurah = fn;
 }
@@ -305,7 +312,10 @@ function onSeeking(): void {
 
 /* ===================== AUDIO EVENTS ===================== */
 
-/** Expand the collapsed audio player and persist the preference. */
+/**
+ * Expand the collapsed audio player and persist the preference to localStorage.
+ * Removes the 'collapsed' CSS class from the player element.
+ */
 export function expandPlayer(): void {
   dom.player?.classList.remove('collapsed');
   storage.set('player_collapsed', false);
@@ -424,7 +434,10 @@ function onAudioError(): void {
   showToast(__('audio_error'), 'error');
 }
 
-/** Update the play/pause button text to reflect current playback state. */
+/**
+ * Update the play/pause button text to reflect current playback state.
+ * Reads state.isPlaying and updates the button label accordingly.
+ */
 export function updatePlayPauseBtn(): void {
   if (dom.playPauseBtn) {
     dom.playPauseBtn.textContent = state.isPlaying ? __('pause') : __('play');
@@ -545,7 +558,10 @@ export function nextAyah(autoFromRepeat: boolean): void {
   }
 }
 
-/** Go to the previous ayah, or the previous surah if at the beginning. */
+/**
+ * Go to the previous ayah, or the previous surah if at the beginning.
+ * Automatically starts playback if currently playing.
+ */
 export function prevAyah(): void {
   if (!state.surahData) return;
   if (state.currentAyahIndex > 0) {
@@ -557,12 +573,18 @@ export function prevAyah(): void {
   }
 }
 
-/** Load the next surah, preserving current playback state. */
+/**
+ * Load the next surah, preserving current playback state.
+ * Calls the injected loadSurah callback with autoPlay = state.isPlaying.
+ */
 export function nextSurah(): void {
   if (state.currentSurah < 114) _loadSurah?.(state.currentSurah + 1, { autoPlay: state.isPlaying });
 }
 
-/** Load the previous surah, preserving current playback state. */
+/**
+ * Load the previous surah, preserving current playback state.
+ * Calls the injected loadSurah callback with autoPlay = state.isPlaying.
+ */
 export function prevSurah(): void {
   if (state.currentSurah > 1) _loadSurah?.(state.currentSurah - 1, { autoPlay: state.isPlaying });
 }
@@ -599,14 +621,30 @@ export function toggleHifdh(): void {
 /**
  * Compute the default repeat range for the current surah.
  * Pure function — no side effects, easy to test.
+ *
+ * @param surahData The surah data to compute the default range for
+ * @returns A RepeatRange with from=1, to=ayah count, times=3
  */
 export function getDefaultRepeatRange(surahData: SurahData): RepeatRange {
   return { from: 1, to: surahData.ayahs.length, times: 3 };
 }
 
 /**
+ * Apply the repeat mode UI state — toggle button active class and controls visibility.
+ * Separated from toggleRepeat for testability — pure DOM operation.
+ *
+ * @param active Whether repeat mode is currently active
+ */
+export function applyRepeatUI(active: boolean): void {
+  dom.repeatBtn?.classList.toggle('active', active);
+  if (dom.repeatControls) dom.repeatControls.style.display = active ? 'flex' : 'none';
+}
+
+/**
  * Populate repeat range dropdowns in the UI.
  * Separated from toggleRepeat for testability and clarity.
+ *
+ * @param range The repeat range configuration to populate the UI with
  */
 export function populateRepeatUI(range: RepeatRange): void {
   if (!dom.repeatFrom || !dom.repeatTo || !dom.repeatTimes) return;
@@ -657,14 +695,14 @@ export function populateRepeatUI(range: RepeatRange): void {
 
 /**
  * Toggle repeat mode on/off.
+ * State changes are separated from DOM updates for testability.
  * When enabled, initializes the repeat range to the full surah and populates UI dropdowns.
  */
 export function toggleRepeat(): void {
   hapticFeedback();
   state.repeatMode = !state.repeatMode;
   state.repeatCounter = 0;
-  dom.repeatBtn?.classList.toggle('active', state.repeatMode);
-  if (dom.repeatControls) dom.repeatControls.style.display = state.repeatMode ? 'flex' : 'none';
+  applyRepeatUI(state.repeatMode);
 
   if (state.repeatMode && state.surahData) {
     const range = getDefaultRepeatRange(state.surahData);
@@ -710,7 +748,10 @@ export function setSleepTimer(minutes: number): void {
   ensureSleepTimerInterval();
 }
 
-/** Clear the active sleep timer and reset timer state. */
+/**
+ * Clear the active sleep timer and reset timer state.
+ * Updates the sleep timer display after clearing.
+ */
 export function clearSleepTimer(): void {
   if (_sleepTimer) {
     clearTimeout(_sleepTimer);
@@ -721,12 +762,20 @@ export function clearSleepTimer(): void {
   updateSleepTimerDisplay();
 }
 
-/** Get the original sleep timer duration in minutes (0 if no timer is active). */
+/**
+ * Get the original sleep timer duration in minutes.
+ *
+ * @returns The timer duration in minutes, or 0 if no timer is active
+ */
 export function getSleepTimerMinutes(): number {
   return _sleepTimerMinutes;
 }
 
-/** Get the remaining time in minutes for the sleep timer, with fractional precision. */
+/**
+ * Get the remaining time in minutes for the sleep timer, with fractional precision.
+ *
+ * @returns Remaining minutes (fractional), or 0 if no timer is active
+ */
 export function getSleepTimerRemaining(): number {
   if (!_sleepTimerMinutes || !_sleepTimerStart) return 0;
   const elapsed = (Date.now() - _sleepTimerStart) / (60 * 1000);
@@ -760,7 +809,10 @@ function ensureSleepTimerInterval(): void {
   }, 15000);
 }
 
-/** Stop the sleep timer display interval (for cleanup in tests or on app shutdown). */
+/**
+ * Stop the sleep timer display interval.
+ * Called during test cleanup or app shutdown to prevent memory leaks.
+ */
 export function cleanupSleepTimerInterval(): void {
   if (_sleepTimerInterval) {
     clearInterval(_sleepTimerInterval);
