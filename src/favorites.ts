@@ -38,9 +38,11 @@ function saveFavorites(): void {
 /** Toggle the current ayah in/out of favorites. */
 export function toggleFavorite(): void {
   hapticFeedback();
-  if (!state.surahData) return;
+  if (!state.surahData) {
+    return;
+  }
   const surahData = state.surahData;
-  const a = surahData.ayahs[state.currentAyahIndex];
+  const a = surahData.ayahs[state.currentAyahIndex]!;
   const key = `${state.currentSurah}:${a.numberInSurah}`;
   const idx = state.favorites.findIndex((f: FavoriteEntry) => f.key === key);
   if (idx !== -1) {
@@ -65,7 +67,9 @@ export function toggleFavorite(): void {
 
 /** Render the favorites list in the favorites panel. */
 export function renderFavorites(): void {
-  if (!dom.favoritesList) return;
+  if (!dom.favoritesList) {
+    return;
+  }
   if (!state.favorites.length) {
     dom.favoritesList.innerHTML = favoritesEmptyMessage();
     return;
@@ -74,7 +78,7 @@ export function renderFavorites(): void {
   for (const f of state.favorites.slice().reverse()) {
     const item = document.createElement('div');
     item.className = 'favorite-item';
-    item.dataset.key = f.key || '';
+    item.dataset['key'] = f.key || '';
     const meta = document.createElement('div');
     meta.className = 'favorite-meta';
     meta.innerHTML = favoriteMeta(f.surahName || '', f.ayah || '');
@@ -85,22 +89,22 @@ export function renderFavorites(): void {
     actions.className = 'favorite-actions';
     const goBtn = document.createElement('button');
     goBtn.className = 'favorite-action-btn fav-go';
-    goBtn.dataset.surah = String(f.surah || '');
-    goBtn.dataset.ayah = String(f.ayah || '');
+    goBtn.dataset['surah'] = String(f.surah || '');
+    goBtn.dataset['ayah'] = String(f.ayah || '');
     goBtn.textContent = __('go_to');
     const removeBtn = document.createElement('button');
     removeBtn.className = 'favorite-action-btn favorite-remove-btn fav-remove';
-    removeBtn.dataset.key = String(f.key || '');
+    removeBtn.dataset['key'] = String(f.key || '');
     removeBtn.textContent = __('delete');
     const copyBtn = document.createElement('button');
     copyBtn.className = 'favorite-action-btn fav-copy';
-    copyBtn.dataset.text = f.text || '';
+    copyBtn.dataset['text'] = f.text || '';
     copyBtn.textContent = __('search_copy');
     const shareBtn = document.createElement('button');
     shareBtn.className = 'favorite-action-btn fav-share';
-    shareBtn.dataset.text = f.text || '';
-    shareBtn.dataset.surahName = f.surahName || '';
-    shareBtn.dataset.ayah = String(f.ayah || '');
+    shareBtn.dataset['text'] = f.text || '';
+    shareBtn.dataset['surahName'] = f.surahName || '';
+    shareBtn.dataset['ayah'] = String(f.ayah || '');
     shareBtn.textContent = __('search_share');
     actions.appendChild(goBtn);
     actions.appendChild(copyBtn);
@@ -119,15 +123,17 @@ export function renderFavorites(): void {
     listEl.addEventListener('click', (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target.classList.contains('fav-go')) {
-        const surah = parseInt(target.dataset.surah as string, 10);
-        const ayah = parseInt(target.dataset.ayah as string, 10);
-        if (dom.surahSelect) dom.surahSelect.value = String(surah);
+        const surah = parseInt(target.dataset['surah'] as string, 10);
+        const ayah = parseInt(target.dataset['ayah'] as string, 10);
+        if (dom.surahSelect) {
+          dom.surahSelect.value = String(surah);
+        }
         loadSurah(surah, { startAyah: ayah });
         closeFavorites();
         return;
       }
       if (target.classList.contains('fav-copy')) {
-        const text = target.dataset.text || '';
+        const text = target.dataset['text'] || '';
         if (text) {
           copyToClipboard(text);
           showToast(__('copied'), 'success');
@@ -135,9 +141,9 @@ export function renderFavorites(): void {
         return;
       }
       if (target.classList.contains('fav-share')) {
-        const text = target.dataset.text || '';
-        const surahName = target.dataset.surahname || '';
-        const ayah = target.dataset.ayah || '';
+        const text = target.dataset['text'] || '';
+        const surahName = target.dataset['surahname'] || '';
+        const ayah = target.dataset['ayah'] || '';
         const shareText = `${text} — ${surahName} — ${__('ayah')} ${ayah}`;
         if (navigator.share) {
           navigator.share({ title: __('app_title'), text: shareText }).catch(() => {});
@@ -148,15 +154,18 @@ export function renderFavorites(): void {
         return;
       }
       if (target.classList.contains('fav-remove')) {
-        const key = target.dataset.key as string;
+        const key = target.dataset['key'] as string;
         const idx = state.favorites.findIndex((f: FavoriteEntry) => f.key === key);
         if (idx !== -1) {
           immutableSplice(state, 'favorites', idx, 1);
           saveFavorites();
           const item = dom.favoritesList?.querySelector(`.favorite-item[data-key="${CSS.escape(key)}"]`);
-          if (item) item.remove();
-          if (!state.favorites.length && dom.favoritesList)
+          if (item) {
+            item.remove();
+          }
+          if (!state.favorites.length && dom.favoritesList) {
             dom.favoritesList.innerHTML = favoritesEmptyMessage();
+          }
           showToast(__('removed_from_favorites'), '');
         }
         return;
@@ -231,9 +240,11 @@ export function wireFavoritesExport(): void {
 /** Save the current ayah as a bookmark. */
 export function setBookmark(): void {
   hapticFeedback();
-  if (!state.surahData) return;
+  if (!state.surahData) {
+    return;
+  }
   const surahData = state.surahData;
-  const a = surahData.ayahs[state.currentAyahIndex];
+  const a = surahData.ayahs[state.currentAyahIndex]!;
   state.bookmark = {
     surah: state.currentSurah,
     surahName: surahData.name,
@@ -252,6 +263,8 @@ export function gotoBookmark(): void {
     showToast(__('bookmark_not_found'), 'error');
     return;
   }
-  if (dom.surahSelect) dom.surahSelect.value = String(bm.surah);
+  if (dom.surahSelect) {
+    dom.surahSelect.value = String(bm.surah);
+  }
   loadSurah(bm.surah, { startAyah: bm.ayah });
 }
