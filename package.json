@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.ci.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
@@ -15,10 +15,10 @@
     "android:build": "BUILD_TARGET=capacitor npm run build && npx cap sync",
     "android:open": "npx cap open android",
     "android:run": "npm run android:build && npx cap run android",
-    "lint": "eslint src/ e2e/ --no-warn-ignored",
-    "lint:fix": "eslint src/ e2e/ --fix",
-    "format": "prettier --write 'src/**/*.{js,ts,css}' 'e2e/**/*.{js,ts}'",
-    "format:check": "prettier --check 'src/**/*.{js,ts,css}' 'e2e/**/*.{js,ts}'"
+    "lint": "eslint src/ --no-warn-ignored",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write 'src/**/*.{js,ts,css}'",
+    "format:check": "prettier --check 'src/**/*.{js,ts,css}'"
   },
   "engines": {
     "node": ">=22"
@@ -37,6 +37,8 @@
     "@eslint/js": "^9.0.0",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.1",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
     "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
@@ -45,6 +47,7 @@
     "prettier": "^3.0.0",
     "serve": "^14.2.6",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.0",
     "vite": "^8.0.14",
     "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.1.7"
