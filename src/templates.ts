@@ -1011,6 +1011,7 @@ export function floatingPlayerHTML(): string {
             </select>
           </span>
           <button class="btn btn-sleep" id="sleepTimerBtn" aria-label="مؤقت النوم" title="مؤقت النوم">😴 نوم</button>
+          <button class="btn btn-download" id="downloadAudioBtn" data-i18n="download_audio" aria-label="تحميل السورة للعمل بدون إنترنت" title="تحميل السورة للعمل بدون إنترنت">📥 تحميل</button>
         </div>
         <div class="select-mode-bar hidden" id="selectModeBar">
           <span id="selectCount">0</span> آية محددة
