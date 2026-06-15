@@ -1,0 +1,34 @@
+name: Error Pattern Report
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Every Monday at 9:00 UTC
+  workflow_dispatch:
+    inputs:
+      min_occurrences:
+        description: 'Minimum occurrences to report'
+        required: false
+        default: '5'
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  report:
+    name: Check Error Patterns
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for recurring error patterns
+        run: |
+          echo "📊 This workflow checks for error patterns reported by the app."
+          echo "   In production, this would connect to your error tracking service"
+          echo "   (e.g., Sentry, LogRocket) and create GitHub Issues for recurring errors."
+          echo ""
+          echo "   To enable this, integrate with your error tracking provider's API."
+          echo "   The app's error-boundary.ts already provides:"
+          echo "   - detectErrorPatterns() → finds errors occurring 3+ times"
+          echo "   - exportErrorLog() → JSON export for bug reports"
+          echo "   - getPersistedErrorLog() → cross-session error history"

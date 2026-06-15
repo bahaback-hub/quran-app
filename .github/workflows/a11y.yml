@@ -1,0 +1,49 @@
+name: Accessibility Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  a11y:
+    name: Axe Accessibility Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run accessibility audit
+        run: |
+          npx serve dist -p 4173 &
+          sleep 3
+          node scripts/a11y-audit.mjs
+        env:
+          BASE_URL: http://localhost:4173
+
+      - name: Upload a11y results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-results
+          path: a11y-results.json
+          retention-days: 7
