@@ -1,0 +1,79 @@
+name: 🐛 تقرير مشكلة / Bug Report
+description: أبلغ عن مشكلة في التطبيق / Report a bug in the app
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        شكرًا لتبليغك عن المشكلة! يرجى ملء التفاصيل أدناه بدقة.
+        Thanks for reporting! Please fill in the details below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: وصف المشكلة / Description
+      description: صف المشكلة بوضوح — ماذا حدث؟ وماذا كنت تتوقع أن يحدث؟
+      placeholder: "مثال: عند فتح سورة البقرة، لا يظهر النص ويبقى التطبيق فارغًا"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: خطوات التكرار / Steps to Reproduce
+      description: كيف نعيد إنتاج المشكلة خطوة بخطوة؟
+      placeholder: |
+        1. افتح التطبيق
+        2. اختر سورة البقرة
+        3. انتظر تحميل الصفحة
+        4. المشكلة: ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: نوع الجهاز / Device Type
+      options:
+        - هاتف أندرويد / Android Phone
+        - تابلت أندرويد / Android Tablet
+        - آيفون / iPhone
+        - آيباد / iPad
+        - كمبيوتر / Desktop
+        - أخرى / Other
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: المتصفح / Browser
+      description: اسم المتصفح وإصداره
+      placeholder: "مثال: Chrome 120, Safari 17, Firefox 121"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: كيف تستخدم التطبيق؟ / Platform
+      options:
+        - تطبيق ويب (متصفح) / Web App (Browser)
+        - تطبيق مثبّت (PWA) / Installed App (PWA)
+        - تطبيق أندرويد (Capacitor) / Android App
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: لقطة شاشة / Screenshot
+      description: إن أمكن، أضف لقطة شاشة توضح المشكلة
+      placeholder: اسحب الصورة هنا أو الصقها
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: معلومات إضافية / Additional Context
+      description: أي تفاصيل أخرى قد تساعد في حل المشكلة
+      placeholder: "مثال: المشكلة تحدث فقط في الوضع الليلي، أو عند عدم الاتصال بالإنترنت"
