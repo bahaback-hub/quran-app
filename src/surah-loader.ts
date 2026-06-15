@@ -612,8 +612,32 @@ async function _refreshSurahFromAPI(
 }
 
 const VIRTUAL_CHUNK_SIZE = 20;
+const VISIBLE_WINDOW_CHUNKS = 2; // chunks to keep visible above and below viewport
 let _ayahsReadyCount = 0;
 let _virtualObserver: IntersectionObserver | null = null;
+let _scrollObserver: IntersectionObserver | null = null;
+
+/** Cached heights of rendered chunks for accurate spacer sizing. */
+const _chunkHeightCache = new Map<string, number>();
+
+/** Currently rendered chunk ranges: Set of chunk indices currently in DOM. */
+let _renderedChunks = new Set<number>();
+
+/** Total number of chunks for current surah. */
+let _totalChunks = 0;
+
+/** Reference to current surah text data for virtual scroll operations. */
+let _currentTextData: SurahTextData | null = null;
+
+/** Get the chunk index for a given ayah index. */
+function getChunkIndex(ayahIndex: number): number {
+  return Math.floor(ayahIndex / VIRTUAL_CHUNK_SIZE);
+}
+
+/** Get the cache key for a chunk. */
+function chunkCacheKey(surahNum: number, chunkIdx: number): string {
+  return `${surahNum}_${chunkIdx}`;
+}
 
 function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string {
   const isRtlTranslation = state.currentTranslation && state.currentTranslation.startsWith('ur.');
@@ -679,34 +703,204 @@ function renderAyahChunk(textData: SurahTextData, start: number, count: number):
   for (let i = start; i < end; i++) {
     html += buildAyahHtml(textData.ayahs[i]!, i, textData);
   }
-  ayahsContainer.insertAdjacentHTML('beforeend', html);
-  _ayahsReadyCount = end;
-  if (_ayahsReadyCount < textData.ayahs.length) {
-    ensureVirtualSentinel(textData);
+
+  // Find or create the chunk container
+  const chunkIdx = getChunkIndex(start);
+  const chunkId = `chunk-${chunkIdx}`;
+  let chunkEl = ayahsContainer.querySelector(`#${chunkId}`) as HTMLElement | null;
+
+  if (chunkEl) {
+    // Replace spacer with rendered content
+    chunkEl.innerHTML = html;
+    chunkEl.removeAttribute('data-spacer');
+    chunkEl.style.height = '';
   } else {
-    cleanupVirtualObserver();
+    // Create new chunk element
+    chunkEl = document.createElement('div');
+    chunkEl.id = chunkId;
+    chunkEl.className = 'virtual-chunk';
+    chunkEl.dataset['chunk'] = String(chunkIdx);
+    chunkEl.innerHTML = html;
+    // Insert in the correct order
+    insertChunkInOrder(ayahsContainer, chunkEl, chunkIdx);
   }
+
+  // Cache the height of this chunk
+  requestAnimationFrame(() => {
+    if (chunkEl && chunkEl.offsetHeight > 0) {
+      _chunkHeightCache.set(chunkCacheKey(textData.number, chunkIdx), chunkEl.offsetHeight);
+    }
+  });
+
+  _ayahsReadyCount = Math.max(_ayahsReadyCount, end);
+  _renderedChunks.add(chunkIdx);
+}
+
+/**
+ * Insert a chunk element in the correct DOM order within the ayahs container.
+ * Ensures chunks are always in ascending order regardless of render sequence.
+ */
+function insertChunkInOrder(container: HTMLElement, chunkEl: HTMLElement, chunkIdx: number): void {
+  // Find the right position by looking at existing chunks
+  const existingChunks = container.querySelectorAll('.virtual-chunk');
+  let inserted = false;
+  for (const existing of existingChunks) {
+    const existingIdx = parseInt((existing as HTMLElement).dataset['chunk'] || '0', 10);
+    if (existingIdx > chunkIdx) {
+      container.insertBefore(chunkEl, existing);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) {
+    container.appendChild(chunkEl);
+  }
+}
+
+/**
+ * Replace a rendered chunk with a spacer div of the same height.
+ * This removes the DOM nodes while preserving scroll position.
+ */
+function replaceChunkWithSpacer(surahNum: number, chunkIdx: number): void {
+  const ayahsContainer = dom.surahContent?.querySelector('.ayahs-container');
+  if (!ayahsContainer) {
+    return;
+  }
+
+  const chunkEl = ayahsContainer.querySelector(`#chunk-${chunkIdx}`) as HTMLElement | null;
+  if (!chunkEl || chunkEl.dataset['spacer'] === 'true') {
+    return; // Already a spacer or not found
+  }
+
+  // Cache height before replacing
+  const height = chunkEl.offsetHeight;
+  if (height > 0) {
+    _chunkHeightCache.set(chunkCacheKey(surahNum, chunkIdx), height);
+  }
+
+  // Replace with spacer
+  chunkEl.innerHTML = '';
+  chunkEl.dataset['spacer'] = 'true';
+  chunkEl.style.height = `${height}px`;
+  _renderedChunks.delete(chunkIdx);
+}
+
+/**
+ * Determine which chunks should be visible based on the current viewport.
+ * Returns the set of chunk indices that should be rendered.
+ */
+function getVisibleChunks(): Set<number> {
+  const visibleChunks = new Set<number>();
+  const ayahsContainer = dom.surahContent?.querySelector('.ayahs-container');
+  if (!ayahsContainer || !_currentTextData) {
+    return visibleChunks;
+  }
+
+  // Find which chunks are currently in the viewport
+  const containerRect = ayahsContainer.getBoundingClientRect();
+  const viewportTop = containerRect.top - 300; // 300px buffer above
+  const viewportBottom = containerRect.bottom + 300; // 300px buffer below
+
+  // Check each existing chunk/spacer
+  const chunks = ayahsContainer.querySelectorAll('.virtual-chunk');
+  for (const chunk of chunks) {
+    const rect = chunk.getBoundingClientRect();
+    if (rect.bottom >= viewportTop && rect.top <= viewportBottom) {
+      const chunkIdx = parseInt((chunk as HTMLElement).dataset['chunk'] || '0', 10);
+      // Add the visible chunk and its neighbors
+      for (let i = chunkIdx - VISIBLE_WINDOW_CHUNKS; i <= chunkIdx + VISIBLE_WINDOW_CHUNKS; i++) {
+        if (i >= 0 && i < _totalChunks) {
+          visibleChunks.add(i);
+        }
+      }
+    }
+  }
+
+  // Always keep the playing ayah's chunk visible
+  if (state.isPlaying && state.currentAyahIndex >= 0) {
+    const playingChunk = getChunkIndex(state.currentAyahIndex);
+    for (let i = playingChunk - 1; i <= playingChunk + 1; i++) {
+      if (i >= 0 && i < _totalChunks) {
+        visibleChunks.add(i);
+      }
+    }
+  }
+
+  return visibleChunks;
+}
+
+/**
+ * Update which chunks are rendered vs spacered based on current scroll position.
+ * This is the core of the virtual scrolling mechanism.
+ */
+function updateVisibleChunks(): void {
+  if (!_currentTextData || _totalChunks === 0) {
+    return;
+  }
+
+  const visibleChunks = getVisibleChunks();
+  const surahNum = _currentTextData.number;
+
+  // Remove chunks that are too far from viewport
+  for (const chunkIdx of _renderedChunks) {
+    if (!visibleChunks.has(chunkIdx)) {
+      replaceChunkWithSpacer(surahNum, chunkIdx);
+    }
+  }
+
+  // Render chunks that should be visible but aren't
+  for (const chunkIdx of visibleChunks) {
+    if (!_renderedChunks.has(chunkIdx)) {
+      const startAyah = chunkIdx * VIRTUAL_CHUNK_SIZE;
+      const isSpacer = dom.surahContent?.querySelector(`#chunk-${chunkIdx}[data-spacer="true"]`);
+      if (isSpacer) {
+        // Restore from spacer — re-render the chunk
+        renderAyahChunk(_currentTextData, startAyah, VIRTUAL_CHUNK_SIZE);
+      } else if (!_ayahsReadyCount || startAyah >= _ayahsReadyCount) {
+        // Never rendered before
+        renderAyahChunk(_currentTextData, startAyah, VIRTUAL_CHUNK_SIZE);
+      }
+    }
+  }
+}
+
+/** Throttled scroll handler for virtual scrolling. */
+let _scrollRafPending = false;
+function onVirtualScroll(): void {
+  if (_scrollRafPending) {
+    return;
+  }
+  _scrollRafPending = true;
+  requestAnimationFrame(() => {
+    _scrollRafPending = false;
+    updateVisibleChunks();
+  });
+}
+
+/**
+ * Set up the scroll-based virtual scrolling observer.
+ * Uses a scroll event listener with requestAnimationFrame throttling.
+ */
+function setupVirtualScrollObserver(): void {
+  cleanupVirtualScrollObserver();
+  window.addEventListener('scroll', onVirtualScroll, { passive: true });
+}
+
+function cleanupVirtualScrollObserver(): void {
+  window.removeEventListener('scroll', onVirtualScroll);
+  _scrollRafPending = false;
 }
 
 function ensureVirtualSentinel(textData: SurahTextData): void {
   cleanupVirtualObserver();
-  const existing = document.getElementById('virtualSentinel');
-  if (existing) {
-    existing.remove();
+  // With windowed virtual scrolling, we no longer need the sentinel
+  // All chunks are managed by the scroll observer instead.
+  // But we still need to ensure all ayahs have been generated at least once
+  // for the total chunk count to be correct.
+  if (_ayahsReadyCount < textData.ayahs.length) {
+    // We'll lazily generate HTML on demand via updateVisibleChunks
+    _ayahsReadyCount = textData.ayahs.length; // Mark all as "ready" since we generate on demand
   }
-  const sentinel = document.createElement('div');
-  sentinel.id = 'virtualSentinel';
-  sentinel.style.height = '1px';
-  dom.surahContent?.appendChild(sentinel);
-  _virtualObserver = new IntersectionObserver(
-    (entries: IntersectionObserverEntry[]) => {
-      if (entries[0]?.isIntersecting && _ayahsReadyCount < textData.ayahs.length) {
-        renderAyahChunk(textData, _ayahsReadyCount, VIRTUAL_CHUNK_SIZE);
-      }
-    },
-    { rootMargin: '200px' },
-  );
-  _virtualObserver.observe(sentinel);
 }
 
 function cleanupVirtualObserver(): void {
@@ -726,7 +920,12 @@ export function renderSurah(textData: SurahTextData): void {
     return;
   }
   cleanupVirtualObserver();
+  cleanupVirtualScrollObserver();
   _ayahsReadyCount = 0;
+  _renderedChunks.clear();
+  _chunkHeightCache.clear();
+  _currentTextData = textData;
+  _totalChunks = Math.ceil(textData.ayahs.length / VIRTUAL_CHUNK_SIZE);
 
   // Update breadcrumbs
   const breadcrumbSurah = document.getElementById('breadcrumbSurah');
@@ -747,7 +946,29 @@ export function renderSurah(textData: SurahTextData): void {
   html += `<div class="ayahs-container" style="--ayah-font-size:${state.fontSize}px"></div>`;
   dom.surahContent.innerHTML = html;
   initAyahDelegation();
+
+  // Create spacer placeholders for all chunks
+  const ayahsContainer = dom.surahContent.querySelector('.ayahs-container');
+  if (ayahsContainer) {
+    // Estimate an average ayah height for initial spacers
+    const avgAyahHeight = 60; // conservative estimate in px
+    for (let c = 0; c < _totalChunks; c++) {
+      const chunkEl = document.createElement('div');
+      chunkEl.id = `chunk-${c}`;
+      chunkEl.className = 'virtual-chunk';
+      chunkEl.dataset['chunk'] = String(c);
+      chunkEl.dataset['spacer'] = 'true';
+      const ayahsInChunk = Math.min(VIRTUAL_CHUNK_SIZE, textData.ayahs.length - c * VIRTUAL_CHUNK_SIZE);
+      chunkEl.style.height = `${ayahsInChunk * avgAyahHeight}px`;
+      ayahsContainer.appendChild(chunkEl);
+    }
+  }
+
+  // Render the first visible chunk (chunk 0)
   renderAyahChunk(textData, 0, VIRTUAL_CHUNK_SIZE);
+
+  // Set up scroll observer for virtual scrolling
+  setupVirtualScrollObserver();
 
   const secretBtn = dom.surahContent.querySelector('.surah-secret-title-btn');
   if (secretBtn) {
@@ -831,25 +1052,40 @@ function finalizeSurahLoad(opts: LoadSurahOptions): void {
 /** Scroll to and highlight the current ayah. */
 export function highlightCurrentAyah(): void {
   const container = dom.surahContent?.querySelector('.ayahs-container');
-  const ayahs = container?.children;
-  if (ayahs) {
-    for (let i = 0; i < ayahs.length; i++) {
-      ayahs[i]?.classList.remove('current');
+  // Remove 'current' class only from rendered ayahs (not iterating spacers)
+  const currentAyahs = container?.querySelectorAll('.ayah.current');
+  if (currentAyahs) {
+    for (const el of currentAyahs) {
+      el.classList.remove('current');
     }
   }
+
   const surahData: SurahData | null = state.surahData;
-  if (surahData && state.currentAyahIndex >= _ayahsReadyCount) {
-    renderAyahChunk(surahData, _ayahsReadyCount, state.currentAyahIndex - _ayahsReadyCount + VIRTUAL_CHUNK_SIZE);
+  if (!surahData) {
+    return;
   }
+
+  // Ensure the chunk containing the current ayah is rendered
+  const targetChunk = getChunkIndex(state.currentAyahIndex);
+  if (!_renderedChunks.has(targetChunk) && _currentTextData) {
+    const startAyah = targetChunk * VIRTUAL_CHUNK_SIZE;
+    renderAyahChunk(_currentTextData, startAyah, VIRTUAL_CHUNK_SIZE);
+  }
+
   const cur = container?.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`) as HTMLElement | null;
   if (cur) {
     cur.classList.add('current');
     if (state.hifdhMode) {
-      for (let i = 0; i < ayahs!.length; i++) {
-        ayahs![i]?.classList.remove('revealed');
+      // Remove 'revealed' from all ayahs first
+      const revealedAyahs = container?.querySelectorAll('.ayah.revealed');
+      if (revealedAyahs) {
+        for (const el of revealedAyahs) {
+          el.classList.remove('revealed');
+        }
       }
+      // Mark current and all rendered previous ayahs as revealed
       for (let i = 0; i <= state.currentAyahIndex; i++) {
-        const prev = container!.querySelector(`.ayah[data-index="${i}"]`) as HTMLElement | null;
+        const prev = container?.querySelector(`.ayah[data-index="${i}"]`) as HTMLElement | null;
         if (prev) {
           prev.classList.add('revealed');
         }
