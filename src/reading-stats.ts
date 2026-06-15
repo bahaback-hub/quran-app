@@ -114,7 +114,9 @@ export function resetReadingStats(): void {
 
 /** Render reading statistics in a container. */
 export function renderReadingStats(container: HTMLElement | null): void {
-  if (!container) return;
+  if (!container) {
+    return;
+  }
   const stats = getFormattedStats();
   container.innerHTML = readingStatsGrid([
     { icon: '', label: __('stats_ayahs_read'), value: stats.totalAyahs },
