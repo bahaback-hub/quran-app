@@ -21,16 +21,11 @@ vi.mock('../ui.js', () => ({
   showToast: vi.fn(),
 }));
 
-import {
-  initErrorBoundary,
-  destroyErrorBoundary,
-  getErrorLog,
-  clearErrorLog,
-} from '../error-boundary.js';
+import { initErrorBoundary, destroyErrorBoundary, getErrorLog, clearErrorLog } from '../error-boundary.js';
 
 /** Helper to clean up recovery overlays from the DOM. */
 function cleanupOverlays() {
-  document.querySelectorAll('#errorRecoveryOverlay').forEach(el => el.remove());
+  document.querySelectorAll('#errorRecoveryOverlay').forEach((el) => el.remove());
 }
 
 describe('initErrorBoundary', () => {
@@ -159,7 +154,7 @@ describe('getErrorLog', () => {
     window.dispatchEvent(errorEvent);
 
     const log = getErrorLog();
-    expect(log.some(e => e.type === 'resource')).toBe(true);
+    expect(log.some((e) => e.type === 'resource')).toBe(true);
 
     document.body.removeChild(img);
   });
@@ -174,7 +169,7 @@ describe('getErrorLog', () => {
     window.dispatchEvent(errorEvent);
 
     const log = getErrorLog();
-    expect(log.every(e => e.type !== 'resource')).toBe(true);
+    expect(log.every((e) => e.type !== 'resource')).toBe(true);
 
     document.body.removeChild(div);
   });
@@ -186,7 +181,7 @@ describe('getErrorLog', () => {
     window.dispatchEvent(errorEvent);
 
     const log = getErrorLog();
-    expect(log.every(e => e.type !== 'resource')).toBe(true);
+    expect(log.every((e) => e.type !== 'resource')).toBe(true);
   });
 
   it('should ignore error events targeting document', () => {
@@ -196,7 +191,7 @@ describe('getErrorLog', () => {
     window.dispatchEvent(errorEvent);
 
     const log = getErrorLog();
-    expect(log.every(e => e.type !== 'resource')).toBe(true);
+    expect(log.every((e) => e.type !== 'resource')).toBe(true);
   });
 });
 
@@ -275,7 +270,7 @@ describe('error classification', () => {
       'test.js',
       1,
       1,
-      new Error('Cannot read properties of null')
+      new Error('Cannot read properties of null'),
     );
     errorSpy.mockRestore();
 
@@ -291,7 +286,7 @@ describe('error classification', () => {
       'test.js',
       1,
       1,
-      new Error('Cannot read properties of undefined')
+      new Error('Cannot read properties of undefined'),
     );
     errorSpy.mockRestore();
 
@@ -302,13 +297,7 @@ describe('error classification', () => {
   it('should show recovery overlay for stack overflow errors', () => {
     initErrorBoundary();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    window.onerror!(
-      'Maximum call stack size exceeded',
-      'test.js',
-      1,
-      1,
-      new Error('Maximum call stack size exceeded')
-    );
+    window.onerror!('Maximum call stack size exceeded', 'test.js', 1, 1, new Error('Maximum call stack size exceeded'));
     errorSpy.mockRestore();
 
     const overlay = document.getElementById('errorRecoveryOverlay');
@@ -318,13 +307,7 @@ describe('error classification', () => {
   it('should show recovery overlay for out of memory errors', () => {
     initErrorBoundary();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    window.onerror!(
-      'Out of memory',
-      'test.js',
-      1,
-      1,
-      new Error('Out of memory')
-    );
+    window.onerror!('Out of memory', 'test.js', 1, 1, new Error('Out of memory'));
     errorSpy.mockRestore();
 
     const overlay = document.getElementById('errorRecoveryOverlay');
@@ -334,13 +317,7 @@ describe('error classification', () => {
   it('should show recovery overlay for errors from app.js', () => {
     initErrorBoundary();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    window.onerror!(
-      'Something broke',
-      'app.js',
-      1,
-      1,
-      new Error('Something broke')
-    );
+    window.onerror!('Something broke', 'app.js', 1, 1, new Error('Something broke'));
     errorSpy.mockRestore();
 
     const overlay = document.getElementById('errorRecoveryOverlay');
@@ -350,13 +327,7 @@ describe('error classification', () => {
   it('should show recovery overlay for errors from main.js', () => {
     initErrorBoundary();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    window.onerror!(
-      'Init failure',
-      'main.js',
-      1,
-      1,
-      new Error('Init failure')
-    );
+    window.onerror!('Init failure', 'main.js', 1, 1, new Error('Init failure'));
     errorSpy.mockRestore();
 
     const overlay = document.getElementById('errorRecoveryOverlay');
@@ -366,13 +337,7 @@ describe('error classification', () => {
   it('should NOT show recovery overlay for non-critical errors', () => {
     initErrorBoundary();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    window.onerror!(
-      'A minor error occurred',
-      'feature.js',
-      1,
-      1,
-      new Error('A minor error')
-    );
+    window.onerror!('A minor error occurred', 'feature.js', 1, 1, new Error('A minor error'));
     errorSpy.mockRestore();
 
     const overlay = document.getElementById('errorRecoveryOverlay');
@@ -507,20 +472,8 @@ describe('recovery overlay', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Trigger two critical errors
-    window.onerror!(
-      'Maximum call stack size exceeded',
-      'test.js',
-      1,
-      1,
-      new Error('Stack overflow')
-    );
-    window.onerror!(
-      'Maximum call stack size exceeded',
-      'test.js',
-      2,
-      1,
-      new Error('Stack overflow 2')
-    );
+    window.onerror!('Maximum call stack size exceeded', 'test.js', 1, 1, new Error('Stack overflow'));
+    window.onerror!('Maximum call stack size exceeded', 'test.js', 2, 1, new Error('Stack overflow 2'));
     errorSpy.mockRestore();
 
     const overlays = document.querySelectorAll('#errorRecoveryOverlay');
@@ -530,13 +483,7 @@ describe('recovery overlay', () => {
   it('should create overlay with role="alertdialog"', () => {
     initErrorBoundary();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    window.onerror!(
-      'Maximum call stack size exceeded',
-      'test.js',
-      1,
-      1,
-      new Error('Stack overflow')
-    );
+    window.onerror!('Maximum call stack size exceeded', 'test.js', 1, 1, new Error('Stack overflow'));
     errorSpy.mockRestore();
 
     const overlay = document.getElementById('errorRecoveryOverlay');
@@ -547,13 +494,7 @@ describe('recovery overlay', () => {
   it('should create overlay with aria-label', () => {
     initErrorBoundary();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    window.onerror!(
-      'Maximum call stack size exceeded',
-      'test.js',
-      1,
-      1,
-      new Error('Stack overflow')
-    );
+    window.onerror!('Maximum call stack size exceeded', 'test.js', 1, 1, new Error('Stack overflow'));
     errorSpy.mockRestore();
 
     const overlay = document.getElementById('errorRecoveryOverlay');
@@ -564,13 +505,7 @@ describe('recovery overlay', () => {
   it('should append overlay to document body', () => {
     initErrorBoundary();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    window.onerror!(
-      'Maximum call stack size exceeded',
-      'test.js',
-      1,
-      1,
-      new Error('Stack overflow')
-    );
+    window.onerror!('Maximum call stack size exceeded', 'test.js', 1, 1, new Error('Stack overflow'));
     errorSpy.mockRestore();
 
     const overlay = document.getElementById('errorRecoveryOverlay');
