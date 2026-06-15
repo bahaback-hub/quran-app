@@ -142,7 +142,7 @@ export interface SurahStateSlice {
   surahData: SurahData | null;
   surahList: SurahInfo[];
   /** Cache of previously loaded surahs, keyed by surah number. */
-  surahCache: Map<number, SurahData>;
+  surahCache: Map<string, import('./surah-cache.js').CachedSurahEntry>;
   loadingSurah: number | null;
   pendingTafsirAfterLoad: string | null;
 }
@@ -208,7 +208,7 @@ export interface AppState {
   surahData: SurahData | null;
   surahList: SurahInfo[];
   /** Cache of previously loaded surahs, keyed by surah number. */
-  surahCache: Map<number, SurahData>;
+  surahCache: Map<string, import('./surah-cache.js').CachedSurahEntry>;
   ayahsAudios: string[];
   isPlaying: boolean;
   hifdhMode: boolean;
@@ -404,7 +404,7 @@ export function subscribe(key: string, callback: StateChangeCallback | TypedStat
   // Wrap typed callback to match internal signature
   const wrapped: StateChangeCallback =
     'length' in callback && callback.length <= 2
-      ? (nv: unknown, ov: unknown, _k: string) => (callback as TypedStateChangeCallback<keyof AppState>)(nv, ov)
+      ? (nv: unknown, ov: unknown, _k: string) => (callback as TypedStateChangeCallback<keyof AppState>)(nv as AppState[keyof AppState], ov as AppState[keyof AppState])
       : callback as StateChangeCallback;
 
   subscribers.get(key)!.push(wrapped);
