@@ -29,6 +29,7 @@ if (isCapNative || isAndroidWebView) {
     try {
       const cap = getCapacitor();
       cap?.Plugins?.SplashScreen?.hide?.({ fadeOutDuration: 300 });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       /* ignore */
     }
@@ -130,6 +131,7 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
           console.log('[Capacitor] Unregistered service worker to prevent conflicts');
         }
       })
+      // eslint-disable-next-line no-empty-function
       .catch(() => {});
   }
 }
