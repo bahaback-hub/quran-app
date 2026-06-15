@@ -20,14 +20,14 @@ type AriaPoliteness = 'polite' | 'assertive';
  */
 function getLiveRegion(politeness: AriaPoliteness): HTMLDivElement {
   for (const region of _liveRegions) {
-    if (region.getAttribute('aria-live') === politeness && !region.dataset.busy) {
+    if (region.getAttribute('aria-live') === politeness && !region.dataset['busy']) {
       return region;
     }
   }
   // Cap pool size at 4 — reuse oldest region if limit reached
   if (_liveRegions.length >= 4) {
-    const oldest = _liveRegions[0];
-    delete oldest.dataset.busy;
+    const oldest = _liveRegions[0]!;
+    delete oldest.dataset['busy'];
     return oldest;
   }
   const el = document.createElement('div');
@@ -56,33 +56,41 @@ const FOCUSABLE_SELECTOR =
  * @returns Cleanup function.
  */
 export function trapFocus(container: HTMLElement): () => void {
-  if (!container) return () => {};
+  if (!container) {
+    return () => {};
+  }
 
   function onKeyDown(e: KeyboardEvent): void {
-    if (e.key !== 'Tab') return;
+    if (e.key !== 'Tab') {
+      return;
+    }
     const focusable = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter(
-      (el: Element) => (el as HTMLElement).offsetParent !== null && !el.hasAttribute('disabled')
+      (el: Element) => (el as HTMLElement).offsetParent !== null && !el.hasAttribute('disabled'),
     ) as HTMLElement[];
-    if (focusable.length === 0) return;
+    if (focusable.length === 0) {
+      return;
+    }
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     const active = document.activeElement;
     if (e.shiftKey) {
       if (active === first || !container.contains(active)) {
         e.preventDefault();
-        last.focus();
+        last!.focus();
       }
     } else {
       if (active === last || !container.contains(active)) {
         e.preventDefault();
-        first.focus();
+        first!.focus();
       }
     }
   }
 
   container.addEventListener('keydown', onKeyDown);
   const initial = container.querySelector(FOCUSABLE_SELECTOR) as HTMLElement | null;
-  if (initial) requestAnimationFrame(() => initial.focus());
+  if (initial) {
+    requestAnimationFrame(() => initial.focus());
+  }
   return () => container.removeEventListener('keydown', onKeyDown);
 }
 
@@ -94,14 +102,16 @@ export function trapFocus(container: HTMLElement): () => void {
  * Announce a message to screen readers via an ARIA live region.
  */
 export function announceToScreenReader(message: string, politeness: AriaPoliteness = 'polite'): void {
-  if (!message) return;
+  if (!message) {
+    return;
+  }
   const region = getLiveRegion(politeness);
   region.textContent = '';
-  region.dataset.busy = '1';
+  region.dataset['busy'] = '1';
   requestAnimationFrame(() => {
     region.textContent = message;
     setTimeout(() => {
-      delete region.dataset.busy;
+      delete region.dataset['busy'];
     }, 600);
   });
 }
@@ -116,15 +126,25 @@ let _a11yIdCounter = 0;
  * Move focus into a panel/drawer when it opens.
  */
 export function manageFocusOnPanelOpen(panelEl: HTMLElement, triggerEl?: HTMLElement): void {
-  if (!panelEl) return;
-  if (triggerEl) {
-    if (!triggerEl.id) triggerEl.id = '_a11y_trigger_' + Date.now() + '_' + (++_a11yIdCounter);
-    panelEl.dataset.a11yTriggerId = triggerEl.id;
+  if (!panelEl) {
+    return;
   }
-  if (!panelEl.hasAttribute('tabindex')) panelEl.setAttribute('tabindex', '-1');
+  if (triggerEl) {
+    if (!triggerEl.id) {
+      triggerEl.id = '_a11y_trigger_' + Date.now() + '_' + ++_a11yIdCounter;
+    }
+    panelEl.dataset['a11yTriggerId'] = triggerEl.id;
+  }
+  if (!panelEl.hasAttribute('tabindex')) {
+    panelEl.setAttribute('tabindex', '-1');
+  }
   const first = panelEl.querySelector(FOCUSABLE_SELECTOR) as HTMLElement | null;
   requestAnimationFrame(() => {
-    first ? first.focus() : panelEl.focus();
+    if (first) {
+      first.focus();
+    } else {
+      panelEl.focus();
+    }
   });
   const label = panelEl.getAttribute('aria-label') || panelEl.getAttribute('aria-labelledby') || 'Panel';
   announceToScreenReader(`${label} opened`);
@@ -140,8 +160,10 @@ export function manageFocusOnPanelOpen(panelEl: HTMLElement, triggerEl?: HTMLEle
 export function restoreFocusOnPanelClose(triggerEl?: HTMLElement | null, panelEl?: HTMLElement | null): void {
   let target: HTMLElement | null | undefined = triggerEl;
   if (!target && panelEl) {
-    const id = panelEl.dataset.a11yTriggerId;
-    if (id) target = document.getElementById(id);
+    const id = panelEl.dataset['a11yTriggerId'];
+    if (id) {
+      target = document.getElementById(id);
+    }
   }
   if (target && typeof target.focus === 'function') {
     requestAnimationFrame(() => target.focus());
@@ -160,7 +182,9 @@ export function restoreFocusOnPanelClose(triggerEl?: HTMLElement | null, panelEl
  * @returns Cleanup function.
  */
 export function addKeyboardDismiss(element: HTMLElement, callback: () => void): () => void {
-  if (!element || typeof callback !== 'function') return () => {};
+  if (!element || typeof callback !== 'function') {
+    return () => {};
+  }
   function onKeyDown(e: KeyboardEvent): void {
     if (e.key === 'Escape') {
       e.stopPropagation();
@@ -182,7 +206,9 @@ export function addKeyboardDismiss(element: HTMLElement, callback: () => void): 
 export function initToggleSwitchAccessibility(): void {
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     const toggle = (e.target as Element)?.closest('.toggle-switch') as HTMLElement | null;
-    if (!toggle) return;
+    if (!toggle) {
+      return;
+    }
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       toggle.click();
@@ -190,7 +216,9 @@ export function initToggleSwitchAccessibility(): void {
   });
 
   for (const toggle of document.querySelectorAll('.toggle-switch')) {
-    if (!toggle.hasAttribute('tabindex')) toggle.setAttribute('tabindex', '0');
+    if (!toggle.hasAttribute('tabindex')) {
+      toggle.setAttribute('tabindex', '0');
+    }
     toggle.setAttribute('aria-checked', String(toggle.classList.contains('on')));
   }
 
