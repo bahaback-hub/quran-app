@@ -19,18 +19,24 @@ export function toggleSelectMode(): void {
   const selectModeBar = document.getElementById('selectModeBar');
   selectModeBtn?.classList.toggle('active', isNowActive);
   selectModeBar?.classList.toggle('show', isNowActive);
-  if (!isNowActive) clearSelection();
+  if (!isNowActive) {
+    clearSelection();
+  }
   updateSelectable();
 }
 
 /** Enter select mode programmatically. */
 export function enterSelectMode(): void {
-  if (!getSelectMode()) toggleSelectMode();
+  if (!getSelectMode()) {
+    toggleSelectMode();
+  }
 }
 
 /** Exit select mode programmatically. */
 export function exitSelectMode(): void {
-  if (getSelectMode()) toggleSelectMode();
+  if (getSelectMode()) {
+    toggleSelectMode();
+  }
 }
 
 /** Clear all selected ayahs. */
@@ -63,14 +69,18 @@ export function shareSelected(): void {
 function updateSelectable(): void {
   document.querySelectorAll('.ayah').forEach((el: Element) => {
     el.classList.toggle('selectable', getSelectMode());
-    if (!getSelectMode()) el.classList.remove('selected');
+    if (!getSelectMode()) {
+      el.classList.remove('selected');
+    }
   });
 }
 
 function updateSelectCount(): void {
   const count = getSelectedAyahs().length;
   const el = document.getElementById('selectCount');
-  if (el) el.textContent = String(count);
+  if (el) {
+    el.textContent = String(count);
+  }
   const selectModeBar = document.getElementById('selectModeBar');
   if (selectModeBar) {
     // Keep bar visible while select mode is active, even with 0 selections
@@ -80,9 +90,13 @@ function updateSelectCount(): void {
 
 /** Handle click on an ayah during select mode. */
 export function handleAyahSelect(surah: number, ayah: number, text: string, surahName: string, index: number): void {
-  if (!getSelectMode()) return;
+  if (!getSelectMode()) {
+    return;
+  }
   const el = document.querySelector(`.ayah[data-index="${index}"]`);
-  if (!el) return;
+  if (!el) {
+    return;
+  }
   if (el.classList.contains('selected')) {
     el.classList.remove('selected');
     filterSelectedAyahs((a: SelectedAyah) => !(a.surah === surah && a.ayah === ayah));
