@@ -82,13 +82,15 @@ export interface CapacitorGlobal {
  * @returns True if value is a valid SurahData object
  */
 export function isSurahData(value: unknown): value is SurahData {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
   const obj = value as Record<string, unknown>;
   return (
-    typeof obj.number === 'number' &&
-    typeof obj.name === 'string' &&
-    typeof obj.englishName === 'string' &&
-    Array.isArray(obj.ayahs)
+    typeof obj['number'] === 'number' &&
+    typeof obj['name'] === 'string' &&
+    typeof obj['englishName'] === 'string' &&
+    Array.isArray(obj['ayahs'])
   );
 }
 
@@ -100,9 +102,11 @@ export function isSurahData(value: unknown): value is SurahData {
  * @returns True if value has Fajr and Maghrib as strings
  */
 export function isPrayerTimes(value: unknown): value is Record<string, string | undefined> {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
   const obj = value as Record<string, unknown>;
-  return typeof obj.Fajr === 'string' && typeof obj.Maghrib === 'string';
+  return typeof obj['Fajr'] === 'string' && typeof obj['Maghrib'] === 'string';
 }
 
 /**
@@ -115,7 +119,9 @@ export function isPrayerTimes(value: unknown): value is Record<string, string | 
  * @returns True if value is an object containing all specified keys
  */
 export function hasKeys<K extends string>(value: unknown, ...keys: K[]): value is Record<K, unknown> {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
   const obj = value as Record<string, unknown>;
   return keys.every((key) => key in obj);
 }
@@ -146,8 +152,12 @@ export function getCapacitor(): CapacitorGlobal | undefined {
  */
 export function isCapacitorNative(): boolean {
   const cap = getCapacitor();
-  if (!cap) return false;
-  if (typeof cap.isNativePlatform === 'function') return cap.isNativePlatform();
+  if (!cap) {
+    return false;
+  }
+  if (typeof cap.isNativePlatform === 'function') {
+    return cap.isNativePlatform();
+  }
   return cap.isNative === true;
 }
 
