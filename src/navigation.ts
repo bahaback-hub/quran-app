@@ -1,3 +1,11 @@
+/**
+ * @module navigation
+ * @description Navigation controller for the Quran app. Initializes all navigation
+ * event listeners including surah navigation buttons, player controls, view mode
+ * toggles (surah/mushaf/presentation), page selectors, and the bottom navigation
+ * tab bar. Also restores persisted mushaf mode on startup.
+ */
+
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
@@ -68,12 +76,7 @@ export function initNavigation(): void {
 
   /* ========== VIEW MODE TOGGLES ========== */
   dom.viewSurahBtn?.addEventListener('click', () => {
-    import('./presentation.js')
-      .then((m) => m.closePresentation())
-      .catch(
-        // eslint-disable-next-line no-empty-function
-        () => {},
-      );
+    import('./presentation.js').then((m) => m.closePresentation()).catch(() => { /* noop */ });
     if (state.mushafMode) {
       import('./mushaf.js').then((m) => m.toggleMushafMode());
     }
@@ -91,12 +94,7 @@ export function initNavigation(): void {
     }
   });
   dom.viewMushafBtn?.addEventListener('click', () => {
-    import('./presentation.js')
-      .then((m) => m.closePresentation())
-      .catch(
-        // eslint-disable-next-line no-empty-function
-        () => {},
-      );
+    import('./presentation.js').then((m) => m.closePresentation()).catch(() => { /* noop */ });
     import('./mushaf.js').then((m) => m.toggleMushafMode());
   });
   dom.viewPresBtn?.addEventListener('click', () => {
