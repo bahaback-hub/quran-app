@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { adhkarTab, adhkarCategoryTitle, adhkarItemCard, adhkarSettingRow, escapeHtml } from './templates.js';
+import { adhkarTab, adhkarCategoryTitle, escapeHtml } from './templates.js';
 import { ADHKAR_DATA } from './adhkar-data.js';
 import { __ } from './i18n.js';
 import {
