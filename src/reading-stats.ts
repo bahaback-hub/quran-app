@@ -1,3 +1,10 @@
+/**
+ * @module reading-stats
+ * @description Reading statistics tracking for the Quran app. Records ayahs read,
+ * reading time, session counts, per-surah breakdowns, and daily streaks.
+ * Provides formatted output for the stats UI panel and supports full reset.
+ */
+
 import { __ } from './i18n.js';
 import { storage } from './storage.js';
 import { readingStatsGrid } from './templates.js';
