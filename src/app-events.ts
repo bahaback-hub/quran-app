@@ -42,6 +42,7 @@ import { loadTajweedAnnotations } from './tajweed-data.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { toggleTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import * as audioModule from './audio.js';
+import { syncAriaExpanded } from './a11y.js';
 
 /** API response shape for ayah page lookup. */
 interface AyahPageResponse {
@@ -374,7 +375,9 @@ export function bindMiscEvents(): void {
     if (dom.searchToggleBtn) {
       dom.searchToggleBtn.classList.toggle('active');
     }
-    if (dom.searchInputGroup?.classList.contains('hidden') === false) {
+    const isExpanded = dom.searchInputGroup?.classList.contains('hidden') === false;
+    syncAriaExpanded(dom.searchToggleBtn, isExpanded);
+    if (isExpanded) {
       dom.searchInput?.focus();
     }
   });
