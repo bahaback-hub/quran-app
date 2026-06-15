@@ -84,18 +84,24 @@ export async function initApp(): Promise<void> {
   initToggleSwitchAccessibility();
 
   // Set language selector to current language
-  if (dom.langSelect) dom.langSelect.value = getLang();
+  if (dom.langSelect) {
+    dom.langSelect.value = getLang();
+  }
 
   // Listen for language changes to update UI text (custom event from i18n module)
   window.addEventListener('app:langchange', () => {
     applyTranslations();
     const hint = document.getElementById('keyboardHint');
-    if (hint) hint.textContent = ''; // will be set by i18n
+    if (hint) {
+      hint.textContent = '';
+    } // will be set by i18n
   });
 
   // Restore player state
   const savedPlayerCollapsed = storage.get<boolean>('player_collapsed');
-  if (savedPlayerCollapsed === false && dom.player) dom.player.classList.remove('collapsed');
+  if (savedPlayerCollapsed === false && dom.player) {
+    dom.player.classList.remove('collapsed');
+  }
 
   window.addEventListener('online', updateNetworkBanner);
   window.addEventListener('offline', updateNetworkBanner);
@@ -118,10 +124,18 @@ export async function initApp(): Promise<void> {
     startClock();
     scheduleNextAzanCheck();
     loadPrayerTimes();
-    import('./ayah-modal.js').then((m) => m.initAyahModal()).catch((e) => console.error('[App] Failed to init ayah modal:', e));
-    import('./presentation.js').then((m) => m.initPresentation()).catch((e) => console.error('[App] Failed to init presentation:', e));
-    import('./mushaf.js').then((m) => m.populateSurahOverlay()).catch((e) => console.error('[App] Failed to init mushaf overlay:', e));
+    import('./ayah-modal.js')
+      .then((m) => m.initAyahModal())
+      .catch((e) => console.error('[App] Failed to init ayah modal:', e));
+    import('./presentation.js')
+      .then((m) => m.initPresentation())
+      .catch((e) => console.error('[App] Failed to init presentation:', e));
+    import('./mushaf.js')
+      .then((m) => m.populateSurahOverlay())
+      .catch((e) => console.error('[App] Failed to init mushaf overlay:', e));
     // Ensure full Quran text is loaded when online (non-blocking)
-    if (navigator.onLine) fullQuranPromise.catch(console.warn);
+    if (navigator.onLine) {
+      fullQuranPromise.catch(console.warn);
+    }
   }, 0);
 }
