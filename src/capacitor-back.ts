@@ -1,3 +1,12 @@
+/**
+ * @module capacitor-back
+ * @description Capacitor back button handler for the Quran app. Implements the
+ * hardware back button behavior on Android/Capacitor builds, closing panels and
+ * overlays in a priority order: presentation → mushaf overlay → secrets overlay →
+ * active panels (settings, adhkar, favorites, ayah modal, tafsir) → player
+ * collapse → mushaf mode exit → search close.
+ */
+
 import { closeSettings } from './settings.js';
 import { state } from './state.js';
 import { closeAdhkarPanel } from './adhkar.js';
@@ -6,17 +15,24 @@ import { closeTafsir } from './tafsir.js';
 import { getCapacitor } from './types.js';
 import type { CapacitorPlugins } from './types.js';
 
-/** Capacitor App plugin interface. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface CapacitorAppPlugin {
-  addListener: (event: string, callback: () => void) => void;
-}
-
+/** Represents an active panel/modal that can be closed by the back button. */
 interface ActivePanel {
   el: HTMLElement | null;
   close: () => void;
 }
 
+/**
+ * Initialize the Capacitor hardware back button handler.
+ * Registers a listener that closes panels/overlays in priority order when
+ * the Android back button is pressed. If the Capacitor App plugin is not
+ * available (e.g., running in a browser), this function exits silently.
+ *
+ * @param plugins - Optional Capacitor plugins object for testing or custom injection.
+ *
+ * @example
+ * initCapacitorBackButton();               // auto-detect Capacitor
+ * initCapacitorBackButton(customPlugins);  // inject custom plugins
+ */
 export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
   const capGlobal = getCapacitor()?.Plugins as CapacitorPlugins | undefined;
   const app = plugins?.App || capGlobal?.App;
@@ -27,12 +43,7 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
     app.addListener?.('backButton', () => {
       // Close presentation overlay first — use proper close function
       if (state.presentationMode) {
-        import('./presentation.js')
-          .then((m) => m.closePresentation())
-          .catch(
-            // eslint-disable-next-line no-empty-function
-            () => {},
-          );
+        import('./presentation.js').then((m) => m.closePresentation()).catch(() => { /* noop */ });
         return;
       }
 
