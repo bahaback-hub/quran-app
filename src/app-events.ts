@@ -26,6 +26,7 @@ import {
   importSettings,
   initSettingsTabs,
 } from './settings.js';
+import { cacheSurahAudio, isSurahCached, deleteSurahCache } from './audio-cache.js';
 import { togglePrayerBar, testAzan, stopAzan, hideQiblaCompass, hideAzanNotification } from './prayer.js';
 import {
   toggleFavorite,
@@ -294,6 +295,79 @@ export function bindPanelsAndShareEvents(): void {
 }
 
 /**
+ * Handle the download audio button click.
+ * If the surah audio is already cached, offer to delete it.
+ * Otherwise, start downloading the audio for offline use.
+ */
+async function handleDownloadAudio(): Promise<void> {
+  if (!state.surahData || !state.ayahsAudios?.length) {
+    showToast(__('download_audio_no_data'), 'error');
+    return;
+  }
+
+  const surah = state.currentSurah;
+  const reciter = state.currentReciter || CONFIG.DEFAULT_RECITER;
+  const audioUrls = state.ayahsAudios;
+
+  // Check if already cached
+  const cached = await isSurahCached(audioUrls);
+
+  if (cached) {
+    // Already cached — offer to delete
+    const deleted = await deleteSurahCache(surah, reciter);
+    if (deleted > 0) {
+      showToast(__('download_audio_deleted'), 'success');
+      if (dom.downloadAudioBtn) {
+        dom.downloadAudioBtn.textContent = __('download_audio');
+        dom.downloadAudioBtn.classList.remove('active');
+      }
+    }
+    return;
+  }
+
+  // Not cached — start download
+  showToast(__('download_audio_start'), 'success');
+  if (dom.downloadAudioBtn) {
+    dom.downloadAudioBtn.textContent = '⏳...';
+    dom.downloadAudioBtn.classList.add('downloading');
+  }
+
+  try {
+    await cacheSurahAudio(audioUrls, surah, reciter, (
+      _surah: number,
+      _reciter: string,
+      current: number,
+      total: number,
+    ) => {
+      // Update button text with progress
+      if (dom.downloadAudioBtn) {
+        dom.downloadAudioBtn.textContent = `${current}/${total}`;
+      }
+    });
+
+    // Download complete
+    showToast(__('download_audio_done'), 'success');
+    if (dom.downloadAudioBtn) {
+      dom.downloadAudioBtn.textContent = '✅';
+      dom.downloadAudioBtn.classList.remove('downloading');
+      dom.downloadAudioBtn.classList.add('active');
+      // Reset to cached state after a brief moment
+      setTimeout(() => {
+        if (dom.downloadAudioBtn) {
+          dom.downloadAudioBtn.textContent = __('download_audio');
+        }
+      }, 2000);
+    }
+  } catch {
+    showToast(__('download_audio_error'), 'error');
+    if (dom.downloadAudioBtn) {
+      dom.downloadAudioBtn.textContent = __('download_audio');
+      dom.downloadAudioBtn.classList.remove('downloading');
+    }
+  }
+}
+
+/**
  * Bind search controls.
  */
 export function bindSearchEvents(): void {
@@ -318,6 +392,7 @@ export function bindSearchEvents(): void {
   dom.sleepTimerBtn?.addEventListener('click', () => {
     showSleepTimerModal(audioModule);
   });
+  dom.downloadAudioBtn?.addEventListener('click', handleDownloadAudio);
   initKeyboard();
   initSearchAutocomplete();
 }
