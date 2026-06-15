@@ -43,9 +43,9 @@
 
     <div class="network-banner" id="networkBanner">🔌 لا يوجد اتصال بالإنترنت — بعض الميزات قد لا تعمل</div>
 
-    <div class="container">
+    <div class="container" role="application" aria-label="تطبيق القرآن الكريم">
       <!-- ========== شريط مواقيت الصلاة ========== -->
-      <div class="prayer-bar collapsed" id="prayerBar" role="region" aria-label="مواقيت الصلاة">
+      <div class="prayer-bar collapsed" id="prayerBar" role="complementary" aria-label="مواقيت الصلاة">
         <div class="prayer-bar-inner">
           <div class="prayer-bar-items">
             <div class="prayer-bar-item">
@@ -272,7 +272,7 @@
       </section>
 
       <!-- ========== نتائج البحث ========== -->
-      <section class="search-results" id="searchResults" aria-live="polite"></section>
+      <section class="search-results" id="searchResults" role="region" aria-label="نتائج البحث" aria-live="polite"></section>
 
       <!-- ========== محتوى السورة ========== -->
       <main class="surah-content" id="surahContent" role="main" aria-label="نص السورة">
@@ -294,7 +294,7 @@
     <button class="tafsir-curtain-handle" id="tafsirCurtainHandle" data-i18n="tafsir" aria-label="فتح/إغلاق التفسير">
       📜 التفسير
     </button>
-    <aside class="tafsir-curtain" id="tafsirCurtain" aria-label="نافذة التفسير">
+    <aside class="tafsir-curtain" id="tafsirCurtain" role="complementary" aria-label="نافذة التفسير">
       <div class="tafsir-curtain-header" id="tafsirCurtainHeader" data-i18n="tafsir">📜 التفسير</div>
       <div class="tafsir-curtain-controls">
         <select id="tafsirSelect" aria-label="اختيار التفسير">
@@ -314,7 +314,7 @@
     <!-- Settings panel injected by overlays.ts via settingsPanelHTML() -->
 
     <!-- ========== لوحة الأذكار ========== -->
-    <aside class="adhkar-panel" id="adhkarPanel" aria-label="الأذكار">
+    <aside class="adhkar-panel" id="adhkarPanel" role="complementary" aria-label="الأذكار">
       <div class="adhkar-header">
         <h2>🕌 الأذكار</h2>
         <button class="adhkar-close" id="adhkarCloseBtn" aria-label="إغلاق الأذكار">✖</button>
@@ -328,7 +328,7 @@
     <!-- Overlays injected by overlays.ts: adhkarNotification, adhkarAddOverlay -->
 
     <!-- ========== لوحة المفضلة ========== -->
-    <aside class="favorites-panel" id="favoritesPanel" aria-label="الآيات المفضلة">
+    <aside class="favorites-panel" id="favoritesPanel" role="complementary" aria-label="الآيات المفضلة">
       <div class="favorites-header">
         <h2>❤️ المفضلة</h2>
         <button class="favorites-close" id="favoritesCloseBtn" aria-label="إغلاق المفضلة">✖</button>
