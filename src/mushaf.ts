@@ -3,7 +3,8 @@ import { CONFIG, JUZ_PAGES } from './config.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast, loadingBar } from './ui.js';
-import { escapeHtml, toArabicNumeral } from './utils.js';
+import { toArabicNumeral } from './utils.js';
+import { mushafLoadingState, surahLoadingMessage, mushafHeaderRow, mushafErrorFallback, mushafSurahNameSpan, surahSecretsBody } from './templates.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from './app.js';
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from './audio.js';
@@ -108,13 +109,7 @@ export async function toggleMushafMode(): Promise<void> {
 
     // Show immediate loading state in surahContent
     if (dom.surahContent) {
-      dom.surahContent.innerHTML = `
-        <div class="mushaf-loading-state">
-          <div class="mushaf-loading-icon">📄</div>
-          <div class="mushaf-loading-text">${__('mushaf_loading_title')}</div>
-          <div class="mushaf-loading-subtext">${__('mushaf_loading_subtitle')}</div>
-        </div>
-      `;
+      dom.surahContent.innerHTML = mushafLoadingState();
     }
 
     if (dom.pageIndicator) dom.pageIndicator.style.display = 'inline';
@@ -161,7 +156,7 @@ export async function toggleMushafMode(): Promise<void> {
       updatePlayerInfo();
     } else {
       let surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
-      dom.surahContent!.innerHTML = `<p class="loading">${__('loading_surah')}...</p>`;
+      dom.surahContent!.innerHTML = surahLoadingMessage();
       setTimeout(() => loadSurah(surahToLoad), 50);
     }
   }
@@ -261,12 +256,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
 
   const header = document.createElement('div');
   header.className = 'mushaf-header';
-  header.innerHTML = `
-    <div class="mushaf-header-row">
-      <div class="mushaf-surah-names" id="mushafSurahNames"></div>
-      <div class="mushaf-juz">${__('mushaf_juz', toArabicNumeral(juz))}</div>
-    </div>
-  `;
+  header.innerHTML = mushafHeaderRow(__('mushaf_juz', toArabicNumeral(juz)));
 
   const canvasWrapper = document.createElement('div');
   canvasWrapper.className = 'mushaf-image-wrapper';
@@ -347,11 +337,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
       // Show fallback error message in the container
       const errorDiv = document.createElement('div');
       errorDiv.className = 'mushaf-error-fallback';
-      errorDiv.innerHTML = `
-        <p class="mushaf-error-title">⚠️ ${__('mushaf_load_failed')}</p>
-        <p class="mushaf-error-subtitle">${__('mushaf_check_connection')}</p>
-        <button onclick="location.reload()" class="mushaf-error-retry-btn">${__('mushaf_retry_reload')}</button>
-      `;
+      errorDiv.innerHTML = mushafErrorFallback();
       canvasWrapper.appendChild(errorDiv);
       loadingBar.hide();
     }
@@ -384,7 +370,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
           if (!seen[a.surah.number]) seen[a.surah.number] = a.surah.name;
         });
         surahNamesEl.innerHTML = Object.values(seen)
-          .map((n) => `<span class="mushaf-surah-name">${escapeHtml(n)}</span>`)
+          .map((n) => mushafSurahNameSpan(n))
           .join(' ');
       }
     })
@@ -481,12 +467,8 @@ export function showSurahSecret(surahNum: number, surahName?: string): void {
   }
   dom.surahSecretsSurahName.textContent = `ℹ️ ${surahNum}. ${surahName ?? ''}`;
   dom.surahSecretsTitle.textContent = __('mushaf_surah_info');
-  let html = `<p>${escapeHtml(secret)}</p>`;
   const authKeys = SURAH_SECRETS_AUTH_KEYS[surahNum];
-  if (authKeys && authKeys.length) {
-    html += `<div class="secret-source">${__('mushaf_sources')} ${authKeys.map((k: string) => `<span>${escapeHtml(k)}</span>`).join(' ')}</div>`;
-  }
-  dom.surahSecretsBody.innerHTML = html;
+  dom.surahSecretsBody.innerHTML = surahSecretsBody(secret, authKeys && authKeys.length ? authKeys : undefined);
   dom.surahSecretsOverlay.classList.remove('hidden');
   dom.surahSecretsOverlay.style.display = 'flex';
 }
