@@ -12,7 +12,7 @@ import {
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { escapeRegExp, copyToClipboard, normalizeExactText, normalizeRelaxed } from './utils.js';
+import { escapeRegExp, copyToClipboard, normalizeExactText } from './utils.js';
 import {
   searchEmptyResults,
   searchResultsHeader,
@@ -27,7 +27,6 @@ import { playCurrentAyah } from './audio.js';
 import {
   SEARCH_PAGE_SIZE,
   performSearch,
-  buildSearchWords,
   addToSearchHistory,
   loadFullQuranText,
   getSearchHistory,
@@ -36,13 +35,7 @@ import {
 import { CONFIG } from './config.js';
 import { __ } from './i18n.js';
 
-/** Options for loading a surah (matches surah-loader internal interface). */
-interface LoadSurahOptions {
-  startAyah?: number;
-  autoPlay?: boolean;
-}
-
-/** Data shape for opening the ayah modal. */
+/* ===================== TYPES ===================== */
 interface ModalAyahData {
   surah: number;
   ayah: number;
@@ -562,6 +555,7 @@ function stopVoiceSearch(): void {
   if (getVoiceRecognition()) {
     try {
       (getVoiceRecognition() as SpeechRecognitionInstance).stop();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_e) {
       /* noop */
     }
