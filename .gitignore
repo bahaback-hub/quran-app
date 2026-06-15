@@ -46,3 +46,11 @@ worklog.md
 
 # Vite
 .vite/
+
+# Development artifacts (not part of the app)
+tool-results/
+skills/
+quran-app/
+
+# AI agent worklog
+agent-ctx/
