@@ -1,3 +1,22 @@
+/**
+ * Internationalization (i18n) Module for Quran App.
+ *
+ * Provides a lightweight, lazy-loading translation system supporting 5 languages
+ * (Arabic, English, Turkish, Malay, Indonesian). Key design decisions:
+ *
+ *   - Arabic is always loaded as the fallback language
+ *   - Only the active language bundle is kept in memory
+ *   - Dynamic imports ensure users only download the language they need
+ *   - Concurrent load requests for the same language are deduplicated
+ *   - Background preloading warms likely-needed languages after init
+ *   - DOM updates via data-i18n attributes allow declarative translation
+ *
+ * Usage:
+ *   import { __, initI18n, setLang } from './i18n.js';
+ *   await initI18n();  // Load saved/browser language
+ *   const text = __('pray_fajr');  // 'الفجر' or 'Fajr'
+ */
+
 import { storage } from './storage.js';
 
 /** Translation bundle — string keys plus structured sub-objects. */
