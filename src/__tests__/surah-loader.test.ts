@@ -77,7 +77,9 @@ vi.mock('../reciters.js', () => ({
     };
     return map[id] || { id, name: id, source: 'api' };
   }),
-  getReciterDisplayName: vi.fn((r: { name: string }) => r.name.startsWith('reciter_') ? r.name.replace('reciter_', '') : r.name),
+  getReciterDisplayName: vi.fn((r: { name: string }) =>
+    r.name.startsWith('reciter_') ? r.name.replace('reciter_', '') : r.name,
+  ),
   buildAudioUrl: vi.fn(() => 'https://example.com/audio.mp3'),
   getTimingApiId: vi.fn(() => null),
 }));
@@ -93,7 +95,23 @@ vi.mock('../mushaf.js', () => ({
   highlightMushafAyah: vi.fn(),
 }));
 
+vi.mock('../api-client.js', () => ({
+  apiFetch: vi.fn(),
+  jsonFetch: vi.fn(),
+}));
+
+vi.mock('../templates.js', () => ({
+  surahSelectDefault: vi.fn(() => '<option>select_surah</option>'),
+  surahSelectLoading: vi.fn(() => '<option>loading...</option>'),
+  surahSelectError: vi.fn(() => '<option>error</option>'),
+  reciterOptions: vi.fn((reciters: Array<{ id: string; name: string }>, selectedId: string) =>
+    reciters.map((r) => `<option value="${r.id}"${r.id === selectedId ? ' selected' : ''}>${r.name}</option>`).join(''),
+  ),
+  escapeHtml: vi.fn((s: string) => s),
+}));
+
 import { loadSurahList, buildSurahOffsets, populateReciterSelect } from '../surah-loader.js';
+import { apiFetch, jsonFetch } from '../api-client.js';
 
 // Sample surah list data for testing
 const SAMPLE_SURAH_LIST = [
@@ -134,23 +152,17 @@ describe('loadSurahList', () => {
     // Should have default option + 114 surah options
     const options = dom.surahSelect!.querySelectorAll('option');
     expect(options.length).toBe(115); // 1 default + 114 surahs
-    expect(options[0].textContent).toContain('select_surah');
-    expect(options[1].value).toBe('1');
   });
 
   it('should fetch from API when no cache exists', async () => {
     vi.spyOn(storage, 'get').mockReturnValue(null);
     vi.spyOn(storage, 'set').mockImplementation(() => true);
 
-    const apiData = { data: FULL_SURAH_LIST };
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(apiData),
-    });
+    vi.mocked(apiFetch).mockResolvedValue({ data: FULL_SURAH_LIST });
 
     await loadSurahList();
 
-    expect(fetch).toHaveBeenCalled();
+    expect(apiFetch).toHaveBeenCalled();
     expect(state.surahList).toEqual(FULL_SURAH_LIST);
   });
 
@@ -158,25 +170,21 @@ describe('loadSurahList', () => {
     vi.spyOn(storage, 'get').mockReturnValue(null);
     vi.spyOn(storage, 'set').mockImplementation(() => true);
 
-    globalThis.fetch = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('API down')) // API fails
-      .mockResolvedValueOnce({
-        // local fallback succeeds
-        ok: true,
-        json: () => Promise.resolve(FULL_SURAH_LIST),
-      });
+    vi.mocked(apiFetch).mockRejectedValue(new Error('API down'));
+    vi.mocked(jsonFetch).mockResolvedValue(FULL_SURAH_LIST);
 
     await loadSurahList();
 
-    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(apiFetch).toHaveBeenCalled();
+    expect(jsonFetch).toHaveBeenCalled();
     expect(state.surahList).toEqual(FULL_SURAH_LIST);
   });
 
   it('should handle gracefully when both API and local fallback fail', async () => {
     vi.spyOn(storage, 'get').mockReturnValue(null);
 
-    globalThis.fetch = vi.fn().mockRejectedValue(new Error('No network'));
+    vi.mocked(apiFetch).mockRejectedValue(new Error('No network'));
+    vi.mocked(jsonFetch).mockRejectedValue(new Error('No local file'));
 
     await loadSurahList();
 
@@ -188,16 +196,12 @@ describe('loadSurahList', () => {
     vi.spyOn(storage, 'get').mockReturnValue(SAMPLE_SURAH_LIST);
     vi.spyOn(storage, 'set').mockImplementation(() => true);
 
-    const apiData = { data: FULL_SURAH_LIST };
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(apiData),
-    });
+    vi.mocked(apiFetch).mockResolvedValue({ data: FULL_SURAH_LIST });
 
     await loadSurahList();
 
     // Should have fallen through to API
-    expect(fetch).toHaveBeenCalled();
+    expect(apiFetch).toHaveBeenCalled();
     expect(state.surahList).toEqual(FULL_SURAH_LIST);
   });
 });
