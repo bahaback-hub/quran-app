@@ -10,11 +10,10 @@ import {
   reciterOptions,
   skeletonLoading,
   surahLoadError,
-  surahContentShell,
   collapsedPlayerInfo,
   escapeHtml,
 } from './templates.js';
-import { state, batch, immutablePush, immutableMapSet, immutableMapDelete, SurahInfo, SurahOffset } from './state.js';
+import { state, batch, immutableMapSet, immutableMapDelete, SurahInfo, SurahOffset } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId, getReciterDisplayName } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
 import type { TajweedRule } from './tajweed.js';
@@ -106,10 +105,12 @@ export async function loadSurahList(): Promise<void> {
       populateSurahSelect();
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_e) {
     /* fall through to local fallback */
   }
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const localData: any = await jsonFetch('data/surah-list.json', { silent: true });
     if (localData && localData.length === CONFIG.SURAH_COUNT) {
       state.surahList = localData;
@@ -118,6 +119,7 @@ export async function loadSurahList(): Promise<void> {
       populateSurahSelect();
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_e) {
     /* no local fallback */
   }
@@ -189,6 +191,7 @@ async function fetchAyahTimings(reciterId: string, surahNum: number, ayahs: Ayah
     return null;
   }
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await jsonFetch(
       `https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`,
       { silent: true, timeout: 8000 },
@@ -242,6 +245,7 @@ interface AbsToSurahAyahResult {
   ayahNumInSurah: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function absToSurahAyah(absNum: number): AbsToSurahAyahResult | null {
   if (!state.surahOffsets) {
     buildSurahOffsets();
@@ -257,6 +261,7 @@ function absToSurahAyah(absNum: number): AbsToSurahAyahResult | null {
   return null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getAbsNumber(surah: number, ayah: number): number | null {
   if (!state.surahOffsets) {
     buildSurahOffsets();
@@ -304,6 +309,7 @@ async function loadApiAudio(
   signal: AbortSignal,
 ): Promise<AudioResult | null> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const json: any = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true });
     const data = json?.data;
     if (!data?.ayahs?.length) {
@@ -443,6 +449,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   }
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const textJson: any = await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
       signal,
       errorMsg: __('failed_load_surah'),
@@ -860,7 +867,12 @@ export function highlightCurrentAyah(): void {
     cur.scrollIntoView({ behavior: 'instant', block: 'center' });
   }
   updatePlayerInfo();
-  import('./presentation.js').then((m: { syncPresentation: () => void }) => m.syncPresentation()).catch(() => {});
+  import('./presentation.js')
+    .then((m: { syncPresentation: () => void }) => m.syncPresentation())
+    .catch(
+      // eslint-disable-next-line no-empty-function
+      () => {},
+    );
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) {
     loadTafsirForCurrentAyah();
   }
