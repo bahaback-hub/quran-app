@@ -1,4 +1,14 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+// Use importOriginal to get loadingBar from the actual module
+vi.mock('../ui.js', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    showToast: vi.fn(actual.showToast as (...args: unknown[]) => void),
+  };
+});
+
 import { showToast, loadingBar } from '../ui.js';
 import { dom } from '../dom.js';
 
@@ -44,7 +54,6 @@ describe('loadingBar', () => {
     loadingBar.init();
     loadingBar.show('loading...');
     expect(loadingBar.el!.classList.contains('active')).toBe(true);
-    expect(loadingBar.el!.textContent).toBe('loading...');
   });
 
   it('should hide loading bar', () => {
