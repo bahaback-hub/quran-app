@@ -1,4 +1,4 @@
-import { state, type AppState } from './state.js';
+import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
