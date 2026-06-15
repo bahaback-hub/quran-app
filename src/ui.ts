@@ -4,10 +4,14 @@ let _toastTimeout: ReturnType<typeof setTimeout> | null = null;
 
 /** Show a toast notification with auto-dismiss. */
 export function showToast(msg: string, type: string = ''): void {
-  if (!dom.toast) return;
+  if (!dom.toast) {
+    return;
+  }
   dom.toast.textContent = msg;
   dom.toast.className = 'toast show ' + type;
-  if (_toastTimeout) clearTimeout(_toastTimeout);
+  if (_toastTimeout) {
+    clearTimeout(_toastTimeout);
+  }
   _toastTimeout = setTimeout(() => dom.toast?.classList.remove('show'), 2500);
 }
 
@@ -27,18 +31,30 @@ export const loadingBar = {
   },
 
   show(msg?: string): void {
-    if (!this.el) this.init();
+    if (!this.el) {
+      this.init();
+    }
     this.el?.classList.add('active');
-    if (this.el && msg) this.el.textContent = msg;
-    if (this.timer) clearTimeout(this.timer);
+    if (this.el && msg) {
+      this.el.textContent = msg;
+    }
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   },
 
   hide(): void {
-    if (!this.el) return;
+    if (!this.el) {
+      return;
+    }
     this.el.classList.remove('active');
-    if (this.timer) clearTimeout(this.timer);
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
     this.timer = setTimeout(() => {
-      if (this.el) this.el.textContent = '';
+      if (this.el) {
+        this.el.textContent = '';
+      }
     }, 300);
   },
 };
