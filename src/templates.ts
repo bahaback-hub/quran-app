@@ -37,7 +37,9 @@ import { __ } from './i18n.js';
  *   // → '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
  */
 export function escapeHtml(text: string | null | undefined): string {
-  if (text == null) return '';
+  if (text == null) {
+    return '';
+  }
   return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -68,7 +70,7 @@ export function surahOption(surah: SurahInfo, selected: boolean = false): string
  * @returns HTML string for all option elements
  */
 export function surahListOptions(surahList: SurahInfo[], currentSurah: number): string {
-  return surahList.map(s => surahOption(s, s.number === currentSurah)).join('');
+  return surahList.map((s) => surahOption(s, s.number === currentSurah)).join('');
 }
 
 /**
@@ -78,11 +80,13 @@ export function surahListOptions(surahList: SurahInfo[], currentSurah: number): 
  * @returns HTML string for the list item
  */
 export function mushafSurahItem(surah: SurahInfo): string {
-  return `<button class="mushaf-surah-item" data-surah="${surah.number}">` +
+  return (
+    `<button class="mushaf-surah-item" data-surah="${surah.number}">` +
     `<span class="mushaf-surah-num">${surah.number}</span>` +
     `<span class="mushaf-surah-name">${escapeHtml(surah.name)}</span>` +
     `<span class="mushaf-surah-count">${surah.numberOfAyahs} ${__('ayah') || 'آية'}</span>` +
-    `</button>`;
+    `</button>`
+  );
 }
 
 /* ===================== AYAH TEMPLATES ===================== */
@@ -102,7 +106,7 @@ export function ayahElement(
     tajweedEnabled?: boolean;
     hifdhMode?: boolean;
     includeWordSpans?: boolean;
-  } = {}
+  } = {},
 ): string {
   const { tajweedEnabled = false, hifdhMode = false, includeWordSpans = true } = options;
   const hifdhClass = hifdhMode ? ' hifdh-mode' : '';
@@ -116,10 +120,12 @@ export function ayahElement(
     textContent = escapeHtml(ayah.text);
   }
 
-  return `<div class="ayah${hifdhClass}" data-index="${index}" data-ayah="${ayah.numberInSurah}">` +
+  return (
+    `<div class="ayah${hifdhClass}" data-index="${index}" data-ayah="${ayah.numberInSurah}">` +
     `<span class="ayah-text">${textContent}</span>` +
     `<span class="ayah-number">${ayahNum}</span>` +
-    `</div>`;
+    `</div>`
+  );
 }
 
 /**
@@ -135,7 +141,7 @@ function splitIntoWordSpans(text: string): string {
     return text;
   }
   const words = text.split(/\s+/);
-  return words.map(w => `<span class="word">${escapeHtml(w)}</span>`).join(' ');
+  return words.map((w) => `<span class="word">${escapeHtml(w)}</span>`).join(' ');
 }
 
 /* ===================== FAVORITE TEMPLATES ===================== */
@@ -147,13 +153,15 @@ function splitIntoWordSpans(text: string): string {
  * @returns HTML string for the favorite item
  */
 export function favoriteItem(entry: FavoriteEntry): string {
-  return `<div class="fav-item" data-key="${escapeHtml(entry.key)}">` +
+  return (
+    `<div class="fav-item" data-key="${escapeHtml(entry.key)}">` +
     `<div class="fav-text">${escapeHtml(entry.text)}</div>` +
     `<div class="fav-meta">${escapeHtml(entry.surahName)} - ${__('ayah') || 'آية'} ${entry.ayah}</div>` +
     `<div class="fav-actions">` +
     `<button class="btn btn-sm fav-goto-btn" data-surah="${entry.surah}" data-ayah="${entry.ayah}">📖</button>` +
     `<button class="btn btn-sm fav-remove-btn" data-key="${escapeHtml(entry.key)}">🗑️</button>` +
-    `</div></div>`;
+    `</div></div>`
+  );
 }
 
 /**
@@ -181,10 +189,12 @@ export function searchResultItem(result: {
   highlight?: string;
 }): string {
   const displayText = result.highlight || escapeHtml(result.text);
-  return `<div class="search-result" data-surah="${result.surah}" data-ayah="${result.ayah}">` +
+  return (
+    `<div class="search-result" data-surah="${result.surah}" data-ayah="${result.ayah}">` +
     `<div class="search-result-text">${displayText}</div>` +
     `<div class="search-result-meta">${escapeHtml(result.surahName)} - ${__('ayah') || 'آية'} ${result.ayah}</div>` +
-    `</div>`;
+    `</div>`
+  );
 }
 
 /* ===================== PRAYER TEMPLATES ===================== */
@@ -199,10 +209,12 @@ export function searchResultItem(result: {
  */
 export function prayerTimeRow(name: string, time: string, isNext: boolean = false): string {
   const highlightClass = isNext ? ' prayer-next' : '';
-  return `<div class="prayer-row${highlightClass}">` +
+  return (
+    `<div class="prayer-row${highlightClass}">` +
     `<span class="prayer-name">${escapeHtml(name)}</span>` +
     `<span class="prayer-time">${escapeHtml(time)}</span>` +
-    `</div>`;
+    `</div>`
+  );
 }
 
 /* ===================== ERROR BOUNDARY TEMPLATE ===================== */
@@ -214,7 +226,8 @@ export function prayerTimeRow(name: string, time: string, isNext: boolean = fals
  * @returns HTML string for the error overlay
  */
 export function errorOverlay(errorMessage: string): string {
-  return `<div class="error-overlay" id="errorOverlay">` +
+  return (
+    `<div class="error-overlay" id="errorOverlay">` +
     `<div class="error-overlay-inner">` +
     `<h2>⚠️ ${__('error_title') || 'حدث خطأ'}</h2>` +
     `<p class="error-message">${escapeHtml(errorMessage)}</p>` +
@@ -222,7 +235,8 @@ export function errorOverlay(errorMessage: string): string {
     `<button class="btn btn-gold" onclick="location.reload()">${__('reload') || 'إعادة تحميل'}</button>` +
     `<button class="btn" onclick="location.href='/'">${__('home') || 'الرئيسية'}</button>` +
     `<button class="btn btn-sm" id="errorCopyBtn">${__('copy_error') || 'نسخ الخطأ'}</button>` +
-    `</div></div></div>`;
+    `</div></div></div>`
+  );
 }
 
 /* ===================== LOADING TEMPLATES ===================== */
@@ -234,9 +248,7 @@ export function errorOverlay(errorMessage: string): string {
  * @returns HTML string with skeleton elements
  */
 export function loadingSkeleton(count: number = 5): string {
-  const lines = Array.from({ length: count }, () =>
-    `<div class="skeleton-line"></div>`
-  ).join('');
+  const lines = Array.from({ length: count }, () => `<div class="skeleton-line"></div>`).join('');
   return `<div class="loading-skeleton">${lines}</div>`;
 }
 
@@ -255,13 +267,15 @@ export function adhkarItem(text: string, count: number, target: number): string 
   const completed = count >= target;
   const completedClass = completed ? ' adhkar-completed' : '';
 
-  return `<div class="adhkar-item${completedClass}" data-count="${count}" data-target="${target}">` +
+  return (
+    `<div class="adhkar-item${completedClass}" data-count="${count}" data-target="${target}">` +
     `<div class="adhkar-text">${escapeHtml(text)}</div>` +
     `<div class="adhkar-progress-bar">` +
     `<div class="adhkar-progress-fill" style="width:${progress}%"></div>` +
     `</div>` +
     `<div class="adhkar-counter">${count} / ${target}</div>` +
-    `</div>`;
+    `</div>`
+  );
 }
 
 /* ===================== SEARCH UI TEMPLATES ===================== */
@@ -333,10 +347,12 @@ export function searchLoadMoreButton(remaining: number): string {
  * @returns HTML string for the history item
  */
 export function searchHistoryItem(text: string, index: number): string {
-  return `<div class="search-autocomplete-item search-history-item" data-index="${index}">` +
+  return (
+    `<div class="search-autocomplete-item search-history-item" data-index="${index}">` +
     `<span>${escapeHtml(text)}</span>` +
     `<span class="count search-history-remove">✕</span>` +
-    `</div>`;
+    `</div>`
+  );
 }
 
 /**
@@ -348,10 +364,12 @@ export function searchHistoryItem(text: string, index: number): string {
  * @returns HTML string for the autocomplete item
  */
 export function searchAutocompleteItem(word: string, count: number, index: number): string {
-  return `<div class="search-autocomplete-item" data-index="${index}">` +
+  return (
+    `<div class="search-autocomplete-item" data-index="${index}">` +
     `<span>${escapeHtml(word)}</span>` +
     `<span class="count">${count}</span>` +
-    `</div>`;
+    `</div>`
+  );
 }
 
 /* ===================== QARI / TAFSIR TEMPLATES ===================== */
@@ -503,22 +521,36 @@ export function adhkarItemCard(text: string, count: number, target: number, refe
   const progress = target > 0 ? Math.min(100, (count / target) * 100) : 0;
   const completed = count >= target;
   const completedClass = completed ? ' adhkar-completed' : '';
-  return `<div class="adhkar-item${completedClass}">` +
+  return (
+    `<div class="adhkar-item${completedClass}">` +
     `<div class="adhkar-text">${escapeHtml(text)}</div>` +
     (reference ? `<div class="adhkar-ref">${escapeHtml(reference)}</div>` : '') +
     `<div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${progress}%"></div></div>` +
-    `<div class="adhkar-counter">${count} / ${target}</div></div>`;
+    `<div class="adhkar-counter">${count} / ${target}</div></div>`
+  );
 }
 
 /**
  * Generate adhkar settings row with toggle and time inputs.
  */
-export function adhkarSettingRow(id: string, label: string, enabled: boolean, time?: string, duration?: number): string {
-  return `<div class="adhkar-setting-row" data-id="${escapeHtml(id)}">` +
+export function adhkarSettingRow(
+  id: string,
+  label: string,
+  enabled: boolean,
+  time?: string,
+  duration?: number,
+): string {
+  return (
+    `<div class="adhkar-setting-row" data-id="${escapeHtml(id)}">` +
     `<label class="adhkar-setting-toggle"><input type="checkbox" ${enabled ? 'checked' : ''} data-setting="${escapeHtml(id)}_enabled" /> ${escapeHtml(label)}</label>` +
-    (time !== undefined ? `<input type="time" class="adhkar-setting-time" value="${escapeHtml(time)}" data-setting="${escapeHtml(id)}_time" />` : '') +
-    (duration !== undefined ? `<input type="number" class="adhkar-setting-duration" value="${duration}" min="1" max="60" data-setting="${escapeHtml(id)}_duration" />` : '') +
-    `</div>`;
+    (time !== undefined
+      ? `<input type="time" class="adhkar-setting-time" value="${escapeHtml(time)}" data-setting="${escapeHtml(id)}_time" />`
+      : '') +
+    (duration !== undefined
+      ? `<input type="number" class="adhkar-setting-duration" value="${duration}" min="1" max="60" data-setting="${escapeHtml(id)}_duration" />`
+      : '') +
+    `</div>`
+  );
 }
 
 /* ===================== SURAH LOADER TEMPLATES ===================== */
@@ -547,19 +579,20 @@ export function surahSelectDefault(): string {
 /**
  * Generate reciter select options HTML.
  */
-export function reciterOptions(reciters: Array<{id: string; name: string}>, selectedId: string): string {
-  return reciters.map(r =>
-    `<option value="${escapeHtml(r.id)}"${r.id === selectedId ? ' selected' : ''}>${escapeHtml(r.name)}</option>`
-  ).join('');
+export function reciterOptions(reciters: Array<{ id: string; name: string }>, selectedId: string): string {
+  return reciters
+    .map(
+      (r) =>
+        `<option value="${escapeHtml(r.id)}"${r.id === selectedId ? ' selected' : ''}>${escapeHtml(r.name)}</option>`,
+    )
+    .join('');
 }
 
 /**
  * Generate a skeleton loading state for surah content.
  */
 export function skeletonLoading(): string {
-  return '<div class="skeleton-loading">' +
-    '<div class="skeleton-line"></div>'.repeat(5) +
-    '</div>';
+  return '<div class="skeleton-loading">' + '<div class="skeleton-line"></div>'.repeat(5) + '</div>';
 }
 
 /**
@@ -573,9 +606,11 @@ export function surahLoadError(): string {
  * Generate the surah content shell (title + bismillah + ayahs container).
  */
 export function surahContentShell(surahName: string, bismillah: string): string {
-  return `<h2 class="surah-title">${escapeHtml(surahName)}</h2>` +
+  return (
+    `<h2 class="surah-title">${escapeHtml(surahName)}</h2>` +
     `<div class="bismillah">${escapeHtml(bismillah)}</div>` +
-    `<div class="ayahs-container"></div>`;
+    `<div class="ayahs-container"></div>`
+  );
 }
 
 /**
@@ -606,8 +641,8 @@ export function favoriteMeta(surahName: string, ayah: number | string): string {
 /**
  * Generate prayer times rows HTML.
  */
-export function prayerTimesRows(times: Array<{name: string; time: string; isNext: boolean}>): string {
-  return times.map(t => prayerTimeRow(t.name, t.time, t.isNext)).join('');
+export function prayerTimesRows(times: Array<{ name: string; time: string; isNext: boolean }>): string {
+  return times.map((t) => prayerTimeRow(t.name, t.time, t.isNext)).join('');
 }
 
 /* ===================== ERROR BOUNDARY TEMPLATE ===================== */
@@ -616,7 +651,8 @@ export function prayerTimesRows(times: Array<{name: string; time: string; isNext
  * Generate the error recovery overlay with backdrop.
  */
 export function errorRecoveryOverlay(errorMessage: string, errorDetails: string): string {
-  return `<div class="error-overlay-backdrop"></div>` +
+  return (
+    `<div class="error-overlay-backdrop"></div>` +
     `<div class="error-overlay-card">` +
     `<div class="error-overlay-icon">\u26A0\uFE0F</div>` +
     `<h3>${__('error_title') || 'حدث خطأ'}</h3>` +
@@ -628,7 +664,8 @@ export function errorRecoveryOverlay(errorMessage: string, errorDetails: string)
     `</div>` +
     `<details class="error-details"><summary>${__('error_details') || 'تفاصيل'}</summary>` +
     `<pre>${escapeHtml(errorDetails)}</pre></details>` +
-    `</div>`;
+    `</div>`
+  );
 }
 
 /* ===================== READING STATS TEMPLATE ===================== */
@@ -636,14 +673,17 @@ export function errorRecoveryOverlay(errorMessage: string, errorDetails: string)
 /**
  * Generate the reading stats grid with stat cards.
  */
-export function readingStatsGrid(stats: Array<{icon: string; label: string; value: string | number}>): string {
-  const cards = stats.map(s =>
-    `<div class="stat-card">` +
-    `<div class="stat-icon">${s.icon}</div>` +
-    `<div class="stat-value">${escapeHtml(String(s.value))}</div>` +
-    `<div class="stat-label">${escapeHtml(s.label)}</div>` +
-    `</div>`
-  ).join('');
+export function readingStatsGrid(stats: Array<{ icon: string; label: string; value: string | number }>): string {
+  const cards = stats
+    .map(
+      (s) =>
+        `<div class="stat-card">` +
+        `<div class="stat-icon">${s.icon}</div>` +
+        `<div class="stat-value">${escapeHtml(String(s.value))}</div>` +
+        `<div class="stat-label">${escapeHtml(s.label)}</div>` +
+        `</div>`,
+    )
+    .join('');
   return `<div class="reading-stats-grid">${cards}</div>`;
 }
 
@@ -1074,5 +1114,3 @@ export function arabicKeyboardHTML(): string {
                 </div>
               </div>`;
 }
-
-
