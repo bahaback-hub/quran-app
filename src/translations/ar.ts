@@ -282,4 +282,17 @@ export default {
 
   settings_imported: 'تم استيراد {0} إعداد',
   failed_ayah: 'فشل في الآية',
+
+  // === عدم الاتصال ===
+  offline_banner: '🔌 لا يوجد اتصال بالإنترنت — بعض الميزات قد لا تعمل',
+  a11y_you_are_offline: 'أنت غير متصل بالإنترنت',
+  a11y_you_are_online: 'تم استعادة الاتصال بالإنترنت',
+
+  // === إمكانية الوصول ===
+  a11y_panel_opened: 'تم فتح {0}',
+  a11y_panel_closed: 'تم إغلاق {0}',
+  a11y_skip_to_content: 'تخطّي إلى المحتوى',
+  a11y_offline_notice: 'إشعار عدم الاتصال',
+  a11y_reading_progress: 'تقدم القراءة',
+  reduced_motion_enabled: 'تم تفعيل تقليل الحركة',
 };
