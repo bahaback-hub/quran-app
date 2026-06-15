@@ -5,7 +5,9 @@ import { escapeHtml } from './utils.js';
 
 /** Inject presentation-specific CSS styles into the document head (idempotent). */
 export function injectStyles(): void {
-  if (document.getElementById('pres-styles')) return;
+  if (document.getElementById('pres-styles')) {
+    return;
+  }
   const style = document.createElement('style');
   style.id = 'pres-styles';
   style.textContent = `
@@ -420,14 +422,18 @@ export function buildAyahHtml(text: string, surahNum: number, ayahNum: number, t
   if (surahNum !== 1 && ayahNum === 1) {
     const stripped = txt.replace(
       /^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u,
-      ''
+      '',
     );
     offsetAdj = txt.length - stripped.length;
     txt = stripped;
   }
-  if (!tajweedEnabled) return escapeHtml(txt);
+  if (!tajweedEnabled) {
+    return escapeHtml(txt);
+  }
   const annotations = getAyahAnnotations(surahNum, ayahNum);
-  if (annotations.length === 0) return escapeHtml(txt);
+  if (annotations.length === 0) {
+    return escapeHtml(txt);
+  }
   const adjusted =
     offsetAdj > 0
       ? annotations.map((ann: TajweedAnnotation) => ({
