@@ -2,6 +2,7 @@ import { initErrorBoundary } from './error-boundary.js';
 import { initApp } from './app.js';
 import { initI18n, __ } from './i18n.js';
 import { isCapacitorNative, getCapacitor } from './types.js';
+import { updateBanner } from './templates.js';
 
 // Install global error handlers FIRST — before any other code runs
 initErrorBoundary();
@@ -68,7 +69,7 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
         const banner = document.createElement('div');
         banner.id = 'updateBanner';
         banner.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent,#5c2e2e);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
-        banner.innerHTML = `<span>${__('update_available')}</span><button onclick="location.reload()" class="update-banner-btn">${__('update_now')}</button>`;
+        banner.innerHTML = updateBanner();
         document.body.appendChild(banner);
       }
     }
@@ -84,7 +85,7 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
       const banner = document.createElement('div');
       banner.id = 'updateBanner';
       banner.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent,#5c2e2e);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
-      banner.innerHTML = `<span>${__('update_available')}</span><button onclick="location.reload()" class="update-banner-btn">${__('update_now')}</button>`;
+      banner.innerHTML = updateBanner();
       document.body.appendChild(banner);
     }
 
