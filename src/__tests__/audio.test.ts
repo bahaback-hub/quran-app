@@ -4,6 +4,11 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+/** Flush pending microtasks (promises) so async effects propagate. */
+function flushPromises(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
 import {
   getDefaultRepeatRange,
   applyRepeatUI,
@@ -91,6 +96,10 @@ vi.mock('../surah-loader.js', () => ({
 
 vi.mock('../i18n.js', () => ({
   __: (key: string) => key,
+}));
+
+vi.mock('../audio-cache.js', () => ({
+  getCachedAudioUrl: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('../audio-visualizer.js', () => ({
@@ -550,78 +559,78 @@ describe('bindAudioEvents', () => {
 /* ===================== playCurrentAyah ===================== */
 
 describe('playCurrentAyah', () => {
-  it('should show error toast when no surahData', () => {
+  it('should show error toast when no surahData', async () => {
     state.surahData = null;
-    playCurrentAyah();
+    await playCurrentAyah();
     expect(showToast).toHaveBeenCalledWith('no_audio', 'error');
   });
 
-  it('should show error toast when no ayahsAudios', () => {
+  it('should show error toast when no ayahsAudios', async () => {
     state.surahData = createSurahData();
     state.ayahsAudios = [];
-    playCurrentAyah();
+    await playCurrentAyah();
     expect(showToast).toHaveBeenCalledWith('no_audio', 'error');
   });
 
-  it('should show error toast when audio URL is empty', () => {
+  it('should show error toast when audio URL is empty', async () => {
     state.surahData = createSurahData();
     state.ayahsAudios = [''];
     dom.audioPlayer = createMockAudio();
-    playCurrentAyah();
+    await playCurrentAyah();
     expect(showToast).toHaveBeenCalledWith('no_audio_ayah', 'error');
   });
 
-  it('should return early when audioPlayer is null', () => {
+  it('should return early when audioPlayer is null', async () => {
     state.surahData = createSurahData();
     state.ayahsAudios = ['http://example.com/audio.mp3'];
     dom.audioPlayer = null;
-    expect(() => playCurrentAyah()).not.toThrow();
+    await expect(playCurrentAyah()).resolves.not.toThrow();
   });
 
-  it('should set audio src and play for non-mp3quran mode', () => {
+  it('should set audio src and play for non-mp3quran mode', async () => {
     state.surahData = createSurahData();
     state.ayahsAudios = ['http://example.com/audio1.mp3', 'http://example.com/audio2.mp3'];
     const mockPlayer = createMockAudio({ paused: true });
     dom.audioPlayer = mockPlayer;
 
-    playCurrentAyah();
+    await playCurrentAyah();
     expect(mockPlayer.src).toBe('http://example.com/audio1.mp3');
     expect(mockPlayer.play).toHaveBeenCalled();
     expect(state.isPlaying).toBe(true);
   });
 
-  it('should apply saved playback speed', () => {
+  it('should apply saved playback speed', async () => {
     state.surahData = createSurahData();
     state.ayahsAudios = ['http://example.com/audio.mp3'];
     const mockPlayer = createMockAudio({ paused: true });
     dom.audioPlayer = mockPlayer;
     (storage.get as ReturnType<typeof vi.fn>).mockReturnValue('1.5');
 
-    playCurrentAyah();
+    await playCurrentAyah();
     expect(mockPlayer.playbackRate).toBe(1.5);
   });
 
-  it('should not change playbackRate when no saved speed', () => {
+  it('should not change playbackRate when no saved speed', async () => {
     state.surahData = createSurahData();
     state.ayahsAudios = ['http://example.com/audio.mp3'];
     const mockPlayer = createMockAudio({ paused: true, playbackRate: 1 });
     dom.audioPlayer = mockPlayer;
     (storage.get as ReturnType<typeof vi.fn>).mockReturnValue(null);
 
-    playCurrentAyah();
+    await playCurrentAyah();
     expect(mockPlayer.playbackRate).toBe(1);
   });
 
-  it('should add audio-playing class to body', () => {
+  it('should add audio-playing class to body', async () => {
     state.surahData = createSurahData();
     state.ayahsAudios = ['http://example.com/audio.mp3'];
     dom.audioPlayer = createMockAudio({ paused: true });
 
-    playCurrentAyah();
+    await playCurrentAyah();
     expect(document.body.classList.contains('audio-playing')).toBe(true);
   });
 
-  it('should handle mp3quran mode with cached URL', () => {
+  it('should handle mp3quran mode with cached URL', async () => {
     state.surahData = createSurahData();
     state.ayahsAudios = ['http://example.com/full-surah.mp3'];
     state.ayahTimings = [0.1, 0.2, 0.3];
@@ -633,9 +642,9 @@ describe('playCurrentAyah', () => {
     dom.audioPlayer = mockPlayer;
 
     // First call sets the cache
-    playCurrentAyah();
+    await playCurrentAyah();
     // Second call should use cached path
-    playCurrentAyah();
+    await playCurrentAyah();
     expect(mockPlayer.play).toHaveBeenCalled();
   });
 });
@@ -904,7 +913,7 @@ describe('nextAyah', () => {
     expect(highlightCurrentAyah).toHaveBeenCalled();
   });
 
-  it('should play current ayah when auto from repeat', () => {
+  it('should play current ayah when auto from repeat', async () => {
     state.surahData = createSurahData(7);
     state.ayahsAudios = ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7'];
     state.currentAyahIndex = 0;
@@ -912,11 +921,12 @@ describe('nextAyah', () => {
     dom.audioPlayer = mockPlayer;
 
     nextAyah(true);
+    await flushPromises();
     // playCurrentAyah should be called when autoFromRepeat is true
     expect(mockPlayer.play).toHaveBeenCalled();
   });
 
-  it('should play current ayah when isPlaying is true', () => {
+  it('should play current ayah when isPlaying is true', async () => {
     state.surahData = createSurahData(7);
     state.ayahsAudios = ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7'];
     state.currentAyahIndex = 0;
@@ -925,6 +935,7 @@ describe('nextAyah', () => {
     dom.audioPlayer = mockPlayer;
 
     nextAyah(false);
+    await flushPromises();
     expect(mockPlayer.play).toHaveBeenCalled();
   });
 
@@ -994,7 +1005,7 @@ describe('prevAyah', () => {
     expect(highlightCurrentAyah).toHaveBeenCalled();
   });
 
-  it('should play when isPlaying is true', () => {
+  it('should play when isPlaying is true', async () => {
     state.surahData = createSurahData(7);
     state.ayahsAudios = ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7'];
     state.currentAyahIndex = 3;
@@ -1003,6 +1014,7 @@ describe('prevAyah', () => {
     dom.audioPlayer = mockPlayer;
 
     prevAyah();
+    await flushPromises();
     expect(mockPlayer.play).toHaveBeenCalled();
   });
 
