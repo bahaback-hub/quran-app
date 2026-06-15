@@ -49,10 +49,14 @@ let _localMuyassar: LocalMuyassar = null;
 
 /** Load the local Muyassar tafsir file once. */
 async function loadLocalMuyassar(): Promise<LocalMuyassar> {
-  if (_localMuyassar) return _localMuyassar;
+  if (_localMuyassar) {
+    return _localMuyassar;
+  }
   try {
     const res = await fetch('data/muyassar-tafsir.json');
-    if (!res.ok) return null;
+    if (!res.ok) {
+      return null;
+    }
     _localMuyassar = (await res.json()) as LocalMuyassar;
     return _localMuyassar;
   } catch {
@@ -62,12 +66,18 @@ async function loadLocalMuyassar(): Promise<LocalMuyassar> {
 
 /** Get tafsir text from local Muyassar file (instant, no API needed). */
 function getLocalMuyassarAyah(surahNum: number, ayahNum: number): string | null {
-  if (!_localMuyassar) return null;
+  if (!_localMuyassar) {
+    return null;
+  }
   const surah = _localMuyassar[surahNum];
-  if (!surah) return null;
+  if (!surah) {
+    return null;
+  }
   // Handle both {ayahs: [...]} and direct array formats
   const ayahs: MuyassarAyah[] | null = Array.isArray(surah) ? surah : surah.ayahs;
-  if (!ayahs) return null;
+  if (!ayahs) {
+    return null;
+  }
   const ayah = ayahs.find((a: MuyassarAyah) => a.ayah === ayahNum);
   return ayah?.text || null;
 }
@@ -77,7 +87,9 @@ function getLocalMuyassarAyah(surahNum: number, ayahNum: number): string | null 
 let _tafsirDb: IDBDatabase | null = null;
 
 function openTafsirDB(): Promise<IDBDatabase> {
-  if (_tafsirDb) return Promise.resolve(_tafsirDb);
+  if (_tafsirDb) {
+    return Promise.resolve(_tafsirDb);
+  }
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('QuranTafsirDB', 1);
     request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
@@ -147,13 +159,17 @@ async function getTafsirText(edition: string, surahNum: number, ayahNum: number)
     const local = await loadLocalMuyassar();
     if (local) {
       const text = getLocalMuyassarAyah(surahNum, ayahNum);
-      if (text) return text;
+      if (text) {
+        return text;
+      }
     }
   }
   // Strategy 2: IndexedDB cache
   const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
   const cached = await getTafsirFromDB(cacheKey);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
   // Strategy 3: API + cache
   return await fetchTafsirFromAPI(edition, surahNum, ayahNum);
 }
@@ -190,10 +206,14 @@ function showTafsirError(): void {
 
 /** Load & render tafsir for the currently-selected ayah. */
 export async function loadTafsirForCurrentAyah(): Promise<void> {
-  if (!state.surahData) return;
+  if (!state.surahData) {
+    return;
+  }
   const surahData = state.surahData;
   const a = surahData.ayahs[state.currentAyahIndex];
-  if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
+  if (!a || !dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) {
+    return;
+  }
   const edition = state.currentTafsirEdition;
   setTafsirHeader(surahData.name, a.numberInSurah);
   // Try instant local first for Muyassar
@@ -214,20 +234,25 @@ export async function loadTafsirForCurrentAyah(): Promise<void> {
   }
   showTafsirLoading();
   const text = await fetchTafsirFromAPI(edition, state.currentSurah, a.numberInSurah);
-  if (text) renderTafsirContent(text, a.text, surahData.name, a.numberInSurah);
-  else showTafsirError();
+  if (text) {
+    renderTafsirContent(text, a.text, surahData.name, a.numberInSurah);
+  } else {
+    showTafsirError();
+  }
 }
 
 /** Load & render tafsir for a specific surah/ayah. */
 export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number): Promise<void> {
-  if (!dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) return;
+  if (!dom.tafsirCurtainBody || !dom.tafsirCurtainHeader) {
+    return;
+  }
   const edition = state.currentTafsirEdition || CONFIG.DEFAULT_TAFSIR;
   const surahInfo = state.surahList.find((s) => s.number === surahNum);
   const surahName = surahInfo ? surahInfo.name : `${__('surah')} ${surahNum}`;
   setTafsirHeader(surahName, ayahNum);
   // Find ayah text for header display
   const ayahEntry = (state.fullQuranText || []).find(
-    (e: { surah: number; ayah: number }) => e.surah === surahNum && e.ayah === ayahNum
+    (e: { surah: number; ayah: number }) => e.surah === surahNum && e.ayah === ayahNum,
   );
   const ayahText = (ayahEntry as { text?: string } | undefined)?.text || '';
   // Try instant local first for Muyassar
@@ -249,13 +274,18 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
   showTafsirLoading();
   dom.tafsirCurtain?.classList.add('open');
   const text = await fetchTafsirFromAPI(edition, surahNum, ayahNum);
-  if (text) renderTafsirContent(text, ayahText, surahName, ayahNum);
-  else showTafsirError();
+  if (text) {
+    renderTafsirContent(text, ayahText, surahName, ayahNum);
+  } else {
+    showTafsirError();
+  }
 }
 
 /** Open the tafsir curtain and load tafsir for current ayah. */
 export function openTafsir(): void {
-  if (!dom.tafsirCurtain) return;
+  if (!dom.tafsirCurtain) {
+    return;
+  }
   dom.tafsirCurtain.classList.add('open');
   dom.tafsirCurtainHandle?.classList.add('open');
   loadTafsirForCurrentAyah();
@@ -269,11 +299,17 @@ export function closeTafsir(): void {
 
 /** Toggle the tafsir curtain open/closed. */
 export function toggleTafsir(): void {
-  dom.tafsirCurtain!.classList.contains('open') ? closeTafsir() : openTafsir();
+  if (dom.tafsirCurtain!.classList.contains('open')) {
+    closeTafsir();
+  } else {
+    openTafsir();
+  }
 }
 
 /** Fetch tafsir text using hybrid strategy (local → cache → API). */
 export async function fetchTafsirText(edition: string, surahNum: number, ayahNum: number): Promise<string | null> {
-  if (!edition || !surahNum || !ayahNum) return null;
+  if (!edition || !surahNum || !ayahNum) {
+    return null;
+  }
   return await getTafsirText(edition, surahNum, ayahNum);
 }
