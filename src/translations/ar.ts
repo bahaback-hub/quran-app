@@ -328,6 +328,12 @@ export default {
   download_audio_deleted: 'تم حذف الصوت المحفوظ',
   download_audio_no_data: 'لا توجد بيانات صوتية للتحميل',
 
+  // === التشغيل المتصل ===
+  autoplay_next: '🔗 متصل',
+  autoplay_next_enabled: 'تم تفعيل التشغيل المتصل — سيتم الانتقال تلقائياً للسورة التالية',
+  autoplay_next_disabled: 'تم إيقاف التشغيل المتصل — سيتوقف عند نهاية السورة',
+  khatma_complete: 'تمت الختمة',
+
   // === إمكانية الوصول ===
   a11y_panel_opened: 'تم فتح {0}',
   a11y_panel_closed: 'تم إغلاق {0}',
