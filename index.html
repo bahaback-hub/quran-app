@@ -29,6 +29,38 @@
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
     <link rel="dns-prefetch" href="https://server.mp3quran.net" />
     <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Reduced motion: disable animations and transitions for users who need it */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+      /* Focus-visible: show focus ring only for keyboard navigation */
+      :focus-visible {
+        outline: 3px solid #5c2e2e;
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+      :focus:not(:focus-visible) {
+        outline: none;
+      }
+      /* Screen reader only utility class */
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
   </head>
   <body>
     <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="تقدم القراءة"></div>
@@ -41,7 +73,7 @@
 
     <a href="#surahContent" class="skip-link">تخطّي إلى المحتوى</a>
 
-    <div class="network-banner" id="networkBanner">🔌 لا يوجد اتصال بالإنترنت — بعض الميزات قد لا تعمل</div>
+    <div class="network-banner" id="networkBanner" role="status" aria-live="polite" data-i18n="offline_banner">🔌 لا يوجد اتصال بالإنترنت — بعض الميزات قد لا تعمل</div>
 
     <div class="container" role="application" aria-label="تطبيق القرآن الكريم">
       <!-- ========== شريط مواقيت الصلاة ========== -->
@@ -343,7 +375,7 @@
     </aside>
 
     <!-- ========== قائمة السور في وضع المصحف ========== -->
-    <div class="mushaf-surah-overlay hidden" id="mushafSurahOverlay" role="dialog" aria-label="قائمة السور">
+    <div class="mushaf-surah-overlay hidden" id="mushafSurahOverlay" role="dialog" aria-label="قائمة السور" aria-modal="true">
       <div class="mushaf-surah-overlay-inner">
         <div class="mushaf-surah-overlay-header">
           <h3>📖 اختر السورة</h3>
