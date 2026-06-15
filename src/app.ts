@@ -28,7 +28,7 @@ import { loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect } fr
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { handleVisibilityChange, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
-import { bindAllEvents } from './app-events.js';
+import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
 import { injectOverlays } from './overlays.js';
 
 export {
@@ -90,6 +90,7 @@ export async function initApp(): Promise<void> {
 
   // ========== PHASE 2: EVENT BINDINGS ==========
   bindAllEvents();
+  initAutoPlayNextButton();
 
   initNavigation();
   initKeyboardShortcuts();
