@@ -1,5 +1,4 @@
-import { state } from './state.js';
-import { getLineY, CANVAS_H } from './mushaf-renderer.js';
+import { getLineY } from './mushaf-renderer.js';
 
 /** Result of an ayah lookup from a click. */
 interface AyahInfo {
