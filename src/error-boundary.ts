@@ -49,7 +49,9 @@ let _recoveryVisible = false;
  */
 function logError(entry: Omit<ErrorLogEntry, 'timestamp'>): void {
   errorLog.push({ timestamp: Date.now(), ...entry });
-  if (errorLog.length > MAX_LOG_ENTRIES) errorLog.splice(0, errorLog.length - MAX_LOG_ENTRIES);
+  if (errorLog.length > MAX_LOG_ENTRIES) {
+    errorLog.splice(0, errorLog.length - MAX_LOG_ENTRIES);
+  }
   // Structured console output
   console.error(`[ErrorBoundary][${entry.type}]`, entry.message, entry.stack || '');
 }
@@ -75,7 +77,9 @@ export function clearErrorLog(): void {
  */
 async function showDebouncedToast(msg: string): Promise<void> {
   const now = Date.now();
-  if (_lastToastTime && now - _lastToastTime < TOAST_DEBOUNCE_MS) return;
+  if (_lastToastTime && now - _lastToastTime < TOAST_DEBOUNCE_MS) {
+    return;
+  }
   _lastToastTime = now;
   try {
     // Use dynamic import to avoid circular dependency at module level.
@@ -100,11 +104,15 @@ async function showDebouncedToast(msg: string): Promise<void> {
  * ensuring theme consistency and maintainability.
  */
 function showRecoveryOverlay(errorMsg: string): void {
-  if (_recoveryVisible) return;
+  if (_recoveryVisible) {
+    return;
+  }
   _recoveryVisible = true;
 
   // Don't create duplicate overlays
-  if (document.getElementById('errorRecoveryOverlay')) return;
+  if (document.getElementById('errorRecoveryOverlay')) {
+    return;
+  }
 
   const overlay = document.createElement('div');
   overlay.id = 'errorRecoveryOverlay';
@@ -139,19 +147,32 @@ function showRecoveryOverlay(errorMsg: string): void {
  * Non-critical = a feature failed but the app is still usable.
  */
 function isCriticalError(message: string, source?: string): boolean {
-  if (!message) return false;
+  if (!message) {
+    return false;
+  }
   const msg = message.toLowerCase();
   // Rendering / DOM errors that break the UI
-  if (msg.includes('cannot read properties of null') && (msg.includes('dom') || msg.includes('element'))) return true;
-  if (msg.includes('cannot read properties of undefined') && (msg.includes('dom') || msg.includes('element')))
+  if (msg.includes('cannot read properties of null') && (msg.includes('dom') || msg.includes('element'))) {
     return true;
+  }
+  if (msg.includes('cannot read properties of undefined') && (msg.includes('dom') || msg.includes('element'))) {
+    return true;
+  }
   // Bootstrap / init errors
-  if (source && source.includes('app.js')) return true;
-  if (source && source.includes('main.js')) return true;
+  if (source && source.includes('app.js')) {
+    return true;
+  }
+  if (source && source.includes('main.js')) {
+    return true;
+  }
   // Stack overflow
-  if (msg.includes('maximum call stack')) return true;
+  if (msg.includes('maximum call stack')) {
+    return true;
+  }
   // Out of memory
-  if (msg.includes('out of memory')) return true;
+  if (msg.includes('out of memory')) {
+    return true;
+  }
   return false;
 }
 
@@ -165,7 +186,7 @@ function handleOnError(
   source?: string,
   lineno?: number,
   colno?: number,
-  error?: Error
+  error?: Error,
 ): boolean {
   logError({
     type: 'sync',
@@ -225,12 +246,15 @@ function handleUnhandledRejection(event: PromiseRejectionEvent): void {
  */
 function handleResourceError(event: Event): void {
   const target = event.target as HTMLElement | null;
-  if (!target || (event.target as unknown) === window || (event.target as unknown) === document)
-    return; // Not a resource error
+  if (!target || (event.target as unknown) === window || (event.target as unknown) === document) {
+    return;
+  } // Not a resource error
 
   const tagName = target.tagName?.toLowerCase();
   const src = target.getAttribute('src') || target.getAttribute('href') || '';
-  if (!src) return;
+  if (!src) {
+    return;
+  }
 
   logError({
     type: 'resource',
