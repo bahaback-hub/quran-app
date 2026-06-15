@@ -129,28 +129,47 @@ export async function initApp(): Promise<void> {
   updateReadingProgress();
 
   // ========== PHASE 3: DEFERRED NON-CRITICAL INIT ==========
-  setTimeout(() => {
+  // Use requestIdleCallback when available to avoid blocking user interaction.
+  // Falls back to setTimeout for browsers without rIC support.
+  // This improves INP (Interaction to Next Paint) by yielding to the main thread.
+  const scheduleIdle = (typeof requestIdleCallback === 'function')
+    ? requestIdleCallback
+    : (cb: () => void) => setTimeout(cb, 1);
+
+  scheduleIdle(() => {
     loadingBar.init();
     loadingBar.hide();
+
+    // Group 1: Lightweight state init (no network, no DOM mutation)
     initAdhkarState();
     loadAdhkarSettings();
-    startAdhkarNotificationScheduler();
     loadFavorites();
+
+    // Group 2: Clock & prayer (lightweight, starts intervals)
     startClock();
     scheduleNextAzanCheck();
-    loadPrayerTimes();
-    import('./ayah-modal.js')
-      .then((m) => m.initAyahModal())
-      .catch((e) => console.error('[App] Failed to init ayah modal:', e));
-    import('./presentation.js')
-      .then((m) => m.initPresentation())
-      .catch((e) => console.error('[App] Failed to init presentation:', e));
-    import('./mushaf.js')
-      .then((m) => m.populateSurahOverlay())
-      .catch((e) => console.error('[App] Failed to init mushaf overlay:', e));
-    // Ensure full Quran text is loaded when online (non-blocking)
-    if (navigator.onLine) {
-      fullQuranPromise.catch(console.warn);
-    }
-  }, 0);
+
+    // Group 3: Network-dependent (non-blocking) — defer to next idle period
+    scheduleIdle(() => {
+      startAdhkarNotificationScheduler();
+      loadPrayerTimes();
+    });
+
+    // Group 4: Heavy feature modules — lazy-import, lowest priority
+    scheduleIdle(() => {
+      import('./ayah-modal.js')
+        .then((m) => m.initAyahModal())
+        .catch((e) => console.error('[App] Failed to init ayah modal:', e));
+      import('./presentation.js')
+        .then((m) => m.initPresentation())
+        .catch((e) => console.error('[App] Failed to init presentation:', e));
+      import('./mushaf.js')
+        .then((m) => m.populateSurahOverlay())
+        .catch((e) => console.error('[App] Failed to init mushaf overlay:', e));
+      // Ensure full Quran text is loaded when online (non-blocking)
+      if (navigator.onLine) {
+        fullQuranPromise.catch(console.warn);
+      }
+    });
+  });
 }

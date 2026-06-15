@@ -1,0 +1,57 @@
+name: 💡 طلب ميزة / Feature Request
+description: اقترح ميزة جديدة للتطبيق / Suggest a new feature
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        شكرًا لاقتراحك! نحن نسعى لتحسين التطبيق دائمًا.
+        Thanks for your suggestion! We're always looking to improve.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: المشكلة أو الحاجة / Problem or Need
+      description: ما المشكلة التي تواجهها أو الاحتياج الذي ليس ملبى؟
+      placeholder: "مثال: أريد تتبع ختمتي اليومية لكن لا توجد ميزة لذلك"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: الحل المقترح / Proposed Solution
+      description: كيف تتخيل الحل؟ ما الميزة التي تريدها؟
+      placeholder: "مثال: إضافة شريط تقدم يوضح كم قرأت من الجزء، مع تذكير يومي"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: فئة الميزة / Category
+      options:
+        - 📖 قراءة وتلاوة / Reading & Recitation
+        - 🕌 مواقيت الصلاة / Prayer Times
+        - 📖 تفسير وترجمة / Tafsir & Translation
+        - 🔊 صوتيات / Audio
+        - 🎨 مظهر وتصميم / UI & Design
+        - 📱 أداء وأوفلاين / Performance & Offline
+        - 🔒 أمان وخصوصية / Security & Privacy
+        - 🔧 أخرى / Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: حلول بديلة / Alternatives Considered
+      description: هل فكرت في حلول أخرى؟
+      placeholder: "مثال: حاليًا أستخدم تطبيق آخر لتتبع الختمة"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: معلومات إضافية / Additional Context
+      description: أي تفاصيل أخرى، رسومات، أمثلة من تطبيقات أخرى...
+      placeholder: "مثال: تطبيق X عنده ميزة مشابهة تعمل هكذا..."

@@ -25,9 +25,13 @@
 }
 .prayer-bar.collapsed {
   height: 48px;
+  /* CLS: Fixed min-height prevents layout shift when bar loads */
+  min-height: 48px;
 }
 .prayer-bar.expanded {
   height: auto;
+  /* CLS: Fixed min-height for expanded state */
+  min-height: 48px;
 }
 .prayer-bar-inner {
   padding: 12px 20px;
@@ -524,7 +528,9 @@ body {
   direction: rtl;
   /* Safe area for Android gesture navigation */
   padding-bottom: env(safe-area-inset-bottom, 0);
+  /* CLS: Fixed height prevents layout shift when nav appears */
   height: 56px;
+  min-height: 56px;
 }
 .bottom-nav-btn {
   background: none;

@@ -6,6 +6,8 @@
   background: var(--content-bg);
   min-height: 380px;
   transition: all 0.3s ease;
+  /* CLS: Prevent layout shift when content loads */
+  contain: layout style;
 }
 .surah-title {
   text-align: center;
