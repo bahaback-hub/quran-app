@@ -59,7 +59,6 @@ function injectContinueWidgetStyles(): void {
   document.head.appendChild(style);
 }
 
-/** Display a floating widget inviting the user to continue reading from their last-visited surah and ayah. Auto-dismisses after 8 seconds. */
 export function showContinueWidget(info: ContinueInfo): void {
   injectContinueWidgetStyles();
   const existing = document.getElementById('continueWidget');
@@ -124,7 +123,6 @@ export function showContinueWidget(info: ContinueInfo): void {
 
 /* ===================== VISIBILITY ===================== */
 
-/** Pause or resume prayer-clock ticks and adhkar notification interval based on page visibility. */
 export function handleVisibilityChange(): void {
   if (document.hidden) {
     stopClock();
@@ -143,7 +141,6 @@ export function handleVisibilityChange(): void {
 
 /* ===================== NETWORK BANNER ===================== */
 
-/** Show or hide the offline network banner based on `navigator.onLine`. */
 export function updateNetworkBanner(): void {
   if (!dom.networkBanner) {
     return;
@@ -159,7 +156,6 @@ export function updateNetworkBanner(): void {
 /* ===================== READING PROGRESS ===================== */
 
 let _progressPending = false;
-/** Update the reading-progress bar to reflect the current ayah position (or mushaf page). Throttled via `requestAnimationFrame`. */
 export function updateReadingProgress(): void {
   if (_progressPending) {
     return;
