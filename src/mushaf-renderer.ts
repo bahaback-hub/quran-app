@@ -95,18 +95,24 @@ function isCapacitorEnv(): boolean {
       (typeof navigator !== 'undefined' && /wv|Android.*Capacitor/i.test(navigator.userAgent)) ||
       (typeof document !== 'undefined' && document.documentElement.classList.contains('capacitor-native'))
     );
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 const _isCapacitor = isCapacitorEnv();
 
 /** Double-check Capacitor status at runtime (class might be added after module load). */
 function isCapacitor(): boolean {
-  if (_isCapacitor) return true;
+  if (_isCapacitor) {
+    return true;
+  }
   // Re-check in case capacitor-native class was added after module load
   try {
     return typeof document !== 'undefined' && document.documentElement.classList.contains('capacitor-native');
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 /* ===================== HELPERS ===================== */
@@ -117,16 +123,22 @@ function getPageFont(pageNum: number, fontMap: Record<string, string> | null | u
 
 export async function loadPageData(pageNum: number): Promise<PageLayoutData | null> {
   const key = `qcf4-${pageNum}`;
-  if (layoutCache.has(key)) return layoutCache.get(key)!;
+  if (layoutCache.has(key)) {
+    return layoutCache.get(key)!;
+  }
   const padded = String(pageNum).padStart(3, '0');
   try {
     const res = await fetch(`${PAGE_BASE}${padded}.json`);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      return null;
+    }
     const data = (await res.json()) as PageLayoutData;
     // Evict oldest entry if cache is full (LRU policy)
     if (layoutCache.size >= LAYOUT_CACHE_MAX) {
       const firstKey = layoutCache.keys().next().value;
-      if (firstKey !== undefined) layoutCache.delete(firstKey);
+      if (firstKey !== undefined) {
+        layoutCache.delete(firstKey);
+      }
     }
     layoutCache.set(key, data);
     return data;
@@ -186,7 +198,9 @@ async function fetchFontBinary(url: string): Promise<ArrayBuffer> {
   }
   // Use standard fetch in browser
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
   return res.arrayBuffer();
 }
 
@@ -213,7 +227,9 @@ function verifyFontOnCanvas(fontName: string): boolean {
     canvas.width = testSize * 2;
     canvas.height = testSize * 2;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return false;
+    if (!ctx) {
+      return false;
+    }
 
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -227,7 +243,7 @@ function verifyFontOnCanvas(fontName: string): boolean {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     for (let i = 0; i < data.length; i += 4) {
-      if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) {
+      if (data[i]! < 250 || data[i + 1]! < 250 || data[i + 2]! < 250) {
         return true;
       }
     }
@@ -246,7 +262,9 @@ function verifyFontOnCanvas(fontName: string): boolean {
  */
 function createFontPreloadElement(fontName: string): void {
   const id = `qcf-preload-${fontName}`;
-  if (document.getElementById(id)) return;
+  if (document.getElementById(id)) {
+    return;
+  }
 
   const span = document.createElement('span');
   span.id = id;
@@ -278,12 +296,16 @@ function createFontPreloadElement(fontName: string): void {
  * document.fonts API instead.
  */
 async function ensureFontLoaded(fontName: string): Promise<void> {
-  if (loadedFonts.has(fontName)) return;
+  if (loadedFonts.has(fontName)) {
+    return;
+  }
 
   // Deduplicate concurrent loads
   if (loadingFonts.has(fontName)) {
     const result = await loadingFonts.get(fontName);
-    if (result) return;
+    if (result) {
+      return;
+    }
     loadingFonts.delete(fontName);
   }
 
@@ -373,7 +395,9 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       }
 
       if (capMode) {
-        console.warn(`[Mushaf] Capacitor: Proceeding with font "${fontName}" (strategy 2) despite verification failure`);
+        console.warn(
+          `[Mushaf] Capacitor: Proceeding with font "${fontName}" (strategy 2) despite verification failure`,
+        );
         return true;
       }
     } catch (e) {
@@ -416,7 +440,9 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       }
 
       if (capMode) {
-        console.warn(`[Mushaf] Capacitor: Proceeding with font "${fontName}" (strategy 3) despite verification failure`);
+        console.warn(
+          `[Mushaf] Capacitor: Proceeding with font "${fontName}" (strategy 3) despite verification failure`,
+        );
         return true;
       }
     } catch (e) {
@@ -475,8 +501,8 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
         setTimeout(() => {
           console.error(`[Mushaf] renderPage(${pageNum}) timed out after ${timeoutMs}ms`);
           _renderPageWithCurrentFonts(pageNum, targetCanvas).then(resolve);
-        }, timeoutMs)
-      )
+        }, timeoutMs),
+      ),
     ]);
   }
 
@@ -487,17 +513,24 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
  * Attempt to render a page using whatever fonts are currently available,
  * even if font loading failed. Better to show partial text than blank.
  */
-async function _renderPageWithCurrentFonts(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
+async function _renderPageWithCurrentFonts(
+  pageNum: number,
+  targetCanvas?: HTMLCanvasElement | null,
+): Promise<RenderPageResult> {
   try {
     const data = await loadPageData(pageNum);
-    if (!data) return { canvas: null, layout: null };
+    if (!data) {
+      return { canvas: null, layout: null };
+    }
 
     const pageFont = data.font || getPageFont(pageNum, null);
     const canvas = targetCanvas || document.createElement('canvas');
     canvas.width = CANVAS_W;
     canvas.height = CANVAS_H;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return { canvas: null, layout: data };
+    if (!ctx) {
+      return { canvas: null, layout: data };
+    }
 
     const colors = getColors();
     ctx.fillStyle = colors.bg;
@@ -511,7 +544,10 @@ async function _renderPageWithCurrentFonts(pageNum: number, targetCanvas?: HTMLC
   }
 }
 
-async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
+async function _renderPageInternal(
+  pageNum: number,
+  targetCanvas?: HTMLCanvasElement | null,
+): Promise<RenderPageResult> {
   const capMode = isCapacitor();
   const data = await loadPageData(pageNum);
   if (!data) {
@@ -528,7 +564,9 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
   pageFonts.add(BSML_FONT);
   for (const line of data.lines ?? []) {
     for (const w of line.words ?? []) {
-      if (w.font) pageFonts.add(w.font);
+      if (w.font) {
+        pageFonts.add(w.font);
+      }
     }
   }
 
@@ -536,10 +574,7 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
 
   // Load all fonts in parallel with individual timeouts
   const fontPromises = [...pageFonts].map((fn) =>
-    Promise.race([
-      ensureFontLoaded(fn),
-      new Promise<void>((resolve) => setTimeout(resolve, capMode ? 8000 : 5000))
-    ])
+    Promise.race([ensureFontLoaded(fn), new Promise<void>((resolve) => setTimeout(resolve, capMode ? 8000 : 5000))]),
   );
   await Promise.all(fontPromises);
 
@@ -596,7 +631,7 @@ async function _renderPageInternal(pageNum: number, targetCanvas?: HTMLCanvasEle
     setTimeout(() => {
       console.log(`[Mushaf] Capacitor: Re-rendering page ${renderData.pageNum} after 3s delay`);
       try {
-        const c = targetCanvas || document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement;
+        const c = targetCanvas || (document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement);
         if (c && c.width === CANVAS_W) {
           const ctx2 = c.getContext('2d');
           if (ctx2) {
@@ -626,8 +661,12 @@ function measureLine(ctx: CanvasRenderingContext2D, words: PageWord[], pageFont:
 }
 
 export function getLineY(lineIndex: number, lineCount: number, imgHeight: number): number {
-  if (lineIndex <= 0) return 0;
-  if (lineIndex >= lineCount) return imgHeight;
+  if (lineIndex <= 0) {
+    return 0;
+  }
+  if (lineIndex >= lineCount) {
+    return imgHeight;
+  }
   const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
   const stdLineHeight = usableHeight / STD_LINES;
   const isShortPage = lineCount < STD_LINES;
@@ -638,16 +677,22 @@ export function getLineY(lineIndex: number, lineCount: number, imgHeight: number
 
 /** Pre-compute per-word tajweed coloring data for the entire page. */
 function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
-  if (!state.tajweedEnabled) return null;
+  if (!state.tajweedEnabled) {
+    return null;
+  }
 
   const verseKeyWords = new Map<string, { text: string; lineIdx: number; wordIdx: number }[]>();
   for (let li = 0; li < data.lines.length; li++) {
     const line = data.lines[li];
-    if (!line?.words) continue;
+    if (!line?.words) {
+      continue;
+    }
     for (let wi = 0; wi < line.words.length; wi++) {
-      const w = line.words[wi];
+      const w = line.words[wi]!;
       if (w.verse_key && w.text && w.type === 'word') {
-        if (!verseKeyWords.has(w.verse_key)) verseKeyWords.set(w.verse_key, []);
+        if (!verseKeyWords.has(w.verse_key)) {
+          verseKeyWords.set(w.verse_key, []);
+        }
         verseKeyWords.get(w.verse_key)!.push({ text: w.text, lineIdx: li, wordIdx: wi });
       }
     }
@@ -657,25 +702,29 @@ function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: n
 
   for (const [vk, words] of verseKeyWords) {
     const parts = vk.split(':');
-    const surah = parseInt(parts[0], 10);
-    const ayah = parseInt(parts[1], 10);
+    const surah = parseInt(parts[0]!, 10);
+    const ayah = parseInt(parts[1]!, 10);
 
     const annotations: TajweedAnnotation[] = getAyahAnnotations(surah, ayah);
     if (annotations.length === 0) {
-      for (const w of words) result.push({ wordIdx: w.wordIdx, lineIdx: w.lineIdx, color: null });
+      for (const w of words) {
+        result.push({ wordIdx: w.wordIdx, lineIdx: w.lineIdx, color: null });
+      }
       continue;
     }
 
     const ayahText = words.map((w) => w.text).join(' ');
     const colorMap = buildColorMap(annotations);
     if (!colorMap || colorMap.size === 0) {
-      for (const w of words) result.push({ wordIdx: w.wordIdx, lineIdx: w.lineIdx, color: null });
+      for (const w of words) {
+        result.push({ wordIdx: w.wordIdx, lineIdx: w.lineIdx, color: null });
+      }
       continue;
     }
 
     let outputPos = 0;
     for (let wi = 0; wi < words.length; wi++) {
-      const wordText = words[wi].text;
+      const wordText = words[wi]!.text;
       let wordColor: string | null = null;
       for (let ci = 0; ci < wordText.length; ci++) {
         const rule = colorMap.get(outputPos + ci);
@@ -684,7 +733,7 @@ function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: n
           break;
         }
       }
-      result.push({ wordIdx: words[wi].wordIdx, lineIdx: words[wi].lineIdx, color: wordColor });
+      result.push({ wordIdx: words[wi]!.wordIdx, lineIdx: words[wi]!.lineIdx, color: wordColor });
       outputPos += wordText.length + 1;
     }
   }
@@ -696,10 +745,12 @@ function renderPageContent(
   ctx: CanvasRenderingContext2D,
   data: PageLayoutData,
   pageFont: string,
-  colors: PageColors
+  colors: PageColors,
 ): void {
   const lines = data.lines;
-  if (!lines || lines.length === 0) return;
+  if (!lines || lines.length === 0) {
+    return;
+  }
 
   const lineCount = lines.length;
   const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
@@ -742,12 +793,16 @@ function renderPageContent(
 
   for (let i = 0; i < lineCount; i++) {
     const line = lines[i];
-    if (!line?.words || line.words.length === 0) continue;
+    if (!line?.words || line.words.length === 0) {
+      continue;
+    }
 
     const y = TOP_OFFSET + i * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2);
     const words = line.words;
     const lw = lineWidths[i];
-    if (!lw) continue;
+    if (!lw) {
+      continue;
+    }
     const { widths, gap } = lw;
 
     const lineType = words[0]?.type;
@@ -766,7 +821,7 @@ function renderPageContent(
     let x = CANVAS_W - PAD_H;
 
     for (let j = 0; j < words.length; j++) {
-      const w = words[j];
+      const w = words[j]!;
       const fn = w.font || pageFont;
       ctx.font = `${pageFontSize}px "${fn}"`;
       ctx.textAlign = 'right';
@@ -779,7 +834,7 @@ function renderPageContent(
       }
 
       ctx.fillText(w.char, x, y);
-      x -= widths[j] + gap;
+      x -= widths[j]! + gap;
     }
   }
 }
