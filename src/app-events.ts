@@ -560,10 +560,14 @@ export function bindHelpEvents(): void {
 
   // Close help when clicking outside
   document.addEventListener('click', (e: MouseEvent) => {
+    const helpTarget = e.target as HTMLElement;
+    const isHelpTrigger =
+      helpTarget === dom.helpToggleBtn ||
+      helpTarget.closest?.('#helpToggleBtn') !== null;
     if (
       dom.helpPanel?.classList.contains('open') &&
       !dom.helpPanel.contains(e.target as Node) &&
-      e.target !== dom.helpToggleBtn
+      !isHelpTrigger
     ) {
       closeHelp();
     }
