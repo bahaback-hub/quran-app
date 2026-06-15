@@ -11,9 +11,13 @@ describe('injectOverlays', () => {
   beforeEach(() => {
     // Clean up any previously injected overlays
     const existingOverlays = document.getElementById('injected-overlays');
-    if (existingOverlays) existingOverlays.remove();
+    if (existingOverlays) {
+      existingOverlays.remove();
+    }
     const existingPanels = document.getElementById('injected-panels');
-    if (existingPanels) existingPanels.remove();
+    if (existingPanels) {
+      existingPanels.remove();
+    }
   });
 
   /* ===================== WRAPPER CREATION ===================== */
@@ -135,7 +139,9 @@ describe('injectOverlays', () => {
   it('should handle missing arabicKeyboardMount gracefully', () => {
     // Ensure no mount point exists
     const existing = document.getElementById('arabicKeyboardMount');
-    if (existing) existing.remove();
+    if (existing) {
+      existing.remove();
+    }
 
     // Should not throw
     expect(() => injectOverlays()).not.toThrow();
