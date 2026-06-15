@@ -328,6 +328,12 @@ export default {
   download_audio_deleted: 'Cached audio deleted',
   download_audio_no_data: 'No audio data available to download',
 
+  // === Auto-play Next ===
+  autoplay_next: '🔗 Continuous',
+  autoplay_next_enabled: 'Continuous playback enabled — will auto-play next surah',
+  autoplay_next_disabled: 'Continuous playback disabled — will stop at end of surah',
+  khatma_complete: 'Khatma completed',
+
   // === Accessibility ===
   a11y_panel_opened: '{0} opened',
   a11y_panel_closed: '{0} closed',
