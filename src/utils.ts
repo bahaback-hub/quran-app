@@ -228,6 +228,7 @@ function fallbackCopy(text: string): void {
   ta.select();
   try {
     document.execCommand('copy');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_e) {
     /* noop */
   }
