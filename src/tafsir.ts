@@ -108,8 +108,7 @@ async function getTafsirFromDB(key: string): Promise<string | null> {
       req.onsuccess = () => resolve(req.result ? (req.result as TafsirCacheEntry).text : null);
       req.onerror = () => resolve(null);
     });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_e: unknown) {
+  } catch {
     return null;
   }
 }
