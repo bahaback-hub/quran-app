@@ -48,6 +48,16 @@ function openSurahDB(): Promise<IDBDatabase> {
   });
 }
 
+/**
+ * Cache a surah entry to IndexedDB for offline access.
+ *
+ * @param key The cache key (format: "surahNum_reciter_translation")
+ * @param entry The surah data entry to cache
+ * @returns A promise that resolves when the write transaction completes
+ *
+ * @example
+ * await cacheSurahToIDB('1_ar.alafasy_en.sahih', { text, audios, translation });
+ */
 export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Promise<void> {
   try {
     const db = await openSurahDB();
@@ -64,6 +74,16 @@ export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Pro
   }
 }
 
+/**
+ * Retrieve a cached surah entry from IndexedDB.
+ *
+ * @param key The cache key to look up
+ * @returns The cached surah entry, or null if not found or on error
+ *
+ * @example
+ * const cached = await getCachedSurahFromIDB('1_ar.alafasy_en.sahih');
+ * if (cached) { // use cached data }
+ */
 export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEntry | null> {
   try {
     const db = await openSurahDB();
