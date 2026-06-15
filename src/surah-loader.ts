@@ -85,7 +85,8 @@ export async function loadSurahList(): Promise<void> {
   }
   if (dom.surahSelect) dom.surahSelect.innerHTML = surahSelectLoading();
   try {
-    const data = await apiFetch('/surah', { silent: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: any = await apiFetch('/surah', { silent: true });
     if (data?.data) {
       state.surahList = data.data;
       state.surahOffsets = null;
@@ -97,7 +98,7 @@ export async function loadSurahList(): Promise<void> {
     /* fall through to local fallback */
   }
   try {
-    const localData = await jsonFetch('data/surah-list.json', { silent: true });
+    const localData: any = await jsonFetch('data/surah-list.json', { silent: true });
     if (localData && localData.length === CONFIG.SURAH_COUNT) {
       state.surahList = localData;
       state.surahOffsets = null;
@@ -163,14 +164,14 @@ async function fetchAyahTimings(reciterId: string, surahNum: number, ayahs: Ayah
   const apiId = getTimingApiId(reciterId);
   if (!apiId) return null;
   try {
-    const data = await jsonFetch(
+    const data: any = await jsonFetch(
       `https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`,
       { silent: true, timeout: 8000 }
     );
     if (!data) return null;
     const timestamps: TimestampEntry[] | undefined = data?.audio_file?.timestamps;
     if (!timestamps?.length || timestamps.length !== ayahs.length) return null;
-    const totalDuration = timestamps[timestamps.length - 1].timestamp_to;
+    const totalDuration = timestamps[timestamps.length - 1]!.timestamp_to;
     if (!totalDuration || totalDuration <= 0) return null;
     return timestamps.map((t: TimestampEntry) => t.timestamp_from / totalDuration);
   } catch {
@@ -197,7 +198,7 @@ function calculateAyahTimings(ayahs: AyahEntry[], surahNumber: number): number[]
   let cum = basmalahChars / total;
   for (let i = 0; i < ayahs.length; i++) {
     timings.push(cum);
-    cum += counts[i] / total;
+    cum += counts[i]! / total;
   }
   return timings;
 }
@@ -258,7 +259,7 @@ async function loadApiAudio(
   signal: AbortSignal
 ): Promise<AudioResult | null> {
   try {
-    const json = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true });
+    const json: any = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true });
     const data = json?.data;
     if (!data?.ayahs?.length) throw new Error(__('no_audio_data'));
     const audios: (string | null)[] = data.ayahs.map((a: AyahEntry) => a.audio);
@@ -322,9 +323,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   const reciterInfo = getReciterById(state.currentReciter) as ReciterInfo;
   const isMp3quran = reciterInfo.source === 'mp3quran';
   if (state.surahCache.has(cacheKey)) {
-    const cached = state.surahCache.get(cacheKey) as CachedSurahEntry;
+    const cached = state.surahCache.get(cacheKey) as unknown as CachedSurahEntry;
     if (_loadCounter !== currentLoad) return;
-    state.surahData = cached.text as SurahData;
+    state.surahData = cached.text as unknown as SurahData;
     if (isMp3quran) {
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');
       state.ayahTimings = cached.timings || calculateAyahTimings(cached.text.ayahs, surahNum);
@@ -347,7 +348,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     if (_loadCounter !== currentLoad) return;
     // Also store in memory cache
     immutableMapSet(state, 'surahCache', cacheKey, idbCached);
-    state.surahData = idbCached.text as SurahData;
+    state.surahData = idbCached.text as unknown as SurahData;
     if (isMp3quran) {
       state.ayahsAudios = idbCached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');
       state.ayahTimings = idbCached.timings || calculateAyahTimings(idbCached.text.ayahs, surahNum);
@@ -378,7 +379,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     dom.surahContent.innerHTML = skeletonLoading();
 
   try {
-    const textJson = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, errorMsg: __('failed_load_surah') });
+    const textJson: any = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, errorMsg: __('failed_load_surah') });
     const textData: SurahTextData = textJson?.data;
     if (!textData?.ayahs?.length) {
       throw new Error(__('invalid_surah_data'));
@@ -399,7 +400,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     const transPromise =
       state.translationEnabled && state.currentTranslation
         ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal, silent: true })
-            .then((d: { data?: Record<string, unknown> }) => d?.data || null)
+            .then((d: unknown) => (d as { data?: Record<string, unknown> })?.data || null)
             .catch(() => null)
         : Promise.resolve(null);
 
@@ -424,7 +425,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
 
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
       const firstKey = state.surahCache.keys().next().value;
-      immutableMapDelete(state, 'surahCache', firstKey);
+      if (firstKey) immutableMapDelete(state, 'surahCache', firstKey);
     }
     const cacheEntry: CachedSurahEntry = {
       text: textData,
@@ -441,9 +442,10 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       if (_loadCounter !== currentLoad) return;
       const ayahs = state.fullQuranText.filter((a: { surah: number }) => a.surah === surahNum);
       if (ayahs.length) {
+        const firstAyah = ayahs[0]!;
         state.surahData = {
           number: surahNum,
-          name: ayahs[0].surahName,
+          name: firstAyah.surahName,
           englishName: state.surahList.find((s: SurahInfo) => s.number === surahNum)?.englishName || '',
           ayahs: ayahs.map((a: { ayah: number; text: string }) => ({ numberInSurah: a.ayah, text: a.text })),
         };
@@ -477,8 +479,8 @@ async function _refreshSurahFromAPI(
   signal: AbortSignal
 ): Promise<void> {
   try {
-    const textJson = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, silent: true });
-    const textData: SurahTextData = textJson?.data;
+    const textJson = await apiFetch<{ data?: SurahTextData }>(`/surah/${surahNum}/quran-uthmani`, { signal, silent: true });
+    const textData: SurahTextData | undefined = textJson?.data;
     if (!textData?.ayahs?.length || _loadCounter !== currentLoad) return;
 
     // Update in-memory state
@@ -491,7 +493,7 @@ async function _refreshSurahFromAPI(
     const transPromise =
       state.translationEnabled && state.currentTranslation
         ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal, silent: true })
-            .then((d: { data?: Record<string, unknown> }) => d?.data || null)
+            .then((d: unknown) => (d as { data?: Record<string, unknown> })?.data || null)
             .catch(() => null)
         : Promise.resolve(null);
 
@@ -587,7 +589,7 @@ function renderAyahChunk(textData: SurahTextData, start: number, count: number):
   const end = Math.min(start + count, textData.ayahs.length);
   let html = '';
   for (let i = start; i < end; i++) {
-    html += buildAyahHtml(textData.ayahs[i], i, textData);
+    html += buildAyahHtml(textData.ayahs[i]!, i, textData);
   }
   ayahsContainer.insertAdjacentHTML('beforeend', html);
   _ayahsReadyCount = end;
@@ -608,7 +610,7 @@ function ensureVirtualSentinel(textData: SurahTextData): void {
   dom.surahContent?.appendChild(sentinel);
   _virtualObserver = new IntersectionObserver(
     (entries: IntersectionObserverEntry[]) => {
-      if (entries[0].isIntersecting && _ayahsReadyCount < textData.ayahs.length) {
+      if (entries[0]?.isIntersecting && _ayahsReadyCount < textData.ayahs.length) {
         renderAyahChunk(textData, _ayahsReadyCount, VIRTUAL_CHUNK_SIZE);
       }
     },
@@ -659,8 +661,8 @@ export function renderSurah(textData: SurahTextData): void {
       e.stopPropagation();
       import('./mushaf.js').then((m: { showSurahSecret: (surahNum: number, surahName?: string) => void }) =>
         m.showSurahSecret(
-          parseInt((secretBtn as HTMLElement).dataset.surah || '0', 10),
-          (secretBtn as HTMLElement).dataset.surahname
+          parseInt((secretBtn as HTMLElement).dataset['surah'] || '0', 10),
+          (secretBtn as HTMLElement).dataset['surahname']
         )
       );
     });
@@ -688,8 +690,8 @@ function initAyahDelegation(): void {
     const ayahEl = (e.target as HTMLElement).closest('.ayah') as HTMLElement | null;
     if (!ayahEl) return;
     const idx = parseInt(ayahEl.getAttribute('data-index') || '0', 10);
-    const surah = parseInt(ayahEl.dataset.surah || '0', 10);
-    const ayah = parseInt(ayahEl.dataset.ayah || '0', 10);
+    const surah = parseInt(ayahEl.dataset['surah'] || '0', 10);
+    const ayah = parseInt(ayahEl.dataset['ayah'] || '0', 10);
     const surahData: SurahData | null = state.surahData;
     if (!surahData || surahData.number !== surah) return;
     const a = surahData.ayahs[idx];
@@ -723,7 +725,7 @@ export function highlightCurrentAyah(): void {
   const container = dom.surahContent?.querySelector('.ayahs-container');
   const ayahs = container?.children;
   if (ayahs) {
-    for (let i = 0; i < ayahs.length; i++) ayahs[i].classList.remove('current');
+    for (let i = 0; i < ayahs.length; i++) ayahs[i]?.classList.remove('current');
   }
   const surahData: SurahData | null = state.surahData;
   if (surahData && state.currentAyahIndex >= _ayahsReadyCount) {
@@ -733,7 +735,7 @@ export function highlightCurrentAyah(): void {
   if (cur) {
     cur.classList.add('current');
     if (state.hifdhMode) {
-      for (let i = 0; i < ayahs!.length; i++) ayahs![i].classList.remove('revealed');
+      for (let i = 0; i < ayahs!.length; i++) ayahs![i]?.classList.remove('revealed');
       for (let i = 0; i <= state.currentAyahIndex; i++) {
         const prev = container!.querySelector(`.ayah[data-index="${i}"]`) as HTMLElement | null;
         if (prev) prev.classList.add('revealed');
@@ -773,6 +775,7 @@ function saveCurrentPosition(): void {
   const surahData: SurahData | null = state.surahData;
   if (!surahData) return;
   const a = surahData.ayahs[state.currentAyahIndex];
+  if (!a) return;
   storage.set('last_position', {
     surah: state.currentSurah,
     ayah: state.currentAyahIndex,
