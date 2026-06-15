@@ -1115,3 +1115,148 @@ export function arabicKeyboardHTML(): string {
                 </div>
               </div>`;
 }
+
+/**
+ * Generate the help/guide panel HTML with accordion sections.
+ * Each section explains a feature, where to find it, and how to use it.
+ * Uses data-i18n attributes for translation support.
+ *
+ * @returns HTML string for the complete help panel aside element
+ */
+export function helpPanelHTML(): string {
+  return `<aside class="help-panel" id="helpPanel" aria-label="${__('help_guide')}">
+      <div class="help-header">
+        <h2 data-i18n="help_guide">❓ ${__('help_guide')}</h2>
+        <button class="help-close" id="helpCloseBtn" aria-label="${__('close')}">✖</button>
+      </div>
+      <div class="help-body">
+
+        <div class="help-section">
+          <button class="help-section-toggle" data-section="playback">
+            <span>🎵 ${__('help_playback')}</span>
+            <span class="help-toggle-icon">▼</span>
+          </button>
+          <div class="help-section-content" data-section="playback">
+            <div class="help-item">
+              <div class="help-item-title">⏯ ${__('help_play_pause')}</div>
+              <div class="help-item-desc">${__('help_play_pause_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">◀ ▶ ⏮ ⏭ ${__('help_navigation')}</div>
+              <div class="help-item-desc">${__('help_navigation_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">🔗 ${__('help_continuous')}</div>
+              <div class="help-item-desc">${__('help_continuous_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">🔁 ${__('help_repeat')}</div>
+              <div class="help-item-desc">${__('help_repeat_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">🕋 ${__('help_hifdh')}</div>
+              <div class="help-item-desc">${__('help_hifdh_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">﴿١﴾ ${__('help_ayah_number')}</div>
+              <div class="help-item-desc">${__('help_ayah_number_desc')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-section">
+          <button class="help-section-toggle" data-section="offline">
+            <span>📥 ${__('help_offline')}</span>
+            <span class="help-toggle-icon">▼</span>
+          </button>
+          <div class="help-section-content" data-section="offline">
+            <div class="help-item">
+              <div class="help-item-title">📥 ${__('help_download_audio')}</div>
+              <div class="help-item-desc">${__('help_download_audio_desc')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-section">
+          <button class="help-section-toggle" data-section="bookmarks">
+            <span>🔖 ${__('help_bookmarks_favorites')}</span>
+            <span class="help-toggle-icon">▼</span>
+          </button>
+          <div class="help-section-content" data-section="bookmarks">
+            <div class="help-item">
+              <div class="help-item-title">🔖 ${__('help_bookmark')}</div>
+              <div class="help-item-desc">${__('help_bookmark_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">❤️ ${__('help_favorite')}</div>
+              <div class="help-item-desc">${__('help_favorite_desc')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-section">
+          <button class="help-section-toggle" data-section="search">
+            <span>🔍 ${__('help_search')}</span>
+            <span class="help-toggle-icon">▼</span>
+          </button>
+          <div class="help-section-content" data-section="search">
+            <div class="help-item">
+              <div class="help-item-title">🔎 ${__('help_text_search')}</div>
+              <div class="help-item-desc">${__('help_text_search_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">🎤 ${__('help_voice_search')}</div>
+              <div class="help-item-desc">${__('help_voice_search_desc')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-section">
+          <button class="help-section-toggle" data-section="extras">
+            <span>🕌 ${__('help_extras')}</span>
+            <span class="help-toggle-icon">▼</span>
+          </button>
+          <div class="help-section-content" data-section="extras">
+            <div class="help-item">
+              <div class="help-item-title">😴 ${__('help_sleep_timer')}</div>
+              <div class="help-item-desc">${__('help_sleep_timer_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">📖 ${__('help_mushaf_mode')}</div>
+              <div class="help-item-desc">${__('help_mushaf_mode_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">🧭 ${__('help_qibla')}</div>
+              <div class="help-item-desc">${__('help_qibla_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">🤲 ${__('help_adhkar')}</div>
+              <div class="help-item-desc">${__('help_adhkar_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">📖 ${__('help_tafsir')}</div>
+              <div class="help-item-desc">${__('help_tafsir_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">📤 ${__('help_share')}</div>
+              <div class="help-item-desc">${__('help_share_desc')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-section">
+          <button class="help-section-toggle" data-section="keyboard">
+            <span>⌨️ ${__('help_keyboard')}</span>
+            <span class="help-toggle-icon">▼</span>
+          </button>
+          <div class="help-section-content" data-section="keyboard">
+            <div class="help-item">
+              <div class="help-item-title">${__('help_keyboard_shortcuts')}</div>
+              <div class="help-item-desc">${__('help_keyboard_shortcuts_desc')}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </aside>`;
+}
