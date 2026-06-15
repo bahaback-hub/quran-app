@@ -3,7 +3,17 @@ import { storage } from './storage.js';
 import { dom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
 import { __ } from './i18n.js';
-import { surahSelectLoading, surahSelectError, surahSelectDefault, reciterOptions, skeletonLoading, surahLoadError, surahContentShell, collapsedPlayerInfo, escapeHtml } from './templates.js';
+import {
+  surahSelectLoading,
+  surahSelectError,
+  surahSelectDefault,
+  reciterOptions,
+  skeletonLoading,
+  surahLoadError,
+  surahContentShell,
+  collapsedPlayerInfo,
+  escapeHtml,
+} from './templates.js';
 import { state, batch, immutablePush, immutableMapSet, immutableMapDelete, SurahInfo, SurahOffset } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId, getReciterDisplayName } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
@@ -83,7 +93,9 @@ export async function loadSurahList(): Promise<void> {
     populateSurahSelect();
     return;
   }
-  if (dom.surahSelect) dom.surahSelect.innerHTML = surahSelectLoading();
+  if (dom.surahSelect) {
+    dom.surahSelect.innerHTML = surahSelectLoading();
+  }
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await apiFetch('/surah', { silent: true });
@@ -109,12 +121,16 @@ export async function loadSurahList(): Promise<void> {
   } catch (_e) {
     /* no local fallback */
   }
-  if (dom.surahSelect) dom.surahSelect.innerHTML = surahSelectError();
+  if (dom.surahSelect) {
+    dom.surahSelect.innerHTML = surahSelectError();
+  }
   // showToast(__('failed_load_surah'), 'error'); // disabled at startup
 }
 
 function populateSurahSelect(): void {
-  if (!dom.surahSelect) return;
+  if (!dom.surahSelect) {
+    return;
+  }
   dom.surahSelect.innerHTML = surahSelectDefault();
   for (const s of state.surahList) {
     const opt = document.createElement('option');
@@ -130,8 +146,13 @@ function populateSurahSelect(): void {
  * Uses the RECITERS list and current selection to render option elements.
  */
 export function populateReciterSelect(): void {
-  if (!dom.reciterSelect) return;
-  dom.reciterSelect.innerHTML = reciterOptions(RECITERS.map((r: ReciterInfo) => ({ id: r.id, name: getReciterDisplayName(r) })), state.currentReciter || CONFIG.DEFAULT_RECITER);
+  if (!dom.reciterSelect) {
+    return;
+  }
+  dom.reciterSelect.innerHTML = reciterOptions(
+    RECITERS.map((r: ReciterInfo) => ({ id: r.id, name: getReciterDisplayName(r) })),
+    state.currentReciter || CONFIG.DEFAULT_RECITER,
+  );
 }
 
 /**
@@ -140,7 +161,9 @@ export function populateReciterSelect(): void {
  * for each surah, enabling quick ayah-to-surah lookups.
  */
 export function buildSurahOffsets(): void {
-  if (state.surahOffsets || !state.surahList.length) return;
+  if (state.surahOffsets || !state.surahList.length) {
+    return;
+  }
   state.surahOffsets = [];
   let cum = 1;
   const offsets: SurahOffset[] = [];
@@ -162,17 +185,25 @@ function countArabicChars(text: string): number {
  */
 async function fetchAyahTimings(reciterId: string, surahNum: number, ayahs: AyahEntry[]): Promise<number[] | null> {
   const apiId = getTimingApiId(reciterId);
-  if (!apiId) return null;
+  if (!apiId) {
+    return null;
+  }
   try {
     const data: any = await jsonFetch(
       `https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`,
-      { silent: true, timeout: 8000 }
+      { silent: true, timeout: 8000 },
     );
-    if (!data) return null;
+    if (!data) {
+      return null;
+    }
     const timestamps: TimestampEntry[] | undefined = data?.audio_file?.timestamps;
-    if (!timestamps?.length || timestamps.length !== ayahs.length) return null;
+    if (!timestamps?.length || timestamps.length !== ayahs.length) {
+      return null;
+    }
     const totalDuration = timestamps[timestamps.length - 1]!.timestamp_to;
-    if (!totalDuration || totalDuration <= 0) return null;
+    if (!totalDuration || totalDuration <= 0) {
+      return null;
+    }
     return timestamps.map((t: TimestampEntry) => t.timestamp_from / totalDuration);
   } catch {
     return null;
@@ -194,7 +225,9 @@ function calculateAyahTimings(ayahs: AyahEntry[], surahNumber: number): number[]
     return Math.max(MIN_PER_AYAH, n);
   });
   const total = counts.reduce((a: number, b: number) => a + b, 0) + basmalahChars;
-  if (!total) return ayahs.map(() => 0);
+  if (!total) {
+    return ayahs.map(() => 0);
+  }
   let cum = basmalahChars / total;
   for (let i = 0; i < ayahs.length; i++) {
     timings.push(cum);
@@ -210,8 +243,12 @@ interface AbsToSurahAyahResult {
 }
 
 function absToSurahAyah(absNum: number): AbsToSurahAyahResult | null {
-  if (!state.surahOffsets) buildSurahOffsets();
-  if (!state.surahOffsets) return null;
+  if (!state.surahOffsets) {
+    buildSurahOffsets();
+  }
+  if (!state.surahOffsets) {
+    return null;
+  }
   for (const o of state.surahOffsets) {
     if (absNum >= o.startAbs && absNum < o.startAbs + o.count) {
       return { surahNum: o.surahNum, surahName: o.name, ayahNumInSurah: absNum - o.startAbs + 1 };
@@ -221,10 +258,16 @@ function absToSurahAyah(absNum: number): AbsToSurahAyahResult | null {
 }
 
 function getAbsNumber(surah: number, ayah: number): number | null {
-  if (!state.surahOffsets) buildSurahOffsets();
-  if (!state.surahOffsets) return null;
+  if (!state.surahOffsets) {
+    buildSurahOffsets();
+  }
+  if (!state.surahOffsets) {
+    return null;
+  }
   for (const o of state.surahOffsets) {
-    if (o.surahNum === surah) return o.startAbs + ayah - 1;
+    if (o.surahNum === surah) {
+      return o.startAbs + ayah - 1;
+    }
   }
   return null;
 }
@@ -236,14 +279,16 @@ async function loadMp3quranAudio(
   surahNum: number,
   textData: SurahTextData,
   reciterInfo: ReciterInfo,
-  currentLoad: number
+  currentLoad: number,
 ): Promise<AudioResult | null> {
   try {
     const audios: (string | null)[] = textData.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum));
     const timings =
       (await fetchAyahTimings(state.currentReciter, surahNum, textData.ayahs)) ??
       calculateAyahTimings(textData.ayahs, surahNum);
-    if (_loadCounter !== currentLoad) return null;
+    if (_loadCounter !== currentLoad) {
+      return null;
+    }
     return { audios, timings };
   } catch (e) {
     console.warn('[Audio] mp3quran load failed:', e);
@@ -256,14 +301,18 @@ async function loadApiAudio(
   surahNum: number,
   reciterId: string,
   currentLoad: number,
-  signal: AbortSignal
+  signal: AbortSignal,
 ): Promise<AudioResult | null> {
   try {
     const json: any = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true });
     const data = json?.data;
-    if (!data?.ayahs?.length) throw new Error(__('no_audio_data'));
+    if (!data?.ayahs?.length) {
+      throw new Error(__('no_audio_data'));
+    }
     const audios: (string | null)[] = data.ayahs.map((a: AyahEntry) => a.audio);
-    if (_loadCounter !== currentLoad) return null;
+    if (_loadCounter !== currentLoad) {
+      return null;
+    }
     return { audios, timings: [] };
   } catch (e) {
     console.warn('[API] Audio load failed (non-fatal):', e);
@@ -282,7 +331,9 @@ let _refreshController: AbortController | null = null;
  * Load a surah (text + audio + translation), render it, finalize.
  */
 export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): Promise<void> {
-  if (!surahNum) return;
+  if (!surahNum) {
+    return;
+  }
   _loadCounter++;
   const currentLoad = _loadCounter;
   // Clear stale audio/translation before new load (batched to avoid intermediate notifications)
@@ -304,18 +355,24 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     });
     dom.hifdhBtn?.classList.remove('active');
     document.querySelectorAll('.ayah').forEach((el) => el.classList.remove('hifdh-mode', 'revealed'));
-    if (dom.repeatControls) dom.repeatControls.style.display = 'none';
+    if (dom.repeatControls) {
+      dom.repeatControls.style.display = 'none';
+    }
   }
   if (state.repeatMode && !state.hifdhMode) {
     state.repeatMode = false;
     state.repeatCounter = 0;
     dom.repeatBtn?.classList.remove('active');
-    if (dom.repeatControls) dom.repeatControls.style.display = 'none';
+    if (dom.repeatControls) {
+      dom.repeatControls.style.display = 'none';
+    }
   }
   state.currentSurah = surahNum;
 
   // Cancel previous in-flight request
-  if (currentSurahController) currentSurahController.abort();
+  if (currentSurahController) {
+    currentSurahController.abort();
+  }
   currentSurahController = new AbortController();
   const signal = currentSurahController.signal;
 
@@ -324,7 +381,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   const isMp3quran = reciterInfo.source === 'mp3quran';
   if (state.surahCache.has(cacheKey)) {
     const cached = state.surahCache.get(cacheKey) as unknown as CachedSurahEntry;
-    if (_loadCounter !== currentLoad) return;
+    if (_loadCounter !== currentLoad) {
+      return;
+    }
     state.surahData = cached.text as unknown as SurahData;
     if (isMp3quran) {
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');
@@ -345,7 +404,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   // Try IndexedDB cache for offline support before fetching from API
   const idbCached = await getCachedSurahFromIDB(cacheKey);
   if (idbCached) {
-    if (_loadCounter !== currentLoad) return;
+    if (_loadCounter !== currentLoad) {
+      return;
+    }
     // Also store in memory cache
     immutableMapSet(state, 'surahCache', cacheKey, idbCached);
     state.surahData = idbCached.text as unknown as SurahData;
@@ -365,7 +426,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     // If online, still try to refresh the data in background (stale-while-revalidate)
     // Use a SEPARATE AbortController so the refresh isn't cancelled when the user loads a different surah
     if (navigator.onLine) {
-      if (_refreshController) _refreshController.abort();
+      if (_refreshController) {
+        _refreshController.abort();
+      }
       _refreshController = new AbortController();
       _refreshSurahFromAPI(surahNum, cacheKey, reciterInfo, isMp3quran, currentLoad, _refreshController.signal);
     }
@@ -373,18 +436,24 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   }
 
   loadingBar.show(
-    `${__('loading_surah')} ${state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || surahNum}...`
+    `${__('loading_surah')} ${state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || surahNum}...`,
   );
-  if (dom.surahContent)
+  if (dom.surahContent) {
     dom.surahContent.innerHTML = skeletonLoading();
+  }
 
   try {
-    const textJson: any = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, errorMsg: __('failed_load_surah') });
+    const textJson: any = await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
+      signal,
+      errorMsg: __('failed_load_surah'),
+    });
     const textData: SurahTextData = textJson?.data;
     if (!textData?.ayahs?.length) {
       throw new Error(__('invalid_surah_data'));
     }
-    if (_loadCounter !== currentLoad) return;
+    if (_loadCounter !== currentLoad) {
+      return;
+    }
     state.surahData = textData as SurahData;
 
     renderSurah(textData);
@@ -408,7 +477,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       audioPromise,
       transPromise,
     ]);
-    if (_loadCounter !== currentLoad) return;
+    if (_loadCounter !== currentLoad) {
+      return;
+    }
     if (audioResult) {
       state.ayahsAudios = audioResult.audios.filter((a): a is string => a !== null);
       state.ayahTimings = audioResult.timings;
@@ -425,7 +496,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
 
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
       const firstKey = state.surahCache.keys().next().value;
-      if (firstKey) immutableMapDelete(state, 'surahCache', firstKey);
+      if (firstKey) {
+        immutableMapDelete(state, 'surahCache', firstKey);
+      }
     }
     const cacheEntry: CachedSurahEntry = {
       text: textData,
@@ -437,9 +510,13 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     // Also persist to IndexedDB for offline access
     cacheSurahToIDB(cacheKey, cacheEntry);
   } catch (e: unknown) {
-    if ((e as Error).name === 'AbortError') return;
+    if ((e as Error).name === 'AbortError') {
+      return;
+    }
     if (state.fullQuranLoaded && state.fullQuranText) {
-      if (_loadCounter !== currentLoad) return;
+      if (_loadCounter !== currentLoad) {
+        return;
+      }
       const ayahs = state.fullQuranText.filter((a: { surah: number }) => a.surah === surahNum);
       if (ayahs.length) {
         const firstAyah = ayahs[0]!;
@@ -458,7 +535,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
         return;
       }
     }
-    if (dom.surahContent) dom.surahContent.innerHTML = surahLoadError();
+    if (dom.surahContent) {
+      dom.surahContent.innerHTML = surahLoadError();
+    }
     // showToast(__('failed_load_surah'), 'error'); // disabled at startup
     loadingBar.hide();
   } finally {
@@ -476,12 +555,17 @@ async function _refreshSurahFromAPI(
   reciterInfo: ReciterInfo,
   isMp3quran: boolean,
   currentLoad: number,
-  signal: AbortSignal
+  signal: AbortSignal,
 ): Promise<void> {
   try {
-    const textJson = await apiFetch<{ data?: SurahTextData }>(`/surah/${surahNum}/quran-uthmani`, { signal, silent: true });
+    const textJson = await apiFetch<{ data?: SurahTextData }>(`/surah/${surahNum}/quran-uthmani`, {
+      signal,
+      silent: true,
+    });
     const textData: SurahTextData | undefined = textJson?.data;
-    if (!textData?.ayahs?.length || _loadCounter !== currentLoad) return;
+    if (!textData?.ayahs?.length || _loadCounter !== currentLoad) {
+      return;
+    }
 
     // Update in-memory state
     state.surahData = textData as SurahData;
@@ -501,7 +585,9 @@ async function _refreshSurahFromAPI(
       audioPromise,
       transPromise,
     ]);
-    if (_loadCounter !== currentLoad) return;
+    if (_loadCounter !== currentLoad) {
+      return;
+    }
 
     if (audioResult) {
       state.ayahsAudios = audioResult.audios.filter((a): a is string => a !== null);
@@ -538,7 +624,7 @@ function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string
   if (textData.number !== 1 && a.numberInSurah === 1) {
     const stripped = txt.replace(
       /^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u,
-      ''
+      '',
     );
     offsetAdj = txt.length - stripped.length;
     txt = stripped;
@@ -583,9 +669,13 @@ function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string
 }
 
 function renderAyahChunk(textData: SurahTextData, start: number, count: number): void {
-  if (!dom.surahContent) return;
+  if (!dom.surahContent) {
+    return;
+  }
   const ayahsContainer = dom.surahContent.querySelector('.ayahs-container');
-  if (!ayahsContainer) return;
+  if (!ayahsContainer) {
+    return;
+  }
   const end = Math.min(start + count, textData.ayahs.length);
   let html = '';
   for (let i = start; i < end; i++) {
@@ -603,7 +693,9 @@ function renderAyahChunk(textData: SurahTextData, start: number, count: number):
 function ensureVirtualSentinel(textData: SurahTextData): void {
   cleanupVirtualObserver();
   const existing = document.getElementById('virtualSentinel');
-  if (existing) existing.remove();
+  if (existing) {
+    existing.remove();
+  }
   const sentinel = document.createElement('div');
   sentinel.id = 'virtualSentinel';
   sentinel.style.height = '1px';
@@ -614,7 +706,7 @@ function ensureVirtualSentinel(textData: SurahTextData): void {
         renderAyahChunk(textData, _ayahsReadyCount, VIRTUAL_CHUNK_SIZE);
       }
     },
-    { rootMargin: '200px' }
+    { rootMargin: '200px' },
   );
   _virtualObserver.observe(sentinel);
 }
@@ -625,12 +717,16 @@ function cleanupVirtualObserver(): void {
     _virtualObserver = null;
   }
   const existing = document.getElementById('virtualSentinel');
-  if (existing) existing.remove();
+  if (existing) {
+    existing.remove();
+  }
 }
 
 /** Render surah content into dom.surahContent. */
 export function renderSurah(textData: SurahTextData): void {
-  if (!dom.surahContent) return;
+  if (!dom.surahContent) {
+    return;
+  }
   cleanupVirtualObserver();
   _ayahsReadyCount = 0;
 
@@ -662,8 +758,8 @@ export function renderSurah(textData: SurahTextData): void {
       import('./mushaf.js').then((m: { showSurahSecret: (surahNum: number, surahName?: string) => void }) =>
         m.showSurahSecret(
           parseInt((secretBtn as HTMLElement).dataset['surah'] || '0', 10),
-          (secretBtn as HTMLElement).dataset['surahname']
-        )
+          (secretBtn as HTMLElement).dataset['surahname'],
+        ),
       );
     });
   }
@@ -684,22 +780,30 @@ function buildAyahWordsHtml(text: string, ayahIdx: number, colorMap: Map<number,
 
 let _ayahDelegationBound = false;
 function initAyahDelegation(): void {
-  if (!dom.surahContent || _ayahDelegationBound) return;
+  if (!dom.surahContent || _ayahDelegationBound) {
+    return;
+  }
   _ayahDelegationBound = true;
   dom.surahContent.addEventListener('click', (e: MouseEvent) => {
     const ayahEl = (e.target as HTMLElement).closest('.ayah') as HTMLElement | null;
-    if (!ayahEl) return;
+    if (!ayahEl) {
+      return;
+    }
     const idx = parseInt(ayahEl.getAttribute('data-index') || '0', 10);
     const surah = parseInt(ayahEl.dataset['surah'] || '0', 10);
     const ayah = parseInt(ayahEl.dataset['ayah'] || '0', 10);
     const surahData: SurahData | null = state.surahData;
-    if (!surahData || surahData.number !== surah) return;
+    if (!surahData || surahData.number !== surah) {
+      return;
+    }
     const a = surahData.ayahs[idx];
-    if (!a) return;
+    if (!a) {
+      return;
+    }
     import('./ayah-modal.js').then(
       (m: {
         openAyahModal: (opts: { surah: number; ayah: number; text: string; surahName: string; index: number }) => void;
-      }) => m.openAyahModal({ surah, ayah, text: a.text, surahName: surahData.name, index: -1 })
+      }) => m.openAyahModal({ surah, ayah, text: a.text, surahName: surahData.name, index: -1 }),
     );
   });
 }
@@ -710,14 +814,20 @@ function finalizeSurahLoad(opts: LoadSurahOptions): void {
   const surahData: SurahData | null = state.surahData;
   if (opts.startAyah && surahData) {
     const idx = surahData.ayahs.findIndex((a: AyahEntry) => a.numberInSurah === opts.startAyah);
-    if (idx !== -1) state.currentAyahIndex = idx;
+    if (idx !== -1) {
+      state.currentAyahIndex = idx;
+    }
   } else {
     state.currentAyahIndex = 0;
   }
   highlightCurrentAyah();
   updatePlayerInfo();
-  if (opts.autoPlay) playCurrentAyah();
-  if (state.autoSave) saveCurrentPosition();
+  if (opts.autoPlay) {
+    playCurrentAyah();
+  }
+  if (state.autoSave) {
+    saveCurrentPosition();
+  }
 }
 
 /** Scroll to and highlight the current ayah. */
@@ -725,7 +835,9 @@ export function highlightCurrentAyah(): void {
   const container = dom.surahContent?.querySelector('.ayahs-container');
   const ayahs = container?.children;
   if (ayahs) {
-    for (let i = 0; i < ayahs.length; i++) ayahs[i]?.classList.remove('current');
+    for (let i = 0; i < ayahs.length; i++) {
+      ayahs[i]?.classList.remove('current');
+    }
   }
   const surahData: SurahData | null = state.surahData;
   if (surahData && state.currentAyahIndex >= _ayahsReadyCount) {
@@ -735,18 +847,26 @@ export function highlightCurrentAyah(): void {
   if (cur) {
     cur.classList.add('current');
     if (state.hifdhMode) {
-      for (let i = 0; i < ayahs!.length; i++) ayahs![i]?.classList.remove('revealed');
+      for (let i = 0; i < ayahs!.length; i++) {
+        ayahs![i]?.classList.remove('revealed');
+      }
       for (let i = 0; i <= state.currentAyahIndex; i++) {
         const prev = container!.querySelector(`.ayah[data-index="${i}"]`) as HTMLElement | null;
-        if (prev) prev.classList.add('revealed');
+        if (prev) {
+          prev.classList.add('revealed');
+        }
       }
     }
     cur.scrollIntoView({ behavior: 'instant', block: 'center' });
   }
   updatePlayerInfo();
   import('./presentation.js').then((m: { syncPresentation: () => void }) => m.syncPresentation()).catch(() => {});
-  if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) loadTafsirForCurrentAyah();
-  if (state.mushafMode) import('./mushaf.js').then((m: { highlightMushafAyah: () => void }) => m.highlightMushafAyah());
+  if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) {
+    loadTafsirForCurrentAyah();
+  }
+  if (state.mushafMode) {
+    import('./mushaf.js').then((m: { highlightMushafAyah: () => void }) => m.highlightMushafAyah());
+  }
 }
 
 /**
@@ -756,11 +876,17 @@ export function highlightCurrentAyah(): void {
  */
 export function updatePlayerInfo(): void {
   const surahData: SurahData | null = state.surahData;
-  if (!surahData) return;
+  if (!surahData) {
+    return;
+  }
   const a = surahData.ayahs[state.currentAyahIndex];
   const reciterText = dom.reciterSelect?.options[dom.reciterSelect.selectedIndex]?.text || '';
-  if (dom.playerSurahName) dom.playerSurahName.textContent = surahData.name;
-  if (dom.playerReciterName) dom.playerReciterName.textContent = reciterText;
+  if (dom.playerSurahName) {
+    dom.playerSurahName.textContent = surahData.name;
+  }
+  if (dom.playerReciterName) {
+    dom.playerReciterName.textContent = reciterText;
+  }
   if (dom.playerCurrentAyah && a) {
     const preview = a.text.length > 80 ? a.text.substring(0, 80) + '...' : a.text;
     dom.playerCurrentAyah.textContent = `﴿${preview}﴾ — ${__('ayah')} ${a.numberInSurah}`;
@@ -773,9 +899,13 @@ export function updatePlayerInfo(): void {
 
 function saveCurrentPosition(): void {
   const surahData: SurahData | null = state.surahData;
-  if (!surahData) return;
+  if (!surahData) {
+    return;
+  }
   const a = surahData.ayahs[state.currentAyahIndex];
-  if (!a) return;
+  if (!a) {
+    return;
+  }
   storage.set('last_position', {
     surah: state.currentSurah,
     ayah: state.currentAyahIndex,
@@ -799,8 +929,11 @@ export function toggleTranslation(): void {
     state.currentTranslation = dom.translationSelect?.value || 'en.sahih';
     storage.set('translation_edition', state.currentTranslation);
   }
-  if (dom.translationSelect)
+  if (dom.translationSelect) {
     dom.translationSelect.value = state.translationEnabled ? state.currentTranslation || '' : '';
+  }
   showToast(state.translationEnabled ? __('translation_on') : __('translation_off'), 'success');
-  if (state.currentSurah) loadSurah(state.currentSurah);
+  if (state.currentSurah) {
+    loadSurah(state.currentSurah);
+  }
 }
