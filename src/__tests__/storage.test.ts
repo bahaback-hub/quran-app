@@ -93,10 +93,7 @@ describe('storage.get', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     localStorage.setItem('quran_app_bad', 'not json');
     storage.get('bad');
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[storage]'),
-      expect.anything()
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[storage]'), expect.anything());
     warnSpy.mockRestore();
   });
 });
@@ -157,10 +154,7 @@ describe('storage.set', () => {
       throw new Error('Write failed');
     });
     storage.set('key', 'value');
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[storage]'),
-      expect.anything()
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[storage]'), expect.anything());
     spy.mockRestore();
     warnSpy.mockRestore();
   });
@@ -209,10 +203,7 @@ describe('storage.remove', () => {
       throw new Error('Remove failed');
     });
     storage.remove('key');
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[storage]'),
-      expect.anything()
-    );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[storage]'), expect.anything());
     spy.mockRestore();
     warnSpy.mockRestore();
   });
