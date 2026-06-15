@@ -194,14 +194,18 @@ describe('JUZ_PAGES', () => {
 
   it('should be in ascending order', () => {
     for (let i = 1; i < JUZ_PAGES.length; i++) {
-      expect(JUZ_PAGES[i]).toBeGreaterThan(JUZ_PAGES[i - 1]);
+      const curr = JUZ_PAGES[i]!;
+      const prev = JUZ_PAGES[i - 1]!;
+      expect(curr).toBeGreaterThan(prev);
     }
   });
 
   it('should have incrementing by approximately 20 pages per juz', () => {
     // Each juz is roughly 20 pages, with some variation
     for (let i = 1; i < JUZ_PAGES.length; i++) {
-      const diff = JUZ_PAGES[i] - JUZ_PAGES[i - 1];
+      const curr = JUZ_PAGES[i]!;
+      const prev = JUZ_PAGES[i - 1]!;
+      const diff = curr - prev;
       expect(diff).toBeGreaterThanOrEqual(18);
       expect(diff).toBeLessThanOrEqual(22);
     }
@@ -233,12 +237,12 @@ describe('TRANSLATION_EDITIONS', () => {
 
   it('should include French Hamidullah', () => {
     expect(TRANSLATION_EDITIONS).toHaveProperty('fr.hamidullah');
-    expect(TRANSLATION_EDITIONS['fr.hamidullah'].lang).toBe('fr');
+    expect(TRANSLATION_EDITIONS['fr.hamidullah']!.lang).toBe('fr');
   });
 
   it('should include Urdu Jalandhry', () => {
     expect(TRANSLATION_EDITIONS).toHaveProperty('ur.jalandhry');
-    expect(TRANSLATION_EDITIONS['ur.jalandhry'].lang).toBe('ur');
+    expect(TRANSLATION_EDITIONS['ur.jalandhry']!.lang).toBe('ur');
   });
 
   it('each edition should have lang and name properties', () => {
