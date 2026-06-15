@@ -13,7 +13,6 @@
  * - A re-render is scheduled 2.5s after first render to handle WebView
  *   font processing delays.
  */
-import { JUZ_PAGES } from './config.js';
 import { state } from './state.js';
 import { buildColorMap, getTajweedColor } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
@@ -713,6 +712,7 @@ function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: n
       continue;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const ayahText = words.map((w) => w.text).join(' ');
     const colorMap = buildColorMap(annotations);
     if (!colorMap || colorMap.size === 0) {
