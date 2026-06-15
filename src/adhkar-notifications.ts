@@ -13,7 +13,7 @@ import { copyToClipboard } from './utils.js';
 import { ADHKAR_DATA } from './adhkar-data.js';
 import { __ } from './i18n.js';
 import { getAdhkarNotificationTimer, setAdhkarNotificationTimer } from './internal-state.js';
-import type { AdhkarSettings, AdhkarCategorySettings } from './types.js';
+import type { AdhkarCategorySettings } from './types.js';
 
 /* ===================== INTERFACES ===================== */
 
