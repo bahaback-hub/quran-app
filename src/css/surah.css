@@ -130,6 +130,14 @@ body:not(.audio-playing) .ayah.current {
   margin: 0 6px;
   vertical-align: middle;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ayah-number:hover {
+  transform: scale(1.15);
+}
+.ayah-number:active {
+  transform: scale(0.95);
 }
 .ayah-number::before {
   content: '';
@@ -443,3 +451,4 @@ body.night-mode .ayah-number::before {
   background: var(--accent);
   opacity: 0.1;
 }
+
