@@ -1116,7 +1116,7 @@ describe('prevSurah', () => {
 describe('Audio Event Handlers', () => {
   // Use a real audio element so addEventListener/dispatchEvent work
   let realAudio: HTMLAudioElement;
-  let eventHandlers: Record<string, Function>;
+  let eventHandlers: Record<string, (...args: unknown[]) => void>;
 
   function setupAudioWithEvents() {
     realAudio = document.createElement('audio') as HTMLAudioElement;
