@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { escapeHtml } from './utils.js';
+import { adhkarTab, adhkarCategoryTitle, adhkarItemCard, adhkarSettingRow, escapeHtml } from './templates.js';
 import { ADHKAR_DATA } from './adhkar-data.js';
 import { __ } from './i18n.js';
 import { checkAdhkarNotifications, dismissAdhkarNotification, startAdhkarNotificationScheduler, stopAdhkarNotificationScheduler } from './adhkar-notifications.js';
@@ -109,12 +109,12 @@ function renderAdhkarTabs(): void {
   if (!dom.adhkarTabs) return;
   let html = '';
   for (const cat of ADHKAR_DATA.categories) {
-    html += `<button class="adhkar-tab${state.adhkarActiveTab === cat.id ? ' active' : ''}" data-category="${cat.id}">${cat.icon} ${cat.name}</button>`;
+    html += adhkarTab(cat.id, cat.icon + ' ' + cat.name, state.adhkarActiveTab === cat.id);
   }
-  html += `<button class="adhkar-tab${state.adhkarActiveTab === 'personal' ? ' active' : ''}" data-category="personal">${__('adhkar_personal')}</button>`;
+  html += adhkarTab('personal', __('adhkar_personal'), state.adhkarActiveTab === 'personal');
   dom.adhkarTabs.innerHTML = html;
   dom.adhkarTabs.querySelectorAll('.adhkar-tab').forEach((btn: Element) => {
-    btn.addEventListener('click', () => switchAdhkarTab((btn as HTMLElement).dataset.category as string));
+    btn.addEventListener('click', () => switchAdhkarTab((btn as HTMLElement).dataset.tab as string));
   });
 }
 
@@ -122,7 +122,7 @@ function switchAdhkarTab(categoryId: string): void {
   state.adhkarActiveTab = categoryId;
   document
     .querySelectorAll('.adhkar-tab')
-    .forEach((t: Element) => t.classList.toggle('active', (t as HTMLElement).dataset.category === categoryId));
+    .forEach((t: Element) => t.classList.toggle('active', (t as HTMLElement).dataset.tab === categoryId));
   renderAdhkarCategory(categoryId);
 }
 
@@ -139,7 +139,7 @@ function renderAdhkarCategory(categoryId: string): void {
   const enabled = !!catSettings.enabled;
   const notifTime = catSettings.time || cat.defaultTime || '';
   const notifDur = catSettings.duration ?? cat.defaultDuration ?? 1;
-  let html = `<div class="adhkar-category-title">${cat.icon} ${cat.name}</div>
+  let html = adhkarCategoryTitle(cat.name, cat.icon) + `
     <div class="adhkar-category-options">
       <label class="adhkar-cat-label">
         <div class="adhkar-cat-toggle toggle-switch${enabled ? ' on' : ''}" data-category="${cat.id}" role="switch"></div>
@@ -290,7 +290,7 @@ function renderPersonalAdhkar(): void {
   if (!dom.adhkarContent) return;
   const settings = state.adhkarSettings!;
   const personal = settings.personal_adhkar || [];
-  let html = '<div class="adhkar-category-title">' + __('adhkar_personal') + '</div>';
+  let html = adhkarCategoryTitle(__('adhkar_personal'), '');
   html += '<button class="adhkar-add-btn" id="openAddAdhkarBtn">' + __('adhkar_add') + '</button>';
   if (!personal.length) {
     html += '<p class="adhkar-no-personal">' + __('adhkar_no_personal') + '</p>';
