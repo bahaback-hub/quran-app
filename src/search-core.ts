@@ -28,7 +28,9 @@ function openQuranDB(): Promise<IDBDatabase> {
     const request = indexedDB.open('QuranAppDB', 1);
     request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
       const db = (e.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains('fullText')) db.createObjectStore('fullText', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('fullText')) {
+        db.createObjectStore('fullText', { keyPath: 'id' });
+      }
     };
     request.onsuccess = (e: Event) => resolve((e.target as IDBOpenDBRequest).result);
     request.onerror = () => reject(new Error('Failed to open QuranAppDB'));
@@ -51,15 +53,19 @@ async function fetchQuranText(): Promise<QuranApiResponse> {
     res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
   }
   const data: QuranApiResponse = await res.json();
-  if (!data?.data?.surahs) throw new Error(__('invalid_data'));
+  if (!data?.data?.surahs) {
+    throw new Error(__('invalid_data'));
+  }
   return data;
 }
 
 function stripBasmala(text: string, surahNum: number, ayahNum: number): string {
-  if (surahNum === 1 || surahNum === 9 || ayahNum !== 1) return text;
+  if (surahNum === 1 || surahNum === 9 || ayahNum !== 1) {
+    return text;
+  }
   return text.replace(
     /^ب[\u064B-\u065F\u0670]*س[\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*[هة][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*[نث][\u064B-\u065F\u0670]*\s*[إأآٱ][\u064B-\u065F\u0670]*ل[\u064B-\u065F\u0670]*ر[\u064B-\u065F\u0670]*[حخ][\u064B-\u065F\u0670]*[يى][\u064B-\u065F\u0670]*م[\u064B-\u065F\u0670]*\s*/u,
-    ''
+    '',
   );
 }
 
@@ -92,8 +98,12 @@ function cacheInIndexedDB(db: IDBDatabase, ayahs: QuranTextEntry[]): void {
 let _loadingPromise: Promise<void> | null = null;
 
 export async function loadFullQuranText(): Promise<void> {
-  if (state.fullQuranLoaded) return;
-  if (_loadingPromise) return _loadingPromise;
+  if (state.fullQuranLoaded) {
+    return;
+  }
+  if (_loadingPromise) {
+    return _loadingPromise;
+  }
   _loadingPromise = _doLoadFullQuranText();
   try {
     await _loadingPromise;
@@ -109,10 +119,9 @@ async function _doLoadFullQuranText(): Promise<void> {
     if (cached) {
       // Re-normalize if cache was built with older normalizer (missing وٰة→اة fix)
       // Check a known Uthmani word: if الصلوة normalizes to الصلوه instead of الصلاه, re-normalize
-      const needsNormalize = cached.length > 0 && (
-        !cached[0].normalized ||
-        cached.some(a => a.normalized && a.normalized.includes('الصلوه'))
-      );
+      const needsNormalize =
+        cached.length > 0 &&
+        (!cached[0]!.normalized || cached.some((a) => a.normalized && a.normalized.includes('الصلوه')));
       if (needsNormalize) {
         console.log('[Search] Re-normalizing cached Quran text with updated normalizer...');
         for (const a of cached) {
@@ -122,8 +131,11 @@ async function _doLoadFullQuranText(): Promise<void> {
       }
       state.fullQuranText = cached;
       state.fullQuranLoaded = true;
-      if (typeof requestIdleCallback === 'function') requestIdleCallback(() => buildSearchWords(), { timeout: 3000 });
-      else setTimeout(buildSearchWords, 1000);
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(() => buildSearchWords(), { timeout: 3000 });
+      } else {
+        setTimeout(buildSearchWords, 1000);
+      }
       return;
     }
     const data = await fetchQuranText();
@@ -133,8 +145,11 @@ async function _doLoadFullQuranText(): Promise<void> {
     }
     state.fullQuranText = ayahs;
     state.fullQuranLoaded = true;
-    if (typeof requestIdleCallback === 'function') requestIdleCallback(() => buildSearchWords(), { timeout: 3000 });
-    else setTimeout(buildSearchWords, 1000);
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(() => buildSearchWords(), { timeout: 3000 });
+    } else {
+      setTimeout(buildSearchWords, 1000);
+    }
     cacheInIndexedDB(db, ayahs);
   } catch (err) {
     console.error('Failed to load full Quran text:', err);
@@ -150,7 +165,9 @@ function generateArabicVariants(normQuery: string): string[] {
 }
 
 export function performSearch(query: string): QuranTextEntry[] {
-  if (!state.fullQuranText) return [];
+  if (!state.fullQuranText) {
+    return [];
+  }
   const normQuery = normalizeExactText(query.trim());
   const relaxedQuery = normalizeRelaxed(query.trim());
   const exactVariants = generateArabicVariants(normQuery);
@@ -158,19 +175,23 @@ export function performSearch(query: string): QuranTextEntry[] {
   let matches = state.fullQuranText.filter((ayah) => exactVariants.some((q) => ayah.normalized.includes(q)));
   if (!matches.length) {
     matches = state.fullQuranText.filter((ayah) =>
-      relaxedVariants.some((q) => normalizeRelaxed(ayah.text).includes(q))
+      relaxedVariants.some((q) => normalizeRelaxed(ayah.text).includes(q)),
     );
   }
   return matches;
 }
 
 export function buildSearchWords(): void {
-  if (!state.fullQuranText || state.searchWords?.length) return;
+  if (!state.fullQuranText || state.searchWords?.length) {
+    return;
+  }
   const freq = new Map<string, number>();
   for (const ayah of state.fullQuranText) {
     const words = ayah.normalized.split(/\s+/);
     for (const w of words) {
-      if (w.length < 2) continue;
+      if (w.length < 2) {
+        continue;
+      }
       freq.set(w, (freq.get(w) || 0) + 1);
     }
   }
@@ -190,7 +211,9 @@ export function buildSearchWords(): void {
         list = [];
         prefixMap.set(prefix, list);
       }
-      if (list.length < MAX_SUGGESTIONS) list.push(entry);
+      if (list.length < MAX_SUGGESTIONS) {
+        list.push(entry);
+      }
     }
   }
   state.searchPrefixMap = prefixMap;
@@ -199,7 +222,9 @@ export function buildSearchWords(): void {
 export function addToSearchHistory(query: string): void {
   const history = getSearchHistory().filter((h) => h !== query);
   history.unshift(query);
-  if (history.length > MAX_SEARCH_HISTORY) history.length = MAX_SEARCH_HISTORY;
+  if (history.length > MAX_SEARCH_HISTORY) {
+    history.length = MAX_SEARCH_HISTORY;
+  }
   storage.set(SEARCH_HISTORY_KEY, history);
 }
 
