@@ -1,4 +1,4 @@
-import { __ } from './i18n.js';
+import { getReciterName } from './i18n.js';
 
 /** Represents a Quran reciter from either the AlQuran.cloud API or mp3quran.net. */
 export interface Reciter {
@@ -70,9 +70,10 @@ export const TIMING_API_IDS: Record<string, number> = {
 };
 
 /** Get the localized display name for a reciter.
- *  The `name` field on Reciter stores an i18n key; this function resolves it. */
+ *  Looks up the reciter's ID in the current language's `reciters` object,
+ *  falling back to Arabic, then returning the raw ID if not found. */
 export function getReciterDisplayName(reciter: Reciter): string {
-  return __(reciter.name);
+  return getReciterName(reciter.id);
 }
 
 /** Get a reciter object by its ID. */
