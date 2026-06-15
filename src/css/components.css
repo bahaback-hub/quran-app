@@ -175,6 +175,15 @@ body.night-mode .search-highlight {
   color: #fff;
   box-shadow: 0 0 12px rgba(220, 38, 38, 0.5);
 }
+.btn-autoplay {
+  background: #3b82f6;
+  color: #fff;
+}
+.btn-autoplay.active {
+  background: #d97706;
+  color: #1a1a1a;
+  box-shadow: 0 0 12px rgba(217, 119, 6, 0.5);
+}
 .btn-sm {
   padding: 4px 10px;
   font-size: 13px;
@@ -913,3 +922,4 @@ body.night-mode .tajweed-silent { color: #af7ac5; }
 .ayahs-container {
   font-size: var(--ayah-font-size, 28px);
 }
+
