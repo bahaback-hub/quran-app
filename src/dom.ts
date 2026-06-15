@@ -175,6 +175,7 @@ interface DomMap {
   presBgNatureRow: HTMLElement | null;
   installBtn: HTMLElement | null;
   sleepTimerBtn: HTMLElement | null;
+  downloadAudioBtn: HTMLElement | null;
   networkBanner: HTMLElement | null;
   controls: HTMLElement | null;
 }
@@ -339,6 +340,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'presBgNatureRow',
   'installBtn',
   'sleepTimerBtn',
+  'downloadAudioBtn',
   'networkBanner',
   'controls',
 ];
