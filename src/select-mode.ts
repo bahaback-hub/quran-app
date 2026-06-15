@@ -8,7 +8,6 @@ import {
   pushSelectedAyah,
   filterSelectedAyahs,
 } from './internal-state.js';
-import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { copyToClipboard } from './utils.js';
 
@@ -59,6 +58,7 @@ export function shareSelected(): void {
   }
   text = text.trim();
   if (navigator.share) {
+    // eslint-disable-next-line no-empty-function
     navigator.share({ title: __('app_title'), text }).catch(() => {});
   } else {
     copyToClipboard(text);
