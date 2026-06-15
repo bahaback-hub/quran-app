@@ -7,10 +7,14 @@ dist/
 # IDE
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
 
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+ehthumbs.db
 
 # Environment
 .env
@@ -38,3 +42,7 @@ worklog.md
 *.tmp
 *.swp
 *.swo
+*~
+
+# Vite
+.vite/
