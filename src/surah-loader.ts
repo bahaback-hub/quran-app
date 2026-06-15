@@ -479,7 +479,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       return;
     }
     if (audioResult) {
-      state.ayahsAudios = audioResult.audios.filter((a): a is string => a !== null);
+      // Preserve array indices — replace nulls with empty strings instead of filtering
+      // so that ayahsAudios[i] always corresponds to ayah index i
+      state.ayahsAudios = audioResult.audios.map((a): string => a ?? '');
       state.ayahTimings = audioResult.timings;
     }
     state.translationData = transResult;
@@ -539,7 +541,11 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     // showToast(__('failed_load_surah'), 'error'); // disabled at startup
     loadingBar.hide();
   } finally {
-    state.loadingSurah = null;
+    // Only clear loading state if this is still the active load
+    // (prevents a stale load from clearing a newer load's indicator)
+    if (_loadCounter === currentLoad) {
+      state.loadingSurah = null;
+    }
   }
 }
 
@@ -588,7 +594,8 @@ async function _refreshSurahFromAPI(
     }
 
     if (audioResult) {
-      state.ayahsAudios = audioResult.audios.filter((a): a is string => a !== null);
+      // Preserve array indices — replace nulls with empty strings instead of filtering
+      state.ayahsAudios = audioResult.audios.map((a): string => a ?? '');
       state.ayahTimings = audioResult.timings;
     }
     state.translationData = transResult;
@@ -1036,7 +1043,7 @@ function initAyahDelegation(): void {
     import('./ayah-modal.js').then(
       (m: {
         openAyahModal: (opts: { surah: number; ayah: number; text: string; surahName: string; index: number }) => void;
-      }) => m.openAyahModal({ surah, ayah, text: a.text, surahName: surahData.name, index: -1 }),
+      }) => m.openAyahModal({ surah, ayah, text: a.text, surahName: surahData.name, index: idx }),
     );
   });
 }

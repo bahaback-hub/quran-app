@@ -18,6 +18,7 @@ interface CachedPrayerTimes {
   timings: import('./types.js').PrayerTimes;
   city: string;
   country: string;
+  method: string;
 }
 
 /** DeviceOrientationEvent with iOS-specific webkitCompassHeading. */
@@ -104,10 +105,11 @@ export async function loadPrayerTimes(): Promise<void> {
     if (localTimes) {
       state.prayerTimes = localTimes;
       storage.set('cached_prayer_times', {
-        date: new Date().toDateString(),
+        date: new Date().toISOString(),
         timings: localTimes,
         city,
         country,
+        method,
       });
       renderPrayerTimes();
       checkAzanTime();
@@ -126,10 +128,11 @@ export async function loadPrayerTimes(): Promise<void> {
     if (data?.data?.timings) {
       state.prayerTimes = data.data.timings;
       storage.set('cached_prayer_times', {
-        date: new Date().toDateString(),
+        date: new Date().toISOString(),
         timings: state.prayerTimes,
         city,
         country,
+        method,
       });
       renderPrayerTimes();
       checkAzanTime();
@@ -140,7 +143,7 @@ export async function loadPrayerTimes(): Promise<void> {
   } catch {
     // ── Strategy 3: LocalStorage cache (offline fallback) ──
     const cached = storage.get<CachedPrayerTimes>('cached_prayer_times');
-    if (cached && cached.city === city && cached.country === country) {
+    if (cached && cached.city === city && cached.country === country && cached.method === method) {
       // Accept cache from today or up to 3 days ago (prayer times shift ~1 min/day)
       const cacheAge = (Date.now() - new Date(cached.date).getTime()) / (1000 * 60 * 60 * 24);
       if (cacheAge <= 3) {
@@ -320,7 +323,7 @@ export function checkAzanTime(): void {
     if (raw === cur) {
       const stamp = key + '_' + now.toDateString() + '_' + cur;
       if (state.lastAzanFired === stamp) {
-        return;
+        continue;  // Skip already-fired prayer, check remaining ones
       }
       state.lastAzanFired = stamp;
       if (dom.azanPlayer) {
@@ -463,7 +466,7 @@ export function showQiblaCompass(): void {
       const qiblaAngle = calculateQibla(latitude, longitude);
 
       if (compass) {
-        compass.style.transform = `rotate(${-qiblaAngle}deg)`;
+        compass.style.transform = `rotate(${-qiblaAngle}deg)`;  // Static: Qibla from North
       }
       if (angleDisplay) {
         angleDisplay.textContent = `${Math.round(qiblaAngle)}°`;
@@ -476,11 +479,11 @@ export function showQiblaCompass(): void {
       }
 
       const handleOrientation = (e: DeviceOrientationEventiOS): void => {
-        let heading = e.alpha || 0;
+        let heading = e.alpha != null ? e.alpha : 0;
         if (e.webkitCompassHeading) {
           heading = e.webkitCompassHeading;
         }
-        const adjusted = qiblaAngle - heading;
+        const adjusted = heading - qiblaAngle;
         if (compass) {
           compass.style.transform = `rotate(${adjusted}deg)`;
         }

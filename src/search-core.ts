@@ -202,6 +202,10 @@ export function performSearch(query: string): QuranTextEntry[] {
     return [];
   }
   const normQuery = normalizeExactText(query.trim());
+  // Guard: empty query would match all ayahs (string.includes("") is always true)
+  if (!normQuery) {
+    return [];
+  }
   const relaxedQuery = normalizeRelaxed(query.trim());
   const exactVariants = generateArabicVariants(normQuery);
   const relaxedVariants = generateArabicVariants(relaxedQuery);
