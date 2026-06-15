@@ -470,8 +470,7 @@ export function showQiblaCompass(): void {
                 window.addEventListener('deviceorientation', _qiblaOrientationHandler!);
               }
             })
-            // eslint-disable-next-line no-empty-function
-            .catch(() => {});
+            .catch(() => { /* noop */ });
         } else {
           window.addEventListener('deviceorientation', _qiblaOrientationHandler);
         }
