@@ -5,7 +5,12 @@ import { showToast } from './ui.js';
 import { adhkarTab, adhkarCategoryTitle, adhkarItemCard, adhkarSettingRow, escapeHtml } from './templates.js';
 import { ADHKAR_DATA } from './adhkar-data.js';
 import { __ } from './i18n.js';
-import { checkAdhkarNotifications, dismissAdhkarNotification, startAdhkarNotificationScheduler, stopAdhkarNotificationScheduler } from './adhkar-notifications.js';
+import {
+  checkAdhkarNotifications,
+  dismissAdhkarNotification,
+  startAdhkarNotificationScheduler,
+  stopAdhkarNotificationScheduler,
+} from './adhkar-notifications.js';
 import type { AdhkarSettings, AdhkarCategorySettings, PersonalAdhkarEntry } from './types.js';
 
 /* ===================== INIT ===================== */
@@ -14,8 +19,12 @@ import type { AdhkarSettings, AdhkarCategorySettings, PersonalAdhkarEntry } from
  *  (e.g., personal_adhkar array). Uses structuredClone when available,
  *  falls back to JSON round-trip. */
 function cloneAdhkarSettings(settings: AdhkarSettings | null): AdhkarSettings {
-  if (!settings) return getDefaultAdhkarSettings();
-  if (typeof structuredClone === 'function') return structuredClone(settings);
+  if (!settings) {
+    return getDefaultAdhkarSettings();
+  }
+  if (typeof structuredClone === 'function') {
+    return structuredClone(settings);
+  }
   return JSON.parse(JSON.stringify(settings));
 }
 
@@ -58,7 +67,9 @@ export function loadAdhkarSettings(): void {
   const defaults = getDefaultAdhkarSettings();
   if (saved) {
     for (const key of Object.keys(defaults)) {
-      if (saved[key] === undefined) saved[key] = defaults[key];
+      if (saved[key] === undefined) {
+        saved[key] = defaults[key];
+      }
     }
     state.adhkarSettings = saved;
   } else {
@@ -75,7 +86,9 @@ export function loadAdhkarSettings(): void {
   const today = new Date().toDateString();
   if (state.adhkarSettings!._resetDate !== today) {
     for (const key of Object.keys(state.adhkarSettings!)) {
-      if (key.startsWith('item_')) state.adhkarSettings![key] = 0;
+      if (key.startsWith('item_')) {
+        state.adhkarSettings![key] = 0;
+      }
     }
     state.adhkarSettings!._resetDate = today;
     saveAdhkarSettings();
@@ -94,7 +107,9 @@ export function toggleAdhkarPanel(): void {
   dom.adhkarPanel?.classList.toggle('open', state.adhkarPanelOpen);
   if (state.adhkarPanelOpen) {
     renderAdhkarTabs();
-    if (!state.adhkarActiveTab) state.adhkarActiveTab = ADHKAR_DATA.categories[0].id;
+    if (!state.adhkarActiveTab) {
+      state.adhkarActiveTab = ADHKAR_DATA.categories[0]!.id;
+    }
     switchAdhkarTab(state.adhkarActiveTab);
   }
 }
@@ -106,7 +121,9 @@ export function closeAdhkarPanel(): void {
 }
 
 function renderAdhkarTabs(): void {
-  if (!dom.adhkarTabs) return;
+  if (!dom.adhkarTabs) {
+    return;
+  }
   let html = '';
   for (const cat of ADHKAR_DATA.categories) {
     html += adhkarTab(cat.id, cat.icon + ' ' + cat.name, state.adhkarActiveTab === cat.id);
@@ -114,7 +131,7 @@ function renderAdhkarTabs(): void {
   html += adhkarTab('personal', __('adhkar_personal'), state.adhkarActiveTab === 'personal');
   dom.adhkarTabs.innerHTML = html;
   dom.adhkarTabs.querySelectorAll('.adhkar-tab').forEach((btn: Element) => {
-    btn.addEventListener('click', () => switchAdhkarTab((btn as HTMLElement).dataset.tab as string));
+    btn.addEventListener('click', () => switchAdhkarTab((btn as HTMLElement).dataset['tab'] as string));
   });
 }
 
@@ -122,24 +139,30 @@ function switchAdhkarTab(categoryId: string): void {
   state.adhkarActiveTab = categoryId;
   document
     .querySelectorAll('.adhkar-tab')
-    .forEach((t: Element) => t.classList.toggle('active', (t as HTMLElement).dataset.tab === categoryId));
+    .forEach((t: Element) => t.classList.toggle('active', (t as HTMLElement).dataset['tab'] === categoryId));
   renderAdhkarCategory(categoryId);
 }
 
 function renderAdhkarCategory(categoryId: string): void {
-  if (!dom.adhkarContent) return;
+  if (!dom.adhkarContent) {
+    return;
+  }
   if (categoryId === 'personal') {
     renderPersonalAdhkar();
     return;
   }
   const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
-  if (!cat) return;
+  if (!cat) {
+    return;
+  }
   const settings = state.adhkarSettings!;
   const catSettings = (settings[cat.id] as Partial<AdhkarCategorySettings>) || {};
   const enabled = !!catSettings.enabled;
   const notifTime = catSettings.time || cat.defaultTime || '';
   const notifDur = catSettings.duration ?? cat.defaultDuration ?? 1;
-  let html = adhkarCategoryTitle(cat.name, cat.icon) + `
+  let html =
+    adhkarCategoryTitle(cat.name, cat.icon) +
+    `
     <div class="adhkar-category-options">
       <label class="adhkar-cat-label">
         <div class="adhkar-cat-toggle toggle-switch${enabled ? ' on' : ''}" data-category="${cat.id}" role="switch"></div>
@@ -181,21 +204,23 @@ function renderAdhkarCategory(categoryId: string): void {
       const target = e.target as HTMLElement;
       const actionBtn = target.closest('[data-action]') as HTMLElement | null;
       if (actionBtn) {
-        const action = actionBtn.dataset.action;
+        const action = actionBtn.dataset['action'];
         if (action === 'increment') {
-          handleAdhkarCounter(actionBtn.dataset.itemId as string, actionBtn.dataset.category as string);
+          handleAdhkarCounter(actionBtn.dataset['itemId'] as string, actionBtn.dataset['category'] as string);
           return;
         }
         if (action === 'reset') {
-          resetAdhkarCounters(actionBtn.dataset.category as string);
+          resetAdhkarCounters(actionBtn.dataset['category'] as string);
           return;
         }
       }
       const toggle = target.closest('.adhkar-cat-toggle') as HTMLElement | null;
       if (toggle) {
-        const catId = toggle.dataset.category as string;
+        const catId = toggle.dataset['category'] as string;
         const newSettings = cloneAdhkarSettings(state.adhkarSettings);
-        if (!newSettings[catId]) newSettings[catId] = {} as AdhkarCategorySettings;
+        if (!newSettings[catId]) {
+          newSettings[catId] = {} as AdhkarCategorySettings;
+        }
         (newSettings[catId] as Partial<AdhkarCategorySettings>).enabled = toggle.classList.toggle('on');
         state.adhkarSettings = newSettings;
         saveAdhkarSettings();
@@ -206,19 +231,24 @@ function renderAdhkarCategory(categoryId: string): void {
     contentEl.addEventListener('change', (e: Event) => {
       const target = e.target as HTMLElement;
       if (target.classList.contains('adhkar-cat-time')) {
-        const catId = (target as HTMLElement).dataset.category as string;
+        const catId = (target as HTMLElement).dataset['category'] as string;
         const newSettings = cloneAdhkarSettings(state.adhkarSettings);
-        if (!newSettings[catId]) newSettings[catId] = {} as AdhkarCategorySettings;
+        if (!newSettings[catId]) {
+          newSettings[catId] = {} as AdhkarCategorySettings;
+        }
         (newSettings[catId] as Partial<AdhkarCategorySettings>).time = (target as HTMLInputElement).value;
         state.adhkarSettings = newSettings;
         saveAdhkarSettings();
         return;
       }
       if (target.classList.contains('adhkar-cat-duration')) {
-        const catId = (target as HTMLElement).dataset.category as string;
+        const catId = (target as HTMLElement).dataset['category'] as string;
         const newSettings = cloneAdhkarSettings(state.adhkarSettings);
-        if (!newSettings[catId]) newSettings[catId] = {} as AdhkarCategorySettings;
-        (newSettings[catId] as Partial<AdhkarCategorySettings>).duration = parseInt((target as HTMLInputElement).value, 10) || 1;
+        if (!newSettings[catId]) {
+          newSettings[catId] = {} as AdhkarCategorySettings;
+        }
+        (newSettings[catId] as Partial<AdhkarCategorySettings>).duration =
+          parseInt((target as HTMLInputElement).value, 10) || 1;
         state.adhkarSettings = newSettings;
         saveAdhkarSettings();
       }
@@ -228,11 +258,17 @@ function renderAdhkarCategory(categoryId: string): void {
 
 function updateAdhkarItemDOM(itemId: string, categoryId: string): void {
   const itemEl = dom.adhkarContent?.querySelector(`.adhkar-item[data-item-id="${itemId}"]`) as HTMLElement | null;
-  if (!itemEl) return;
+  if (!itemEl) {
+    return;
+  }
   const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
-  if (!cat) return;
+  if (!cat) {
+    return;
+  }
   const item = cat.items.find((i: { id: string }) => i.id === itemId);
-  if (!item) return;
+  if (!item) {
+    return;
+  }
   const key = `item_${item.id}`;
   const settings = state.adhkarSettings!;
   const counter = (settings[key] as number) || 0;
@@ -241,21 +277,32 @@ function updateAdhkarItemDOM(itemId: string, categoryId: string): void {
   const pct = Math.min(100, (counter / item.count) * 100);
   itemEl.classList.toggle('completed', completed);
   const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
-  if (fill) fill.style.width = pct + '%';
+  if (fill) {
+    fill.style.width = pct + '%';
+  }
   const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
-  if (countSpan)
+  if (countSpan) {
     countSpan.textContent = `🔄 ${item.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}`;
+  }
   const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
-  if (counterText) counterText.textContent = String(counter);
+  if (counterText) {
+    counterText.textContent = String(counter);
+  }
   const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
-  if (counterBtn) counterBtn.classList.toggle('completed', completed);
+  if (counterBtn) {
+    counterBtn.classList.toggle('completed', completed);
+  }
 }
 
 function handleAdhkarCounter(itemId: string, categoryId: string): void {
   const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
-  if (!cat) return;
+  if (!cat) {
+    return;
+  }
   const item = cat.items.find((i: { id: string }) => i.id === itemId);
-  if (!item) return;
+  if (!item) {
+    return;
+  }
   const key = `item_${item.id}`;
   const current = (state.adhkarSettings![key] as number) || 0;
   // Create new object to trigger Proxy notification
@@ -272,7 +319,9 @@ function handleAdhkarCounter(itemId: string, categoryId: string): void {
 
 function resetAdhkarCounters(categoryId: string): void {
   const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
-  if (!cat) return;
+  if (!cat) {
+    return;
+  }
   // Create new object to trigger Proxy notification
   const newSettings = cloneAdhkarSettings(state.adhkarSettings);
   for (const item of cat.items) {
@@ -287,7 +336,9 @@ function resetAdhkarCounters(categoryId: string): void {
 /* ===== Personal Adhkar ===== */
 
 function renderPersonalAdhkar(): void {
-  if (!dom.adhkarContent) return;
+  if (!dom.adhkarContent) {
+    return;
+  }
   const settings = state.adhkarSettings!;
   const personal = settings.personal_adhkar || [];
   let html = adhkarCategoryTitle(__('adhkar_personal'), '');
@@ -325,8 +376,10 @@ function renderPersonalAdhkar(): void {
     btn.addEventListener('click', () => {
       const currentSettings = state.adhkarSettings!;
       const personalList = currentSettings.personal_adhkar || [];
-      const p = personalList.find((x: PersonalAdhkarEntry) => x.id === (btn as HTMLElement).dataset.id);
-      if (!p) return;
+      const p = personalList.find((x: PersonalAdhkarEntry) => x.id === (btn as HTMLElement).dataset['id']);
+      if (!p) {
+        return;
+      }
       const key = `item_personal_${p.id}`;
       const current = (state.adhkarSettings![key] as number) || 0;
       // Create new object to trigger Proxy notification
@@ -339,7 +392,7 @@ function renderPersonalAdhkar(): void {
       state.adhkarSettings = newSettings;
       saveAdhkarSettings();
       const itemEl = dom.adhkarContent?.querySelector(
-        `.adhkar-item[data-item-id="personal_${p.id}"]`
+        `.adhkar-item[data-item-id="personal_${p.id}"]`,
       ) as HTMLElement | null;
       if (itemEl) {
         const newCounter = (newSettings[key] as number) || 0;
@@ -348,32 +401,49 @@ function renderPersonalAdhkar(): void {
         const newPct = Math.min(100, (newCounter / p.count) * 100);
         itemEl.classList.toggle('completed', newCompleted);
         const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
-        if (fill) fill.style.width = newPct + '%';
+        if (fill) {
+          fill.style.width = newPct + '%';
+        }
         const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
-        if (countSpan)
+        if (countSpan) {
           countSpan.textContent = `🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${newRemaining}`;
+        }
         const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
-        if (counterText) counterText.textContent = String(newCounter);
+        if (counterText) {
+          counterText.textContent = String(newCounter);
+        }
         const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
-        if (counterBtn) counterBtn.classList.toggle('completed', newCompleted);
+        if (counterBtn) {
+          counterBtn.classList.toggle('completed', newCompleted);
+        }
       }
     });
   });
   dom.adhkarContent.querySelectorAll('[data-action="edit-personal"]').forEach((btn: Element) => {
-    btn.addEventListener('click', () => editPersonalAdhkar((btn as HTMLElement).dataset.id as string));
+    btn.addEventListener('click', () => editPersonalAdhkar((btn as HTMLElement).dataset['id'] as string));
   });
   dom.adhkarContent.querySelectorAll('[data-action="delete-personal"]').forEach((btn: Element) => {
-    btn.addEventListener('click', () => deletePersonalAdhkar((btn as HTMLElement).dataset.id as string));
+    btn.addEventListener('click', () => deletePersonalAdhkar((btn as HTMLElement).dataset['id'] as string));
   });
 }
 
 function openAdhkarAddDialog(): void {
-  if (!dom.adhkarAddOverlay) return;
-  if (dom.adhkarAddText) dom.adhkarAddText.value = '';
-  if (dom.adhkarAddCount) dom.adhkarAddCount.value = '1';
-  if (dom.adhkarAddTime) dom.adhkarAddTime.value = '';
-  if (dom.adhkarAddDuration) dom.adhkarAddDuration.value = '1';
-  dom.adhkarAddOverlay.dataset.editId = '';
+  if (!dom.adhkarAddOverlay) {
+    return;
+  }
+  if (dom.adhkarAddText) {
+    dom.adhkarAddText.value = '';
+  }
+  if (dom.adhkarAddCount) {
+    dom.adhkarAddCount.value = '1';
+  }
+  if (dom.adhkarAddTime) {
+    dom.adhkarAddTime.value = '';
+  }
+  if (dom.adhkarAddDuration) {
+    dom.adhkarAddDuration.value = '1';
+  }
+  dom.adhkarAddOverlay.dataset['editId'] = '';
   dom.adhkarAddOverlay.classList.remove('hidden');
   dom.adhkarAddOverlay.style.display = 'flex';
 }
@@ -394,9 +464,11 @@ function savePersonalAdhkar(): void {
   const count = parseInt(dom.adhkarAddCount?.value ?? '1', 10) || 1;
   const time = dom.adhkarAddTime?.value || null;
   const duration = parseInt(dom.adhkarAddDuration?.value ?? '1', 10) || 1;
-  const editId = dom.adhkarAddOverlay?.dataset.editId || '';
+  const editId = dom.adhkarAddOverlay?.dataset['editId'] || '';
   const settings = state.adhkarSettings!;
-  if (!settings.personal_adhkar) settings.personal_adhkar = [];
+  if (!settings.personal_adhkar) {
+    settings.personal_adhkar = [];
+  }
 
   if (editId) {
     const p = settings.personal_adhkar.find((x: PersonalAdhkarEntry) => x.id === editId);
@@ -419,21 +491,35 @@ function savePersonalAdhkar(): void {
 function editPersonalAdhkar(id: string): void {
   const settings = state.adhkarSettings!;
   const p = settings.personal_adhkar?.find((x: PersonalAdhkarEntry) => x.id === id);
-  if (!p) return;
-  if (!dom.adhkarAddOverlay) return;
+  if (!p) {
+    return;
+  }
+  if (!dom.adhkarAddOverlay) {
+    return;
+  }
   dom.adhkarAddOverlay.classList.remove('hidden');
   dom.adhkarAddOverlay.style.display = 'flex';
-  dom.adhkarAddOverlay.dataset.editId = id;
-  if (dom.adhkarAddText) dom.adhkarAddText.value = p.text;
-  if (dom.adhkarAddCount) dom.adhkarAddCount.value = String(p.count);
-  if (dom.adhkarAddTime) dom.adhkarAddTime.value = p.time || '';
-  if (dom.adhkarAddDuration) dom.adhkarAddDuration.value = String(p.duration || 1);
+  dom.adhkarAddOverlay.dataset['editId'] = id;
+  if (dom.adhkarAddText) {
+    dom.adhkarAddText.value = p.text;
+  }
+  if (dom.adhkarAddCount) {
+    dom.adhkarAddCount.value = String(p.count);
+  }
+  if (dom.adhkarAddTime) {
+    dom.adhkarAddTime.value = p.time || '';
+  }
+  if (dom.adhkarAddDuration) {
+    dom.adhkarAddDuration.value = String(p.duration || 1);
+  }
 }
 
 function deletePersonalAdhkar(id: string): void {
   // Custom confirmation modal instead of browser confirm()
   const existing = document.getElementById('adhkarDeleteModal');
-  if (existing) existing.remove();
+  if (existing) {
+    existing.remove();
+  }
 
   const overlay = document.createElement('div');
   overlay.id = 'adhkarDeleteModal';
@@ -479,7 +565,9 @@ function deletePersonalAdhkar(id: string): void {
 
   cancelBtn.addEventListener('click', close);
   overlay.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === overlay) close();
+    if (e.target === overlay) {
+      close();
+    }
   });
 
   btnRow.appendChild(cancelBtn);
@@ -495,7 +583,9 @@ function deletePersonalAdhkar(id: string): void {
 
 /** Render adhkar toggle/time/duration rows inside the settings panel. */
 export function renderAdhkarSettingsList(): void {
-  if (!dom.adhkarSettingsList) return;
+  if (!dom.adhkarSettingsList) {
+    return;
+  }
   const settings = state.adhkarSettings!;
   let html = '';
   for (const cat of ADHKAR_DATA.categories) {
@@ -519,10 +609,12 @@ export function renderAdhkarSettingsList(): void {
   dom.adhkarSettingsList.querySelectorAll('[data-adhkar-toggle]').forEach((el: Element) => {
     const htmlEl = el as HTMLElement;
     htmlEl.addEventListener('click', () => {
-      const catId = htmlEl.dataset.adhkarToggle as string;
+      const catId = htmlEl.dataset['adhkarToggle'] as string;
       const on = htmlEl.classList.toggle('on');
       const newSettings = cloneAdhkarSettings(state.adhkarSettings);
-      if (!newSettings[catId]) newSettings[catId] = {} as AdhkarCategorySettings;
+      if (!newSettings[catId]) {
+        newSettings[catId] = {} as AdhkarCategorySettings;
+      }
       (newSettings[catId] as Partial<AdhkarCategorySettings>).enabled = on;
       state.adhkarSettings = newSettings;
       saveAdhkarSettings();
@@ -531,9 +623,11 @@ export function renderAdhkarSettingsList(): void {
   dom.adhkarSettingsList.querySelectorAll('[data-adhkar-time]').forEach((el: Element) => {
     const htmlEl = el as HTMLInputElement;
     htmlEl.addEventListener('change', () => {
-      const catId = htmlEl.dataset.adhkarTime as string;
+      const catId = htmlEl.dataset['adhkarTime'] as string;
       const newSettings = cloneAdhkarSettings(state.adhkarSettings);
-      if (!newSettings[catId]) newSettings[catId] = {} as AdhkarCategorySettings;
+      if (!newSettings[catId]) {
+        newSettings[catId] = {} as AdhkarCategorySettings;
+      }
       (newSettings[catId] as Partial<AdhkarCategorySettings>).time = htmlEl.value;
       state.adhkarSettings = newSettings;
       saveAdhkarSettings();
@@ -542,9 +636,11 @@ export function renderAdhkarSettingsList(): void {
   dom.adhkarSettingsList.querySelectorAll('[data-adhkar-duration]').forEach((el: Element) => {
     const htmlEl = el as HTMLInputElement;
     htmlEl.addEventListener('change', () => {
-      const catId = htmlEl.dataset.adhkarDuration as string;
+      const catId = htmlEl.dataset['adhkarDuration'] as string;
       const newSettings = cloneAdhkarSettings(state.adhkarSettings);
-      if (!newSettings[catId]) newSettings[catId] = {} as AdhkarCategorySettings;
+      if (!newSettings[catId]) {
+        newSettings[catId] = {} as AdhkarCategorySettings;
+      }
       (newSettings[catId] as Partial<AdhkarCategorySettings>).duration = parseInt(htmlEl.value, 10) || 1;
       state.adhkarSettings = newSettings;
       saveAdhkarSettings();
@@ -562,15 +658,21 @@ export function wireAdhkarEvents(): void {
   dom.adhkarCloseBtn?.addEventListener('click', closeAdhkarPanel);
   dom.adhkarNotifOpenBtn?.addEventListener('click', () => {
     dismissAdhkarNotification();
-    if (!state.adhkarPanelOpen) toggleAdhkarPanel();
-    const catId = dom.adhkarNotification?.dataset.category;
-    if (catId) switchAdhkarTab(catId);
+    if (!state.adhkarPanelOpen) {
+      toggleAdhkarPanel();
+    }
+    const catId = dom.adhkarNotification?.dataset['category'];
+    if (catId) {
+      switchAdhkarTab(catId);
+    }
   });
   dom.adhkarNotifDismissBtn?.addEventListener('click', dismissAdhkarNotification);
   dom.adhkarAddCloseBtn?.addEventListener('click', closeAdhkarAddDialog);
   dom.adhkarAddSaveBtn?.addEventListener('click', savePersonalAdhkar);
   dom.adhkarAddOverlay?.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === dom.adhkarAddOverlay) closeAdhkarAddDialog();
+    if (e.target === dom.adhkarAddOverlay) {
+      closeAdhkarAddDialog();
+    }
   });
   dom.adhkarEnabledToggle?.addEventListener('click', () => {
     const on = dom.adhkarEnabledToggle!.classList.toggle('on');
@@ -587,6 +689,8 @@ export function wireAdhkarEvents(): void {
     saveAdhkarSettings();
   });
   dom.adhkarPanel?.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === dom.adhkarPanel) closeAdhkarPanel();
+    if (e.target === dom.adhkarPanel) {
+      closeAdhkarPanel();
+    }
   });
 }
