@@ -37,7 +37,9 @@ export function initNavigation(): void {
     storage.set('player_collapsed', true);
   });
   dom.collapsedContent?.addEventListener('click', (e: MouseEvent) => {
-    if ((e.target as HTMLElement).closest('#collapsedPlayBtn')) return;
+    if ((e.target as HTMLElement).closest('#collapsedPlayBtn')) {
+      return;
+    }
     expandPlayer();
   });
   dom.playPauseBtn?.addEventListener('click', () => {
@@ -58,20 +60,30 @@ export function initNavigation(): void {
 
   dom.speedSelect?.addEventListener('change', () => {
     const rate = parseFloat(dom.speedSelect!.value);
-    if (dom.audioPlayer) dom.audioPlayer.playbackRate = rate;
+    if (dom.audioPlayer) {
+      dom.audioPlayer.playbackRate = rate;
+    }
     storage.set('playback_speed', rate);
   });
 
   /* ========== VIEW MODE TOGGLES ========== */
   dom.viewSurahBtn?.addEventListener('click', () => {
     import('./presentation.js').then((m) => m.closePresentation()).catch(() => {});
-    if (state.mushafMode) import('./mushaf.js').then((m) => m.toggleMushafMode());
+    if (state.mushafMode) {
+      import('./mushaf.js').then((m) => m.toggleMushafMode());
+    }
     document
       .querySelectorAll('.view-mode-btn')
-      .forEach((b) => b.classList.toggle('active', (b as HTMLElement).dataset.mode === 'surah'));
-    if (dom.pageSelect) dom.pageSelect.style.display = 'none';
-    if (dom.pageSlider) dom.pageSlider.style.display = 'none';
-    if (dom.pageIndicator) dom.pageIndicator.style.display = 'none';
+      .forEach((b) => b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'surah'));
+    if (dom.pageSelect) {
+      dom.pageSelect.style.display = 'none';
+    }
+    if (dom.pageSlider) {
+      dom.pageSlider.style.display = 'none';
+    }
+    if (dom.pageIndicator) {
+      dom.pageIndicator.style.display = 'none';
+    }
   });
   dom.viewMushafBtn?.addEventListener('click', () => {
     import('./presentation.js').then((m) => m.closePresentation()).catch(() => {});
@@ -80,21 +92,27 @@ export function initNavigation(): void {
   dom.viewPresBtn?.addEventListener('click', () => {
     // openPresentation() handles mushaf mode toggle internally — don't toggle here
     // to avoid double-toggle race condition
-    import('./presentation.js').then((m) => m.openPresentation()).catch((err) => {
-      console.error('[Nav] Failed to open presentation:', err);
-    });
+    import('./presentation.js')
+      .then((m) => m.openPresentation())
+      .catch((err) => {
+        console.error('[Nav] Failed to open presentation:', err);
+      });
   });
 
   dom.pageSelect?.addEventListener('change', () => {
     if (dom.pageSelect!.value) {
       const p = parseInt(dom.pageSelect!.value, 10);
-      if (dom.pageSlider) dom.pageSlider.value = String(p);
+      if (dom.pageSlider) {
+        dom.pageSlider.value = String(p);
+      }
       import('./mushaf.js').then((m) => m.loadPage(p, true));
     }
   });
   dom.pageSlider?.addEventListener('input', () => {
     const p = parseInt(dom.pageSlider!.value, 10);
-    if (dom.pageSelect) dom.pageSelect.value = String(p);
+    if (dom.pageSelect) {
+      dom.pageSelect.value = String(p);
+    }
     import('./mushaf.js').then((m) => m.loadPage(p, true));
   });
 
@@ -103,18 +121,24 @@ export function initNavigation(): void {
   let activeTab: string = 'quran';
 
   function activateTab(tab: string): void {
-    if (!bottomNav) return;
+    if (!bottomNav) {
+      return;
+    }
     activeTab = tab;
     bottomNav.querySelectorAll('.bottom-nav-btn').forEach((b) => {
-      b.classList.toggle('active', (b as HTMLElement).dataset.tab === tab);
+      b.classList.toggle('active', (b as HTMLElement).dataset['tab'] === tab);
     });
   }
 
   bottomNav?.addEventListener('click', (e: MouseEvent) => {
     const btn = (e.target as HTMLElement).closest('.bottom-nav-btn') as HTMLElement | null;
-    if (!btn) return;
-    const tab = btn.dataset.tab;
-    if (!tab) return;
+    if (!btn) {
+      return;
+    }
+    const tab = btn.dataset['tab'];
+    if (!tab) {
+      return;
+    }
     if (tab === activeTab && tab !== 'player') {
       activateTab(tab);
       return;
@@ -156,6 +180,10 @@ export function initNavigation(): void {
   // Restore mushaf mode
   const savedMushaf = storage.get('mushaf_mode');
   const savedPage = storage.get<number>('current_page');
-  if (savedPage) state.currentPage = savedPage;
-  if (savedMushaf) import('./mushaf.js').then((m) => m.toggleMushafMode());
+  if (savedPage) {
+    state.currentPage = savedPage;
+  }
+  if (savedMushaf) {
+    import('./mushaf.js').then((m) => m.toggleMushafMode());
+  }
 }
