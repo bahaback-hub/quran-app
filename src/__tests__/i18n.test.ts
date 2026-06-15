@@ -13,8 +13,13 @@ const store: Record<string, unknown> = {};
 vi.mock('../storage.js', () => ({
   storage: {
     get: vi.fn((key: string) => store[key] ?? null),
-    set: vi.fn((key: string, val: unknown) => { store[key] = val; return true; }),
-    remove: vi.fn((key: string) => { delete store[key]; }),
+    set: vi.fn((key: string, val: unknown) => {
+      store[key] = val;
+      return true;
+    }),
+    remove: vi.fn((key: string) => {
+      delete store[key];
+    }),
   },
 }));
 
@@ -42,28 +47,28 @@ describe('AVAILABLE_LANGUAGES', () => {
   });
 
   it('should include Arabic with RTL direction', () => {
-    const ar = AVAILABLE_LANGUAGES.find(l => l.code === 'ar');
+    const ar = AVAILABLE_LANGUAGES.find((l) => l.code === 'ar');
     expect(ar).toBeDefined();
     expect(ar!.dir).toBe('rtl');
     expect(ar!.nativeName).toBe('العربية');
   });
 
   it('should include English with LTR direction', () => {
-    const en = AVAILABLE_LANGUAGES.find(l => l.code === 'en');
+    const en = AVAILABLE_LANGUAGES.find((l) => l.code === 'en');
     expect(en).toBeDefined();
     expect(en!.dir).toBe('ltr');
     expect(en!.nativeName).toBe('English');
   });
 
   it('should include Turkish', () => {
-    const tr = AVAILABLE_LANGUAGES.find(l => l.code === 'tr');
+    const tr = AVAILABLE_LANGUAGES.find((l) => l.code === 'tr');
     expect(tr).toBeDefined();
     expect(tr!.nativeName).toBe('Türkçe');
   });
 
   it('should include Malay and Indonesian', () => {
-    const ms = AVAILABLE_LANGUAGES.find(l => l.code === 'ms');
-    const id = AVAILABLE_LANGUAGES.find(l => l.code === 'id');
+    const ms = AVAILABLE_LANGUAGES.find((l) => l.code === 'ms');
+    const id = AVAILABLE_LANGUAGES.find((l) => l.code === 'id');
     expect(ms).toBeDefined();
     expect(id).toBeDefined();
   });
@@ -78,13 +83,13 @@ describe('AVAILABLE_LANGUAGES', () => {
   });
 
   it('Arabic should be the only RTL language', () => {
-    const rtlLangs = AVAILABLE_LANGUAGES.filter(l => l.dir === 'rtl');
+    const rtlLangs = AVAILABLE_LANGUAGES.filter((l) => l.dir === 'rtl');
     expect(rtlLangs).toHaveLength(1);
     expect(rtlLangs[0].code).toBe('ar');
   });
 
   it('each language code should be unique', () => {
-    const codes = AVAILABLE_LANGUAGES.map(l => l.code);
+    const codes = AVAILABLE_LANGUAGES.map((l) => l.code);
     expect(new Set(codes).size).toBe(codes.length);
   });
 });
@@ -747,10 +752,10 @@ describe('i18n edge cases', () => {
     const { storage } = await import('../storage.js');
     const originalGet = storage.get;
     (storage.get as ReturnType<typeof vi.fn>).mockReturnValue(null);
-    
+
     await initI18n();
     expect(getLang()).toBeTruthy();
-    
+
     (storage.get as ReturnType<typeof vi.fn>).mockImplementation(originalGet);
   });
 
