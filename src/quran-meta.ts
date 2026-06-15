@@ -83,7 +83,7 @@ export const JUZ_STARTS: { juz: number; surah: number; ayah: number }[] = [
 /** Check if a given surah:ayahInSurah is a sajda ayah */
 export function isSajdaAyah(
   surah: number,
-  ayahInSurah: number
+  ayahInSurah: number,
 ): { isSajda: boolean; type: 'obligatory' | 'recommended' | '' } {
   const key = `${surah}:${ayahInSurah}`;
   const type = SAJDA_AYAHS[key];
@@ -93,7 +93,7 @@ export function isSajdaAyah(
 /** Get the juz number (1-30) for a given surah and ayah within the surah */
 export function getJuzForAyah(surah: number, ayahInSurah: number): number {
   for (let i = JUZ_STARTS.length - 1; i >= 0; i--) {
-    const j = JUZ_STARTS[i];
+    const j = JUZ_STARTS[i]!;
     if (surah > j.surah || (surah === j.surah && ayahInSurah >= j.ayah)) {
       return j.juz;
     }
@@ -104,7 +104,9 @@ export function getJuzForAyah(surah: number, ayahInSurah: number): number {
 /** Check if an ayah is the start of a new juz — returns juz number or null */
 export function isJuzStart(surah: number, ayahInSurah: number): number | null {
   for (const j of JUZ_STARTS) {
-    if (j.surah === surah && j.ayah === ayahInSurah) return j.juz;
+    if (j.surah === surah && j.ayah === ayahInSurah) {
+      return j.juz;
+    }
   }
   return null;
 }
