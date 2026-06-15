@@ -1,8 +1,18 @@
+/**
+ * @module share
+ * @description Share and copy functionality for the Quran app. Provides functions
+ * to build share text from the current ayah, toggle the share menu, share via the
+ * native Web Share API, copy to clipboard (with and without diacritics), and share
+ * through WhatsApp and Telegram.
+ */
+
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { stripTashkeel, copyToClipboard } from './utils.js';
 import { state } from './state.js';
 import { __ } from './i18n.js';
+
+/* ===================== INTERFACES ===================== */
 
 /** Build share text for the current ayah. */
 export function buildShareText(): string {
@@ -29,8 +39,7 @@ export function shareNative(): void {
     return;
   }
   if (navigator.share) {
-    // eslint-disable-next-line no-empty-function
-    navigator.share({ title: __('app_title'), text }).catch(() => {});
+    navigator.share({ title: __('app_title'), text }).catch(() => { /* noop */ });
   } else {
     shareCopy();
   }
