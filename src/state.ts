@@ -110,6 +110,7 @@ export interface AudioStateSlice {
   isPlaying: boolean;
   hifdhMode: boolean;
   repeatMode: boolean;
+  autoPlayNext: boolean;
   repeatFrom: number;
   repeatTo: number;
   repeatTimes: number;
@@ -213,6 +214,7 @@ export interface AppState {
   isPlaying: boolean;
   hifdhMode: boolean;
   repeatMode: boolean;
+  autoPlayNext: boolean;
   repeatFrom: number;
   repeatTo: number;
   repeatTimes: number;
@@ -286,6 +288,7 @@ export function createDefaultState(): AppState {
     isPlaying: false,
     hifdhMode: false,
     repeatMode: false,
+    autoPlayNext: false,
     repeatFrom: 1,
     repeatTo: 1,
     repeatTimes: 3,
