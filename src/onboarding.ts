@@ -1,6 +1,15 @@
+/**
+ * @module onboarding
+ * @description Onboarding wizard for the Quran app. Displays a step-by-step
+ * introduction overlay for first-time users, highlighting key features such as
+ * reading, audio, search, tafsir, prayer times, and settings. Tracks whether
+ * the onboarding has been seen via localStorage to avoid re-showing it.
+ */
+
 import { __ } from './i18n.js';
 import { storage } from './storage.js';
 
+/** Represents a single step in the onboarding wizard. */
 interface OnboardingStep {
   icon: string;
   title: string;
@@ -43,10 +52,26 @@ function getSteps(): OnboardingStep[] {
   ];
 }
 
+/**
+ * Check whether the user has already seen the onboarding wizard.
+ *
+ * @returns The stored value from localStorage (truthy if seen), or undefined if not.
+ *
+ * @example
+ * if (!hasSeenOnboarding()) { startOnboarding(); }
+ */
 export function hasSeenOnboarding(): unknown {
   return storage.get('onboarding_seen');
 }
 
+/**
+ * Start the onboarding wizard if the user hasn't seen it before.
+ * Marks onboarding as seen in localStorage and displays the overlay.
+ * No-op if the user has already completed onboarding.
+ *
+ * @example
+ * startOnboarding(); // call during app initialization
+ */
 export function startOnboarding(): void {
   if (hasSeenOnboarding()) {
     return;
