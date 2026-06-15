@@ -16,7 +16,9 @@ export interface AudioModule {
  */
 export function showSleepTimerModal(audioModule: AudioModule): void {
   const existing = document.getElementById('sleepTimerModal');
-  if (existing) existing.remove();
+  if (existing) {
+    existing.remove();
+  }
 
   const overlay = document.createElement('div');
   overlay.id = 'sleepTimerModal';
@@ -70,7 +72,9 @@ export function showSleepTimerModal(audioModule: AudioModule): void {
   let focusCleanup: (() => void) | null = null;
 
   function close(): void {
-    if (focusCleanup) focusCleanup();
+    if (focusCleanup) {
+      focusCleanup();
+    }
     overlay.remove();
   }
 
@@ -86,7 +90,9 @@ export function showSleepTimerModal(audioModule: AudioModule): void {
   });
   cancelBtn.addEventListener('click', close);
   overlay.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === overlay) close();
+    if (e.target === overlay) {
+      close();
+    }
   });
   overlay.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
