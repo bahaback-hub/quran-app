@@ -988,6 +988,7 @@ export function floatingPlayerHTML(): string {
         <div class="player-more-row hidden" id="playerMoreRow">
           <button class="btn btn-hifdh" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
           <button class="btn btn-repeat" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
+          <button class="btn btn-autoplay" id="autoPlayNextBtn" data-i18n="autoplay_next" aria-label="التشغيل المتصل" title="التشغيل المتصل — ينتقل تلقائياً للسورة التالية">🔗 متصل</button>
           <button class="btn btn-select" id="selectModeBtn" aria-label="تحديد متعدد">☑️ تحديد</button>
           <button
             class="btn btn-bookmark"
