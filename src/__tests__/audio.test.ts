@@ -1234,13 +1234,32 @@ describe('Audio Event Handlers', () => {
     expect(state.currentAyahIndex).toBe(1);
   });
 
-  it('onAudioEnded at last ayah should go to next surah', () => {
+  it('onAudioEnded at last ayah should stop by default (autoPlayNext off)', () => {
     setupAudioWithEvents();
     state.surahData = createSurahData(3);
     state.ayahsAudios = ['a1', 'a2', 'a3'];
     state.currentAyahIndex = 2; // last ayah
     state.currentSurah = 1;
     state.isPlaying = true;
+    state.autoPlayNext = false; // default
+    const loadFn = vi.fn();
+    setLoadSurah(loadFn);
+
+    const endedHandler = eventHandlers['ended'];
+    endedHandler!(new Event('ended'));
+
+    expect(state.isPlaying).toBe(false);
+    expect(loadFn).not.toHaveBeenCalled();
+  });
+
+  it('onAudioEnded at last ayah should go to next surah when autoPlayNext is on', () => {
+    setupAudioWithEvents();
+    state.surahData = createSurahData(3);
+    state.ayahsAudios = ['a1', 'a2', 'a3'];
+    state.currentAyahIndex = 2; // last ayah
+    state.currentSurah = 1;
+    state.isPlaying = true;
+    state.autoPlayNext = true; // enabled
     const loadFn = vi.fn();
     setLoadSurah(loadFn);
 
