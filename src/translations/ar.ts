@@ -317,6 +317,17 @@ export default {
   a11y_you_are_offline: 'أنت غير متصل بالإنترنت',
   a11y_you_are_online: 'تم استعادة الاتصال بالإنترنت',
 
+  // === تخزين الصوت ===
+  download_audio: '📥 تحميل',
+  download_audio_start: 'جاري تحميل الصوت للعمل بدون إنترنت...',
+  download_audio_progress: 'تحميل الصوت: {0}/{1}',
+  download_audio_done: 'تم تحميل الصوت بنجاح — يمكنك الاستماع بدون إنترنت',
+  download_audio_error: 'فشل تحميل الصوت',
+  download_audio_cached: 'الصوت محفوظ مسبقاً',
+  download_audio_delete: 'حذف الصوت المحفوظ',
+  download_audio_deleted: 'تم حذف الصوت المحفوظ',
+  download_audio_no_data: 'لا توجد بيانات صوتية للتحميل',
+
   // === إمكانية الوصول ===
   a11y_panel_opened: 'تم فتح {0}',
   a11y_panel_closed: 'تم إغلاق {0}',
