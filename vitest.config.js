@@ -6,5 +6,8 @@ export default defineConfig({
     setupFiles: ['./src/__tests__/setup-i18n.ts'],
     exclude: ['e2e/**', 'node_modules/**'],
     globals: true,
+    coverage: {
+      exclude: ['src/translations/**', 'src/**/index.js'],
+    },
   },
 });
