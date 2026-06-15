@@ -3,7 +3,7 @@ import { storage } from './storage.js';
 import { dom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
 import { __ } from './i18n.js';
-import { escapeHtml } from './utils.js';
+import { surahSelectLoading, surahSelectError, surahSelectDefault, reciterOptions, skeletonLoading, surahLoadError, surahContentShell, collapsedPlayerInfo, escapeHtml } from './templates.js';
 import { state, batch, immutablePush, immutableMapSet, immutableMapDelete, SurahInfo, SurahOffset } from './state.js';
 import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId, getReciterDisplayName } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
@@ -83,7 +83,7 @@ export async function loadSurahList(): Promise<void> {
     populateSurahSelect();
     return;
   }
-  if (dom.surahSelect) dom.surahSelect.innerHTML = `<option value="">${__('loading_surah_list')}</option>`;
+  if (dom.surahSelect) dom.surahSelect.innerHTML = surahSelectLoading();
   try {
     const data = await apiFetch('/surah', { silent: true });
     if (data?.data) {
@@ -108,13 +108,13 @@ export async function loadSurahList(): Promise<void> {
   } catch (_e) {
     /* no local fallback */
   }
-  if (dom.surahSelect) dom.surahSelect.innerHTML = `<option value="">${__('error_unexpected')}</option>`;
+  if (dom.surahSelect) dom.surahSelect.innerHTML = surahSelectError();
   // showToast(__('failed_load_surah'), 'error'); // disabled at startup
 }
 
 function populateSurahSelect(): void {
   if (!dom.surahSelect) return;
-  dom.surahSelect.innerHTML = `<option value="">${__('select_surah')}</option>`;
+  dom.surahSelect.innerHTML = surahSelectDefault();
   for (const s of state.surahList) {
     const opt = document.createElement('option');
     opt.value = String(s.number);
@@ -126,8 +126,7 @@ function populateSurahSelect(): void {
 
 export function populateReciterSelect(): void {
   if (!dom.reciterSelect) return;
-  dom.reciterSelect.innerHTML = RECITERS.map((r: ReciterInfo) => `<option value="${r.id}">${getReciterDisplayName(r)}</option>`).join('');
-  dom.reciterSelect.value = state.currentReciter || CONFIG.DEFAULT_RECITER;
+  dom.reciterSelect.innerHTML = reciterOptions(RECITERS.map((r: ReciterInfo) => ({ id: r.id, name: getReciterDisplayName(r) })), state.currentReciter || CONFIG.DEFAULT_RECITER);
 }
 
 export function buildSurahOffsets(): void {
@@ -367,8 +366,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     `${__('loading_surah')} ${state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || surahNum}...`
   );
   if (dom.surahContent)
-    dom.surahContent.innerHTML =
-      '<div class="skeleton-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
+    dom.surahContent.innerHTML = skeletonLoading();
 
   try {
     const textJson = await apiFetch(`/surah/${surahNum}/quran-uthmani`, { signal, errorMsg: __('failed_load_surah') });
@@ -449,7 +447,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
         return;
       }
     }
-    if (dom.surahContent) dom.surahContent.innerHTML = `<p class="error-msg">⚠️ ${__('failed_load_surah')}</p>`;
+    if (dom.surahContent) dom.surahContent.innerHTML = surahLoadError();
     // showToast(__('failed_load_surah'), 'error'); // disabled at startup
     loadingBar.hide();
   } finally {
@@ -753,7 +751,7 @@ export function updatePlayerInfo(): void {
   }
   if (dom.collapsedInfo && a) {
     const short = a.text.length > 50 ? a.text.substring(0, 50) + '...' : a.text;
-    dom.collapsedInfo.innerHTML = `<span class="fi-surah">${escapeHtml(surahData.name)} — ${__('ayah')} ${escapeHtml(String(a.numberInSurah))}</span><span>${escapeHtml(short)}</span>`;
+    dom.collapsedInfo.innerHTML = collapsedPlayerInfo(`${surahData.name} — ${__('ayah')} ${a.numberInSurah}`, short);
   }
 }
 
