@@ -1,8 +1,7 @@
 import { state } from './state.js';
 import { CONFIG } from './config.js';
 import { dom } from './dom.js';
-import { escapeHtml } from './utils.js';
-import { tafsirLoading, tafsirContent, tafsirErrorMessage } from './templates.js';
+import { tafsirLoading, tafsirErrorMessage } from './templates.js';
 import { tafsirFetch } from './api-client.js';
 import { __ } from './i18n.js';
 
@@ -19,17 +18,6 @@ type MuyassarSurah = MuyassarAyah[] | { ayahs: MuyassarAyah[] };
 
 /** The full local Muyassar tafsir structure: surah number → surah data. */
 type LocalMuyassar = Record<number, MuyassarSurah> | null;
-
-/** Shape of surahData when accessed in tafsir functions. */
-interface SurahAyahData {
-  numberInSurah: number;
-  text: string;
-}
-
-interface SurahDataLike {
-  name: string;
-  ayahs: SurahAyahData[];
-}
 
 /** Shape of an entry stored in the IndexedDB tafsir object store. */
 interface TafsirCacheEntry {
@@ -120,6 +108,7 @@ async function getTafsirFromDB(key: string): Promise<string | null> {
       req.onsuccess = () => resolve(req.result ? (req.result as TafsirCacheEntry).text : null);
       req.onerror = () => resolve(null);
     });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_e: unknown) {
     return null;
   }
