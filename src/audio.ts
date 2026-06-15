@@ -199,6 +199,12 @@ export async function playCurrentAyah(): Promise<void> {
   // Resolve the audio URL — check offline cache first
   const resolvedUrl = await resolveAudioUrl(url);
 
+  // Revoke previous Object URL to prevent memory leak
+  const oldSrc = dom.audioPlayer.src;
+  if (oldSrc && oldSrc.startsWith('blob:')) {
+    URL.revokeObjectURL(oldSrc);
+  }
+
   if (isMp3quran) {
     dom.audioPlayer.src = resolvedUrl;
     dom.audioPlayer.addEventListener(

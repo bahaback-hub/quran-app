@@ -506,8 +506,8 @@ function createReactiveProxy(): AppState {
       const key = property as keyof AppState;
       const oldValue = Reflect.get(target, key) as unknown;
 
-      // Skip notification if value hasn't changed (shallow comparison)
-      if (oldValue === newValue) {
+      // Skip notification if value hasn't changed (Object.is handles NaN correctly)
+      if (Object.is(oldValue, newValue)) {
         return true;
       }
 
