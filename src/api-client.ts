@@ -95,14 +95,23 @@ function classifyError(error: Error): string {
   const name = error.name || '';
   const msg = (error.message || '').toLowerCase();
 
-  if (!navigator.onLine) return ERROR_MESSAGES.offline;
-  if (name === 'AbortError') return ''; // Silently ignore aborted requests
-  if (name === 'TimeoutError' || msg.includes('timeout') || msg.includes('aborted')) return ERROR_MESSAGES.timeout;
-  if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('net::err'))
-    return ERROR_MESSAGES.network;
-  if (msg.includes('json') || msg.includes('parse') || msg.includes('unexpected token')) return ERROR_MESSAGES.parse;
+  if (!navigator.onLine) {
+    return ERROR_MESSAGES['offline']!;
+  }
+  if (name === 'AbortError') {
+    return '';
+  } // Silently ignore aborted requests
+  if (name === 'TimeoutError' || msg.includes('timeout') || msg.includes('aborted')) {
+    return ERROR_MESSAGES['timeout']!;
+  }
+  if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('net::err')) {
+    return ERROR_MESSAGES['network']!;
+  }
+  if (msg.includes('json') || msg.includes('parse') || msg.includes('unexpected token')) {
+    return ERROR_MESSAGES['parse']!;
+  }
 
-  return ERROR_MESSAGES.default;
+  return ERROR_MESSAGES['default']!;
 }
 
 /**
@@ -125,7 +134,7 @@ function createTimeoutController(ms: number, externalSignal?: AbortSignal): Time
           clearTimeout(timerId);
           controller.abort();
         },
-        { once: true }
+        { once: true },
       );
     }
   }
@@ -149,10 +158,14 @@ const _inflightRequests = new Map<string, Promise<unknown>>();
  * Otherwise, execute the request and cache the Promise until it settles.
  */
 function deduplicateRequest<T>(url: string, exec: () => Promise<T>, noDedup: boolean): Promise<T> {
-  if (noDedup) return exec();
+  if (noDedup) {
+    return exec();
+  }
 
   const existing = _inflightRequests.get(url) as Promise<T> | undefined;
-  if (existing) return existing;
+  if (existing) {
+    return existing;
+  }
 
   const promise = exec().finally(() => {
     _inflightRequests.delete(url);
@@ -192,9 +205,20 @@ export async function safeFetch<T = unknown>(url: string, options: FetchOptions 
     noDedup = false,
   } = options;
 
-  return deduplicateRequest(url, () => _fetchWithRetry<T>(url, {
-    timeout, externalSignal, silent, errorMsg, expectJSON, retries, retryDelay,
-  }), noDedup);
+  return deduplicateRequest(
+    url,
+    () =>
+      _fetchWithRetry<T>(url, {
+        timeout,
+        externalSignal,
+        silent,
+        errorMsg,
+        expectJSON,
+        retries,
+        retryDelay,
+      }),
+    noDedup,
+  );
 }
 
 /**
@@ -211,7 +235,7 @@ async function _fetchWithRetry<T>(
     expectJSON: boolean;
     retries: number;
     retryDelay: number;
-  }
+  },
 ): Promise<T> {
   let lastError: unknown;
 
@@ -222,19 +246,25 @@ async function _fetchWithRetry<T>(
       lastError = error;
 
       // Don't retry on: aborts, 4xx client errors, or parse errors
-      if (error instanceof HTTPError && error.status < 500) break;
-      if (error instanceof DOMException && error.name === 'AbortError') break;
+      if (error instanceof HTTPError && error.status < 500) {
+        break;
+      }
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        break;
+      }
 
       // Don't retry parse errors
       const msg = (error as Error).message?.toLowerCase() ?? '';
-      if (msg.includes('json') || msg.includes('parse') || msg.includes('unexpected token')) break;
+      if (msg.includes('json') || msg.includes('parse') || msg.includes('unexpected token')) {
+        break;
+      }
 
       // Retry if we have attempts left
       if (attempt < opts.retries) {
         if (!opts.silent) {
           console.info(`[API] Retrying (${attempt + 1}/${opts.retries}) ← ${url}`);
         }
-        await new Promise(resolve => setTimeout(resolve, opts.retryDelay));
+        await new Promise((resolve) => setTimeout(resolve, opts.retryDelay));
         continue;
       }
     }
@@ -255,7 +285,7 @@ async function _singleFetch<T>(
     errorMsg?: string;
     expectJSON: boolean;
   },
-  isRetry: boolean = false
+  isRetry: boolean = false,
 ): Promise<T> {
   const { controller, timerId } = createTimeoutController(opts.timeout, opts.externalSignal);
 
@@ -272,7 +302,7 @@ async function _singleFetch<T>(
 
       // Only show toast on final attempt (not during retries)
       if (!opts.silent && !isRetry) {
-        const msg = response.status >= 500 ? ERROR_MESSAGES.server : opts.errorMsg || ERROR_MESSAGES.default;
+        const msg = response.status >= 500 ? ERROR_MESSAGES['server']! : opts.errorMsg || ERROR_MESSAGES['default']!;
         showToastMsg(msg);
       }
 
@@ -284,7 +314,9 @@ async function _singleFetch<T>(
       try {
         return (await response.json()) as T;
       } catch (parseError) {
-        if (!opts.silent) showToastMsg(opts.errorMsg || ERROR_MESSAGES.parse);
+        if (!opts.silent) {
+          showToastMsg(opts.errorMsg || ERROR_MESSAGES['parse']!);
+        }
         console.warn(`[API] JSON parse error ← ${url}`, parseError);
         throw parseError;
       }
@@ -295,12 +327,16 @@ async function _singleFetch<T>(
     clearTimeout(timerId);
 
     // Don't double-handle HTTP errors (already handled above)
-    if (error instanceof HTTPError) throw error;
+    if (error instanceof HTTPError) {
+      throw error;
+    }
 
     const classified = classifyError(error as Error);
 
     // Aborted requests are silent
-    if (!classified) throw error;
+    if (!classified) {
+      throw error;
+    }
 
     if (!opts.silent && !isRetry) {
       showToastMsg(opts.errorMsg || classified);
