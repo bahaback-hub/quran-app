@@ -97,7 +97,9 @@ describe('AVAILABLE_LANGUAGES', () => {
 describe('__ (translate)', () => {
   beforeEach(async () => {
     // Reset store
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
@@ -153,7 +155,9 @@ describe('__ (translate)', () => {
 
 describe('getLang', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
   });
 
   it('should return "ar" after setting Arabic', async () => {
@@ -184,7 +188,9 @@ describe('getLang', () => {
 
 describe('setLang', () => {
   beforeEach(() => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
   });
 
   it('should change the current language', async () => {
@@ -270,7 +276,9 @@ describe('setLang', () => {
 
 describe('applyTranslations', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
@@ -393,7 +401,9 @@ describe('applyTranslations', () => {
 
 describe('getReciterName', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
@@ -418,7 +428,9 @@ describe('getReciterName', () => {
 
 describe('getTafsirName', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
@@ -438,7 +450,9 @@ describe('getTafsirName', () => {
 
 describe('getCityName', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
@@ -458,7 +472,9 @@ describe('getCityName', () => {
 
 describe('getCalcMethodName', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
@@ -478,7 +494,9 @@ describe('getCalcMethodName', () => {
 
 describe('getWeekday', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
@@ -517,7 +535,9 @@ describe('getWeekday', () => {
 
 describe('getPrayerName', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
@@ -551,7 +571,9 @@ describe('getPrayerName', () => {
 
 describe('getLoadedLangs', () => {
   beforeEach(() => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
   });
 
   it('should include Arabic after loading', async () => {
@@ -588,7 +610,9 @@ describe('getLoadedLangs', () => {
 
 describe('unloadLang', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
@@ -638,7 +662,9 @@ describe('unloadLang', () => {
 
 describe('initI18n', () => {
   beforeEach(() => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
   });
 
   it('should initialize with saved language from storage', async () => {
@@ -686,7 +712,9 @@ describe('initI18n', () => {
 
 describe('preloadLang', () => {
   beforeEach(() => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
   });
 
   it('should not throw when preloading a language', () => {
@@ -708,7 +736,9 @@ describe('preloadLang', () => {
 
 describe('setLang for all languages', () => {
   beforeEach(() => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
   });
 
   it('should load and set Turkish correctly', async () => {
@@ -743,7 +773,9 @@ describe('setLang for all languages', () => {
 
 describe('i18n edge cases', () => {
   beforeEach(async () => {
-    for (const key of Object.keys(store)) delete store[key];
+    for (const key of Object.keys(store)) {
+      delete store[key];
+    }
     await setLang('ar');
   });
 
