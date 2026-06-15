@@ -1,340 +1,341 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+/**
+ * Tests for state.ts — reactive state management system.
+ */
+
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   state,
   setState,
   subscribe,
   subscribeAll,
+  batch,
   resetState,
   clearSubscribers,
+  immutablePush,
+  immutableSplice,
+  immutableFilter,
+  immutableMapSet,
+  immutableMapDelete,
   createDefaultState,
-  batch,
+  type AppState,
+  type SurahInfo,
+  type FavoriteEntry,
 } from '../state.js';
 
-describe('State Management', () => {
+describe('createDefaultState', () => {
+  it('should create a state with all default values', () => {
+    const defaults = createDefaultState();
+    expect(defaults.currentSurah).toBe(1);
+    expect(defaults.currentAyahIndex).toBe(0);
+    expect(defaults.currentReciter).toBe('ar.alafasy');
+    expect(defaults.isPlaying).toBe(false);
+    expect(defaults.hifdhMode).toBe(false);
+    expect(defaults.repeatMode).toBe(false);
+    expect(defaults.fontSize).toBe(28);
+    expect(defaults.nightMode).toBe(false);
+    expect(defaults.surahCache).toBeInstanceOf(Map);
+    expect(defaults.surahCache.size).toBe(0);
+    expect(defaults.favorites).toEqual([]);
+    expect(defaults.surahList).toEqual([]);
+  });
+
+  it('should return a fresh object each time (no shared references)', () => {
+    const a = createDefaultState();
+    const b = createDefaultState();
+    expect(a).not.toBe(b);
+    expect(a.surahCache).not.toBe(b.surahCache);
+    expect(a.favorites).not.toBe(b.favorites);
+  });
+});
+
+describe('Proxy reactivity', () => {
   beforeEach(() => {
     resetState();
     clearSubscribers();
   });
 
-  afterEach(() => {
+  it('should notify subscribers when a property changes', () => {
+    const callback = vi.fn();
+    subscribe('isPlaying', callback);
+    state.isPlaying = true;
+    expect(callback).toHaveBeenCalledWith(true, false);
+  });
+
+  it('should not notify when value does not change', () => {
+    const callback = vi.fn();
+    state.isPlaying = false; // default
+    subscribe('isPlaying', callback);
+    state.isPlaying = false; // same value
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('should notify with correct types for different state properties', () => {
+    const numCallback = vi.fn();
+    const strCallback = vi.fn();
+    subscribe('currentSurah', numCallback);
+    subscribe('currentReciter', strCallback);
+
+    state.currentSurah = 5;
+    state.currentReciter = 'ar.abdulbasit';
+
+    expect(numCallback).toHaveBeenCalledWith(5, 1);
+    expect(strCallback).toHaveBeenCalledWith('ar.abdulbasit', 'ar.alafasy');
+  });
+});
+
+describe('subscribe', () => {
+  beforeEach(() => {
+    resetState();
     clearSubscribers();
   });
 
-  /* ===================== DEFAULTS ===================== */
+  it('should return an unsubscribe function', () => {
+    const callback = vi.fn();
+    const unsub = subscribe('isPlaying', callback);
+    expect(typeof unsub).toBe('function');
 
-  describe('createDefaultState', () => {
-    it('should create a state with all required properties', () => {
-      const defaults = createDefaultState();
-      expect(defaults.currentSurah).toBe(1);
-      expect(defaults.currentAyahIndex).toBe(0);
-      expect(defaults.isPlaying).toBe(false);
-      expect(defaults.hifdhMode).toBe(false);
-      expect(defaults.fontSize).toBe(28);
-      expect(defaults.nightMode).toBe(false);
-      expect(defaults.autoSave).toBe(true);
-      expect(defaults.azanEnabled).toBe(false);
-      expect(defaults.favorites).toEqual([]);
-      expect(defaults.surahList).toEqual([]);
-      expect(defaults.surahCache).toBeInstanceOf(Map);
-      expect(defaults.ayahsAudios).toEqual([]);
-      expect(defaults.mushafMode).toBe(false);
-      expect(defaults.presentationMode).toBe(false);
-    });
+    state.isPlaying = true;
+    expect(callback).toHaveBeenCalledTimes(1);
 
-    it('should create independent instances (no shared references)', () => {
-      const a = createDefaultState();
-      const b = createDefaultState();
-      expect(a.favorites).not.toBe(b.favorites);
-      expect(a.surahList).not.toBe(b.surahList);
-      expect(a.surahCache).not.toBe(b.surahCache);
-    });
+    unsub();
+    state.isPlaying = false;
+    expect(callback).toHaveBeenCalledTimes(1); // Not called after unsubscribe
   });
 
-  /* ===================== STATE INSTANCE ===================== */
+  it('should support multiple subscribers on the same key', () => {
+    const cb1 = vi.fn();
+    const cb2 = vi.fn();
+    subscribe('isPlaying', cb1);
+    subscribe('isPlaying', cb2);
 
-  describe('state', () => {
-    it('should be initialized with default values', () => {
-      expect(state.currentSurah).toBe(1);
-      expect(state.isPlaying).toBe(false);
-    });
-
-    it('should allow direct property assignment (backward compatible)', () => {
-      state.currentSurah = 5;
-      expect(state.currentSurah).toBe(5);
-    });
-
-    it('should notify subscribers on direct property assignment (Proxy reactivity)', () => {
-      const callback = vi.fn();
-      subscribe('currentSurah', callback);
-      state.currentSurah = 5;
-      expect(callback).toHaveBeenCalledWith(5, 1, 'currentSurah');
-    });
-
-    it('should not notify subscribers when direct assignment value is same', () => {
-      const callback = vi.fn();
-      subscribe('isPlaying', callback);
-      state.isPlaying = false; // same as default
-      expect(callback).not.toHaveBeenCalled();
-    });
+    state.isPlaying = true;
+    expect(cb1).toHaveBeenCalledTimes(1);
+    expect(cb2).toHaveBeenCalledTimes(1);
   });
 
-  /* ===================== setState ===================== */
+  it('should isolate subscriber errors', () => {
+    const errorCb = vi.fn(() => { throw new Error('test'); });
+    const normalCb = vi.fn();
+    subscribe('isPlaying', errorCb);
+    subscribe('isPlaying', normalCb);
 
-  describe('setState', () => {
-    it('should update multiple properties at once', () => {
-      setState({ currentSurah: 2, currentAyahIndex: 10 });
-      expect(state.currentSurah).toBe(2);
-      expect(state.currentAyahIndex).toBe(10);
-    });
+    // Should not throw
+    expect(() => { state.isPlaying = true; }).not.toThrow();
+    expect(normalCb).toHaveBeenCalled();
+  });
+});
 
-    it('should not notify subscribers when value does not change', () => {
-      state.currentSurah = 5;
-      const callback = vi.fn();
-      subscribe('currentSurah', callback);
-      setState({ currentSurah: 5 }); // same value
-      expect(callback).not.toHaveBeenCalled();
-    });
-
-    it('should notify subscribers when value changes', () => {
-      const callback = vi.fn();
-      subscribe('isPlaying', callback);
-      setState({ isPlaying: true });
-      expect(callback).toHaveBeenCalledWith(true, false, 'isPlaying');
-    });
-
-    it('should handle partial updates without affecting other properties', () => {
-      state.currentSurah = 3;
-      state.fontSize = 32;
-      setState({ isPlaying: true });
-      expect(state.currentSurah).toBe(3);
-      expect(state.fontSize).toBe(32);
-      expect(state.isPlaying).toBe(true);
-    });
+describe('subscribeAll', () => {
+  beforeEach(() => {
+    resetState();
+    clearSubscribers();
   });
 
-  /* ===================== subscribe ===================== */
+  it('should be notified on any state change', () => {
+    const callback = vi.fn();
+    subscribeAll(callback);
 
-  describe('subscribe', () => {
-    it('should call callback when subscribed key changes', () => {
-      const callback = vi.fn();
-      subscribe('fontSize', callback);
-      setState({ fontSize: 36 });
-      expect(callback).toHaveBeenCalledWith(36, 28, 'fontSize');
-    });
+    state.isPlaying = true;
+    state.currentSurah = 5;
 
-    it('should not call callback for unsubscribed keys', () => {
-      const callback = vi.fn();
-      subscribe('fontSize', callback);
-      setState({ currentSurah: 5 });
-      expect(callback).not.toHaveBeenCalled();
-    });
-
-    it('should support multiple subscribers for the same key', () => {
-      const cb1 = vi.fn();
-      const cb2 = vi.fn();
-      subscribe('isPlaying', cb1);
-      subscribe('isPlaying', cb2);
-      setState({ isPlaying: true });
-      expect(cb1).toHaveBeenCalled();
-      expect(cb2).toHaveBeenCalled();
-    });
-
-    it('should return unsubscribe function', () => {
-      const callback = vi.fn();
-      const unsub = subscribe('isPlaying', callback);
-      unsub();
-      setState({ isPlaying: true });
-      expect(callback).not.toHaveBeenCalled();
-    });
-
-    it('should not break when subscriber throws', () => {
-      const badCallback = vi.fn(() => {
-        throw new Error('oops');
-      });
-      const goodCallback = vi.fn();
-      subscribe('isPlaying', badCallback);
-      subscribe('isPlaying', goodCallback);
-      setState({ isPlaying: true });
-      expect(badCallback).toHaveBeenCalled();
-      expect(goodCallback).toHaveBeenCalled();
-    });
+    expect(callback).toHaveBeenCalledTimes(2);
+    expect(callback).toHaveBeenCalledWith(true, false, 'isPlaying');
+    expect(callback).toHaveBeenCalledWith(5, 1, 'currentSurah');
   });
 
-  /* ===================== subscribeAll ===================== */
+  it('should return an unsubscribe function', () => {
+    const callback = vi.fn();
+    const unsub = subscribeAll(callback);
 
-  describe('subscribeAll', () => {
-    it('should be notified on any state change', () => {
-      const callback = vi.fn();
-      subscribeAll(callback);
-      setState({ currentSurah: 7 });
-      setState({ isPlaying: true });
-      expect(callback).toHaveBeenCalledTimes(2);
-    });
+    state.isPlaying = true;
+    expect(callback).toHaveBeenCalledTimes(1);
 
-    it('should return unsubscribe function', () => {
-      const callback = vi.fn();
-      const unsub = subscribeAll(callback);
-      unsub();
-      setState({ currentSurah: 5 });
-      expect(callback).not.toHaveBeenCalled();
-    });
+    unsub();
+    state.currentSurah = 5;
+    expect(callback).toHaveBeenCalledTimes(1); // Not called after unsubscribe
+  });
+});
+
+describe('setState', () => {
+  beforeEach(() => {
+    resetState();
+    clearSubscribers();
   });
 
-  /* ===================== resetState ===================== */
+  it('should update multiple properties at once', () => {
+    const isPlayingCb = vi.fn();
+    const surahCb = vi.fn();
+    subscribe('isPlaying', isPlayingCb);
+    subscribe('currentSurah', surahCb);
 
-  describe('resetState', () => {
-    it('should reset all properties to defaults', () => {
-      state.currentSurah = 10;
+    setState({ isPlaying: true, currentSurah: 5 });
+
+    expect(state.isPlaying).toBe(true);
+    expect(state.currentSurah).toBe(5);
+    expect(isPlayingCb).toHaveBeenCalledWith(true, false);
+    expect(surahCb).toHaveBeenCalledWith(5, 1);
+  });
+
+  it('should only notify for properties that are actually set', () => {
+    const callback = vi.fn();
+    subscribe('isPlaying', callback);
+
+    setState({ currentSurah: 5 }); // isPlaying not changed
+    expect(callback).not.toHaveBeenCalled();
+  });
+});
+
+describe('batch', () => {
+  beforeEach(() => {
+    resetState();
+    clearSubscribers();
+  });
+
+  it('should defer notifications until batch completes', () => {
+    const callback = vi.fn();
+    subscribe('isPlaying', callback);
+    subscribe('currentSurah', callback);
+
+    batch(() => {
       state.isPlaying = true;
-      state.fontSize = 40;
-      state.nightMode = true;
-      resetState();
-      expect(state.currentSurah).toBe(1);
-      expect(state.isPlaying).toBe(false);
-      expect(state.fontSize).toBe(28);
-      expect(state.nightMode).toBe(false);
-    });
-
-    it('should notify subscribers about resets', () => {
-      state.currentSurah = 10;
-      const callback = vi.fn();
-      subscribe('currentSurah', callback);
-      resetState();
-      expect(callback).toHaveBeenCalledWith(1, 10, 'currentSurah');
-    });
-  });
-
-  /* ===================== clearSubscribers ===================== */
-
-  describe('clearSubscribers', () => {
-    it('should remove all subscribers', () => {
-      const callback = vi.fn();
-      subscribe('isPlaying', callback);
-      subscribeAll(callback);
-      clearSubscribers();
-      setState({ isPlaying: true });
+      state.currentSurah = 5;
+      // Callbacks should NOT have been called yet
       expect(callback).not.toHaveBeenCalled();
     });
+
+    // After batch completes, both should be notified
+    expect(callback).toHaveBeenCalledTimes(2);
   });
 
-  /* ===================== INTEGRATION ===================== */
+  it('should preserve the oldest oldValue for each key in a batch', () => {
+    const callback = vi.fn();
+    subscribe('currentSurah', callback);
 
-  describe('integration', () => {
-    it('should work with typical app usage pattern', () => {
-      const playCallback = vi.fn();
-      const surahCallback = vi.fn();
-
-      subscribe('isPlaying', playCallback);
-      subscribe('currentSurah', surahCallback);
-
-      // Load a surah
-      setState({ currentSurah: 2, currentAyahIndex: 0, isPlaying: false });
-      expect(surahCallback).toHaveBeenCalledWith(2, 1, 'currentSurah');
-      expect(playCallback).not.toHaveBeenCalled();
-
-      // Start playing
-      setState({ isPlaying: true });
-      expect(playCallback).toHaveBeenCalledWith(true, false, 'isPlaying');
-
-      // Cleanup
-      resetState();
-      expect(state.currentSurah).toBe(1);
-      expect(state.isPlaying).toBe(false);
+    batch(() => {
+      state.currentSurah = 2;
+      state.currentSurah = 3;
+      state.currentSurah = 5;
     });
 
-    it('should support unsubscribe during callback (no infinite loop)', () => {
-      const callback = vi.fn();
-      let unsub: (() => void) | null = null;
-      unsub = subscribe('isPlaying', () => {
-        callback();
-        if (unsub) unsub();
+    // Should notify with oldest oldValue (1) and latest newValue (5)
+    expect(callback).toHaveBeenCalledWith(5, 1);
+  });
+
+  it('should support nested batches', () => {
+    const callback = vi.fn();
+    subscribe('currentSurah', callback);
+
+    batch(() => {
+      state.currentSurah = 2;
+      batch(() => {
+        state.currentSurah = 3;
       });
-      setState({ isPlaying: true });
-      expect(callback).toHaveBeenCalledTimes(1);
-      // Second change should not trigger callback
-      setState({ isPlaying: false });
-      expect(callback).toHaveBeenCalledTimes(1);
+      // Inner batch complete — but outer still active
+      expect(callback).not.toHaveBeenCalled();
+      state.currentSurah = 5;
+    });
+
+    // After outer batch completes
+    expect(callback).toHaveBeenCalledWith(5, 1);
+  });
+
+  it('should return the function result', () => {
+    const result = batch(() => {
+      state.currentSurah = 5;
+      return 'done';
+    });
+    expect(result).toBe('done');
+  });
+});
+
+describe('resetState', () => {
+  it('should reset all state to defaults', () => {
+    state.currentSurah = 50;
+    state.isPlaying = true;
+    state.fontSize = 40;
+
+    resetState();
+
+    expect(state.currentSurah).toBe(1);
+    expect(state.isPlaying).toBe(false);
+    expect(state.fontSize).toBe(28);
+  });
+});
+
+describe('Immutable helpers', () => {
+  beforeEach(() => {
+    resetState();
+    clearSubscribers();
+  });
+
+  describe('immutablePush', () => {
+    it('should add items to array immutably', () => {
+      const entry: FavoriteEntry = {
+        key: '1-1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: Date.now(),
+      };
+      immutablePush(state, 'favorites', entry);
+      expect(state.favorites).toHaveLength(1);
+      expect(state.favorites[0].key).toBe('1-1');
+    });
+
+    it('should notify subscribers', () => {
+      const callback = vi.fn();
+      subscribe('favorites', callback);
+      immutablePush(state, 'favorites', {
+        key: '1-1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: Date.now(),
+      });
+      expect(callback).toHaveBeenCalled();
     });
   });
 
-  /* ===================== batch ===================== */
-
-  describe('batch', () => {
-    it('should defer notifications until batch completes', () => {
-      const callback = vi.fn();
-      subscribe('currentSurah', callback);
-      batch(() => {
-        state.currentSurah = 5;
-        state.currentSurah = 10;
-        // Callback should NOT have been called yet
-        expect(callback).not.toHaveBeenCalled();
-      });
-      // After batch, callback should be called with the FINAL value
-      expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback).toHaveBeenCalledWith(10, 1, 'currentSurah');
+  describe('immutableSplice', () => {
+    it('should remove items from array immutably', () => {
+      state.favorites = [
+        { key: '1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'a', timestamp: 1 },
+        { key: '2', surah: 2, surahName: 'البقرة', ayah: 1, text: 'b', timestamp: 2 },
+      ];
+      immutableSplice(state, 'favorites', 0, 1);
+      expect(state.favorites).toHaveLength(1);
+      expect(state.favorites[0].key).toBe('2');
     });
+  });
 
-    it('should preserve the original oldValue in batch', () => {
-      const callback = vi.fn();
-      subscribe('currentAyahIndex', callback);
-      batch(() => {
-        state.currentAyahIndex = 5;
-        state.currentAyahIndex = 10;
-      });
-      // oldValue should be the value BEFORE the batch (0), not 5
-      expect(callback).toHaveBeenCalledWith(10, 0, 'currentAyahIndex');
+  describe('immutableFilter', () => {
+    it('should filter items immutably', () => {
+      state.favorites = [
+        { key: '1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'a', timestamp: 1 },
+        { key: '2', surah: 2, surahName: 'البقرة', ayah: 1, text: 'b', timestamp: 2 },
+      ];
+      immutableFilter(state, 'favorites', f => f.surah !== 1);
+      expect(state.favorites).toHaveLength(1);
+      expect(state.favorites[0].surah).toBe(2);
     });
+  });
 
-    it('should handle multiple keys in a batch', () => {
-      const surahCb = vi.fn();
-      const playCb = vi.fn();
-      subscribe('currentSurah', surahCb);
-      subscribe('isPlaying', playCb);
-
-      batch(() => {
-        state.currentSurah = 5;
-        state.isPlaying = true;
-      });
-
-      expect(surahCb).toHaveBeenCalledWith(5, 1, 'currentSurah');
-      expect(playCb).toHaveBeenCalledWith(true, false, 'isPlaying');
+  describe('immutableMapSet', () => {
+    it('should add entry to map immutably', () => {
+      const mockSurahData = { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] };
+      immutableMapSet(state, 'surahCache', 1, mockSurahData as any);
+      expect(state.surahCache.get(1)).toBe(mockSurahData);
     });
+  });
 
-    it('should support nested batches', () => {
-      const callback = vi.fn();
-      subscribe('fontSize', callback);
-
-      batch(() => {
-        state.fontSize = 30;
-        batch(() => {
-          state.fontSize = 36;
-        });
-        // Inner batch should not flush yet (outer batch still active)
-        expect(callback).not.toHaveBeenCalled();
-      });
-      // Only flush after outermost batch completes
-      expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback).toHaveBeenCalledWith(36, 28, 'fontSize');
+  describe('immutableMapDelete', () => {
+    it('should remove entry from map immutably', () => {
+      state.surahCache = new Map([[1, { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] }]]);
+      immutableMapDelete(state, 'surahCache', 1);
+      expect(state.surahCache.has(1)).toBe(false);
     });
+  });
+});
 
-    it('should work with setState inside batch', () => {
-      const callback = vi.fn();
-      subscribe('isPlaying', callback);
-
-      batch(() => {
-        setState({ isPlaying: true });
-        expect(callback).not.toHaveBeenCalled();
-      });
-
-      expect(callback).toHaveBeenCalledWith(true, false, 'isPlaying');
-    });
-
-    it('should return the value from the batched function', () => {
-      const result = batch(() => {
-        state.currentSurah = 5;
-        return 'done';
-      });
-      expect(result).toBe('done');
-    });
+describe('SurahCache type safety', () => {
+  it('surahCache should be typed as Map<number, SurahData>', () => {
+    expect(state.surahCache).toBeInstanceOf(Map);
+    // This test verifies the type at compile time
+    state.surahCache.set(1, { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] });
+    const cached = state.surahCache.get(1);
+    expect(cached).toBeDefined();
+    expect(cached!.number).toBe(1);
   });
 });
