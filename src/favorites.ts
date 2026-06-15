@@ -1,3 +1,11 @@
+/**
+ * @module favorites
+ * @description Favorites and bookmarks management for the Quran app. Handles
+ * loading, saving, toggling, rendering, and exporting favorite ayahs, as well
+ * as setting and navigating to a single bookmark. Export supports both plain
+ * text and JSON formats.
+ */
+
 import { state, immutablePush, immutableSplice, FavoriteEntry, BookmarkEntry } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
@@ -6,6 +14,9 @@ import { hapticFeedback, copyToClipboard } from './utils.js';
 import { __ } from './i18n.js';
 import { loadSurah } from './surah-loader.js';
 import { favoritesEmptyMessage, favoriteMeta } from './templates.js';
+
+/* ===================== INTERFACES ===================== */
+
 
 /* ===================== FAVORITES ===================== */
 
@@ -129,10 +140,7 @@ export function renderFavorites(): void {
         const ayah = target.dataset['ayah'] || '';
         const shareText = `${text} — ${surahName} — ${__('ayah')} ${ayah}`;
         if (navigator.share) {
-          navigator.share({ title: __('app_title'), text: shareText }).catch(
-            // eslint-disable-next-line no-empty-function
-            () => {},
-          );
+          navigator.share({ title: __('app_title'), text: shareText }).catch(() => { /* noop */ });
         } else {
           copyToClipboard(shareText);
           showToast(__('copied'), 'success');
@@ -205,6 +213,14 @@ function exportFavoritesJson(): void {
   showToast(__('favorites_exported_json'), 'success');
 }
 
+/**
+ * Wire up the favorites export buttons (text and JSON).
+ * Uses clone-and-replace to remove any previously bound listeners before
+ * attaching fresh ones, preventing duplicate triggers.
+ *
+ * @example
+ * wireFavoritesExport(); // call after openFavorites()
+ */
 export function wireFavoritesExport(): void {
   const textBtn = document.getElementById('favExportTextBtn');
   const jsonBtn = document.getElementById('favExportJsonBtn');
