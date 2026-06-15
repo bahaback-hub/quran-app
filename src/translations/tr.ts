@@ -282,4 +282,17 @@ export default {
 
   settings_imported: '{0} ayar içe aktarıldı',
   failed_ayah: 'Başarısız ayet',
+
+  // === Çevrimdışı ===
+  offline_banner: '🔌 İnternet bağlantısı yok — bazı özellikler çalışmayabilir',
+  a11y_you_are_offline: 'Çevrimdışısınız',
+  a11y_you_are_online: 'İnternet bağlantısı geri yüklendi',
+
+  // === Erişilebilirlik ===
+  a11y_panel_opened: '{0} açıldı',
+  a11y_panel_closed: '{0} kapatıldı',
+  a11y_skip_to_content: 'İçeriğe atla',
+  a11y_offline_notice: 'Çevrimdışı bildirimi',
+  a11y_reading_progress: 'Okuma ilerlemesi',
+  reduced_motion_enabled: 'Azaltılmış hareket etkin',
 };
