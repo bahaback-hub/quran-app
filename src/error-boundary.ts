@@ -20,6 +20,9 @@ import { errorRecoveryOverlay } from './templates.js';
 
 const MAX_LOG_ENTRIES = 50;
 const TOAST_DEBOUNCE_MS = 3000;
+const STORAGE_KEY = 'error_log';
+const STORAGE_MAX_ENTRIES = 100;
+const REPORT_THRESHOLD = 3; // Same error occurring 3+ times = pattern
 
 /* ===================== TYPES ===================== */
 
@@ -54,6 +57,8 @@ function logError(entry: Omit<ErrorLogEntry, 'timestamp'>): void {
   }
   // Structured console output
   console.error(`[ErrorBoundary][${entry.type}]`, entry.message, entry.stack || '');
+  // Persist to localStorage for cross-session diagnostics
+  persistErrorLog();
 }
 
 /**
@@ -68,6 +73,80 @@ export function getErrorLog(): ErrorLogEntry[] {
  */
 export function clearErrorLog(): void {
   errorLog.length = 0;
+}
+
+/**
+ * Persist the error log to localStorage for cross-session diagnostics.
+ * Capped at STORAGE_MAX_ENTRIES to avoid unbounded growth.
+ */
+function persistErrorLog(): void {
+  try {
+    const stored: ErrorLogEntry[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    stored.push(...errorLog);
+    const trimmed = stored.slice(-STORAGE_MAX_ENTRIES);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+  } catch {
+    // Storage full or unavailable — non-critical
+  }
+}
+
+/**
+ * Get the persisted error log from localStorage.
+ */
+export function getPersistedErrorLog(): ErrorLogEntry[] {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Clear the persisted error log from localStorage.
+ */
+export function clearPersistedErrorLog(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // noop
+  }
+}
+
+/**
+ * Detect error patterns — errors that occur REPORT_THRESHOLD+ times.
+ * Returns a map of error message → count for recurring errors.
+ */
+export function detectErrorPatterns(): Map<string, number> {
+  const allErrors = [...getPersistedErrorLog(), ...errorLog];
+  const counts = new Map<string, number>();
+  for (const entry of allErrors) {
+    const key = entry.message.substring(0, 100); // Normalize by first 100 chars
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  // Only return patterns above threshold
+  for (const [key, count] of counts) {
+    if (count < REPORT_THRESHOLD) {
+      counts.delete(key);
+    }
+  }
+  return counts;
+}
+
+/**
+ * Export the full error log as a JSON string for bug reports.
+ * Includes both in-memory and persisted errors.
+ */
+export function exportErrorLog(): string {
+  const allErrors = [...getPersistedErrorLog(), ...errorLog];
+  return JSON.stringify({
+    exportedAt: new Date().toISOString(),
+    userAgent: navigator.userAgent,
+    url: location.href,
+    online: navigator.onLine,
+    errorCount: allErrors.length,
+    patterns: Object.fromEntries(detectErrorPatterns()),
+    errors: allErrors,
+  }, null, 2);
 }
 
 /* ===================== USER NOTIFICATIONS ===================== */

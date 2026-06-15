@@ -21,7 +21,7 @@ vi.mock('../ui.js', () => ({
   showToast: vi.fn(),
 }));
 
-import { initErrorBoundary, destroyErrorBoundary, getErrorLog, clearErrorLog } from '../error-boundary.js';
+import { initErrorBoundary, destroyErrorBoundary, getErrorLog, clearErrorLog, getPersistedErrorLog, clearPersistedErrorLog, detectErrorPatterns, exportErrorLog } from '../error-boundary.js';
 
 /** Helper to clean up recovery overlays from the DOM. */
 function cleanupOverlays() {
@@ -511,5 +511,73 @@ describe('recovery overlay', () => {
     const overlay = document.getElementById('errorRecoveryOverlay');
     expect(overlay).not.toBeNull();
     expect(overlay!.parentElement).toBe(document.body);
+  });
+});
+
+describe('Error Boundary — Persistence & Export', () => {
+  beforeEach(() => {
+    initErrorBoundary();
+    clearErrorLog();
+    clearPersistedErrorLog();
+    cleanupOverlays();
+  });
+
+  afterEach(() => {
+    destroyErrorBoundary();
+    clearErrorLog();
+    clearPersistedErrorLog();
+    cleanupOverlays();
+  });
+
+  it('should persist errors to localStorage', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    window.onerror!('Test persist error', 'test.js', 1, 1, new Error('persist'));
+    errorSpy.mockRestore();
+
+    const persisted = getPersistedErrorLog();
+    expect(persisted.length).toBeGreaterThanOrEqual(1);
+    expect(persisted[persisted.length - 1].message).toBe('Test persist error');
+  });
+
+  it('should clear persisted error log', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    window.onerror!('Will be cleared', 'test.js', 1, 1, new Error('clear'));
+    errorSpy.mockRestore();
+
+    clearPersistedErrorLog();
+    expect(getPersistedErrorLog().length).toBe(0);
+  });
+
+  it('should detect error patterns when same error occurs 3+ times', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    for (let i = 0; i < 4; i++) {
+      window.onerror!('Repeating error message', 'test.js', 1, 1, new Error('repeat'));
+    }
+    errorSpy.mockRestore();
+
+    const patterns = detectErrorPatterns();
+    let found = false;
+    for (const [key, count] of patterns) {
+      if (key.includes('Repeating error message')) {
+        expect(count).toBeGreaterThanOrEqual(3);
+        found = true;
+      }
+    }
+    expect(found).toBe(true);
+  });
+
+  it('should export error log as valid JSON with metadata', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    window.onerror!('Export test error', 'test.js', 1, 1, new Error('export'));
+    errorSpy.mockRestore();
+
+    const exported = exportErrorLog();
+    const parsed = JSON.parse(exported);
+    expect(parsed).toHaveProperty('exportedAt');
+    expect(parsed).toHaveProperty('userAgent');
+    expect(parsed).toHaveProperty('url');
+    expect(parsed).toHaveProperty('errorCount');
+    expect(parsed).toHaveProperty('errors');
+    expect(parsed.errorCount).toBeGreaterThanOrEqual(1);
   });
 });

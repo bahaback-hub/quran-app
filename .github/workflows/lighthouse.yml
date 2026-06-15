@@ -1,0 +1,59 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.14.x
+
+      - name: Run Lighthouse CI
+        run: |
+          lhci autorun \
+            --collect.url="http://localhost:4173/" \
+            --collect.numberOfRuns=3 \
+            --collect.startServerCommand="npm run preview" \
+            --assert.preset=lighthouse:recommended \
+            --assert.assertions.first-contentful-paint="off" \
+            --assert.assertions.interactive="off" \
+            --assert.assertions.total-blocking-time="warn;maxNumericValue;400" \
+            --assert.assertions.cumulative-layout-shift="error;maxNumericValue;0.1" \
+            --assert.assertions.speed-index="warn;maxNumericValue;4000" \
+            --assert.assertions.largest-contentful-paint="warn;maxNumericValue;3000" \
+            --upload.target="temporary-public-storage" \
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/
+          retention-days: 14
