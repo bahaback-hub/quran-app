@@ -1,7 +1,3 @@
-dist/
-node_modules/
-android/
-coverage/
-*.min.js
-*.min.css
-package-lock.json
+# Don't format CSS files that are already in the repo
+src/css/
+styles.css
