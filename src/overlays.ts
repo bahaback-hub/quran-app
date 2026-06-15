@@ -37,7 +37,7 @@ const adhkarNotificationHTML = `
 /* ===================== ADHKAR ADD OVERLAY ===================== */
 
 const adhkarAddOverlayHTML = `
-<div class="adhkar-add-overlay hidden" id="adhkarAddOverlay" aria-label="إضافة ذكر جديد">
+<div class="adhkar-add-overlay hidden" id="adhkarAddOverlay" aria-label="إضافة ذكر جديد" aria-modal="true">
   <div class="adhkar-add-inner">
     <div class="adhkar-add-header">
       <h3>📝 إضافة ذكر جديد</h3>
@@ -69,7 +69,7 @@ const adhkarAddOverlayHTML = `
 /* ===================== PRESENTATION OVERLAY ===================== */
 
 const presentationOverlayHTML = `
-<div class="presentation-overlay hidden" id="presentationOverlay" role="dialog" aria-label="وضع العرض">
+<div class="presentation-overlay hidden" id="presentationOverlay" role="dialog" aria-label="وضع العرض" aria-modal="true">
   <div class="presentation-inner">
     <div class="presentation-header">
       <button class="presentation-header-btn" id="presentationPrevBtn" aria-label="الآية السابقة">⏮</button>
@@ -111,7 +111,7 @@ const azanHTML = `
 /* ===================== SURAH SECRETS OVERLAY ===================== */
 
 const surahSecretsOverlayHTML = `
-<div class="surah-secrets-overlay hidden" id="surahSecretsOverlay" role="dialog" aria-label="سرّ السورة">
+<div class="surah-secrets-overlay hidden" id="surahSecretsOverlay" role="dialog" aria-label="سرّ السورة" aria-modal="true">
   <div class="surah-secrets-overlay-inner">
     <div class="surah-secrets-overlay-header">
       <h3 id="surahSecretsTitle">🌟 سرّ السورة</h3>
@@ -126,7 +126,7 @@ const surahSecretsOverlayHTML = `
 /* ===================== AYAH MODAL ===================== */
 
 const ayahModalHTML = `
-<div class="ayah-modal hidden" id="ayahModal" role="dialog" aria-label="تفاصيل الآية">
+<div class="ayah-modal hidden" id="ayahModal" role="dialog" aria-label="تفاصيل الآية" aria-modal="true">
   <div class="ayah-modal-inner">
     <div class="ayah-modal-header">
       <button class="ayah-modal-close-btn" id="ayahModalCloseBtn">✖ إغلاق</button>
@@ -186,7 +186,7 @@ const ayahModalHTML = `
 /* ===================== QIBLA OVERLAY ===================== */
 
 const qiblaOverlayHTML = `
-<div class="qibla-overlay hidden" id="qiblaOverlay" role="dialog" aria-label="اتجاه القبلة">
+<div class="qibla-overlay hidden" id="qiblaOverlay" role="dialog" aria-label="اتجاه القبلة" aria-modal="true">
   <div class="qibla-panel">
     <h2>🧭 اتجاه القبلة</h2>
     <div class="qibla-compass" id="qiblaCompass">
@@ -207,7 +207,7 @@ const qiblaOverlayHTML = `
 /* ===================== READING STATS PANEL ===================== */
 
 const readingStatsPanelHTML = `
-<div class="settings-panel hidden" id="readingStatsPanel" role="dialog" aria-label="إحصائيات القراءة">
+<div class="settings-panel hidden" id="readingStatsPanel" role="dialog" aria-label="إحصائيات القراءة" aria-modal="true">
   <div class="settings-panel-inner">
     <div class="settings-header">
       <h3>📊 إحصائيات القراءة</h3>
