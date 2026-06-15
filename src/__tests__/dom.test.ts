@@ -103,7 +103,9 @@ describe('cacheDom', () => {
   it('should populate dom properties with found elements', () => {
     const mockElement = document.createElement('div');
     getElementByIdSpy.mockImplementation((id: string) => {
-      if (id === 'surahContent') return mockElement;
+      if (id === 'surahContent') {
+        return mockElement;
+      }
       return null;
     });
 
@@ -124,7 +126,9 @@ describe('cacheDom', () => {
   it('should handle HTMLSelectElement lookups', () => {
     const mockSelect = document.createElement('select');
     getElementByIdSpy.mockImplementation((id: string) => {
-      if (id === 'surahSelect') return mockSelect;
+      if (id === 'surahSelect') {
+        return mockSelect;
+      }
       return null;
     });
 
@@ -135,7 +139,9 @@ describe('cacheDom', () => {
   it('should handle HTMLInputElement lookups', () => {
     const mockInput = document.createElement('input');
     getElementByIdSpy.mockImplementation((id: string) => {
-      if (id === 'searchInput') return mockInput;
+      if (id === 'searchInput') {
+        return mockInput;
+      }
       return null;
     });
 
@@ -146,7 +152,9 @@ describe('cacheDom', () => {
   it('should handle HTMLAudioElement lookups', () => {
     const mockAudio = document.createElement('audio');
     getElementByIdSpy.mockImplementation((id: string) => {
-      if (id === 'audioPlayer') return mockAudio;
+      if (id === 'audioPlayer') {
+        return mockAudio;
+      }
       return null;
     });
 
@@ -170,7 +178,9 @@ describe('cacheDom', () => {
   it('should reset previously found elements to null if they are no longer in DOM', () => {
     const mockElement = document.createElement('div');
     getElementByIdSpy.mockImplementation((id: string) => {
-      if (id === 'surahContent') return mockElement;
+      if (id === 'surahContent') {
+        return mockElement;
+      }
       return null;
     });
     cacheDom();
