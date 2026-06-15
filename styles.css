@@ -15,6 +15,7 @@
 @import './src/css/responsive.css';
 @import './src/css/accessibility.css';
 @import './src/css/capacitor.css';
+@import './src/css/help.css';
 
 /* Virtual Scrolling — chunk containers for windowed rendering */
 .virtual-chunk {
