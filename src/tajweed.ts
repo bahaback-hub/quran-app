@@ -121,7 +121,9 @@ function ruleToClassName(rule: TajweedRule): string {
  * @returns HTML string with CSS-classed spans.
  */
 export function tajweedColorWord(word: string, wordOffset: number, colorMap: Map<number, TajweedRule>): string {
-  if (!colorMap || colorMap.size === 0) return word;
+  if (!colorMap || colorMap.size === 0) {
+    return word;
+  }
 
   let result = '';
   let i = 0;
