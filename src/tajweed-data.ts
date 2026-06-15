@@ -31,7 +31,9 @@ function key(surah: number, ayah: number): string {
  * Data is based on cpfair/quran-tajweed's output.
  */
 export async function loadTajweedAnnotations(): Promise<Map<string, TajweedAnnotation[]>> {
-  if (_annotations) return _annotations;
+  if (_annotations) {
+    return _annotations;
+  }
 
   try {
     const res = await fetch('data/tajweed.json');
@@ -53,7 +55,9 @@ export async function loadTajweedAnnotations(): Promise<Map<string, TajweedAnnot
  * Get tajweed annotations for a specific ayah.
  */
 export function getAyahAnnotations(surah: number, ayah: number): TajweedAnnotation[] {
-  if (!_annotations) return [];
+  if (!_annotations) {
+    return [];
+  }
   return _annotations.get(key(surah, ayah)) || [];
 }
 
