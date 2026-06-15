@@ -1,5 +1,4 @@
 import { __ } from './i18n.js';
-import { dom } from './dom.js';
 import { storage } from './storage.js';
 
 interface OnboardingStep {
