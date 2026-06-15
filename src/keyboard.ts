@@ -29,8 +29,12 @@ export function initKeyboardShortcuts(): void {
     ) {
       if (e.key === 'Escape') {
         const target = e.target as HTMLElement;
-        if (target && typeof target.blur === 'function') target.blur();
-        if (dom.searchResults) dom.searchResults.style.display = 'none';
+        if (target && typeof target.blur === 'function') {
+          target.blur();
+        }
+        if (dom.searchResults) {
+          dom.searchResults.style.display = 'none';
+        }
       }
       return;
     }
@@ -117,15 +121,21 @@ export function initKeyboardShortcuts(): void {
         break;
       case 'Escape':
         // If presentation mode is active, let the presentation's own handler manage Escape
-        if (state.presentationMode) return;
+        if (state.presentationMode) {
+          return;
+        }
         closeSettings();
         closeFavorites();
         if (dom.surahSecretsOverlay) {
           dom.surahSecretsOverlay.classList.add('hidden');
           dom.surahSecretsOverlay.style.display = 'none';
         }
-        if (dom.searchResults) dom.searchResults.style.display = 'none';
-        if (dom.shareMenu) dom.shareMenu.classList.remove('show');
+        if (dom.searchResults) {
+          dom.searchResults.style.display = 'none';
+        }
+        if (dom.shareMenu) {
+          dom.shareMenu.classList.remove('show');
+        }
         closeTafsir();
         if (dom.player && !dom.player.classList.contains('collapsed')) {
           dom.player.classList.add('collapsed');
