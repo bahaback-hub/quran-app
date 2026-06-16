@@ -271,7 +271,9 @@ describe('settings — additional coverage', () => {
       const { initSystemThemeDetection } = await import('../settings.js');
       initSystemThemeDetection();
       expect(checkbox.checked).toBe(true);
-      expect(toggleEl.getAttribute('aria-checked')).toBe('true');
+      // aria-checked is NOT set on #themeToggle (role="group" doesn't allow it);
+      // the individual theme-btn buttons use aria-pressed instead.
+      expect(toggleEl.getAttribute('aria-checked')).toBeNull();
 
       mockDom.themeToggle = null;
     });
@@ -411,7 +413,9 @@ describe('settings — additional coverage', () => {
       if (changeHandler) {
         changeHandler({ matches: true } as MediaQueryListEvent);
         expect(checkbox.checked).toBe(true);
-        expect(toggleEl.getAttribute('aria-checked')).toBe('true');
+        // aria-checked is NOT set on #themeToggle (role="group" doesn't allow it);
+        // the individual theme-btn buttons use aria-pressed instead.
+        expect(toggleEl.getAttribute('aria-checked')).toBeNull();
       }
 
       mockDom.themeToggle = null;

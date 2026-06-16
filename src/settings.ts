@@ -157,9 +157,9 @@ export function initSystemThemeDetection(): void {
     if (checkbox) {
       checkbox.checked = e.matches;
     }
-    if (dom.themeToggle) {
-      dom.themeToggle.setAttribute('aria-checked', String(e.matches));
-    }
+    // Note: do NOT set aria-checked on #themeToggle — it has role="group"
+    // which does not allow aria-checked. The individual theme-btn buttons
+    // use aria-pressed which is the correct attribute for toggle buttons.
   }
 
   // Apply initial system preference
