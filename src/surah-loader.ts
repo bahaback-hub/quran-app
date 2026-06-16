@@ -96,7 +96,7 @@ export async function loadSurahList(): Promise<void> {
     dom.surahSelect.innerHTML = surahSelectLoading();
   }
   try {
-    const data: { data?: unknown[] } = await apiFetch('/surah', { silent: true }) as { data?: unknown[] };
+    const data: { data?: SurahInfo[] } = await apiFetch('/surah', { silent: true }) as { data?: SurahInfo[] };
     if (data?.data) {
       state.surahList = data.data;
       state.surahOffsets = null;
@@ -108,7 +108,7 @@ export async function loadSurahList(): Promise<void> {
     /* fall through to local fallback */
   }
   try {
-    const localData = await jsonFetch('data/surah-list.json', { silent: true }) as unknown[];
+    const localData = await jsonFetch('data/surah-list.json', { silent: true }) as SurahInfo[];
     if (localData && localData.length === CONFIG.SURAH_COUNT) {
       state.surahList = localData;
       state.surahOffsets = null;
@@ -307,7 +307,7 @@ async function loadApiAudio(
     if (!data?.ayahs?.length) {
       throw new Error(__('no_audio_data'));
     }
-    const audios: (string | null)[] = data.ayahs.map((a: AyahEntry) => a.audio);
+    const audios: (string | null)[] = data.ayahs.map((a: AyahEntry) => a.audio ?? null);
     if (_loadCounter !== currentLoad) {
       return null;
     }
@@ -445,7 +445,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       signal,
       errorMsg: __('failed_load_surah'),
     }) as { data?: SurahTextData };
-    const textData: SurahTextData = textJson?.data;
+    const textData: SurahTextData = textJson?.data as SurahTextData;
     if (!textData?.ayahs?.length) {
       throw new Error(__('invalid_surah_data'));
     }
@@ -622,13 +622,13 @@ const VIRTUAL_CHUNK_SIZE = 20;
 const VISIBLE_WINDOW_CHUNKS = 2; // chunks to keep visible above and below viewport
 let _ayahsReadyCount = 0;
 let _virtualObserver: IntersectionObserver | null = null;
-let _scrollObserver: IntersectionObserver | null = null;
+const _scrollObserver: IntersectionObserver | null = null;
 
 /** Cached heights of rendered chunks for accurate spacer sizing. */
 const _chunkHeightCache = new Map<string, number>();
 
 /** Currently rendered chunk ranges: Set of chunk indices currently in DOM. */
-let _renderedChunks = new Set<number>();
+const _renderedChunks = new Set<number>();
 
 /** Total number of chunks for current surah. */
 let _totalChunks = 0;
@@ -714,7 +714,7 @@ function renderAyahChunk(textData: SurahTextData, start: number, count: number):
   // Find or create the chunk container
   const chunkIdx = getChunkIndex(start);
   const chunkId = `chunk-${chunkIdx}`;
-  let chunkEl = ayahsContainer.querySelector(`#${chunkId}`) as HTMLElement | null;
+  let chunkEl: HTMLElement | null = ayahsContainer.querySelector(`#${chunkId}`) as HTMLElement | null;
 
   if (chunkEl) {
     // Replace spacer with rendered content
@@ -723,13 +723,16 @@ function renderAyahChunk(textData: SurahTextData, start: number, count: number):
     chunkEl.style.height = '';
   } else {
     // Create new chunk element
-    chunkEl = document.createElement('div');
-    chunkEl.id = chunkId;
-    chunkEl.className = 'virtual-chunk';
-    chunkEl.dataset['chunk'] = String(chunkIdx);
-    chunkEl.innerHTML = html;
+    const newChunkEl: HTMLElement = document.createElement('div') as HTMLElement;
+    newChunkEl.id = chunkId;
+    newChunkEl.className = 'virtual-chunk';
+    newChunkEl.dataset['chunk'] = String(chunkIdx);
+    newChunkEl.innerHTML = html;
     // Insert in the correct order
-    insertChunkInOrder(ayahsContainer, chunkEl, chunkIdx);
+    // @ts-expect-error — document.createElement returns HTMLDivElement which is HTMLElement
+    // but TS6 infers Element due to global.d.ts augmentation
+    insertChunkInOrder(ayahsContainer, newChunkEl, chunkIdx);
+    chunkEl = newChunkEl;
   }
 
   // Cache the height of this chunk
@@ -898,7 +901,7 @@ function cleanupVirtualScrollObserver(): void {
   _scrollRafPending = false;
 }
 
-function ensureVirtualSentinel(textData: SurahTextData): void {
+function _ensureVirtualSentinel(textData: SurahTextData): void {
   cleanupVirtualObserver();
   // With windowed virtual scrolling, we no longer need the sentinel
   // All chunks are managed by the scroll observer instead.
