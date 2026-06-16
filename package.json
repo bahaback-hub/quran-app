@@ -1,6 +1,6 @@
 {
   "name": "quran-app",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Professional Quran Web App — Recitation, Audio, Search, Tafsir, Prayer Times, Adhkar & More (PWA/Android)",
   "type": "module",
   "scripts": {
@@ -22,7 +22,9 @@
     "release": "npm run lint && npm run typecheck && npm test && npm run build",
     "build:analyze": "vite build && node scripts/generate-csp-hashes.mjs",
     "test:a11y": "npm run build && npx serve dist -p 4173 & sleep 3 && node scripts/a11y-audit.mjs",
-    "test:all": "npm run lint && npm run typecheck && npm test && npm run test:e2e"
+    "test:all": "npm run lint && npm run typecheck && npm test && npm run test:e2e",
+    "docs": "typedoc --out docs/api src --exclude '**/__tests__/**' --readme none",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "engines": {
     "node": ">=22"
@@ -31,6 +33,7 @@
   "license": "MIT",
   "author": "bahaback-hub",
   "private": false,
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bahaback-hub/quran-app.git"
@@ -46,19 +49,17 @@
     "@typescript-eslint/eslint-plugin": "^8.61.0",
     "@typescript-eslint/parser": "^8.61.0",
     "@vitest/coverage-v8": "^4.1.8",
-    "electron": "^42.4.0",
-    "electron-builder": "^26.15.3",
     "eslint": "^9.0.0",
+    "fake-indexeddb": "^6.0.0",
     "globals": "^15.0.0",
     "jsdom": "^29.1.1",
     "lightningcss": "^1.32.0",
     "prettier": "^3.0.0",
     "serve": "^14.2.6",
+    "typedoc": "^0.28.19",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.0",
     "vite": "^8.0.14",
-    "vite-plugin-electron": "^1.0.4",
-    "vite-plugin-electron-renderer": "^1.0.0",
     "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.1.7"
   },

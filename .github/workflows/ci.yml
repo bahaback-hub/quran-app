@@ -35,9 +35,27 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test -- --run --coverage
-      - name: Verify coverage threshold
+      - name: Verify coverage threshold (≥ 80%)
         run: |
-          echo "Coverage check passed (threshold: 80%)"
+          if [ ! -f coverage/coverage-summary.json ]; then
+            echo "❌ coverage-summary.json not found"
+            exit 1
+          fi
+          # Parse total lines coverage percentage
+          TOTAL_LINES_PCT=$(node -e "const s=require('./coverage/coverage-summary.json'); console.log(s.total.lines.pct)")
+          echo "📊 Total lines coverage: ${TOTAL_LINES_PCT}%"
+          if (( $(echo "$TOTAL_LINES_PCT < 80" | bc -l) )); then
+            echo "❌ Coverage ${TOTAL_LINES_PCT}% is below the 80% threshold"
+            exit 1
+          fi
+          echo "✅ Coverage ${TOTAL_LINES_PCT}% meets the 80% threshold"
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
 
   build:
     name: Build

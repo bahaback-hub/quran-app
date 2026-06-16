@@ -123,10 +123,10 @@ export async function loadPrayerTimes(): Promise<void> {
   // ── Strategy 2: Remote API (requires internet) ──
   const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data: any = await prayerFetch(query, { errorMsg: __('failed_prayer') });
+    const data: import('./types.js').AladhanTimingsResponse = await prayerFetch(query, { errorMsg: __('failed_prayer') });
     if (data?.data?.timings) {
-      state.prayerTimes = data.data.timings;
+      // Aladhan returns Record<string,string>; cast to PrayerTimes for type-safe state
+      state.prayerTimes = data.data.timings as import('./types.js').PrayerTimes;
       storage.set('cached_prayer_times', {
         date: new Date().toISOString(),
         timings: state.prayerTimes,

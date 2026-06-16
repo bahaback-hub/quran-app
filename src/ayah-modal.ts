@@ -246,11 +246,10 @@ async function loadMeta(): Promise<void> {
   M.ayahModalPage!.textContent = __('page_loading');
   M.ayahModalJuz!.textContent = __('juz_loading');
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const d: any = await apiFetch(`/ayah/${current.surah}:${current.ayah}`, { silent: true });
+    const d: import('./types.js').QuranApiResponse<{ page: number | string; juz: number | string; number: number; audio: string; text: string }> = await apiFetch(`/ayah/${current.surah}:${current.ayah}`, { silent: true });
     if (d?.data) {
-      M.ayahModalPage!.textContent = `${__('page_info', d.data.page || '--')}`;
-      M.ayahModalJuz!.textContent = `${__('juz_info', d.data.juz || '--')}`;
+      M.ayahModalPage!.textContent = `${__('page_info', String(d.data.page || '--'))}`;
+      M.ayahModalJuz!.textContent = `${__('juz_info', String(d.data.juz || '--'))}`;
     }
   } catch {
     M.ayahModalPage!.textContent = `${__('page_info', '--')}`;
@@ -370,8 +369,7 @@ async function ensureModalAudio(): Promise<void> {
     return;
   }
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const d: any = await apiFetch(`/surah/${current.surah}/${reciterId}`, { silent: true });
+    const d: import('./types.js').QuranApiResponse<{ ayahs: { audio: string }[] }> = await apiFetch(`/surah/${current.surah}/${reciterId}`, { silent: true });
     if (d?.data?.ayahs) {
       ayahAudios = d.data.ayahs.map((a: { audio: string }) => a.audio);
       audioLoadSurah = current.surah;

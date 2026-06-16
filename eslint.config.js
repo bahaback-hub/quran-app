@@ -46,7 +46,8 @@ export default tseslint.config(
   {
     files: ['src/**/*.ts', 'src/**/*.js'],
     rules: {
-      'no-console': 'off', // Allow console in source files for structured logging
+      // Warn on console.log/info/debug in source; allow warn/error for user-facing messages
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
   {

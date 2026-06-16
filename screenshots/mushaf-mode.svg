@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="bgMushaf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#faf5f2"/>
+      <stop offset="100%" stop-color="#f5e8d0"/>
+    </linearGradient>
+    <pattern id="border" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <rect width="20" height="20" fill="#5c2e2e" opacity="0.05"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="500" fill="url(#bgMushaf)"/>
+  <rect x="60" y="40" width="680" height="420" fill="url(#border)" stroke="#5c2e2e" stroke-width="3" rx="12"/>
+  <rect x="70" y="50" width="660" height="400" fill="#fff" opacity="0.97" rx="8"/>
+  <rect x="320" y="60" width="160" height="34" fill="#5c2e2e" rx="17"/>
+  <text x="400" y="83" text-anchor="middle" fill="#ffd700" font-family="Amiri, Tahoma" font-size="16" font-weight="bold">سورة البقرة</text>
+  <text x="90" y="100" fill="#5c2e2e" font-size="28" opacity="0.4">۞</text>
+  <text x="710" y="100" fill="#5c2e2e" font-size="28" opacity="0.4">۞</text>
+  <text x="400" y="140" text-anchor="middle" fill="#1a1a1a" font-family="Amiri, Scheherazade, Tahoma" font-size="22">الم</text>
+  <text x="400" y="180" text-anchor="middle" fill="#1a1a1a" font-family="Amiri, Scheherazade, Tahoma" font-size="20">ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ</text>
+  <text x="400" y="220" text-anchor="middle" fill="#1a1a1a" font-family="Amiri, Scheherazade, Tahoma" font-size="20">الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ</text>
+  <text x="400" y="260" text-anchor="middle" fill="#1a1a1a" font-family="Amiri, Scheherazade, Tahoma" font-size="20">وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ</text>
+  <rect x="100" y="270" width="600" height="32" fill="#5c2e2e" opacity="0.15" rx="4"/>
+  <text x="400" y="294" text-anchor="middle" fill="#5c2e2e" font-family="Amiri, Scheherazade, Tahoma" font-size="20" font-weight="bold">وَالَّذِينَ يُؤْمِنُونَ بِمَا أُنزِلَ إِلَيْكَ</text>
+  <text x="400" y="334" text-anchor="middle" fill="#1a1a1a" font-family="Amiri, Scheherazade, Tahoma" font-size="20">وَمَا أُنزِلَ مِن قَبْلِكَ وَبِالْآخِرَةِ هُمْ يُوقِنُونَ</text>
+  <text x="400" y="374" text-anchor="middle" fill="#1a1a1a" font-family="Amiri, Scheherazade, Tahoma" font-size="20">أُولَٰئِكَ عَلَىٰ هُدًى مِّن رَّبِّهِمْ ۖ وَأُولَٰئِكَ هُمُ الْمُفْلِحُونَ</text>
+  <rect x="350" y="410" width="100" height="30" fill="#5c2e2e" rx="15"/>
+  <text x="400" y="430" text-anchor="middle" fill="#fff" font-family="Tahoma" font-size="14">صفحة ٢</text>
+  <circle cx="120" cy="425" r="20" fill="#5c2e2e"/>
+  <polygon points="113,415 113,435 130,425" fill="#fff"/>
+  <rect x="160" y="420" width="200" height="10" fill="#5c2e2e" opacity="0.3" rx="5"/>
+  <rect x="160" y="420" width="80" height="10" fill="#5c2e2e" rx="5"/>
+</svg>
