@@ -63,7 +63,7 @@ export const PRAYER_ORDER: string[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'
 /** Ordered list for countdown display (includes Sunrise). */
 export const PRAYER_DISPLAY_ORDER: string[] = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-/** Localized weekday names (uses i18n). @deprecated Use getWeekday() from i18n.js instead. */
+/** Localized weekday names (uses i18n). @deprecated Use getWeekday() from i18n.js — kept for backward compat with v1.x consumers. @internal */
 export const ARABIC_WEEKDAYS: string[] = [
   __('weekday_sunday'),
   __('weekday_monday'),

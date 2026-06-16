@@ -187,7 +187,9 @@ export function updateReadingProgress(): void {
       return;
     }
     if (state.mushafMode) {
+      const pct = Math.round((state.currentPage / 604) * 100);
       progressBar.style.transform = `scaleX(${state.currentPage / 604})`;
+      progressBar.setAttribute('aria-valuenow', String(pct));
       return;
     }
     const container = dom.surahContent;
@@ -198,5 +200,6 @@ export function updateReadingProgress(): void {
     const total = Array.isArray(ayahs) ? ayahs.length : 1;
     const progress = Math.min(1, (state.currentAyahIndex + 1) / total);
     progressBar.style.transform = `scaleX(${progress})`;
+    progressBar.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
   });
 }

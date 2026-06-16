@@ -1,5 +1,87 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 1.4.0 (2026-06-16)
+
+### ✨ Features
+- 📿 نظام الأذكار المتقدم مع إشعارات مجدولة وصوت AudioContext
+- 🧪 تغطية اختبارات 82%+ مع أكثر من 3000 اختبار وحدة
+- 🔒 سياسة أمان محتوى محسّنة (CSP hash-based)
+- 📱 أيقونات PWA متعددة الأحجام لدعم أجهزة أكثر
+- ♿ تحسينات إمكانية الوصول: ARIA values ديناميكية + تبديل lang
+
+### 🐛 Bug Fixes
+- إصلاح `_activeDownloads` لا يُحذف عند الخطأ في audio-cache.ts
+- إصلاح `resetAdhkarCounters()` يحدّث DOM قبل الحالة
+- إصلاح `savePersonalAdhkar()` يعدّل الحالة مباشرة بدلاً من النسخ
+- إصلاح تكرار الإدخالات في `persistErrorLog`
+- إصلاح حالة سباق Capacitor timeout في mushaf-renderer.ts
+- إصلاح نتائج عدم التطابق لا تُخزّن مؤقتاً في search-ui.ts
+- إصلاح `dataset['surahname']` → `dataset['surahName']` في favorites.ts
+- إصلاح AudioContext محلي يتجاوز الحالة المشتركة في adhkar-notifications.ts
+- إصلاح AudioContext لا يُغلق عند إعادة التعيين في internal-state.ts
+- إصلاح عدم تطابق فترة الأذكار (15s → 30s) في ui-extras.ts
+- إصلاح اتصالات IDB لا تُغلق في surah-cache.ts
+- إصلاح 3 أخطاء في surah-loader.ts (فهرس الصوت، حالة السباق، فهرس الآية)
+- إصلاح 5 أخطاء في prayer.ts (طريقة التخزين المؤقت، القبلة، alpha=0، toDateString، return→continue)
+- إصلاح الاستعلام الفارغ يطابق الكل في search-core.ts
+- إصلاح تسرب ذاكرة Object URL في audio.ts
+- إصلاح `===` تفشل مع NaN → استخدام `Object.is()` في state.ts
+
+### 🔧 Maintenance
+- إزالة اعتماديات Electron الميتة (~150MB توفير)
+- إضافة `sideEffects: false` و `prepublishOnly` في package.json
+- توحيد Node.js 22 في جميع workflows
+- استبدال `any` types بأنواع API صحيحة
+- تحسين ESLint: `no-console: warn` للملفات المصدرية
+- إزالة `ARABIC_WEEKDAYS` المُهمَل
+
+## 1.3.0 (2026-06-10)
+
+### ✨ Features
+- 🔐 فحص أمني CodeQL أسبوعي + عند PR
+- 🏗️ سير عمل release تلقائي عند إنشاء tags
+- 📦 فحص حجم الحزمة مع عتبة 300KB gzip
+- 🏷️ تصنيف تلقائي للـ PRs
+- 🧹 إغلاق تلقائي للمسائل والـ PRs غير النشطة
+- 📊 سير عمل Lighthouse CI للأداء
+- ♿ فحص إمكانية الوصول a11y مع Axe-core
+
+### 🧪 Testing
+- إضافة 17 ملف اختبار جديد (928+ اختبار)
+- تغطية من 53.76% إلى 82.35%
+
+## 1.2.0 (2026-06-05)
+
+### ✨ Features
+- 💬 تمكين GitHub Discussions
+- 🏷️ 16 تصنيف مخصص للمسائل
+- 🔒 حماية الفرع الرئيسي (مراجعات + فحوصات إلزامية)
+- 📝 قوالب المسائل و PRs ثنائية اللغة
+- 🛡️ سياسة أمان (SECURITY.md)
+- 🤝 دليل المساهمة (CONTRIBUTING.md) ثنائي اللغة
+- 📜 ميثاق السلوك (CODE_OF_CONDUCT.md)
+
+### 🔧 Maintenance
+- تحديث README مع شارات ووثائق معمارية
+- إضافة .editorconfig للتنسيق الموحد
+
+## 1.1.0 (2026-06-01)
+
+### ✨ Features
+- 🔍 بحث Trie مع اقتراحات تلقائية
+- 📊 إحصائيات القراءة
+- 📿 نظام الأذكار مع عدّاد
+- 🧭 بوصلة القبلة
+- 📤 مشاركة محسّنة (واتساب، تيليجرام، نسخ)
+
+### 🐛 Bug Fixes
+- إصلاح مشاكل التخزين المؤقت للصوت
+- تحسين إعادة محاولة API
+
 ## 1.0.0 (2026-05-31)
 
 ### 🎉 Initial Release

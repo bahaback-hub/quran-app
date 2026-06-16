@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="bgReading" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#faf5f2"/>
+      <stop offset="100%" stop-color="#f0e6d8"/>
+    </linearGradient>
+    <linearGradient id="prayerBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5c2e2e"/>
+      <stop offset="100%" stop-color="#7a3d3d"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bgReading)"/>
+  <rect x="0" y="0" width="800" height="40" fill="url(#prayerBar)" rx="0"/>
+  <text x="20" y="26" fill="#fff" font-family="Tahoma, Arial" font-size="14" font-weight="bold">11:42</text>
+  <text x="120" y="26" fill="#fff" font-family="Tahoma, Arial" font-size="13">الظهر 12:15</text>
+  <text x="280" y="26" fill="#ffd700" font-family="Tahoma, Arial" font-size="13">00:33:00</text>
+  <rect x="0" y="40" width="800" height="60" fill="#ffffff" opacity="0.9"/>
+  <text x="400" y="78" text-anchor="middle" fill="#5c2e2e" font-family="Amiri, Tahoma" font-size="24" font-weight="bold">القرآن الكريم</text>
+  <circle cx="60" cy="70" r="18" fill="#5c2e2e"/>
+  <rect x="40" y="120" width="720" height="340" fill="#fff" rx="8" opacity="0.95"/>
+  <text x="400" y="160" text-anchor="middle" fill="#5c2e2e" font-family="Amiri, Tahoma" font-size="20" font-weight="bold">سورة الفاتحة</text>
+  <text x="400" y="200" text-anchor="middle" fill="#333" font-family="Amiri, Tahoma" font-size="18">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</text>
+  <text x="400" y="240" text-anchor="middle" fill="#333" font-family="Amiri, Tahoma" font-size="18">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ﴿١﴾</text>
+  <text x="400" y="280" text-anchor="middle" fill="#5c2e2e" font-family="Amiri, Tahoma" font-size="18" font-weight="bold">الرَّحْمَٰنِ الرَّحِيمِ ﴿٢﴾</text>
+  <text x="400" y="320" text-anchor="middle" fill="#333" font-family="Amiri, Tahoma" font-size="18">مَالِكِ يَوْمِ الدِّينِ ﴿٣﴾</text>
+  <text x="400" y="360" text-anchor="middle" fill="#333" font-family="Amiri, Tahoma" font-size="18">إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ﴿٤﴾</text>
+  <text x="400" y="400" text-anchor="middle" fill="#333" font-family="Amiri, Tahoma" font-size="18">اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ﴿٥﴾</text>
+  <text x="400" y="440" text-anchor="middle" fill="#333" font-family="Amiri, Tahoma" font-size="18">صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ ﴿٦﴾</text>
+  <rect x="40" y="460" width="720" height="2" fill="#5c2e2e" opacity="0.3"/>
+  <circle cx="100" cy="478" r="5" fill="#d32f2f"/>
+  <circle cx="160" cy="478" r="5" fill="#1976d2"/>
+  <circle cx="220" cy="478" r="5" fill="#388e3c"/>
+</svg>
