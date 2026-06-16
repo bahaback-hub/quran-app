@@ -38,23 +38,24 @@ jobs:
       - name: Verify total coverage threshold (≥ 80% lines)
         run: |
           if [ ! -f coverage/coverage-summary.json ]; then
-            echo "❌ coverage-summary.json not found"
+            echo "❌ coverage-summary.json not found — ensure vitest.config.js coverage.reporter includes 'json-summary'"
             exit 1
           fi
-          # Parse total lines coverage percentage
-          TOTAL_LINES_PCT=$(node -e "const s=require('./coverage/coverage-summary.json'); console.log(s.total.lines.pct)")
-          echo "📊 Total lines coverage: ${TOTAL_LINES_PCT}%"
-          if (( $(echo "$TOTAL_LINES_PCT < 80" | bc -l) )); then
-            echo "❌ Coverage ${TOTAL_LINES_PCT}% is below the 80% threshold"
-            exit 1
-          fi
-          echo "✅ Coverage ${TOTAL_LINES_PCT}% meets the 80% threshold"
+          node -e '
+            const s = require("./coverage/coverage-summary.json");
+            const pct = s.total.lines.pct;
+            console.log(`📊 Total lines coverage: ${pct}%`);
+            if (pct < 80) {
+              console.error(`❌ Coverage ${pct}% is below the 80% threshold`);
+              process.exit(1);
+            }
+            console.log(`✅ Coverage ${pct}% meets the 80% threshold`);
+          '
       - name: Verify per-file coverage threshold (≥ 50% lines per source file)
         run: |
           # Prevent coverage gaming: every source file must have at least 50% line coverage.
           # Files with very low coverage indicate untested modules (real tests needed, not boosters).
           node -e '
-            const fs = require("fs");
             const summary = require("./coverage/coverage-summary.json");
             const failures = [];
             const THRESHOLD = 50;

@@ -7,6 +7,7 @@ export default defineConfig({
     exclude: ['e2e/**', 'node_modules/**'],
     globals: true,
     coverage: {
+      reporter: ['text', 'html', 'json-summary', 'json'],
       exclude: [
         'src/translations/**',
         'src/**/index.js',

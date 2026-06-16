@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🔖 مزامنة شارة الإصدار في README (كانت v1.4.0، أصبحت v1.5.0 لتطابق `package.json`)
 - 🩹 إصلاح إدخال CHANGELOG غير المنطقي في v1.5.0 (قبل/بعد متطابقان)
 
+### 🐛 Bug Fixes — Pre-existing CI/Build Issues
+- 📊 إصلاح `vitest.config.js`: إضافة `json-summary` و `json` reporters — كانت CI تفشل لأن `coverage/coverage-summary.json` لا يُولّد
+- 📦 إضافة `esbuild` كـ dependency صريح — Vite 8 يتطلبه لكنه لم يكن مثبتاً، مما كسر البناء في CI
+- 🔧 إعادة كتابة فحص التغطية في `ci.yml` باستخدام `node -e` بدلاً من `bc` (أكثر موثوقية عبر البيئات)
+
 ## 1.5.0 (2026-06-17)
 
 ### ✨ Features
