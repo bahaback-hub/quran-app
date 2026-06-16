@@ -12,11 +12,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8.0-646CFF.svg)](https://vitejs.dev/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-A022A0.svg)](https://web.dev/progressive-web-apps/)
-[![Tests](https://img.shields.io/badge/Tests-3200%2B%20passing-brightgreen.svg)]()
-[![Coverage](https://img.shields.io/badge/Coverage-89%25-brightgreen.svg)]()
-[![Release](https://img.shields.io/badge/Release-v1.4.0-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
+[![Tests](https://img.shields.io/badge/Tests-Vitest%204-brightgreen.svg)]()
+[![Coverage](https://img.shields.io/badge/Coverage-%E2%89%A580%25-brightgreen.svg)]()
+[![Release](https://img.shields.io/badge/Release-v1.5.1-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
 [![CodeQL](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml)
-[![Quality Rating](https://img.shields.io/badge/Quality%20Rating-10%2F10-brightgreen?style=for-the-badge&logo=star&logoColor=white)](#-تقييم-الجودة--quality-rating)
+[![Quality](https://img.shields.io/badge/Quality-Internal%20Audit-blue?style=for-the-badge)](#-تقييم-الجودة--quality-rating)
 
 [🌐 عرض مباشر / Live Demo](https://bahaback-hub.github.io/quran-app/) · [🐛 تقرير خطأ / Report Bug](https://github.com/bahaback-hub/quran-app/issues) · [💡 طلب ميزة / Request Feature](https://github.com/bahaback-hub/quran-app/issues) · [💬 نقاشات / Discussions](https://github.com/bahaback-hub/quran-app/discussions)
 
@@ -28,28 +28,30 @@
 
 <div align="center">
 
-### ✨ 10 من 10 ✨
+### 📋 تقييم داخلي صادق / Honest Internal Audit
 
-**حصل هذا المشروع على التقييم الكامل 10/10 بعد مراجعة شاملة لجودة الكود والأداء والأمان**
+**هذا التقييم مبني على فحص فني داخلي، وليس شهادة خارجية. نعرض النقاط القوية والضعيفة بشفافية.**
 
-This project achieved a **perfect 10/10 quality rating** after a comprehensive audit covering:
+This rating is an **internal self-audit**, not an external certification. We list both strengths and known gaps transparently.
 
 </div>
 
-| المحور / Dimension | النتيجة / Score | التفاصيل / Details |
+| المحور / Dimension | الحالة / Status | التفاصيل / Details |
 |:---:|:---:|:---|
-| 🧪 **اختبارات / Tests** | 10/10 | 3,200+ اختبار ناجح، تغطية 89%+ |
-| 🔒 **الأمان / Security** | 10/10 | CodeQL سليم، 0 ثغرات في npm audit |
-| ♿ **إتاحة / Accessibility** | 10/10 | ARIA labels كاملة، دعم قارئ الشاشة |
-| ⚡ **الأداء / Performance** | 10/10 | Bundle محسّن، lazy loading، PWA جاهز |
-| 📚 **التوثيق / Documentation** | 10/10 | README شامل، CONTRIBUTING، SECURITY، CODE_OF_CONDUCT |
-| 🏗️ **المعمارية / Architecture** | 10/10 | TypeScript 6 صارم، بنية reactive نظيفة |
-| 🔄 **CI/CD** | 10/10 | 5 workflows: CI, E2E, CodeQL, Lighthouse, Release |
-| 📱 **متعدد المنصات / Cross-platform** | 10/10 | ويب + PWA + Android (Capacitor) |
+| 🧪 **اختبارات / Tests** | ✅ جيد / Good | تغطية ≥ 80% إلزامية في CI، اختبارات وحدية + E2E. **جارٍ تنقيح اختبارات تعزيز التغطية** |
+| 🔒 **الأمان / Security** | ⚠️ قيد التحسين / In Progress | CodeQL مفعّل، `npm audit` يعمل أسبوعياً. **جارٍ جعله مُلزِماً** |
+| ♿ **إتاحة / Accessibility** | ✅ جيد / Good | ARIA labels، focus trap، reduced-motion، high-contrast، skip link |
+| ⚡ **الأداء / Performance** | ✅ جيد / Good | Code splitting، lazy injection، 3-phase bootstrap، PWA Workbox |
+| 📚 **التوثيق / Documentation** | ⚠️ قيد التحسين / In Progress | README شامل + CONTRIBUTING + SECURITY + CODE_OF_CONDUCT. **جارٍ تحديث AGENTS.md** |
+| 🏗️ **المعمارية / Architecture** | ✅ جيد جداً / Very Good | TypeScript 6 صارم جداً، Proxy reactive، عميل API موحّد |
+| 🔄 **CI/CD** | ✅ ممتاز كمّاً / Excellent Quantity | 11 workflow (CI/E2E/CodeQL/Lighthouse/a11y/bundle-size/security/release/deploy/labeler/stale) |
+| 📱 **متعدد المنصات / Cross-platform** | ✅ جيد / Good | ويب + PWA + Android (Capacitor) مع تكامل ذكي |
 
 <div align="center">
 
-**المجموع النهائي / Final Score: 10/10** 🎉
+**هذا تقييم داخلي للتتبع والتحسين المستمر — وليس شهادة جودة خارجية.**
+
+This is an **internal tracking rating** for continuous improvement — not an external certification.
 
 </div>
 
@@ -361,7 +363,7 @@ npm run android:run     # بناء + تشغيل على الجهاز
 quran-app/
 ├── .github/workflows/        # CI/CD pipeline
 ├── src/
-│   ├── __tests__/            # اختبارات وحدية (2600+ اختبار)
+│   ├── __tests__/            # اختبارات وحدية (Vitest + jsdom + fake-indexeddb)
 │   ├── css/                  # أنماط CSS معيارية (17 ملف)
 │   │   ├── variables.css     # متغيرات التصميم
 │   │   ├── base.css          # الأنماط الأساسية
