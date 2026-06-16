@@ -12,10 +12,12 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8.0-646CFF.svg)](https://vitejs.dev/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-A022A0.svg)](https://web.dev/progressive-web-apps/)
-[![Tests](https://img.shields.io/badge/Tests-1766%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-2600%2B%20passing-brightgreen.svg)]()
+[![Coverage](https://img.shields.io/badge/Coverage-82%25-brightgreen.svg)]()
+[![Release](https://img.shields.io/badge/Release-v1.0.0-blue.svg)](https://github.com/bahaback-hub/quran-app/releases/tag/v1.0.0)
 [![CodeQL](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml)
 
-[🌐 عرض مباشر / Live Demo](https://bahaback-hub.github.io/quran-app/) · [🐛 تقرير خطأ / Report Bug](https://github.com/bahaback-hub/quran-app/issues) · [💡 طلب ميزة / Request Feature](https://github.com/bahaback-hub/quran-app/issues)
+[🌐 عرض مباشر / Live Demo](https://bahaback-hub.github.io/quran-app/) · [🐛 تقرير خطأ / Report Bug](https://github.com/bahaback-hub/quran-app/issues) · [💡 طلب ميزة / Request Feature](https://github.com/bahaback-hub/quran-app/issues) · [💬 نقاشات / Discussions](https://github.com/bahaback-hub/quran-app/discussions)
 
 </div>
 
@@ -314,7 +316,7 @@ npm run android:run     # بناء + تشغيل على الجهاز
 quran-app/
 ├── .github/workflows/        # CI/CD pipeline
 ├── src/
-│   ├── __tests__/            # اختبارات وحدية (963+ اختبار)
+│   ├── __tests__/            # اختبارات وحدية (2600+ اختبار)
 │   ├── css/                  # أنماط CSS معيارية (17 ملف)
 │   │   ├── variables.css     # متغيرات التصميم
 │   │   ├── base.css          # الأنماط الأساسية
