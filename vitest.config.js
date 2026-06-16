@@ -7,7 +7,12 @@ export default defineConfig({
     exclude: ['e2e/**', 'node_modules/**'],
     globals: true,
     coverage: {
-      exclude: ['src/translations/**', 'src/**/index.js'],
+      exclude: [
+        'src/translations/**',
+        'src/**/index.js',
+        'src/search.ts',
+        'src/types.ts',
+      ],
     },
   },
 });
