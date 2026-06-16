@@ -339,6 +339,14 @@ export function setAdhkarIntervalId(val: ReturnType<typeof setInterval> | null):
 
 /** Reset all internal state to defaults. Called during state reset. */
 export function resetInternalState(): void {
+  // Close AudioContext to release system audio resources before clearing reference
+  if (_adhkarAudioCtx) {
+    try {
+      void _adhkarAudioCtx.close();
+    } catch {
+      // AudioContext may already be closed — ignore
+    }
+  }
   _adhkarAudioCtx = null;
   _selectMode = false;
   _selectedAyahs = [];

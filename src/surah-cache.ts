@@ -59,8 +59,9 @@ function openSurahDB(): Promise<IDBDatabase> {
  * await cacheSurahToIDB('1_ar.alafasy_en.sahih', { text, audios, translation });
  */
 export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Promise<void> {
+  let db: IDBDatabase | null = null;
   try {
-    const db = await openSurahDB();
+    db = await openSurahDB();
     const tx = db.transaction('surahs', 'readwrite');
     tx.objectStore('surahs').put({ key, ...entry });
     // Wait for the transaction to complete so errors are properly caught
@@ -73,6 +74,8 @@ export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Pro
     if (import.meta.env.DEV) {
       console.warn('[IDB] Failed to cache surah:', err);
     }
+  } finally {
+    db?.close();
   }
 }
 
@@ -87,10 +90,11 @@ export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Pro
  * if (cached) { // use cached data }
  */
 export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEntry | null> {
+  let db: IDBDatabase | null = null;
   try {
-    const db = await openSurahDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction('surahs', 'readonly');
+    db = await openSurahDB();
+    return await new Promise((resolve) => {
+      const tx = db!.transaction('surahs', 'readonly');
       const req = tx.objectStore('surahs').get(key);
       req.onsuccess = () => {
         const result = req.result as
@@ -115,5 +119,7 @@ export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEnt
     });
   } catch {
     return null;
+  } finally {
+    db?.close();
   }
 }

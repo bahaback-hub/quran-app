@@ -136,7 +136,7 @@ export function renderFavorites(): void {
       }
       if (target.classList.contains('fav-share')) {
         const text = target.dataset['text'] || '';
-        const surahName = target.dataset['surahname'] || '';
+        const surahName = target.dataset['surahName'] || '';
         const ayah = target.dataset['ayah'] || '';
         const shareText = `${text} — ${surahName} — ${__('ayah')} ${ayah}`;
         if (navigator.share) {
