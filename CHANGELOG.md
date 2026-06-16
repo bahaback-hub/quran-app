@@ -4,23 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.5.0 (2026-06-17) — 10/10 Quality Milestone
+## 1.5.1 (2026-06-17) — Quality Integrity Restoration
+
+### 🔧 Maintenance — Honesty & Integrity Fixes
+- 🥇 إزالة شارة "10/10" الذاتية من README واستبدالها بتقييم داخلي صادق يوضح النقاط القوية والضعيفة بشفافية
+- 📝 تحديث `AGENTS.md` بالكامل ليعكس المعمارية الفعلية (TypeScript صارم `allowJs: false, checkJs: false`، Proxy reactive state، ~56 وحدة بدلاً من 11)
+- 🧹 إعادة تسمية ملفات `coverage-booster-*.test.ts` إلى أسماء ذات معنى تعكس الوحدات المختبرة، وحذف الاختبارات التافهة من نوع `typeof === 'function'`
+- 🔒 جعل `security.yml` مُلزِماً: إزالة `continue-on-error` من فحص `npm audit --audit-level=high` ليُفشل البناء عند وجود ثغرات high/critical
+- 📊 إضافة فحص تغطية لكل ملف في CI (per-file coverage) لمنع تضخيم التغطية عبر اختبارات تعزيزية
+- 📄 إضافة ملف `NOTICE.md` يوثّق مصادر البيانات الخارجية (AlQuran.cloud، Aladhan، mp3quran.net، quran.com، Tafsir API) ورخصها
+- 🔖 مزامنة شارة الإصدار في README (كانت v1.4.0، أصبحت v1.5.0 لتطابق `package.json`)
+- 🩹 إصلاح إدخال CHANGELOG غير المنطقي في v1.5.0 (قبل/بعد متطابقان)
+
+## 1.5.0 (2026-06-17)
 
 ### ✨ Features
 - ♿ تحسينات إتاحة الوصول: إضافة aria-label و aria-pressed و aria-expanded لجميع الأزرار التفاعلية في index.html
 - ⚡ تحسينات الأداء: تفعيل treeshake الصارم و compact output و esbuild minify في vite.config.js
-- 🧪 رفع تغطية الاختبارات إلى ~89% مع أكثر من 3200 اختبار (was 88.41% / 3067 tests)
+- 🧪 رفع تغطية الاختبارات (انظر ملاحظة النزاهة في v1.5.1)
 - 📚 توثيق مجتمعي كامل: CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md
-- 🔒 0 ثغرات أمنية في npm audit
-
-### 🐛 Bug Fixes
-- إصلاح typo في vite.config.js: `[name]-ash].js` → `[name]-[hash].js`
 
 ### 🔧 Maintenance
-- إضافة coverage-booster-final.test.ts (85 اختبار جديد لـ utils, keyboard, a11y, audio-cache, templates, settings, i18n)
-- إضافة coverage-booster-final2.test.ts (45 اختبار جديد لـ surah-loader, app-events, mushaf-renderer, audio, reading-stats, presentation)
-- رفع تغطية utils.ts إلى 100% (كانت 90.47%)
-- رفع تغطية keyboard.ts functions من 28.57% إلى ~88%
+- إضافة اختبارات إضافية لـ utils, keyboard, a11y, audio-cache, templates, settings, i18n, surah-loader, app-events, mushaf-renderer, audio, reading-stats, presentation
+- رفع تغطية utils.ts إلى 100%
+- رفع تغطية keyboard.ts functions
 
 ## 1.4.0 (2026-06-16)
 

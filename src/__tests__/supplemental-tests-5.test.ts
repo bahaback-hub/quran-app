@@ -1,17 +1,11 @@
 /**
- * Coverage Booster 2 — targeted tests for low-coverage modules.
+ * Supplemental tests for edge cases and defensive-programming branches
+ * not exercised by the primary per-module test files.
  *
- * This file exercises the real (un-mocked) public APIs of:
- *   - surah-loader.ts (populateReciterSelect, buildSurahOffsets)
- *   - audio-cache.ts (eviction paths via storeAudioFile integration)
- *   - app-events.ts (bindGlobalClickHandler, bindMiscEvents, openHelp, closeHelp)
- *   - mushaf-renderer.ts (exported helpers)
- *   - reading-stats.ts (exported functions)
- *   - presentation.ts (exported functions)
- *
- * Goal: push overall statement coverage from 88.5% to ≥90%.
+ * Each `it()` block here MUST verify real behavior (DOM mutation, return
+ * value, side effect, thrown error). Pure `typeof === 'function'` checks
+ * are forbidden — they inflate coverage without proving anything.
  */
-
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 

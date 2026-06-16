@@ -35,7 +35,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test -- --run --coverage
-      - name: Verify coverage threshold (≥ 80%)
+      - name: Verify total coverage threshold (≥ 80% lines)
         run: |
           if [ ! -f coverage/coverage-summary.json ]; then
             echo "❌ coverage-summary.json not found"
@@ -49,6 +49,31 @@ jobs:
             exit 1
           fi
           echo "✅ Coverage ${TOTAL_LINES_PCT}% meets the 80% threshold"
+      - name: Verify per-file coverage threshold (≥ 50% lines per source file)
+        run: |
+          # Prevent coverage gaming: every source file must have at least 50% line coverage.
+          # Files with very low coverage indicate untested modules (real tests needed, not boosters).
+          node -e '
+            const fs = require("fs");
+            const summary = require("./coverage/coverage-summary.json");
+            const failures = [];
+            const THRESHOLD = 50;
+            for (const [file, data] of Object.entries(summary)) {
+              if (file === "total") continue;
+              if (!file.includes("/src/") || file.includes("__tests__")) continue;
+              const pct = data.lines.pct;
+              if (typeof pct === "number" && pct < THRESHOLD) {
+                failures.push(`  ${file}: ${pct}% (lines)`);
+              }
+            }
+            if (failures.length > 0) {
+              console.error(`❌ ${failures.length} source file(s) below ${THRESHOLD}% line coverage:`);
+              for (const f of failures) console.error(f);
+              console.error(`\nWrite real behavioral tests for these modules — do not add "coverage-booster" tests.`);
+              process.exit(1);
+            }
+            console.log(`✅ All source files meet the ${THRESHOLD}% per-file line coverage threshold`);
+          '
       - name: Upload coverage artifact
         if: always()
         uses: actions/upload-artifact@v4

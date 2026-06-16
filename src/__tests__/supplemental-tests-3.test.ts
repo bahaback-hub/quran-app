@@ -1,8 +1,11 @@
 /**
- * Coverage Booster Part 3 — focus on surah-loader.renderSurah and
- * highlightCurrentAyah which have many uncovered branches.
+ * Supplemental tests for edge cases and defensive-programming branches
+ * not exercised by the primary per-module test files.
+ *
+ * Each `it()` block here MUST verify real behavior (DOM mutation, return
+ * value, side effect, thrown error). Pure `typeof === 'function'` checks
+ * are forbidden — they inflate coverage without proving anything.
  */
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 vi.unmock('../ui.js');

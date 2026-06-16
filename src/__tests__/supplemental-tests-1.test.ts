@@ -1,15 +1,11 @@
 /**
- * Coverage Booster Tests — targets the weakest-covered modules to push
- * overall coverage above 90%.
+ * Supplemental tests for edge cases and defensive-programming branches
+ * not exercised by the primary per-module test files.
  *
- * Modules targeted:
- *   - search.ts (barrel re-exports, currently 0%)
- *   - ui.ts (showToast + loadingBar init/show/hide branches)
- *   - a11y.ts (remaining branches: pool cap, reduced motion, observer, etc.)
- *   - audio-cache.ts (remaining branches: openDB error paths, eviction, etc.)
- *   - audio.ts (remaining branches: guarded optional handlers)
+ * Each `it()` block here MUST verify real behavior (DOM mutation, return
+ * value, side effect, thrown error). Pure `typeof === 'function'` checks
+ * are forbidden — they inflate coverage without proving anything.
  */
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 
@@ -22,22 +18,6 @@ vi.unmock('../storage.js');
 /*  search.ts barrel re-exports                                       */
 /* ------------------------------------------------------------------ */
 
-describe('search.ts barrel re-exports', () => {
-  it('should export loadFullQuranText, getSearchHistory, clearSearchHistory', async () => {
-    const mod = await import('../search.js');
-    expect(typeof mod.loadFullQuranText).toBe('function');
-    expect(typeof mod.getSearchHistory).toBe('function');
-    expect(typeof mod.clearSearchHistory).toBe('function');
-  });
-
-  it('should export performExactSearch, startVoiceSearch, initKeyboard, initSearchAutocomplete', async () => {
-    const mod = await import('../search.js');
-    expect(typeof mod.performExactSearch).toBe('function');
-    expect(typeof mod.startVoiceSearch).toBe('function');
-    expect(typeof mod.initKeyboard).toBe('function');
-    expect(typeof mod.initSearchAutocomplete).toBe('function');
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  ui.ts — full coverage of showToast and loadingBar                 */
@@ -450,17 +430,6 @@ describe('audio-cache.ts — branch coverage', () => {
     indexedDB.open = original;
   });
 
-  it('cacheSurahAudio module should be importable and have correct exports', async () => {
-    const mod = await import('../audio-cache.js');
-    expect(typeof mod.cacheSurahAudio).toBe('function');
-    expect(typeof mod.getCachedAudioUrl).toBe('function');
-    expect(typeof mod.getCachedAudioBlob).toBe('function');
-    expect(typeof mod.isAudioCached).toBe('function');
-    expect(typeof mod.isSurahCached).toBe('function');
-    expect(typeof mod.getCacheStats).toBe('function');
-    expect(typeof mod.deleteSurahCache).toBe('function');
-    expect(typeof mod.clearAudioCache).toBe('function');
-  });
 
   it('isAudioCached should return false when DB fails', async () => {
     const original = indexedDB.open;
@@ -501,12 +470,6 @@ describe('audio-cache.ts — branch coverage', () => {
 /* ------------------------------------------------------------------ */
 
 describe('audio.ts — defensive branches', () => {
-  it('should import audio module without errors', async () => {
-    const mod = await import('../audio.js');
-    expect(mod).toBeDefined();
-    expect(typeof mod.playCurrentAyah).toBe('function');
-    expect(typeof mod.prepareAudioForNewSurah).toBe('function');
-  });
 
   it('prepareAudioForNewSurah should not throw when DOM is missing', async () => {
     const mod = await import('../audio.js');
