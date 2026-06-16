@@ -1163,7 +1163,7 @@ function saveCurrentPosition(): void {
   }
   storage.set('last_position', {
     surah: state.currentSurah,
-    ayah: state.currentAyahIndex,
+    ayah: a.numberInSurah,
     surahName: surahData.name,
     ayahNumberInSurah: a.numberInSurah,
     timestamp: Date.now(),

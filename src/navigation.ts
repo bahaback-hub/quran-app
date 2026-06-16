@@ -147,7 +147,7 @@ export function initNavigation(): void {
     if (!tab) {
       return;
     }
-    if (tab === activeTab && tab !== 'player') {
+    if (tab === activeTab && tab !== 'player' && tab !== 'controls') {
       activateTab(tab);
       return;
     }

@@ -80,6 +80,10 @@ let _autoAdvanceSafetyTimer: ReturnType<typeof setTimeout> | null = null;
 export function prepareAudioForNewSurah(): void {
   _mp3quranUrl = null;
   _autoAdvancing = false;
+  if (_autoAdvanceSafetyTimer) {
+    clearTimeout(_autoAdvanceSafetyTimer);
+    _autoAdvanceSafetyTimer = null;
+  }
   _cachedWordEls = null;
   _cachedWordAyahIndex = -1;
   clearWordWeightsCache();
@@ -114,14 +118,14 @@ export function resetAudioElement(player: HTMLAudioElement | null): void {
 /* ===================== MP3QURAN SEEK HELPERS ===================== */
 
 function _getAyahStartTime(): number {
-  if (!state.ayahTimings?.length || !dom.audioPlayer?.duration) {
+  if (!state.ayahTimings?.length || !dom.audioPlayer?.duration || !isFinite(dom.audioPlayer.duration)) {
     return 0;
   }
   return (state.ayahTimings[state.currentAyahIndex] || 0) * dom.audioPlayer.duration;
 }
 
 function _getAyahEndTime(): number {
-  if (!state.ayahTimings?.length || !dom.audioPlayer?.duration) {
+  if (!state.ayahTimings?.length || !dom.audioPlayer?.duration || !isFinite(dom.audioPlayer.duration)) {
     return dom.audioPlayer?.duration || 0;
   }
   const next = state.ayahTimings[state.currentAyahIndex + 1];
