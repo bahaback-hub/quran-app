@@ -26,13 +26,13 @@
 ## 📸 لقطات الشاشة / Screenshots
 
 ### 📖 وضع القراءة / Reading Mode
-![Reading Mode](screenshots/reading-mode.svg)
+![Reading Mode](screenshots/reading-mode.png)
 
 ### 📄 وضع المصحف / Mushaf Mode
-![Mushaf Mode](screenshots/mushaf-mode.svg)
+![Mushaf Mode](screenshots/mushaf-mode.png)
 
 ### 🖼️ وضع العرض / Presentation Mode
-![Presentation Mode](screenshots/presentation-mode.svg)
+![Presentation Mode](screenshots/presentation-mode.png)
 
 ---
 
