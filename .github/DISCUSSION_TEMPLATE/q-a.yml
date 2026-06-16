@@ -1,0 +1,19 @@
+title: "[Q&A] "
+labels: []
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: السؤال / Question
+      description: اطرح سؤالك هنا / Ask your question here
+      placeholder: "كيف يمكنني...؟ / How can I...?"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: السياق / Context
+      description: أي معلومات إضافية / Any additional context
+      placeholder: "نسخة المتصفح، الجهاز... / Browser version, device..."
+    validations:
+      required: false

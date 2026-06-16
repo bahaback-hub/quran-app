@@ -7,11 +7,13 @@
 **Professional Quran Web App** — Recitation, Audio, Search, Tafsir, Prayer Times & More
 
 [![CI](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml)
+[![E2E](https://github.com/bahaback-hub/quran-app/actions/workflows/e2e.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/e2e.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8.0-646CFF.svg)](https://vitejs.dev/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-A022A0.svg)](https://web.dev/progressive-web-apps/)
-[![Tests](https://img.shields.io/badge/Tests-963%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-1766%20passing-brightgreen.svg)]()
+[![CodeQL](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml)
 
 [🌐 عرض مباشر / Live Demo](https://bahaback-hub.github.io/quran-app/) · [🐛 تقرير خطأ / Report Bug](https://github.com/bahaback-hub/quran-app/issues) · [💡 طلب ميزة / Request Feature](https://github.com/bahaback-hub/quran-app/issues)
 

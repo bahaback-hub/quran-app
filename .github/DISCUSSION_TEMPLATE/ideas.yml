@@ -1,0 +1,19 @@
+title: "[Idea] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: الفكرة / Idea
+      description: صف فكرتك / Describe your idea
+      placeholder: "ماذا لو أضفنا...؟ / What if we added...?"
+    validations:
+      required: true
+  - type: textarea
+    id: benefit
+    attributes:
+      label: الفائدة / Benefit
+      description: كيف ستساعد المستخدمين؟ / How will it help users?
+      placeholder: "هذا سيساعد... / This would help..."
+    validations:
+      required: false
