@@ -134,7 +134,7 @@ export function handleVisibilityChange(): void {
   } else {
     startClock();
     if (!getAdhkarIntervalId()) {
-      setAdhkarIntervalId(setInterval(checkAdhkarNotifications, 15000));
+      setAdhkarIntervalId(setInterval(checkAdhkarNotifications, 30_000));
     }
   }
 }

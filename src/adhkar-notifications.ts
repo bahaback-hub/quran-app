@@ -12,7 +12,7 @@ import { showToast } from './ui.js';
 import { copyToClipboard } from './utils.js';
 import { ADHKAR_DATA } from './adhkar-data.js';
 import { __ } from './i18n.js';
-import { getAdhkarNotificationTimer, setAdhkarNotificationTimer } from './internal-state.js';
+import { getAdhkarNotificationTimer, setAdhkarNotificationTimer, getAdhkarAudioCtx, setAdhkarAudioCtx, getAdhkarIntervalId, setAdhkarIntervalId } from './internal-state.js';
 import type { AdhkarCategorySettings } from './types.js';
 
 /* ===================== INTERFACES ===================== */
@@ -28,14 +28,13 @@ export interface AdhkarNotifContext {
 
 /* ===================== NOTIFICATION SOUND ===================== */
 
-let _adhkarAudioCtx: AudioContext | null = null;
-
 function playNotificationSound(): void {
   try {
-    if (!_adhkarAudioCtx) {
-      _adhkarAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let ctx = getAdhkarAudioCtx();
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      setAdhkarAudioCtx(ctx);
     }
-    const ctx = _adhkarAudioCtx;
     const notes = [523.25, 659.25, 783.99];
     notes.forEach((freq: number, i: number) => {
       const osc = ctx.createOscillator();
@@ -242,21 +241,23 @@ export function checkAdhkarNotifications(): void {
 
 /* ===================== SCHEDULER ===================== */
 
-/** Start a recurring timer to check adhkar notifications every 30 seconds. */
-let _adhkarSchedulerInterval: ReturnType<typeof setInterval> | null = null;
-
+/** Start a recurring timer to check adhkar notifications every 30 seconds.
+ *  Uses internal-state for interval tracking so handleVisibilityChange can
+ *  properly pause/resume the scheduler. */
 export function startAdhkarNotificationScheduler(): void {
-  if (_adhkarSchedulerInterval) {
-    clearInterval(_adhkarSchedulerInterval);
+  const existingInterval = getAdhkarIntervalId();
+  if (existingInterval) {
+    clearInterval(existingInterval);
   }
   checkAdhkarNotifications();
-  _adhkarSchedulerInterval = setInterval(checkAdhkarNotifications, 30_000);
+  setAdhkarIntervalId(setInterval(checkAdhkarNotifications, 30_000));
 }
 
 /** Stop the adhkar notification scheduler. */
 export function stopAdhkarNotificationScheduler(): void {
-  if (_adhkarSchedulerInterval) {
-    clearInterval(_adhkarSchedulerInterval);
-    _adhkarSchedulerInterval = null;
+  const intervalId = getAdhkarIntervalId();
+  if (intervalId) {
+    clearInterval(intervalId);
+    setAdhkarIntervalId(null);
   }
 }
