@@ -494,15 +494,22 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   // Add overall timeout for Capacitor to prevent hanging
   if (capMode) {
     const timeoutMs = 30000;
-    return Promise.race([
-      _renderPageInternal(pageNum, targetCanvas),
-      new Promise<RenderPageResult>((resolve) =>
-        setTimeout(() => {
-          console.error(`[Mushaf] renderPage(${pageNum}) timed out after ${timeoutMs}ms`);
-          _renderPageWithCurrentFonts(pageNum, targetCanvas).then(resolve);
-        }, timeoutMs),
-      ),
-    ]);
+    let timedOut = false;
+    const mainPromise = _renderPageInternal(pageNum, targetCanvas).then(result => {
+      // If timeout already fired, discard the late result to avoid overwriting the fallback render
+      if (timedOut) {
+        return { canvas: null, layout: null };
+      }
+      return result;
+    });
+    const timeoutPromise = new Promise<RenderPageResult>((resolve) =>
+      setTimeout(() => {
+        timedOut = true;
+        console.error(`[Mushaf] renderPage(${pageNum}) timed out after ${timeoutMs}ms`);
+        _renderPageWithCurrentFonts(pageNum, targetCanvas).then(resolve);
+      }, timeoutMs),
+    );
+    return Promise.race([mainPromise, timeoutPromise]);
   }
 
   return _renderPageInternal(pageNum, targetCanvas);

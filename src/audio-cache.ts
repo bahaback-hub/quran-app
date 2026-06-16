@@ -295,9 +295,12 @@ export async function cacheSurahAudio(
         `[AudioCache] Cached ${cached}/${total} audio files for surah ${surah}, reciter ${reciter}`,
       );
     }
-
-    _activeDownloads.delete(cacheKey);
   })();
+
+  // Always clean up the dedup entry, even on error, so future calls can retry
+  promise.finally(() => {
+    _activeDownloads.delete(cacheKey);
+  });
 
   _activeDownloads.set(cacheKey, promise);
   return promise;

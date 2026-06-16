@@ -326,9 +326,12 @@ function resetAdhkarCounters(categoryId: string): void {
   const newSettings = cloneAdhkarSettings(state.adhkarSettings);
   for (const item of cat.items) {
     newSettings[`item_${item.id}`] = 0;
+  }
+  // Update state FIRST so updateAdhkarItemDOM reads the reset values
+  state.adhkarSettings = newSettings;
+  for (const item of cat.items) {
     updateAdhkarItemDOM(item.id, categoryId);
   }
-  state.adhkarSettings = newSettings;
   saveAdhkarSettings();
   showToast(__('adhkar_reset'), 'success');
 }
@@ -465,13 +468,15 @@ function savePersonalAdhkar(): void {
   const time = dom.adhkarAddTime?.value || null;
   const duration = parseInt(dom.adhkarAddDuration?.value ?? '1', 10) || 1;
   const editId = dom.adhkarAddOverlay?.dataset['editId'] || '';
-  const settings = state.adhkarSettings!;
-  if (!settings.personal_adhkar) {
-    settings.personal_adhkar = [];
+
+  // Clone settings to trigger Proxy notification (consistent with rest of codebase)
+  const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+  if (!newSettings.personal_adhkar) {
+    newSettings.personal_adhkar = [];
   }
 
   if (editId) {
-    const p = settings.personal_adhkar.find((x: PersonalAdhkarEntry) => x.id === editId);
+    const p = newSettings.personal_adhkar.find((x: PersonalAdhkarEntry) => x.id === editId);
     if (p) {
       p.text = text;
       p.count = count;
@@ -480,8 +485,10 @@ function savePersonalAdhkar(): void {
     }
   } else {
     const newItem: PersonalAdhkarEntry = { id: 'pa_' + Date.now(), text, count, time, duration };
-    settings.personal_adhkar.push(newItem);
+    newSettings.personal_adhkar.push(newItem);
   }
+  state.adhkarSettings = newSettings;
+
   saveAdhkarSettings();
   closeAdhkarAddDialog();
   renderPersonalAdhkar();
