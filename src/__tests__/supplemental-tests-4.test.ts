@@ -1,16 +1,11 @@
 /**
- * Final Coverage Booster — targets remaining uncovered lines/branches in:
- *   - keyboard.ts (function coverage is only ~28% — many keys untested)
- *   - utils.ts (timeStrToMinutes, stripTashkeel, hapticFeedback, copyToClipboard branches)
- *   - a11y.ts (manageFocusOnPanelOpen branches, initReducedMotionDetection)
- *   - audio-cache.ts (eviction logic, error paths)
- *   - settings.ts (remaining branches)
- *   - templates.ts (remaining branches)
- *   - i18n.ts (remaining branches)
+ * Supplemental tests for edge cases and defensive-programming branches
+ * not exercised by the primary per-module test files.
  *
- * The goal is to push overall statement coverage above 90%.
+ * Each `it()` block here MUST verify real behavior (DOM mutation, return
+ * value, side effect, thrown error). Pure `typeof === 'function'` checks
+ * are forbidden — they inflate coverage without proving anything.
  */
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 
@@ -462,13 +457,6 @@ describe('a11y.ts — extended branches', () => {
     syncAriaExpanded(null, true); // no throw
   });
 
-  it('trapFocus returns a cleanup function', () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const cleanup = trapFocus(container);
-    expect(typeof cleanup).toBe('function');
-    cleanup();
-  });
 
   it('restoreFocusOnPanelClose does not throw with no args', () => {
     expect(() => restoreFocusOnPanelClose()).not.toThrow();
@@ -483,13 +471,6 @@ describe('a11y.ts — extended branches', () => {
     expect(() => initToggleSwitchAccessibility()).not.toThrow();
   });
 
-  it('addKeyboardDismiss returns a cleanup function', () => {
-    const el = document.createElement('div');
-    document.body.appendChild(el);
-    const cleanup = addKeyboardDismiss(el, () => {});
-    expect(typeof cleanup).toBe('function');
-    cleanup();
-  });
 });
 
 /* ------------------------------------------------------------------ */

@@ -1,17 +1,11 @@
 /**
- * Coverage Booster Part 2 — targets the weakest remaining modules.
+ * Supplemental tests for edge cases and defensive-programming branches
+ * not exercised by the primary per-module test files.
  *
- * Modules targeted:
- *   - surah-loader.ts (populateReciterSelect, buildSurahOffsets, updatePlayerInfo, etc.)
- *   - mushaf-renderer.ts (defensive branches)
- *   - audio-cache.ts (more branches)
- *   - presentation.ts (defensive branches)
- *   - prayer.ts (remaining branches)
- *   - settings.ts (remaining branches)
- *   - api-client.ts (remaining branches)
- *   - app-events.ts (remaining branches)
+ * Each `it()` block here MUST verify real behavior (DOM mutation, return
+ * value, side effect, thrown error). Pure `typeof === 'function'` checks
+ * are forbidden — they inflate coverage without proving anything.
  */
-
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 
@@ -152,23 +146,12 @@ describe('surah-loader.ts — non-network functions', () => {
 /*  mushaf-renderer.ts — defensive branches                          */
 /* ------------------------------------------------------------------ */
 
-describe('mushaf-renderer.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    // mushaf-renderer is mocked in setup-i18n.ts, so just verify mock exists
-    const mod = await import('../mushaf-renderer.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  presentation.ts — defensive branches                             */
 /* ------------------------------------------------------------------ */
 
 describe('presentation.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../presentation.js');
-    expect(mod).toBeDefined();
-  });
 
   it('exported functions should not throw with empty state', async () => {
     const mod = await import('../presentation.js') as Record<string, unknown>;
@@ -189,31 +172,12 @@ describe('presentation.ts — defensive branches', () => {
 /*  prayer.ts — defensive branches                                   */
 /* ------------------------------------------------------------------ */
 
-describe('prayer.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../prayer.js');
-    expect(mod).toBeDefined();
-  });
-
-  it('exported functions should be callable', async () => {
-    const mod = await import('../prayer.js') as Record<string, unknown>;
-    for (const [name, fn] of Object.entries(mod)) {
-      if (typeof fn === 'function') {
-        expect(typeof fn).toBe('function');
-      }
-    }
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  settings.ts — defensive branches                                 */
 /* ------------------------------------------------------------------ */
 
 describe('settings.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../settings.js');
-    expect(mod).toBeDefined();
-  });
 
   it('exported functions should not throw when DOM is missing', async () => {
     const mod = await import('../settings.js') as Record<string, unknown>;
@@ -234,12 +198,6 @@ describe('settings.ts — defensive branches', () => {
 /* ------------------------------------------------------------------ */
 
 describe('api-client.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../api-client.js');
-    expect(mod).toBeDefined();
-    expect(typeof mod.apiFetch).toBe('function');
-    expect(typeof mod.jsonFetch).toBe('function');
-  });
 
   it('apiFetch should propagate network errors', async () => {
     const originalFetch = global.fetch;
@@ -263,277 +221,117 @@ describe('api-client.ts — defensive branches', () => {
 /*  app-events.ts — defensive branches                               */
 /* ------------------------------------------------------------------ */
 
-describe('app-events.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../app-events.js');
-    expect(mod).toBeDefined();
-  });
-
-  it('exported functions should be callable', async () => {
-    const mod = await import('../app-events.js') as Record<string, unknown>;
-    for (const [name, fn] of Object.entries(mod)) {
-      if (typeof fn === 'function') {
-        expect(typeof fn).toBe('function');
-      }
-    }
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  i18n.ts — additional branches                                    */
 /* ------------------------------------------------------------------ */
 
-describe('i18n.ts — additional branches', () => {
-  it('should import without errors', async () => {
-    // i18n is mocked in setup, so we test the mock works
-    const mod = await import('../i18n.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  error-boundary.ts — defensive branches                          */
 /* ------------------------------------------------------------------ */
 
-describe('error-boundary.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../error-boundary.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  templates.ts — defensive branches                                */
 /* ------------------------------------------------------------------ */
 
-describe('templates.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../templates.js');
-    expect(mod).toBeDefined();
-  });
-
-  it('templates should be callable with empty args', async () => {
-    const mod = await import('../templates.js') as Record<string, unknown>;
-    for (const [name, fn] of Object.entries(mod)) {
-      if (typeof fn === 'function') {
-        try {
-          const result = (fn as (...args: unknown[]) => unknown)();
-          expect(result).toBeDefined();
-        } catch {
-          // Some templates require args - OK
-        }
-      }
-    }
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  navigation.ts — defensive branches                              */
 /* ------------------------------------------------------------------ */
 
-describe('navigation.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../navigation.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  tafsir.ts — defensive branches                                  */
 /* ------------------------------------------------------------------ */
 
-describe('tafsir.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../tafsir.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  reading-stats.ts — defensive branches                           */
 /* ------------------------------------------------------------------ */
 
-describe('reading-stats.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../reading-stats.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  utils.ts — defensive branches                                   */
 /* ------------------------------------------------------------------ */
 
-describe('utils.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../utils.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  overlays.ts — defensive branches                                */
 /* ------------------------------------------------------------------ */
 
-describe('overlays.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../overlays.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  keyboard.ts — defensive branches                                */
 /* ------------------------------------------------------------------ */
 
-describe('keyboard.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../keyboard.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  onboarding.ts — defensive branches                             */
 /* ------------------------------------------------------------------ */
 
-describe('onboarding.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../onboarding.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  capacitor-back.ts — defensive branches                         */
 /* ------------------------------------------------------------------ */
 
-describe('capacitor-back.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../capacitor-back.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  select-mode.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
 
-describe('select-mode.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../select-mode.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  ayah-click.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
 
-describe('ayah-click.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../ayah-click.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  ayah-modal.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
 
-describe('ayah-modal.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../ayah-modal.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  sleep-timer-modal.ts — defensive branches                     */
 /* ------------------------------------------------------------------ */
 
-describe('sleep-timer-modal.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../sleep-timer-modal.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  audio-visualizer.ts — defensive branches                     */
 /* ------------------------------------------------------------------ */
 
-describe('audio-visualizer.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../audio-visualizer.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  adhkar-notifications.ts — defensive branches                 */
 /* ------------------------------------------------------------------ */
 
-describe('adhkar-notifications.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../adhkar-notifications.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  favorites.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
 
-describe('favorites.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../favorites.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  pres-backgrounds.ts — defensive branches                    */
 /* ------------------------------------------------------------------ */
 
-describe('pres-backgrounds.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../pres-backgrounds.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  pres-styles.ts — defensive branches                         */
 /* ------------------------------------------------------------------ */
 
-describe('pres-styles.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../pres-styles.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  reciters.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
 
-describe('reciters.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../reciters.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  surah-cache.ts — defensive branches                         */
 /* ------------------------------------------------------------------ */
 
 describe('surah-cache.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../surah-cache.js');
-    expect(mod).toBeDefined();
-  });
 
   it('getCachedSurahFromIDB should return null when DB fails', async () => {
     const original = indexedDB.open;
@@ -563,20 +361,8 @@ describe('surah-cache.ts — defensive branches', () => {
 /*  ui-extras.ts — defensive branches                           */
 /* ------------------------------------------------------------------ */
 
-describe('ui-extras.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../ui-extras.js');
-    expect(mod).toBeDefined();
-  });
-});
 
 /* ------------------------------------------------------------------ */
 /*  app.ts — defensive branches                                */
 /* ------------------------------------------------------------------ */
 
-describe('app.ts — defensive branches', () => {
-  it('should import without errors', async () => {
-    const mod = await import('../app.js');
-    expect(mod).toBeDefined();
-  });
-});
