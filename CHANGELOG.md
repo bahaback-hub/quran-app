@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 📊 إصلاح `vitest.config.js`: إضافة `json-summary` و `json` reporters — كانت CI تفشل لأن `coverage/coverage-summary.json` لا يُولّد
 - 📦 إضافة `esbuild` كـ dependency صريح — Vite 8 يتطلبه لكنه لم يكن مثبتاً، مما كسر البناء في CI
 - 🔧 إعادة كتابة فحص التغطية في `ci.yml` باستخدام `node -e` بدلاً من `bc` (أكثر موثوقية عبر البيئات)
+- ♿ إصلاح انتهاك WCAG 2.1 AA الحرج في `#themeToggle`: كان `<div>` بلا role يحمل `aria-checked` (غير مسموح). أُضيف `role="group"` وإزالة `setAttribute('aria-checked', ...)` من `settings.ts`
+- 🔍 إصلاح سكربت `a11y-audit.mjs`: كان يحمل axe-core من CDN وينتهك CSP. أُعيد كتابته ليستخدم نسخة axe-core المحلية المثبتة عبر npm
+- 📦 إضافة `axe-core` كـ devDependency للسماح بفحص a11y محلياً وبدون CDN
 
 ## 1.5.0 (2026-06-17)
 
