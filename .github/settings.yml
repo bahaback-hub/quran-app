@@ -1,0 +1,33 @@
+repository:
+  name: quran-app
+  description: "Professional Quran Web App — Recitation, Audio, Search, Tafsir, Prayer Times & More"
+  homepage: https://bahaback-hub.github.io/quran-app/
+  private: false
+  has_issues: true
+  has_projects: true
+  has_wiki: false
+  has_discussions: true
+  default_branch: main
+  allow_squash_merge: true
+  allow_merge_commit: false
+  allow_rebase_merge: true
+  delete_branch_on_merge: true
+
+branches:
+  - name: main
+    protection:
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: false
+      required_status_checks:
+        strict: true
+        contexts:
+          - Lint & TypeCheck
+          - Test
+          - Build
+      enforce_admins: false
+      restrictions: null
+      required_linear_history: false
+      allow_force_pushes: false
+      allow_deletions: false

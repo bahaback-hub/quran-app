@@ -1,7 +1,7 @@
 {
   "name": "quran-app",
-  "version": "1.0.0",
-  "description": "> تطبيق ويب احترافي للقرآن الكريم يعمل على جميع الأجهزة، قابل للتثبيت كتطبيق (PWA)، ويعمل أوفلاين.",
+  "version": "1.4.0",
+  "description": "Professional Quran Web App — Recitation, Audio, Search, Tafsir, Prayer Times, Adhkar & More (PWA/Android)",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -27,6 +27,7 @@
   "engines": {
     "node": ">=22"
   },
+  "keywords": ["quran", "islam", "pwa", "typescript", "vite", "prayer-times", "tafsir", "audio-player", "mushaf", "adhkar", "capacitor", "offline"],
   "license": "MIT",
   "private": true,
   "repository": {
