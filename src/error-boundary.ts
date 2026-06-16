@@ -82,7 +82,11 @@ export function clearErrorLog(): void {
 function persistErrorLog(): void {
   try {
     const stored: ErrorLogEntry[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    stored.push(...errorLog);
+    // Only push the latest entry (the one just added by logError),
+    // not the entire in-memory array, to avoid duplicating previously persisted errors.
+    if (errorLog.length > 0) {
+      stored.push(errorLog[errorLog.length - 1]!);
+    }
     const trimmed = stored.slice(-STORAGE_MAX_ENTRIES);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
   } catch {

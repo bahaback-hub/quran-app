@@ -138,7 +138,9 @@ function buildSearchHighlight(text: string, query: string): string {
     matches.push({ start: m.index, end: m.index + normQuery.length });
   }
   if (!matches.length) {
-    return escapeHtml(text);
+    const r = escapeHtml(text);
+    _highlightCache.set(cacheKey, r);
+    return r;
   }
   const origRanges: OrigRange[] = matches
     .map((match) => {
