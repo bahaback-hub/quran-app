@@ -13,14 +13,23 @@ export default defineConfig({
     assetsDir: 'assets',
     emptyOutDir: true,
     cssMinify: 'lightningcss',
-    modulePreload: { polyfill: false },
+    minify: 'esbuild',
     target: 'es2020',
+    chunkSizeWarningLimit: 600,
+    modulePreload: { polyfill: false },
+    reportCompressedSize: false,
     rollupOptions: {
       input: './index.html',
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false,
+      },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
+        compact: true,
         manualChunks(id) {
           if (id.includes('node_modules')) {
               if (id.includes('ajv') || id.includes('json-schema')) return 'vendor-json';

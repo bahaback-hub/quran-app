@@ -158,9 +158,9 @@
         <div class="header-menu-container">
           <div class="header-actions">
             <div class="theme-switcher" id="themeToggle" aria-label="تبديل المظهر">
-              <button class="theme-btn active" data-theme="light" title="الوضع النهاري">☀️</button>
-              <button class="theme-btn" data-theme="sepia" title="وضع السيبيا">📜</button>
-              <button class="theme-btn" data-theme="night" title="الوضع الليلي">🌙</button>
+              <button class="theme-btn active" data-theme="light" title="الوضع النهاري" aria-label="الوضع النهاري" aria-pressed="true">☀️</button>
+              <button class="theme-btn" data-theme="sepia" title="وضع السيبيا" aria-label="وضع السيبيا" aria-pressed="false">📜</button>
+              <button class="theme-btn" data-theme="night" title="الوضع الليلي" aria-label="الوضع الليلي" aria-pressed="false">🌙</button>
             </div>
             <button class="header-action-btn" id="settingsToggleBtn" title="الإعدادات" aria-label="الإعدادات">
               <svg
@@ -268,10 +268,10 @@
               العرض</span
             >
             <div class="view-mode-group">
-              <button class="view-mode-btn active" id="viewSurahBtn" data-mode="surah" title="وضع السورة">📖</button>
-              <button class="view-mode-btn" id="viewMushafBtn" data-mode="mushaf" title="وضع المصحف">📄</button>
-              <button class="view-mode-btn" id="viewPresBtn" data-mode="presentation" title="وضع العرض">🖼️</button>
-              <button class="view-mode-btn view-mode-btn-trans hidden" id="translationToggle" title="الترجمة">
+              <button class="view-mode-btn active" id="viewSurahBtn" data-mode="surah" title="وضع السورة" aria-label="وضع السورة" aria-pressed="true">📖</button>
+              <button class="view-mode-btn" id="viewMushafBtn" data-mode="mushaf" title="وضع المصحف" aria-label="وضع المصحف" aria-pressed="false">📄</button>
+              <button class="view-mode-btn" id="viewPresBtn" data-mode="presentation" title="وضع العرض" aria-label="وضع العرض" aria-pressed="false">🖼️</button>
+              <button class="view-mode-btn view-mode-btn-trans hidden" id="translationToggle" title="الترجمة" aria-label="تبديل الترجمة" aria-pressed="false">
                 🌐
               </button>
             </div>
@@ -293,7 +293,7 @@
               </svg>
               بحث</span
             >
-            <button class="search-toggle-btn" id="searchToggleBtn" title="بحث">
+            <button class="search-toggle-btn" id="searchToggleBtn" title="بحث" aria-label="بحث" aria-expanded="false" aria-controls="searchInputGroup">
               <svg
                 class="icon icon-sm"
                 width="14"
@@ -307,7 +307,7 @@
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </button>
-            <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق">📲</button>
+            <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">📲</button>
             <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
             <div class="control-group search-input-group hidden" id="searchInputGroup">
               <div class="search-input-wrapper">

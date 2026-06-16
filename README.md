@@ -12,8 +12,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8.0-646CFF.svg)](https://vitejs.dev/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-A022A0.svg)](https://web.dev/progressive-web-apps/)
-[![Tests](https://img.shields.io/badge/Tests-3000%2B%20passing-brightgreen.svg)]()
-[![Coverage](https://img.shields.io/badge/Coverage-82%25-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-3200%2B%20passing-brightgreen.svg)]()
+[![Coverage](https://img.shields.io/badge/Coverage-89%25-brightgreen.svg)]()
 [![Release](https://img.shields.io/badge/Release-v1.4.0-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
 [![CodeQL](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml)
 

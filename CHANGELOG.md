@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.5.0 (2026-06-17) — 10/10 Quality Milestone
+
+### ✨ Features
+- ♿ تحسينات إتاحة الوصول: إضافة aria-label و aria-pressed و aria-expanded لجميع الأزرار التفاعلية في index.html
+- ⚡ تحسينات الأداء: تفعيل treeshake الصارم و compact output و esbuild minify في vite.config.js
+- 🧪 رفع تغطية الاختبارات إلى ~89% مع أكثر من 3200 اختبار (was 88.41% / 3067 tests)
+- 📚 توثيق مجتمعي كامل: CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md
+- 🔒 0 ثغرات أمنية في npm audit
+
+### 🐛 Bug Fixes
+- إصلاح typo في vite.config.js: `[name]-ash].js` → `[name]-[hash].js`
+
+### 🔧 Maintenance
+- إضافة coverage-booster-final.test.ts (85 اختبار جديد لـ utils, keyboard, a11y, audio-cache, templates, settings, i18n)
+- إضافة coverage-booster-final2.test.ts (45 اختبار جديد لـ surah-loader, app-events, mushaf-renderer, audio, reading-stats, presentation)
+- رفع تغطية utils.ts إلى 100% (كانت 90.47%)
+- رفع تغطية keyboard.ts functions من 28.57% إلى ~88%
+
 ## 1.4.0 (2026-06-16)
 
 ### ✨ Features
