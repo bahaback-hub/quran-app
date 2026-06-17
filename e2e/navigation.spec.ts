@@ -66,17 +66,24 @@ test.describe('Quran App — Theme Switching', () => {
   });
 
   test('should apply night mode via theme toggle', async ({ page }) => {
-    const themeToggle = page.locator('#themeToggle');
-    await themeToggle.click();
+    // The click handler on #themeToggle uses event delegation: it looks
+    // for `e.target.closest('.theme-btn')` and applies that button's
+    // `data-theme` value. Clicking the wrapper div itself does nothing —
+    // we must click the night-mode button specifically.
+    const nightBtn = page.locator('.theme-btn[data-theme="night"]');
+    await nightBtn.click();
 
     const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
     expect(bodyClass).toBe(true);
   });
 
   test('should toggle night mode off when clicked again', async ({ page }) => {
-    const themeToggle = page.locator('#themeToggle');
-    await themeToggle.click(); // Night mode on
-    await themeToggle.click(); // Night mode off
+    // Same delegation pattern as above — click the night button, then
+    // the light button to revert.
+    const nightBtn = page.locator('.theme-btn[data-theme="night"]');
+    const lightBtn = page.locator('.theme-btn[data-theme="light"]');
+    await nightBtn.click(); // Night mode on
+    await lightBtn.click(); // Back to light
 
     const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
     expect(bodyClass).toBe(false);
@@ -90,23 +97,30 @@ test.describe('Quran App — Search Functionality', () => {
   });
 
   test('should open search when search button is clicked', async ({ page }) => {
-    const searchBtn = page.locator('#searchBtn');
-    await searchBtn.click();
+    // #searchBtn only triggers a search — it does NOT open the input.
+    // The input is revealed by clicking #searchToggleBtn (the magnifier
+    // icon in the header). Click that first, then assert the input is
+    // visible.
+    const searchToggle = page.locator('#searchToggleBtn');
+    await searchToggle.click();
 
     const searchInput = page.locator('#searchInput');
-    await expect(searchInput).toBeVisible();
+    await expect(searchInput).toBeVisible({ timeout: 10000 });
   });
 
   test('should display search results for Arabic query', async ({ page }) => {
-    const searchBtn = page.locator('#searchBtn');
-    await searchBtn.click();
-
+    // Open the search input first.
+    await page.locator('#searchToggleBtn').click();
     const searchInput = page.locator('#searchInput');
+    await expect(searchInput).toBeVisible({ timeout: 10000 });
     await searchInput.fill('بسم الله');
-    await page.waitForTimeout(2000);
+    // Click the search button to execute the search (Enter also works).
+    await page.locator('#searchBtn').click();
+    // Wait for results to render (search index loads on idle).
+    await page.waitForTimeout(3000);
 
     const results = page.locator('#searchResults');
-    await expect(results).toBeVisible();
+    await expect(results).toBeVisible({ timeout: 15000 });
   });
 });
 
