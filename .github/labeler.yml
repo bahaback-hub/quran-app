@@ -3,104 +3,119 @@
 
 # القرآن والسور
 quran:
-  - src/surah-loader.ts
-  - src/surah-cache.ts
-  - src/surahs-data.ts
-  - src/quran-meta.ts
-  - src/ayah-modal.ts
-  - src/ayah-click.ts
-  - src/navigation.ts
-  - src/select-mode.ts
-  - public/data/quran-uthmani.json
-  - public/data/surah-list.json
+  - any:
+      - src/surah-loader.ts
+      - src/surah-cache.ts
+      - src/surahs-data.ts
+      - src/quran-meta.ts
+      - src/ayah-modal.ts
+      - src/ayah-click.ts
+      - src/navigation.ts
+      - src/select-mode.ts
+      - public/data/quran-uthmani.json
+      - public/data/surah-list.json
 
 # مواقيت الصلاة
 prayer-times:
-  - src/prayer.ts
-  - src/prayer-local.ts
-  - src/config.ts
+  - any:
+      - src/prayer.ts
+      - src/prayer-local.ts
+      - src/config.ts
 
 # صوتيات
 audio:
-  - src/audio.ts
-  - src/audio-cache.ts
-  - src/audio-visualizer.ts
-  - src/reciters.ts
+  - any:
+      - src/audio.ts
+      - src/audio-cache.ts
+      - src/audio-visualizer.ts
+      - src/reciters.ts
 
 # أندرويد
 android:
-  - android/**/*
-  - capacitor.config.ts
-  - src/capacitor-back.ts
+  - any:
+      - android/**/*
+      - capacitor.config.ts
+      - src/capacitor-back.ts
 
 # ترجمة ولغات
 i18n:
-  - src/i18n.ts
-  - src/translations/**/*
+  - any:
+      - src/i18n.ts
+      - src/translations/**/*
 
 # أداء
 performance:
-  - vite.config.js
-  - tsconfig.json
-  - tsconfig.ci.json
-  - package.json
-  - package-lock.json
+  - any:
+      - vite.config.js
+      - tsconfig.json
+      - tsconfig.ci.json
+      - package.json
+      - package-lock.json
 
 # أمان
 security:
-  - public/_headers
-  - index.html
+  - any:
+      - public/_headers
+      - index.html
 
 # تطبيق ويب تقدمي
 pwa:
-  - vite.config.js
-  - public/offline.html
-  - public/manifest.webmanifest
+  - any:
+      - vite.config.js
+      - public/offline.html
+      - public/manifest.webmanifest
 
 # تفسير
 tafsir:
-  - src/tafsir.ts
-  - public/data/muyassar-tafsir.json
+  - any:
+      - src/tafsir.ts
+      - public/data/muyassar-tafsir.json
 
 # مصحف
 mushaf:
-  - src/mushaf.ts
-  - src/mushaf-renderer.ts
-  - src/css/mushaf.css
+  - any:
+      - src/mushaf.ts
+      - src/mushaf-renderer.ts
+      - src/css/mushaf.css
 
 # تجويد
 tajweed:
-  - src/tajweed.ts
-  - src/tajweed-data.ts
-  - public/data/tajweed.json
+  - any:
+      - src/tajweed.ts
+      - src/tajweed-data.ts
+      - public/data/tajweed.json
 
 # بحث
 search:
-  - src/search.ts
-  - src/search-core.ts
-  - src/search-ui.ts
-  - src/keyboard.ts
+  - any:
+      - src/search.ts
+      - src/search-core.ts
+      - src/search-ui.ts
+      - src/keyboard.ts
 
 # واجهة وتصميم
 ui:
-  - src/css/**/*
-  - src/templates.ts
-  - src/overlays.ts
-  - src/ui.ts
-  - src/ui-extras.ts
-  - src/settings.ts
-  - src/onboarding.ts
-  - styles.css
+  - any:
+      - src/css/**/*
+      - src/templates.ts
+      - src/overlays.ts
+      - src/ui.ts
+      - src/ui-extras.ts
+      - src/settings.ts
+      - src/onboarding.ts
+      - styles.css
 
 # أذكار
 adhkar:
-  - src/adhkar.ts
-  - src/adhkar-data.ts
-  - src/adhkar-notifications.ts
+  - any:
+      - src/adhkar.ts
+      - src/adhkar-data.ts
+      - src/adhkar-notifications.ts
 
 # اختبارات
 testing:
-  - src/__tests__/**/*
-  - e2e/**/*
-  - vitest.config.js
-  - playwright.config.ts
+  - any:
+      - src/__tests__/**/*
+      - e2e/**/*
+      - vitest.config.js
+      - playwright.config.ts
