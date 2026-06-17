@@ -4,17 +4,13 @@ import { dom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
 import { __ } from './i18n.js';
 import {
-  surahSelectLoading,
-  surahSelectError,
-  surahSelectDefault,
-  reciterOptions,
   skeletonLoading,
   surahLoadError,
   collapsedPlayerInfo,
   escapeHtml,
 } from './templates.js';
-import { state, batch, immutableMapSet, immutableMapDelete, SurahInfo, SurahOffset } from './state.js';
-import { RECITERS, getReciterById, buildAudioUrl, getTimingApiId, getReciterDisplayName } from './reciters.js';
+import { state, batch, immutableMapSet, immutableMapDelete, SurahInfo } from './state.js';
+import { getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
 import type { TajweedRule } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
@@ -27,6 +23,12 @@ import { apiFetch, jsonFetch } from './api-client.js';
 import type { SurahData, AyahEntry } from './types.js';
 import { cacheSurahToIDB, getCachedSurahFromIDB } from './surah-cache.js';
 import type { CachedSurahEntry } from './surah-cache.js';
+
+// Re-export surah-list helpers so existing callers of surah-loader.loadSurahList /
+// populateReciterSelect / buildSurahOffsets continue to work without changing import paths.
+// The functions are imported lazily inside surah-loader where needed (via dynamic import
+// or direct calls through the surah-list module).
+export { loadSurahList, populateReciterSelect, buildSurahOffsets, absToSurahAyah, getAbsNumber } from './surah-list.js';
 
 /* ===================== LOCAL INTERFACES ===================== */
 
@@ -78,98 +80,6 @@ interface SavedPosition {
   surahName: string;
   ayahNumberInSurah: number;
   timestamp: number;
-}
-
-/* ===================== SURAH LIST ===================== */
-
-/** Load surah list from cache, API, or local fallback, then populate dropdown. */
-export async function loadSurahList(): Promise<void> {
-  const cached = storage.get<SurahInfo[]>('surah_list');
-  if (cached && cached.length === CONFIG.SURAH_COUNT) {
-    state.surahList = cached;
-    state.surahOffsets = null;
-    buildSurahOffsets();
-    populateSurahSelect();
-    return;
-  }
-  if (dom.surahSelect) {
-    dom.surahSelect.innerHTML = surahSelectLoading();
-  }
-  try {
-    const data: { data?: SurahInfo[] } = await apiFetch('/surah', { silent: true }) as { data?: SurahInfo[] };
-    if (data?.data) {
-      state.surahList = data.data;
-      state.surahOffsets = null;
-      storage.set('surah_list', data.data);
-      populateSurahSelect();
-      return;
-    }
-  } catch {
-    /* fall through to local fallback */
-  }
-  try {
-    const localData = await jsonFetch('data/surah-list.json', { silent: true }) as SurahInfo[];
-    if (localData && localData.length === CONFIG.SURAH_COUNT) {
-      state.surahList = localData;
-      state.surahOffsets = null;
-      storage.set('surah_list', localData);
-      populateSurahSelect();
-      return;
-    }
-  } catch {
-    /* no local fallback */
-  }
-  if (dom.surahSelect) {
-    dom.surahSelect.innerHTML = surahSelectError();
-  }
-  // showToast(__('failed_load_surah'), 'error'); // disabled at startup
-}
-
-function populateSurahSelect(): void {
-  if (!dom.surahSelect) {
-    return;
-  }
-  dom.surahSelect.innerHTML = surahSelectDefault();
-  for (const s of state.surahList) {
-    const opt = document.createElement('option');
-    opt.value = String(s.number);
-    opt.textContent = `${s.number}. ${s.name} (${s.englishName})`;
-    dom.surahSelect.appendChild(opt);
-  }
-  dom.surahSelect.value = String(state.currentSurah);
-}
-
-/**
- * Populate the reciter dropdown with available reciter options.
- * Uses the RECITERS list and current selection to render option elements.
- */
-export function populateReciterSelect(): void {
-  if (!dom.reciterSelect) {
-    return;
-  }
-  dom.reciterSelect.innerHTML = reciterOptions(
-    RECITERS.map((r: ReciterInfo) => ({ id: r.id, name: getReciterDisplayName(r) })),
-    state.currentReciter || CONFIG.DEFAULT_RECITER,
-  );
-}
-
-/**
- * Build surah offset mappings from the surah list.
- * Computes cumulative ayah counts and absolute starting positions
- * for each surah, enabling quick ayah-to-surah lookups.
- */
-export function buildSurahOffsets(): void {
-  if (state.surahOffsets || !state.surahList.length) {
-    return;
-  }
-  state.surahOffsets = [];
-  let cum = 1;
-  const offsets: SurahOffset[] = [];
-  for (const s of state.surahList) {
-    offsets.push({ surahNum: s.number, startAbs: cum, count: s.numberOfAyahs, name: s.name });
-    cum += s.numberOfAyahs;
-  }
-  state.surahOffsets = offsets;
 }
 
 function countArabicChars(text: string): number {
@@ -234,41 +144,7 @@ function calculateAyahTimings(ayahs: AyahEntry[], surahNumber: number): number[]
   return timings;
 }
 
-interface AbsToSurahAyahResult {
-  surahNum: number;
-  surahName: string;
-  ayahNumInSurah: number;
-}
 
-function _absToSurahAyah(absNum: number): AbsToSurahAyahResult | null {
-  if (!state.surahOffsets) {
-    buildSurahOffsets();
-  }
-  if (!state.surahOffsets) {
-    return null;
-  }
-  for (const o of state.surahOffsets) {
-    if (absNum >= o.startAbs && absNum < o.startAbs + o.count) {
-      return { surahNum: o.surahNum, surahName: o.name, ayahNumInSurah: absNum - o.startAbs + 1 };
-    }
-  }
-  return null;
-}
-
-function _getAbsNumber(surah: number, ayah: number): number | null {
-  if (!state.surahOffsets) {
-    buildSurahOffsets();
-  }
-  if (!state.surahOffsets) {
-    return null;
-  }
-  for (const o of state.surahOffsets) {
-    if (o.surahNum === surah) {
-      return o.startAbs + ayah - 1;
-    }
-  }
-  return null;
-}
 
 /* ===================== AUDIO HELPERS (independent from text) ===================== */
 
