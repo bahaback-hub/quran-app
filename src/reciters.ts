@@ -51,7 +51,10 @@ export const RECITERS: Reciter[] = [
   { id: 'tnjy', name: 'reciter_taniji', source: 'mp3quran', server: 'https://server12.mp3quran.net/tnjy' },
 ];
 
-/** Map of mp3quran reciter IDs → quran.com chapter_recitation IDs for real ayah timestamps. */
+/**
+ * Map of mp3quran reciter IDs → quran.com chapter_recitation IDs for real ayah timestamps.
+ * @internal
+ */
 export const TIMING_API_IDS: Record<string, number> = {
   s_gmd: 13,
   shur: 10,

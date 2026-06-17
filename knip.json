@@ -7,13 +7,17 @@
     "scripts/**/*.mjs"
   ],
   "project": ["src/**/*.ts", "scripts/**/*.mjs"],
-  "ignore": [
-    "src/translations/**",
-    "src/types.ts",
-    "src/search.ts",
-    "src/global.d.ts"
+  "ignoreBinaries": ["license-checker", "AGPL-3.0", "GPL-2.0"],
+  "ignoreDependencies": [
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "axe-core",
+    "lightningcss",
+    "serve",
+    "@capacitor/status-bar",
+    "@capacitor/splash-screen"
   ],
-  "ignoreBinaries": ["npx", "serve"],
+  "exclude": ["types", "unlisted"],
   "typescript": {
     "strict": true
   }
