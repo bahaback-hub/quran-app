@@ -85,7 +85,8 @@ describe('getNextPrayerKey', () => {
     };
     const result = getNextPrayerKey();
     expect(result).not.toBeNull();
-    // Result should be one of the prayer keys in PRAYER_ORDER
-    expect(['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']).toContain(result);
+    // Result should be one of the prayer keys in PRAYER_DISPLAY_ORDER
+    // (which includes Sunrise because the countdown can target sunrise)
+    expect(['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']).toContain(result);
   });
 });
