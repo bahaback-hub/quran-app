@@ -144,7 +144,7 @@ async function _doLoadFullQuranText(): Promise<void> {
         cached.length > 0 &&
         (!cached[0]!.normalized || cached.some((a) => a.normalized && a.normalized.includes('الصلوه')));
       if (needsNormalize) {
-        console.log('[Search] Re-normalizing cached Quran text with updated normalizer...');
+        console.warn('[Search] Re-normalizing cached Quran text with updated normalizer...');
         for (const a of cached) {
           a.normalized = normalizeExactText(a.text);
         }

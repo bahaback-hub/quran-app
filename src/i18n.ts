@@ -109,7 +109,7 @@ async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
       }
 
       if (import.meta.env.DEV) {
-        console.info(`[i18n] Loaded "${lang}" bundle (${Object.keys(mod.default).length} keys)`);
+        console.warn(`[i18n] Loaded "${lang}" bundle (${Object.keys(mod.default).length} keys)`);
       }
 
       return mod.default;
@@ -151,7 +151,7 @@ export function unloadLang(lang: LangCode): boolean {
 
   delete translations[lang];
   if (import.meta.env.DEV) {
-    console.info(`[i18n] Unloaded "${lang}" bundle to free memory`);
+    console.warn(`[i18n] Unloaded "${lang}" bundle to free memory`);
   }
   return true;
 }

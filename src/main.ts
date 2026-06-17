@@ -14,7 +14,7 @@ const isAndroidWebView = typeof navigator !== 'undefined' && /wv|Android.*Capaci
 
 if (isCapNative || isAndroidWebView) {
   document.documentElement.classList.add('capacitor-native');
-  console.log('[Capacitor] Native platform detected, applying mobile fixes');
+  console.warn('[Capacitor] Native platform detected, applying mobile fixes');
   // Apply class after DOM is ready
   if (document.body) {
     document.body.classList.add('capacitor-native');
@@ -127,7 +127,7 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
       .then((registrations) => {
         for (const reg of registrations) {
           reg.unregister();
-          console.log('[Capacitor] Unregistered service worker to prevent conflicts');
+          console.warn('[Capacitor] Unregistered service worker to prevent conflicts');
         }
       })
       .catch(() => { /* noop */ });

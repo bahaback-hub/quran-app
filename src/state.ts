@@ -384,12 +384,12 @@ const wildcardSubscribers: StateChangeCallback[] = [];
  * @example
  *   // Typed: newVal and oldVal are both `boolean`
  *   subscribe('isPlaying', (newVal, oldVal) => {
- *     console.log(newVal); // boolean
+ *     console.warn(newVal); // boolean
  *   });
  *
  *   // Untyped: for dynamic keys
  *   subscribe(someKey, (newVal, oldVal, key) => {
- *     console.log(key, newVal);
+ *     console.warn(key, newVal);
  *   });
  */
 export function subscribe<K extends keyof AppState>(key: K, callback: TypedStateChangeCallback<K>): () => void;

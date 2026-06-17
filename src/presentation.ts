@@ -269,13 +269,13 @@ export function togglePresentation(): void {
 }
 
 export function openPresentation(): void {
-  console.log('[Presentation] openPresentation() called, mushafMode=' + state.mushafMode);
+  console.warn('[Presentation] openPresentation() called, mushafMode=' + state.mushafMode);
 
   // If in mushaf mode, toggle it off SYNCHRONOUSLY before showing presentation.
   // We set the state directly instead of using the async toggleMushafMode to avoid
   // race conditions where the toggle happens after the overlay is already shown.
   if (state.mushafMode) {
-    console.log('[Presentation] Exiting mushaf mode synchronously before opening presentation');
+    console.warn('[Presentation] Exiting mushaf mode synchronously before opening presentation');
     state.mushafMode = false;
     storage.set('mushaf_mode', false);
     if (dom.pageIndicator) {
@@ -338,7 +338,7 @@ export function openPresentation(): void {
   showControls();
   updateDisplay();
 
-  console.log(
+  console.warn(
     '[Presentation] openPresentation() completed, overlay display=' +
       (dom.presentationOverlay ? dom.presentationOverlay.style.display : 'element-missing'),
   );
@@ -454,7 +454,7 @@ export function syncPresentation(): void {
 }
 
 export function initPresentation(): void {
-  console.log('[Presentation] initPresentation() called');
+  console.warn('[Presentation] initPresentation() called');
   injectStyles();
 
   // Verify the presentation overlay exists in the DOM
@@ -463,7 +463,7 @@ export function initPresentation(): void {
     console.error('[Presentation] ERROR: presentationOverlay element not found in DOM!');
     return;
   }
-  console.log('[Presentation] Overlay element found, binding event handlers...');
+  console.warn('[Presentation] Overlay element found, binding event handlers...');
 
   if (dom.presentationCloseBtn) {
     dom.presentationCloseBtn.addEventListener('click', closePresentation);
@@ -516,5 +516,5 @@ export function initPresentation(): void {
   document.addEventListener('fullscreenchange', handleFullscreenChange);
   document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
-  console.log('[Presentation] initPresentation() completed successfully');
+  console.warn('[Presentation] initPresentation() completed successfully');
 }
