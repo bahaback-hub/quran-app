@@ -17,13 +17,15 @@ function deleteDatabase(): Promise<void> {
 }
 
 describe('surah-cache', () => {
+  // Increase hook timeout for CI environments where IndexedDB operations
+  // may be slower (fake-indexeddb on Ubuntu runners can be sluggish).
   beforeEach(async () => {
     await deleteDatabase();
-  });
+  }, 30000);
 
   afterEach(async () => {
     await deleteDatabase();
-  });
+  }, 30000);
 
   /* ===================== cacheSurahToIDB ===================== */
 
