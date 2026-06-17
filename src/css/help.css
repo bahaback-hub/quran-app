@@ -16,10 +16,18 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  /* Critical: when the panel is off-screen (transform: translateX(100%)),
+     it must NOT intercept pointer events on the underlying UI. Without
+     this, the panel sits invisibly over the page and blocks all clicks
+     on buttons that happen to be at its (off-screen) position. */
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .help-panel.open {
   transform: translateX(0);
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .help-header {

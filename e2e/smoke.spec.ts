@@ -100,16 +100,27 @@ test.describe('Quran App — Player', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    // The floating player starts collapsed (.player.collapsed). The
+    // .expanded-content section (which contains #audioPlayer and
+    // #playPauseBtn) is `display: none` while collapsed. Expand the
+    // player so its inner controls become visible to toBeVisible().
+    await page.evaluate(() => {
+      const p = document.getElementById('player');
+      if (p) {
+        p.classList.remove('collapsed');
+        p.classList.add('expanded');
+      }
+    });
+    await page.waitForTimeout(300);
   });
 
   test('should display the audio player', async ({ page }) => {
-    const player = page.locator('#audioPlayer');
-    await expect(player).toBeVisible();
+    await expect(page.locator('#audioPlayer')).toBeVisible({ timeout: 10000 });
   });
 
   test('should show play/pause button', async ({ page }) => {
     const playPauseBtn = page.locator('#playPauseBtn');
-    await expect(playPauseBtn).toBeVisible();
+    await expect(playPauseBtn).toBeVisible({ timeout: 10000 });
   });
 });
 

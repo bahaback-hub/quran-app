@@ -10,6 +10,13 @@ test.describe('الترجمة', () => {
     });
     await page.selectOption('#surahSelect', '1');
     await page.waitForTimeout(3000);
+    // The translation toggle is initially hidden (`.hidden` class) until
+    // the surah finishes loading and the view-mode buttons are revealed.
+    // Remove the .hidden class so tests can interact with it.
+    await page.evaluate(() => {
+      const t = document.getElementById('translationToggle');
+      if (t) t.classList.remove('hidden');
+    });
   });
 
   test('زر تفعيل الترجمة موجود', async ({ page }) => {

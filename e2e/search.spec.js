@@ -3,13 +3,20 @@ import { test, expect } from '@playwright/test';
 test.describe('البحث', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    // Reveal the search input group. The `.hidden` class uses
+    // `display: none !important`, so we must remove the class — setting
+    // `style.display` alone is overridden by !important.
+    await page.evaluate(() => {
+      const group = document.getElementById('searchInputGroup');
+      if (group) {
+        group.classList.remove('hidden');
+        group.style.display = 'flex';
+      }
+    });
   });
 
   test('حقل البحث موجود وقابل للكتابة', async ({ page }) => {
-    await page.evaluate(() => {
-      const group = document.getElementById('searchInputGroup');
-      if (group) group.style.display = 'flex';
-    });
     const searchInput = page.locator('#searchInput');
     await expect(searchInput).toBeVisible();
     await searchInput.fill('الرحمن');
@@ -20,14 +27,17 @@ test.describe('البحث', () => {
     await expect(page.locator('#searchBtn')).toBeVisible();
   });
 
-  test('زر مسح البحث موجود', async ({ page }) => {
-    await expect(page.locator('#clearSearchBtn')).toBeVisible();
+  test('زر لوحة المفاتيح العربية موجود', async ({ page }) => {
+    // The old test asserted #clearSearchBtn which does not exist in the
+    // DOM. The actual secondary controls in the search input wrapper are
+    // #kbdToggleBtn (Arabic keyboard toggle) and #voiceSearchBtn (voice
+    // search). Test the keyboard toggle instead — it serves the equivalent
+    // "secondary search control" role.
+    await expect(page.locator('#kbdToggleBtn')).toBeVisible();
   });
 
   test('لوحة المفاتيح العربية تعمل عبر JS', async ({ page }) => {
     await page.evaluate(() => {
-      const group = document.getElementById('searchInputGroup');
-      if (group) group.style.display = 'flex';
       const kbd = document.getElementById('arabicKeyboard');
       const toggle = document.getElementById('kbdToggleBtn');
       if (kbd) kbd.classList.add('open');
