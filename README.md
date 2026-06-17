@@ -426,6 +426,67 @@ quran-app/
 
 ## 🏗️ العمارة / Architecture
 
+### مخطط المكونات / Component Diagram
+
+```mermaid
+graph TB
+    subgraph "Entry & Bootstrap"
+        MAIN[main.ts] --> APP[app.ts]
+        APP --> |3-phase| STATE[state.ts Proxy]
+        APP --> DOM[dom.ts]
+        APP --> I18N[i18n.ts]
+    end
+
+    subgraph "Core Data Layer"
+        STATE --> SURAH_LIST[surah-list.ts]
+        STATE --> SURAH_LOADER[surah-loader.ts]
+        STATE --> API_CLIENT[api-client.ts]
+        API_CLIENT --> |safeFetch| EXT_API[External APIs]
+        SURAH_LOADER --> |fallback| API_FALLBACK[api-fallback.ts]
+        API_FALLBACK --> |local JSON| LOCAL_DATA[public/data/*.json]
+        SURAH_LOADER --> IDB_CACHE[surah-cache.ts IndexedDB]
+    end
+
+    subgraph "Feature Modules"
+        AUDIO[audio.ts]
+        MUSHAF[mushaf-renderer.ts]
+        SEARCH[search-core.ts]
+        TAFSIR[tafsir.ts]
+        PRAYER[prayer.ts]
+        ADHKAR[adhkar.ts]
+        FAVORITES[favorites.ts]
+        PRESENTATION[presentation.ts]
+    end
+
+    subgraph "UI Templates"
+        TEMPLATES[templates.ts]
+        PANELS[templates-panels.ts]
+        OVERLAYS[overlays.ts]
+    end
+
+    STATE --> FEATURE_MODS
+    FEATURE_MODS[Feature Modules] --> AUDIO
+    FEATURE_MODS --> MUSHAF
+    FEATURE_MODS --> SEARCH
+    FEATURE_MODS --> TAFSIR
+    FEATURE_MODS --> PRAYER
+    FEATURE_MODS --> ADHKAR
+    FEATURE_MODS --> FAVORITES
+    FEATURE_MODS --> PRESENTATION
+
+    AUDIO --> AUDIO_CACHE[audio-cache.ts]
+    MUSHAF --> QCF_FONTS[QCF V4 Fonts]
+    TAFSIR --> TAFSIR_API[Tafsir API]
+
+    APP --> TEMPLATES
+    TEMPLATES --> PANELS
+    APP --> OVERLAYS
+    OVERLAYS --> PANELS
+
+    ERROR_BOUNDARY[error-boundary.ts] -.->|catches| APP
+    A11Y[a11y.ts] -.->|enhances| APP
+```
+
 ### إدارة الحالة التفاعلية / Reactive State Management
 بدون أي إطار عمل خارجي — يستخدم `Proxy` لإنشاء حالة تفاعلية بأنواع آمنة:
 ```typescript
@@ -443,10 +504,11 @@ batch(() => { state.currentSurah = 5; state.currentAyahIndex = 0; });  // ← إ
 ### عميل API موحد / Unified API Client
 `safeFetch` يوفر: مهلة زمنية (15 ثانية)، إعادة محاولة (مرتان)، إلغاء الطلبات المكررة، AbortController، وإشعارات خطأ صديقة.
 
-### تحميل البيانات على 3 مستويات / 3-Tier Data Loading
-1. **محلي**: ملفات JSON مدمجة (تفسير الميسر)
-2. **مخزن مؤقت**: IndexedDB (تفاسير، نصوص، صوت)
-3. **بعيد**: API fetch مع تخزين مؤقت تلقائي
+### تحميل البيانات على 4 مستويات / 4-Tier Data Loading
+1. **محلي مُخزّن مؤقتاً**: IndexedDB (نصوص، صوت، تفاسير)
+2. **API البعيد**: AlQuran.cloud، Aladhan، mp3quran.net
+3. **ذاكرة البحث**: `state.fullQuranText` (محمل مسبقاً)
+4. **Fallback محلي**: `public/data/quran-uthmani.json` (1.7MB، يعمل offline بالكامل)
 
 ### حقن القوالب المتأخر / Lazy Overlay Injection
 القوالب الكبيرة (الإعدادات، المشغل، لوحة المفاتيح، التعليمات) تُحقن عبر JavaScript قبل `cacheDom()`، مما يقلل حجم HTML الأولي بنحو 375 سطر.
