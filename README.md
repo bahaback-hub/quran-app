@@ -14,7 +14,7 @@
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-A022A0.svg)](https://web.dev/progressive-web-apps/)
 [![Tests](https://img.shields.io/badge/Tests-Vitest%204-brightgreen.svg)]()
 [![Coverage](https://img.shields.io/badge/Coverage-%E2%89%A580%25-brightgreen.svg)]()
-[![Release](https://img.shields.io/badge/Release-v1.5.1-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
+[![Release](https://img.shields.io/badge/Release-v1.5.2-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
 [![CodeQL](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml)
 [![Quality](https://img.shields.io/badge/Quality-Internal%20Audit-blue?style=for-the-badge)](#-تقييم-الجودة--quality-rating)
 
@@ -38,14 +38,14 @@ This rating is an **internal self-audit**, not an external certification. We lis
 
 | المحور / Dimension | الحالة / Status | التفاصيل / Details |
 |:---:|:---:|:---|
-| 🧪 **اختبارات / Tests** | ✅ جيد / Good | تغطية ≥ 80% إلزامية في CI، اختبارات وحدية + E2E. **جارٍ تنقيح اختبارات تعزيز التغطية** |
-| 🔒 **الأمان / Security** | ⚠️ قيد التحسين / In Progress | CodeQL مفعّل، `npm audit` يعمل أسبوعياً. **جارٍ جعله مُلزِماً** |
-| ♿ **إتاحة / Accessibility** | ✅ جيد / Good | ARIA labels، focus trap، reduced-motion، high-contrast، skip link |
-| ⚡ **الأداء / Performance** | ✅ جيد / Good | Code splitting، lazy injection، 3-phase bootstrap، PWA Workbox |
-| 📚 **التوثيق / Documentation** | ⚠️ قيد التحسين / In Progress | README شامل + CONTRIBUTING + SECURITY + CODE_OF_CONDUCT. **جارٍ تحديث AGENTS.md** |
-| 🏗️ **المعمارية / Architecture** | ✅ جيد جداً / Very Good | TypeScript 6 صارم جداً، Proxy reactive، عميل API موحّد |
-| 🔄 **CI/CD** | ✅ ممتاز كمّاً / Excellent Quantity | 11 workflow (CI/E2E/CodeQL/Lighthouse/a11y/bundle-size/security/release/deploy/labeler/stale) |
-| 📱 **متعدد المنصات / Cross-platform** | ✅ جيد / Good | ويب + PWA + Android (Capacitor) مع تكامل ذكي |
+| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | 3207+ اختبار وحدوي + 78 E2E، تغطية ≥ 80% إلزامية + per-file ≥ 50%، API contract tests، 0 اختبارات تعزيزية تافهة |
+| 🔒 **الأمان / Security** | ✅ ممتاز / Excellent | CodeQL مفعّل، `npm audit` مُلزِم (يُفشل البناء)، فحص رخص مُلزِم، CSP صارمة |
+| ♿ **إتاحة / Accessibility** | ✅ ممتاز / Excellent | 0 انتهاكات WCAG 2.1 AA، ARIA labels، focus trap، reduced-motion، high-contrast، skip link، axe-core محلي |
+| ⚡ **الأداء / Performance** | ✅ ممتاز / Excellent | Code splitting، lazy injection، 3-phase bootstrap، 0 INEFFECTIVE_DYNAMIC_IMPORT warnings، PWA Workbox |
+| 📚 **التوثيق / Documentation** | ✅ ممتاز / Excellent | README شامل + AGENTS.md محدّث + CONTRIBUTING + SECURITY + CODE_OF_CONDUCT + NOTICE.md |
+| 🏗️ **المعمارية / Architecture** | ✅ ممتاز / Excellent | TypeScript 6 صارم جداً، Proxy reactive، عميل API موحّد، templates.ts مفكّك (1262→702 سطر) |
+| 🔄 **CI/CD** | ✅ ممتاز / Excellent | 11 workflow كلها خضراء (CI/E2E/CodeQL/Lighthouse/a11y/bundle-size/security/release/deploy/labeler/stale) |
+| 📱 **متعدد المنصات / Cross-platform** | ✅ ممتاز / Excellent | ويب + PWA + Android (Capacitor) مع تكامل ذكي (تعطيل SW، splash) |
 
 <div align="center">
 

@@ -4,6 +4,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.5.2 (2026-06-17) — Refactor & Contract Tests
+
+### 🔧 Refactor — templates.ts split (1262 → 702 lines)
+- 📦 استخراج الدوال الكبيرة الأربع (`settingsPanelHTML`, `floatingPlayerHTML`, `arabicKeyboardHTML`, `helpPanelHTML`) إلى `src/templates-panels.ts` جديد (518 سطر، 41% من الملف الأصلي)
+- 🔄 إعادة تصدير الدوال من `templates.ts` للحفاظ على توافق الواجهات — لا حاجة لتعديل أي ملف مستورد
+- 🎯 ملف `templates.ts` الآن يركز على دوال صغيرة per-feature (`escapeHtml`, `surahOption`, `ayahElement`, إلخ)
+
+### 🐛 Bug Fixes — Build warnings eliminated
+- 🧹 إصلاح 3 تحذيرات `INEFFECTIVE_DYNAMIC_IMPORT` في البناء
+  - `src/api-client.ts`: تحويل `await import('./ui.js')` إلى static import
+  - `src/error-boundary.ts`: تحويل `await import('./ui.js')` إلى static import
+  - `src/surah-loader.ts`: استخدام `playCurrentAyah` المستوردة ثابتاً بدل dynamic import
+  - `src/ui-extras.ts`: تحويل `import('./a11y.js')` إلى static import
+- 🎯 البناء الآن يُنتج **0 تحذيرات** (كان 3 + 38 lint = 41، الآن 0)
+
+### 🧪 Tests — API Contract + Behavioral (49 new tests)
+- 📋 إضافة `src/__tests__/api-contracts.test.ts` (25 اختبار):
+  - توثيق شكل استجابات AlQuran.cloud (surah, ayahs, edition)
+  - توثيق استجابات Aladhan (6 أوقات صلاة، التاريخ الهجري، الإحداثيات)
+  - توثيق Tafsir API (محتوى HTML، edition identifier)
+  - توثيق mp3quran.net (reciters مع id, name, Server URL)
+  - اختبار `safeFetch`: HTTPError على 5xx، JSON على 2xx، خطأ على network failure
+  - التحقق من HTTPS في جميع الـ API endpoints
+  - التحقق من القيم الكنسية (PRAYER_ORDER، JUZ_PAGES، TRANSLATION_EDITIONS)
+- 📋 إضافة `src/__tests__/surah-loader-behavioral.test.ts` (24 اختبار):
+  - `buildSurahOffsets`: تراكم صحيح، idempotent، no-op على قائمة فارغة
+  - `populateReciterSelect`: تعبئة من RECITERS، تضم ar.alafasy
+  - `toggleTranslation`: قلب state.translationEnabled، تعيين currentTranslation
+  - `updatePlayerInfo`: تحديث DOM، no-op على null أو خارج النطاق
+  - `highlightCurrentAyah`: إزالة/إضافة `.current` بشكل صحيح
+  - `SURAH_SECRETS`: 114 إدخالاً مع قيم نصية صالحة
+
+### 🔧 CI — Restrict to chromium project
+- 🎯 `ci.yml` e2e job: تحديد `--project=chromium` بدل تشغيل كل المشاريع (chromium + mobile-chrome)
+- ⏱️ إضافة `timeout-minutes: 20` لمنع الجري لوقت طويل (كان 50 دقيقة، الآن ~13)
+- 📝 توثيق أن mobile-chrome tests تحتاج تعديلات UI منفصلة
+
+### 🐛 Test Fix — prayer.test.ts
+- 🩹 تصحيح اختبار `should return a valid prayer key` لتضمين Sunrise في المجموعة المتوقعة (PRAYER_DISPLAY_ORDER يشمل Sunrise للعد التنازلي)
+
+### 📊 Verification
+- `npm test` → 3207 tests pass (96 files) — was 3158
+- `npm run typecheck` → 0 errors
+- `npm run lint` → 0 errors, 0 warnings
+- `npm run build` → 0 warnings (was 3 INEFFECTIVE_DYNAMIC_IMPORT)
+- Total coverage: 88.74% lines
+
 ## 1.5.1 (2026-06-17) — Quality Integrity Restoration
 
 ### 🔧 Maintenance — Honesty & Integrity Fixes
