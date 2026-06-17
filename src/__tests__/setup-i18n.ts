@@ -45,9 +45,14 @@ vi.mock('../storage.js', () => ({
   },
 }));
 
-// Mock the ui module
+// Mock the ui module — must export ALL public functions to avoid
+// "No export defined" errors in tests that import ui directly.
 vi.mock('../ui.js', () => ({
   showToast: vi.fn(),
+  loadingBar: {
+    show: vi.fn(),
+    hide: vi.fn(),
+  },
 }));
 
 // Mock the utils module — must export ALL public functions to avoid
