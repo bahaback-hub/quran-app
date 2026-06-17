@@ -1031,14 +1031,15 @@ function initAyahDelegation(): void {
       return;
     }
 
-    // If the user clicked on the ayah NUMBER (not the text), play from this ayah
+    // If the user clicked on the ayah NUMBER (not the text), play from this ayah.
+    // playCurrentAyah is statically imported at the top of this module —
+    // no need for dynamic import (which produced INEFFECTIVE_DYNAMIC_IMPORT
+    // because audio.ts is already in the main chunk via other importers).
     if (target.closest('.ayah-number')) {
-      import('./audio.js').then((audio: typeof import('./audio.js')) => {
-        state.currentAyahIndex = idx;
-        audio.playCurrentAyah();
-        highlightCurrentAyah();
-        updatePlayerInfo();
-      });
+      state.currentAyahIndex = idx;
+      playCurrentAyah();
+      highlightCurrentAyah();
+      updatePlayerInfo();
       return;
     }
 

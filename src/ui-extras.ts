@@ -5,6 +5,11 @@ import { stopClock, startClock } from './prayer.js';
 import { checkAdhkarNotifications } from './adhkar.js';
 import { __ } from './i18n.js';
 import { getAdhkarIntervalId, setAdhkarIntervalId } from './internal-state.js';
+// Static import of announceToScreenReader (was dynamic, but a11y.ts is
+// already statically imported by app.ts, app-events.ts, and
+// sleep-timer-modal.ts — the dynamic import produced an
+// INEFFECTIVE_DYNAMIC_IMPORT warning with no code-splitting benefit).
+import { announceToScreenReader } from './a11y.js';
 
 /* ===================== CONTINUE WIDGET ===================== */
 
@@ -160,14 +165,17 @@ export function updateNetworkBanner(): void {
     dom.networkBanner.classList.remove('show');
   }
 
-  // Announce connection state changes to screen readers
+  // Announce connection state changes to screen readers.
+  // announceToScreenReader is statically imported at the top of this module.
   if (_wasOnline !== null && _wasOnline !== isOnline) {
-    import('./a11y.js').then(({ announceToScreenReader }) => {
+    try {
       announceToScreenReader(
         isOnline ? __('a11y_you_are_online') : __('a11y_you_are_offline'),
         isOnline ? 'polite' : 'assertive',
       );
-    }).catch(() => { /* a11y module not available */ });
+    } catch {
+      /* a11y announce failed — non-critical */
+    }
   }
   _wasOnline = isOnline;
 }

@@ -18,6 +18,10 @@
  */
 
 import { CONFIG } from './config.js';
+// Static import of ui.ts (was dynamic to avoid circular deps, but ui.ts is
+// already statically imported by many other modules — the dynamic import
+// produced an INEFFECTIVE_DYNAMIC_IMPORT warning without any actual benefit).
+import { showToast } from './ui.js';
 import { __ } from './i18n.js';
 
 /* ===================== TYPES ===================== */
@@ -71,11 +75,12 @@ const ERROR_MESSAGES: Record<string, string> = {
 /* ===================== HELPERS ===================== */
 
 /**
- * Show a toast notification. Lazy-imports ui.js to avoid circular deps.
+ * Show a toast notification. Uses the statically-imported showToast helper
+ * from ui.ts. Falls back to direct DOM manipulation if ui.ts is somehow
+ * unavailable (e.g. during early bootstrap before DOM is ready).
  */
 async function showToastMsg(msg: string, type: string = 'error'): Promise<void> {
   try {
-    const { showToast } = await import('./ui.js');
     showToast(msg, type);
   } catch {
     // Absolute fallback: use DOM directly

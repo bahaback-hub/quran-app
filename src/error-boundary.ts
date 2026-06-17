@@ -15,6 +15,10 @@
 
 import { __ } from './i18n.js';
 import { errorRecoveryOverlay } from './templates.js';
+// Static import of showToast (was dynamic, but ui.ts is already statically
+// imported by many other modules — dynamic import produced
+// INEFFECTIVE_DYNAMIC_IMPORT warning with no actual code-splitting benefit).
+import { showToast } from './ui.js';
 
 /* ===================== CONFIG ===================== */
 
@@ -165,11 +169,10 @@ async function showDebouncedToast(msg: string): Promise<void> {
   }
   _lastToastTime = now;
   try {
-    // Use dynamic import to avoid circular dependency at module level.
-    const { showToast } = await import('./ui.js');
+    // showToast is statically imported at the top of this module.
     showToast(msg, 'error');
   } catch {
-    // Fallback: use DOM directly if module import fails
+    // Fallback: use DOM directly if showToast throws
     const toast = document.getElementById('toast');
     if (toast) {
       toast.textContent = msg;
