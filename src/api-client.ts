@@ -262,7 +262,7 @@ async function _fetchWithRetry<T>(
       // Retry if we have attempts left
       if (attempt < opts.retries) {
         if (!opts.silent) {
-          console.info(`[API] Retrying (${attempt + 1}/${opts.retries}) ← ${url}`);
+          console.warn(`[API] Retrying (${attempt + 1}/${opts.retries}) ← ${url}`);
         }
         await new Promise((resolve) => setTimeout(resolve, opts.retryDelay));
         continue;

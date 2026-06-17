@@ -46,10 +46,10 @@ describe('initErrorBoundary', () => {
   });
 
   it('should log initialization message', () => {
-    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     initErrorBoundary();
-    expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('[ErrorBoundary]'));
-    infoSpy.mockRestore();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[ErrorBoundary]'));
+    warnSpy.mockRestore();
   });
 });
 
@@ -67,10 +67,10 @@ describe('destroyErrorBoundary', () => {
   });
 
   it('should log removal message', () => {
-    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     destroyErrorBoundary();
-    expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('[ErrorBoundary]'));
-    infoSpy.mockRestore();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[ErrorBoundary]'));
+    warnSpy.mockRestore();
   });
 });
 

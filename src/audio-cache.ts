@@ -215,7 +215,7 @@ async function evictIfNeeded(db?: IDBDatabase): Promise<void> {
       });
 
       if (import.meta.env.DEV) {
-        console.info(
+        console.warn(
           `[AudioCache] Evicted ${toDelete.length} files, freed ${(freedSize / 1024 / 1024).toFixed(1)} MB`,
         );
       }
@@ -291,7 +291,7 @@ export async function cacheSurahAudio(
     await evictIfNeeded();
 
     if (import.meta.env.DEV) {
-      console.info(
+      console.warn(
         `[AudioCache] Cached ${cached}/${total} audio files for surah ${surah}, reciter ${reciter}`,
       );
     }
@@ -500,7 +500,7 @@ export async function deleteSurahCache(surah: number, reciter: string): Promise<
     });
 
     if (import.meta.env.DEV) {
-      console.info(
+      console.warn(
         `[AudioCache] Deleted ${toDelete.length} cached files for surah ${surah}, reciter ${reciter}`,
       );
     }
@@ -531,7 +531,7 @@ export async function clearAudioCache(): Promise<boolean> {
     });
 
     if (import.meta.env.DEV) {
-      console.info('[AudioCache] Cache cleared');
+      console.warn('[AudioCache] Cache cleared');
     }
 
     return true;

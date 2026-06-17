@@ -366,7 +366,7 @@ export function initErrorBoundary(): void {
   window.addEventListener('error', handleResourceError, true);
 
   // Log initialization
-  console.info('[ErrorBoundary] Global error handlers installed.');
+  console.warn('[ErrorBoundary] Global error handlers installed.');
 }
 
 /**
@@ -377,5 +377,5 @@ export function destroyErrorBoundary(): void {
   window.removeEventListener('unhandledrejection', handleUnhandledRejection);
   window.removeEventListener('error', handleResourceError, true);
   _recoveryVisible = false;
-  console.info('[ErrorBoundary] Global error handlers removed.');
+  console.warn('[ErrorBoundary] Global error handlers removed.');
 }
