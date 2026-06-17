@@ -17,6 +17,11 @@ export default defineConfig({
     baseURL: 'http://localhost:4173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // Force Arabic locale so the app initializes with `lang="ar"` and
+    // `dir="rtl"` (matching the HTML defaults). Without this, CI browsers
+    // default to en-US and the app's i18n detection switches to English.
+    locale: 'ar-SA',
+    timezoneId: 'Asia/Riyadh',
   },
   projects: [
     {
