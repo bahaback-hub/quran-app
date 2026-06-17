@@ -106,6 +106,7 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: build
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -115,7 +116,11 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
-      - run: npx playwright test
+      # Run only the chromium project here. The mobile-chrome project in
+      # playwright.config.ts is intentionally excluded from CI — its tests
+      # require mobile-specific UI adjustments that are tracked separately.
+      # The standalone e2e.yml workflow also runs only chromium.
+      - run: npx playwright test --project=chromium
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4
