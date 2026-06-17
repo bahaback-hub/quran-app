@@ -28,16 +28,16 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    // mobile-chrome (Pixel 5) project intentionally omitted — the app's
-    // desktop-oriented UI (header buttons, panels) is not yet optimized
-    // for mobile viewport. Mobile E2E coverage is tracked as a separate
-    // task. Adding it here would block CI without providing signal.
-    // To re-enable: uncomment the project below AND adjust the app's
-    // responsive CSS for Pixel 5 viewport (412x732).
-    // {
-    //   name: 'mobile-chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 5'] },
+      // Mobile tests run but don't block CI — the app's desktop-oriented
+      // UI is still being optimized for mobile viewport. Tests that fail
+      // on mobile are expected to fail; they provide signal for future
+      // responsive improvements without blocking the build.
+      // To make mobile tests blocking: remove 'mobile-chrome' from the
+      // grep ignore list in the CI workflow's playwright command.
+    },
   ],
   webServer: {
     command: 'npm run preview',
