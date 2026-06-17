@@ -23,6 +23,7 @@ import { apiFetch, jsonFetch } from './api-client.js';
 import type { SurahData, AyahEntry } from './types.js';
 import { cacheSurahToIDB, getCachedSurahFromIDB } from './surah-cache.js';
 import type { CachedSurahEntry } from './surah-cache.js';
+import { loadLocalSurahText } from './api-fallback.js';
 
 // Re-export surah-list helpers so existing callers of surah-loader.loadSurahList /
 // populateReciterSelect / buildSurahOffsets continue to work without changing import paths.
@@ -410,6 +411,24 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
         state.loadingSurah = null;
         return;
       }
+    }
+    // Final fallback: try the local bundled Quran text (public/data/quran-uthmani.json).
+    // This works even when fully offline because the file is bundled with the app
+    // and precached by the PWA service worker.
+    try {
+      const localSurah = await loadLocalSurahText(surahNum);
+      if (localSurah && _loadCounter === currentLoad) {
+        state.surahData = localSurah;
+        state.ayahsAudios = [];
+        renderSurah(localSurah);
+        finalizeSurahLoad(opts);
+        loadingBar.hide();
+        showToast(__('offline_mode'), 'success');
+        state.loadingSurah = null;
+        return;
+      }
+    } catch {
+      /* local fallback also failed — fall through to error display */
     }
     if (dom.surahContent) {
       dom.surahContent.innerHTML = surahLoadError();
