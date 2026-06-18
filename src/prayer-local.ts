@@ -77,7 +77,9 @@ const COORDS_TTL = 30 * 60 * 1000; // 30 minutes
  * Uses cached coordinates if available and fresh (< 30 min).
  *
  * @returns Coordinates or null if geolocation is unavailable/denied.
- * @internal
+ * @internal Used internally by prayer-local.ts; also imported by tests
+ *   via dynamic import, which knip cannot detect.
+ * @knip-ignore
  */
 export function getCoordinates(): Promise<{ latitude: number; longitude: number } | null> {
   // Return cached coordinates if fresh

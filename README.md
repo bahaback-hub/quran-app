@@ -14,7 +14,7 @@
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-A022A0.svg)](https://web.dev/progressive-web-apps/)
 [![Tests](https://img.shields.io/badge/Tests-Vitest%204-brightgreen.svg)]()
 [![Coverage](https://img.shields.io/badge/Coverage-%E2%89%A580%25-brightgreen.svg)]()
-[![Release](https://img.shields.io/badge/Release-v1.5.4-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
+[![Release](https://img.shields.io/badge/Release-v1.5.7-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
 [![CodeQL](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml)
 [![Quality](https://img.shields.io/badge/Quality-Internal%20Audit-blue?style=for-the-badge)](#-تقييم-الجودة--quality-rating)
 

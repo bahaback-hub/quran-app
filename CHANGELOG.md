@@ -4,6 +4,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.5.7 (2026-06-18) — knip mandatory + 242 behavioral tests
+
+### 🔧 Quality — knip mandatory
+- 🎯 جعل knip **mandatory** في CI (إزالة `|| true`) — يُفشل البناء عند اكتشاف dead code
+- 📝 إضافة `src/prayer-local.ts` و `src/reciters.ts` كـ entry points في knip.json (تُستورد من الاختبارات via dynamic import)
+- ✅ knip الآن يُبلغ عن **0 unused exports** (كان 2)
+
+### 🧪 Tests — 242 behavioral tests added (3207 → 3449)
+- 📋 `surah-loader-behavioral.test.ts` (24 اختبار)
+- 📋 `audio-cache-behavioral.test.ts` (12 اختبار)
+- 📋 `surah-list-behavioral.test.ts` (16 اختبار)
+- 📋 `reading-stats-behavioral.test.ts` (22 اختبار)
+- 📋 `api-contracts.test.ts` (25 اختبار)
+- 📋 `api-fallback.test.ts` (15 اختبار)
+- 📋 `navigation-behavioral.test.ts` (15 اختبار)
+- 📋 `settings-behavioral.test.ts` (24 اختبار)
+- 📋 `i18n-behavioral.test.ts` (29 اختبار)
+- 📋 `favorites-share-behavioral.test.ts` (14 اختبار)
+- 📋 `prayer-adhkar-behavioral.test.ts` (26 اختبار)
+- 📋 `tafsir-mushaf-behavioral.test.ts` (26 اختبار)
+- 📋 `presentation-keyboard-a11y-behavioral.test.ts` (43 اختبار)
+
+### 🎯 CI Status — ALL 10/10 GREEN
+- ✅ Build, Deploy, Unit Tests (3449), Lint & TypeCheck (0 warnings)
+- ✅ E2E Tests, Playwright E2E (chromium)
+- ✅ Axe Accessibility (0 WCAG violations)
+- ✅ CodeQL, Lighthouse Audit
+- ✅ npm audit (mandatory), License check (mandatory)
+- ✅ **knip (mandatory)** — 0 dead code
+
+## 1.5.6 (2026-06-18) — mobile-chrome + i18n tests + Playwright fix
+
+### ✨ Features
+- 📱 إعادة تفعيل `mobile-chrome` (Pixel 5) في playwright.config.ts
+- 🔧 توحيد إصدارات Playwright (إزالة `playwright` المباشر، استخدام `@playwright/test` فقط)
+
+### 🧪 Tests
+- 📋 29 اختبار i18n سلوكي
+- 📋 14 اختبار favorites+share سلوكي
+- 📋 26 اختبار prayer+adhkar سلوكي
+
+### 🐛 Bug Fixes
+- 🩹 إصلاح `surah-cache.test.ts` hook timeout (10s → 30s)
+- 🩹 إصلاح Axe browser installation (chromium + chromium-headless-shell)
+
+## 1.5.5 (2026-06-17) — knip + Architecture diagram + 61 tests
+
+### ✨ Features
+- 📦 إضافة knip للكشف عن dead code (advisory → mandatory في v1.5.7)
+- 📊 إضافة Architecture diagram (Mermaid) في README
+- 📦 إعادة تفعيل mobile-chrome E2E
+
+### 🧪 Tests
+- 📋 22 اختبار reading-stats سلوكي
+- 📋 39 اختبار navigation + settings سلوكي
+
 ## 1.5.4 (2026-06-17) — Offline Fallback + Test Coverage + CI Green
 
 ### ✨ Features — Offline Mode
