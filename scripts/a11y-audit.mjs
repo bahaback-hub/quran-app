@@ -7,7 +7,7 @@
  * page.evaluate() — this avoids Content Security Policy violations
  * that would occur if we loaded axe from a CDN via addScriptTag.
  */
-import { chromium } from 'playwright';
+import { chromium } from '@playwright/test';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
