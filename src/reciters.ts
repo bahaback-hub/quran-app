@@ -53,7 +53,9 @@ export const RECITERS: Reciter[] = [
 
 /**
  * Map of mp3quran reciter IDs → quran.com chapter_recitation IDs for real ayah timestamps.
- * @internal
+ * @internal Used internally by getTimingApiId(); also imported by tests
+ *   via dynamic import, which knip cannot detect.
+ * @knip-ignore
  */
 export const TIMING_API_IDS: Record<string, number> = {
   s_gmd: 13,

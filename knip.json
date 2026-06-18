@@ -2,6 +2,8 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": [
     "src/main.ts",
+    "src/prayer-local.ts",
+    "src/reciters.ts",
     "src/__tests__/**/*.test.ts",
     "e2e/**/*.spec.{ts,js}",
     "scripts/**/*.mjs"
