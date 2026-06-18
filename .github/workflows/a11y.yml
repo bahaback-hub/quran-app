@@ -30,7 +30,7 @@ jobs:
         run: npm run build
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium-headless-shell
+        run: npx playwright install --with-deps chromium chromium-headless-shell
 
       - name: Run accessibility audit
         run: |
