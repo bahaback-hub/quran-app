@@ -3,7 +3,14 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { adhkarTab, adhkarCategoryTitle, escapeHtml } from './templates.js';
-import { ADHKAR_DATA } from './adhkar-data.js';
+import {
+  ADHKAR_DATA,
+  getCategoryItems,
+  addCustomAdhkarItem,
+  editAdhkarItem,
+  deleteAdhkarItem,
+  resetAdhkarCustomizations,
+} from './adhkar-data.js';
 import { __ } from './i18n.js';
 import {
   checkAdhkarNotifications,
@@ -176,17 +183,29 @@ function renderAdhkarCategory(categoryId: string): void {
       </label>
       <span class="adhkar-cat-status">${enabled ? __('notification_active') : __('notification_paused')}</span>
     </div>`;
-  for (const item of cat.items) {
+
+  // FIX #1: Always show adhkar item text (not hidden until notification time).
+  // Use effective items (default + user customizations + overrides).
+  const effectiveItems = getCategoryItems(categoryId);
+  for (const item of effectiveItems) {
     const counter = (settings[`item_${item.id}`] as number) || 0;
     const remaining = Math.max(0, item.count - counter);
     const completed = counter >= item.count;
-    const pct = Math.min(100, (counter / item.count) * 100);
-    html += `<div class="adhkar-item${completed ? ' completed' : ''}" data-item-id="${item.id}" data-category="${categoryId}">
-      <div class="adhkar-item-text">${item.text}</div>
+    const pct = item.count > 0 ? Math.min(100, (counter / item.count) * 100) : 0;
+    const isCustom = item.id.startsWith('custom_');
+    html += `<div class="adhkar-item${completed ? ' completed' : ''}${isCustom ? ' custom-item' : ''}" data-item-id="${item.id}" data-category="${categoryId}">
+      <div class="adhkar-item-header">
+        <div class="adhkar-item-actions">
+          <button class="adhkar-item-action-btn" data-action="edit-item" data-item-id="${item.id}" data-category="${categoryId}" title="${__('adhkar_edit_item')}" aria-label="${__('adhkar_edit_item')}">✏️</button>
+          <button class="adhkar-item-action-btn" data-action="delete-item" data-item-id="${item.id}" data-category="${categoryId}" title="${__('adhkar_delete_item')}" aria-label="${__('adhkar_delete_item')}">🗑️</button>
+          <button class="adhkar-item-action-btn" data-action="copy-item" data-item-id="${item.id}" data-category="${categoryId}" title="${__('adhkar_copy_item')}" aria-label="${__('adhkar_copy_item')}">📋</button>
+        </div>
+      </div>
+      <div class="adhkar-item-text">${escapeHtml(item.text)}</div>
       <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
       <div class="adhkar-item-meta">
         <span class="adhkar-item-count">🔄 ${item.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}</span>
-        <span class="adhkar-item-reference">📚 ${item.reference}</span>
+        <span class="adhkar-item-reference">📚 ${escapeHtml(item.reference)}</span>
         <div class="adhkar-counter">
           <button class="adhkar-counter-btn${completed ? ' completed' : ''}" data-action="increment" data-item-id="${item.id}" data-category="${categoryId}">✓</button>
           <span class="adhkar-counter-text">${counter}</span>
@@ -194,7 +213,13 @@ function renderAdhkarCategory(categoryId: string): void {
       </div>
     </div>`;
   }
-  html += `<button class="adhkar-add-btn" data-action="reset" data-category="${categoryId}">${__('adhkar_reset')}</button>`;
+
+  // Action buttons: Add new + Reset counters + Reset to defaults
+  html += `<div class="adhkar-actions-row">
+    <button class="adhkar-add-btn" data-action="add-item" data-category="${categoryId}">➕ ${__('adhkar_add_item')}</button>
+    <button class="adhkar-reset-btn" data-action="reset" data-category="${categoryId}">${__('adhkar_reset')}</button>
+    <button class="adhkar-restore-btn" data-action="reset-custom" data-category="${categoryId}" title="${__('adhkar_reset_defaults_desc')}">🔄 ${__('adhkar_reset_defaults')}</button>
+  </div>`;
   dom.adhkarContent.innerHTML = html;
 
   const contentEl = dom.adhkarContent as HTMLElement & { _delegationBound?: boolean };
@@ -205,12 +230,34 @@ function renderAdhkarCategory(categoryId: string): void {
       const actionBtn = target.closest('[data-action]') as HTMLElement | null;
       if (actionBtn) {
         const action = actionBtn.dataset['action'];
+        const itemId = actionBtn.dataset['itemId'];
+        const catId = actionBtn.dataset['category'] as string;
         if (action === 'increment') {
-          handleAdhkarCounter(actionBtn.dataset['itemId'] as string, actionBtn.dataset['category'] as string);
+          handleAdhkarCounter(itemId as string, catId);
           return;
         }
         if (action === 'reset') {
-          resetAdhkarCounters(actionBtn.dataset['category'] as string);
+          resetAdhkarCounters(catId);
+          return;
+        }
+        if (action === 'edit-item') {
+          openEditItemDialog(itemId as string, catId);
+          return;
+        }
+        if (action === 'delete-item') {
+          confirmDeleteItem(itemId as string, catId);
+          return;
+        }
+        if (action === 'copy-item') {
+          copyAdhkarItemText(itemId as string, catId);
+          return;
+        }
+        if (action === 'add-item') {
+          openAddItemDialog(catId);
+          return;
+        }
+        if (action === 'reset-custom') {
+          confirmResetCustomizations(catId);
           return;
         }
       }
@@ -261,11 +308,9 @@ function updateAdhkarItemDOM(itemId: string, categoryId: string): void {
   if (!itemEl) {
     return;
   }
-  const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
-  if (!cat) {
-    return;
-  }
-  const item = cat.items.find((i: { id: string }) => i.id === itemId);
+  // Use effective items (includes user customizations + overrides)
+  const items = getCategoryItems(categoryId);
+  const item = items.find((i) => i.id === itemId);
   if (!item) {
     return;
   }
@@ -274,7 +319,7 @@ function updateAdhkarItemDOM(itemId: string, categoryId: string): void {
   const counter = (settings[key] as number) || 0;
   const remaining = Math.max(0, item.count - counter);
   const completed = counter >= item.count;
-  const pct = Math.min(100, (counter / item.count) * 100);
+  const pct = item.count > 0 ? Math.min(100, (counter / item.count) * 100) : 0;
   itemEl.classList.toggle('completed', completed);
   const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
   if (fill) {
@@ -295,11 +340,9 @@ function updateAdhkarItemDOM(itemId: string, categoryId: string): void {
 }
 
 function handleAdhkarCounter(itemId: string, categoryId: string): void {
-  const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
-  if (!cat) {
-    return;
-  }
-  const item = cat.items.find((i: { id: string }) => i.id === itemId);
+  // Use effective items (includes user customizations + overrides)
+  const items = getCategoryItems(categoryId);
+  const item = items.find((i) => i.id === itemId);
   if (!item) {
     return;
   }
@@ -328,18 +371,19 @@ function handleAdhkarCounter(itemId: string, categoryId: string): void {
 }
 
 function resetAdhkarCounters(categoryId: string): void {
-  const cat = ADHKAR_DATA.categories.find((c: { id: string }) => c.id === categoryId);
-  if (!cat) {
+  // Use effective items (includes user customizations + overrides)
+  const items = getCategoryItems(categoryId);
+  if (items.length === 0) {
     return;
   }
   // Create new object to trigger Proxy notification
   const newSettings = cloneAdhkarSettings(state.adhkarSettings);
-  for (const item of cat.items) {
+  for (const item of items) {
     newSettings[`item_${item.id}`] = 0;
   }
   // Update state FIRST so updateAdhkarItemDOM reads the reset values
   state.adhkarSettings = newSettings;
-  for (const item of cat.items) {
+  for (const item of items) {
     updateAdhkarItemDOM(item.id, categoryId);
   }
   saveAdhkarSettings();
@@ -703,6 +747,328 @@ export function renderAdhkarSettingsList(): void {
       saveAdhkarSettings();
     });
   });
+}
+
+/* ===================== ITEM CUSTOMIZATION DIALOGS ===================== */
+
+/**
+ * Generic dialog for adding/editing an adhkar item.
+ * Used by both "add new" and "edit existing" flows.
+ */
+function openItemDialog(opts: {
+  categoryId: string;
+  itemId?: string;
+  initialText?: string;
+  initialCount?: number;
+  initialReference?: string;
+  title: string;
+  onSave: (text: string, count: number, reference: string) => void;
+}): void {
+  // Remove any existing dialog
+  document.getElementById('adhkarItemDialog')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'adhkarItemDialog';
+  overlay.style.cssText =
+    'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;' +
+    'background:rgba(0,0,0,0.5);padding:16px;';
+
+  const modal = document.createElement('div');
+  modal.style.cssText =
+    'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:320px;' +
+    'max-width:90vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);' +
+    'direction:rtl;';
+
+  const titleEl = document.createElement('h3');
+  titleEl.textContent = opts.title;
+  titleEl.style.cssText = 'margin:0 0 20px;color:var(--text-primary,#000);font-size:18px;font-weight:bold;text-align:center;';
+
+  const textLabel = document.createElement('label');
+  textLabel.textContent = __('adhkar_enter_text');
+  textLabel.style.cssText = 'display:block;margin-bottom:6px;color:var(--text-secondary,#666);font-size:13px;';
+
+  const textInput = document.createElement('textarea');
+  textInput.rows = 4;
+  textInput.value = opts.initialText || '';
+  textInput.style.cssText =
+    'width:100%;margin-bottom:16px;padding:10px;border:2px solid var(--border-soft,#ddd);' +
+    'border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;box-sizing:border-box;';
+
+  const countLabel = document.createElement('label');
+  countLabel.textContent = __('adhkar_count_label');
+  countLabel.style.cssText = 'display:block;margin-bottom:6px;color:var(--text-secondary,#666);font-size:13px;';
+
+  const countInput = document.createElement('input');
+  countInput.type = 'number';
+  countInput.min = '1';
+  countInput.max = '999';
+  countInput.value = String(opts.initialCount || 1);
+  countInput.style.cssText =
+    'width:100%;margin-bottom:16px;padding:10px;border:2px solid var(--border-soft,#ddd);' +
+    'border-radius:8px;font-family:inherit;font-size:14px;box-sizing:border-box;';
+
+  const refLabel = document.createElement('label');
+  refLabel.textContent = __('adhkar_reference_label');
+  refLabel.style.cssText = 'display:block;margin-bottom:6px;color:var(--text-secondary,#666);font-size:13px;';
+
+  const refInput = document.createElement('input');
+  refInput.type = 'text';
+  refInput.value = opts.initialReference || '';
+  refInput.style.cssText =
+    'width:100%;margin-bottom:20px;padding:10px;border:2px solid var(--border-soft,#ddd);' +
+    'border-radius:8px;font-family:inherit;font-size:14px;box-sizing:border-box;';
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = __('save');
+  saveBtn.style.cssText =
+    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--accent,#d97706);' +
+    'color:#fff;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = __('close');
+  cancelBtn.style.cssText =
+    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);' +
+    'color:var(--text-primary,#000);font-size:14px;cursor:pointer;font-family:inherit;';
+
+  function close(): void {
+    overlay.remove();
+  }
+
+  saveBtn.addEventListener('click', () => {
+    const text = textInput.value.trim();
+    const count = parseInt(countInput.value, 10) || 1;
+    const reference = refInput.value.trim();
+    if (!text) {
+      showToast(__('adhkar_enter_text'), 'error');
+      return;
+    }
+    opts.onSave(text, count, reference);
+    close();
+  });
+
+  cancelBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e: MouseEvent) => {
+    if (e.target === overlay) {
+      close();
+    }
+  });
+
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(saveBtn);
+  modal.appendChild(titleEl);
+  modal.appendChild(textLabel);
+  modal.appendChild(textInput);
+  modal.appendChild(countLabel);
+  modal.appendChild(countInput);
+  modal.appendChild(refLabel);
+  modal.appendChild(refInput);
+  modal.appendChild(btnRow);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  textInput.focus();
+}
+
+/** Open the dialog to add a new item to a category. */
+function openAddItemDialog(categoryId: string): void {
+  openItemDialog({
+    categoryId,
+    title: __('adhkar_add_item'),
+    onSave: (text, count, reference) => {
+      const newItem = addCustomAdhkarItem(categoryId, text, count, reference);
+      if (newItem) {
+        // Initialize counter for new item
+        const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+        newSettings[`item_${newItem.id}`] = 0;
+        state.adhkarSettings = newSettings;
+        saveAdhkarSettings();
+        renderAdhkarCategory(categoryId);
+        showToast(__('adhkar_saved'), 'success');
+      } else {
+        showToast(__('adhkar_enter_text'), 'error');
+      }
+    },
+  });
+}
+
+/** Open the dialog to edit an existing item. */
+function openEditItemDialog(itemId: string, categoryId: string): void {
+  const items = getCategoryItems(categoryId);
+  const item = items.find((i) => i.id === itemId);
+  if (!item) {
+    return;
+  }
+  openItemDialog({
+    categoryId,
+    itemId,
+    title: __('adhkar_edit_item'),
+    initialText: item.text,
+    initialCount: item.count,
+    initialReference: item.reference,
+    onSave: (text, count, reference) => {
+      editAdhkarItem(itemId, categoryId, { text, count, reference });
+      renderAdhkarCategory(categoryId);
+      showToast(__('adhkar_edited'), 'success');
+    },
+  });
+}
+
+/** Copy an adhkar item's text to clipboard. */
+function copyAdhkarItemText(itemId: string, categoryId: string): void {
+  const items = getCategoryItems(categoryId);
+  const item = items.find((i) => i.id === itemId);
+  if (!item) {
+    return;
+  }
+  try {
+    navigator.clipboard?.writeText(item.text).then(
+      () => showToast(__('copied'), 'success'),
+      () => {
+        // Fallback: use execCommand
+        const ta = document.createElement('textarea');
+        ta.value = item.text;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast(__('copied'), 'success');
+        } catch {
+          showToast(__('copy_error'), 'error');
+        }
+        ta.remove();
+      },
+    );
+  } catch {
+    showToast(__('copy_error'), 'error');
+  }
+}
+
+/** Confirm deletion of an item with a custom modal (no browser confirm()). */
+function confirmDeleteItem(itemId: string, categoryId: string): void {
+  document.getElementById('adhkarDeleteItemModal')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'adhkarDeleteItemModal';
+  overlay.style.cssText =
+    'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;' +
+    'background:rgba(0,0,0,0.5);';
+
+  const modal = document.createElement('div');
+  modal.style.cssText =
+    'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:280px;' +
+    'max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);direction:rtl;';
+
+  const msg = document.createElement('p');
+  msg.textContent = __('adhkar_confirm_delete_item');
+  msg.style.cssText = 'margin:0 0 20px;color:var(--text-secondary,#666);font-size:14px;';
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.textContent = __('delete');
+  confirmBtn.style.cssText =
+    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:#e74c3c;color:#fff;' +
+    'font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = __('close');
+  cancelBtn.style.cssText =
+    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);' +
+    'color:var(--text-primary,#000);font-size:14px;cursor:pointer;font-family:inherit;';
+
+  function close(): void {
+    overlay.remove();
+  }
+
+  confirmBtn.addEventListener('click', () => {
+    deleteAdhkarItem(itemId, categoryId);
+    renderAdhkarCategory(categoryId);
+    showToast(__('adhkar_deleted'), '');
+    close();
+  });
+
+  cancelBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e: MouseEvent) => {
+    if (e.target === overlay) {
+      close();
+    }
+  });
+
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(confirmBtn);
+  modal.appendChild(msg);
+  modal.appendChild(btnRow);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  cancelBtn.focus();
+}
+
+/** Confirm reset of all customizations for a category. */
+function confirmResetCustomizations(categoryId: string): void {
+  document.getElementById('adhkarResetModal')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'adhkarResetModal';
+  overlay.style.cssText =
+    'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;' +
+    'background:rgba(0,0,0,0.5);';
+
+  const modal = document.createElement('div');
+  modal.style.cssText =
+    'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:320px;' +
+    'max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);direction:rtl;';
+
+  const title = document.createElement('h3');
+  title.textContent = __('adhkar_reset_defaults');
+  title.style.cssText = 'margin:0 0 12px;color:var(--text-primary,#000);font-size:16px;';
+
+  const msg = document.createElement('p');
+  msg.textContent = __('adhkar_reset_defaults_desc');
+  msg.style.cssText = 'margin:0 0 20px;color:var(--text-secondary,#666);font-size:14px;';
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.textContent = __('adhkar_reset_defaults');
+  confirmBtn.style.cssText =
+    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--accent,#d97706);' +
+    'color:#fff;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = __('close');
+  cancelBtn.style.cssText =
+    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);' +
+    'color:var(--text-primary,#000);font-size:14px;cursor:pointer;font-family:inherit;';
+
+  function close(): void {
+    overlay.remove();
+  }
+
+  confirmBtn.addEventListener('click', () => {
+    // Reset all customizations (affects all categories, but that's the user's choice)
+    resetAdhkarCustomizations();
+    renderAdhkarCategory(categoryId);
+    showToast(__('adhkar_reset'), 'success');
+    close();
+  });
+
+  cancelBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e: MouseEvent) => {
+    if (e.target === overlay) {
+      close();
+    }
+  });
+
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(confirmBtn);
+  modal.appendChild(title);
+  modal.appendChild(msg);
+  modal.appendChild(btnRow);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  cancelBtn.focus();
 }
 
 /* Wire up event listeners that need access to adhkar functions */

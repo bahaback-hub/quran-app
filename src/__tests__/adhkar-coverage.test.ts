@@ -14,9 +14,10 @@ import { dom } from '../dom.js';
 import { storage } from '../storage.js';
 import { showToast } from '../ui.js';
 
-// Mock adhkar-data with minimal test data
-vi.mock('../adhkar-data.js', () => ({
-  ADHKAR_DATA: {
+// Mock adhkar-data with minimal test data + re-implemented functions
+// (avoid importOriginal to prevent vi.mock async factory teardown issues)
+vi.mock('../adhkar-data.js', () => {
+  const TEST_DATA = {
     categories: [
       {
         id: 'morning',
@@ -38,8 +39,34 @@ vi.mock('../adhkar-data.js', () => ({
         items: [{ id: 'e1', text: 'آية الكرسي', count: 1, reference: 'البقرة 255' }],
       },
     ],
-  },
-}));
+  };
+  return {
+    ADHKAR_DATA: TEST_DATA,
+    getCategoryItems: (categoryId: string) => {
+      const cat = TEST_DATA.categories.find((c) => c.id === categoryId);
+      return cat ? [...cat.items] : [];
+    },
+    getEffectiveCategory: (categoryId: string) => {
+      const cat = TEST_DATA.categories.find((c) => c.id === categoryId);
+      return cat ? { ...cat } : null;
+    },
+    addCustomAdhkarItem: () => null,
+    editAdhkarItem: () => true,
+    deleteAdhkarItem: () => undefined,
+    restoreAdhkarItem: () => undefined,
+    loadAdhkarCustomizations: () => ({
+      customItems: {},
+      itemOverrides: {},
+      hiddenItems: [],
+    }),
+    saveAdhkarCustomizations: () => undefined,
+    resetAdhkarCustomizations: () => ({
+      customItems: {},
+      itemOverrides: {},
+      hiddenItems: [],
+    }),
+  };
+});
 
 // Mock internal-state with all getters/setters used
 vi.mock('../internal-state.js', async (importOriginal) => {

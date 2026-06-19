@@ -213,6 +213,15 @@ export default {
   adhkar_repeat_complete: 'Pengulangan selesai. Ketuk untuk mulakan semula.',
   adhkar_completed: 'Zikir selesai',
   adhkar_repeat_confirm: 'Mula semula pengulangan dari awal?',
+  adhkar_add_item: 'Tambah zikir baru',
+  adhkar_edit_item: 'Edit zikir',
+  adhkar_delete_item: 'Padam zikir',
+  adhkar_copy_item: 'Salin teks',
+  adhkar_count_label: 'Bilangan ulangan',
+  adhkar_reference_label: 'Rujukan (pilihan)',
+  adhkar_confirm_delete_item: 'Padam zikir ini?',
+  adhkar_reset_defaults: 'Pulihkan lalai',
+  adhkar_reset_defaults_desc: 'Semua penyesuaian (zikir yang ditambah dan disunting) akan dipadam dan zikir asal dipulihkan. Adakah anda pasti?',
   adhkar_reset: 'Set semula pengira',
 
   // === Mod Persembahan ===

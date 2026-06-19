@@ -213,6 +213,15 @@ export default {
   adhkar_repeat_complete: 'Repetition complete. Tap to restart.',
   adhkar_completed: 'Dhikr completed',
   adhkar_repeat_confirm: 'Restart repetition from the beginning?',
+  adhkar_add_item: 'Add new dhikr',
+  adhkar_edit_item: 'Edit dhikr',
+  adhkar_delete_item: 'Delete dhikr',
+  adhkar_copy_item: 'Copy text',
+  adhkar_count_label: 'Repeat count',
+  adhkar_reference_label: 'Reference (optional)',
+  adhkar_confirm_delete_item: 'Delete this dhikr?',
+  adhkar_reset_defaults: 'Restore defaults',
+  adhkar_reset_defaults_desc: 'All customizations (added and edited adhkar) will be deleted and original adhkar restored. Are you sure?',
   adhkar_reset: 'Reset counter',
 
   // === Presentation Mode ===

@@ -213,6 +213,15 @@ export default {
   adhkar_repeat_complete: 'Pengulangan selesai. Ketuk untuk memulai ulang.',
   adhkar_completed: 'Dzikir selesai',
   adhkar_repeat_confirm: 'Memulai ulang pengulangan dari awal?',
+  adhkar_add_item: 'Tambah dzikir baru',
+  adhkar_edit_item: 'Edit dzikir',
+  adhkar_delete_item: 'Hapus dzikir',
+  adhkar_copy_item: 'Salin teks',
+  adhkar_count_label: 'Jumlah pengulangan',
+  adhkar_reference_label: 'Referensi (opsional)',
+  adhkar_confirm_delete_item: 'Hapus dzikir ini?',
+  adhkar_reset_defaults: 'Pulihkan default',
+  adhkar_reset_defaults_desc: 'Semua kustomisasi (dzikir yang ditambah dan diedit) akan dihapus dan dzikir asli dipulihkan. Apakah Anda yakin?',
   adhkar_reset: 'Reset penghitung',
 
   // === Mode Presentasi ===
