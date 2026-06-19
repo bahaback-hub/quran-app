@@ -436,7 +436,7 @@ export function bindSearchEvents(): void {
  */
 export function bindGlobalClickHandler(): void {
   document.addEventListener('click', (e: MouseEvent) => {
-    if (!dom.shareMenu?.contains(e.target as Node) && e.target !== dom.shareBtn) {
+    if (!dom.shareMenu?.contains(e.target as Node) && !dom.shareBtn?.contains(e.target as Node)) {
       dom.shareMenu?.classList.remove('show');
     }
     const settingsTarget = e.target as HTMLElement;
@@ -454,14 +454,14 @@ export function bindGlobalClickHandler(): void {
     if (
       dom.favoritesPanel?.classList.contains('open') &&
       !dom.favoritesPanel.contains(e.target as Node) &&
-      e.target !== dom.favoritesOpenBtn
+      !dom.favoritesOpenBtn?.contains(e.target as Node)
     ) {
       closeFavorites();
     }
     if (
       dom.adhkarPanel?.classList.contains('open') &&
       !dom.adhkarPanel.contains(e.target as Node) &&
-      e.target !== dom.adhkarBtn
+      !dom.adhkarBtn?.contains(e.target as Node)
     ) {
       closeAdhkarPanel();
     }
