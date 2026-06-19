@@ -116,14 +116,14 @@ body.night-mode .search-highlight {
 }
 
 .btn-more {
-  background: transparent !important;
-  color: var(--text-muted) !important;
-  font-size: 18px !important;
-  padding: 4px 10px !important;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  padding: 4px 10px;
 }
 .btn-more:hover {
-  color: var(--accent-dark) !important;
-  background: rgba(217, 119, 6, 0.1) !important;
+  color: var(--accent-dark);
+  background: rgba(217, 119, 6, 0.1);
 }
 
 .btn {
@@ -324,9 +324,9 @@ body.night-mode .keyboard-hint {
 }
 .search-input-wrapper input {
   flex: 1;
-  border: none !important;
-  border-radius: 0 !important;
-  background: transparent !important;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   padding: 6px 10px;
   font-size: 13px;
   min-width: 0;
@@ -334,8 +334,8 @@ body.night-mode .keyboard-hint {
   height: 34px;
 }
 .search-input-wrapper input:focus {
-  box-shadow: none !important;
-  border-color: transparent !important;
+  box-shadow: none;
+  border-color: transparent;
 }
 
 .search-autocomplete {
@@ -374,7 +374,7 @@ body.night-mode .search-autocomplete-item {
 }
 
 .voice-search-btn {
-  background: transparent !important;
+  background: transparent;
   color: var(--primary);
   border: none;
   border-radius: 0;
@@ -392,12 +392,12 @@ body.night-mode .search-autocomplete-item {
 }
 .voice-search-btn:hover {
   color: var(--accent-dark);
-  background: transparent !important;
+  background: transparent;
   transform: scale(1.1);
 }
 .voice-search-btn.listening {
-  color: #dc2626 !important;
-  background: transparent !important;
+  color: #dc2626;
+  background: transparent;
   animation: pulseMic 1s ease-in-out infinite;
 }
 @keyframes pulseMic {
@@ -412,7 +412,7 @@ body.night-mode .search-autocomplete-item {
 
 /* ========== لوحة المفاتيح العربية ========== */
 .kbd-toggle-btn {
-  background: transparent !important;
+  background: transparent;
   color: var(--primary);
   border: none;
   border-radius: 0;
