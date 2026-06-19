@@ -209,6 +209,10 @@ export default {
   adhkar_remaining: '{0} remaining',
   adhkar_times: 'times',
   adhkar_time: 'Reminder time',
+  adhkar_enable_notification: 'Enable notification',
+  adhkar_repeat_complete: 'Repetition complete. Tap to restart.',
+  adhkar_completed: 'Dhikr completed',
+  adhkar_repeat_confirm: 'Restart repetition from the beginning?',
   adhkar_reset: 'Reset counter',
 
   // === Presentation Mode ===
