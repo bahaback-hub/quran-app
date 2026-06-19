@@ -759,6 +759,7 @@ body.night-mode .adhkar-header h2 {
   height: 28px;
   border: 1px solid var(--border-soft);
   background: var(--container-bg);
+  color: var(--text-secondary);
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
@@ -766,12 +767,13 @@ body.night-mode .adhkar-header h2 {
   align-items: center;
   justify-content: center;
   padding: 0;
-  opacity: 0.6;
+  opacity: 0.85;
   transition: opacity 0.2s, background 0.2s;
 }
 .adhkar-item-action-btn:hover {
   opacity: 1;
   background: var(--hover-bg);
+  color: var(--accent-dark);
 }
 .adhkar-item.custom-item {
   border-right-color: #10b981;
@@ -810,7 +812,7 @@ body.night-mode .adhkar-header h2 {
 }
 .adhkar-restore-btn {
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   cursor: pointer;
@@ -820,6 +822,7 @@ body.night-mode .adhkar-header h2 {
 .adhkar-restore-btn:hover {
   color: var(--accent-dark);
   border-color: var(--accent);
+  background: var(--hover-bg);
 }
 
 /* ===== إعدادات الأذكار في لوحة الإعدادات ===== */
