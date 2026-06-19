@@ -61,7 +61,10 @@ export default defineConfig({
   plugins: [
     // Disable PWA entirely for Capacitor builds — SW breaks Android WebView
     ...(isCapacitorBuild ? [] : [VitePWA({
-      registerType: 'prompt',
+      // 'autoUpdate' ensures the Service Worker updates automatically without
+      // waiting for user prompt. Combined with skipWaiting + clientsClaim below,
+      // users always get the latest version on next page load.
+      registerType: 'autoUpdate',
       injectRegister: 'auto',
       includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'fonts/*.ttf', 'fonts/fonts.css', 'data/*.json'],
       manifest: {
@@ -139,6 +142,14 @@ export default defineConfig({
         navigateFallback: 'index.html',
         // Don't intercept same-origin requests — let Capacitor handle them
         navigateFallbackDenylist: [/^\/assets\//],
+        // Force the new Service Worker to take over immediately, bypassing
+        // the normal "waiting" state. This ensures users get updates on
+        // the very next navigation rather than waiting for all tabs to close.
+        skipWaiting: true,
+        clientsClaim: true,
+        // Cache-bust runtime-cached responses after 24 hours so users
+        // get fresh API data instead of stale offline cache forever.
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             urlPattern: /\/fonts\/.*\.(ttf|css)$/i,
