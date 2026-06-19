@@ -685,7 +685,9 @@ body:not(.night-mode) .kbd-key:active {
 /* ========== Update Banner Button ========== */
 .update-banner-btn {
   background: #fff;
-  color: var(--accent, #5c2e2e);
+  /* Use --accent-dark (#9a5e08) instead of --accent (#c47a12) for WCAG AA
+     contrast ratio of 4.5:1 against white background (was 3.42:1). */
+  color: var(--accent-dark, #9a5e08);
   border: none;
   padding: 4px 12px;
   border-radius: 6px;
