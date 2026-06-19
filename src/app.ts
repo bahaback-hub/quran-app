@@ -156,16 +156,37 @@ export async function initApp(): Promise<void> {
     });
 
     // Group 4: Heavy feature modules — lazy-import, lowest priority
-    scheduleIdle(() => {
-      import('./ayah-modal.js')
-        .then((m) => m.initAyahModal())
-        .catch((e) => console.error('[App] Failed to init ayah modal:', e));
-      import('./presentation.js')
-        .then((m) => m.initPresentation())
-        .catch((e) => console.error('[App] Failed to init presentation:', e));
-      import('./mushaf.js')
-        .then((m) => m.populateSurahOverlay())
-        .catch((e) => console.error('[App] Failed to init mushaf overlay:', e));
+    // Uses safeLoad() for retry + user-visible error UI (instead of silent console.error)
+    scheduleIdle(async () => {
+      const { safeLoad } = await import('./error-boundary.js');
+
+      const ayahModal = await safeLoad(() => import('./ayah-modal.js'), {
+        label: 'نافذة الآية',
+        maxRetries: 2,
+        baseDelay: 800,
+      });
+      if (ayahModal.success && ayahModal.module) {
+        ayahModal.module.initAyahModal();
+      }
+
+      const presentation = await safeLoad(() => import('./presentation.js'), {
+        label: 'وضع العرض',
+        maxRetries: 2,
+        baseDelay: 800,
+      });
+      if (presentation.success && presentation.module) {
+        presentation.module.initPresentation();
+      }
+
+      const mushaf = await safeLoad(() => import('./mushaf.js'), {
+        label: 'وضع المصحف',
+        maxRetries: 2,
+        baseDelay: 800,
+      });
+      if (mushaf.success && mushaf.module) {
+        mushaf.module.populateSurahOverlay();
+      }
+
       // Ensure full Quran text is loaded when online (non-blocking)
       if (navigator.onLine) {
         fullQuranPromise.catch(console.warn);

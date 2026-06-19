@@ -15,10 +15,16 @@
 
 import { __ } from './i18n.js';
 import { errorRecoveryOverlay } from './templates.js';
-// Static import of showToast (was dynamic, but ui.ts is already statically
-// imported by many other modules — dynamic import produced
-// INEFFECTIVE_DYNAMIC_IMPORT warning with no actual code-splitting benefit).
-import { showToast } from './ui.js';
+// Use namespace import for ui so mocks can swap implementations per-test
+import * as ui from './ui.js';
+
+/** Local alias that resolves at call time (allows mocks to work).
+ *  Named differently from the showToast OPTION to avoid shadowing. */
+function displayToast(msg: string, type: string = ''): void {
+  if (typeof ui.showToast === 'function') {
+    ui.showToast(msg, type);
+  }
+}
 
 /* ===================== CONFIG ===================== */
 
@@ -169,8 +175,8 @@ async function showDebouncedToast(msg: string): Promise<void> {
   }
   _lastToastTime = now;
   try {
-    // showToast is statically imported at the top of this module.
-    showToast(msg, 'error');
+    // displayToast is the local alias for ui.showToast
+    displayToast(msg, 'error');
   } catch {
     // Fallback: use DOM directly if showToast throws
     const toast = document.getElementById('toast');
@@ -381,4 +387,154 @@ export function destroyErrorBoundary(): void {
   window.removeEventListener('error', handleResourceError, true);
   _recoveryVisible = false;
   console.warn('[ErrorBoundary] Global error handlers removed.');
+}
+
+/* ===================== SAFE DYNAMIC IMPORT ===================== */
+
+interface SafeLoadOptions {
+  /** Max retry attempts (default: 2). */
+  maxRetries?: number;
+  /** Base delay in ms for exponential backoff (default: 1000). */
+  baseDelay?: number;
+  /** Whether to show a toast on failure (default: true). */
+  showToast?: boolean;
+  /** Human-readable label for error messages (default: module name). */
+  label?: string;
+}
+
+interface SafeLoadResult<T> {
+  success: boolean;
+  module?: T;
+  error?: Error;
+  attempts: number;
+}
+
+/** Cache of modules that exhausted all retries — they should not be retried in this session. */
+const failedModules = new Set<string>();
+
+/**
+ * Dynamically import a module with retry + exponential backoff.
+ *
+ * Replaces the unsafe pattern:
+ *   import('./feature.js')
+ *     .then((m) => m.init())
+ *     .catch((e) => console.error(e));  // ← user never knows!
+ *
+ * With:
+ *   const mod = await safeLoad(() => import('./feature.js'), {
+ *     label: 'وضع المصحف',
+ *     maxRetries: 3,
+ *   });
+ *   if (mod.success) { mod.module.init(); }
+ *
+ * Features:
+ *   - Exponential backoff: 1s, 2s, 4s
+ *   - User-visible toast on each retry
+ *   - Final error toast when all retries exhausted
+ *   - Cache failures to avoid infinite retries in same session
+ *   - Returns structured result (no throw)
+ */
+export async function safeLoad<T>(
+  loader: () => Promise<T>,
+  options: SafeLoadOptions = {},
+): Promise<SafeLoadResult<T>> {
+  const {
+    maxRetries = 2,
+    baseDelay = 1000,
+    showToast = true,
+    label = 'module',
+  } = options;
+
+  // Check if this module already exhausted all retries in this session
+  if (failedModules.has(label)) {
+    console.warn(`[ErrorBoundary] "${label}" already exhausted retries this session — skipping.`);
+    return { success: false, attempts: 0, error: new Error('Skipped due to prior failures') };
+  }
+
+  let lastError: Error | undefined;
+  let attempts = 0;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    attempts++;
+    try {
+      const module = await loader();
+      // Success — module is NOT in failedModules (or we wouldn't be here)
+      if (attempt > 0 && showToast) {
+        displayToast(__('success') || 'تم', 'success');
+      }
+      return { success: true, module, attempts };
+    } catch (err) {
+      lastError = err as Error;
+      console.error(`[ErrorBoundary] safeLoad "${label}" failed (attempt ${attempt + 1}/${maxRetries + 1}):`, err);
+
+      if (attempt < maxRetries) {
+        // Exponential backoff: 1s, 2s, 4s, ...
+        const delay = baseDelay * Math.pow(2, attempt);
+        if (showToast) {
+          displayToast(
+            `فشل تحميل ${label}. إعادة المحاولة خلال ${Math.round(delay / 1000)} ثانية...`,
+            'warning',
+          );
+        }
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  // All retries exhausted — add to failedModules set so we don't retry this session
+  failedModules.add(label);
+  console.error(`[ErrorBoundary] safeLoad "${label}" exhausted ${attempts} attempts.`, lastError);
+
+  if (showToast) {
+    displayToast(
+      `تعذّر تحميل ${label}. يرجى تحديث الصفحة أو التحقق من اتصالك بالإنترنت.`,
+      'error',
+    );
+  }
+
+  return { success: false, attempts, error: lastError };
+}
+
+/**
+ * Wrap an async function with retry logic (similar to safeLoad but for any async op).
+ *
+ * @example
+ *   const data = await safeAsync(
+ *     () => fetch('/api/data').then(r => r.json()),
+ *     { label: 'بيانات السورة', fallback: null }
+ *   );
+ */
+export async function safeAsync<T>(
+  fn: () => Promise<T>,
+  options: SafeLoadOptions & { fallback: T } = { fallback: null as T },
+): Promise<T> {
+  const { fallback, maxRetries = 2, baseDelay = 1000, showToast = true, label = 'operation' } = options;
+
+  let lastError: Error | undefined;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err as Error;
+      if (attempt < maxRetries) {
+        const delay = baseDelay * Math.pow(2, attempt);
+        if (showToast) {
+          displayToast(
+            `فشلت عملية "${label}". إعادة المحاولة...`,
+            'warning',
+          );
+        }
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  console.error(`[ErrorBoundary] safeAsync "${label}" failed:`, lastError);
+  return fallback;
+}
+
+/** Reset the failed-modules cache (e.g., when connectivity is restored). */
+export function resetFailedModulesCache(): void {
+  failedModules.clear();
 }
