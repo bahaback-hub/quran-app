@@ -213,6 +213,17 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  position: relative;
+}
+/* SVG icons inside buttons must NOT capture pointer events.
+   Without this, clicking the center of an icon (where SVG paths are)
+   sets e.target to the SVG instead of the button, which breaks
+   click handlers that check e.target === button. */
+.header-action-btn svg,
+.header-menu-btn svg,
+.header-action-btn .icon,
+.header-menu-btn .icon {
+  pointer-events: none;
 }
 .header-action-btn:hover {
   background: var(--accent);
