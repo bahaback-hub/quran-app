@@ -5,6 +5,9 @@
 // Mock the i18n __() function to return the key itself
 vi.mock('../i18n.js', () => ({
   __: (key: string, ..._args: string[]) => key,
+  __n: (key: string, count: number) => `${key}:${count}`,
+  toArabicDigits: (v: string | number) => String(v),
+  toLatinDigits: (v: string | number) => String(v),
   setLocale: vi.fn(),
   getCurrentLocale: vi.fn(() => 'ar'),
   loadLocale: vi.fn(() => Promise.resolve()),
