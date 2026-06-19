@@ -13,8 +13,7 @@ vi.mock('../internal-state.js', async (importOriginal) => {
   };
 });
 
-vi.mock('../adhkar-data.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+vi.mock('../adhkar-data.js', () => {
   const TEST_DATA = {
     categories: [
       {
@@ -39,15 +38,25 @@ vi.mock('../adhkar-data.js', async (importOriginal) => {
     ],
   };
   return {
-    ...actual,
     ADHKAR_DATA: TEST_DATA,
     getCategoryItems: (categoryId: string) => {
       const cat = TEST_DATA.categories.find((c) => c.id === categoryId);
       return cat ? [...cat.items] : [];
     },
+    getEffectiveCategory: (categoryId: string) => {
+      const cat = TEST_DATA.categories.find((c) => c.id === categoryId);
+      return cat ? { ...cat } : null;
+    },
     addCustomAdhkarItem: () => null,
     editAdhkarItem: () => true,
     deleteAdhkarItem: () => undefined,
+    restoreAdhkarItem: () => undefined,
+    loadAdhkarCustomizations: () => ({
+      customItems: {},
+      itemOverrides: {},
+      hiddenItems: [],
+    }),
+    saveAdhkarCustomizations: () => undefined,
     resetAdhkarCustomizations: () => ({
       customItems: {},
       itemOverrides: {},

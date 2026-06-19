@@ -14,11 +14,9 @@ import { dom } from '../dom.js';
 import { storage } from '../storage.js';
 import { showToast } from '../ui.js';
 
-// Mock adhkar-data with minimal test data
-vi.mock('../adhkar-data.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  // Override ADHKAR_DATA with minimal test data AND re-implement getCategoryItems
-  // to use this test data (otherwise the actual function references the original ADHKAR_DATA).
+// Mock adhkar-data with minimal test data + re-implemented functions
+// (avoid importOriginal to prevent vi.mock async factory teardown issues)
+vi.mock('../adhkar-data.js', () => {
   const TEST_DATA = {
     categories: [
       {
@@ -43,16 +41,25 @@ vi.mock('../adhkar-data.js', async (importOriginal) => {
     ],
   };
   return {
-    ...actual,
     ADHKAR_DATA: TEST_DATA,
-    // Re-implement getCategoryItems to use TEST_DATA instead of original
     getCategoryItems: (categoryId: string) => {
       const cat = TEST_DATA.categories.find((c) => c.id === categoryId);
       return cat ? [...cat.items] : [];
     },
+    getEffectiveCategory: (categoryId: string) => {
+      const cat = TEST_DATA.categories.find((c) => c.id === categoryId);
+      return cat ? { ...cat } : null;
+    },
     addCustomAdhkarItem: () => null,
     editAdhkarItem: () => true,
     deleteAdhkarItem: () => undefined,
+    restoreAdhkarItem: () => undefined,
+    loadAdhkarCustomizations: () => ({
+      customItems: {},
+      itemOverrides: {},
+      hiddenItems: [],
+    }),
+    saveAdhkarCustomizations: () => undefined,
     resetAdhkarCustomizations: () => ({
       customItems: {},
       itemOverrides: {},
