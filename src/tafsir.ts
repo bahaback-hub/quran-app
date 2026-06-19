@@ -4,6 +4,8 @@ import { dom } from './dom.js';
 import { tafsirLoading, tafsirErrorMessage } from './templates.js';
 import { tafsirFetch } from './api-client.js';
 import { __ } from './i18n.js';
+import { tryValidate } from './schemas-validate.js';
+import { TafsirApiResponseSchema } from './api-schemas.js';
 
 /* ===================== LOCAL TYPES ===================== */
 
@@ -23,12 +25,6 @@ type LocalMuyassar = Record<number, MuyassarSurah> | null;
 interface TafsirCacheEntry {
   key: string;
   text: string;
-}
-
-/** Shape of the API response from the tafsir endpoint. */
-interface TafsirApiResponse {
-  tafsir?: { text: string };
-  text?: string;
 }
 
 /* ===================== LOCAL MUYASSAR TAFSIR ===================== */
@@ -126,8 +122,28 @@ async function saveTafsirToDB(key: string, text: string): Promise<void> {
 async function fetchTafsirFromAPI(edition: string, surahNum: number, ayahNum: number): Promise<string | null> {
   const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
   try {
-    const data = (await tafsirFetch(`/${edition}/${surahNum}/${ayahNum}.json`, { silent: true })) as TafsirApiResponse;
-    const text = data?.tafsir?.text || data?.text || __('no_tafsir_available');
+    const raw = await tafsirFetch(`/${edition}/${surahNum}/${ayahNum}.json`, { silent: true });
+    // Validate the API response at runtime instead of unsafe `as` cast.
+    // If the response shape is unexpected, fall back to a user-friendly message
+    // rather than null (which would show no content in the UI).
+    const data = tryValidate(raw, TafsirApiResponseSchema);
+    if (!data) {
+      console.warn('[Tafsir] API response did not match expected schema for', edition, surahNum, ayahNum);
+      // Try legacy shape (tafsir.text) before giving up
+      const legacy = raw as { tafsir?: { text?: string }; text?: string } | null;
+      const legacyText = legacy?.tafsir?.text || legacy?.text;
+      if (legacyText) {
+        await saveTafsirToDB(cacheKey, legacyText);
+        return legacyText;
+      }
+      // No usable text — return fallback message
+      const fallbackText = __('no_tafsir_available');
+      await saveTafsirToDB(cacheKey, fallbackText);
+      return fallbackText;
+    }
+    // The schema validates `text` field; older API variants use `tafsir.text`.
+    const legacy = raw as { tafsir?: { text?: string } } | null;
+    const text = legacy?.tafsir?.text || data.text || __('no_tafsir_available');
     await saveTafsirToDB(cacheKey, text);
     return text;
   } catch {
