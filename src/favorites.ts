@@ -13,7 +13,7 @@ import { showToast } from './ui.js';
 import { hapticFeedback, copyToClipboard } from './utils.js';
 import { __ } from './i18n.js';
 import { loadSurah } from './surah-loader.js';
-import { favoritesEmptyMessage, favoriteMeta } from './templates.js';
+import { favoritesEmptyMessage, favoriteMeta, favoritesCountMessage } from './templates.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -67,6 +67,12 @@ export function renderFavorites(): void {
   if (!state.favorites.length) {
     dom.favoritesList.innerHTML = favoritesEmptyMessage();
     return;
+  }
+
+  // Show localized count using plural forms (e.g. "٥ مفضلات")
+  const countEl = document.querySelector('.favorites-count');
+  if (countEl) {
+    countEl.outerHTML = favoritesCountMessage(state.favorites.length);
   }
   const fragment = document.createDocumentFragment();
   for (const f of state.favorites.slice().reverse()) {

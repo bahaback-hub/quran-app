@@ -11,7 +11,7 @@ import { CONFIG } from './config.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { normalizeExactText, normalizeRelaxed } from './utils.js';
-import { __ } from './i18n.js';
+import { __, toLatinDigits } from './i18n.js';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_SEARCH_HISTORY = 10;
@@ -201,12 +201,15 @@ export function performSearch(query: string): QuranTextEntry[] {
   if (!state.fullQuranText) {
     return [];
   }
-  const normQuery = normalizeExactText(query.trim());
+  // Normalize user input: convert Arabic-Indic digits (٠-٩) to Latin (0-9)
+  // so users can search using either digit system.
+  const normalizedInput = toLatinDigits(query.trim());
+  const normQuery = normalizeExactText(normalizedInput);
   // Guard: empty query would match all ayahs (string.includes("") is always true)
   if (!normQuery) {
     return [];
   }
-  const relaxedQuery = normalizeRelaxed(query.trim());
+  const relaxedQuery = normalizeRelaxed(normalizedInput);
   const exactVariants = generateArabicVariants(normQuery);
   const relaxedVariants = generateArabicVariants(relaxedQuery);
   let matches = state.fullQuranText.filter((ayah) => exactVariants.some((q) => ayah.normalized.includes(q)));

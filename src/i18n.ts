@@ -276,6 +276,111 @@ export function __(key: string, ...args: string[]): string {
   return String(val);
 }
 
+/* ===================== PLURALIZATION ===================== */
+
+/**
+ * Plural form keys per Intl.PluralRules.
+ * Arabic has 6 forms: zero, one, two, few, many, other.
+ */
+type PluralForm = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other';
+
+/** Cache of PluralRules instances per language (perf optimization). */
+const pluralRulesCache = new Map<LangCode, Intl.PluralRules>();
+
+/** Arabic-Indic digit mapping for displaying numbers in Arabic. */
+const ARABIC_DIGITS: Record<string, string> = {
+  '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤',
+  '5': '٥', '6': '٦', '7': '٧', '8': '٨', '9': '٩',
+};
+
+/** Convert Latin digits to Arabic-Indic digits (٠-٩). */
+export function toArabicDigits(value: string | number): string {
+  return String(value).replace(/[0-9]/g, (d) => ARABIC_DIGITS[d] ?? d);
+}
+
+/** Convert Arabic-Indic digits back to Latin. */
+export function toLatinDigits(value: string): string {
+  const reverse: Record<string, string> = {};
+  for (const [k, v] of Object.entries(ARABIC_DIGITS)) {
+    reverse[v] = k;
+  }
+  return value.replace(/[٠-٩]/g, (d) => reverse[d] ?? d);
+}
+
+/** Get (or create) cached Intl.PluralRules for the current language. */
+function getPluralRules(lang: LangCode): Intl.PluralRules {
+  if (!pluralRulesCache.has(lang)) {
+    pluralRulesCache.set(lang, new Intl.PluralRules(lang, { type: 'cardinal' }));
+  }
+  return pluralRulesCache.get(lang)!;
+}
+
+/**
+ * Translate a key with pluralization support.
+ *
+ * The translation value should be an object with plural form keys:
+ *   {
+ *     zero: 'لا توجد آيات',
+ *     one:  'آية واحدة',
+ *     two:  'آيتان',
+ *     few:  '{count} آيات',     // 3-10
+ *     many: '{count} آية',      // 11-99
+ *     other:'{count} آية'       // 100+
+ *   }
+ *
+ * @example
+ *   __n('ayah_count', 5);   // → "٥ آيات"
+ *   __n('ayah_count', 1);   // → "آية واحدة"
+ *   __n('ayah_count', 100); // → "١٠٠ آية"
+ */
+export function __n(
+  key: string,
+  count: number,
+  params?: Record<string, string | number>,
+): string {
+  let val: string | string[] | Record<string, string> | undefined = currentBundle?.[key];
+  if (val === undefined) {
+    const arFallback = getArFallbackSync();
+    val = arFallback?.[key];
+  }
+
+  // If value is a string, just substitute {count}
+  if (typeof val === 'string') {
+    return substitutePluralPlaceholders(val, count, params);
+  }
+
+  // If value is an object with plural forms, select the right one
+  if (val && typeof val === 'object' && !Array.isArray(val)) {
+    const pluralObj = val as Record<PluralForm, string>;
+    const rule = getPluralRules(currentLang).select(count) as PluralForm;
+    const selectedForm = pluralObj[rule] ?? pluralObj.other ?? '';
+    return substitutePluralPlaceholders(selectedForm, count, params);
+  }
+
+  // Fallback: key not found
+  return key;
+}
+
+/** Substitute {count} and other placeholders, with Arabic digit conversion. */
+function substitutePluralPlaceholders(
+  template: string,
+  count: number,
+  params?: Record<string, string | number>,
+): string {
+  const allParams: Record<string, string | number> = { count, ...(params ?? {}) };
+  return template.replace(/\{(\w+)\}/g, (match, key: string) => {
+    const value = allParams[key];
+    if (value === undefined) {
+      return match;
+    }
+    // Convert numbers to Arabic digits for Arabic language
+    if (typeof value === 'number' && currentLang === 'ar') {
+      return toArabicDigits(value);
+    }
+    return String(value);
+  });
+}
+
 /** Get the localized name for a reciter by ID. */
 export function getReciterName(key: string): string {
   return currentBundle?.reciters?.[key] || getArFallbackSync()?.reciters?.[key] || key;
