@@ -58,15 +58,12 @@ vi.mock('../ui.js', () => ({
   },
 }));
 
-// Mock the utils module — must export ALL public functions to avoid
-// "No export defined" errors in tests that import utils directly.
-vi.mock('../utils.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...actual,
-    hapticFeedback: vi.fn(),
-  };
-});
+// Note: We do NOT mock ../utils.js here. Tests that need to mock it can
+// do so in their own test files via vi.mock('../utils.js', ...).
+// Globally mocking utils caused EnvironmentTeardownError in CI when
+// using vi.mock with async importOriginal factory.
+// Tests that import utils directly will get the real implementation,
+// which is fine since utils contains only pure functions.
 
 // Mock the dom module
 vi.mock('../dom.js', () => ({
