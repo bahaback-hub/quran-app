@@ -1,0 +1,60 @@
+/* ================================================================
+   Layer 8: Accessibility
+   ----------------------------------------------------------------
+   - Reduced motion support
+   - High contrast support
+   - Focus management
+   ================================================================ */
+
+@layer accessibility {
+  /* Focus visible — keyboard only */
+  :focus-visible {
+    outline: var(--focus-outline);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* === Reduced Motion === */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    .prayer-row.next-prayer,
+    .bismillah,
+    body.bg-css::after,
+    .ayahs-container .ayah,
+    .ayah.hifdh-mode::after {
+      animation: none !important;
+    }
+    .ayah.hifdh-mode::after {
+      opacity: 0.5;
+    }
+  }
+
+  /* === High Contrast === */
+  @media (prefers-contrast: high) {
+    :root {
+      --color-accent: #9a5545;
+      --color-border-soft: #744e4e;
+      --color-text-muted: #5a3535;
+      --color-border: #000;
+    }
+    .btn {
+      border: 2px solid currentColor;
+    }
+    .toggle-switch {
+      border: 2px solid #000;
+    }
+    .ayah.current {
+      outline: 3px solid #000;
+    }
+  }
+}

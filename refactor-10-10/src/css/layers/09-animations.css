@@ -1,0 +1,50 @@
+/* ================================================================
+   Layer 9: Animations
+   ----------------------------------------------------------------
+   - Centralized keyframes
+   - Respects prefers-reduced-motion automatically
+   ================================================================ */
+
+@layer animations {
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  @keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn var(--transition-slow) ease-out;
+  }
+  .animate-slide-in-right {
+    animation: slideInRight var(--transition-slow) ease-out;
+  }
+  .animate-slide-up {
+    animation: slideUp var(--transition-slow) ease-out;
+  }
+
+  /* Will-change hints for performance */
+  .settings-panel,
+  .favorites-panel,
+  .tafsir-curtain,
+  .adhkar-panel {
+    will-change: transform;
+  }
+}

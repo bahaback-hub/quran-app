@@ -1,0 +1,198 @@
+/* ================================================================
+   Layer 7: Responsive — NO MORE !important
+   ----------------------------------------------------------------
+   - Uses CSS Custom Properties for touch targets
+   - Uses @layer for proper cascade control
+   - touch-target-min token scales up on coarse pointers
+   ================================================================ */
+
+@layer responsive {
+  /* === Default touch target size (desktop) === */
+  :root {
+    --touch-min: 32px;
+  }
+
+  /* === Touch devices scale up via token, not !important === */
+  @media (hover: none) and (pointer: coarse) {
+    :root {
+      --touch-min: var(--touch-target-min);
+    }
+  }
+
+  /* === Tablet === */
+  @media (max-width: 900px) {
+    .prayer-bar-items { gap: var(--space-sm); }
+    .prayer-bar-item {
+      padding: 4px var(--space-sm);
+      font-size: 12px;
+      white-space: normal;
+    }
+    .controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .controls-row { width: 100%; }
+
+    .settings-panel,
+    .favorites-panel { width: 360px; }
+    .tafsir-curtain { width: 340px; }
+    .tafsir-curtain-handle.open { left: 340px; }
+  }
+
+  /* === Mobile === */
+  @media (max-width: 600px) {
+    body {
+      padding: var(--space-sm);
+      padding-bottom: 120px;
+    }
+    .container { border-radius: 12px; }
+    .header { padding: 22px 15px; }
+    .header h1 { font-size: 22px; }
+    .header-action-btn {
+      width: 36px;
+      height: 36px;
+      font-size: var(--fs-md);
+    }
+    .header-menu-container {
+      top: var(--space-sm);
+      left: var(--space-sm);
+    }
+    .surah-content {
+      padding: var(--space-md);
+      min-height: 300px;
+    }
+    .surah-title { font-size: 22px; }
+    .bismillah { font-size: var(--fs-xl); }
+
+    .settings-panel,
+    .favorites-panel {
+      width: 100%;
+      max-width: 100%;
+    }
+    .settings-panel { right: -100%; }
+    .favorites-panel { left: -100%; }
+    .tafsir-curtain {
+      width: 92vw;
+      left: -100vw;
+    }
+    .toast {
+      bottom: 250px;
+      font-size: 13px;
+      padding: var(--space-sm) 18px;
+    }
+    .search-result-text { font-size: var(--fs-md); }
+    .ayah-number {
+      min-width: 28px;
+      height: 28px;
+      line-height: 28px;
+      font-size: 12px;
+    }
+    /* Show bottom nav on mobile */
+    .bottom-nav { display: flex; }
+    /* Lift player above bottom nav */
+    .player { bottom: var(--bottom-nav-height); }
+    .player.collapsed { bottom: var(--bottom-nav-height); }
+  }
+
+  /* === Very small screens === */
+  @media (max-width: 380px) {
+    .header h1 { font-size: 19px; }
+    .surah-title { font-size: 19px; }
+    .bismillah { font-size: 21px; }
+    .btn {
+      padding: 5px var(--space-sm);
+      font-size: 11px;
+    }
+  }
+
+  /* === Touch device optimizations (NO !important) === */
+  @media (hover: none) and (pointer: coarse) {
+    /* Touch targets respect --touch-min token */
+    button,
+    .btn,
+    .header-action-btn,
+    .collapse-bar-btn,
+    .bottom-nav-btn,
+    .view-mode-btn,
+    .search-toggle-btn,
+    .voice-search-btn,
+    .kbd-toggle-btn,
+    .play-pause-btn,
+    .ayah-number {
+      min-width: var(--touch-min);
+      min-height: var(--touch-min);
+    }
+
+    /* Larger form controls */
+    select,
+    input,
+    textarea {
+      min-height: var(--touch-min);
+      font-size: var(--fs-md);
+    }
+
+    /* Touch action for interactive elements only */
+    button,
+    .btn,
+    a,
+    select,
+    input,
+    textarea,
+    .toggle-switch,
+    .bottom-nav-btn,
+    .header-action-btn,
+    .search-autocomplete-item {
+      touch-action: manipulation;
+    }
+
+    /* Allow pinch-to-zoom in ayah content */
+    .ayahs-container {
+      touch-action: pan-x pan-y pinch-zoom;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Hide native select arrow on touch */
+    select {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  }
+
+  /* === Print === */
+  @media print {
+    body {
+      background: #fff !important;
+      padding: 0;
+      color: #000;
+    }
+    .player,
+    .controls,
+    .settings-panel,
+    .favorites-panel,
+    .tafsir-curtain,
+    .tafsir-curtain-handle,
+    .header-action-btn,
+    .header-menu-container,
+    .bottom-nav,
+    .network-banner,
+    .toast,
+    .prayer-bar,
+    .reading-progress,
+    .footer,
+    .skip-link {
+      display: none !important;
+    }
+    .container {
+      box-shadow: none;
+      max-width: 100%;
+      border-radius: 0;
+    }
+    .surah-content { padding: var(--space-lg); }
+    .ayah {
+      background: none !important;
+      box-shadow: none !important;
+      color: #000 !important;
+      page-break-inside: avoid;
+    }
+  }
+}

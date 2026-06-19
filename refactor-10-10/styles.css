@@ -1,0 +1,37 @@
+/* ================================================================
+   Main Stylesheet — Quran App (Refactored)
+   ----------------------------------------------------------------
+   - Uses CSS @layer for proper cascade control
+   - No more !important wars
+   - No more duplicate definitions
+   - Single source of truth for all design tokens
+   ================================================================
+   Author: Refactoring Project
+   Target: 10/10 Code Quality
+   ================================================================ */
+
+/* Layer order declaration (controls specificity) */
+@layer reset, tokens, base, layout, components, surah, responsive, accessibility, animations;
+
+/* Layer imports (order matters) */
+@import './layers/01-reset.css' layer(reset);
+@import './layers/02-tokens.css' layer(tokens);
+@import './layers/03-base.css' layer(base);
+@import './layers/04-layout.css' layer(layout);
+@import './layers/05-components.css' layer(components);
+@import './layers/06-surah.css' layer(surah);
+@import './layers/07-responsive.css' layer(responsive);
+@import './layers/08-accessibility.css' layer(accessibility);
+@import './layers/09-animations.css' layer(animations);
+
+/* ================================================================
+   Virtual Scrolling Support
+   ================================================================ */
+.virtual-chunk {
+  contain: layout style;
+  content-visibility: auto;
+}
+.virtual-chunk[data-spacer='true'] {
+  contain: strict;
+  content-visibility: hidden;
+}

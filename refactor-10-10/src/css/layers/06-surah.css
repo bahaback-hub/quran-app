@@ -1,0 +1,240 @@
+/* ================================================================
+   Layer 6: Surah Content — Ayahs, Bismillah, Tajweed, Translations
+   ----------------------------------------------------------------
+   - All theme-specific colors via tokens
+   - No duplicate selectors
+   ================================================================ */
+
+@layer surah {
+  .surah-title {
+    text-align: center;
+    font-size: var(--fs-surah-title);
+    color: var(--color-primary);
+    margin-bottom: var(--space-lg);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .bismillah {
+    text-align: center;
+    font-size: var(--fs-bismillah);
+    color: var(--color-bismillah);
+    font-weight: bold;
+    font-family: var(--font-family-quran);
+    margin: 0;
+  }
+  .bismillah-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    padding-bottom: 18px;
+    border-bottom: 2px dashed var(--color-border-soft);
+    direction: rtl;
+  }
+  .bismillah-ornament {
+    font-size: var(--fs-xl);
+    color: var(--color-bismillah);
+    opacity: 0.5;
+  }
+
+  .ayahs-container {
+    line-height: 2.4;
+    text-align: justify;
+    color: var(--color-text-primary);
+    font-family: var(--font-family-quran);
+    transition: font-size var(--transition-base);
+  }
+
+  /* === Ayah === */
+  .ayah {
+    display: inline;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-slow);
+  }
+  .ayah:hover { background: var(--color-hover-bg); }
+
+  .ayah.current {
+    background: var(--highlight-bg);
+    color: var(--highlight-text);
+    box-shadow: 0 0 14px var(--highlight-shadow);
+    font-weight: bold;
+  }
+  /* Hide highlight when audio not playing */
+  body:not(.audio-playing) .ayah.current {
+    background: transparent;
+    color: var(--color-text-primary);
+    box-shadow: none;
+    font-weight: normal;
+  }
+
+  /* Hifdh mode (memorization) */
+  .ayah.hifdh-mode {
+    color: transparent;
+    text-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+    transition: all var(--transition-slow);
+    cursor: pointer;
+    position: relative;
+  }
+  .ayah.hifdh-mode::after {
+    content: 'اضغط للكشف';
+    position: absolute;
+    right: 50%;
+    transform: translateX(50%);
+    top: -8px;
+    font-size: 9px;
+    color: var(--color-accent);
+    opacity: 0;
+    pointer-events: none;
+    animation: hifdhPulse 2s ease-in-out infinite;
+    white-space: nowrap;
+  }
+  @keyframes hifdhPulse {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.7; }
+  }
+  .ayah.hifdh-mode.revealed {
+    color: var(--color-text-primary);
+    text-shadow: none;
+  }
+
+  /* === Ayah Number (decorative circle) === */
+  .ayah-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 36px;
+    height: 36px;
+    margin: 0 6px;
+    vertical-align: middle;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+  .ayah-number:hover { transform: scale(1.15); }
+  .ayah-number:active { transform: scale(0.95); }
+  .ayah-number::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-accent);
+    border-radius: var(--radius-full);
+    opacity: 0.15;
+  }
+  .ayah-number::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius-full);
+    opacity: 0.6;
+  }
+  .ayah-number-inner {
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--color-accent-dark);
+    line-height: 1;
+  }
+  [data-theme='night'] .ayah-number-inner {
+    color: var(--color-accent);
+  }
+  [data-theme='night'] .ayah-number::after { opacity: 0.5; }
+  [data-theme='night'] .ayah-number::before { opacity: 0.1; }
+
+  /* === Word-by-word Highlighting === */
+  .word {
+    transition: background var(--transition-fast), color var(--transition-fast);
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .word.current-word {
+    background: #fde047;
+    color: #1a1a1a;
+    box-shadow: 0 0 6px rgba(253, 224, 71, 0.5);
+  }
+  [data-theme='night'] .word.current-word {
+    background: #facc15;
+    color: #0a0e1a;
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+  }
+  body:not(.audio-playing) .word.current-word {
+    background: transparent;
+    color: inherit;
+    box-shadow: none;
+  }
+
+  /* === Translation === */
+  .ayah .translation-text {
+    display: block;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+    margin-top: 4px;
+    padding: 6px var(--space-sm);
+    background: var(--color-tafsir-bg);
+    border-radius: var(--radius-sm);
+    border-right: 3px solid var(--color-accent);
+    direction: ltr;
+    text-align: left;
+  }
+  .ayah .translation-text.rtl-lang {
+    direction: rtl;
+    text-align: right;
+    border-right: none;
+    border-left: 3px solid var(--color-accent);
+  }
+
+  /* === Juz Marker === */
+  .juz-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 18px 0;
+    gap: 12px;
+  }
+  .juz-marker::before,
+  .juz-marker::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-border-soft), transparent);
+  }
+  .juz-label {
+    background: var(--color-accent);
+    color: #1a1005;
+    padding: 4px var(--space-md);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: bold;
+    font-family: var(--font-family-quran);
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(196, 122, 18, 0.25);
+  }
+
+  /* === Sajda Indicator === */
+  .sajda-indicator {
+    display: inline-block;
+    color: #d97706;
+    font-size: var(--fs-lg);
+    margin: 0 2px;
+    vertical-align: middle;
+    cursor: help;
+    animation: sajdaGlow 2.5s ease-in-out infinite;
+  }
+  @keyframes sajdaGlow {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+  [data-theme='night'] .sajda-indicator { color: #fbbf24; }
+}

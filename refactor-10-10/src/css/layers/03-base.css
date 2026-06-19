@@ -1,0 +1,111 @@
+/* ================================================================
+   Layer 3: Base Typography & Body
+   ----------------------------------------------------------------
+   - Uses tokens from layer 02
+   - No theme-specific overrides here (themes via [data-theme])
+   ================================================================ */
+
+@layer base {
+  body {
+    font-family: var(--font-family-body);
+    background: var(--color-bg-gradient);
+    color: var(--color-text-secondary);
+    padding: var(--space-md);
+    padding-bottom: 240px;
+    transition: background var(--transition-theme), color var(--transition-theme);
+  }
+
+  /* Decorative backgrounds */
+  body.bg-css {
+    background: none;
+  }
+  body[data-bg-css] {
+    background: var(--bg-css-value, var(--color-bg-gradient));
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+  body.bg-css::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: inherit;
+    z-index: -1;
+    opacity: 0.55;
+    animation: bgSlowShift 20s ease-in-out infinite alternate;
+  }
+  [data-theme='night'].bg-css::after {
+    opacity: 0.65;
+  }
+
+  @keyframes bgSlowShift {
+    0% { filter: hue-rotate(0deg) saturate(1); }
+    50% { filter: hue-rotate(5deg) saturate(1.1); }
+    100% { filter: hue-rotate(0deg) saturate(1); }
+  }
+
+  /* Utility classes */
+  .hidden {
+    display: none !important;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Skip link for accessibility */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--color-accent);
+    color: #000;
+    padding: var(--space-sm) 12px;
+    text-decoration: none;
+    border-radius: 0 0 var(--radius-sm) 0;
+    z-index: var(--z-network-banner);
+    transition: top var(--transition-base);
+    font-weight: bold;
+  }
+  .skip-link:focus {
+    top: 0;
+  }
+
+  /* SVG Icons */
+  .icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+
+  /* Network banner */
+  .network-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #dc2626;
+    color: #fff;
+    text-align: center;
+    padding: var(--space-sm) var(--space-md);
+    font-size: 14px;
+    font-weight: bold;
+    z-index: var(--z-network-banner);
+    transform: translateY(-100%);
+    transition: transform var(--transition-slow);
+    direction: rtl;
+  }
+  .network-banner.show {
+    transform: translateY(0);
+  }
+  .network-banner.online {
+    background: var(--color-success-bg);
+  }
+}

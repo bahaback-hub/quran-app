@@ -1,0 +1,247 @@
+/* ================================================================
+   Layer 2: Design Tokens (Single Source of Truth)
+   ----------------------------------------------------------------
+   - All colors, sizes, spacing, shadows as CSS Custom Properties
+   - Theme switching via [data-theme] attribute on <html>
+   - No duplicated color values anywhere else in codebase
+   ================================================================ */
+
+@layer tokens {
+  :root,
+  [data-theme='light'] {
+    /* === Color Palette === */
+    --color-bg-gradient: linear-gradient(135deg, #faf5ee 0%, #fdf6eb 100%);
+    --color-container-bg: #fefdf8;
+    --color-content-bg: #ffffff;
+    --color-controls-bg: #f7f2eb;
+    --color-select-bg: #ffffff;
+
+    --color-header-bg: linear-gradient(135deg, #7a5c3a, #9a7b4f);
+    --color-header-text: #ffffff;
+    --color-footer-bg: #5c4430;
+
+    --color-text-primary: #1a1410;
+    --color-text-secondary: #3d3028;
+    --color-text-muted: #8a7b6d;
+
+    --color-accent: #c47a12;
+    --color-accent-dark: #9a5e08;
+    --color-primary: #9a7b4f;
+    --color-primary-light: #b8956a;
+
+    --color-border: #c47a12;
+    --color-border-soft: #e5ddd0;
+    --color-divider: rgba(60, 40, 20, 0.08);
+
+    --color-bismillah: #9a7b4f;
+    --color-error-bg: #fef2f2;
+    --color-error-text: #dc2626;
+    --color-success-bg: #d97706;
+
+    /* === Highlights === */
+    --highlight-bg: linear-gradient(120deg, #fff3a6 0%, #f7cf57 100%);
+    --highlight-text: #2a1802;
+    --highlight-shadow: #c49a1a66;
+    --color-hover-bg: #c47a121a;
+
+    /* === Panels & Cards === */
+    --color-card-bg: #fefdf8;
+    --color-panel-bg: #fefdf8;
+    --color-tafsir-bg: #faf6f0;
+    --color-tafsir-text: #3d3028;
+    --color-tafsir-border: #e5ddd0;
+
+    --color-prayer-bar-bg: linear-gradient(135deg, #7a5c3a 0%, #5c4430 100%);
+
+    /* === Shadows === */
+    --shadow-sm: 0 1px 4px rgba(60, 40, 20, 0.06);
+    --shadow-md: 0 16px 48px rgba(60, 40, 20, 0.1);
+    --shadow-player: 0 -4px 20px rgba(60, 40, 20, 0.08);
+    --shadow-dropdown: 0 4px 20px rgba(60, 40, 20, 0.08);
+
+    /* === Focus === */
+    --focus-outline: 3px solid #c47a12;
+    --input-focus-ring: rgba(196, 122, 18, 0.25);
+
+    /* === Selection === */
+    --color-selection-bg: rgba(217, 119, 6, 0.3);
+    --color-selection-text: var(--color-text-primary);
+
+    /* === Badges === */
+    --badge-bg: rgba(196, 122, 18, 0.12);
+    --badge-text: #9a5e08;
+
+    /* === Typography Scale === */
+    --font-family-body: 'Amiri', 'Traditional Arabic', 'Arial', sans-serif;
+    --font-family-quran: 'Amiri', 'Traditional Arabic', serif;
+
+    --fs-xs: 11px;
+    --fs-sm: 13px;
+    --fs-md: 16px;
+    --fs-lg: 20px;
+    --fs-xl: 28px;
+    --fs-2xl: 36px;
+    --fs-3xl: 44px;
+
+    --fs-surah-title: 28px;
+    --fs-bismillah: 34px;
+    --fs-header-h1: 30px;
+
+    /* === Spacing Scale === */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 36px;
+
+    /* === Border Radius === */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 18px;
+    --radius-pill: 24px;
+    --radius-full: 50%;
+
+    /* === Touch Targets === */
+    --touch-target-min: 44px;
+    --touch-target-default: 44px;
+
+    /* === Layout === */
+    --container-max-width: 1200px;
+    --player-height: 55px;
+    --bottom-nav-height: 56px;
+    --prayer-bar-height: 48px;
+    --reading-progress-height: 3px;
+
+    /* === Transitions === */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+    --transition-theme: 0.5s ease;
+
+    /* === Z-Index Scale === */
+    --z-base: 1;
+    --z-sticky: 100;
+    --z-header: 500;
+    --z-player: 500;
+    --z-bottom-nav: 5000;
+    --z-network-banner: 99999;
+    --z-modal: 10000;
+  }
+
+  /* === Night Theme === */
+  [data-theme='night'] {
+    --color-bg-gradient: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+    --color-container-bg: #161a26;
+    --color-content-bg: #161a26;
+    --color-controls-bg: #1e2330;
+    --color-select-bg: #232838;
+
+    --color-header-bg: linear-gradient(135deg, #1a1f2e, #232838);
+    --color-header-text: #e8d9a8;
+    --color-footer-bg: #0a0e1a;
+
+    --color-text-primary: #d4d4d4;
+    --color-text-secondary: #b8b8b8;
+    --color-text-muted: #aaaaaa;
+
+    --color-accent: #d4af37;
+    --color-accent-dark: #b8956a;
+    --color-primary: #5a4a3a;
+    --color-primary-light: #7a6a5a;
+
+    --color-border: #5a4a3a;
+    --color-border-soft: #2a3040;
+    --color-divider: rgba(255, 255, 255, 0.08);
+
+    --color-bismillah: #d4af37;
+    --color-error-bg: #3a1f1f;
+    --color-error-text: #ff8888;
+    --color-success-bg: #d4af37;
+
+    --highlight-bg: linear-gradient(120deg, #4a3d1a 0%, #6b5520 100%);
+    --highlight-text: #ffe066;
+    --highlight-shadow: rgba(255, 224, 102, 0.4);
+    --color-hover-bg: rgba(255, 224, 102, 0.1);
+
+    --color-card-bg: #1e2330;
+    --color-panel-bg: #1e2330;
+    --color-tafsir-bg: #1e2330;
+    --color-tafsir-text: #c8c8c8;
+    --color-tafsir-border: #3a4050;
+
+    --color-prayer-bar-bg: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+
+    --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 20px 60px rgba(0, 0, 0, 0.6);
+    --shadow-player: 0 -4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-dropdown: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+    --focus-outline: 3px solid #e8d9a8;
+    --input-focus-ring: rgba(212, 175, 55, 0.3);
+
+    --color-selection-bg: rgba(255, 224, 102, 0.25);
+    --color-selection-text: #ffe066;
+
+    --badge-bg: rgba(212, 175, 55, 0.12);
+    --badge-text: #d4af37;
+  }
+
+  /* === Sepia Theme === */
+  [data-theme='sepia'] {
+    --color-bg-gradient: linear-gradient(135deg, #f0e6d2 0%, #e8dbc4 100%);
+    --color-container-bg: #f5edd8;
+    --color-content-bg: #f8f0e0;
+    --color-controls-bg: #efe5d0;
+    --color-select-bg: #f0e6d2;
+
+    --color-header-bg: linear-gradient(135deg, #6b4e2e, #8a6840);
+    --color-header-text: #faf3e6;
+    --color-footer-bg: #4a3520;
+
+    --color-text-primary: #2c1e0e;
+    --color-text-secondary: #4a3828;
+    --color-text-muted: #8a7a66;
+
+    --color-accent: #8a6840;
+    --color-accent-dark: #6b4e2e;
+    --color-primary: #7a5e38;
+    --color-primary-light: #9a7e52;
+
+    --color-border: #8a6840;
+    --color-border-soft: #d4c8b2;
+    --color-divider: rgba(80, 60, 30, 0.1);
+
+    --color-bismillah: #7a5e38;
+    --color-error-bg: #f5e0d8;
+    --color-error-text: #a03020;
+    --color-success-bg: #8a6840;
+
+    --highlight-bg: linear-gradient(120deg, #f0d88a 0%, #e0c060 100%);
+    --highlight-text: #2c1e0e;
+    --highlight-shadow: rgba(160, 120, 50, 0.35);
+    --color-hover-bg: rgba(138, 104, 64, 0.12);
+
+    --color-card-bg: #f5edd8;
+    --color-panel-bg: #f5edd8;
+    --color-tafsir-bg: #f2e8d4;
+    --color-tafsir-text: #4a3828;
+    --color-tafsir-border: #d4c8b2;
+
+    --color-prayer-bar-bg: linear-gradient(135deg, #6b4e2e 0%, #4a3520 100%);
+
+    --shadow-sm: 0 1px 4px rgba(80, 60, 30, 0.08);
+    --shadow-md: 0 16px 48px rgba(80, 60, 30, 0.12);
+    --shadow-player: 0 -4px 20px rgba(80, 60, 30, 0.1);
+    --shadow-dropdown: 0 4px 20px rgba(80, 60, 30, 0.1);
+
+    --focus-outline: 3px solid #8a6840;
+    --input-focus-ring: rgba(138, 104, 64, 0.3);
+
+    --color-selection-bg: rgba(138, 104, 64, 0.25);
+    --color-selection-text: #2c1e0e;
+
+    --badge-bg: rgba(138, 104, 64, 0.12);
+    --badge-text: #6b4e2e;
+  }
+}
