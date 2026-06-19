@@ -301,7 +301,9 @@ export function toArabicDigits(value: string | number): string {
 /** Convert Arabic-Indic digits back to Latin. */
 export function toLatinDigits(value: string): string {
   const reverse: Record<string, string> = {};
-  for (const [k, v] of Object.entries(ARABIC_DIGITS)) reverse[v] = k;
+  for (const [k, v] of Object.entries(ARABIC_DIGITS)) {
+    reverse[v] = k;
+  }
   return value.replace(/[٠-٩]/g, (d) => reverse[d] ?? d);
 }
 
@@ -368,7 +370,9 @@ function substitutePluralPlaceholders(
   const allParams: Record<string, string | number> = { count, ...(params ?? {}) };
   return template.replace(/\{(\w+)\}/g, (match, key: string) => {
     const value = allParams[key];
-    if (value === undefined) return match;
+    if (value === undefined) {
+      return match;
+    }
     // Convert numbers to Arabic digits for Arabic language
     if (typeof value === 'number' && currentLang === 'ar') {
       return toArabicDigits(value);
