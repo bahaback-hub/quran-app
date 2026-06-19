@@ -15,8 +15,11 @@ import { storage } from '../storage.js';
 import { showToast } from '../ui.js';
 
 // Mock adhkar-data with minimal test data
-vi.mock('../adhkar-data.js', () => ({
-  ADHKAR_DATA: {
+vi.mock('../adhkar-data.js', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  // Override ADHKAR_DATA with minimal test data AND re-implement getCategoryItems
+  // to use this test data (otherwise the actual function references the original ADHKAR_DATA).
+  const TEST_DATA = {
     categories: [
       {
         id: 'morning',
@@ -38,8 +41,25 @@ vi.mock('../adhkar-data.js', () => ({
         items: [{ id: 'e1', text: 'آية الكرسي', count: 1, reference: 'البقرة 255' }],
       },
     ],
-  },
-}));
+  };
+  return {
+    ...actual,
+    ADHKAR_DATA: TEST_DATA,
+    // Re-implement getCategoryItems to use TEST_DATA instead of original
+    getCategoryItems: (categoryId: string) => {
+      const cat = TEST_DATA.categories.find((c) => c.id === categoryId);
+      return cat ? [...cat.items] : [];
+    },
+    addCustomAdhkarItem: () => null,
+    editAdhkarItem: () => true,
+    deleteAdhkarItem: () => undefined,
+    resetAdhkarCustomizations: () => ({
+      customItems: {},
+      itemOverrides: {},
+      hiddenItems: [],
+    }),
+  };
+});
 
 // Mock internal-state with all getters/setters used
 vi.mock('../internal-state.js', async (importOriginal) => {

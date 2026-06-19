@@ -13,8 +13,9 @@ vi.mock('../internal-state.js', async (importOriginal) => {
   };
 });
 
-vi.mock('../adhkar-data.js', () => ({
-  ADHKAR_DATA: {
+vi.mock('../adhkar-data.js', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  const TEST_DATA = {
     categories: [
       {
         id: 'morning',
@@ -36,8 +37,24 @@ vi.mock('../adhkar-data.js', () => ({
         items: [{ id: 'e1', text: 'آية الكرسي', count: 1, reference: 'البقرة 255' }],
       },
     ],
-  },
-}));
+  };
+  return {
+    ...actual,
+    ADHKAR_DATA: TEST_DATA,
+    getCategoryItems: (categoryId: string) => {
+      const cat = TEST_DATA.categories.find((c) => c.id === categoryId);
+      return cat ? [...cat.items] : [];
+    },
+    addCustomAdhkarItem: () => null,
+    editAdhkarItem: () => true,
+    deleteAdhkarItem: () => undefined,
+    resetAdhkarCustomizations: () => ({
+      customItems: {},
+      itemOverrides: {},
+      hiddenItems: [],
+    }),
+  };
+});
 
 import { loadAdhkarSettings, checkAdhkarNotifications, toggleAdhkarPanel } from '../adhkar.js';
 

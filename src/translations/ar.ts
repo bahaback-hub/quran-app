@@ -213,6 +213,15 @@ export default {
   adhkar_repeat_complete: 'تم إكمال التكرار. اضغط لإعادة البدء.',
   adhkar_completed: 'تم إكمال الذكر',
   adhkar_repeat_confirm: 'هل تريد إعادة التكرار من البداية؟',
+  adhkar_add_item: 'إضافة ذكر جديد',
+  adhkar_edit_item: 'تعديل الذكر',
+  adhkar_delete_item: 'حذف الذكر',
+  adhkar_copy_item: 'نسخ النص',
+  adhkar_count_label: 'عدد التكرار',
+  adhkar_reference_label: 'المرجع (اختياري)',
+  adhkar_confirm_delete_item: 'هل تريد حذف هذا الذكر؟',
+  adhkar_reset_defaults: 'استعادة الافتراضي',
+  adhkar_reset_defaults_desc: 'سيتم حذف كل التخصيصات (الأذكار المضافة والمعدّلة) واستعادة الأذكار الأصلية. هل أنت متأكد؟',
   adhkar_reset: 'إعادة تعيين العداد',
 
   // === وضع العرض ===
