@@ -387,4 +387,96 @@ export default {
   a11y_offline_notice: 'إشعار عدم الاتصال',
   a11y_reading_progress: 'تقدم القراءة',
   reduced_motion_enabled: 'تم تفعيل تقليل الحركة',
+
+  // === صيغ الجمع (Plural Forms) ===
+  // تستخدم مع دالة __n(key, count) — تختار الصيغة المناسبة تلقائياً
+  // الأرقام تُعرض بالأرقام العربية-الهندية (٠١٢٣...) تلقائياً
+  ayah_count: {
+    zero: 'لا توجد آيات',
+    one: 'آية واحدة',
+    two: 'آيتان',
+    few: '{count} آيات',     // 3-10
+    many: '{count} آية',     // 11-99
+    other: '{count} آية',    // 100+
+  },
+  favorite_count: {
+    zero: 'لا توجد مفضلات',
+    one: 'مفضلة واحدة',
+    two: 'مفضلتان',
+    few: '{count} مفضلات',
+    many: '{count} مفضلة',
+    other: '{count} مفضلة',
+  },
+  search_results_count: {
+    zero: 'لا توجد نتائج',
+    one: 'نتيجة واحدة',
+    two: 'نتيجتان',
+    few: '{count} نتائج',
+    many: '{count} نتيجة',
+    other: '{count} نتيجة',
+  },
+  bookmark_count: {
+    zero: 'لا توجد علامات',
+    one: 'علامة مرجعية واحدة',
+    two: 'علامتان مرجعيتان',
+    few: '{count} علامات مرجعية',
+    many: '{count} علامة مرجعية',
+    other: '{count} علامة مرجعية',
+  },
+  minutes_remaining: {
+    zero: 'انتهى الوقت',
+    one: 'دقيقة واحدة متبقية',
+    two: 'دقيقتان متبقيتان',
+    few: '{count} دقائق متبقية',
+    many: '{count} دقيقة متبقية',
+    other: '{count} دقيقة متبقية',
+  },
+  pages_count: {
+    zero: 'لا توجد صفحات',
+    one: 'صفحة واحدة',
+    two: 'صفحتان',
+    few: '{count} صفحات',
+    many: '{count} صفحة',
+    other: '{count} صفحة',
+  },
+  surah_count: {
+    zero: 'لا توجد سور',
+    one: 'سورة واحدة',
+    two: 'سورتان',
+    few: '{count} سور',
+    many: '{count} سورة',
+    other: '{count} سورة',
+  },
+  reciter_count: {
+    zero: 'لا يوجد قراء',
+    one: 'قارئ واحد',
+    two: 'قارئان',
+    few: '{count} قراء',
+    many: '{count} قارئاً',
+    other: '{count} قارئ',
+  },
+  listening_minutes: {
+    zero: 'لم تستمع بعد',
+    one: 'دقيقة واحدة',
+    two: 'دقيقتان',
+    few: '{count} دقائق',
+    many: '{count} دقيقة',
+    other: '{count} دقيقة',
+  },
+  reading_sessions: {
+    zero: 'لا توجد جلسات',
+    one: 'جلسة واحدة',
+    two: 'جلستان',
+    few: '{count} جلسات',
+    many: '{count} جلسة',
+    other: '{count} جلسة',
+  },
+  day_streak: {
+    zero: 'ابدأ اليوم!',
+    one: 'يوم واحد متتابع',
+    two: 'يومان متتابعان',
+    few: '{count} أيام متتابعة',
+    many: '{count} يوماً متتابعاً',
+    other: '{count} يوماً متتابعاً',
+  },
 };

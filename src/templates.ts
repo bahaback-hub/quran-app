@@ -20,7 +20,7 @@
  */
 
 import type { SurahInfo, FavoriteEntry } from './state.js';
-import { __ } from './i18n.js';
+import { __, __n, toArabicDigits } from './i18n.js';
 
 /* ===================== ESCAPE UTILITY ===================== */
 
@@ -629,10 +629,28 @@ export function favoritesEmptyMessage(): string {
 }
 
 /**
+ * Generate a localized favorites count message using plural forms.
+ * Uses __n() to select the correct Arabic plural form (zero/one/two/few/many/other).
+ * The count is also wrapped in a <span> for styling.
+ *
+ * @example
+ *   favoritesCountMessage(0)   // → "<span class='favorites-count'>لا توجد مفضلات</span>"
+ *   favoritesCountMessage(1)   // → "<span class='favorites-count'>مفضلة واحدة</span>"
+ *   favoritesCountMessage(5)   // → "<span class='favorites-count'>٥ مفضلات</span>"
+ *   favoritesCountMessage(100) // → "<span class='favorites-count'>١٠٠ مفضلة</span>"
+ */
+export function favoritesCountMessage(count: number): string {
+  return `<span class="favorites-count">${__n('favorite_count', count)}</span>`;
+}
+
+/**
  * Generate favorite item metadata line.
+ * Uses toArabicDigits() to display the ayah number in Arabic-Indic digits (٠-٩)
+ * when the active language is Arabic.
  */
 export function favoriteMeta(surahName: string, ayah: number | string): string {
-  return `<strong>${escapeHtml(surahName)}</strong> — ${__('ayah') || 'آية'} ${escapeHtml(String(ayah))}`;
+  const ayahDisplay = typeof ayah === 'number' ? toArabicDigits(ayah) : escapeHtml(String(ayah));
+  return `<strong>${escapeHtml(surahName)}</strong> — ${__('ayah') || 'آية'} ${ayahDisplay}`;
 }
 
 /* ===================== PRAYER TEMPLATES ===================== */

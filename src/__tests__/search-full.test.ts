@@ -110,6 +110,7 @@ vi.mock('../i18n.js', () => ({
     });
     return val;
   },
+  toLatinDigits: (v: string | number) => String(v),
 }));
 
 vi.mock('../internal-state.js', () => ({

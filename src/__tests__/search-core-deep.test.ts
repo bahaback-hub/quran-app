@@ -65,6 +65,7 @@ vi.mock('../utils.js', () => ({
 
 vi.mock('../i18n.js', () => ({
   __: (key: string) => key,
+  toLatinDigits: (v: string | number) => String(v),
 }));
 
 // Mock IndexedDB
