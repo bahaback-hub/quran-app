@@ -698,3 +698,172 @@ export function clearSubscribers(): void {
   subscribers.clear();
   wildcardSubscribers.length = 0;
 }
+
+/* ===================== DEVTOOLS (Development Mode) ===================== */
+
+/**
+ * State DevTools — provides debugging capabilities in development mode:
+ *
+ *   1. Time-travel snapshots (last 50 state changes)
+ *   2. window.__quranState DevTools API for browser console
+ *   3. Colored logging of every state change
+ *   4. Action tracking (who changed what, when, with stack trace)
+ *
+ * Usage in browser console (DEV mode only):
+ *   window.__quranState.inspect()       // print current state
+ *   window.__quranState.history()       // print last 50 changes
+ *   window.__quranState.subscribe(cb)   // subscribe to all changes
+ *   window.__quranState.reset()         // reset to defaults
+ */
+
+interface StateSnapshot {
+  timestamp: number;
+  key: string;
+  oldValue: unknown;
+  newValue: unknown;
+  stack?: string;
+}
+
+const MAX_SNAPSHOTS = 50;
+const _snapshots: StateSnapshot[] = [];
+let _devtoolsInstalled = false;
+let _devLoggingEnabled = false;
+
+/**
+ * Install the State DevTools — call once during app initialization.
+ * In production, this is a no-op (no DevTools exposed).
+ */
+export function installStateDevTools(): void {
+  if (_devtoolsInstalled) {
+    return;
+  }
+  _devtoolsInstalled = true;
+
+  // Only enable in development mode
+  const isDev =
+    typeof import.meta !== 'undefined' &&
+    import.meta.env != null &&
+    (import.meta.env as { DEV?: boolean }).DEV === true;
+
+  if (!isDev) {
+    console.warn('[State DevTools] Skipped in production build.');
+    return;
+  }
+
+  _devLoggingEnabled = true;
+
+  // Subscribe to all state changes for snapshot recording
+  subscribeAll((newValue, oldValue, key) => {
+    recordSnapshot(key, oldValue, newValue);
+  });
+
+  // Expose DevTools API on window
+  if (typeof window !== 'undefined') {
+    (window as unknown as { __quranState?: unknown }).__quranState = {
+      /** Print current state as a table. */
+      inspect: () => {
+        console.warn('[State DevTools] Current state:', _rawState);
+        return _rawState;
+      },
+      /** Print history of last 50 state changes. */
+      history: (): StateSnapshot[] => {
+        console.warn('[State DevTools] History (last 50 changes):');
+        for (const snap of _snapshots) {
+          const time = new Date(snap.timestamp).toLocaleTimeString();
+          console.warn(
+            `[State DevTools] ${time} ${snap.key}:`,
+            snap.oldValue,
+            '→',
+            snap.newValue,
+          );
+        }
+        return [..._snapshots];
+      },
+      /** Get a specific snapshot by index. */
+      getSnapshot: (index: number): StateSnapshot | null => {
+        return _snapshots[index] ?? null;
+      },
+      /** Subscribe to all state changes (returns unsubscribe function). */
+      subscribe: (callback: (newValue: unknown, oldValue: unknown, key: string) => void): (() => void) => {
+        return subscribeAll(callback);
+      },
+      /** Reset state to defaults. */
+      reset: () => {
+        resetState();
+        _snapshots.length = 0;
+        console.warn('[State DevTools] State reset to defaults.');
+      },
+      /** Clear history without resetting state. */
+      clearHistory: () => {
+        _snapshots.length = 0;
+        console.warn('[State DevTools] History cleared.');
+      },
+      /** Toggle colored logging of state changes. */
+      toggleLogging: (): boolean => {
+        _devLoggingEnabled = !_devLoggingEnabled;
+        console.warn(`[State DevTools] Logging ${_devLoggingEnabled ? 'enabled' : 'disabled'}.`);
+        return _devLoggingEnabled;
+      },
+      /** Get current state (read-only snapshot). */
+      getState: () => {
+        return { ..._rawState };
+      },
+    };
+    console.warn('[State DevTools] Available at window.__quranState');
+    console.warn('[State DevTools] Try: __quranState.inspect() or __quranState.history()');
+  }
+}
+
+/**
+ * Record a snapshot of a state change (for time-travel debugging).
+ * Called automatically by the wildcard subscriber installed in installStateDevTools().
+ */
+function recordSnapshot(key: string, oldValue: unknown, newValue: unknown): void {
+  const snapshot: StateSnapshot = {
+    timestamp: Date.now(),
+    key,
+    oldValue,
+    newValue,
+    stack: new Error().stack?.split('\n').slice(2, 6).join('\n'),
+  };
+  _snapshots.push(snapshot);
+  if (_snapshots.length > MAX_SNAPSHOTS) {
+    _snapshots.shift();
+  }
+
+  // Colored console log (only warn/error allowed by ESLint rule)
+  if (_devLoggingEnabled) {
+    const isPrimitive = typeof newValue !== 'object' || newValue === null;
+    const displayNew = isPrimitive ? newValue : '[object]';
+    const displayOld = typeof oldValue !== 'object' || oldValue === null ? oldValue : '[object]';
+    console.warn(
+      `[State] ${key}:`,
+      displayOld,
+      '→',
+      displayNew,
+    );
+  }
+}
+
+/**
+ * Get all recorded snapshots (dev only).
+ * Useful for testing or external debugging tools.
+ */
+export function getStateHistory(): StateSnapshot[] {
+  return [..._snapshots];
+}
+
+/**
+ * Clear the state history (without resetting state itself).
+ * Useful for test isolation.
+ */
+export function clearStateHistory(): void {
+  _snapshots.length = 0;
+}
+
+/**
+ * Check if DevTools are currently installed.
+ */
+export function isDevToolsInstalled(): boolean {
+  return _devtoolsInstalled;
+}
