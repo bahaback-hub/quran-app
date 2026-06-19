@@ -744,6 +744,84 @@ body.night-mode .adhkar-header h2 {
   border-style: solid;
 }
 
+/* ===== Item actions (edit/delete/copy) — FIX #2: flexible content ===== */
+.adhkar-item-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+.adhkar-item-actions {
+  display: flex;
+  gap: 4px;
+}
+.adhkar-item-action-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-soft);
+  background: var(--container-bg);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  opacity: 0.6;
+  transition: opacity 0.2s, background 0.2s;
+}
+.adhkar-item-action-btn:hover {
+  opacity: 1;
+  background: var(--hover-bg);
+}
+.adhkar-item.custom-item {
+  border-right-color: #10b981;
+}
+.adhkar-item.custom-item .adhkar-item-action-btn[data-action="delete-item"] {
+  color: #dc2626;
+}
+
+/* ===== Actions row (add/reset/restore) ===== */
+.adhkar-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.adhkar-actions-row .adhkar-add-btn,
+.adhkar-actions-row .adhkar-reset-btn,
+.adhkar-actions-row .adhkar-restore-btn {
+  flex: 1;
+  min-width: 120px;
+  margin-bottom: 0;
+  padding: 10px 8px;
+  font-size: 13px;
+}
+.adhkar-reset-btn {
+  background: var(--border-soft);
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+.adhkar-reset-btn:hover {
+  background: var(--hover-bg);
+}
+.adhkar-restore-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.adhkar-restore-btn:hover {
+  color: var(--accent-dark);
+  border-color: var(--accent);
+}
+
 /* ===== إعدادات الأذكار في لوحة الإعدادات ===== */
 .adhkar-setting-row {
   padding: 8px 10px;

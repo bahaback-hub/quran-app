@@ -213,6 +213,15 @@ export default {
   adhkar_repeat_complete: 'Tekrar tamamlandı. Yeniden başlatmak için dokunun.',
   adhkar_completed: 'Zikir tamamlandı',
   adhkar_repeat_confirm: 'Tekrarı baştan başlatmak mı?',
+  adhkar_add_item: 'Yeni zikir ekle',
+  adhkar_edit_item: 'Zikri düzenle',
+  adhkar_delete_item: 'Zikri sil',
+  adhkar_copy_item: 'Metni kopyala',
+  adhkar_count_label: 'Tekrar sayısı',
+  adhkar_reference_label: 'Kaynak (isteğe bağlı)',
+  adhkar_confirm_delete_item: 'Bu zikri silmek istiyor musunuz?',
+  adhkar_reset_defaults: 'Varsayılanları geri yükle',
+  adhkar_reset_defaults_desc: 'Tüm özelleştirmeler (eklenen ve düzenlenen zikirler) silinecek ve orijinal zikirler geri yüklenecek. Emin misiniz?',
   adhkar_reset: 'Sayaçı sıfırla',
 
   // === Sunum Modu ===
