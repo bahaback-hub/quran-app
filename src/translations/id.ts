@@ -209,6 +209,10 @@ export default {
   adhkar_remaining: '{0} tersisa',
   adhkar_times: 'kali',
   adhkar_time: 'Waktu pengingat',
+  adhkar_enable_notification: 'Aktifkan notifikasi',
+  adhkar_repeat_complete: 'Pengulangan selesai. Ketuk untuk memulai ulang.',
+  adhkar_completed: 'Dzikir selesai',
+  adhkar_repeat_confirm: 'Memulai ulang pengulangan dari awal?',
   adhkar_reset: 'Reset penghitung',
 
   // === Mode Presentasi ===

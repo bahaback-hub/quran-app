@@ -85,7 +85,7 @@ describe('checkAdhkarNotifications', () => {
       personal_adhkar: [],
       _resetDate: new Date().toDateString(),
     };
-    state.lastAdhkarFired = null;
+    state.firedAdhkarToday = new Set(); state.firedAdhkarDate = null;
     dom.adhkarNotification = document.createElement('div');
     dom.adhkarNotifIcon = document.createElement('div');
     dom.adhkarNotifTitle = document.createElement('div');

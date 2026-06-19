@@ -209,6 +209,10 @@ export default {
   adhkar_remaining: '{0} kaldı',
   adhkar_times: 'kere',
   adhkar_time: 'Hatırlatma zamanı',
+  adhkar_enable_notification: 'Bildirimi etkinleştir',
+  adhkar_repeat_complete: 'Tekrar tamamlandı. Yeniden başlatmak için dokunun.',
+  adhkar_completed: 'Zikir tamamlandı',
+  adhkar_repeat_confirm: 'Tekrarı baştan başlatmak mı?',
   adhkar_reset: 'Sayaçı sıfırla',
 
   // === Sunum Modu ===

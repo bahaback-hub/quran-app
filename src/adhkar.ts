@@ -166,7 +166,7 @@ function renderAdhkarCategory(categoryId: string): void {
     <div class="adhkar-category-options">
       <label class="adhkar-cat-label">
         <div class="adhkar-cat-toggle toggle-switch${enabled ? ' on' : ''}" data-category="${cat.id}" role="switch"></div>
-        ${__('adhkar_time')}
+        ${__('adhkar_enable_notification')}
       </label>
       <label class="adhkar-cat-label--time">
         ⏰ <input type="time" class="adhkar-cat-time adhkar-cat-time-input" data-category="${cat.id}" value="${notifTime}">
@@ -308,13 +308,23 @@ function handleAdhkarCounter(itemId: string, categoryId: string): void {
   // Create new object to trigger Proxy notification
   const newSettings = cloneAdhkarSettings(state.adhkarSettings);
   if (current >= item.count) {
+    // FIX #6: User tapped after completing the count — restart with confirmation toast
     newSettings[key] = 0;
-  } else {
-    newSettings[key] = current + 1;
+    state.adhkarSettings = newSettings;
+    saveAdhkarSettings();
+    updateAdhkarItemDOM(itemId, categoryId);
+    showToast(__('adhkar_repeat_complete'), 'success');
+    return;
   }
+  const next = current + 1;
+  newSettings[key] = next;
   state.adhkarSettings = newSettings;
   saveAdhkarSettings();
   updateAdhkarItemDOM(itemId, categoryId);
+  // When user just completed the count, show a confirmation toast
+  if (next === item.count) {
+    showToast(__('adhkar_completed'), 'success');
+  }
 }
 
 function resetAdhkarCounters(categoryId: string): void {
@@ -375,59 +385,99 @@ function renderPersonalAdhkar(): void {
   dom.adhkarContent.innerHTML = html;
 
   document.getElementById('openAddAdhkarBtn')?.addEventListener('click', openAdhkarAddDialog);
-  dom.adhkarContent.querySelectorAll('[data-action="increment-personal"]').forEach((btn: Element) => {
-    btn.addEventListener('click', () => {
-      const currentSettings = state.adhkarSettings!;
-      const personalList = currentSettings.personal_adhkar || [];
-      const p = personalList.find((x: PersonalAdhkarEntry) => x.id === (btn as HTMLElement).dataset['id']);
-      if (!p) {
+
+  // FIX #7: Use event delegation (consistent with category adhkar) instead of
+  // attaching direct listeners to every button — avoids re-binding on every render
+  // and keeps the codebase uniform.
+  const personalContentEl = dom.adhkarContent as HTMLElement & { _personalDelegationBound?: boolean };
+  if (!personalContentEl._personalDelegationBound) {
+    personalContentEl._personalDelegationBound = true;
+    personalContentEl.addEventListener('click', (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const actionBtn = target.closest('[data-action]') as HTMLElement | null;
+      if (!actionBtn) {
         return;
       }
-      const key = `item_personal_${p.id}`;
-      const current = (state.adhkarSettings![key] as number) || 0;
-      // Create new object to trigger Proxy notification
-      const newSettings = cloneAdhkarSettings(state.adhkarSettings);
-      if (current >= p.count) {
-        newSettings[key] = 0;
-      } else {
-        newSettings[key] = current + 1;
+      const action = actionBtn.dataset['action'];
+      const id = actionBtn.dataset['id'];
+      if (!id) {
+        return;
       }
-      state.adhkarSettings = newSettings;
-      saveAdhkarSettings();
-      const itemEl = dom.adhkarContent?.querySelector(
-        `.adhkar-item[data-item-id="personal_${p.id}"]`,
-      ) as HTMLElement | null;
-      if (itemEl) {
-        const newCounter = (newSettings[key] as number) || 0;
-        const newRemaining = Math.max(0, p.count - newCounter);
-        const newCompleted = newCounter >= p.count;
-        const newPct = Math.min(100, (newCounter / p.count) * 100);
-        itemEl.classList.toggle('completed', newCompleted);
-        const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
-        if (fill) {
-          fill.style.width = newPct + '%';
-        }
-        const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
-        if (countSpan) {
-          countSpan.textContent = `🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${newRemaining}`;
-        }
-        const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
-        if (counterText) {
-          counterText.textContent = String(newCounter);
-        }
-        const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
-        if (counterBtn) {
-          counterBtn.classList.toggle('completed', newCompleted);
-        }
+      if (action === 'increment-personal') {
+        handlePersonalAdhkarCounter(id);
+        return;
+      }
+      if (action === 'edit-personal') {
+        editPersonalAdhkar(id);
+        return;
+      }
+      if (action === 'delete-personal') {
+        deletePersonalAdhkar(id);
+        return;
       }
     });
-  });
-  dom.adhkarContent.querySelectorAll('[data-action="edit-personal"]').forEach((btn: Element) => {
-    btn.addEventListener('click', () => editPersonalAdhkar((btn as HTMLElement).dataset['id'] as string));
-  });
-  dom.adhkarContent.querySelectorAll('[data-action="delete-personal"]').forEach((btn: Element) => {
-    btn.addEventListener('click', () => deletePersonalAdhkar((btn as HTMLElement).dataset['id'] as string));
-  });
+  }
+}
+
+/** FIX #6 + #7: Handle personal adhkar counter increment with proper confirmation
+ *  toasts on completion (matching the category adhkar behavior). */
+function handlePersonalAdhkarCounter(id: string): void {
+  const settings = state.adhkarSettings!;
+  const personalList = settings.personal_adhkar || [];
+  const p = personalList.find((x: PersonalAdhkarEntry) => x.id === id);
+  if (!p) {
+    return;
+  }
+  const key = `item_personal_${p.id}`;
+  const current = (settings[key] as number) || 0;
+  const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+  if (current >= p.count) {
+    // Already completed — restart with toast
+    newSettings[key] = 0;
+    state.adhkarSettings = newSettings;
+    saveAdhkarSettings();
+    updatePersonalAdhkarItemDOM(p, newSettings[key] as number);
+    showToast(__('adhkar_repeat_complete'), 'success');
+    return;
+  }
+  const next = current + 1;
+  newSettings[key] = next;
+  state.adhkarSettings = newSettings;
+  saveAdhkarSettings();
+  updatePersonalAdhkarItemDOM(p, next);
+  if (next === p.count) {
+    showToast(__('adhkar_completed'), 'success');
+  }
+}
+
+/** Update a personal adhkar item's DOM without re-rendering the whole list. */
+function updatePersonalAdhkarItemDOM(p: PersonalAdhkarEntry, counter: number): void {
+  const itemEl = dom.adhkarContent?.querySelector(
+    `.adhkar-item[data-item-id="personal_${p.id}"]`,
+  ) as HTMLElement | null;
+  if (!itemEl) {
+    return;
+  }
+  const remaining = Math.max(0, p.count - counter);
+  const completed = counter >= p.count;
+  const pct = Math.min(100, (counter / p.count) * 100);
+  itemEl.classList.toggle('completed', completed);
+  const fill = itemEl.querySelector('.adhkar-progress-fill') as HTMLElement | null;
+  if (fill) {
+    fill.style.width = pct + '%';
+  }
+  const countSpan = itemEl.querySelector('.adhkar-item-count') as HTMLElement | null;
+  if (countSpan) {
+    countSpan.textContent = `🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}`;
+  }
+  const counterText = itemEl.querySelector('.adhkar-counter-text') as HTMLElement | null;
+  if (counterText) {
+    counterText.textContent = String(counter);
+  }
+  const counterBtn = itemEl.querySelector('.adhkar-counter-btn') as HTMLElement | null;
+  if (counterBtn) {
+    counterBtn.classList.toggle('completed', completed);
+  }
 }
 
 function openAdhkarAddDialog(): void {
@@ -681,8 +731,22 @@ export function wireAdhkarEvents(): void {
       closeAdhkarAddDialog();
     }
   });
-  dom.adhkarEnabledToggle?.addEventListener('click', () => {
+  dom.adhkarEnabledToggle?.addEventListener('click', async () => {
     const on = dom.adhkarEnabledToggle!.classList.toggle('on');
+    // FIX #5: Request Notification permission when user enables adhkar (this is a user gesture).
+    // Without this, system notifications never fire because permission is never requested.
+    if (on && typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      try {
+        const result = await Notification.requestPermission();
+        if (result === 'granted') {
+          showToast(__('notification_active'), 'success');
+        } else if (result === 'denied') {
+          showToast(__('notification_paused'), 'warning');
+        }
+      } catch {
+        // Some browsers throw if requestPermission is called twice — ignore.
+      }
+    }
     const newSettings = cloneAdhkarSettings(state.adhkarSettings);
     newSettings.adhkar_enabled = on;
     state.adhkarSettings = newSettings;

@@ -144,7 +144,7 @@ function resetAll() {
   state.adhkarSettings = null;
   state.adhkarPanelOpen = false;
   state.adhkarActiveTab = null;
-  state.lastAdhkarFired = null;
+  state.firedAdhkarToday = new Set(); state.firedAdhkarDate = null;
   // Clean up document body (e.g. delete modals from previous tests)
   document.body.innerHTML = '';
   setupDOM();

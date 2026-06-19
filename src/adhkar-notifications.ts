@@ -184,16 +184,42 @@ export function dismissAdhkarNotification(): void {
 
 /* ===================== CHECK ADHKAR NOTIFICATIONS ===================== */
 
-/** Check all adhkar categories and personal adhkar for pending notifications. */
+/**
+ * Ensure `state.firedAdhkarToday` is for today; reset it if a new day started.
+ * This handles the case where the app stays open across midnight.
+ */
+function ensureFiredSetForToday(): void {
+  const today = new Date().toDateString();
+  if (state.firedAdhkarDate !== today) {
+    state.firedAdhkarToday = new Set<string>();
+    state.firedAdhkarDate = today;
+  }
+}
+
+/**
+ * Check all adhkar categories and personal adhkar for pending notifications.
+ *
+ * FIXES applied:
+ *  1. Uses a Set (firedAdhkarToday) instead of single lastAdhkarFired string
+ *     → prevents repeated notifications every 30s after the first firing.
+ *  2. Does NOT return after the first notification → all due notifications
+ *     fire in a single check cycle.
+ *  3. Personal adhkar are checked in the same loop, no artificial delay.
+ */
 export function checkAdhkarNotifications(): void {
   const settings = state.adhkarSettings;
   if (!settings?.adhkar_enabled) {
     return;
   }
+
+  ensureFiredSetForToday();
+
   const now = new Date();
   const curMin = now.getHours() * 60 + now.getMinutes();
   const today = now.toDateString();
+  const fired = state.firedAdhkarToday;
 
+  // === Categories (morning, evening, sleep, etc.) ===
   for (const cat of ADHKAR_DATA.categories) {
     const catSettings = settings[cat.id] as Partial<AdhkarCategorySettings> | undefined;
     if (!catSettings?.enabled) {
@@ -208,14 +234,16 @@ export function checkAdhkarNotifications(): void {
     const m = timeParts[1]!;
     const catMin = h * 60 + m;
     const fireKey = cat.id + '_' + today;
-    if (curMin >= catMin && state.lastAdhkarFired !== fireKey) {
-      state.lastAdhkarFired = fireKey;
+    // Only fire once per day per category (key in Set)
+    if (curMin >= catMin && !fired.has(fireKey)) {
+      fired.add(fireKey);
       const notifDuration = catSettings.duration ?? cat.defaultDuration ?? 1;
       showAdhkarNotification({ id: cat.id, icon: cat.icon, name: cat.name }, notifDuration);
-      return;
+      // ⚠️ Do NOT return — continue checking remaining categories + personal adhkar.
     }
   }
 
+  // === Personal adhkar ===
   for (const p of settings.personal_adhkar || []) {
     if (!p.time) {
       continue;
@@ -225,8 +253,8 @@ export function checkAdhkarNotifications(): void {
     const m = timeParts[1]!;
     const pMin = h * 60 + m;
     const fireKey = 'personal_' + p.id + '_' + today;
-    if (curMin >= pMin && state.lastAdhkarFired !== fireKey) {
-      state.lastAdhkarFired = fireKey;
+    if (curMin >= pMin && !fired.has(fireKey)) {
+      fired.add(fireKey);
       showAdhkarNotification({
         id: 'personal',
         _personalId: p.id,
@@ -234,7 +262,7 @@ export function checkAdhkarNotifications(): void {
         name: p.text,
         duration: p.duration || 1,
       });
-      return;
+      // ⚠️ Do NOT return — continue checking other personal adhkar.
     }
   }
 }

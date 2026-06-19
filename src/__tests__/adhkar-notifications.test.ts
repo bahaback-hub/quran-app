@@ -9,7 +9,7 @@ import type { AdhkarCategorySettings, PersonalAdhkarEntry } from '../types.js';
 vi.mock('../state.js', () => ({
   state: {
     adhkarSettings: null as any,
-    lastAdhkarFired: '',
+    firedAdhkarToday: new Set(), firedAdhkarDate: null,
   },
 }));
 
@@ -109,7 +109,7 @@ describe('adhkar-notifications', () => {
     vi.useFakeTimers();
     // Reset state
     state.adhkarSettings = null;
-    state.lastAdhkarFired = '';
+    state.firedAdhkarToday = new Set(); state.firedAdhkarDate = null;
     // Reset dom mocks
     (dom as any).adhkarNotification = null;
     (dom as any).adhkarNotifIcon = null;
@@ -155,7 +155,8 @@ describe('adhkar-notifications', () => {
         morning: { enabled: false },
       } as any;
       checkAdhkarNotifications();
-      expect(state.lastAdhkarFired).toBe('');
+      // FIX: Set-based tracking — should be empty (no fire)
+      expect(state.firedAdhkarToday.size).toBe(0);
     });
 
     it('should fire notification when time matches for enabled category', () => {
@@ -180,7 +181,8 @@ describe('adhkar-notifications', () => {
       (dom as any).adhkarNotifShareBtn = { style: {} };
 
       checkAdhkarNotifications();
-      expect(state.lastAdhkarFired).toContain('morning');
+      // FIX: Set-based tracking — should contain morning key
+      expect([...state.firedAdhkarToday].some((k) => k.includes('morning'))).toBe(true);
     });
 
     it('should not fire again for the same category on the same day', () => {
@@ -205,10 +207,13 @@ describe('adhkar-notifications', () => {
       (dom as any).adhkarNotifShareBtn = { style: {} };
 
       checkAdhkarNotifications();
-      const firstFireKey = state.lastAdhkarFired;
+      const firstSize = state.firedAdhkarToday.size;
+      const firstKeys = [...state.firedAdhkarToday];
 
       checkAdhkarNotifications();
-      expect(state.lastAdhkarFired).toBe(firstFireKey);
+      // FIX: Set should not grow on second check (no duplicate fire)
+      expect(state.firedAdhkarToday.size).toBe(firstSize);
+      expect([...state.firedAdhkarToday]).toEqual(firstKeys);
     });
 
     it('should check personal adhkar entries', () => {
@@ -237,7 +242,7 @@ describe('adhkar-notifications', () => {
       (dom as any).adhkarNotifShareBtn = { style: {} };
 
       checkAdhkarNotifications();
-      expect(state.lastAdhkarFired).toContain('personal_p1');
+      expect([...state.firedAdhkarToday].some((k) => k.includes('personal_p1'))).toBe(true);
     });
 
     it('should skip personal adhkar without a time', () => {
@@ -255,7 +260,149 @@ describe('adhkar-notifications', () => {
       } as any;
 
       checkAdhkarNotifications();
-      expect(state.lastAdhkarFired).toBe('');
+      // FIX: Set should be empty (personal adhkar without time is skipped)
+      expect(state.firedAdhkarToday.size).toBe(0);
+    });
+
+    it('FIX #1: should fire BOTH morning and evening when both are due (no early return)', () => {
+      const now = new Date();
+      now.setHours(17, 0, 0, 0); // 5 PM — past both 05:00 and 16:30
+      vi.setSystemTime(now);
+
+      state.adhkarSettings = {
+        adhkar_enabled: true,
+        morning: { enabled: true, time: '05:00', duration: 1 },
+        evening: { enabled: true, time: '16:30', duration: 1 },
+        adhkar_sound: false,
+      } as any;
+
+      const notifEl = {
+        classList: { remove: vi.fn(), add: vi.fn() },
+        style: {},
+        dataset: {},
+      };
+      (dom as any).adhkarNotification = notifEl;
+      (dom as any).adhkarNotifText = { textContent: '' };
+      (dom as any).adhkarNotifProgress = { textContent: '' };
+      (dom as any).adhkarNotifShareBtn = { style: {} };
+
+      checkAdhkarNotifications();
+      // FIX #2: Both morning AND evening should fire in single check (no early return)
+      expect(state.firedAdhkarToday.size).toBe(2);
+      expect([...state.firedAdhkarToday].some((k) => k.startsWith('morning_'))).toBe(true);
+      expect([...state.firedAdhkarToday].some((k) => k.startsWith('evening_'))).toBe(true);
+    });
+
+    it('FIX #1: should NOT re-fire on subsequent 30s checks (the main bug)', () => {
+      const now = new Date();
+      now.setHours(17, 0, 0, 0);
+      vi.setSystemTime(now);
+
+      state.adhkarSettings = {
+        adhkar_enabled: true,
+        morning: { enabled: true, time: '05:00', duration: 1 },
+        evening: { enabled: true, time: '16:30', duration: 1 },
+        adhkar_sound: false,
+      } as any;
+
+      const notifEl = {
+        classList: { remove: vi.fn(), add: vi.fn() },
+        style: {},
+        dataset: {},
+      };
+      (dom as any).adhkarNotification = notifEl;
+      (dom as any).adhkarNotifText = { textContent: '' };
+      (dom as any).adhkarNotifProgress = { textContent: '' };
+      (dom as any).adhkarNotifShareBtn = { style: {} };
+
+      // First check — both fire
+      checkAdhkarNotifications();
+      expect(state.firedAdhkarToday.size).toBe(2);
+
+      // Simulate 30s passing (scheduler interval)
+      vi.advanceTimersByTime(30_000);
+
+      // Second check — should NOT fire again (the bug was: it WOULD re-fire alternating)
+      checkAdhkarNotifications();
+      expect(state.firedAdhkarToday.size).toBe(2);
+
+      // Third check — still 2
+      vi.advanceTimersByTime(30_000);
+      checkAdhkarNotifications();
+      expect(state.firedAdhkarToday.size).toBe(2);
+
+      // After 1 minute total — still 2 (no duplicates)
+      vi.advanceTimersByTime(60_000);
+      checkAdhkarNotifications();
+      expect(state.firedAdhkarToday.size).toBe(2);
+    });
+
+    it('FIX #3: should fire personal adhkar in same check as categories (no delay)', () => {
+      const now = new Date();
+      now.setHours(7, 30, 0, 0);
+      vi.setSystemTime(now);
+
+      state.adhkarSettings = {
+        adhkar_enabled: true,
+        morning: { enabled: true, time: '05:00', duration: 1 },
+        evening: { enabled: false },
+        personal_adhkar: [
+          { id: 'p1', text: 'Personal 1', time: '07:30', duration: 1, count: 1 },
+          { id: 'p2', text: 'Personal 2', time: '07:30', duration: 1, count: 1 },
+        ],
+        adhkar_sound: false,
+      } as any;
+
+      const notifEl = {
+        classList: { remove: vi.fn(), add: vi.fn() },
+        style: {},
+        dataset: {},
+      };
+      (dom as any).adhkarNotification = notifEl;
+      (dom as any).adhkarNotifText = { textContent: '' };
+      (dom as any).adhkarNotifProgress = { textContent: '' };
+      (dom as any).adhkarNotifShareBtn = { style: {} };
+
+      checkAdhkarNotifications();
+      // FIX #3: morning + p1 + p2 all fire in single check (no 30s delay between)
+      expect(state.firedAdhkarToday.size).toBe(3);
+    });
+
+    it('FIX #1: should reset fired set on a new day', () => {
+      const day1 = new Date();
+      day1.setHours(5, 0, 0, 0);
+      vi.setSystemTime(day1);
+
+      state.adhkarSettings = {
+        adhkar_enabled: true,
+        morning: { enabled: true, time: '05:00', duration: 1 },
+        adhkar_sound: false,
+      } as any;
+
+      const notifEl = {
+        classList: { remove: vi.fn(), add: vi.fn() },
+        style: {},
+        dataset: {},
+      };
+      (dom as any).adhkarNotification = notifEl;
+      (dom as any).adhkarNotifText = { textContent: '' };
+      (dom as any).adhkarNotifProgress = { textContent: '' };
+      (dom as any).adhkarNotifShareBtn = { style: {} };
+
+      // Day 1 — fire
+      checkAdhkarNotifications();
+      expect(state.firedAdhkarToday.size).toBe(1);
+
+      // Advance to next day
+      const day2 = new Date(day1);
+      day2.setDate(day2.getDate() + 1);
+      day2.setHours(5, 0, 0, 0);
+      vi.setSystemTime(day2);
+
+      // Day 2 — Set should reset and fire again
+      checkAdhkarNotifications();
+      expect(state.firedAdhkarToday.size).toBe(1);
+      expect([...state.firedAdhkarToday][0]).toContain(day2.toDateString());
     });
   });
 
