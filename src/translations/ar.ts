@@ -209,6 +209,10 @@ export default {
   adhkar_remaining: 'متبقي {0}',
   adhkar_times: 'مرات',
   adhkar_time: 'وقت التذكير',
+  adhkar_enable_notification: 'تفعيل الإشعار',
+  adhkar_repeat_complete: 'تم إكمال التكرار. اضغط لإعادة البدء.',
+  adhkar_completed: 'تم إكمال الذكر',
+  adhkar_repeat_confirm: 'هل تريد إعادة التكرار من البداية؟',
   adhkar_reset: 'إعادة تعيين العداد',
 
   // === وضع العرض ===

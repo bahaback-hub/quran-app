@@ -209,6 +209,10 @@ export default {
   adhkar_remaining: '{0} berbaki',
   adhkar_times: 'kali',
   adhkar_time: 'Waktu peringatan',
+  adhkar_enable_notification: 'Dayakan pemberitahuan',
+  adhkar_repeat_complete: 'Pengulangan selesai. Ketuk untuk mulakan semula.',
+  adhkar_completed: 'Zikir selesai',
+  adhkar_repeat_confirm: 'Mula semula pengulangan dari awal?',
   adhkar_reset: 'Set semula pengira',
 
   // === Mod Persembahan ===

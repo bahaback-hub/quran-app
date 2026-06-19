@@ -197,7 +197,11 @@ export interface AdhkarStateSlice {
   adhkarSettings: AdhkarSettings | null;
   adhkarPanelOpen: boolean;
   adhkarActiveTab: string | null;
-  lastAdhkarFired: string | null;
+  /** Set of fired adhkar notification keys for the current day (prevents duplicate notifications).
+   *  Replaced the old single-value `lastAdhkarFired` which caused repeated notifications. */
+  firedAdhkarToday: Set<string>;
+  /** Date string for which `firedAdhkarToday` is valid. Used to reset the Set on a new day. */
+  firedAdhkarDate: string | null;
 }
 
 /** Application state — shared across all modules. Composes all domain slices flat. */
@@ -250,7 +254,10 @@ export interface AppState {
   adhkarSettings: AdhkarSettings | null;
   adhkarPanelOpen: boolean;
   adhkarActiveTab: string | null;
-  lastAdhkarFired: string | null;
+  /** Set of fired adhkar notification keys for the current day. */
+  firedAdhkarToday: Set<string>;
+  /** Date string (YYYY-MM-DD) for which `firedAdhkarToday` is valid. */
+  firedAdhkarDate: string | null;
 
   surahOffsets: SurahOffset[] | null;
   ayahTimings: number[];
@@ -324,7 +331,8 @@ export function createDefaultState(): AppState {
     adhkarSettings: null,
     adhkarPanelOpen: false,
     adhkarActiveTab: null,
-    lastAdhkarFired: null,
+    firedAdhkarToday: new Set<string>(),
+    firedAdhkarDate: null,
 
     surahOffsets: null,
     ayahTimings: [],
