@@ -191,6 +191,8 @@
 }
 
 /* ========== تحسينات الموبايل — حس تطبيقي ========== */
+/* Uses CSS Custom Properties (no !important).
+   Token values scale up on touch devices — see variables.css. */
 @media (hover: none) and (pointer: coarse), (max-width: 768px) {
   .control-group button,
   .btn-sm,
@@ -219,37 +221,37 @@
   .play-pause-btn,
   .collapsed-play-btn,
   .bottom-nav-btn {
-    min-width: 44px !important;
-    min-height: 44px !important;
-    width: auto !important;
-    height: auto !important;
-    padding: 10px 14px !important;
-    font-size: 15px !important;
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    width: auto;
+    height: auto;
+    padding: 10px 14px;
+    font-size: 15px;
   }
   .bottom-nav-btn {
-    padding: 6px 4px !important;
+    padding: 6px 4px;
   }
   .collapse-bar-btn,
   .expand-bar-btn {
-    width: 44px !important;
-    height: 44px !important;
-    padding: 10px !important;
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    padding: 10px;
   }
   .ayah-number {
-    min-width: 36px !important;
-    height: 36px !important;
-    line-height: 36px !important;
-    font-size: 14px !important;
+    min-width: 36px;
+    height: 36px;
+    line-height: 36px;
+    font-size: 14px;
   }
   .word {
-    padding: 4px 3px !important;
-    font-size: 24px !important;
-    line-height: 2 !important;
+    padding: 4px 3px;
+    font-size: 24px;
+    line-height: 2;
   }
   select,
   input,
   button {
-    font-size: 16px !important;
+    font-size: var(--font-size-touch);
   }
   .surah-select,
   .reciter-select,
@@ -260,17 +262,17 @@
   .method-select,
   .city-quick-select,
   .lang-select {
-    min-height: 44px !important;
-    padding: 8px 12px !important;
+    min-height: var(--select-min-height);
+    padding: 8px 12px;
   }
   .mushaf-ayah-btn {
-    min-width: 44px !important;
-    min-height: 44px !important;
-    padding: 8px 12px !important;
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: 8px 12px;
   }
   .mushaf-page-nav-btn {
-    min-width: 48px !important;
-    min-height: 48px !important;
+    min-width: 48px;
+    min-height: 48px;
   }
 }
 

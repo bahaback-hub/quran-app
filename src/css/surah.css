@@ -332,54 +332,28 @@ body:not(.audio-playing) .ayah.current .translation-text.rtl-lang {
 /* ========== Tajweed coloring (Mushaf Mujawwad) ========== */
 /* (tajweed classes removed — now uses inline styles from annotation-based coloring) */
 
-/* ========== تحسينات الوضع النهاري ========== */
-body:not(.night-mode) .surah-content {
-  background: var(--content-bg);
-  padding: 36px 32px;
-}
+/* ========== تحسينات الوضع النهاري ==========
+   REMOVED DUPLICATES: The following selectors were duplicating rules
+   already defined earlier in this file with the same values.
+   Light mode is the default (:root), so explicit :not(.night-mode)
+   selectors are redundant unless they override something.
 
-body:not(.night-mode) .surah-title {
-  color: var(--primary);
-  font-size: 26px;
-  margin-bottom: 20px;
-}
+   Kept only the unique additions (text-shadow on bismillah, hover radius). */
 
 body:not(.night-mode) .bismillah {
-  color: var(--bismillah-color);
-  font-size: 34px;
   text-shadow: 0 1px 3px rgba(154, 123, 79, 0.15);
 }
 
-body:not(.night-mode) .ayah-number::before {
-  background: var(--accent);
-  opacity: 0.15;
-}
-body:not(.night-mode) .ayah-number::after {
-  border-color: var(--accent);
-  opacity: 0.6;
-}
-body:not(.night-mode) .ayah-number-inner {
-  color: var(--accent-dark);
-  font-size: 12px;
-}
-
 body:not(.night-mode) .ayah:hover {
-  background: var(--hover-bg);
   border-radius: 6px;
 }
 
 body:not(.night-mode) .ayah.current {
-  background: var(--highlight-bg);
-  color: var(--highlight-text);
-  box-shadow: 0 0 12px var(--highlight-shadow);
   border-radius: 6px;
 }
 
 body:not(.night-mode) .word.current-word {
-  background: #fde047;
-  color: #1a1a1a;
   border-radius: 3px;
-  box-shadow: 0 0 6px rgba(253, 224, 71, 0.4);
 }
 
 /* ========== علامة الجزء ========== */
