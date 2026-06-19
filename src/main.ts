@@ -4,6 +4,58 @@ import { initI18n, __ } from './i18n.js';
 import { isCapacitorNative, getCapacitor } from './types.js';
 import { updateBanner } from './templates.js';
 
+/**
+ * AGGRESSIVE Service Worker cleanup — runs BEFORE anything else.
+ *
+ * Problem: Users with an old SW (registered with 'prompt' mode) are stuck
+ * with the old cached version. Even after deploying 'autoUpdate' mode,
+ * the OLD service worker is still active in their browser and intercepting
+ * requests with stale cache.
+ *
+ * Solution: Forcefully unregister ALL existing service workers on every
+ * page load. The new SW (with autoUpdate + skipWaiting) will re-register
+ * immediately with the latest version.
+ *
+ * This is a one-time migration — once users get the new SW, future updates
+ * will be automatic (no need for this aggressive cleanup).
+ */
+async function forceUnregisterOldServiceWorkers(): Promise<void> {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    if (registrations.length === 0) {
+      return;
+    }
+    // Forcefully unregister all SWs — the new SW (autoUpdate mode)
+    // will re-register immediately via injectRegister: 'auto'.
+    await Promise.all(registrations.map((reg) => reg.unregister()));
+
+    // Also clear ALL caches to remove stale entries from the old SW.
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+
+    // If we just unregistered a SW, force a reload to get fresh content
+    // (only if this is the first load after unregister, not a loop).
+    if (registrations.length > 0 && !sessionStorage.getItem('_swCleared')) {
+      sessionStorage.setItem('_swCleared', '1');
+      window.location.reload();
+      return;
+    }
+  } catch (err) {
+    console.warn('[SW Cleanup] Failed to unregister old SW:', err);
+  }
+}
+
+// Run cleanup FIRST, before any other code
+if (typeof window !== 'undefined' && !isCapacitorNative()) {
+  // Use top-level await pattern via IIFE to avoid blocking module load
+  void forceUnregisterOldServiceWorkers();
+}
+
 // Install global error handlers FIRST — before any other code runs
 initErrorBoundary();
 
