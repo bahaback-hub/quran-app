@@ -35,14 +35,13 @@
     <link rel="apple-touch-icon" href="./icon-192.png" />
     <!-- Self-hosted fonts (replaces Google Fonts CDN for offline support & privacy) -->
     <!-- LCP: Preload the primary body font to speed up first paint -->
-    <link rel="preload" href="./fonts/amiri-regular-400.ttf" as="font" type="font/ttf" crossorigin fetchpriority="high" />
+    <link rel="preload" href="./fonts/amiri-regular-400.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="stylesheet" href="./fonts/fonts.css" fetchpriority="high" />
-    <!-- Preconnect to all external origins (faster than dns-prefetch) -->
     <link rel="preconnect" href="https://api.alquran.cloud" />
     <link rel="preconnect" href="https://cdn.islamic.network" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-    <link rel="preconnect" href="https://server.mp3quran.net" />
-    <link rel="preconnect" href="https://server6.mp3quran.net" />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="https://server.mp3quran.net" />
+    <link rel="dns-prefetch" href="https://server6.mp3quran.net" />
     <link rel="stylesheet" href="styles.css" />
     <style>
       /* Reduced motion: disable animations and transitions for users who need it */
