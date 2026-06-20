@@ -8,7 +8,6 @@
  *   - Works fully offline after first load (PWA caches via Workbox)
  *   - No tracking by Google Fonts
  *   - font-display: swap ensures text is visible immediately
- *   - WOFF2 format (68% smaller than TTF) for faster loading
  */
 
 /* ── Amiri (Arabic serif — body text) ── */
@@ -18,8 +17,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('./amiri-regular-400.woff2') format('woff2'),
-       url('./amiri-regular-400.ttf') format('truetype');
+  src: url('./amiri-regular-400.ttf') format('truetype');
 }
 
 @font-face {
@@ -27,8 +25,7 @@
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url('./amiri-italic-400.woff2') format('woff2'),
-       url('./amiri-italic-400.ttf') format('truetype');
+  src: url('./amiri-italic-400.ttf') format('truetype');
 }
 
 @font-face {
@@ -36,8 +33,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('./amiri-bold-700.woff2') format('woff2'),
-       url('./amiri-bold-700.ttf') format('truetype');
+  src: url('./amiri-bold-700.ttf') format('truetype');
 }
 
 /* ── Scheherazade New (Arabic Naskh — Quran text) ── */
@@ -47,8 +43,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('./scheherazade-regular-400.woff2') format('woff2'),
-       url('./scheherazade-regular-400.ttf') format('truetype');
+  src: url('./scheherazade-regular-400.ttf') format('truetype');
 }
 
 @font-face {
@@ -56,6 +51,5 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('./scheherazade-bold-700.woff2') format('woff2'),
-       url('./scheherazade-bold-700.ttf') format('truetype');
+  src: url('./scheherazade-bold-700.ttf') format('truetype');
 }

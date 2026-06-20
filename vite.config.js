@@ -66,7 +66,7 @@ export default defineConfig({
       // users always get the latest version on next page load.
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'fonts/*.ttf', 'fonts/*.woff2', 'fonts/fonts.css', 'data/*.json'],
+      includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'fonts/*.ttf', 'fonts/fonts.css', 'data/*.json'],
       manifest: {
         name: 'القرآن الكريم',
         short_name: 'القرآن',
