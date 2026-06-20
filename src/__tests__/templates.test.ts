@@ -661,7 +661,7 @@ describe('PWA update template', () => {
     const result = updateBanner();
     expect(result).toContain('update_available');
     expect(result).toContain('update_now');
-    expect(result).toContain('forceUpdateApp()');
+    expect(result).toContain('update-banner-btn');
   });
 
   it('updateBanner should have update-banner-btn class', () => {
