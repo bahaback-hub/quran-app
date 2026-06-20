@@ -494,7 +494,10 @@ export function surahSecretsBody(secret: string, authKeys?: string[]): string {
  * @returns HTML string for the update banner content
  */
 export function updateBanner(): string {
-  return `<span>${__('update_available')}</span><button onclick="location.reload()" class="update-banner-btn">${__('update_now')}</button>`;
+  // The button calls window.forceUpdateApp() which clears SW + cache BEFORE reloading.
+  // Using just location.reload() doesn't work because the old SW intercepts the
+  // reload request and serves stale cached content.
+  return `<span>${__('update_available')}</span><button onclick="window.forceUpdateApp()" class="update-banner-btn">${__('update_now')}</button>`;
 }
 
 /* ===================== ADHKAR TEMPLATES ===================== */
