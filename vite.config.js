@@ -65,7 +65,9 @@ export default defineConfig({
       // waiting for user prompt. Combined with skipWaiting + clientsClaim below,
       // users always get the latest version on next page load.
       registerType: 'autoUpdate',
-      injectRegister: 'auto',
+      // Use 'script-defer' to avoid render-blocking (Lighthouse performance).
+      // 'auto' injects a blocking <script> tag; 'script-defer' uses defer.
+      injectRegister: 'script-defer',
       includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'fonts/*.ttf', 'fonts/fonts.css', 'data/*.json'],
       manifest: {
         name: 'القرآن الكريم',
