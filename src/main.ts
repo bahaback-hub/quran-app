@@ -5,83 +5,19 @@ import { isCapacitorNative, getCapacitor } from './types.js';
 import { updateBanner } from './templates.js';
 
 /**
- * AGGRESSIVE Service Worker cleanup — runs BEFORE anything else.
+ * One-time Service Worker cleanup (DISABLED — was causing infinite loop).
  *
- * Problem: Users with an old SW (registered with 'prompt' mode) are stuck
- * with the old cached version. Even after deploying 'autoUpdate' mode,
- * the OLD service worker is still active in their browser and intercepting
- * requests with stale cache.
+ * This function was needed when migrating from 'prompt' to 'autoUpdate' SW mode.
+ * It has served its purpose — all users now have the new SW. Keeping it active
+ * causes an infinite loop:
+ *   1. Page loads → unregister SW → reload
+ *   2. SW re-registers → controllerchange → shows "Update" banner
+ *   3. User clicks "Update" → unregister SW → reload
+ *   4. Back to step 2 → infinite loop!
  *
- * Solution: Forcefully unregister ALL existing service workers on every
- * page load. The new SW (with autoUpdate + skipWaiting) will re-register
- * immediately with the latest version.
- *
- * This is a one-time migration — once users get the new SW, future updates
- * will be automatic (no need for this aggressive cleanup).
+ * The new SW (autoUpdate + skipWaiting + clientsClaim) handles updates
+ * automatically without needing this aggressive cleanup.
  */
-async function forceUnregisterOldServiceWorkers(): Promise<void> {
-  if (!('serviceWorker' in navigator)) {
-    return;
-  }
-  try {
-    const registrations = await navigator.serviceWorker.getRegistrations();
-    if (registrations.length === 0) {
-      return;
-    }
-    // Forcefully unregister all SWs — the new SW (autoUpdate mode)
-    // will re-register immediately via injectRegister: 'auto'.
-    await Promise.all(registrations.map((reg) => reg.unregister()));
-
-    // Also clear ALL caches to remove stale entries from the old SW.
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map((k) => caches.delete(k)));
-    }
-
-    // If we just unregistered a SW, force a reload to get fresh content
-    // (only if this is the first load after unregister, not a loop).
-    if (registrations.length > 0 && !sessionStorage.getItem('_swCleared')) {
-      sessionStorage.setItem('_swCleared', '1');
-      window.location.reload();
-      return;
-    }
-  } catch (err) {
-    console.warn('[SW Cleanup] Failed to unregister old SW:', err);
-  }
-}
-
-// Run cleanup FIRST, before any other code
-if (typeof window !== 'undefined' && !isCapacitorNative()) {
-  // Use top-level await pattern via IIFE to avoid blocking module load
-  void forceUnregisterOldServiceWorkers();
-}
-
-/**
- * Global function called by the "Update now" button in the update banner.
- * Kept for backward compatibility — but the actual button now uses
- * addEventListener (see createUpdateBanner above) which is more reliable.
- */
-if (typeof window !== 'undefined') {
-  (window as unknown as { forceUpdateApp?: () => void }).forceUpdateApp = async function (): Promise<void> {
-    try {
-      if ('serviceWorker' in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map((r) => r.unregister()));
-      }
-      if ('caches' in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map((k) => caches.delete(k)));
-      }
-      sessionStorage.removeItem('_swCleared');
-    } catch (err) {
-      console.warn('[forceUpdateApp] Cleanup failed:', err);
-    }
-    // Use href with cache-busting query param instead of reload()
-    // to force the browser to fetch fresh content (bypassing any remaining cache)
-    const href = window.location.href.split('#')[0]?.split('?')[0] ?? '/';
-    window.location.href = href + '?_t=' + Date.now();
-  };
-}
 
 // Install global error handlers FIRST — before any other code runs
 initErrorBoundary();
@@ -171,36 +107,30 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
     // Attach click handler to the update button (NOT inline onclick)
     const updateBtn = banner.querySelector('.update-banner-btn');
     if (updateBtn) {
-      updateBtn.addEventListener('click', async (e: Event) => {
+      updateBtn.addEventListener('click', (e: Event) => {
         e.preventDefault();
         e.stopPropagation();
         // Disable button to prevent double-clicks
         (updateBtn as HTMLButtonElement).disabled = true;
         (updateBtn as HTMLButtonElement).textContent = '...';
-        try {
-          // 1. Unregister ALL service workers
-          if ('serviceWorker' in navigator) {
-            const regs = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(regs.map((r) => r.unregister()));
-          }
-          // 2. Clear ALL caches
-          if ('caches' in window) {
-            const keys = await caches.keys();
-            await Promise.all(keys.map((k) => caches.delete(k)));
-          }
-          // 3. Clear sessionStorage flag
-          sessionStorage.removeItem('_swCleared');
-        } catch (err) {
-          console.warn('[Update] Cleanup failed:', err);
-        }
-        // 4. Hard reload — bypass cache completely using cache-busting URL
-        const currentHref = window.location.href.split('#')[0]?.split('?')[0] ?? '/';
-        window.location.href = currentHref + '?_t=' + Date.now();
+        // Hide banner immediately so it doesn't reappear on reload
+        banner.style.display = 'none';
+        // Set flag to suppress banner on next load (prevents loop)
+        sessionStorage.setItem('_updateClicked', '1');
+        // Simple reload — the SW with skipWaiting + clientsClaim
+        // will have already applied the update by the time banner shows
+        window.location.reload();
       });
     }
   }
 
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    // Prevent update banner loop: if user just clicked "Update now",
+    // suppress the banner for this page load.
+    if (sessionStorage.getItem('_updateClicked')) {
+      sessionStorage.removeItem('_updateClicked');
+      return; // Skip showing banner — user just updated
+    }
     if (!_swUpdateToastShown) {
       _swUpdateToastShown = true;
       const el = document.getElementById('updateBanner');
