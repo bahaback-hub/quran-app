@@ -58,39 +58,28 @@ if (typeof window !== 'undefined' && !isCapacitorNative()) {
 
 /**
  * Global function called by the "Update now" button in the update banner.
- *
- * The old approach (location.reload()) didn't work because the active
- * Service Worker intercepts the reload request and serves stale cached
- * content — so the user sees the same page again.
- *
- * This function:
- * 1. Unregisters ALL service workers (so they stop intercepting)
- * 2. Clears ALL cache storage (removes stale entries)
- * 3. THEN reloads the page (now without SW interference, gets fresh content)
- *
- * Exposed on window so the inline onclick handler can call it.
+ * Kept for backward compatibility — but the actual button now uses
+ * addEventListener (see createUpdateBanner above) which is more reliable.
  */
 if (typeof window !== 'undefined') {
   (window as unknown as { forceUpdateApp?: () => void }).forceUpdateApp = async function (): Promise<void> {
     try {
-      // 1. Unregister all service workers
       if ('serviceWorker' in navigator) {
         const regs = await navigator.serviceWorker.getRegistrations();
         await Promise.all(regs.map((r) => r.unregister()));
       }
-      // 2. Clear all caches
       if ('caches' in window) {
         const keys = await caches.keys();
         await Promise.all(keys.map((k) => caches.delete(k)));
       }
-      // 3. Clear sessionStorage flag so forceUnregisterOldServiceWorkers
-      //    doesn't skip on the next load
       sessionStorage.removeItem('_swCleared');
     } catch (err) {
-      console.warn('[forceUpdateApp] Cleanup failed, reloading anyway:', err);
+      console.warn('[forceUpdateApp] Cleanup failed:', err);
     }
-    // 4. Reload — now without SW interference, browser fetches fresh content
-    window.location.reload();
+    // Use href with cache-busting query param instead of reload()
+    // to force the browser to fetch fresh content (bypassing any remaining cache)
+    const href = window.location.href.split('#')[0]?.split('?')[0] ?? '/';
+    window.location.href = href + '?_t=' + Date.now();
   };
 }
 
@@ -155,6 +144,62 @@ window.installPWA = function (): void {
 // The SW intercepts fetch requests and breaks Capacitor's WebView loading
 if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
   let _swUpdateToastShown = false;
+
+  /**
+   * Create the update banner DOM element and attach a proper click handler
+   * to the "Update now" button.
+   *
+   * We use addEventListener instead of inline onclick because:
+   * 1. CSP may block inline handlers in some browsers
+   * 2. Async functions work more reliably with addEventListener
+   * 3. We can properly handle errors
+   */
+  function createUpdateBanner(): void {
+    if (document.getElementById('updateBanner')) {
+      return; // Already exists
+    }
+    const banner = document.createElement('div');
+    banner.id = 'updateBanner';
+    banner.style.cssText =
+      'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;' +
+      'background:var(--accent-dark,#9a5e08);color:#fff;padding:10px 20px;border-radius:12px;' +
+      'font-size:14px;font-weight:bold;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);' +
+      'display:flex;align-items:center;gap:8px;';
+    banner.innerHTML = updateBanner();
+    document.body.appendChild(banner);
+
+    // Attach click handler to the update button (NOT inline onclick)
+    const updateBtn = banner.querySelector('.update-banner-btn');
+    if (updateBtn) {
+      updateBtn.addEventListener('click', async (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Disable button to prevent double-clicks
+        (updateBtn as HTMLButtonElement).disabled = true;
+        (updateBtn as HTMLButtonElement).textContent = '...';
+        try {
+          // 1. Unregister ALL service workers
+          if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map((r) => r.unregister()));
+          }
+          // 2. Clear ALL caches
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+          // 3. Clear sessionStorage flag
+          sessionStorage.removeItem('_swCleared');
+        } catch (err) {
+          console.warn('[Update] Cleanup failed:', err);
+        }
+        // 4. Hard reload — bypass cache completely using cache-busting URL
+        const currentHref = window.location.href.split('#')[0]?.split('?')[0] ?? '/';
+        window.location.href = currentHref + '?_t=' + Date.now();
+      });
+    }
+  }
+
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!_swUpdateToastShown) {
       _swUpdateToastShown = true;
@@ -162,15 +207,7 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
       if (el) {
         el.style.display = 'flex';
       } else {
-        const banner = document.createElement('div');
-        banner.id = 'updateBanner';
-        // Use --accent-dark (darker shade) for background to ensure WCAG AA
-        // contrast ratio of 4.5:1 with white text. --accent alone (#c47a12)
-        // only achieves 3.42:1 which fails axe-core color-contrast check.
-        banner.style.cssText =
-          'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent-dark,#9a5e08);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:bold;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
-        banner.innerHTML = updateBanner();
-        document.body.appendChild(banner);
+        createUpdateBanner();
       }
     }
   });
@@ -183,12 +220,7 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
           el.style.display = 'flex';
           return;
         }
-        const banner = document.createElement('div');
-        banner.id = 'updateBanner';
-        banner.style.cssText =
-          'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--accent-dark,#9a5e08);color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:bold;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;';
-        banner.innerHTML = updateBanner();
-        document.body.appendChild(banner);
+        createUpdateBanner();
       }
 
       if (reg.waiting) {
