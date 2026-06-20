@@ -56,6 +56,44 @@ if (typeof window !== 'undefined' && !isCapacitorNative()) {
   void forceUnregisterOldServiceWorkers();
 }
 
+/**
+ * Global function called by the "Update now" button in the update banner.
+ *
+ * The old approach (location.reload()) didn't work because the active
+ * Service Worker intercepts the reload request and serves stale cached
+ * content — so the user sees the same page again.
+ *
+ * This function:
+ * 1. Unregisters ALL service workers (so they stop intercepting)
+ * 2. Clears ALL cache storage (removes stale entries)
+ * 3. THEN reloads the page (now without SW interference, gets fresh content)
+ *
+ * Exposed on window so the inline onclick handler can call it.
+ */
+if (typeof window !== 'undefined') {
+  (window as unknown as { forceUpdateApp?: () => void }).forceUpdateApp = async function (): Promise<void> {
+    try {
+      // 1. Unregister all service workers
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+      // 2. Clear all caches
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      // 3. Clear sessionStorage flag so forceUnregisterOldServiceWorkers
+      //    doesn't skip on the next load
+      sessionStorage.removeItem('_swCleared');
+    } catch (err) {
+      console.warn('[forceUpdateApp] Cleanup failed, reloading anyway:', err);
+    }
+    // 4. Reload — now without SW interference, browser fetches fresh content
+    window.location.reload();
+  };
+}
+
 // Install global error handlers FIRST — before any other code runs
 initErrorBoundary();
 
