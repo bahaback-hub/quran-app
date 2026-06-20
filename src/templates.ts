@@ -494,10 +494,9 @@ export function surahSecretsBody(secret: string, authKeys?: string[]): string {
  * @returns HTML string for the update banner content
  */
 export function updateBanner(): string {
-  // The button calls window.forceUpdateApp() which clears SW + cache BEFORE reloading.
-  // Using just location.reload() doesn't work because the old SW intercepts the
-  // reload request and serves stale cached content.
-  return `<span>${__('update_available')}</span><button onclick="window.forceUpdateApp()" class="update-banner-btn">${__('update_now')}</button>`;
+  // IMPORTANT: No inline onclick — CSP blocks inline event handlers.
+  // The click handler is attached via addEventListener in createUpdateBanner().
+  return `<span>${__('update_available')}</span><button type="button" class="update-banner-btn">${__('update_now')}</button>`;
 }
 
 /* ===================== ADHKAR TEMPLATES ===================== */
