@@ -21,11 +21,11 @@ describe('surah-cache', () => {
   // may be slower (fake-indexeddb on Ubuntu runners can be sluggish).
   beforeEach(async () => {
     await deleteDatabase();
-  }, 30000);
+  }, 60000);
 
   afterEach(async () => {
     await deleteDatabase();
-  }, 30000);
+  }, 60000);
 
   /* ===================== cacheSurahToIDB ===================== */
 
