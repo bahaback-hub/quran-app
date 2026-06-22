@@ -137,14 +137,14 @@ describe('surah-loader.ts — renderSurah branches', () => {
     breadcrumb.remove();
   });
 
-  it('renderSurah should create chunk spacers for virtualization', async () => {
+  it('renderSurah should render all ayahs without virtual chunks', async () => {
     const { dom } = await import('../dom.js');
     (dom as { surahContent: HTMLElement | null }).surahContent = surahContent;
     const { state } = await import('../state.js');
     state.fontSize = 28;
     state.tajweedEnabled = false;
     const mod = await import('../surah-loader.js');
-    // Create enough ayahs to span multiple chunks
+    // Create enough ayahs to span multiple chunks (previously 40 = 2 chunks of 20)
     const ayahs = Array.from({ length: 40 }, (_, i) => ({
       number: i + 1,
       text: `آية ${i + 1}`,
@@ -158,8 +158,12 @@ describe('surah-loader.ts — renderSurah branches', () => {
       englishName: 'Ya-Sin',
       ayahs,
     } as never);
+    // Virtual scrolling removed — all ayahs rendered directly, no chunks
     const chunks = surahContent.querySelectorAll('.virtual-chunk');
-    expect(chunks.length).toBeGreaterThan(0);
+    expect(chunks.length).toBe(0);
+    // All 40 ayahs should be rendered
+    const ayahElements = surahContent.querySelectorAll('.ayah');
+    expect(ayahElements.length).toBe(40);
     (dom as { surahContent: HTMLElement | null }).surahContent = null;
   });
 });

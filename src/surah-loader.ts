@@ -826,11 +826,7 @@ export function renderSurah(textData: SurahTextData): void {
   }
   cleanupVirtualObserver();
   cleanupVirtualScrollObserver();
-  _ayahsReadyCount = 0;
-  _renderedChunks.clear();
-  _chunkHeightCache.clear();
   _currentTextData = textData;
-  _totalChunks = Math.ceil(textData.ayahs.length / VIRTUAL_CHUNK_SIZE);
 
   // Update breadcrumbs
   const breadcrumbSurah = document.getElementById('breadcrumbSurah');
@@ -848,32 +844,18 @@ export function renderSurah(textData: SurahTextData): void {
     html +=
       '<div class="bismillah-wrapper"><span class="bismillah-ornament">﴿</span><p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><span class="bismillah-ornament">﴾</span></div>';
   }
-  html += `<div class="ayahs-container" style="--ayah-font-size:${state.fontSize}px"></div>`;
-  dom.surahContent.innerHTML = html;
-  initAyahDelegation();
+  html += `<div class="ayahs-container" style="--ayah-font-size:${state.fontSize}px">`;
 
-  // Create spacer placeholders for all chunks
-  const ayahsContainer = dom.surahContent.querySelector('.ayahs-container');
-  if (ayahsContainer) {
-    // Estimate an average ayah height for initial spacers
-    const avgAyahHeight = 60; // conservative estimate in px
-    for (let c = 0; c < _totalChunks; c++) {
-      const chunkEl = document.createElement('div');
-      chunkEl.id = `chunk-${c}`;
-      chunkEl.className = 'virtual-chunk';
-      chunkEl.dataset['chunk'] = String(c);
-      chunkEl.dataset['spacer'] = 'true';
-      const ayahsInChunk = Math.min(VIRTUAL_CHUNK_SIZE, textData.ayahs.length - c * VIRTUAL_CHUNK_SIZE);
-      chunkEl.style.height = `${ayahsInChunk * avgAyahHeight}px`;
-      ayahsContainer.appendChild(chunkEl);
-    }
+  // Render ALL ayahs at once — no virtual scrolling, no chunks, no spacers.
+  // Modern browsers handle 286 ayahs (surah Al-Baqarah) without performance issues.
+  // This eliminates the visual gaps that appeared every 20 ayahs.
+  for (let i = 0; i < textData.ayahs.length; i++) {
+    html += buildAyahHtml(textData.ayahs[i]!, i, textData);
   }
 
-  // Render the first visible chunk (chunk 0)
-  renderAyahChunk(textData, 0, VIRTUAL_CHUNK_SIZE);
-
-  // Set up scroll observer for virtual scrolling
-  setupVirtualScrollObserver();
+  html += `</div>`;
+  dom.surahContent.innerHTML = html;
+  initAyahDelegation();
 
   const secretBtn = dom.surahContent.querySelector('.surah-secret-title-btn');
   if (secretBtn) {
@@ -985,13 +967,7 @@ export function highlightCurrentAyah(): void {
     return;
   }
 
-  // Ensure the chunk containing the current ayah is rendered
-  const targetChunk = getChunkIndex(state.currentAyahIndex);
-  if (!_renderedChunks.has(targetChunk) && _currentTextData) {
-    const startAyah = targetChunk * VIRTUAL_CHUNK_SIZE;
-    renderAyahChunk(_currentTextData, startAyah, VIRTUAL_CHUNK_SIZE);
-  }
-
+  // All ayahs are rendered at once — no chunk checking needed
   const cur = container?.querySelector(`.ayah[data-index="${state.currentAyahIndex}"]`) as HTMLElement | null;
   if (cur) {
     cur.classList.add('current');
