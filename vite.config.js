@@ -66,7 +66,7 @@ export default defineConfig({
       // users always get the latest version on next page load.
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'fonts/*.ttf', 'fonts/fonts.css', 'data/*.json'],
+      includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'fonts/*.ttf', 'fonts/fonts.css', 'data/*.json', 'screenshots/*.png'],
       manifest: {
         name: 'القرآن الكريم',
         short_name: 'القرآن',
@@ -82,23 +82,23 @@ export default defineConfig({
         prefer_related_applications: false,
         screenshots: [
           {
-            src: 'screenshots/reading-mode.svg',
-            sizes: '800x500',
-            type: 'image/svg+xml',
+            src: 'screenshots/reading-mode.png',
+            sizes: '1920x919',
+            type: 'image/png',
             form_factor: 'wide',
             label: 'وضع قراءة القرآن'
           },
           {
-            src: 'screenshots/mushaf-mode.svg',
-            sizes: '800x500',
-            type: 'image/svg+xml',
+            src: 'screenshots/mushaf-mode.png',
+            sizes: '1920x919',
+            type: 'image/png',
             form_factor: 'wide',
             label: 'وضع المصحف'
           },
           {
-            src: 'screenshots/presentation-mode.svg',
-            sizes: '800x500',
-            type: 'image/svg+xml',
+            src: 'screenshots/presentation-mode.png',
+            sizes: '1920x919',
+            type: 'image/png',
             form_factor: 'wide',
             label: 'وضع العرض'
           }
