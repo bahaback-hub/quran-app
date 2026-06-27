@@ -317,6 +317,8 @@ body.night-mode .keyboard-hint {
   transition:
     border-color 0.2s,
     box-shadow 0.2s;
+  position: relative;
+  z-index: 2;
 }
 .search-input-wrapper:focus-within {
   border-color: var(--accent-dark);
@@ -441,12 +443,13 @@ body.night-mode .search-autocomplete-item {
   display: none;
   flex-direction: column;
   gap: 4px;
-  padding: 6px 4px;
+  padding: 8px;
   background: var(--controls-bg);
   border: 1px solid var(--border-soft);
   border-top: none;
   border-radius: 0 0 8px 8px;
   margin-top: -2px;
+  overflow: hidden;
 }
 .arabic-keyboard.open {
   display: flex;
@@ -455,13 +458,15 @@ body.night-mode .search-autocomplete-item {
   display: flex;
   gap: 3px;
   justify-content: center;
+  flex-wrap: nowrap;
 }
 .kbd-key {
   background: var(--select-bg);
   border: 1px solid var(--border-soft);
   border-radius: 5px;
   padding: 4px 2px;
-  min-width: 28px;
+  min-width: 0;
+  flex: 1 1 0;
   height: 32px;
   font-size: 15px;
   cursor: pointer;
@@ -471,8 +476,8 @@ body.night-mode .search-autocomplete-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 1 auto;
   user-select: none;
+  overflow: hidden;
 }
 .kbd-key:hover {
   background: var(--hover-bg);
@@ -491,18 +496,24 @@ body.night-mode .search-autocomplete-item {
   background: rgba(217, 119, 6, 0.15);
   color: var(--accent-dark);
   font-weight: bold;
+  flex: 0 0 44px;
+}
+.kbd-key-space {
+  flex: 3;
 }
 .kbd-key-fixed {
   min-width: 36px;
-  flex: 0.5;
+  flex: 0 0 auto;
 }
 .kbd-key-clear {
   background: rgba(220, 38, 38, 0.08);
   color: #dc2626;
+  flex: 0 0 44px;
 }
 .kbd-key-backspace {
   background: rgba(220, 38, 38, 0.08);
   color: #dc2626;
+  flex: 0 0 44px;
 }
 body.night-mode .kbd-key {
   border-color: #3a4050;
