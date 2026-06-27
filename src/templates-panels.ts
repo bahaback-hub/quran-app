@@ -385,14 +385,25 @@ export function floatingPlayerHTML(): string {
  * @returns HTML string for the Arabic keyboard div element
  */
 export function arabicKeyboardHTML(): string {
-  // Layout matches the standard Arabic (101) keyboard layout used in
-  // Saudi Arabia, Egypt, and most Arab countries.
-  // Row 1: numbers row (Arabic-Indic digits + symbols)
-  // Row 2: QWERTY equivalent (Arabic letters)
-  // Row 3: ASDF equivalent (Arabic letters)
-  // Row 4: ZXCV equivalent (Arabic letters)
+  // Layout matches the standard Arabic keyboard:
+  // Row 1: digits (top row, like physical keyboard)
+  // Row 2: ض ص ث ق ف غ ع ه خ ح ج د
+  // Row 3: ش س ي ب ل ا ت ن م ك ط
+  // Row 4: ذ ء ؤ ر ى ة و ز ظ
   // Row 5: Shift, Space, Backspace, Clear
   return `<div class="arabic-keyboard" id="arabicKeyboard" dir="ltr">
+                <div class="kbd-row">
+                  <button class="kbd-key" data-key="١">١</button>
+                  <button class="kbd-key" data-key="٢">٢</button>
+                  <button class="kbd-key" data-key="٣">٣</button>
+                  <button class="kbd-key" data-key="٤">٤</button>
+                  <button class="kbd-key" data-key="٥">٥</button>
+                  <button class="kbd-key" data-key="٦">٦</button>
+                  <button class="kbd-key" data-key="٧">٧</button>
+                  <button class="kbd-key" data-key="٨">٨</button>
+                  <button class="kbd-key" data-key="٩">٩</button>
+                  <button class="kbd-key" data-key="٠">٠</button>
+                </div>
                 <div class="kbd-row">
                   <button class="kbd-key" data-key="ض">ض</button>
                   <button class="kbd-key" data-key="ص">ص</button>
@@ -432,21 +443,9 @@ export function arabicKeyboardHTML(): string {
                   <button class="kbd-key" data-key="ظ">ظ</button>
                 </div>
                 <div class="kbd-row">
-                  <button class="kbd-key kbd-key-shift kbd-key-fixed" data-key="shift">⇧</button>
-                  <button class="kbd-key" data-key="١">١</button>
-                  <button class="kbd-key" data-key="٢">٢</button>
-                  <button class="kbd-key" data-key="٣">٣</button>
-                  <button class="kbd-key" data-key="٤">٤</button>
-                  <button class="kbd-key" data-key="٥">٥</button>
-                  <button class="kbd-key" data-key="٦">٦</button>
-                  <button class="kbd-key" data-key="٧">٧</button>
-                  <button class="kbd-key" data-key="٨">٨</button>
-                  <button class="kbd-key" data-key="٩">٩</button>
-                  <button class="kbd-key" data-key="٠">٠</button>
+                  <button class="kbd-key kbd-key-shift" data-key="shift">⇧</button>
+                  <button class="kbd-key kbd-key-space" data-key="space">⎵</button>
                   <button class="kbd-key kbd-key-backspace" data-key="backspace">⌫</button>
-                </div>
-                <div class="kbd-row">
-                  <button class="kbd-key kbd-key-fixed" data-key="space">⎵ مسافة</button>
                   <button class="kbd-key kbd-key-clear" data-key="clear">مسح</button>
                 </div>
               </div>`;
