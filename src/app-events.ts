@@ -27,7 +27,7 @@ import {
   initSettingsTabs,
 } from './settings.js';
 import { cacheSurahAudio, isSurahCached, deleteSurahCache } from './audio-cache.js';
-import { togglePrayerBar, testAzan, stopAzan, hideQiblaCompass, hideAzanNotification } from './prayer.js';
+import { togglePrayerBar, testAzan, stopAzan, hideQiblaCompass, hideAzanNotification, showQiblaCompass } from './prayer.js';
 import {
   toggleFavorite,
   openFavorites,
@@ -518,6 +518,7 @@ export function bindMiscEvents(): void {
 
   wireAdhkarEvents();
 
+  dom.qiblaBtn?.addEventListener('click', showQiblaCompass);
   dom.qiblaCloseBtn?.addEventListener('click', hideQiblaCompass);
   dom.qiblaOverlay?.addEventListener('click', (e: MouseEvent) => {
     if (e.target === dom.qiblaOverlay) {
