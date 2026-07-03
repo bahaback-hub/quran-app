@@ -109,6 +109,7 @@ interface DomMap {
   translationSelect: HTMLSelectElement | null;
   translationToggle: HTMLElement | null;
   adhkarBtn: HTMLElement | null;
+  qiblaBtn: HTMLElement | null;
   adhkarPanel: HTMLElement | null;
   adhkarCloseBtn: HTMLElement | null;
   adhkarTabs: HTMLElement | null;
@@ -279,6 +280,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'translationSelect',
   'translationToggle',
   'adhkarBtn',
+  'qiblaBtn',
   'adhkarPanel',
   'adhkarCloseBtn',
   'adhkarTabs',
