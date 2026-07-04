@@ -74,7 +74,9 @@
   background: var(--container-bg);
   box-shadow: var(--shadow);
   position: relative;
-  overflow: visible;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* إطار زخرفي */
@@ -243,6 +245,8 @@ body.night-mode .mushaf-surah-overlay-inner {
   align-items: center;
   padding: 0;
   margin: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 .mushaf-page-img {
@@ -264,7 +268,6 @@ body.night-mode .mushaf-page-img {
   max-width: 100%;
   height: auto;
   border-radius: 2px;
-  aspect-ratio: 1080 / 1540;
   background: #f5f0e8;
 }
 
@@ -413,6 +416,7 @@ body.night-mode .mushaf-image-skeleton {
 @media (max-width: 768px) {
   .mushaf-container {
     padding: 15px 10px;
+    max-width: 100%;
   }
   .mushaf-container::before {
     top: 6px;
@@ -420,14 +424,37 @@ body.night-mode .mushaf-image-skeleton {
     right: 6px;
     bottom: 6px;
   }
+  .mushaf-image-wrapper {
+    width: 100%;
+  }
+  .mushaf-page-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }
 
 @media (max-width: 600px) {
   .mushaf-container {
-    padding: 10px 8px;
+    padding: 8px 4px;
+    max-width: 100%;
+  }
+  .mushaf-container::before {
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
   }
   .mushaf-page-num {
     font-size: 22px;
+  }
+  .mushaf-page-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .mushaf-page-nav-btn {
+    width: 32px;
+    height: 40px;
+    font-size: 18px;
   }
 }
 
