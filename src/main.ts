@@ -96,11 +96,15 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
     }
     const banner = document.createElement('div');
     banner.id = 'updateBanner';
+    // On mobile, the player (44px) + bottom-nav (56px) occupy the bottom ~100px.
+    // Desktop only has the player (~55px) at bottom:0, so 70px clears it.
+    // Use a CSS class instead of inline bottom so media queries can adjust it.
     banner.style.cssText =
-      'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:9999;' +
+      'position:fixed;left:50%;transform:translateX(-50%);z-index:9999;' +
       'background:var(--accent-dark,#9a5e08);color:#fff;padding:10px 20px;border-radius:12px;' +
       'font-size:14px;font-weight:bold;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);' +
       'display:flex;align-items:center;gap:8px;';
+    banner.classList.add('update-banner');
     banner.innerHTML = updateBanner();
     document.body.appendChild(banner);
 
@@ -190,3 +194,86 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
 }
 
 initI18n().then(() => initApp());
+
+/**
+ * Mobile panel observer.
+ *
+ * Watches the sliding panels (settings / favorites / adhkar / tafsir / help /
+ * mushaf-surah-overlay) for `open` class changes and toggles body classes:
+ *   - `panel-open`      → any panel is open (hides bottom-nav + player on mobile)
+ *   - `tafsir-only-open` → only the tafsir curtain is open (keeps player visible)
+ *
+ * This keeps the mobile UI usable: panels that take full-screen width no longer
+ * get their bottom content covered by the fixed bottom-nav (z-index 5000) and
+ * floating player. See responsive.css for the matching CSS rules.
+ *
+ * Implementation note: uses subtree:true on document.body because some panels
+ * (settings, help, sleep-timer, etc.) are injected dynamically by overlays.ts
+ * AFTER this observer is set up. Without subtree, we'd miss their class changes.
+ */
+function setupMobilePanelObserver(): void {
+  const PANEL_SELECTOR = [
+    '.settings-panel',
+    '.favorites-panel',
+    '.adhkar-panel',
+    '.tafsir-curtain',
+    '.help-panel',
+    '.mushaf-surah-overlay',
+    '.sleep-timer-overlay',
+  ].join(',');
+
+  let rafId = 0;
+  const updateBodyClasses = () => {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(() => {
+      rafId = 0;
+      const panels = document.querySelectorAll<HTMLElement>(PANEL_SELECTOR);
+      let anyOpen = false;
+      let tafsirOpen = false;
+      let otherOpen = false;
+      panels.forEach((p) => {
+        // Consider visibility: hidden + display:none as closed
+        const cs = getComputedStyle(p);
+        if (cs.display === 'none' || cs.visibility === 'hidden') return;
+        if (p.classList.contains('open') && !p.classList.contains('hidden')) {
+          anyOpen = true;
+          if (p.id === 'tafsirCurtain') {
+            tafsirOpen = true;
+          } else {
+            otherOpen = true;
+          }
+        }
+      });
+      document.body.classList.toggle('panel-open', anyOpen);
+      // "tafsir only" = tafsir is open AND nothing else is
+      document.body.classList.toggle('tafsir-only-open', tafsirOpen && !otherOpen);
+    });
+  };
+
+  const start = () => {
+    updateBodyClasses();
+    // Watch the entire body subtree for class attribute changes. This catches
+    // panels that exist now AND panels injected later (overlays.ts injects
+    // settings-panel, help-panel, sleep-timer-overlay after initApp()).
+    const observer = new MutationObserver(() => updateBodyClasses());
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+      subtree: true,
+      childList: true,
+    });
+    // Also re-check on resize (in case viewport changes desktop <-> mobile)
+    window.addEventListener('resize', updateBodyClasses, { passive: true });
+    // Re-check shortly after page load in case panels are added dynamically
+    setTimeout(updateBodyClasses, 1500);
+    setTimeout(updateBodyClasses, 3000);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+}
+
+setupMobilePanelObserver();
