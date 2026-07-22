@@ -58,8 +58,8 @@
   background: var(--accent);
   color: #2c3e50;
   border: none;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   cursor: pointer;
   font-size: 16px;
@@ -68,6 +68,9 @@
   justify-content: center;
   transition: all 0.2s;
   font-weight: bold;
+  /* WCAG 2.5.5: لمس أدنى — ارفع للحجم الأدنى */
+  min-width: 36px;
+  min-height: 36px;
 }
 .collapse-bar-btn:hover {
   transform: scale(1.05);
@@ -168,8 +171,8 @@
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 .theme-btn {
-  width: 34px;
-  height: 30px;
+  width: 36px;
+  height: 32px;
   border: none;
   border-radius: 16px;
   background: transparent;
@@ -426,11 +429,16 @@ body.night-mode .control-group label {
   padding: 14px;
   font-size: 13px;
   line-height: 1.8;
+  /* منع فيضان الروابط الطويلة على الشاشات الضيقة */
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .footer a {
   color: #ffd866;
   text-decoration: none;
   font-weight: bold;
+  /* السماح بكسر الرابط الطويل (مثل "AlQuran.cloud API") على شاشات الجوال الضيقة */
+  word-break: break-all;
 }
 .footer a:hover {
   text-decoration: underline;

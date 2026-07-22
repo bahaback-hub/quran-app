@@ -53,15 +53,21 @@
   .header p {
     font-size: 13px;
   }
+  /* WCAG 2.5.5: لمس أدنى 44×44 — أزرار الرأس كبيرة بما يكفي للإصبع */
   .header-action-btn,
   .header-menu-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
   }
   .header-menu-container {
     top: 10px;
     left: 10px;
+    gap: 2px;
+  }
+  /* تجاوز فجوات أزرار الرأس على الشاشات الضيقة جداً */
+  .header-actions {
+    gap: 4px;
   }
   .mode-btn.mode-toggle {
     padding: 4px 8px;
@@ -365,8 +371,8 @@
     top: auto;
     left: 50%;
     transform: translateX(-50%);
-    width: 60px;
-    height: 36px;
+    width: 72px;
+    height: 44px;
     border-radius: 12px 12px 0 0;
     border: 2px solid var(--accent);
     border-bottom: none;
@@ -471,6 +477,8 @@
   /* رأس الصفحة مبسط */
   .header {
     padding: 12px 10px;
+    /* على الجوال: اترك مساحة علوية كافية لصف أزرار الإجراءات */
+    padding-top: 56px;
   }
   .header h1 {
     font-size: 18px;
@@ -479,13 +487,51 @@
   .header-menu-container {
     top: 8px;
     left: 8px;
-    gap: 4px;
+    gap: 2px;
   }
   .header-action-btn,
   .header-menu-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 15px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  /* مبدّل المظهر: أبقه أكبر للّمس (3 أزرار × 40 = 120px + فجوات = لا يفيض على 320px) */
+  .theme-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  .theme-switcher {
+    gap: 2px;
+    padding: 2px;
+  }
+  /* أزرار طي/توسيع شريط المواقيت — WCAG 2.5.5: 44×44 على الجوال */
+  .collapse-bar-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 18px;
+  }
+  /* أزرار إجراءات الأذكار — رفع للحجم الأدنى للّمس */
+  .adhkar-item-action-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 16px;
+  }
+  .adhkar-counter-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 20px;
+  }
+  /* تبويبات الأذكار — رفع للارتفاع الأدنى للّمس */
+  .adhkar-tab {
+    min-height: 40px;
+    padding: 8px 12px;
   }
 
   /* أدوات التحكم — تخفى افتراضياً وتظهر عند الضغط على تبويب "أدوات" */
@@ -635,6 +681,13 @@
     font-size: 11px;
   }
 
+  /* تذييل أصغر على الجوال + لفّ النص بدلاً من قطعه */
+  .footer {
+    font-size: 11px;
+    padding: 10px 8px;
+    line-height: 1.7;
+  }
+
   /* إظهار شريط التنقل السفلي */
   .bottom-nav {
     display: flex;
@@ -681,12 +734,83 @@
     padding: 4px 6px;
     font-size: 10px;
   }
+  /* على الشاشات الصغيرة جداً (≤320px):
+     - أزرار الرأس 40×40 (7×40 + 6×2 = 292px — يفي بـ 320px)
+     - مبدّل المظهر 36×36 (3×36 + 2×2 + 4 padding = 116px) */
+  .header-action-btn,
+  .header-menu-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 17px;
+  }
+  .header-menu-container {
+    gap: 1px;
+  }
+  .theme-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
   .bottom-nav-btn {
     font-size: 15px;
     padding: 4px 4px 2px;
   }
   .bottom-nav-btn span {
     font-size: 8px;
+  }
+}
+
+/* ========== إصلاحات الجوال: z-index اللوحات فوق شريط التنقل + padding-bottom آمن ==========
+   على الجوال، الـ bottom-nav (z-index 5000) كان يغطي اللوحات المنزلقة (settings/favorites/adhkar/tafsir/help)
+   عند فتحها. الآن نرفع z-index اللوحات فوق 5000، ونضيف padding-bottom آمن داخلها
+   حتى لا يُغطَّى محتواها السفلي بـ bottom-nav (56px) + المشغل (44px) = 100px تقريباً. */
+@media (max-width: 600px) {
+  .settings-panel,
+  .favorites-panel,
+  .adhkar-panel,
+  .tafsir-curtain,
+  .help-panel,
+  .mushaf-surah-overlay,
+  .sleep-timer-overlay {
+    z-index: 5500;
+  }
+  /* padding-bottom داخل اللوحات لمنع تغطية المحتوى السفلي */
+  .settings-panel,
+  .favorites-panel,
+  .adhkar-panel,
+  .help-panel {
+    padding-bottom: 110px;
+  }
+  .tafsir-curtain {
+    padding-bottom: 110px;
+  }
+  /* عند فتح أي لوحة: أخفِ شريط التنقل السفلي والمشغل لتحرير المساحة */
+  body.panel-open .bottom-nav,
+  body.panel-open .player {
+    display: none !important;
+  }
+  /* لكن أبقِ المشغل مرئياً إذا فُتحت ستارة التفسير فقط (لأن المستخدم قد يستمع أثناء القراءة) */
+  body.tafsir-only-open .player {
+    display: block !important;
+  }
+  body.tafsir-only-open .bottom-nav {
+    display: none !important;
+  }
+  /* بانر التحديث: على الجوال يوجد bottom-nav (56px) + المشغل (44px) في الأسفل.
+     نرفع البانر ليكون فوق الاثنين بفاصل 12px. */
+  .update-banner {
+    bottom: 120px;
+    /* على الجوال نصغر النص قليلاً ليكون أكثر احتواءً */
+    font-size: 13px;
+    padding: 8px 16px;
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
+  }
+  .update-banner .update-banner-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    /* WCAG 2.5.5: لمس أدنى — على الأقل 44px ارتفاع للزر */
+    min-height: 36px;
   }
 }
 

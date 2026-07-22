@@ -694,6 +694,12 @@ body:not(.night-mode) .kbd-key:active {
 }
 
 /* ========== Update Banner Button ========== */
+/* The container element (#updateBanner) is created in main.ts with .update-banner class */
+.update-banner {
+  /* Desktop: above the floating player (~55px tall at bottom:0) */
+  bottom: 70px;
+}
+
 .update-banner-btn {
   background: #fff;
   /* Use --accent-dark (#9a5e08) instead of --accent (#c47a12) for WCAG AA
