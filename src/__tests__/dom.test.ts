@@ -24,7 +24,6 @@ describe('dom', () => {
     expect(dom).toBeDefined();
     expect(typeof dom).toBe('object');
     // Spot-check some keys exist and are null
-    expect(dom).toHaveProperty('cityName', null);
     expect(dom).toHaveProperty('surahContent', null);
     expect(dom).toHaveProperty('audioPlayer', null);
     expect(dom).toHaveProperty('settingsPanel', null);
@@ -93,7 +92,6 @@ describe('cacheDom', () => {
     // Should be called many times (once per DOM_ID entry)
     expect(getElementByIdSpy).toHaveBeenCalled();
     // Spot-check specific IDs
-    expect(getElementByIdSpy).toHaveBeenCalledWith('cityName');
     expect(getElementByIdSpy).toHaveBeenCalledWith('surahContent');
     expect(getElementByIdSpy).toHaveBeenCalledWith('audioPlayer');
     expect(getElementByIdSpy).toHaveBeenCalledWith('settingsPanel');
@@ -113,13 +111,13 @@ describe('cacheDom', () => {
 
     expect(dom.surahContent).toBe(mockElement);
     // Other properties should be null since getElementById returned null for them
-    expect(dom.cityName).toBeNull();
+    expect(dom.bigClockTime).toBeNull();
   });
 
   it('should set dom properties to null when elements are not found', () => {
     getElementByIdSpy.mockReturnValue(null);
     cacheDom();
-    expect(dom.cityName).toBeNull();
+    expect(dom.bigClockTime).toBeNull();
     expect(dom.surahContent).toBeNull();
   });
 
@@ -198,13 +196,9 @@ describe('DOM_IDS completeness', () => {
 
   it('should include all expected top-level IDs', () => {
     const expectedKeys = [
-      'cityName',
       'nextPrayerName',
       'nextPrayerTime',
       'countdownDisplay',
-      'hijriDateDisplay',
-      'weekdayDisplay',
-      'gregorianDateDisplay',
       'prayerTimesRows',
       'prayerCountdown',
       'bigClockTime',

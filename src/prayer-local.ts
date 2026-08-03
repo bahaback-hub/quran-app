@@ -147,9 +147,9 @@ export async function calculatePrayerTimesLocally(methodId: string): Promise<Pra
       Isha: formatAdhanTime(prayerTimes.isha),
     };
 
-    // Add optional fields if available
-    if (prayerTimes.isha) {
-      // Calculate Imsak (10 minutes before Fajr)
+    // Add Imsak (10 minutes before Fajr). adhan-js always populates fajr,
+    // so the guard checks that fajr is a valid Date (NaN-safe) rather than truthiness.
+    if (prayerTimes.fajr && isFinite(prayerTimes.fajr.getTime())) {
       const imsakTime = new Date(prayerTimes.fajr.getTime() - 10 * 60 * 1000);
       result.Imsak = formatAdhanTime(imsakTime);
     }

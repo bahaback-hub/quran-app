@@ -18,13 +18,9 @@
 
 /** Map of DOM IDs to their element types — each property is nullable until cacheDom() runs. */
 interface DomMap {
-  cityName: HTMLElement | null;
   nextPrayerName: HTMLElement | null;
   nextPrayerTime: HTMLElement | null;
   countdownDisplay: HTMLElement | null;
-  hijriDateDisplay: HTMLElement | null;
-  weekdayDisplay: HTMLElement | null;
-  gregorianDateDisplay: HTMLElement | null;
   prayerTimesRows: HTMLElement | null;
   prayerCountdown: HTMLElement | null;
   bigClockTime: HTMLElement | null;
@@ -190,13 +186,9 @@ interface DomMap {
  * Order matches the DOM structure for readability; new elements should be appended.
  */
 const DOM_IDS: (keyof DomMap)[] = [
-  'cityName',
   'nextPrayerName',
   'nextPrayerTime',
   'countdownDisplay',
-  'hijriDateDisplay',
-  'weekdayDisplay',
-  'gregorianDateDisplay',
   'prayerTimesRows',
   'prayerCountdown',
   'bigClockTime',

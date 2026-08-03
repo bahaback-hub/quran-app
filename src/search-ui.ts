@@ -689,6 +689,14 @@ function handleKeyClick(e: MouseEvent): void {
 }
 
 /**
+ * Idempotency guard: prevents double-binding of keyboard event listeners
+ * if initKeyboard() is called more than once. Without this, calling
+ * initKeyboard() twice would attach duplicate click handlers to each
+ * .kbd-key button, causing each keypress to insert the character twice.
+ */
+let _keyboardInitialized = false;
+
+/**
  * Initialize the on-screen Arabic keyboard.
  * Binds toggle button click, individual key presses (letters, space,
  * backspace, clear, shift), and an outside-click dismiss handler.
@@ -698,7 +706,16 @@ function handleKeyClick(e: MouseEvent): void {
  * initKeyboard(); // call after cacheDom()
  */
 export function initKeyboard(): void {
-  dom.kbdToggleBtn = document.getElementById('kbdToggleBtn');
+  if (_keyboardInitialized) {
+    return;
+  }
+  _keyboardInitialized = true;
+  // kbdToggleBtn is already cached by cacheDom() — the reassignment below is
+  // kept as a defensive fallback in case cacheDom() ran before the element
+  // was injected into the DOM (race condition with overlays.ts).
+  if (!dom.kbdToggleBtn) {
+    dom.kbdToggleBtn = document.getElementById('kbdToggleBtn');
+  }
   dom.kbdToggleBtn?.addEventListener('click', toggleKeyboard);
   document.querySelectorAll('.kbd-key').forEach((btn: Element) => {
     (btn as HTMLElement).addEventListener('click', handleKeyClick);

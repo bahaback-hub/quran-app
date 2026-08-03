@@ -34,10 +34,7 @@ const {
   }
 
   const dom: Record<string, HTMLElement | HTMLAudioElement | HTMLInputElement | HTMLSelectElement | null> = {
-    hijriDateDisplay: createMockElement(),
     bigClockHijri: createMockElement(),
-    weekdayDisplay: createMockElement(),
-    gregorianDateDisplay: createMockElement(),
     bigClockDate: createMockElement(),
     bigClockTime: createMockElement(),
     bigClockTime2: createMockElement(),
@@ -224,7 +221,7 @@ describe('prayer.ts', () => {
     it('startClock should set up a recurring interval', () => {
       startClock();
       vi.advanceTimersByTime(3000);
-      expect(mockDom.hijriDateDisplay!.textContent).not.toBeNull();
+      expect(mockDom.bigClockHijri!.textContent).not.toBeNull();
     });
 
     it('stopClock should clear the interval', () => {
@@ -240,7 +237,7 @@ describe('prayer.ts', () => {
       startClock();
       startClock();
       vi.advanceTimersByTime(1000);
-      expect(mockDom.hijriDateDisplay!.textContent).not.toBeNull();
+      expect(mockDom.bigClockHijri!.textContent).not.toBeNull();
     });
 
     it('stopClock should be safe to call when no interval is active', () => {
@@ -249,16 +246,16 @@ describe('prayer.ts', () => {
   });
 
   describe('updateDates (via startClock)', () => {
-    it('should update weekday display', () => {
+    it('should update big clock hijri date display', () => {
       startClock();
       vi.advanceTimersByTime(1000);
-      expect(mockDom.weekdayDisplay!.textContent).toBeTruthy();
+      expect(mockDom.bigClockHijri!.textContent).toBeTruthy();
     });
 
-    it('should update gregorian date display', () => {
+    it('should update big clock gregorian date display', () => {
       startClock();
       vi.advanceTimersByTime(1000);
-      expect(mockDom.gregorianDateDisplay!.textContent).toBeTruthy();
+      expect(mockDom.bigClockDate!.textContent).toBeTruthy();
     });
 
     it('should update big clock time', () => {
@@ -279,13 +276,13 @@ describe('prayer.ts', () => {
     });
 
     it('should handle missing DOM elements gracefully', () => {
-      const savedHijri = mockDom.hijriDateDisplay;
-      mockDom.hijriDateDisplay = null;
+      const savedHijri = mockDom.bigClockHijri;
+      mockDom.bigClockHijri = null;
       expect(() => {
         startClock();
         vi.advanceTimersByTime(1000);
       }).not.toThrow();
-      mockDom.hijriDateDisplay = savedHijri;
+      mockDom.bigClockHijri = savedHijri;
     });
   });
 
