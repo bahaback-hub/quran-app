@@ -105,10 +105,18 @@ export function resetAudioPlayerUI(): void {
 /**
  * Reset a single audio element — pause, remove src, and reload.
  * Pure DOM operation, separated for testability.
+ *
+ * Revokes any blob: URL currently assigned to the player's src before clearing
+ * it, to prevent Blob memory leaks when switching surahs while audio is loaded
+ * from the offline cache (resolveAudioUrl returns blob: URLs).
  */
 export function resetAudioElement(player: HTMLAudioElement | null): void {
   if (!player) {
     return;
+  }
+  const oldSrc = player.src;
+  if (oldSrc && oldSrc.startsWith('blob:')) {
+    URL.revokeObjectURL(oldSrc);
   }
   player.pause();
   player.removeAttribute('src');
@@ -795,6 +803,9 @@ export function populateRepeatUI(range: RepeatRange): void {
     return;
   }
 
+  // Build option elements once and clone for each dropdown. For long surahs
+  // (e.g. Al-Baqarah with 286 ayahs) this halves the number of <option>
+  // allocations from 572 to 286 + clones (which are cheap).
   const fromOpts = document.createDocumentFragment();
   const toOpts = document.createDocumentFragment();
 
@@ -802,12 +813,10 @@ export function populateRepeatUI(range: RepeatRange): void {
     const opt = document.createElement('option');
     opt.value = String(i);
     opt.textContent = String(i);
+    // Clone for the "to" dropdown — cloneNode is faster than recreating
+    // because it skips attribute parsing.
     fromOpts.appendChild(opt);
-
-    const opt2 = document.createElement('option');
-    opt2.value = String(i);
-    opt2.textContent = String(i);
-    toOpts.appendChild(opt2);
+    toOpts.appendChild(opt.cloneNode(true));
   }
 
   dom.repeatFrom.replaceChildren(fromOpts);
