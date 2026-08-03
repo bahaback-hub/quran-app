@@ -211,13 +211,18 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   }
   _loadCounter++;
   const currentLoad = _loadCounter;
-  // Clear stale audio/translation before new load (batched to avoid intermediate notifications)
+  // Clear stale audio/translation before new load (batched to avoid intermediate notifications).
+  // Also null out surahData and reset currentAyahIndex so consumers reading
+  // state.currentSurah + state.surahData during the await below see a consistent
+  // "loading" state (null surahData) rather than a stale previous surah.
   batch(() => {
     state.loadingSurah = surahNum;
     state.ayahsAudios = [];
     state.ayahTimings = [];
     state.translationData = null;
     state.isPlaying = false;
+    state.surahData = null;
+    state.currentAyahIndex = 0;
   });
 
   prepareAudioForNewSurah();
@@ -234,6 +239,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       dom.repeatControls.style.display = 'none';
     }
   }
+  // Note: at this point state.hifdhMode is always false (either it was already
+  // false, or the branch above set it to false). The `!state.hifdhMode` guard
+  // is kept for clarity but is effectively always true here.
   if (state.repeatMode && !state.hifdhMode) {
     state.repeatMode = false;
     state.repeatCounter = 0;

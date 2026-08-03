@@ -424,7 +424,11 @@ function toggleModalAudio(): void {
     if (!current) {
       return;
     }
-    const url: string | undefined = ayahAudios[0];
+    // Use the ayah's 1-based number to index into ayahAudios (sorted by ayah order).
+    // ayahAudios[0] would always play the first ayah of the surah, regardless of
+    // which ayah the user opened the modal for.
+    const audioIdx = Math.max(0, current.ayah - 1);
+    const url: string | undefined = ayahAudios[audioIdx];
     if (!url) {
       showToast(__('no_audio_ayah'), 'error');
       return;

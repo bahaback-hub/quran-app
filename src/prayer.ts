@@ -5,7 +5,7 @@ import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
 import { prayerFetch } from './api-client.js';
-import { __, getPrayerName, getWeekday } from './i18n.js';
+import { __, getPrayerName } from './i18n.js';
 import { prayerTimesRows } from './templates.js';
 import { updatePlayPauseBtn } from './audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
@@ -60,22 +60,13 @@ function updateDates(): void {
   const now = new Date();
   try {
     const hijri = _hijriFormatter.format(now);
-    if (dom.hijriDateDisplay) {
-      dom.hijriDateDisplay.textContent = hijri;
-    }
     if (dom.bigClockHijri) {
       dom.bigClockHijri.textContent = '📅 ' + hijri;
     }
   } catch (e) {
     console.warn('Date update failed:', e);
   }
-  if (dom.weekdayDisplay) {
-    dom.weekdayDisplay.textContent = getWeekday(now.getDay());
-  }
   const greg = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
-  if (dom.gregorianDateDisplay) {
-    dom.gregorianDateDisplay.textContent = greg;
-  }
   if (dom.bigClockDate) {
     dom.bigClockDate.textContent = greg;
   }
