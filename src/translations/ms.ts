@@ -108,24 +108,24 @@ export default {
     'ar.shaatree': 'Abu Bakr Ash-Shatri',
     'ar.abdullahbasfar': 'Abdullah Basfar',
     'ar.ahmedajamy': 'Ahmed Al-Ajamy',
-    's_gmd': 'Saad Al-Ghamdi',
-    'shur': 'Saud Ash-Shuraim',
-    's_bud': 'Mohammed Al-Budair',
-    'bu_khtr': 'Mohammed Al-Bukhater',
-    'hthfi': 'Abdullah Al-Hudhaify',
-    'a_jbr': 'Ahmed Jaber',
-    'frs_a': 'Abdurrahman Al-Abbad',
-    'yasser': 'Yasser Ad-Dossary',
-    'salamah': 'Saad As-Salamah',
-    'qtm': 'Nasser Al-Qatami',
-    'mtrod': 'Maher Al-Muaiqly',
-    'qasm': 'Mohammed Al-Qasim',
-    'sds': 'Abdurrahman As-Sudais',
-    'maher': 'Maher Al-Muaiqly',
-    'jbrl': 'Mohammed Jibreel',
-    'minsh': 'Mohamed Siddiq Al-Minshawi',
-    'shaatree': 'Abu Bakr Ash-Shatri',
-    'tnjy': 'Mustafa At-Tanji',
+    s_gmd: 'Saad Al-Ghamdi',
+    shur: 'Saud Ash-Shuraim',
+    s_bud: 'Mohammed Al-Budair',
+    bu_khtr: 'Mohammed Al-Bukhater',
+    hthfi: 'Abdullah Al-Hudhaify',
+    a_jbr: 'Ahmed Jaber',
+    frs_a: 'Abdurrahman Al-Abbad',
+    yasser: 'Yasser Ad-Dossary',
+    salamah: 'Saad As-Salamah',
+    qtm: 'Nasser Al-Qatami',
+    mtrod: 'Maher Al-Muaiqly',
+    qasm: 'Mohammed Al-Qasim',
+    sds: 'Abdurrahman As-Sudais',
+    maher: 'Maher Al-Muaiqly',
+    jbrl: 'Mohammed Jibreel',
+    minsh: 'Mohamed Siddiq Al-Minshawi',
+    shaatree: 'Abu Bakr Ash-Shatri',
+    tnjy: 'Mustafa At-Tanji',
   },
 
   // === Tafsir ===
@@ -221,7 +221,8 @@ export default {
   adhkar_reference_label: 'Rujukan (pilihan)',
   adhkar_confirm_delete_item: 'Padam zikir ini?',
   adhkar_reset_defaults: 'Pulihkan lalai',
-  adhkar_reset_defaults_desc: 'Semua penyesuaian (zikir yang ditambah dan disunting) akan dipadam dan zikir asal dipulihkan. Adakah anda pasti?',
+  adhkar_reset_defaults_desc:
+    'Semua penyesuaian (zikir yang ditambah dan disunting) akan dipadam dan zikir asal dipulihkan. Adakah anda pasti?',
   adhkar_reset: 'Set semula pengira',
 
   // === Mod Persembahan ===
@@ -352,46 +353,63 @@ export default {
   help_guide: 'Panduan Penggunaan',
   help_playback: 'Mainan dan Pendengaran',
   help_play_pause: 'Main / Jeda',
-  help_play_pause_desc: 'Di pemain di bahagian bawah skrin, tekan butang ⏯ untuk memainkan atau menjeda ayat semasa. Anda juga boleh menekan kekunci Space pada papan kekunci.',
+  help_play_pause_desc:
+    'Di pemain di bahagian bawah skrin, tekan butang ⏯ untuk memainkan atau menjeda ayat semasa. Anda juga boleh menekan kekunci Space pada papan kekunci.',
   help_navigation: 'Navigasi Antara Ayat dan Surah',
   help_navigation_desc: 'Di pemain: ◀ Ayat Sebelum — ▶ Ayat Seterusnya — ⏮ Surah Sebelum — ⏭ Surah Seterusnya.',
   help_continuous: 'Mainan Berterusan',
-  help_continuous_desc: 'Tekan ⁝ pada pemain kemudian pilih 🔗 Berterusan. Apabila diaktifkan, butang menjadi keemasan dan akan berpindah secara automatik ke surah seterusnya apabila surah semasa tamat. Tekan sekali lagi untuk menghentikannya.',
+  help_continuous_desc:
+    'Tekan ⁝ pada pemain kemudian pilih 🔗 Berterusan. Apabila diaktifkan, butang menjadi keemasan dan akan berpindah secara automatik ke surah seterusnya apabila surah semasa tamat. Tekan sekali lagi untuk menghentikannya.',
   help_repeat: 'Ulangan Ayat',
-  help_repeat_desc: 'Tekan ⁝ pada pemain kemudian pilih 🔁 Ulangan. Pilih "dari" dan "hingga" untuk menetapkan julat ayat dan bilangan ulangan. Tekan 🔁 sekali lagi untuk menghentikan ulangan.',
+  help_repeat_desc:
+    'Tekan ⁝ pada pemain kemudian pilih 🔁 Ulangan. Pilih "dari" dan "hingga" untuk menetapkan julat ayat dan bilangan ulangan. Tekan 🔁 sekali lagi untuk menghentikan ulangan.',
   help_hifdh: 'Mod Hafazan',
-  help_hifdh_desc: 'Tekan ⁝ pada pemain kemudian pilih 🕋 Hafazan. Menyembunyikan teks ayat untuk membantu anda mengulang dari ingatan. Tekan pada ayat yang tersembunyi untuk menampakkannya sementara.',
+  help_hifdh_desc:
+    'Tekan ⁝ pada pemain kemudian pilih 🕋 Hafazan. Menyembunyikan teks ayat untuk membantu anda mengulang dari ingatan. Tekan pada ayat yang tersembunyi untuk menampakkannya sementara.',
   help_ayah_number: 'Pergi Pantas dengan Menekan Nombor Ayat',
-  help_ayah_number_desc: 'Tekan nombor ayat ﴿٥﴾ terus dalam teks surah — pemain akan mula memainkan dari ayat tersebut serta-merta. Menekan teks ayat membuka tetingkap butiran.',
+  help_ayah_number_desc:
+    'Tekan nombor ayat ﴿٥﴾ terus dalam teks surah — pemain akan mula memainkan dari ayat tersebut serta-merta. Menekan teks ayat membuka tetingkap butiran.',
   help_offline: 'Penggunaan Luar Talian',
   help_download_audio: 'Muat Turun Audio Surah',
-  help_download_audio_desc: 'Tekan ⁝ pada pemain kemudian pilih 📥 Muat Turun. Audio surah disimpan sepenuhnya pada peranti anda. Selepas memuat turun, anda boleh mendengar tanpa internet. Tekan sekali lagi untuk memadam fail yang disimpan.',
+  help_download_audio_desc:
+    'Tekan ⁝ pada pemain kemudian pilih 📥 Muat Turun. Audio surah disimpan sepenuhnya pada peranti anda. Selepas memuat turun, anda boleh mendengar tanpa internet. Tekan sekali lagi untuk memadam fail yang disimpan.',
   help_bookmarks_favorites: 'Penanda Buku dan Kegemaran',
   help_bookmark: 'Penanda Buku',
-  help_bookmark_desc: 'Tekan ⁝ pada pemain kemudian pilih 🔖 Penanda. Tekan sekali = simpan kedudukan semasa. Tekan dua kali = kembali ke kedudukan yang disimpan.',
+  help_bookmark_desc:
+    'Tekan ⁝ pada pemain kemudian pilih 🔖 Penanda. Tekan sekali = simpan kedudukan semasa. Tekan dua kali = kembali ke kedudukan yang disimpan.',
   help_favorite: 'Kegemaran',
-  help_favorite_desc: 'Tekan ⁝ pada pemain kemudian pilih ❤️ Kegemaran untuk menyimpan ayat dalam senarai kegemaran. Untuk mengakses kegemaran anda: tekan ❤️ di pengepala bahagian atas skrin.',
+  help_favorite_desc:
+    'Tekan ⁝ pada pemain kemudian pilih ❤️ Kegemaran untuk menyimpan ayat dalam senarai kegemaran. Untuk mengakses kegemaran anda: tekan ❤️ di pengepala bahagian atas skrin.',
   help_search: 'Carian',
   help_text_search: 'Carian Teks',
-  help_text_search_desc: 'Tekan 🔎 dalam bar carian di bahagian atas skrin. Taip kata atau bahagian ayat untuk mencari dalam seluruh Al-Quran.',
+  help_text_search_desc:
+    'Tekan 🔎 dalam bar carian di bahagian atas skrin. Taip kata atau bahagian ayat untuk mencari dalam seluruh Al-Quran.',
   help_voice_search: 'Carian Suara',
-  help_voice_search_desc: 'Tekan 🎤 di sebelah medan carian. Ucapkan kata atau ayat dan carian akan dilakukan secara automatik.',
+  help_voice_search_desc:
+    'Tekan 🎤 di sebelah medan carian. Ucapkan kata atau ayat dan carian akan dilakukan secara automatik.',
   help_extras: 'Ciri Tambahan',
   help_sleep_timer: 'Pemasa Tidur',
-  help_sleep_timer_desc: 'Tekan ⁝ pada pemain kemudian pilih 😴 Tidur. Pilih tempoh (5 - 60 minit) dan mainan akan dihentikan secara automatik selepas tempoh tamat.',
+  help_sleep_timer_desc:
+    'Tekan ⁝ pada pemain kemudian pilih 😴 Tidur. Pilih tempoh (5 - 60 minit) dan mainan akan dihentikan secara automatik selepas tempoh tamat.',
   help_mushaf_mode: 'Mod Mushaf',
-  help_mushaf_mode_desc: 'Tekan 📖 dalam bar paparan di bahagian atas skrin. Memaparkan halaman Mushaf seperti dalam Mushaf cetakan dengan navigasi halaman.',
+  help_mushaf_mode_desc:
+    'Tekan 📖 dalam bar paparan di bahagian atas skrin. Memaparkan halaman Mushaf seperti dalam Mushaf cetakan dengan navigasi halaman.',
   help_qibla: 'Kompas Kiblat',
-  help_qibla_desc: 'Tekan 🧭 dalam bar paparan di bahagian atas skrin. Menunjukkan arah kiblat menggunakan kompas peranti.',
+  help_qibla_desc:
+    'Tekan 🧭 dalam bar paparan di bahagian atas skrin. Menunjukkan arah kiblat menggunakan kompas peranti.',
   help_adhkar: 'Zikir Pagi dan Petang',
-  help_adhkar_desc: 'Tekan 🤲 dalam bar paparan di bahagian atas skrin. Memaparkan senarai zikir dengan pengira. Anda boleh mengaktifkan peringatan automatik dari tetapan.',
+  help_adhkar_desc:
+    'Tekan 🤲 dalam bar paparan di bahagian atas skrin. Memaparkan senarai zikir dengan pengira. Anda boleh mengaktifkan peringatan automatik dari tetapan.',
   help_tafsir: 'Tafsir',
-  help_tafsir_desc: 'Tarik panel tafsir dari sisi kiri (atau tekan pemegang). Pilih tafsir dari senarai: Muyassar, Sa\'di, Ibnu Kathir, atau At-Tabari. Anda juga boleh mengaksesnya melalui tetingkap ayat.',
+  help_tafsir_desc:
+    "Tarik panel tafsir dari sisi kiri (atau tekan pemegang). Pilih tafsir dari senarai: Muyassar, Sa'di, Ibnu Kathir, atau At-Tabari. Anda juga boleh mengaksesnya melalui tetingkap ayat.",
   help_share: 'Kongsi Ayat',
-  help_share_desc: 'Tekan ⁝ pada pemain kemudian pilih 📤 Kongsi. Pilih: Salin, kongsi melalui WhatsApp atau Telegram, atau kongsi melalui aplikasi peranti.',
+  help_share_desc:
+    'Tekan ⁝ pada pemain kemudian pilih 📤 Kongsi. Pilih: Salin, kongsi melalui WhatsApp atau Telegram, atau kongsi melalui aplikasi peranti.',
   help_keyboard: 'Pintasan Papan Kekunci',
   help_keyboard_shortcuts: 'Pintasan Papan Kekunci',
-  help_keyboard_shortcuts_desc: 'Space = Main/Jeda ◀ ▶ = Ayat Sebelum/Seterusnya ▲ ▼ = Surah Sebelum/Seterusnya Ctrl+F = Buka Carian Escape = Tutup Tetingkap Terbuka',
+  help_keyboard_shortcuts_desc:
+    'Space = Main/Jeda ◀ ▶ = Ayat Sebelum/Seterusnya ▲ ▼ = Surah Sebelum/Seterusnya Ctrl+F = Buka Carian Escape = Tutup Tetingkap Terbuka',
 
   // === Kebolehcapaian ===
   a11y_panel_opened: '{0} dibuka',

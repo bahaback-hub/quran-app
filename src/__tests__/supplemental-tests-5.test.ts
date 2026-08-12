@@ -32,7 +32,7 @@ vi.mock('../ui.js', () => ({
   loadingBar: { show: vi.fn(), hide: vi.fn() },
 }));
 vi.mock('../audio.js', async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>;
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     prepareAudioForNewSurah: vi.fn(),
@@ -48,7 +48,7 @@ vi.mock('../audio.js', async (importOriginal) => {
   };
 });
 vi.mock('../reading-stats.js', async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>;
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     recordReadingSession: vi.fn(),
@@ -64,7 +64,7 @@ vi.mock('../surah-cache.js', () => ({
   getCachedSurahFromIDB: vi.fn(() => Promise.resolve(null)),
 }));
 vi.mock('../presentation.js', async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>;
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     syncPresentation: vi.fn(),
@@ -132,8 +132,22 @@ describe('surah-loader.ts — public exports', () => {
 
   it('buildSurahOffsets computes cumulative offsets', () => {
     state.surahList = [
-      { number: 1, name: 'الفاتحة', englishName: 'Al-Fatihah', englishNameTranslation: 'The Opening', numberOfAyahs: 7, revelationType: 'Meccan' },
-      { number: 2, name: 'البقرة', englishName: 'Al-Baqarah', englishNameTranslation: 'The Cow', numberOfAyahs: 286, revelationType: 'Medinan' },
+      {
+        number: 1,
+        name: 'الفاتحة',
+        englishName: 'Al-Fatihah',
+        englishNameTranslation: 'The Opening',
+        numberOfAyahs: 7,
+        revelationType: 'Meccan',
+      },
+      {
+        number: 2,
+        name: 'البقرة',
+        englishName: 'Al-Baqarah',
+        englishNameTranslation: 'The Cow',
+        numberOfAyahs: 286,
+        revelationType: 'Medinan',
+      },
     ];
     state.surahOffsets = null;
     buildSurahOffsets();

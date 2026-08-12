@@ -148,9 +148,7 @@ describe('adhkar-data — customization system', () => {
     it('should append custom items at the end', () => {
       const custom: AdhkarCustomizations = {
         customItems: {
-          morning: [
-            { id: 'custom_1', text: 'Custom dhikr', count: 3, reference: 'me' },
-          ],
+          morning: [{ id: 'custom_1', text: 'Custom dhikr', count: 3, reference: 'me' }],
         },
         itemOverrides: {},
         hiddenItems: [],

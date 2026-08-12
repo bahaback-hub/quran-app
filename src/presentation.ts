@@ -76,9 +76,13 @@ function togglePresFullscreen(): void {
   }
   const fsElement = getFullscreenElement();
   if (fsElement) {
-    exitFullscreen().catch(() => { /* noop */ });
+    exitFullscreen().catch(() => {
+      /* noop */
+    });
   } else {
-    requestFullscreen(overlay).catch(() => { /* noop */ });
+    requestFullscreen(overlay).catch(() => {
+      /* noop */
+    });
   }
 }
 
@@ -293,7 +297,9 @@ export function openPresentation(): void {
           renderSurah(surahData);
         }
       })
-      .catch(() => { /* noop */ });
+      .catch(() => {
+        /* noop */
+      });
   }
 
   state.presentationMode = true;
@@ -348,7 +354,9 @@ export function closePresentation(): void {
   state.presentationMode = false;
   // Exit fullscreen if active
   if (isFullscreen()) {
-    exitFullscreen().catch(() => { /* noop */ });
+    exitFullscreen().catch(() => {
+      /* noop */
+    });
   }
   if (dom.presentationOverlay) {
     // Remove the presentation-visible class FIRST (it has display: flex !important)
@@ -399,7 +407,9 @@ function handleKeyDown(e: KeyboardEvent): void {
       // If in fullscreen, only exit fullscreen — don't close presentation
       if (isFullscreen()) {
         e.preventDefault();
-        exitFullscreen().catch(() => { /* noop */ });
+        exitFullscreen().catch(() => {
+          /* noop */
+        });
       } else {
         closePresentation();
       }

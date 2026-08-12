@@ -98,9 +98,7 @@ describe('tajweed-data', () => {
     });
 
     it('should return annotations for a specific ayah after loading', async () => {
-      const mockData = [
-        { surah: 1, ayah: 1, annotations: [{ rule: 'ghunnah', start: 0, end: 3 }] },
-      ];
+      const mockData = [{ surah: 1, ayah: 1, annotations: [{ rule: 'ghunnah', start: 0, end: 3 }] }];
 
       vi.spyOn(globalThis, 'fetch').mockResolvedValue({
         ok: true,
@@ -115,9 +113,7 @@ describe('tajweed-data', () => {
     });
 
     it('should return empty array for non-existent ayah', async () => {
-      const mockData = [
-        { surah: 1, ayah: 1, annotations: [{ rule: 'ghunnah', start: 0, end: 3 }] },
-      ];
+      const mockData = [{ surah: 1, ayah: 1, annotations: [{ rule: 'ghunnah', start: 0, end: 3 }] }];
 
       vi.spyOn(globalThis, 'fetch').mockResolvedValue({
         ok: true,
@@ -182,9 +178,7 @@ describe('tajweed-data', () => {
 
   describe('key function (indirectly via getAyahAnnotations)', () => {
     it('should use surah:ayah format for keys', async () => {
-      const mockData = [
-        { surah: 36, ayah: 1, annotations: [{ rule: 'iqlab', start: 10, end: 15 }] },
-      ];
+      const mockData = [{ surah: 36, ayah: 1, annotations: [{ rule: 'iqlab', start: 10, end: 15 }] }];
 
       vi.spyOn(globalThis, 'fetch').mockResolvedValue({
         ok: true,

@@ -82,7 +82,17 @@ import { initNavigation } from '../navigation.js';
 import { dom } from '../dom.js';
 import { state } from '../state.js';
 import { storage } from '../storage.js';
-import { prevAyah, nextAyah, prevSurah, nextSurah, toggleHifdh, toggleRepeat, expandPlayer, togglePlayPause, updatePlayPauseBtn } from '../audio.js';
+import {
+  prevAyah,
+  nextAyah,
+  prevSurah,
+  nextSurah,
+  toggleHifdh,
+  toggleRepeat,
+  expandPlayer,
+  togglePlayPause,
+  updatePlayPauseBtn,
+} from '../audio.js';
 import { openSettings } from '../settings.js';
 
 Element.prototype.scrollIntoView = vi.fn();

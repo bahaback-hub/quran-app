@@ -114,7 +114,9 @@ export async function loadPrayerTimes(): Promise<void> {
   // ── Strategy 2: Remote API (requires internet) ──
   const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
   try {
-    const data: import('./types.js').AladhanTimingsResponse = await prayerFetch(query, { errorMsg: __('failed_prayer') });
+    const data: import('./types.js').AladhanTimingsResponse = await prayerFetch(query, {
+      errorMsg: __('failed_prayer'),
+    });
     if (data?.data?.timings) {
       // Aladhan returns Record<string,string>; cast to PrayerTimes for type-safe state
       state.prayerTimes = data.data.timings as import('./types.js').PrayerTimes;
@@ -314,7 +316,7 @@ export function checkAzanTime(): void {
     if (raw === cur) {
       const stamp = key + '_' + now.toDateString() + '_' + cur;
       if (state.lastAzanFired === stamp) {
-        continue;  // Skip already-fired prayer, check remaining ones
+        continue; // Skip already-fired prayer, check remaining ones
       }
       state.lastAzanFired = stamp;
       if (dom.azanPlayer) {
@@ -457,7 +459,7 @@ export function showQiblaCompass(): void {
       const qiblaAngle = calculateQibla(latitude, longitude);
 
       if (compass) {
-        compass.style.transform = `rotate(${-qiblaAngle}deg)`;  // Static: Qibla from North
+        compass.style.transform = `rotate(${-qiblaAngle}deg)`; // Static: Qibla from North
       }
       if (angleDisplay) {
         angleDisplay.textContent = `${Math.round(qiblaAngle)}°`;
@@ -492,7 +494,9 @@ export function showQiblaCompass(): void {
                 window.addEventListener('deviceorientation', _qiblaOrientationHandler!);
               }
             })
-            .catch(() => { /* noop */ });
+            .catch(() => {
+              /* noop */
+            });
         } else {
           window.addEventListener('deviceorientation', _qiblaOrientationHandler);
         }

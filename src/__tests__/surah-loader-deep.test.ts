@@ -19,9 +19,15 @@ beforeEach(() => {
   Object.keys(store).forEach((k) => delete store[k]);
   globalThis.localStorage = {
     getItem: (key: string) => (store[key] === undefined ? null : store[key]),
-    setItem: (key: string, val: string) => { store[key] = String(val); },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
+    setItem: (key: string, val: string) => {
+      store[key] = String(val);
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach((k) => delete store[k]);
+    },
   } as Storage;
 });
 
@@ -80,7 +86,9 @@ vi.mock('../reciters.js', () => ({
     { id: 'ar.husary', name: 'reciter_husary', source: 'mp3quran' },
   ],
   getReciterById: vi.fn((id: string) => ({
-    id, name: id, source: 'api',
+    id,
+    name: id,
+    source: 'api',
   })),
   getReciterDisplayName: vi.fn((r: { name: string }) => r.name),
   buildAudioUrl: vi.fn(() => 'https://example.com/audio.mp3'),

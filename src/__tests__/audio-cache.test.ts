@@ -10,7 +10,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Mock IndexedDB using a simple in-memory store for unit tests
 // (fake-indexeddb may not be available, so we mock the module)
 const mockStore = new Map<string, { url: string; blob: Blob }>();
-const mockMetaStore = new Map<string, { url: string; lastAccessed: number; size: number; surah: number; reciter: string }>();
+const mockMetaStore = new Map<
+  string,
+  { url: string; lastAccessed: number; size: number; surah: number; reciter: string }
+>();
 
 // Mock openDB to return an object with transaction support
 const mockDB = {

@@ -62,7 +62,13 @@ vi.mock('../utils.js', () => ({
 vi.mock('../templates.js', () => ({
   searchEmptyResults: () => '<div class="search-empty">No results</div>',
   searchResultsHeader: (total: number) => `<div class="search-header">${total} results</div>`,
-  searchResultCard: (data: { surah: number; ayah: number; surahName: string; fulltextIndex: number; highlighted: string }) =>
+  searchResultCard: (data: {
+    surah: number;
+    ayah: number;
+    surahName: string;
+    fulltextIndex: number;
+    highlighted: string;
+  }) =>
     `<div class="search-result-item" data-surah="${data.surah}" data-ayah="${data.ayah}" data-fulltext-index="${data.fulltextIndex}" data-surahname="${data.surahName}">${data.highlighted}</div>`,
   searchLoadMoreButton: (remaining: number) => `<button id="loadMoreSearchBtn">Load more (${remaining})</button>`,
   searchHistoryItem: (text: string, idx: number) =>
@@ -278,7 +284,16 @@ describe('startVoiceSearch', () => {
   it('should not start recognition if already listening (SpeechRecognition available)', () => {
     // Need SpeechRecognition available first for the listening check to be reached
     const mockStart = vi.fn();
-    function MockSpeechRecognition(this: { lang: string; interimResults: boolean; maxAlternatives: number; onresult: unknown; onerror: unknown; onend: unknown; start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn> }) {
+    function MockSpeechRecognition(this: {
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onresult: unknown;
+      onerror: unknown;
+      onend: unknown;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
+    }) {
       this.lang = '';
       this.interimResults = false;
       this.maxAlternatives = 0;
@@ -299,7 +314,16 @@ describe('startVoiceSearch', () => {
 
   it('should start recognition when SpeechRecognition is available and not listening', () => {
     const mockStart = vi.fn();
-    function MockSpeechRecognition(this: { lang: string; interimResults: boolean; maxAlternatives: number; onresult: unknown; onerror: unknown; onend: unknown; start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn> }) {
+    function MockSpeechRecognition(this: {
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onresult: unknown;
+      onerror: unknown;
+      onend: unknown;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
+    }) {
       this.lang = '';
       this.interimResults = false;
       this.maxAlternatives = 0;

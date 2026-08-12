@@ -21,7 +21,16 @@ vi.mock('../ui.js', () => ({
   showToast: vi.fn(),
 }));
 
-import { initErrorBoundary, destroyErrorBoundary, getErrorLog, clearErrorLog, getPersistedErrorLog, clearPersistedErrorLog, detectErrorPatterns, exportErrorLog } from '../error-boundary.js';
+import {
+  initErrorBoundary,
+  destroyErrorBoundary,
+  getErrorLog,
+  clearErrorLog,
+  getPersistedErrorLog,
+  clearPersistedErrorLog,
+  detectErrorPatterns,
+  exportErrorLog,
+} from '../error-boundary.js';
 
 /** Helper to clean up recovery overlays from the DOM. */
 function cleanupOverlays() {

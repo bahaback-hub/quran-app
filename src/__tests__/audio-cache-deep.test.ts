@@ -114,11 +114,7 @@ describe('audio-cache — deep coverage', () => {
 
     it('should return true when all URLs are cached', async () => {
       mockFetch.mockResolvedValue(mockResponse(true, 200, 1000));
-      await cacheSurahAudio(
-        ['https://example.com/a.mp3', 'https://example.com/b.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://example.com/a.mp3', 'https://example.com/b.mp3'], 1, 'ar.alafasy');
 
       expect(await isSurahCached(['https://example.com/a.mp3', 'https://example.com/b.mp3'])).toBe(true);
     });
@@ -127,16 +123,8 @@ describe('audio-cache — deep coverage', () => {
   describe('getCacheStats — populated cache', () => {
     it('should return correct stats with multiple surahs', async () => {
       mockFetch.mockResolvedValue(mockResponse(true, 200, 2048));
-      await cacheSurahAudio(
-        ['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'],
-        1,
-        'ar.alafasy',
-      );
-      await cacheSurahAudio(
-        ['https://example.com/2/1.mp3'],
-        2,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'], 1, 'ar.alafasy');
+      await cacheSurahAudio(['https://example.com/2/1.mp3'], 2, 'ar.alafasy');
 
       const stats = await getCacheStats();
       expect(stats.fileCount).toBe(3);
@@ -194,12 +182,7 @@ describe('audio-cache — deep coverage', () => {
       mockFetch.mockResolvedValue(mockResponse(true, 200, 1000));
 
       const progress = vi.fn();
-      await cacheSurahAudio(
-        ['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'],
-        1,
-        'ar.alafasy',
-        progress,
-      );
+      await cacheSurahAudio(['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'], 1, 'ar.alafasy', progress);
 
       expect(progress).toHaveBeenCalledTimes(2);
     });
@@ -240,11 +223,7 @@ describe('audio-cache — deep coverage', () => {
       await cacheSurahAudio(['https://example.com/1/1.mp3'], 1, 'ar.alafasy');
 
       mockFetch.mockClear();
-      await cacheSurahAudio(
-        ['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'], 1, 'ar.alafasy');
 
       // Should only fetch the new URL
       expect(mockFetch).toHaveBeenCalledTimes(1);

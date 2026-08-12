@@ -231,7 +231,9 @@ describe('State DevTools — window API', () => {
   });
 
   it('subscribe() should return an unsubscribe function', () => {
-    const windowWithState = window as unknown as { __quranState?: { subscribe: (cb: (newValue: unknown, oldValue: unknown, key: string) => void) => () => void } };
+    const windowWithState = window as unknown as {
+      __quranState?: { subscribe: (cb: (newValue: unknown, oldValue: unknown, key: string) => void) => () => void };
+    };
     if (windowWithState.__quranState) {
       const unsubscribe = windowWithState.__quranState.subscribe(() => {
         // noop

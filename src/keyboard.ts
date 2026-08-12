@@ -8,15 +8,7 @@
 
 import { state } from './state.js';
 import { dom } from './dom.js';
-import {
-  togglePlayPause,
-  nextAyah,
-  prevAyah,
-  nextSurah,
-  prevSurah,
-  toggleHifdh,
-  toggleRepeat,
-} from './audio.js';
+import { togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh, toggleRepeat } from './audio.js';
 import { toggleNightMode, applyFontSize, closeSettings } from './settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './favorites.js';
 import { stopAzan } from './prayer.js';
@@ -113,11 +105,15 @@ export function initKeyboardShortcuts(): void {
         if (state.presentationMode) {
           import('./presentation.js')
             .then((m: { closePresentation: () => void }) => m.closePresentation())
-            .catch(() => { /* noop */ });
+            .catch(() => {
+              /* noop */
+            });
         } else {
           import('./presentation.js')
             .then((m: { openPresentation: () => void }) => m.openPresentation())
-            .catch(() => { /* noop */ });
+            .catch(() => {
+              /* noop */
+            });
         }
         break;
       case 'g':

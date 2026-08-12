@@ -108,24 +108,24 @@ export default {
     'ar.shaatree': 'Abu Bakr Ash-Shatri',
     'ar.abdullahbasfar': 'Abdullah Basfar',
     'ar.ahmedajamy': 'Ahmed Al-Ajamy',
-    's_gmd': 'Saad Al-Ghamdi',
-    'shur': 'Saud Ash-Shuraim',
-    's_bud': 'Mohammed Al-Budair',
-    'bu_khtr': 'Mohammed Al-Bukhater',
-    'hthfi': 'Abdullah Al-Hudhaify',
-    'a_jbr': 'Ahmed Jaber',
-    'frs_a': 'Abdurrahman Al-Abbad',
-    'yasser': 'Yasser Ad-Dossary',
-    'salamah': 'Saad As-Salamah',
-    'qtm': 'Nasser Al-Qatami',
-    'mtrod': 'Maher Al-Muaiqly',
-    'qasm': 'Mohammed Al-Qasim',
-    'sds': 'Abdurrahman As-Sudais',
-    'maher': 'Maher Al-Muaiqly',
-    'jbrl': 'Mohammed Jibreel',
-    'minsh': 'Mohamed Siddiq Al-Minshawi',
-    'shaatree': 'Abu Bakr Ash-Shatri',
-    'tnjy': 'Mustafa At-Tanji',
+    s_gmd: 'Saad Al-Ghamdi',
+    shur: 'Saud Ash-Shuraim',
+    s_bud: 'Mohammed Al-Budair',
+    bu_khtr: 'Mohammed Al-Bukhater',
+    hthfi: 'Abdullah Al-Hudhaify',
+    a_jbr: 'Ahmed Jaber',
+    frs_a: 'Abdurrahman Al-Abbad',
+    yasser: 'Yasser Ad-Dossary',
+    salamah: 'Saad As-Salamah',
+    qtm: 'Nasser Al-Qatami',
+    mtrod: 'Maher Al-Muaiqly',
+    qasm: 'Mohammed Al-Qasim',
+    sds: 'Abdurrahman As-Sudais',
+    maher: 'Maher Al-Muaiqly',
+    jbrl: 'Mohammed Jibreel',
+    minsh: 'Mohamed Siddiq Al-Minshawi',
+    shaatree: 'Abu Bakr Ash-Shatri',
+    tnjy: 'Mustafa At-Tanji',
   },
 
   // === Tafsir ===
@@ -221,7 +221,8 @@ export default {
   adhkar_reference_label: 'Referensi (opsional)',
   adhkar_confirm_delete_item: 'Hapus dzikir ini?',
   adhkar_reset_defaults: 'Pulihkan default',
-  adhkar_reset_defaults_desc: 'Semua kustomisasi (dzikir yang ditambah dan diedit) akan dihapus dan dzikir asli dipulihkan. Apakah Anda yakin?',
+  adhkar_reset_defaults_desc:
+    'Semua kustomisasi (dzikir yang ditambah dan diedit) akan dihapus dan dzikir asli dipulihkan. Apakah Anda yakin?',
   adhkar_reset: 'Reset penghitung',
 
   // === Mode Presentasi ===
@@ -352,46 +353,64 @@ export default {
   help_guide: 'Panduan Penggunaan',
   help_playback: 'Pemutaran dan Pendengaran',
   help_play_pause: 'Putar / Jeda',
-  help_play_pause_desc: 'Di pemutar di bagian bawah layar, tekan tombol ⏯ untuk memutar atau menjeda ayat saat ini. Anda juga dapat menekan tombol Spasi pada keyboard.',
+  help_play_pause_desc:
+    'Di pemutar di bagian bawah layar, tekan tombol ⏯ untuk memutar atau menjeda ayat saat ini. Anda juga dapat menekan tombol Spasi pada keyboard.',
   help_navigation: 'Navigasi Antar Ayat dan Surah',
-  help_navigation_desc: 'Di pemutar: ◀ Ayat Sebelumnya — ▶ Ayat Berikutnya — ⏮ Surah Sebelumnya — ⏭ Surah Berikutnya.',
+  help_navigation_desc:
+    'Di pemutar: ◀ Ayat Sebelumnya — ▶ Ayat Berikutnya — ⏮ Surah Sebelumnya — ⏭ Surah Berikutnya.',
   help_continuous: 'Putar Berkelanjutan',
-  help_continuous_desc: 'Tekan ⁝ pada pemutar kemudian pilih 🔗 Berkelanjutan. Saat diaktifkan, tombol menjadi keemasan dan akan otomatis beralih ke surah berikutnya saat surah saat ini selesai. Tekan lagi untuk menghentikannya.',
+  help_continuous_desc:
+    'Tekan ⁝ pada pemutar kemudian pilih 🔗 Berkelanjutan. Saat diaktifkan, tombol menjadi keemasan dan akan otomatis beralih ke surah berikutnya saat surah saat ini selesai. Tekan lagi untuk menghentikannya.',
   help_repeat: 'Pengulangan Ayat',
-  help_repeat_desc: 'Tekan ⁝ pada pemutar kemudian pilih 🔁 Pengulangan. Pilih "dari" dan "hingga" untuk menentukan rentang ayat dan jumlah pengulangan. Tekan 🔁 lagi untuk menghentikan pengulangan.',
+  help_repeat_desc:
+    'Tekan ⁝ pada pemutar kemudian pilih 🔁 Pengulangan. Pilih "dari" dan "hingga" untuk menentukan rentang ayat dan jumlah pengulangan. Tekan 🔁 lagi untuk menghentikan pengulangan.',
   help_hifdh: 'Mode Hafalan',
-  help_hifdh_desc: 'Tekan ⁝ pada pemutar kemudian pilih 🕋 Hafalan. Menyembunyikan teks ayat untuk membantu Anda mengulang dari hafalan. Tekan ayat yang tersembunyi untuk menampilkannya sementara.',
+  help_hifdh_desc:
+    'Tekan ⁝ pada pemutar kemudian pilih 🕋 Hafalan. Menyembunyikan teks ayat untuk membantu Anda mengulang dari hafalan. Tekan ayat yang tersembunyi untuk menampilkannya sementara.',
   help_ayah_number: 'Pindah Cepat dengan Menekan Nomor Ayat',
-  help_ayah_number_desc: 'Tekan nomor ayat ﴿٥﴾ langsung di teks surah — pemutar akan mulai memutar dari ayat tersebut segera. Menekan teks ayat membuka jendela detail.',
+  help_ayah_number_desc:
+    'Tekan nomor ayat ﴿٥﴾ langsung di teks surah — pemutar akan mulai memutar dari ayat tersebut segera. Menekan teks ayat membuka jendela detail.',
   help_offline: 'Penggunaan Luring',
   help_download_audio: 'Unduh Audio Surah',
-  help_download_audio_desc: 'Tekan ⁝ pada pemutar kemudian pilih 📥 Unduh. Audio surah disimpan seluruhnya di perangkat Anda. Setelah diunduh, Anda dapat mendengarkan tanpa internet. Tekan lagi untuk menghapus file yang disimpan.',
+  help_download_audio_desc:
+    'Tekan ⁝ pada pemutar kemudian pilih 📥 Unduh. Audio surah disimpan seluruhnya di perangkat Anda. Setelah diunduh, Anda dapat mendengarkan tanpa internet. Tekan lagi untuk menghapus file yang disimpan.',
   help_bookmarks_favorites: 'Penanda Buku dan Favorit',
   help_bookmark: 'Penanda Buku',
-  help_bookmark_desc: 'Tekan ⁝ pada pemutar kemudian pilih 🔖 Penanda. Tekan sekali = simpan posisi saat ini. Tekan dua kali = kembali ke posisi yang disimpan.',
+  help_bookmark_desc:
+    'Tekan ⁝ pada pemutar kemudian pilih 🔖 Penanda. Tekan sekali = simpan posisi saat ini. Tekan dua kali = kembali ke posisi yang disimpan.',
   help_favorite: 'Favorit',
-  help_favorite_desc: 'Tekan ⁝ pada pemutar kemudian pilih ❤️ Favorit untuk menyimpan ayat ke daftar favorit. Untuk mengakses favorit Anda: tekan ❤️ di header bagian atas layar.',
+  help_favorite_desc:
+    'Tekan ⁝ pada pemutar kemudian pilih ❤️ Favorit untuk menyimpan ayat ke daftar favorit. Untuk mengakses favorit Anda: tekan ❤️ di header bagian atas layar.',
   help_search: 'Pencarian',
   help_text_search: 'Pencarian Teks',
-  help_text_search_desc: 'Tekan 🔎 di bilah pencarian bagian atas layar. Ketik kata atau bagian ayat untuk mencari di seluruh Al-Quran.',
+  help_text_search_desc:
+    'Tekan 🔎 di bilah pencarian bagian atas layar. Ketik kata atau bagian ayat untuk mencari di seluruh Al-Quran.',
   help_voice_search: 'Pencarian Suara',
-  help_voice_search_desc: 'Tekan 🎤 di samping kolom pencarian. Ucapkan kata atau kalimat dan pencarian akan dilakukan secara otomatis.',
+  help_voice_search_desc:
+    'Tekan 🎤 di samping kolom pencarian. Ucapkan kata atau kalimat dan pencarian akan dilakukan secara otomatis.',
   help_extras: 'Fitur Tambahan',
   help_sleep_timer: 'Penghitung Tidur',
-  help_sleep_timer_desc: 'Tekan ⁝ pada pemutar kemudian pilih 😴 Tidur. Pilih durasi (5 - 60 menit) dan pemutaran akan dihentikan secara otomatis setelah durasi berakhir.',
+  help_sleep_timer_desc:
+    'Tekan ⁝ pada pemutar kemudian pilih 😴 Tidur. Pilih durasi (5 - 60 menit) dan pemutaran akan dihentikan secara otomatis setelah durasi berakhir.',
   help_mushaf_mode: 'Mode Mushaf',
-  help_mushaf_mode_desc: 'Tekan 📖 di bilah tampilan bagian atas layar. Menampilkan halaman Mushaf seperti dalam Mushaf cetak dengan navigasi halaman.',
+  help_mushaf_mode_desc:
+    'Tekan 📖 di bilah tampilan bagian atas layar. Menampilkan halaman Mushaf seperti dalam Mushaf cetak dengan navigasi halaman.',
   help_qibla: 'Kompas Kiblat',
-  help_qibla_desc: 'Tekan 🧭 di bilah tampilan bagian atas layar. Menunjukkan arah kiblat menggunakan kompas perangkat.',
+  help_qibla_desc:
+    'Tekan 🧭 di bilah tampilan bagian atas layar. Menunjukkan arah kiblat menggunakan kompas perangkat.',
   help_adhkar: 'Dzikir Pagi dan Petang',
-  help_adhkar_desc: 'Tekan 🤲 di bilah tampilan bagian atas layar. Menampilkan daftar dzikir dengan penghitung. Anda dapat mengaktifkan pengingat otomatis dari pengaturan.',
+  help_adhkar_desc:
+    'Tekan 🤲 di bilah tampilan bagian atas layar. Menampilkan daftar dzikir dengan penghitung. Anda dapat mengaktifkan pengingat otomatis dari pengaturan.',
   help_tafsir: 'Tafsir',
-  help_tafsir_desc: 'Geser panel tafsir dari sisi kiri (atau tekan pegangannya). Pilih tafsir dari daftar: Muyassar, Sa\'di, Ibnu Katsir, atau At-Thabari. Anda juga dapat mengaksesnya melalui jendela ayat.',
+  help_tafsir_desc:
+    "Geser panel tafsir dari sisi kiri (atau tekan pegangannya). Pilih tafsir dari daftar: Muyassar, Sa'di, Ibnu Katsir, atau At-Thabari. Anda juga dapat mengaksesnya melalui jendela ayat.",
   help_share: 'Bagikan Ayat',
-  help_share_desc: 'Tekan ⁝ pada pemutar kemudian pilih 📤 Bagikan. Pilih: Salin, bagikan melalui WhatsApp atau Telegram, atau bagikan melalui aplikasi perangkat.',
+  help_share_desc:
+    'Tekan ⁝ pada pemutar kemudian pilih 📤 Bagikan. Pilih: Salin, bagikan melalui WhatsApp atau Telegram, atau bagikan melalui aplikasi perangkat.',
   help_keyboard: 'Pintasan Keyboard',
   help_keyboard_shortcuts: 'Pintasan Keyboard',
-  help_keyboard_shortcuts_desc: 'Spasi = Putar/Jeda ◀ ▶ = Ayat Sebelumnya/Berikutnya ▲ ▼ = Surah Sebelumnya/Berikutnya Ctrl+F = Buka Pencarian Escape = Tutup Jendela Terbuka',
+  help_keyboard_shortcuts_desc:
+    'Spasi = Putar/Jeda ◀ ▶ = Ayat Sebelumnya/Berikutnya ▲ ▼ = Surah Sebelumnya/Berikutnya Ctrl+F = Buka Pencarian Escape = Tutup Jendela Terbuka',
 
   // === Aksesibilitas ===
   a11y_panel_opened: '{0} dibuka',

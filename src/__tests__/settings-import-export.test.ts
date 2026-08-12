@@ -216,9 +216,17 @@ describe('SETTING_TYPE_VALIDATORS', () => {
 
   it('should validate all boolean fields correctly', () => {
     const boolKeys = [
-      'night_mode', 'azan_enabled', 'azan_fajr_enabled', 'auto_save',
-      'bar_collapsed', 'player_collapsed', 'translation_enabled',
-      'tajweed_enabled', 'night_mode_set_by_user', 'mushaf_mode', 'sepia_mode',
+      'night_mode',
+      'azan_enabled',
+      'azan_fajr_enabled',
+      'auto_save',
+      'bar_collapsed',
+      'player_collapsed',
+      'translation_enabled',
+      'tajweed_enabled',
+      'night_mode_set_by_user',
+      'mushaf_mode',
+      'sepia_mode',
     ];
     for (const key of boolKeys) {
       const validator = SETTING_TYPE_VALIDATORS[key];
@@ -232,8 +240,16 @@ describe('SETTING_TYPE_VALIDATORS', () => {
 
   it('should validate all string fields correctly', () => {
     const stringKeys = [
-      'city', 'country', 'method', 'reciter', 'tafsir_edition',
-      'playback_speed', 'lang', 'translation_edition', 'font_type', 'line_spacing',
+      'city',
+      'country',
+      'method',
+      'reciter',
+      'tafsir_edition',
+      'playback_speed',
+      'lang',
+      'translation_edition',
+      'font_type',
+      'line_spacing',
     ];
     for (const key of stringKeys) {
       const validator = SETTING_TYPE_VALIDATORS[key];

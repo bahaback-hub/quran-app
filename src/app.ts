@@ -132,9 +132,8 @@ export async function initApp(): Promise<void> {
   // Use requestIdleCallback when available to avoid blocking user interaction.
   // Falls back to setTimeout for browsers without rIC support.
   // This improves INP (Interaction to Next Paint) by yielding to the main thread.
-  const scheduleIdle = (typeof requestIdleCallback === 'function')
-    ? requestIdleCallback
-    : (cb: () => void) => setTimeout(cb, 1);
+  const scheduleIdle =
+    typeof requestIdleCallback === 'function' ? requestIdleCallback : (cb: () => void) => setTimeout(cb, 1);
 
   scheduleIdle(() => {
     loadingBar.init();

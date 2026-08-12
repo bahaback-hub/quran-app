@@ -60,10 +60,24 @@ describe('buildColorMap', () => {
 
   it('should handle all rule types', () => {
     const rules: TajweedRule[] = [
-      'hamzat_wasl', 'lam_shamsiyyah', 'madd_2', 'madd_246', 'madd_6',
-      'madd_munfasil', 'madd_muttasil', 'ghunnah', 'ikhfa', 'ikhfa_shafawi',
-      'iqlab', 'idghaam_ghunnah', 'idghaam_no_ghunnah', 'idghaam_mutajanisayn',
-      'idghaam_mutaqaribayn', 'idghaam_shafawi', 'qalqalah', 'silent',
+      'hamzat_wasl',
+      'lam_shamsiyyah',
+      'madd_2',
+      'madd_246',
+      'madd_6',
+      'madd_munfasil',
+      'madd_muttasil',
+      'ghunnah',
+      'ikhfa',
+      'ikhfa_shafawi',
+      'iqlab',
+      'idghaam_ghunnah',
+      'idghaam_no_ghunnah',
+      'idghaam_mutajanisayn',
+      'idghaam_mutaqaribayn',
+      'idghaam_shafawi',
+      'qalqalah',
+      'silent',
     ];
     let pos = 0;
     const annotations = rules.map((rule) => {
@@ -87,10 +101,24 @@ describe('getTajweedColor', () => {
 
   it('should return a color for each known rule in day mode', () => {
     const rules: TajweedRule[] = [
-      'hamzat_wasl', 'lam_shamsiyyah', 'madd_2', 'madd_246', 'madd_6',
-      'madd_munfasil', 'madd_muttasil', 'ghunnah', 'ikhfa', 'ikhfa_shafawi',
-      'iqlab', 'idghaam_ghunnah', 'idghaam_no_ghunnah', 'idghaam_mutajanisayn',
-      'idghaam_mutaqaribayn', 'idghaam_shafawi', 'qalqalah', 'silent',
+      'hamzat_wasl',
+      'lam_shamsiyyah',
+      'madd_2',
+      'madd_246',
+      'madd_6',
+      'madd_munfasil',
+      'madd_muttasil',
+      'ghunnah',
+      'ikhfa',
+      'ikhfa_shafawi',
+      'iqlab',
+      'idghaam_ghunnah',
+      'idghaam_no_ghunnah',
+      'idghaam_mutajanisayn',
+      'idghaam_mutaqaribayn',
+      'idghaam_shafawi',
+      'qalqalah',
+      'silent',
     ];
     for (const rule of rules) {
       const color = getTajweedColor(rule);
@@ -109,10 +137,24 @@ describe('getTajweedColor', () => {
   it('should return a color in night mode for all rules', () => {
     document.body.classList.add('night-mode');
     const rules: TajweedRule[] = [
-      'hamzat_wasl', 'lam_shamsiyyah', 'madd_2', 'madd_246', 'madd_6',
-      'madd_munfasil', 'madd_muttasil', 'ghunnah', 'ikhfa', 'ikhfa_shafawi',
-      'iqlab', 'idghaam_ghunnah', 'idghaam_no_ghunnah', 'idghaam_mutajanisayn',
-      'idghaam_mutaqaribayn', 'idghaam_shafawi', 'qalqalah', 'silent',
+      'hamzat_wasl',
+      'lam_shamsiyyah',
+      'madd_2',
+      'madd_246',
+      'madd_6',
+      'madd_munfasil',
+      'madd_muttasil',
+      'ghunnah',
+      'ikhfa',
+      'ikhfa_shafawi',
+      'iqlab',
+      'idghaam_ghunnah',
+      'idghaam_no_ghunnah',
+      'idghaam_mutajanisayn',
+      'idghaam_mutaqaribayn',
+      'idghaam_shafawi',
+      'qalqalah',
+      'silent',
     ];
     for (const rule of rules) {
       const color = getTajweedColor(rule);
@@ -244,10 +286,24 @@ describe('tajweedColorWord', () => {
 
   it('should handle all rule types in CSS class conversion', () => {
     const rules: TajweedRule[] = [
-      'hamzat_wasl', 'lam_shamsiyyah', 'madd_2', 'madd_246', 'madd_6',
-      'madd_munfasil', 'madd_muttasil', 'ghunnah', 'ikhfa', 'ikhfa_shafawi',
-      'iqlab', 'idghaam_ghunnah', 'idghaam_no_ghunnah', 'idghaam_mutajanisayn',
-      'idghaam_mutaqaribayn', 'idghaam_shafawi', 'qalqalah', 'silent',
+      'hamzat_wasl',
+      'lam_shamsiyyah',
+      'madd_2',
+      'madd_246',
+      'madd_6',
+      'madd_munfasil',
+      'madd_muttasil',
+      'ghunnah',
+      'ikhfa',
+      'ikhfa_shafawi',
+      'iqlab',
+      'idghaam_ghunnah',
+      'idghaam_no_ghunnah',
+      'idghaam_mutajanisayn',
+      'idghaam_mutaqaribayn',
+      'idghaam_shafawi',
+      'qalqalah',
+      'silent',
     ];
     for (const rule of rules) {
       const map = new Map<number, TajweedRule>();

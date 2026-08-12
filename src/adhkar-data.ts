@@ -475,10 +475,7 @@ export function getCategoryItems(categoryId: string, custom?: AdhkarCustomizatio
  * Get a category with effective items (after applying customizations).
  * Useful for rendering UI.
  */
-export function getEffectiveCategory(
-  categoryId: string,
-  custom?: AdhkarCustomizations,
-): AdhkarCategory | null {
+export function getEffectiveCategory(categoryId: string, custom?: AdhkarCustomizations): AdhkarCategory | null {
   const category = ADHKAR_DATA.categories.find((cat) => cat.id === categoryId);
   if (!category) {
     return null;
@@ -560,11 +557,7 @@ export function editAdhkarItem(
  * - For default items, adds to hiddenItems (can be restored).
  * - For custom items, removes them permanently.
  */
-export function deleteAdhkarItem(
-  itemId: string,
-  categoryId: string,
-  custom?: AdhkarCustomizations,
-): void {
+export function deleteAdhkarItem(itemId: string, categoryId: string, custom?: AdhkarCustomizations): void {
   const c = custom ?? loadAdhkarCustomizations();
 
   // Check if it's a custom item — permanently delete

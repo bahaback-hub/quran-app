@@ -75,7 +75,11 @@ export function initNavigation(): void {
 
   /* ========== VIEW MODE TOGGLES ========== */
   dom.viewSurahBtn?.addEventListener('click', () => {
-    import('./presentation.js').then((m) => m.closePresentation()).catch(() => { /* noop */ });
+    import('./presentation.js')
+      .then((m) => m.closePresentation())
+      .catch(() => {
+        /* noop */
+      });
     if (state.mushafMode) {
       import('./mushaf.js').then((m) => m.toggleMushafMode());
     }
@@ -93,7 +97,11 @@ export function initNavigation(): void {
     }
   });
   dom.viewMushafBtn?.addEventListener('click', () => {
-    import('./presentation.js').then((m) => m.closePresentation()).catch(() => { /* noop */ });
+    import('./presentation.js')
+      .then((m) => m.closePresentation())
+      .catch(() => {
+        /* noop */
+      });
     import('./mushaf.js').then((m) => m.toggleMushafMode());
   });
   dom.viewPresBtn?.addEventListener('click', () => {
@@ -180,7 +188,11 @@ export function initNavigation(): void {
       case 'more':
         // Open adhkar panel (was opening settings, but adhkar had no button)
         // Use dynamic import to avoid circular dependency at module load time
-        import('./adhkar.js').then((m) => m.toggleAdhkarPanel()).catch(() => { /* noop */ });
+        import('./adhkar.js')
+          .then((m) => m.toggleAdhkarPanel())
+          .catch(() => {
+            /* noop */
+          });
         dom.controls?.classList.remove('mobile-show');
         break;
       default:

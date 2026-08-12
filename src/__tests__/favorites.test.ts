@@ -152,9 +152,7 @@ describe('favorites', () => {
     });
 
     it('should remove a favorite when already favorited', () => {
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
       toggleFavorite();
       expect(immutableSplice).toHaveBeenCalled();
       expect(showToast).toHaveBeenCalledWith('removed_from_favorites', '');
@@ -175,9 +173,7 @@ describe('favorites', () => {
     });
 
     it('should remove active class from favoriteBtn when removing', () => {
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
       const btn = { classList: { add: vi.fn(), remove: vi.fn() } };
       (dom as any).favoriteBtn = btn;
       toggleFavorite();
@@ -209,9 +205,7 @@ describe('favorites', () => {
     it('should render favorite items when favorites exist', () => {
       const listEl = document.createElement('div');
       (dom as any).favoritesList = listEl;
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
       renderFavorites();
       expect(favoriteMeta).toHaveBeenCalledWith('الفاتحة', 1);
       // Should have child elements (the favorite-item divs)

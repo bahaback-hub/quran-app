@@ -80,7 +80,12 @@ vi.mock('../reciters.js', () => ({
   getReciterById: vi.fn((id: string) => {
     const map: Record<string, { id: string; name: string; source: string; server?: string }> = {
       'ar.alafasy': { id: 'ar.alafasy', name: 'reciter_alafasy', source: 'api' },
-      'ar.husary': { id: 'ar.husary', name: 'reciter_husary', source: 'mp3quran', server: 'https://server.mp3quran.net/husary/' },
+      'ar.husary': {
+        id: 'ar.husary',
+        name: 'reciter_husary',
+        source: 'mp3quran',
+        server: 'https://server.mp3quran.net/husary/',
+      },
     };
     return map[id] || { id, name: id, source: 'api' };
   }),
@@ -130,7 +135,16 @@ vi.mock('../surah-cache.js', () => ({
   getCachedSurahFromIDB: vi.fn(() => Promise.resolve(null)),
 }));
 
-import { loadSurahList, buildSurahOffsets, populateReciterSelect, loadSurah, renderSurah, highlightCurrentAyah, updatePlayerInfo, toggleTranslation } from '../surah-loader.js';
+import {
+  loadSurahList,
+  buildSurahOffsets,
+  populateReciterSelect,
+  loadSurah,
+  renderSurah,
+  highlightCurrentAyah,
+  updatePlayerInfo,
+  toggleTranslation,
+} from '../surah-loader.js';
 import { apiFetch, jsonFetch } from '../api-client.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from '../audio.js';
 import { recordReadingSession } from '../reading-stats.js';
@@ -205,13 +219,13 @@ describe('surah-loader-full', () => {
     dom.collapsedInfo = document.createElement('div');
     dom.tafsirCurtain = document.createElement('div');
     dom.translationSelect = document.createElement('select') as HTMLSelectElement;
-  // Add options to translationSelect for value setting
-  const transOpt = document.createElement('option');
-  transOpt.value = 'en.sahih';
-  transOpt.textContent = 'English';
-  dom.translationSelect.appendChild(transOpt);
-  // Mock scrollIntoView on elements
-  Element.prototype.scrollIntoView = vi.fn();
+    // Add options to translationSelect for value setting
+    const transOpt = document.createElement('option');
+    transOpt.value = 'en.sahih';
+    transOpt.textContent = 'English';
+    dom.translationSelect.appendChild(transOpt);
+    // Mock scrollIntoView on elements
+    Element.prototype.scrollIntoView = vi.fn();
   });
 
   /* ===================== loadSurahList ===================== */
@@ -272,7 +286,11 @@ describe('surah-loader-full', () => {
       vi.spyOn(storage, 'set').mockImplementation(() => true);
       // Make API hang but with a short delay so the test doesn't timeout
       let resolveApi!: (v: unknown) => void;
-      vi.mocked(apiFetch).mockReturnValue(new Promise((r) => { resolveApi = r; }));
+      vi.mocked(apiFetch).mockReturnValue(
+        new Promise((r) => {
+          resolveApi = r;
+        }),
+      );
       const listPromise = loadSurahList();
       // Check loading state before API resolves
       expect(surahSelectLoading).toHaveBeenCalled();

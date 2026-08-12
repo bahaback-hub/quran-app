@@ -114,9 +114,7 @@ describe('buildAyahHtml', () => {
     colorMap.set(1, 'ghunnah');
     vi.mocked(buildColorMap).mockReturnValue(colorMap);
 
-    mockGetAyahAnnotations.mockReturnValue([
-      { rule: 'ghunnah', start: 0, end: 2 },
-    ]);
+    mockGetAyahAnnotations.mockReturnValue([{ rule: 'ghunnah', start: 0, end: 2 }]);
 
     const result = buildAyahHtml('كتاب', 1, 1, true);
     expect(result).toBeTruthy();
@@ -159,9 +157,7 @@ describe('buildAyahHtml', () => {
     colorMap.set(0, 'ghunnah');
     vi.mocked(buildColorMap).mockReturnValue(colorMap);
 
-    mockGetAyahAnnotations.mockReturnValue([
-      { rule: 'ghunnah', start: 40, end: 42 },
-    ]);
+    mockGetAyahAnnotations.mockReturnValue([{ rule: 'ghunnah', start: 40, end: 42 }]);
 
     const basmala = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ الم';
     const result = buildAyahHtml(basmala, 2, 1, true);
@@ -179,9 +175,7 @@ describe('buildAyahHtml', () => {
     vi.mocked(buildColorMap).mockReturnValue(colorMap);
     vi.mocked(tajweedColorWord).mockImplementation((word: string) => `[${word}]`);
 
-    mockGetAyahAnnotations.mockReturnValue([
-      { rule: 'ghunnah', start: 0, end: 3 },
-    ]);
+    mockGetAyahAnnotations.mockReturnValue([{ rule: 'ghunnah', start: 0, end: 3 }]);
 
     const result = buildAyahHtml('كتاب الله', 1, 1, true);
     expect(tajweedColorWord).toHaveBeenCalled();

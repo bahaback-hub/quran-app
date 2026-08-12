@@ -11,7 +11,7 @@ export default {
   error_details: 'Hata detayları',
 
   // === Genel ===
-  app_title: 'Kur\'an-ı Kerim',
+  app_title: "Kur'an-ı Kerim",
   makkah: 'Mekke',
   close: 'Kapat',
   success: 'Başarılı',
@@ -82,7 +82,7 @@ export default {
   failed_load_surah: 'Sure yüklenemedi',
   invalid_surah_data: 'Geçersiz sure verisi',
   next_ayah: 'Sonraki Ayet',
-  last_ayah_in_quran: 'Kur\'an\'daki son ayet',
+  last_ayah_in_quran: "Kur'an'daki son ayet",
   cached_prayer: 'Önbelleğe alınmış namaz vakitleri',
   cached_prayer_stale: 'Eski önbellekten namaz vakitleri — birkaç dakika farklılık gösterebilir',
   failed_prayer: 'Namaz vakitleri yüklenemedi',
@@ -108,24 +108,24 @@ export default {
     'ar.shaatree': 'Ebu Bekir eş-Şatri',
     'ar.abdullahbasfar': 'Abdullah Basfar',
     'ar.ahmedajamy': 'Ahmed el-Acemi',
-    's_gmd': 'Saad el-Gamdi',
-    'shur': 'Saud eş-Şuraym',
-    's_bud': 'Muhammed el-Budeyr',
-    'bu_khtr': 'Muhammed el-Buhtır',
-    'hthfi': 'Abdullah el-Hudayfi',
-    'a_jbr': 'Ahmed Cabir',
-    'frs_a': 'Abdurrahman el-Abbad',
-    'yasser': 'Yasir ed-Dosari',
-    'salamah': 'Saad es-Selame',
-    'qtm': 'Nasır el-Katami',
-    'mtrod': 'Mahir el-Muaykli',
-    'qasm': 'Muhammed el-Kasım',
-    'sds': 'Abdurrahman es-Sudeys',
-    'maher': 'Mahir el-Muaykli',
-    'jbrl': 'Muhammed Cibril',
-    'minsh': 'Muhammed Sıddık el-Minşevi',
-    'shaatree': 'Ebu Bekir eş-Şatri',
-    'tnjy': 'Mustafa et-Tanci',
+    s_gmd: 'Saad el-Gamdi',
+    shur: 'Saud eş-Şuraym',
+    s_bud: 'Muhammed el-Budeyr',
+    bu_khtr: 'Muhammed el-Buhtır',
+    hthfi: 'Abdullah el-Hudayfi',
+    a_jbr: 'Ahmed Cabir',
+    frs_a: 'Abdurrahman el-Abbad',
+    yasser: 'Yasir ed-Dosari',
+    salamah: 'Saad es-Selame',
+    qtm: 'Nasır el-Katami',
+    mtrod: 'Mahir el-Muaykli',
+    qasm: 'Muhammed el-Kasım',
+    sds: 'Abdurrahman es-Sudeys',
+    maher: 'Mahir el-Muaykli',
+    jbrl: 'Muhammed Cibril',
+    minsh: 'Muhammed Sıddık el-Minşevi',
+    shaatree: 'Ebu Bekir eş-Şatri',
+    tnjy: 'Mustafa et-Tanci',
   },
 
   // === Tefsir ===
@@ -221,7 +221,8 @@ export default {
   adhkar_reference_label: 'Kaynak (isteğe bağlı)',
   adhkar_confirm_delete_item: 'Bu zikri silmek istiyor musunuz?',
   adhkar_reset_defaults: 'Varsayılanları geri yükle',
-  adhkar_reset_defaults_desc: 'Tüm özelleştirmeler (eklenen ve düzenlenen zikirler) silinecek ve orijinal zikirler geri yüklenecek. Emin misiniz?',
+  adhkar_reset_defaults_desc:
+    'Tüm özelleştirmeler (eklenen ve düzenlenen zikirler) silinecek ve orijinal zikirler geri yüklenecek. Emin misiniz?',
   adhkar_reset: 'Sayaçı sıfırla',
 
   // === Sunum Modu ===
@@ -243,7 +244,7 @@ export default {
   mushaf_retry_reload: 'Tekrar dene',
   mushaf_sources: 'Kaynaklar',
   mushaf_surah_info: 'Sure Bilgisi',
-  quran_db_loading: 'Kur\'an veritabanı yükleniyor...',
+  quran_db_loading: "Kur'an veritabanı yükleniyor...",
 
   // === Kıble ===
   qibla_location_failed: 'Konum alınamadı',
@@ -304,15 +305,15 @@ export default {
   select_mode_copied: '{0} ayet kopyalandı',
 
   // === Hoş Geldin ===
-  welcome_feature_audio: 'Kur\'an tilavetlerini dinleyin',
-  welcome_feature_search: 'Kur\'an-ı Kerim\'de arayın',
+  welcome_feature_audio: "Kur'an tilavetlerini dinleyin",
+  welcome_feature_search: "Kur'an-ı Kerim'de arayın",
 
   // === Onboarding ===
-  onboarding_desc_1: 'Kur\'an-ı Kerim\'i kolayca okuyun',
+  onboarding_desc_1: "Kur'an-ı Kerim'i kolayca okuyun",
   onboarding_desc_2: 'Çeşitli tilavetleri dinleyin',
   onboarding_desc_3: 'Namaz vakitlerini öğrenin',
   onboarding_desc_4: 'Günlük zikirleri kaydedin',
-  onboarding_desc_5: 'Mushaf\'ı tarayın',
+  onboarding_desc_5: "Mushaf'ı tarayın",
   onboarding_desc_6: 'Okuma istatistiklerinizi takip edin',
   onboarding_next: 'İleri',
   onboarding_prev: 'Geri',
@@ -352,46 +353,63 @@ export default {
   help_guide: 'Kullanım Rehberi',
   help_playback: 'Oynatma ve Dinleme',
   help_play_pause: 'Oynat / Duraklat',
-  help_play_pause_desc: 'Ekranın altındaki oynatıcıda, mevcut ayeti oynatmak veya duraklatmak için ⏯ düğmesine basın. Klavyede boşluk tuşuna da basabilirsiniz.',
+  help_play_pause_desc:
+    'Ekranın altındaki oynatıcıda, mevcut ayeti oynatmak veya duraklatmak için ⏯ düğmesine basın. Klavyede boşluk tuşuna da basabilirsiniz.',
   help_navigation: 'Ayet ve Sureler Arasında Gezinme',
   help_navigation_desc: 'Oynatıcıda: ◀ Önceki Ayet — ▶ Sonraki Ayet — ⏮ Önceki Sure — ⏭ Sonraki Sure.',
   help_continuous: 'Sürekli Çalma',
-  help_continuous_desc: 'Oynatıcıda ⁝ düğmesine basın, ardından 🔗 Sürekli seçin. Etkinleştirildiğinde düğme altın rengi olur ve mevcut sure bittiğinde otomatik olarak sonraki sureye geçilir. Durdurmak için tekrar basın.',
+  help_continuous_desc:
+    'Oynatıcıda ⁝ düğmesine basın, ardından 🔗 Sürekli seçin. Etkinleştirildiğinde düğme altın rengi olur ve mevcut sure bittiğinde otomatik olarak sonraki sureye geçilir. Durdurmak için tekrar basın.',
   help_repeat: 'Ayet Tekrarı',
-  help_repeat_desc: 'Oynatıcıda ⁝ düğmesine basın, ardından 🔁 Tekrar seçin. Ayet aralığını ("başlangıç" ve "bitiş") ve tekrar sayısını belirleyin. Tekrarı durdurmak için 🔁 düğmesine tekrar basın.',
+  help_repeat_desc:
+    'Oynatıcıda ⁝ düğmesine basın, ardından 🔁 Tekrar seçin. Ayet aralığını ("başlangıç" ve "bitiş") ve tekrar sayısını belirleyin. Tekrarı durdurmak için 🔁 düğmesine tekrar basın.',
   help_hifdh: 'Hıfz Modu',
-  help_hifdh_desc: 'Oynatıcıda ⁝ düğmesine basın, ardından 🕋 Hıfz seçin. Ayet metnini gizleyerek hafızadan tekrar etmenize yardımcı olur. Gizli ayete basarak geçici olarak görebilirsiniz.',
+  help_hifdh_desc:
+    'Oynatıcıda ⁝ düğmesine basın, ardından 🕋 Hıfz seçin. Ayet metnini gizleyerek hafızadan tekrar etmenize yardımcı olur. Gizli ayete basarak geçici olarak görebilirsiniz.',
   help_ayah_number: 'Ayet Numarasına Basarak Hızlı Geçiş',
-  help_ayah_number_desc: 'Sure metnindeki ayet numarasına ﴿٥﴾ doğrudan basın — oynatıcı o ayetten hemen çalmaya başlar. Ayet metnine basmak detay penceresini açar.',
+  help_ayah_number_desc:
+    'Sure metnindeki ayet numarasına ﴿٥﴾ doğrudan basın — oynatıcı o ayetten hemen çalmaya başlar. Ayet metnine basmak detay penceresini açar.',
   help_offline: 'İnternetsiz Kullanım',
   help_download_audio: 'Sure Sesini İndir',
-  help_download_audio_desc: 'Oynatıcıda ⁝ düğmesine basın, ardından 📥 İndir seçin. Sure sesi cihazınıza tam olarak kaydedilir. İndirdikten sonra internetsiz dinleyebilirsiniz. Kaydedilen dosyayı silmek için tekrar basın.',
+  help_download_audio_desc:
+    'Oynatıcıda ⁝ düğmesine basın, ardından 📥 İndir seçin. Sure sesi cihazınıza tam olarak kaydedilir. İndirdikten sonra internetsiz dinleyebilirsiniz. Kaydedilen dosyayı silmek için tekrar basın.',
   help_bookmarks_favorites: 'Yer İmleri ve Favoriler',
   help_bookmark: 'Yer İmi',
-  help_bookmark_desc: 'Oynatıcıda ⁝ düğmesine basın, ardından 🔖 Yer İmi seçin. Tek basış = mevcut konumu kaydet. Çift basış = kaydedilen konuma dön.',
+  help_bookmark_desc:
+    'Oynatıcıda ⁝ düğmesine basın, ardından 🔖 Yer İmi seçin. Tek basış = mevcut konumu kaydet. Çift basış = kaydedilen konuma dön.',
   help_favorite: 'Favori',
-  help_favorite_desc: 'Oynatıcıda ⁝ düğmesine basın, ardından ❤️ Favori seçerek ayeti favori listesine ekleyin. Favorilerinize erişmek için: ekranın üstündeki başlık çubuğunda ❤️ düğmesine basın.',
+  help_favorite_desc:
+    'Oynatıcıda ⁝ düğmesine basın, ardından ❤️ Favori seçerek ayeti favori listesine ekleyin. Favorilerinize erişmek için: ekranın üstündeki başlık çubuğunda ❤️ düğmesine basın.',
   help_search: 'Arama',
   help_text_search: 'Metin Arama',
-  help_text_search_desc: 'Ekranın üstündeki arama çubuğunda 🔎 düğmesine basın. Kur\'an-ı Kerim\'de arama yapmak için bir kelime veya ayet parçası yazın.',
+  help_text_search_desc:
+    "Ekranın üstündeki arama çubuğunda 🔎 düğmesine basın. Kur'an-ı Kerim'de arama yapmak için bir kelime veya ayet parçası yazın.",
   help_voice_search: 'Sesli Arama',
-  help_voice_search_desc: 'Arama alanının yanındaki 🎤 düğmesine basın. Bir kelime veya cümle söyleyin ve arama otomatik olarak yapılacaktır.',
+  help_voice_search_desc:
+    'Arama alanının yanındaki 🎤 düğmesine basın. Bir kelime veya cümle söyleyin ve arama otomatik olarak yapılacaktır.',
   help_extras: 'Ek Özellikler',
   help_sleep_timer: 'Uyku Zamanlayıcı',
-  help_sleep_timer_desc: 'Oynatıcıda ⁝ düğmesine basın, ardından 😴 Uyku seçin. Süreyi (5 - 60 dakika) seçin ve süre dolduğunda oynatma otomatik olarak durdurulur.',
+  help_sleep_timer_desc:
+    'Oynatıcıda ⁝ düğmesine basın, ardından 😴 Uyku seçin. Süreyi (5 - 60 dakika) seçin ve süre dolduğunda oynatma otomatik olarak durdurulur.',
   help_mushaf_mode: 'Mushaf Modu',
-  help_mushaf_mode_desc: 'Ekranın üstündeki görüntü çubuğunda 📖 düğmesine basın. Mushaf sayfalarını basılı Mushaf\'daki gibi sayfalar halinde gösterir.',
+  help_mushaf_mode_desc:
+    "Ekranın üstündeki görüntü çubuğunda 📖 düğmesine basın. Mushaf sayfalarını basılı Mushaf'daki gibi sayfalar halinde gösterir.",
   help_qibla: 'Kıble Pusulası',
-  help_qibla_desc: 'Ekranın üstündeki görüntü çubuğunda 🧭 düğmesine basın. Cihazın pusolasını kullanarak kıble yönünü gösterir.',
+  help_qibla_desc:
+    'Ekranın üstündeki görüntü çubuğunda 🧭 düğmesine basın. Cihazın pusolasını kullanarak kıble yönünü gösterir.',
   help_adhkar: 'Sabah ve Akşam Zikirleri',
-  help_adhkar_desc: 'Ekranın üstündeki görüntü çubuğunda 🤲 düğmesine basın. Sayaçlı zikir listesini gösterir. Ayarlardan otomatik hatırlatıcı etkinleştirebilirsiniz.',
+  help_adhkar_desc:
+    'Ekranın üstündeki görüntü çubuğunda 🤲 düğmesine basın. Sayaçlı zikir listesini gösterir. Ayarlardan otomatik hatırlatıcı etkinleştirebilirsiniz.',
   help_tafsir: 'Tefsir',
-  help_tafsir_desc: 'Sol taraftan tefsir panelini kaydırarak açın (veya tutacağa basın). Listeden bir tefsir seçin: Muyessar, Sa\'di, İbn Kesir veya Taberi. Ayet penceresinden de erişebilirsiniz.',
+  help_tafsir_desc:
+    "Sol taraftan tefsir panelini kaydırarak açın (veya tutacağa basın). Listeden bir tefsir seçin: Muyessar, Sa'di, İbn Kesir veya Taberi. Ayet penceresinden de erişebilirsiniz.",
   help_share: 'Ayet Paylaşma',
-  help_share_desc: 'Oynatıcıda ⁝ düğmesine basın, ardından 📤 Paylaş seçin. Seçenekler: Kopyala, WhatsApp veya Telegram üzerinden paylaş, veya cihazın uygulamalarıyla paylaş.',
+  help_share_desc:
+    'Oynatıcıda ⁝ düğmesine basın, ardından 📤 Paylaş seçin. Seçenekler: Kopyala, WhatsApp veya Telegram üzerinden paylaş, veya cihazın uygulamalarıyla paylaş.',
   help_keyboard: 'Klavye Kısayolları',
   help_keyboard_shortcuts: 'Klavye Kısayolları',
-  help_keyboard_shortcuts_desc: 'Boşluk = Oynat/Duraklat ◀ ▶ = Önceki/Sonraki Ayet ▲ ▼ = Önceki/Sonraki Sure Ctrl+F = Aramayı Aç Escape = Açık Pencereleri Kapat',
+  help_keyboard_shortcuts_desc:
+    'Boşluk = Oynat/Duraklat ◀ ▶ = Önceki/Sonraki Ayet ▲ ▼ = Önceki/Sonraki Sure Ctrl+F = Aramayı Aç Escape = Açık Pencereleri Kapat',
 
   // === Erişilebilirlik ===
   a11y_panel_opened: '{0} açıldı',

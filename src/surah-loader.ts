@@ -3,12 +3,7 @@ import { storage } from './storage.js';
 import { dom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
 import { __ } from './i18n.js';
-import {
-  skeletonLoading,
-  surahLoadError,
-  collapsedPlayerInfo,
-  escapeHtml,
-} from './templates.js';
+import { skeletonLoading, surahLoadError, collapsedPlayerInfo, escapeHtml } from './templates.js';
 import { state, batch, immutableMapSet, immutableMapDelete, SurahInfo } from './state.js';
 import { getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
@@ -98,10 +93,10 @@ async function fetchAyahTimings(reciterId: string, surahNum: number, ayahs: Ayah
     return null;
   }
   try {
-    const data: { audio_file?: { timestamps?: TimestampEntry[] } } = await jsonFetch(
+    const data: { audio_file?: { timestamps?: TimestampEntry[] } } = (await jsonFetch(
       `https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`,
       { silent: true, timeout: 8000 },
-    ) as { audio_file?: { timestamps?: TimestampEntry[] } };
+    )) as { audio_file?: { timestamps?: TimestampEntry[] } };
     if (!data) {
       return null;
     }
@@ -145,8 +140,6 @@ function calculateAyahTimings(ayahs: AyahEntry[], surahNumber: number): number[]
   return timings;
 }
 
-
-
 /* ===================== AUDIO HELPERS (independent from text) ===================== */
 
 /** Load audio for mp3quran reciter source. */
@@ -179,7 +172,10 @@ async function loadApiAudio(
   signal: AbortSignal,
 ): Promise<AudioResult | null> {
   try {
-    const json: { data?: { ayahs?: AyahEntry[] } } = await apiFetch(`/surah/${surahNum}/${reciterId}`, { signal, silent: true }) as { data?: { ayahs?: AyahEntry[] } };
+    const json: { data?: { ayahs?: AyahEntry[] } } = (await apiFetch(`/surah/${surahNum}/${reciterId}`, {
+      signal,
+      silent: true,
+    })) as { data?: { ayahs?: AyahEntry[] } };
     const data = json?.data;
     if (!data?.ayahs?.length) {
       throw new Error(__('no_audio_data'));
@@ -326,10 +322,10 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   }
 
   try {
-    const textJson: { data?: SurahTextData } = await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
+    const textJson: { data?: SurahTextData } = (await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
       signal,
       errorMsg: __('failed_load_surah'),
-    }) as { data?: SurahTextData };
+    })) as { data?: SurahTextData };
     const textData: SurahTextData = textJson?.data as SurahTextData;
     if (!textData?.ayahs?.length) {
       throw new Error(__('invalid_surah_data'));
@@ -534,7 +530,7 @@ const _chunkHeightCache = new Map<string, number>();
 const _renderedChunks = new Set<number>();
 
 /** Total number of chunks for current surah. */
-let _totalChunks = 0;
+const _totalChunks = 0;
 
 /** Reference to current surah text data for virtual scroll operations. */
 let _currentTextData: SurahTextData | null = null;
@@ -790,15 +786,6 @@ function onVirtualScroll(): void {
   });
 }
 
-/**
- * Set up the scroll-based virtual scrolling observer.
- * Uses a scroll event listener with requestAnimationFrame throttling.
- */
-function setupVirtualScrollObserver(): void {
-  cleanupVirtualScrollObserver();
-  window.addEventListener('scroll', onVirtualScroll, { passive: true });
-}
-
 function cleanupVirtualScrollObserver(): void {
   window.removeEventListener('scroll', onVirtualScroll);
   _scrollRafPending = false;
@@ -998,7 +985,11 @@ export function highlightCurrentAyah(): void {
     cur.scrollIntoView({ behavior: 'instant', block: 'center' });
   }
   updatePlayerInfo();
-  import('./presentation.js').then((m: { syncPresentation: () => void }) => m.syncPresentation()).catch(() => { /* noop */ });
+  import('./presentation.js')
+    .then((m: { syncPresentation: () => void }) => m.syncPresentation())
+    .catch(() => {
+      /* noop */
+    });
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) {
     loadTafsirForCurrentAyah();
   }

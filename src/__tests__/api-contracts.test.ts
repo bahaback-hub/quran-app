@@ -37,8 +37,28 @@ const ALQURAN_SURAH_RESPONSE = {
     revelationType: 'Meccan',
     numberOfAyahs: 7,
     ayahs: [
-      { number: 1, text: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', numberInSurah: 1, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false },
-      { number: 2, text: 'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ', numberInSurah: 2, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false },
+      {
+        number: 1,
+        text: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+        numberInSurah: 1,
+        juz: 1,
+        manzil: 1,
+        page: 1,
+        ruku: 1,
+        hizbQuarter: 1,
+        sajda: false,
+      },
+      {
+        number: 2,
+        text: 'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ',
+        numberInSurah: 2,
+        juz: 1,
+        manzil: 1,
+        page: 1,
+        ruku: 1,
+        hizbQuarter: 1,
+        sajda: false,
+      },
     ],
     edition: { identifier: 'quran-uthmani', language: 'ar', name: 'Uthmani', type: 'quran', format: 'text' },
   },
@@ -80,7 +100,12 @@ const ALADHAN_TIMINGS_RESPONSE = {
         year: '2026',
       },
     },
-    meta: { latitude: 21.4225, longitude: 39.8262, timezone: 'Asia/Riyadh', method: { id: 4, name: 'Umm Al-Qura University, Makkah' } },
+    meta: {
+      latitude: 21.4225,
+      longitude: 39.8262,
+      timezone: 'Asia/Riyadh',
+      method: { id: 4, name: 'Umm Al-Qura University, Makkah' },
+    },
   },
 };
 
@@ -93,8 +118,20 @@ const TAFSIR_RESPONSE = {
 
 const MP3QURAN_RECITERS_RESPONSE = {
   reciters: [
-    { id: '1', name: 'مشاري راشد العفاسي', Server: 'https://server10.mp3quran.net/afasy', rewaya: 'حفص عن عاصم', Count: '114' },
-    { id: '2', name: 'عبد الباسط عبد الصمد', Server: 'https://server7.mp3quran.net/basit', rewaya: 'حفص عن عاصم', Count: '114' },
+    {
+      id: '1',
+      name: 'مشاري راشد العفاسي',
+      Server: 'https://server10.mp3quran.net/afasy',
+      rewaya: 'حفص عن عاصم',
+      Count: '114',
+    },
+    {
+      id: '2',
+      name: 'عبد الباسط عبد الصمد',
+      Server: 'https://server7.mp3quran.net/basit',
+      rewaya: 'حفص عن عاصم',
+      Count: '114',
+    },
   ],
 };
 
@@ -350,13 +387,7 @@ describe('Fallback constants — prayer names and order', () => {
   it('TRANSLATION_EDITIONS contains at least the 5 documented translations', async () => {
     const { TRANSLATION_EDITIONS } = await import('../config.js');
     expect(Object.keys(TRANSLATION_EDITIONS)).toEqual(
-      expect.arrayContaining([
-        'en.sahih',
-        'en.pickthall',
-        'en.yusufali',
-        'fr.hamidullah',
-        'ur.jalandhry',
-      ]),
+      expect.arrayContaining(['en.sahih', 'en.pickthall', 'en.yusufali', 'fr.hamidullah', 'ur.jalandhry']),
     );
     for (const key of Object.keys(TRANSLATION_EDITIONS)) {
       const edition = TRANSLATION_EDITIONS[key as keyof typeof TRANSLATION_EDITIONS];

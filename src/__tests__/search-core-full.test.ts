@@ -165,9 +165,7 @@ describe('performSearch', () => {
 
   it('should fall back to relaxed normalization when exact yields no results', () => {
     // Set up text where only relaxed normalization would match
-    (state as Record<string, unknown>).fullQuranText = [
-      makeEntry(1, 1, 'الكتاب'),
-    ];
+    (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'الكتاب')];
     // Searching for 'الكتيب' — in relaxed, ى→ي, so 'الكتيب' won't match 'الكتاب'
     // Let's test with ة→ه relaxed matching
     (state as Record<string, unknown>).fullQuranText = [
@@ -200,9 +198,7 @@ describe('performSearch', () => {
   });
 
   it('should handle query that starts with ال and generate variant without it', () => {
-    (state as Record<string, unknown>).fullQuranText = [
-      makeEntry(1, 1, 'رحمن'),
-    ];
+    (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'رحمن')];
     // 'الرحمن' should match 'رحمن' via the variant path
     const result = performSearch('الرحمن');
     expect(result.length).toBeGreaterThanOrEqual(1);
@@ -210,9 +206,7 @@ describe('performSearch', () => {
 
   it('should not generate variant for ال prefix when query is short (length ≤ 3)', () => {
     // 'ال' itself has length 2, the variant slice would be '' (empty), which is guarded
-    (state as Record<string, unknown>).fullQuranText = [
-      makeEntry(1, 1, 'الله'),
-    ];
+    (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'الله')];
     // ال itself normalized is ال, length 2, so > 3 check fails, no variant
     // But 'الله' length is 4 (اللّه normalized → الله length 4), so > 3, variant generated
     const result = performSearch('الله');

@@ -25,9 +25,15 @@ beforeEach(() => {
   Object.keys(store).forEach((k) => delete store[k]);
   globalThis.localStorage = {
     getItem: (key: string) => (store[key] === undefined ? null : store[key]),
-    setItem: (key: string, val: string) => { store[key] = String(val); },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
+    setItem: (key: string, val: string) => {
+      store[key] = String(val);
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      Object.keys(store).forEach((k) => delete store[k]);
+    },
   } as Storage;
 });
 
@@ -87,7 +93,12 @@ vi.mock('../reciters.js', () => ({
   getReciterById: vi.fn((id: string) => {
     const map: Record<string, { id: string; name: string; source: string; server?: string }> = {
       'ar.alafasy': { id: 'ar.alafasy', name: 'reciter_alafasy', source: 'api' },
-      'ar.husary': { id: 'ar.husary', name: 'reciter_husary', source: 'mp3quran', server: 'https://server.mp3quran.net/husary/' },
+      'ar.husary': {
+        id: 'ar.husary',
+        name: 'reciter_husary',
+        source: 'mp3quran',
+        server: 'https://server.mp3quran.net/husary/',
+      },
     };
     return map[id] || { id, name: id, source: 'api' };
   }),
@@ -199,7 +210,7 @@ describe('surah-loader deep2 coverage', () => {
       vi.mocked(apiFetch).mockResolvedValue({ data: SAMPLE_SURAH });
       // Pre-populate the memory cache with correct shape
       state.surahCache.set('1_ar.alafasy_notr', {
-        text: { ...SAMPLE_SURAH, ayahs: SAMPLE_SURAH.ayahs.map(a => ({ ...a })) },
+        text: { ...SAMPLE_SURAH, ayahs: SAMPLE_SURAH.ayahs.map((a) => ({ ...a })) },
         audio: SAMPLE_SURAH,
         audios: ['https://audio/1.mp3', 'https://audio/2.mp3'],
         timings: [],
@@ -217,7 +228,7 @@ describe('surah-loader deep2 coverage', () => {
     it('should use IDB cache and set mp3quran audio paths', async () => {
       const { getCachedSurahFromIDB } = await import('../surah-cache.js');
       vi.mocked(getCachedSurahFromIDB).mockResolvedValueOnce({
-        text: { ...SAMPLE_SURAH, ayahs: SAMPLE_SURAH.ayahs.map(a => ({ ...a })) },
+        text: { ...SAMPLE_SURAH, ayahs: SAMPLE_SURAH.ayahs.map((a) => ({ ...a })) },
         audio: SAMPLE_SURAH,
         timings: [0, 0.5],
         translation: null,
@@ -237,7 +248,7 @@ describe('surah-loader deep2 coverage', () => {
     it('should use IDB cache and set API audio paths', async () => {
       const { getCachedSurahFromIDB } = await import('../surah-cache.js');
       vi.mocked(getCachedSurahFromIDB).mockResolvedValueOnce({
-        text: { ...SAMPLE_SURAH, ayahs: SAMPLE_SURAH.ayahs.map(a => ({ ...a })) },
+        text: { ...SAMPLE_SURAH, ayahs: SAMPLE_SURAH.ayahs.map((a) => ({ ...a })) },
         audio: SAMPLE_SURAH,
         audios: ['https://audio/1.mp3', 'https://audio/2.mp3'],
         translation: null,
@@ -254,9 +265,7 @@ describe('surah-loader deep2 coverage', () => {
 
   describe('loadSurah — API success with translation', () => {
     it('should fetch text and translation data from API', async () => {
-      vi.mocked(apiFetch)
-        .mockResolvedValueOnce({ data: SAMPLE_SURAH })
-        .mockResolvedValueOnce({ data: SAMPLE_SURAH });
+      vi.mocked(apiFetch).mockResolvedValueOnce({ data: SAMPLE_SURAH }).mockResolvedValueOnce({ data: SAMPLE_SURAH });
 
       state.translationEnabled = true;
       state.currentTranslation = 'en.sahih';
@@ -322,11 +331,14 @@ describe('surah-loader deep2 coverage', () => {
     it('should truncate long ayah text in player', async () => {
       const longTextSurah = {
         ...SAMPLE_SURAH,
-        ayahs: [{
-          number: 1, numberInSurah: 1,
-          text: 'بسم الله الرحمن الرحيم '.repeat(20), // Long text
-          audio: 'https://audio/1.mp3',
-        }],
+        ayahs: [
+          {
+            number: 1,
+            numberInSurah: 1,
+            text: 'بسم الله الرحمن الرحيم '.repeat(20), // Long text
+            audio: 'https://audio/1.mp3',
+          },
+        ],
       };
       state.surahData = longTextSurah as any;
       state.currentAyahIndex = 0;
@@ -395,7 +407,7 @@ describe('surah-loader deep2 coverage', () => {
       // saveCurrentPosition is called during finalizeSurahLoad when autoSave is true
       // Check that storage.set was called (it may have been called with other keys too)
       const setCalls = vi.mocked(storage.set).mock.calls;
-      const lastPosCall = setCalls.find(c => c[0] === 'last_position');
+      const lastPosCall = setCalls.find((c) => c[0] === 'last_position');
       expect(lastPosCall).toBeDefined();
       expect(lastPosCall![1]).toEqual(expect.objectContaining({ surah: 1 }));
     });

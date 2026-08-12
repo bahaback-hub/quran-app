@@ -43,7 +43,11 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
     app.addListener?.('backButton', () => {
       // Close presentation overlay first — use proper close function
       if (state.presentationMode) {
-        import('./presentation.js').then((m) => m.closePresentation()).catch(() => { /* noop */ });
+        import('./presentation.js')
+          .then((m) => m.closePresentation())
+          .catch(() => {
+            /* noop */
+          });
         return;
       }
 

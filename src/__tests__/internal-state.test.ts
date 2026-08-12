@@ -113,20 +113,14 @@ describe('internal-state', () => {
     });
 
     it('should set and get selected ayahs', () => {
-      const ayahs: SelectedAyah[] = [
-        { surah: 1, ayah: 1, text: 'text', surahName: 'الفاتحة', index: 0 },
-      ];
+      const ayahs: SelectedAyah[] = [{ surah: 1, ayah: 1, text: 'text', surahName: 'الفاتحة', index: 0 }];
       setSelectedAyahs(ayahs);
       expect(getSelectedAyahs()).toEqual(ayahs);
     });
 
     it('should replace entire list on set', () => {
-      const first: SelectedAyah[] = [
-        { surah: 1, ayah: 1, text: 'a', surahName: 'الفاتحة', index: 0 },
-      ];
-      const second: SelectedAyah[] = [
-        { surah: 2, ayah: 5, text: 'b', surahName: 'البقرة', index: 4 },
-      ];
+      const first: SelectedAyah[] = [{ surah: 1, ayah: 1, text: 'a', surahName: 'الفاتحة', index: 0 }];
+      const second: SelectedAyah[] = [{ surah: 2, ayah: 5, text: 'b', surahName: 'البقرة', index: 4 }];
       setSelectedAyahs(first);
       setSelectedAyahs(second);
       expect(getSelectedAyahs()).toEqual(second);
@@ -278,9 +272,7 @@ describe('internal-state', () => {
     });
 
     it('should set and get search matches', () => {
-      const matches: QuranTextEntry[] = [
-        { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'text', normalized: 'text' },
-      ];
+      const matches: QuranTextEntry[] = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'text', normalized: 'text' }];
       setAllSearchMatches(matches);
       expect(getAllSearchMatches()).toEqual(matches);
     });
@@ -411,7 +403,9 @@ describe('internal-state', () => {
     });
 
     it('should handle AudioContext.close() throwing', () => {
-      const mockClose = vi.fn(() => { throw new Error('already closed'); });
+      const mockClose = vi.fn(() => {
+        throw new Error('already closed');
+      });
       setAdhkarAudioCtx({ close: mockClose } as any);
       expect(() => resetInternalState()).not.toThrow();
       expect(getAdhkarAudioCtx()).toBeNull();
