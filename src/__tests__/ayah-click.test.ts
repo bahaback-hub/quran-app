@@ -16,7 +16,9 @@ vi.mock('../mushaf-renderer.js', () => ({
 import { handlePageClick, getAyahHighlightRects } from '../ayah-click.js';
 
 // Helper to create a simple layout
-function makeLayout(lines: { words: { char?: string; word?: string; type?: string; verse_key?: string; location?: string }[] }[]) {
+function makeLayout(
+  lines: { words: { char?: string; word?: string; type?: string; verse_key?: string; location?: string }[] }[],
+) {
   return { lines };
 }
 
@@ -41,11 +43,11 @@ describe('ayah-click', () => {
     });
 
     it('should return null when no words match the click position', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', verse_key: '1:1', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
+        },
+      ]);
       // Click at a very far position that doesn't match
       const result = await handlePageClick(1, 999, 0, 100, 200, layout);
       // May return null or an ayah depending on calculation
@@ -54,12 +56,14 @@ describe('ayah-click', () => {
     });
 
     it('should return ayah info when clicking on a word with verse_key', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', verse_key: '1:1', type: 'word' },
-          { char: 'الله', verse_key: '1:1', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { char: 'بسم', verse_key: '1:1', type: 'word' },
+            { char: 'الله', verse_key: '1:1', type: 'word' },
+          ],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -71,11 +75,11 @@ describe('ayah-click', () => {
     });
 
     it('should return ayah info when using location field', async () => {
-      const layout = makeLayout([{
-        words: [
-          { word: 'الحمد', location: '1:2', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ word: 'الحمد', location: '1:2', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -86,11 +90,11 @@ describe('ayah-click', () => {
     });
 
     it('should return null when word has no verse_key or location', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'بسم', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -98,12 +102,14 @@ describe('ayah-click', () => {
     });
 
     it('should filter out words with type "end"', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', verse_key: '1:1', type: 'word' },
-          { char: '﴿١﴾', verse_key: '1:1', type: 'end' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { char: 'بسم', verse_key: '1:1', type: 'word' },
+            { char: '﴿١﴾', verse_key: '1:1', type: 'end' },
+          ],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -129,9 +135,11 @@ describe('ayah-click', () => {
     });
 
     it('should handle click below all lines gracefully', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
+        },
+      ]);
 
       // Click well below the single line
       const result = await handlePageClick(1, 50, 190, 100, 200, layout);
@@ -141,9 +149,11 @@ describe('ayah-click', () => {
     });
 
     it('should handle verse_key with more than 2 parts', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'test', verse_key: '1:1:extra', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'test', verse_key: '1:1:extra', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -154,9 +164,11 @@ describe('ayah-click', () => {
     });
 
     it('should handle verse_key with only 1 part (invalid)', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'test', verse_key: '1', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'test', verse_key: '1', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -164,20 +176,22 @@ describe('ayah-click', () => {
     });
 
     it('should return null for line with no words after filtering "end" types', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'end', type: 'end', verse_key: '1:1' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'end', type: 'end', verse_key: '1:1' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
       expect(result).toBeNull();
     });
 
     it('should use word field when char is not available', async () => {
-      const layout = makeLayout([{
-        words: [{ word: 'الله', verse_key: '1:1', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ word: 'الله', verse_key: '1:1', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
       if (result) {
@@ -187,9 +201,11 @@ describe('ayah-click', () => {
     });
 
     it('should handle location field with more than 2 parts', async () => {
-      const layout = makeLayout([{
-        words: [{ word: 'test', location: '5:10:extra', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ word: 'test', location: '5:10:extra', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -200,9 +216,11 @@ describe('ayah-click', () => {
     });
 
     it('should handle location field with only 1 part (invalid)', async () => {
-      const layout = makeLayout([{
-        words: [{ word: 'test', location: '5', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ word: 'test', location: '5', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -222,14 +240,16 @@ describe('ayah-click', () => {
     });
 
     it('should correctly identify ayah across multiple words in same line', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', verse_key: '1:1', type: 'word' },
-          { char: 'الله', verse_key: '1:1', type: 'word' },
-          { char: 'الرحمن', verse_key: '1:2', type: 'word' },
-          { char: 'الرحيم', verse_key: '1:2', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { char: 'بسم', verse_key: '1:1', type: 'word' },
+            { char: 'الله', verse_key: '1:1', type: 'word' },
+            { char: 'الرحمن', verse_key: '1:2', type: 'word' },
+            { char: 'الرحيم', verse_key: '1:2', type: 'word' },
+          ],
+        },
+      ]);
 
       // Click near the end of the line — should match ayah 2
       const result = await handlePageClick(1, 10, 5, 100, 200, layout);
@@ -254,9 +274,11 @@ describe('ayah-click', () => {
     });
 
     it('should handle very small image dimensions', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 1, 1, 2, 2, layout);
 
@@ -265,9 +287,11 @@ describe('ayah-click', () => {
     });
 
     it('should handle click at y=0 (top of image)', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 0, 100, 200, layout);
 
@@ -278,9 +302,11 @@ describe('ayah-click', () => {
     });
 
     it('should handle click at x=0 (left edge)', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 0, 5, 100, 200, layout);
 
@@ -289,9 +315,11 @@ describe('ayah-click', () => {
     });
 
     it('should handle word with no char and no word property', async () => {
-      const layout = makeLayout([{
-        words: [{ verse_key: '1:1', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ verse_key: '1:1', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -303,9 +331,11 @@ describe('ayah-click', () => {
     });
 
     it('should prefer verse_key over location when both are present', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'test', verse_key: '2:5', location: '3:10', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'test', verse_key: '2:5', location: '3:10', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -317,9 +347,11 @@ describe('ayah-click', () => {
     });
 
     it('should use location field only when verse_key is missing', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'test', location: '3:10', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'test', location: '3:10', type: 'word' }],
+        },
+      ]);
 
       const result = await handlePageClick(1, 50, 5, 100, 200, layout);
 
@@ -344,13 +376,15 @@ describe('ayah-click', () => {
     });
 
     it('should return highlight rects for matching ayah', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', verse_key: '1:1', type: 'word' },
-          { char: 'الله', verse_key: '1:1', type: 'word' },
-          { char: 'الرحمن', verse_key: '1:2', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { char: 'بسم', verse_key: '1:1', type: 'word' },
+            { char: 'الله', verse_key: '1:1', type: 'word' },
+            { char: 'الرحمن', verse_key: '1:2', type: 'word' },
+          ],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 1, 1, 100, 200, layout);
 
@@ -368,11 +402,11 @@ describe('ayah-click', () => {
     });
 
     it('should return empty array when no words match the surah/ayah', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', verse_key: '1:1', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 2, 99, 100, 200, layout);
       expect(result).toEqual([]);
@@ -390,12 +424,14 @@ describe('ayah-click', () => {
     });
 
     it('should filter out "end" type words', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', verse_key: '1:1', type: 'word' },
-          { char: '﴿١﴾', verse_key: '1:1', type: 'end' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { char: 'بسم', verse_key: '1:1', type: 'word' },
+            { char: '﴿١﴾', verse_key: '1:1', type: 'end' },
+          ],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 1, 1, 100, 200, layout);
 
@@ -416,9 +452,11 @@ describe('ayah-click', () => {
     });
 
     it('should use location field for ayah matching', async () => {
-      const layout = makeLayout([{
-        words: [{ word: 'test', location: '5:10', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ word: 'test', location: '5:10', type: 'word' }],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 5, 10, 100, 200, layout);
 
@@ -426,10 +464,7 @@ describe('ayah-click', () => {
     });
 
     it('should skip lines with empty words arrays', async () => {
-      const layout = makeLayout([
-        { words: [] },
-        { words: [{ char: 'test', verse_key: '1:1', type: 'word' }] },
-      ]);
+      const layout = makeLayout([{ words: [] }, { words: [{ char: 'test', verse_key: '1:1', type: 'word' }] }]);
 
       const result = await getAyahHighlightRects(1, 1, 1, 100, 200, layout);
 
@@ -437,11 +472,13 @@ describe('ayah-click', () => {
     });
 
     it('should handle word with no char or word property', async () => {
-      const layout = makeLayout([{
-        words: [
-          { verse_key: '1:1', type: 'word' }, // No char or word
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { verse_key: '1:1', type: 'word' }, // No char or word
+          ],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 1, 1, 100, 200, layout);
 
@@ -450,9 +487,11 @@ describe('ayah-click', () => {
     });
 
     it('should return correct rect dimensions for a single word', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 1, 1, 400, 300, layout);
 
@@ -473,24 +512,28 @@ describe('ayah-click', () => {
     });
 
     it('should skip lines where all words are end type', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'end1', type: 'end', verse_key: '1:1' },
-          { char: 'end2', type: 'end', verse_key: '1:1' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { char: 'end1', type: 'end', verse_key: '1:1' },
+            { char: 'end2', type: 'end', verse_key: '1:1' },
+          ],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 1, 1, 100, 200, layout);
       expect(result).toEqual([]);
     });
 
     it('should produce correct left position accounting for RTL', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', verse_key: '1:1', type: 'word' },
-          { char: 'الله', verse_key: '1:2', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { char: 'بسم', verse_key: '1:1', type: 'word' },
+            { char: 'الله', verse_key: '1:2', type: 'word' },
+          ],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 1, 2, 200, 100, layout);
 
@@ -503,9 +546,11 @@ describe('ayah-click', () => {
     });
 
     it('should return rect with height equal to line height', async () => {
-      const layout = makeLayout([{
-        words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [{ char: 'بسم', verse_key: '1:1', type: 'word' }],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 1, 1, 100, 300, layout);
 
@@ -516,13 +561,15 @@ describe('ayah-click', () => {
     });
 
     it('should handle multiple ayah words spanning part of line', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'بسم', verse_key: '1:1', type: 'word' },
-          { char: 'الله', verse_key: '1:1', type: 'word' },
-          { char: 'الرحمن', verse_key: '1:2', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { char: 'بسم', verse_key: '1:1', type: 'word' },
+            { char: 'الله', verse_key: '1:1', type: 'word' },
+            { char: 'الرحمن', verse_key: '1:2', type: 'word' },
+          ],
+        },
+      ]);
 
       const result = await getAyahHighlightRects(1, 1, 1, 300, 200, layout);
 
@@ -548,12 +595,14 @@ describe('ayah-click', () => {
     });
 
     it('should match ayah using both verse_key and location', async () => {
-      const layout = makeLayout([{
-        words: [
-          { char: 'test1', verse_key: '1:1', type: 'word' },
-          { char: 'test2', location: '1:2', type: 'word' },
-        ],
-      }]);
+      const layout = makeLayout([
+        {
+          words: [
+            { char: 'test1', verse_key: '1:1', type: 'word' },
+            { char: 'test2', location: '1:2', type: 'word' },
+          ],
+        },
+      ]);
 
       const result1 = await getAyahHighlightRects(1, 1, 1, 100, 200, layout);
       const result2 = await getAyahHighlightRects(1, 1, 2, 100, 200, layout);

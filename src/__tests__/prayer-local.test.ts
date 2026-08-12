@@ -8,9 +8,15 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { store = {}; },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
   };
 })();
 vi.stubGlobal('localStorage', localStorageMock);
@@ -33,7 +39,10 @@ describe('prayer-local', () => {
   describe('calculatePrayerTimesLocally', () => {
     it('should return null when geolocation is denied', async () => {
       mockGetCurrentPosition.mockImplementation((_success: unknown, error: unknown) => {
-        (error as (err: GeolocationPositionError) => void)?.({ code: 1, message: 'Denied' } as GeolocationPositionError);
+        (error as (err: GeolocationPositionError) => void)?.({
+          code: 1,
+          message: 'Denied',
+        } as GeolocationPositionError);
       });
 
       const { calculatePrayerTimesLocally } = await import('../prayer-local.js');
@@ -66,11 +75,14 @@ describe('prayer-local', () => {
     });
 
     it('should use cached coordinates within 30 minutes', async () => {
-      localStorageMock.setItem('cached_gps_coords', JSON.stringify({
-        lat: 21.4225,
-        lng: 39.8262,
-        timestamp: Date.now() - 5 * 60 * 1000,
-      }));
+      localStorageMock.setItem(
+        'cached_gps_coords',
+        JSON.stringify({
+          lat: 21.4225,
+          lng: 39.8262,
+          timestamp: Date.now() - 5 * 60 * 1000,
+        }),
+      );
 
       mockGetCurrentPosition.mockImplementation(() => {
         throw new Error('Should not be called');
@@ -84,11 +96,14 @@ describe('prayer-local', () => {
     });
 
     it('should fetch fresh coordinates when cache is expired', async () => {
-      localStorageMock.setItem('cached_gps_coords', JSON.stringify({
-        lat: 21.4225,
-        lng: 39.8262,
-        timestamp: Date.now() - 31 * 60 * 1000,
-      }));
+      localStorageMock.setItem(
+        'cached_gps_coords',
+        JSON.stringify({
+          lat: 21.4225,
+          lng: 39.8262,
+          timestamp: Date.now() - 31 * 60 * 1000,
+        }),
+      );
 
       mockGetCurrentPosition.mockImplementation((success: (pos: GeolocationPosition) => void) => {
         success({

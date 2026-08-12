@@ -43,7 +43,6 @@ import {
 import { CONFIG } from './config.js';
 import { __ } from './i18n.js';
 
-
 /** Data shape for opening the ayah modal. */
 interface ModalAyahData {
   surah: number;
@@ -689,12 +688,14 @@ function handleKeyClick(e: MouseEvent): void {
 }
 
 /**
- * Idempotency guard: prevents double-binding of keyboard event listeners
- * if initKeyboard() is called more than once. Without this, calling
- * initKeyboard() twice would attach duplicate click handlers to each
- * .kbd-key button, causing each keypress to insert the character twice.
+ * Tracks `.kbd-key` elements that already have a click listener, so repeated
+ * calls to initKeyboard() bind listeners to newly-added elements without
+ * double-binding existing ones.
  */
-let _keyboardInitialized = false;
+const _boundKbdKeys = new WeakSet<Element>();
+
+/** Whether the document-level outside-click handler has been registered. */
+let _documentClickBound = false;
 
 /**
  * Initialize the on-screen Arabic keyboard.
@@ -706,30 +707,37 @@ let _keyboardInitialized = false;
  * initKeyboard(); // call after cacheDom()
  */
 export function initKeyboard(): void {
-  if (_keyboardInitialized) {
-    return;
-  }
-  _keyboardInitialized = true;
   // kbdToggleBtn is already cached by cacheDom() — the reassignment below is
   // kept as a defensive fallback in case cacheDom() ran before the element
   // was injected into the DOM (race condition with overlays.ts).
   if (!dom.kbdToggleBtn) {
     dom.kbdToggleBtn = document.getElementById('kbdToggleBtn');
   }
-  dom.kbdToggleBtn?.addEventListener('click', toggleKeyboard);
+  // Bind each toggle button only once, so re-initializing does not toggle
+  // the keyboard twice per click.
+  if (dom.kbdToggleBtn && !_boundKbdKeys.has(dom.kbdToggleBtn)) {
+    _boundKbdKeys.add(dom.kbdToggleBtn);
+    dom.kbdToggleBtn.addEventListener('click', toggleKeyboard);
+  }
   document.querySelectorAll('.kbd-key').forEach((btn: Element) => {
-    (btn as HTMLElement).addEventListener('click', handleKeyClick);
-  });
-  document.addEventListener('click', (e: MouseEvent) => {
-    const kbd = document.getElementById('arabicKeyboard');
-    const toggle = dom.kbdToggleBtn;
-    if (!kbd || !toggle) {
-      return;
-    }
-    const target = e.target as Node;
-    if (!kbd.contains(target) && target !== toggle && !toggle.contains(target)) {
-      kbd.classList.remove('open');
-      toggle.classList.remove('active');
+    if (!_boundKbdKeys.has(btn)) {
+      _boundKbdKeys.add(btn);
+      (btn as HTMLElement).addEventListener('click', handleKeyClick);
     }
   });
+  if (!_documentClickBound) {
+    _documentClickBound = true;
+    document.addEventListener('click', (e: MouseEvent) => {
+      const kbd = document.getElementById('arabicKeyboard');
+      const toggle = dom.kbdToggleBtn;
+      if (!kbd || !toggle) {
+        return;
+      }
+      const target = e.target as Node;
+      if (!kbd.contains(target) && target !== toggle && !toggle.contains(target)) {
+        kbd.classList.remove('open');
+        toggle.classList.remove('active');
+      }
+    });
+  }
 }

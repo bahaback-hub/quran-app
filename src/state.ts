@@ -778,12 +778,7 @@ export function installStateDevTools(): void {
         console.warn('[State DevTools] History (last 50 changes):');
         for (const snap of _snapshots) {
           const time = new Date(snap.timestamp).toLocaleTimeString();
-          console.warn(
-            `[State DevTools] ${time} ${snap.key}:`,
-            snap.oldValue,
-            '→',
-            snap.newValue,
-          );
+          console.warn(`[State DevTools] ${time} ${snap.key}:`, snap.oldValue, '→', snap.newValue);
         }
         return [..._snapshots];
       },
@@ -844,12 +839,7 @@ function recordSnapshot(key: string, oldValue: unknown, newValue: unknown): void
     const isPrimitive = typeof newValue !== 'object' || newValue === null;
     const displayNew = isPrimitive ? newValue : '[object]';
     const displayOld = typeof oldValue !== 'object' || oldValue === null ? oldValue : '[object]';
-    console.warn(
-      `[State] ${key}:`,
-      displayOld,
-      '→',
-      displayNew,
-    );
+    console.warn(`[State] ${key}:`, displayOld, '→', displayNew);
   }
 }
 

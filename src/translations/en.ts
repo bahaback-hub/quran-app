@@ -108,24 +108,24 @@ export default {
     'ar.shaatree': 'Abu Bakr Ash-Shatri',
     'ar.abdullahbasfar': 'Abdullah Basfar',
     'ar.ahmedajamy': 'Ahmed Al-Ajamy',
-    's_gmd': 'Saad Al-Ghamdi',
-    'shur': 'Saud Ash-Shuraim',
-    's_bud': 'Mohammed Al-Budair',
-    'bu_khtr': 'Mohammed Al-Bukhater',
-    'hthfi': 'Abdullah Al-Hudhaify',
-    'a_jbr': 'Ahmed Jaber',
-    'frs_a': 'Abdurrahman Al-Abbad',
-    'yasser': 'Yasser Ad-Dossary',
-    'salamah': 'Saad As-Salamah',
-    'qtm': 'Nasser Al-Qatami',
-    'mtrod': 'Maher Al-Muaiqly',
-    'qasm': 'Mohammed Al-Qasim',
-    'sds': 'Abdurrahman As-Sudais',
-    'maher': 'Maher Al-Muaiqly',
-    'jbrl': 'Mohammed Jibreel',
-    'minsh': 'Mohamed Siddiq Al-Minshawi',
-    'shaatree': 'Abu Bakr Ash-Shatri',
-    'tnjy': 'Mustafa At-Tanji',
+    s_gmd: 'Saad Al-Ghamdi',
+    shur: 'Saud Ash-Shuraim',
+    s_bud: 'Mohammed Al-Budair',
+    bu_khtr: 'Mohammed Al-Bukhater',
+    hthfi: 'Abdullah Al-Hudhaify',
+    a_jbr: 'Ahmed Jaber',
+    frs_a: 'Abdurrahman Al-Abbad',
+    yasser: 'Yasser Ad-Dossary',
+    salamah: 'Saad As-Salamah',
+    qtm: 'Nasser Al-Qatami',
+    mtrod: 'Maher Al-Muaiqly',
+    qasm: 'Mohammed Al-Qasim',
+    sds: 'Abdurrahman As-Sudais',
+    maher: 'Maher Al-Muaiqly',
+    jbrl: 'Mohammed Jibreel',
+    minsh: 'Mohamed Siddiq Al-Minshawi',
+    shaatree: 'Abu Bakr Ash-Shatri',
+    tnjy: 'Mustafa At-Tanji',
   },
 
   // === Tafsir ===
@@ -221,7 +221,8 @@ export default {
   adhkar_reference_label: 'Reference (optional)',
   adhkar_confirm_delete_item: 'Delete this dhikr?',
   adhkar_reset_defaults: 'Restore defaults',
-  adhkar_reset_defaults_desc: 'All customizations (added and edited adhkar) will be deleted and original adhkar restored. Are you sure?',
+  adhkar_reset_defaults_desc:
+    'All customizations (added and edited adhkar) will be deleted and original adhkar restored. Are you sure?',
   adhkar_reset: 'Reset counter',
 
   // === Presentation Mode ===
@@ -352,46 +353,62 @@ export default {
   help_guide: 'User Guide',
   help_playback: 'Playback & Listening',
   help_play_pause: 'Play / Pause',
-  help_play_pause_desc: 'In the player at the bottom, tap ⏯ to play or pause the current ayah. You can also press Space on your keyboard.',
+  help_play_pause_desc:
+    'In the player at the bottom, tap ⏯ to play or pause the current ayah. You can also press Space on your keyboard.',
   help_navigation: 'Navigate Ayahs & Surahs',
   help_navigation_desc: 'In the player: ◀ Previous ayah — ▶ Next ayah — ⏮ Previous surah — ⏭ Next surah.',
   help_continuous: 'Continuous Playback',
-  help_continuous_desc: 'Tap ⁝ in the player then 🔗 Continuous. When enabled the button turns gold, and playback automatically continues to the next surah. Tap again to disable.',
+  help_continuous_desc:
+    'Tap ⁝ in the player then 🔗 Continuous. When enabled the button turns gold, and playback automatically continues to the next surah. Tap again to disable.',
   help_repeat: 'Repeat Ayahs',
-  help_repeat_desc: 'Tap ⁝ in the player then 🔁 Repeat. Choose "From" and "To" to set the ayah range and number of repeats. Tap 🔁 again to stop repeating.',
+  help_repeat_desc:
+    'Tap ⁝ in the player then 🔁 Repeat. Choose "From" and "To" to set the ayah range and number of repeats. Tap 🔁 again to stop repeating.',
   help_hifdh: 'Memorization Mode',
-  help_hifdh_desc: 'Tap ⁝ in the player then 🕋 Hifdh. This hides the ayah text to help you review from memory. Tap a hidden ayah to reveal it temporarily.',
+  help_hifdh_desc:
+    'Tap ⁝ in the player then 🕋 Hifdh. This hides the ayah text to help you review from memory. Tap a hidden ayah to reveal it temporarily.',
   help_ayah_number: 'Quick Jump — Tap Ayah Number',
-  help_ayah_number_desc: 'Tap the ayah number ﴿٥﴾ directly in the surah text — the player starts playing from that ayah immediately. Tapping the ayah text opens the detail modal instead.',
+  help_ayah_number_desc:
+    'Tap the ayah number ﴿٥﴾ directly in the surah text — the player starts playing from that ayah immediately. Tapping the ayah text opens the detail modal instead.',
   help_offline: 'Offline Use',
   help_download_audio: 'Download Surah Audio',
-  help_download_audio_desc: 'Tap ⁝ in the player then 📥 Download. The full surah audio is saved to your device. After downloading, you can listen without internet. Tap again to delete the cached file.',
+  help_download_audio_desc:
+    'Tap ⁝ in the player then 📥 Download. The full surah audio is saved to your device. After downloading, you can listen without internet. Tap again to delete the cached file.',
   help_bookmarks_favorites: 'Bookmarks & Favorites',
   help_bookmark: 'Bookmark',
-  help_bookmark_desc: 'Tap ⁝ in the player then 🔖 Bookmark. Single tap = save current position. Double tap = jump to saved position.',
+  help_bookmark_desc:
+    'Tap ⁝ in the player then 🔖 Bookmark. Single tap = save current position. Double tap = jump to saved position.',
   help_favorite: 'Favorite',
-  help_favorite_desc: 'Tap ⁝ in the player then ❤️ Favorite to save the ayah to your favorites list. To access your favorites: tap ❤️ in the header at the top of the screen.',
+  help_favorite_desc:
+    'Tap ⁝ in the player then ❤️ Favorite to save the ayah to your favorites list. To access your favorites: tap ❤️ in the header at the top of the screen.',
   help_search: 'Search',
   help_text_search: 'Text Search',
-  help_text_search_desc: 'Tap 🔎 in the search bar at the top. Type a word or part of an ayah to search the entire Quran.',
+  help_text_search_desc:
+    'Tap 🔎 in the search bar at the top. Type a word or part of an ayah to search the entire Quran.',
   help_voice_search: 'Voice Search',
-  help_voice_search_desc: 'Tap 🎤 next to the search field. Speak a word or phrase and the search will be performed automatically.',
+  help_voice_search_desc:
+    'Tap 🎤 next to the search field. Speak a word or phrase and the search will be performed automatically.',
   help_extras: 'Extra Features',
   help_sleep_timer: 'Sleep Timer',
-  help_sleep_timer_desc: 'Tap ⁝ in the player then 😴 Sleep. Choose a duration (5–60 minutes) and playback will stop automatically when time runs out.',
+  help_sleep_timer_desc:
+    'Tap ⁝ in the player then 😴 Sleep. Choose a duration (5–60 minutes) and playback will stop automatically when time runs out.',
   help_mushaf_mode: 'Mushaf Mode',
-  help_mushaf_mode_desc: 'Tap 📖 in the view bar at the top. Displays Quran pages as they appear in the printed Mushaf with page-by-page navigation.',
+  help_mushaf_mode_desc:
+    'Tap 📖 in the view bar at the top. Displays Quran pages as they appear in the printed Mushaf with page-by-page navigation.',
   help_qibla: 'Qibla Compass',
-  help_qibla_desc: 'Tap 🧭 in the view bar at the top. Shows the Qibla direction using your device\'s compass.',
+  help_qibla_desc: "Tap 🧭 in the view bar at the top. Shows the Qibla direction using your device's compass.",
   help_adhkar: 'Morning & Evening Adhkar',
-  help_adhkar_desc: 'Tap 🤲 in the view bar at the top. Shows the adhkar list with a counter. You can enable automatic reminders from Settings.',
+  help_adhkar_desc:
+    'Tap 🤲 in the view bar at the top. Shows the adhkar list with a counter. You can enable automatic reminders from Settings.',
   help_tafsir: 'Tafsir',
-  help_tafsir_desc: 'Drag the tafsir curtain from the left side (or tap the handle). Choose a tafsir from the list: Muyassar, Saadi, Ibn Kathir, or Al-Tabari. You can also access it from the ayah detail modal.',
+  help_tafsir_desc:
+    'Drag the tafsir curtain from the left side (or tap the handle). Choose a tafsir from the list: Muyassar, Saadi, Ibn Kathir, or Al-Tabari. You can also access it from the ayah detail modal.',
   help_share: 'Share Ayah',
-  help_share_desc: 'Tap ⁝ in the player then 📤 Share. Choose: copy, share via WhatsApp or Telegram, or share through device apps.',
+  help_share_desc:
+    'Tap ⁝ in the player then 📤 Share. Choose: copy, share via WhatsApp or Telegram, or share through device apps.',
   help_keyboard: 'Keyboard Shortcuts',
   help_keyboard_shortcuts: 'Keyboard Shortcuts',
-  help_keyboard_shortcuts_desc: 'Space = Play/Pause ◀ → = Previous/Next ayah ▲ ▼ = Previous/Next surah Ctrl+F = Open search Escape = Close open panels',
+  help_keyboard_shortcuts_desc:
+    'Space = Play/Pause ◀ → = Previous/Next ayah ▲ ▼ = Previous/Next surah Ctrl+F = Open search Escape = Close open panels',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} opened',

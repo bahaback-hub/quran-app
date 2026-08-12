@@ -18,7 +18,6 @@ vi.unmock('../storage.js');
 /*  search.ts barrel re-exports                                       */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  ui.ts — full coverage of showToast and loadingBar                 */
 /* ------------------------------------------------------------------ */
@@ -430,7 +429,6 @@ describe('audio-cache.ts — branch coverage', () => {
     indexedDB.open = original;
   });
 
-
   it('isAudioCached should return false when DB fails', async () => {
     const original = indexedDB.open;
     indexedDB.open = vi.fn(() => {
@@ -470,7 +468,6 @@ describe('audio-cache.ts — branch coverage', () => {
 /* ------------------------------------------------------------------ */
 
 describe('audio.ts — defensive branches', () => {
-
   it('prepareAudioForNewSurah should not throw when DOM is missing', async () => {
     const mod = await import('../audio.js');
     expect(() => mod.prepareAudioForNewSurah()).not.toThrow();

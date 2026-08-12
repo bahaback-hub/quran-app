@@ -27,14 +27,15 @@ import {
   initSettingsTabs,
 } from './settings.js';
 import { cacheSurahAudio, isSurahCached, deleteSurahCache } from './audio-cache.js';
-import { togglePrayerBar, testAzan, stopAzan, hideQiblaCompass, hideAzanNotification, showQiblaCompass } from './prayer.js';
 import {
-  toggleFavorite,
-  openFavorites,
-  closeFavorites,
-  setBookmark,
-  gotoBookmark,
-} from './favorites.js';
+  togglePrayerBar,
+  testAzan,
+  stopAzan,
+  hideQiblaCompass,
+  hideAzanNotification,
+  showQiblaCompass,
+} from './prayer.js';
+import { toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah } from './surah-loader.js';
 import { performExactSearch, initKeyboard, initSearchAutocomplete, startVoiceSearch } from './search-ui.js';
@@ -333,17 +334,17 @@ async function handleDownloadAudio(): Promise<void> {
   }
 
   try {
-    await cacheSurahAudio(audioUrls, surah, reciter, (
-      _surah: number,
-      _reciter: string,
-      current: number,
-      total: number,
-    ) => {
-      // Update button text with progress
-      if (dom.downloadAudioBtn) {
-        dom.downloadAudioBtn.textContent = `${current}/${total}`;
-      }
-    });
+    await cacheSurahAudio(
+      audioUrls,
+      surah,
+      reciter,
+      (_surah: number, _reciter: string, current: number, total: number) => {
+        // Update button text with progress
+        if (dom.downloadAudioBtn) {
+          dom.downloadAudioBtn.textContent = `${current}/${total}`;
+        }
+      },
+    );
 
     // Download complete
     showToast(__('download_audio_done'), 'success');
@@ -379,10 +380,7 @@ function handleAutoPlayNextToggle(): void {
   if (dom.autoPlayNextBtn) {
     dom.autoPlayNextBtn.classList.toggle('active', state.autoPlayNext);
   }
-  showToast(
-    state.autoPlayNext ? __('autoplay_next_enabled') : __('autoplay_next_disabled'),
-    'success',
-  );
+  showToast(state.autoPlayNext ? __('autoplay_next_enabled') : __('autoplay_next_disabled'), 'success');
 }
 
 /**
@@ -562,14 +560,8 @@ export function bindHelpEvents(): void {
   // Close help when clicking outside
   document.addEventListener('click', (e: MouseEvent) => {
     const helpTarget = e.target as HTMLElement;
-    const isHelpTrigger =
-      helpTarget === dom.helpToggleBtn ||
-      helpTarget.closest?.('#helpToggleBtn') !== null;
-    if (
-      dom.helpPanel?.classList.contains('open') &&
-      !dom.helpPanel.contains(e.target as Node) &&
-      !isHelpTrigger
-    ) {
+    const isHelpTrigger = helpTarget === dom.helpToggleBtn || helpTarget.closest?.('#helpToggleBtn') !== null;
+    if (dom.helpPanel?.classList.contains('open') && !dom.helpPanel.contains(e.target as Node) && !isHelpTrigger) {
       closeHelp();
     }
   });

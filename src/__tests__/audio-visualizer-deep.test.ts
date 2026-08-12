@@ -225,7 +225,7 @@ describe('audio-visualizer deep coverage — drawAnimatedBars internals', () => 
     const { startVisualizer, stopVisualizer } = await import('../audio-visualizer.js');
 
     const fillStyleValues: string[] = [];
-    
+
     // Track fillStyle assignments on our mock context
     let currentFillStyle = '';
     Object.defineProperty(mockCtx, 'fillStyle', {
@@ -243,7 +243,7 @@ describe('audio-visualizer deep coverage — drawAnimatedBars internals', () => 
     if (rafCb) rafCb(performance.now());
 
     // Should have set fillStyle to hsla values for bars
-    const hslaValues = fillStyleValues.filter(v => typeof v === 'string' && v.includes('hsla'));
+    const hslaValues = fillStyleValues.filter((v) => typeof v === 'string' && v.includes('hsla'));
     expect(hslaValues.length).toBeGreaterThan(0);
 
     stopVisualizer();

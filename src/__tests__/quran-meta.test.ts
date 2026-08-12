@@ -378,9 +378,9 @@ describe('isJuzStart', () => {
 
   it('should return correct juz number for each known start', () => {
     // Spot check some key juz starts
-    expect(isJuzStart(2, 253)).toBe(3);   // Juz 3
-    expect(isJuzStart(36, 28)).toBe(23);   // Juz 23 (Ya-Sin)
-    expect(isJuzStart(67, 1)).toBe(29);    // Juz 29 (Al-Mulk)
+    expect(isJuzStart(2, 253)).toBe(3); // Juz 3
+    expect(isJuzStart(36, 28)).toBe(23); // Juz 23 (Ya-Sin)
+    expect(isJuzStart(67, 1)).toBe(29); // Juz 29 (Al-Mulk)
   });
 
   it('should return null one ayah before a juz start', () => {

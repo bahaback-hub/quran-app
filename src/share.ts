@@ -39,7 +39,9 @@ export function shareNative(): void {
     return;
   }
   if (navigator.share) {
-    navigator.share({ title: __('app_title'), text }).catch(() => { /* noop */ });
+    navigator.share({ title: __('app_title'), text }).catch(() => {
+      /* noop */
+    });
   } else {
     shareCopy();
   }

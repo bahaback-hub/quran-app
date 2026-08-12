@@ -189,7 +189,9 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
           console.warn('[Capacitor] Unregistered service worker to prevent conflicts');
         }
       })
-      .catch(() => { /* noop */ });
+      .catch(() => {
+        /* noop */
+      });
   }
 }
 
@@ -224,7 +226,9 @@ function setupMobilePanelObserver(): void {
 
   let rafId = 0;
   const updateBodyClasses = () => {
-    if (rafId) cancelAnimationFrame(rafId);
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+    }
     rafId = requestAnimationFrame(() => {
       rafId = 0;
       const panels = document.querySelectorAll<HTMLElement>(PANEL_SELECTOR);
@@ -234,7 +238,9 @@ function setupMobilePanelObserver(): void {
       panels.forEach((p) => {
         // Consider visibility: hidden + display:none as closed
         const cs = getComputedStyle(p);
-        if (cs.display === 'none' || cs.visibility === 'hidden') return;
+        if (cs.display === 'none' || cs.visibility === 'hidden') {
+          return;
+        }
         if (p.classList.contains('open') && !p.classList.contains('hidden')) {
           anyOpen = true;
           if (p.id === 'tafsirCurtain') {

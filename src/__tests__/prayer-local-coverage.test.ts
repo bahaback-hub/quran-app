@@ -87,7 +87,10 @@ describe('prayer-local coverage', () => {
 
     it('should return null when geolocation is denied', async () => {
       mockGetCurrentPosition.mockImplementation((_success: unknown, error: unknown) => {
-        (error as (err: GeolocationPositionError) => void)?.({ code: 1, message: 'Denied' } as GeolocationPositionError);
+        (error as (err: GeolocationPositionError) => void)?.({
+          code: 1,
+          message: 'Denied',
+        } as GeolocationPositionError);
       });
 
       const { getCoordinates } = await import('../prayer-local.js?_t2=' + Date.now());

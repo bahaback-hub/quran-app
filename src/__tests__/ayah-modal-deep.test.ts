@@ -23,7 +23,14 @@ const mockState = vi.hoisted(() => ({
     { surah: 1, surahName: 'الفاتحة', ayah: 2, text: 'الحمد لله رب العالمين' },
     { surah: 1, surahName: 'الفاتحة', ayah: 3, text: 'الرحمن الرحيم' },
   ],
-  favorites: [] as Array<{ key: string; surah: number; surahName: string; ayah: number; text: string; timestamp: number }>,
+  favorites: [] as Array<{
+    key: string;
+    surah: number;
+    surahName: string;
+    ayah: number;
+    text: string;
+    timestamp: number;
+  }>,
   surahData: null as unknown,
   currentSurah: 0,
   ayahsAudios: [] as string[],
@@ -33,8 +40,12 @@ const mockState = vi.hoisted(() => ({
 
 vi.mock('../state.js', () => ({
   state: mockState,
-  immutablePush: vi.fn((state: any, key: string, val: any) => { state[key].push(val); }),
-  immutableSplice: vi.fn((state: any, key: string, idx: number, count: number) => { state[key].splice(idx, count); }),
+  immutablePush: vi.fn((state: any, key: string, val: any) => {
+    state[key].push(val);
+  }),
+  immutableSplice: vi.fn((state: any, key: string, idx: number, count: number) => {
+    state[key].splice(idx, count);
+  }),
 }));
 
 vi.mock('../ui.js', () => ({
@@ -80,7 +91,12 @@ vi.mock('../reciters.js', () => ({
   getReciterById: vi.fn((id: string) => {
     const map: Record<string, any> = {
       'ar.alafasy': { id: 'ar.alafasy', name: 'Mishary Alafasy', source: 'api' },
-      'ar.abdulbasit': { id: 'ar.abdulbasit', name: 'Abdul Basit', source: 'mp3quran', server: 'https://server.mp3quran.net/abdulbasit/' },
+      'ar.abdulbasit': {
+        id: 'ar.abdulbasit',
+        name: 'Abdul Basit',
+        source: 'mp3quran',
+        server: 'https://server.mp3quran.net/abdulbasit/',
+      },
     };
     return map[id] || null;
   }),
@@ -115,12 +131,27 @@ import { storage } from '../storage.js';
 /** Create all required modal DOM elements */
 function createModalDOM(): void {
   const ids = [
-    'ayahModal', 'ayahModalCloseBtn', 'ayahModalTitle', 'ayahModalBookmarkBtn',
-    'ayahModalFavBtn', 'ayahModalNav', 'ayahModalNextBtn', 'ayahModalText',
-    'ayahModalPage', 'ayahModalJuz', 'ayahModalSurahAyah', 'ayahModalTafsirBtn',
-    'ayahModalShareBtn', 'ayahModalCopyBtn', 'ayahModalCopySimpleBtn',
-    'ayahModalCopyTafsirBtn', 'ayahModalPlayBtn', 'ayahModalAudioCurrent',
-    'ayahModalAudioDuration', 'ayahModalDownloadBtn', 'ayahModalTafsirTabs',
+    'ayahModal',
+    'ayahModalCloseBtn',
+    'ayahModalTitle',
+    'ayahModalBookmarkBtn',
+    'ayahModalFavBtn',
+    'ayahModalNav',
+    'ayahModalNextBtn',
+    'ayahModalText',
+    'ayahModalPage',
+    'ayahModalJuz',
+    'ayahModalSurahAyah',
+    'ayahModalTafsirBtn',
+    'ayahModalShareBtn',
+    'ayahModalCopyBtn',
+    'ayahModalCopySimpleBtn',
+    'ayahModalCopyTafsirBtn',
+    'ayahModalPlayBtn',
+    'ayahModalAudioCurrent',
+    'ayahModalAudioDuration',
+    'ayahModalDownloadBtn',
+    'ayahModalTafsirTabs',
     'ayahModalTafsirBody',
   ];
   for (const id of ids) {
@@ -146,14 +177,32 @@ function createModalDOM(): void {
 
 function removeModalDOM(): void {
   const ids = [
-    'ayahModal', 'ayahModalCloseBtn', 'ayahModalTitle', 'ayahModalBookmarkBtn',
-    'ayahModalFavBtn', 'ayahModalNav', 'ayahModalNextBtn', 'ayahModalText',
-    'ayahModalPage', 'ayahModalJuz', 'ayahModalSurahAyah', 'ayahModalTafsirBtn',
-    'ayahModalShareBtn', 'ayahModalCopyBtn', 'ayahModalCopySimpleBtn',
-    'ayahModalCopyTafsirBtn', 'ayahModalQariSelect', 'ayahModalPlayBtn',
-    'ayahModalAudioCurrent', 'ayahModalAudioSlider', 'ayahModalAudioDuration',
-    'ayahModalRepeatChk', 'ayahModalDownloadBtn', 'ayahModalAudioPlayer',
-    'ayahModalTafsirTabs', 'ayahModalTafsirBody',
+    'ayahModal',
+    'ayahModalCloseBtn',
+    'ayahModalTitle',
+    'ayahModalBookmarkBtn',
+    'ayahModalFavBtn',
+    'ayahModalNav',
+    'ayahModalNextBtn',
+    'ayahModalText',
+    'ayahModalPage',
+    'ayahModalJuz',
+    'ayahModalSurahAyah',
+    'ayahModalTafsirBtn',
+    'ayahModalShareBtn',
+    'ayahModalCopyBtn',
+    'ayahModalCopySimpleBtn',
+    'ayahModalCopyTafsirBtn',
+    'ayahModalQariSelect',
+    'ayahModalPlayBtn',
+    'ayahModalAudioCurrent',
+    'ayahModalAudioSlider',
+    'ayahModalAudioDuration',
+    'ayahModalRepeatChk',
+    'ayahModalDownloadBtn',
+    'ayahModalAudioPlayer',
+    'ayahModalTafsirTabs',
+    'ayahModalTafsirBody',
   ];
   for (const id of ids) {
     const el = document.getElementById(id);
@@ -176,7 +225,11 @@ describe('ayah-modal deep coverage', () => {
       initAyahModal();
       // Open with the last ayah (index 2 = last in 3-item array)
       openAyahModal({
-        surah: 1, ayah: 3, text: 'الرحمن الرحيم', surahName: 'الفاتحة', index: 2,
+        surah: 1,
+        ayah: 3,
+        text: 'الرحمن الرحيم',
+        surahName: 'الفاتحة',
+        index: 2,
       });
       // Click next button
       const nextBtn = document.getElementById('ayahModalNextBtn')!;
@@ -187,7 +240,11 @@ describe('ayah-modal deep coverage', () => {
     it('should navigate to next ayah when not at end', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const textEl = document.getElementById('ayahModalText')!;
       const initialText = textEl.textContent;
@@ -203,7 +260,11 @@ describe('ayah-modal deep coverage', () => {
       initAyahModal();
       mockState.favorites = [];
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const favBtn = document.getElementById('ayahModalFavBtn')!;
       favBtn.click();
@@ -212,10 +273,16 @@ describe('ayah-modal deep coverage', () => {
     });
 
     it('should remove from favorites when already favorited', async () => {
-      mockState.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: Date.now() }];
+      mockState.favorites = [
+        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: Date.now() },
+      ];
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const favBtn = document.getElementById('ayahModalFavBtn')!;
       favBtn.click();
@@ -227,7 +294,11 @@ describe('ayah-modal deep coverage', () => {
     it('should copy full text when simple is false', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بِسْمِ اللَّهِ', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بِسْمِ اللَّهِ',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const copyBtn = document.getElementById('ayahModalCopyBtn')!;
       copyBtn.click();
@@ -238,7 +309,11 @@ describe('ayah-modal deep coverage', () => {
     it('should copy stripped text when simple is true', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بِسْمِ اللَّهِ', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بِسْمِ اللَّهِ',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const copySimpleBtn = document.getElementById('ayahModalCopySimpleBtn')!;
       copySimpleBtn.click();
@@ -251,7 +326,11 @@ describe('ayah-modal deep coverage', () => {
     it('should copy ayah text with tafsir', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const copyTafsirBtn = document.getElementById('ayahModalCopyTafsirBtn')!;
       copyTafsirBtn.click();
@@ -272,7 +351,11 @@ describe('ayah-modal deep coverage', () => {
 
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const shareBtn = document.getElementById('ayahModalShareBtn')!;
       shareBtn.click();
@@ -289,7 +372,11 @@ describe('ayah-modal deep coverage', () => {
 
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const shareBtn = document.getElementById('ayahModalShareBtn')!;
       shareBtn.click();
@@ -303,7 +390,11 @@ describe('ayah-modal deep coverage', () => {
     it('should show error when no audio src', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const downloadBtn = document.getElementById('ayahModalDownloadBtn')!;
       downloadBtn.click();
@@ -315,7 +406,11 @@ describe('ayah-modal deep coverage', () => {
     it('should load tafsir when tafsir tab clicked', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       // Simulate tab click
@@ -334,7 +429,11 @@ describe('ayah-modal deep coverage', () => {
     it('should format 0 seconds as 0:00', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'Test', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'Test',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const durationEl = document.getElementById('ayahModalAudioDuration')!;
       expect(durationEl.textContent).toBe('0:00');
@@ -352,7 +451,11 @@ describe('ayah-modal deep coverage', () => {
     it('should close modal on Escape key when not hidden', () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'Test', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'Test',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const modalEl = document.getElementById('ayahModal')!;
       expect(modalEl.classList.contains('hidden')).toBe(false);
@@ -368,7 +471,11 @@ describe('ayah-modal deep coverage', () => {
     it('should close when clicking on the modal overlay (background)', () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'Test', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'Test',
+        surahName: 'الفاتحة',
+        index: 0,
       });
       const modalEl = document.getElementById('ayahModal')!;
 
