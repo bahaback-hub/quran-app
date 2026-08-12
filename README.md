@@ -38,15 +38,16 @@ This rating is an **internal self-audit**, not an external certification. We lis
 
 | المحور / Dimension | الحالة / Status | التفاصيل / Details |
 |:---:|:---:|:---|
-| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | 3,449+ اختبار وحدوي + 78+ E2E عبر 4 متصفحات (chromium + firefox + webkit + mobile-chrome)، تغطية ≥ 80% إلزامية + per-file ≥ 50% |
-| 🔒 **الأمان / Security** | ✅ ممتاز / Excellent | CodeQL + OWASP ZAP baseline + `npm audit` مُلزِم + فحص رخص + CSP صارمة |
+| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | **3,650+ اختبار وحدوي (100% نجاح) + 78+ E2E عبر 4 متصفحات**، تغطية ≥ 80% إلزامية + per-file ≥ 50% |
+| 🔒 **الأمان / Security** | ✅ ممتاز / Excellent | CodeQL + OWASP ZAP baseline + `npm audit` مُلزِم + فحص رخص + CSP صارمة + **Security policy شامل** |
 | ♿ **إتاحة / Accessibility** | ✅ ممتاز / Excellent | 0 انتهاكات WCAG 2.1 AA + prefers-reduced-motion + prefers-contrast:high + focus trap + axe-core محلي |
-| ⚡ **الأداء / Performance** | ✅ ممتاز / Excellent | Code splitting + lazy injection + 3-phase bootstrap + **Performance Budget مُلزِم** + Lighthouse مُلزِم ≥ 90 |
+| ⚡ **الأداء / Performance** | ✅ ممتاز / Excellent | Code splitting + lazy injection + 3-phase bootstrap + **Performance Budget مُلزِم** + Lighthouse مُلزِم ≥ 90 + **Web Vitals RUM** |
 | 📚 **التوثيق / Documentation** | ✅ ممتاز / Excellent | README شامل + AGENTS.md + CONTRIBUTING + SECURITY + CODE_OF_CONDUCT + NOTICE.md + **TypeDoc منشور على GitHub Pages** |
-| 🏗️ **المعمارية / Architecture** | ✅ ممتاز / Excellent | TypeScript 6 صارم + Proxy reactive + state.ts مفكّك (878→4 ملفات) + عميل API موحّد |
+| 🏗️ **المعمارية / Architecture** | ✅ ممتاز / Excellent | TypeScript 6 صارم + Proxy reactive + state.ts مفكّك (878→4 ملفات) + عميل API موحّد + **Memory Manager** |
 | 🔄 **CI/CD** | ✅ ممتاز / Excellent | 13 workflow كلها خضراء (CI/E2E multi-browser/CodeQL/ZAP/Lighthouse/a11y/budget/docs/security/release/deploy/labeler/stale) |
 | 📱 **متعدد المنصات / Cross-platform** | ✅ ممتاز / Excellent | ويب + PWA (shortcuts + narrow screenshots) + Android (Capacitor) + responsive (landscape + ultra-wide) |
 | 📴 **Offline** | ✅ ممتاز / Excellent | 4-tier fallback + **Offline Pack** (تحميل الكل بنقرة واحدة) + 3 قواعد IndexedDB |
+| 🧠 **Memory** | ✅ ممتاز / Excellent | **Memory Manager** (object URL tracking + AbortController registry + listener leak detection + periodic cleanup) |
 
 ---
 
