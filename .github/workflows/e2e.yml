@@ -12,9 +12,13 @@ concurrency:
 
 jobs:
   e2e:
-    name: Playwright E2E
+    name: Playwright E2E (${{ matrix.project }})
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit, mobile-chrome]
 
     steps:
       - uses: actions/checkout@v4
@@ -29,13 +33,13 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps ${{ matrix.project }}
 
       - name: Build for production
         run: npm run build
 
-      - name: Run E2E tests
-        run: npx playwright test --project=chromium
+      - name: Run E2E tests (${{ matrix.project }})
+        run: npx playwright test --project=${{ matrix.project }}
         env:
           CI: true
 
@@ -43,7 +47,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-results
+          name: e2e-results-${{ matrix.project }}
           path: |
             test-results/
             playwright-report/

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/GoogleChromeLabs/budget.json/main/schema.json",
+  "budgets": [
+    {
+      "resourceSizes": [
+        { "resourceType": "script", "budget": 350 },
+        { "resourceType": "stylesheet", "budget": 150 },
+        { "resourceType": "image", "budget": 6000 },
+        { "resourceType": "font", "budget": 1500 },
+        { "resourceType": "media", "budget": 2500 },
+        { "resourceType": "document", "budget": 50 },
+        { "resourceType": "other", "budget": 2000 },
+        { "resourceType": "total", "budget": 12000 }
+      ],
+      "resourceCounts": [
+        { "resourceType": "script", "budget": 15 },
+        { "resourceType": "stylesheet", "budget": 5 },
+        { "resourceType": "image", "budget": 20 },
+        { "resourceType": "font", "budget": 6 },
+        { "resourceType": "third-party", "budget": 0 }
+      ]
+    }
+  ],
+  "coreWebVitals": {
+    "largestContentfulPaint": { "target": "good", "maxValue": 2500 },
+    "cumulativeLayoutShift": { "target": "good", "maxValue": 0.1 },
+    "totalBlockingTime": { "target": "good", "maxValue": 200 },
+    "firstContentfulPaint": { "target": "good", "maxValue": 1800 },
+    "speedIndex": { "target": "good", "maxValue": 3400 },
+    "interactive": { "target": "good", "maxValue": 4500 }
+  },
+  "lighthouseCategories": {
+    "performance": { "minScore": 0.9 },
+    "accessibility": { "minScore": 0.95 },
+    "bestPractices": { "minScore": 0.9 },
+    "seo": { "minScore": 0.85 },
+    "pwa": { "minScore": 0.9 }
+  }
+}

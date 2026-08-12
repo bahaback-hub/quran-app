@@ -1,6 +1,6 @@
 {
   "name": "quran-app",
-  "version": "1.5.7",
+  "version": "1.6.0",
   "description": "Professional Quran Web App — Recitation, Audio, Search, Tafsir, Prayer Times, Adhkar & More (PWA/Android)",
   "type": "module",
   "scripts": {
@@ -24,6 +24,8 @@
     "test:a11y": "npm run build && npx serve dist -p 4173 & sleep 3 && node scripts/a11y-audit.mjs",
     "test:all": "npm run lint && npm run typecheck && npm test && npm run test:e2e",
     "docs": "typedoc --out docs/api src --exclude '**/__tests__/**' --readme none",
+    "lighthouse:badge": "node scripts/update-lighthouse-badge.mjs",
+    "perf:budget": "node scripts/check-performance-budget.mjs",
     "knip": "knip --no-progress",
     "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build"
   },

@@ -38,22 +38,45 @@ This rating is an **internal self-audit**, not an external certification. We lis
 
 | المحور / Dimension | الحالة / Status | التفاصيل / Details |
 |:---:|:---:|:---|
-| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | 3207+ اختبار وحدوي + 78 E2E، تغطية ≥ 80% إلزامية + per-file ≥ 50%، API contract tests، 0 اختبارات تعزيزية تافهة |
-| 🔒 **الأمان / Security** | ✅ ممتاز / Excellent | CodeQL مفعّل، `npm audit` مُلزِم (يُفشل البناء)، فحص رخص مُلزِم، CSP صارمة |
-| ♿ **إتاحة / Accessibility** | ✅ ممتاز / Excellent | 0 انتهاكات WCAG 2.1 AA، ARIA labels، focus trap، reduced-motion، high-contrast، skip link، axe-core محلي |
-| ⚡ **الأداء / Performance** | ✅ ممتاز / Excellent | Code splitting، lazy injection، 3-phase bootstrap، 0 INEFFECTIVE_DYNAMIC_IMPORT warnings، PWA Workbox |
-| 📚 **التوثيق / Documentation** | ✅ ممتاز / Excellent | README شامل + AGENTS.md محدّث + CONTRIBUTING + SECURITY + CODE_OF_CONDUCT + NOTICE.md |
-| 🏗️ **المعمارية / Architecture** | ✅ ممتاز / Excellent | TypeScript 6 صارم جداً، Proxy reactive، عميل API موحّد، templates.ts مفكّك (1262→702 سطر) |
-| 🔄 **CI/CD** | ✅ ممتاز / Excellent | 11 workflow كلها خضراء (CI/E2E/CodeQL/Lighthouse/a11y/bundle-size/security/release/deploy/labeler/stale) |
-| 📱 **متعدد المنصات / Cross-platform** | ✅ ممتاز / Excellent | ويب + PWA + Android (Capacitor) مع تكامل ذكي (تعطيل SW، splash) |
+| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | 3,449+ اختبار وحدوي + 78+ E2E عبر 4 متصفحات (chromium + firefox + webkit + mobile-chrome)، تغطية ≥ 80% إلزامية + per-file ≥ 50% |
+| 🔒 **الأمان / Security** | ✅ ممتاز / Excellent | CodeQL + OWASP ZAP baseline + `npm audit` مُلزِم + فحص رخص + CSP صارمة |
+| ♿ **إتاحة / Accessibility** | ✅ ممتاز / Excellent | 0 انتهاكات WCAG 2.1 AA + prefers-reduced-motion + prefers-contrast:high + focus trap + axe-core محلي |
+| ⚡ **الأداء / Performance** | ✅ ممتاز / Excellent | Code splitting + lazy injection + 3-phase bootstrap + **Performance Budget مُلزِم** + Lighthouse مُلزِم ≥ 90 |
+| 📚 **التوثيق / Documentation** | ✅ ممتاز / Excellent | README شامل + AGENTS.md + CONTRIBUTING + SECURITY + CODE_OF_CONDUCT + NOTICE.md + **TypeDoc منشور على GitHub Pages** |
+| 🏗️ **المعمارية / Architecture** | ✅ ممتاز / Excellent | TypeScript 6 صارم + Proxy reactive + state.ts مفكّك (878→4 ملفات) + عميل API موحّد |
+| 🔄 **CI/CD** | ✅ ممتاز / Excellent | 13 workflow كلها خضراء (CI/E2E multi-browser/CodeQL/ZAP/Lighthouse/a11y/budget/docs/security/release/deploy/labeler/stale) |
+| 📱 **متعدد المنصات / Cross-platform** | ✅ ممتاز / Excellent | ويب + PWA (shortcuts + narrow screenshots) + Android (Capacitor) + responsive (landscape + ultra-wide) |
+| 📴 **Offline** | ✅ ممتاز / Excellent | 4-tier fallback + **Offline Pack** (تحميل الكل بنقرة واحدة) + 3 قواعد IndexedDB |
 
-<div align="center">
+---
 
-**هذا تقييم داخلي للتتبع والتحسين المستمر — وليس شهادة جودة خارجية.**
+## 🛡️ سير العمل CI/CD / CI/CD Workflows
 
-This is an **internal tracking rating** for continuous improvement — not an external certification.
+| السير / Workflow | الوصف / Description |
+|:---|:---|
+| `ci.yml` | lint + typecheck + unit tests + coverage (≥ 80%) |
+| `e2e.yml` | Playwright E2E على **4 متصفحات** (chromium + firefox + webkit + mobile-chrome) |
+| `codeql.yml` | تحليل أمني عميق من GitHub |
+| `zap-scan.yml` | **OWASP ZAP baseline scan** أسبوعي + عند PR |
+| `lighthouse.yml` | Lighthouse CI + تعليق على PR بالنتائج + رفع artifact |
+| `a11y.yml` | axe-core على البناء النهائي (0 WCAG violations) |
+| `bundle-size.yml` | تحليل حجم الحزمة + **Performance Budget** مُلزِم |
+| `docs.yml` | توليد TypeDoc + نشر على GitHub Pages (`/api/`) |
+| `security.yml` | `npm audit` مُلزِم + فحص الرخص |
+| `release.yml` | نشر تلقائي عند tag |
+| `deploy.yml` | نشر التطبيق على GitHub Pages |
+| `labeler.yml` + `stale.yml` | أتمتة إدارة PRs والمسائل |
 
-</div>
+---
+
+## 📊 نتائج Lighthouse الحقيقية / Verified Lighthouse Scores
+
+<!-- LIGHTHOUSE-SCORES:START -->
+<!-- يتم تحديث هذا القسم تلقائياً بواسطة scripts/update-lighthouse-badge.mjs -->
+> لم يتم تشغيل Lighthouse بعد — سيتحديث الجدول تلقائياً بعد أول تشغيل CI.
+>
+> Lighthouse has not been run yet — the table will auto-update after the first CI run.
+<!-- LIGHTHOUSE-SCORES:END -->
 
 ---
 
