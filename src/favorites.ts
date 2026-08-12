@@ -17,7 +17,6 @@ import { favoritesEmptyMessage, favoriteMeta, favoritesCountMessage } from './te
 
 /* ===================== INTERFACES ===================== */
 
-
 /* ===================== FAVORITES ===================== */
 
 /** Load favorites from localStorage into state. */
@@ -146,7 +145,9 @@ export function renderFavorites(): void {
         const ayah = target.dataset['ayah'] || '';
         const shareText = `${text} — ${surahName} — ${__('ayah')} ${ayah}`;
         if (navigator.share) {
-          navigator.share({ title: __('app_title'), text: shareText }).catch(() => { /* noop */ });
+          navigator.share({ title: __('app_title'), text: shareText }).catch(() => {
+            /* noop */
+          });
         } else {
           copyToClipboard(shareText);
           showToast(__('copied'), 'success');

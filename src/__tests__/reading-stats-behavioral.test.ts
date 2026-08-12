@@ -192,7 +192,8 @@ describe('reading-stats — getFormattedStats', () => {
 
 describe('reading-stats — resetReadingStats', () => {
   it('clears all stats to defaults', async () => {
-    const { recordReadingSession, addReadingTime, resetReadingStats, getReadingStats } = await import('../reading-stats.js');
+    const { recordReadingSession, addReadingTime, resetReadingStats, getReadingStats } =
+      await import('../reading-stats.js');
     recordReadingSession(1, 7);
     addReadingTime(30);
     resetReadingStats();

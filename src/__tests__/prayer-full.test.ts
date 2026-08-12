@@ -295,9 +295,12 @@ describe('prayer.ts', () => {
       await loadPrayerTimes();
 
       expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
-      expect(mockStorageSet).toHaveBeenCalledWith('cached_prayer_times', expect.objectContaining({
-        timings: SAMPLE_PRAYER_TIMES,
-      }));
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_prayer_times',
+        expect.objectContaining({
+          timings: SAMPLE_PRAYER_TIMES,
+        }),
+      );
       expect(mockPrayerFetch).not.toHaveBeenCalled();
     });
 
@@ -310,9 +313,12 @@ describe('prayer.ts', () => {
       await loadPrayerTimes();
 
       expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
-      expect(mockStorageSet).toHaveBeenCalledWith('cached_prayer_times', expect.objectContaining({
-        timings: SAMPLE_PRAYER_TIMES,
-      }));
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_prayer_times',
+        expect.objectContaining({
+          timings: SAMPLE_PRAYER_TIMES,
+        }),
+      );
     });
 
     it('should fall back to API when local calculation throws', async () => {
@@ -432,11 +438,14 @@ describe('prayer.ts', () => {
 
       await loadPrayerTimes();
 
-      expect(mockStorageSet).toHaveBeenCalledWith('cached_prayer_times', expect.objectContaining({
-        city: 'الرياض',
-        country: 'SA',
-        method: '1',
-      }));
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_prayer_times',
+        expect.objectContaining({
+          city: 'الرياض',
+          country: 'SA',
+          method: '1',
+        }),
+      );
 
       (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
       (mockDom.countryInput as HTMLInputElement).value = 'SA';
@@ -454,11 +463,14 @@ describe('prayer.ts', () => {
 
       await loadPrayerTimes();
 
-      expect(mockStorageSet).toHaveBeenCalledWith('cached_prayer_times', expect.objectContaining({
-        city: state.city,
-        country: state.country,
-        method: state.method,
-      }));
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_prayer_times',
+        expect.objectContaining({
+          city: state.city,
+          country: state.country,
+          method: state.method,
+        }),
+      );
 
       mockDom.cityInput = savedCity;
       mockDom.countryInput = savedCountry;
@@ -1164,10 +1176,7 @@ describe('prayer.ts', () => {
       const mockRequestPermission = vi.fn(() => Promise.resolve('granted'));
       const OriginalDOE = window.DeviceOrientationEvent;
       Object.defineProperty(window, 'DeviceOrientationEvent', {
-        value: Object.assign(
-          function DeviceOrientationEvent() {},
-          { requestPermission: mockRequestPermission },
-        ),
+        value: Object.assign(function DeviceOrientationEvent() {}, { requestPermission: mockRequestPermission }),
         configurable: true,
       });
 
@@ -1339,9 +1348,12 @@ describe('prayer.ts', () => {
       checkAzanTime();
       await vi.advanceTimersByTimeAsync(0);
 
-      expect(mockNotification).toHaveBeenCalledWith('prayer_time_come', expect.objectContaining({
-        tag: 'azan-Dhuhr',
-      }));
+      expect(mockNotification).toHaveBeenCalledWith(
+        'prayer_time_come',
+        expect.objectContaining({
+          tag: 'azan-Dhuhr',
+        }),
+      );
 
       Object.defineProperty(globalThis, 'Notification', {
         value: origNotification,
@@ -1388,9 +1400,9 @@ describe('prayer.ts', () => {
       expect(addEventListenerSpy).toHaveBeenCalledWith('deviceorientation', expect.any(Function));
 
       // Now dispatch a deviceorientation event to test the handler
-      const handler = addEventListenerSpy.mock.calls.find(
-        (call) => call[0] === 'deviceorientation',
-      )?.[1] as ((e: DeviceOrientationEvent) => void) | undefined;
+      const handler = addEventListenerSpy.mock.calls.find((call) => call[0] === 'deviceorientation')?.[1] as
+        | ((e: DeviceOrientationEvent) => void)
+        | undefined;
 
       if (handler) {
         const event = new Event('deviceorientation') as DeviceOrientationEvent;
@@ -1447,9 +1459,9 @@ describe('prayer.ts', () => {
 
       showQiblaCompass();
 
-      const handler = addEventListenerSpy.mock.calls.find(
-        (call) => call[0] === 'deviceorientation',
-      )?.[1] as ((e: unknown) => void) | undefined;
+      const handler = addEventListenerSpy.mock.calls.find((call) => call[0] === 'deviceorientation')?.[1] as
+        | ((e: unknown) => void)
+        | undefined;
 
       if (handler) {
         // Simulate iOS event with webkitCompassHeading

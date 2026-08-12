@@ -606,8 +606,7 @@ describe('settings — additional coverage', () => {
         pres_bg_mode: (v) =>
           typeof v === 'string' && ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene'].includes(v),
         pres_bg_scene: (v) => typeof v === 'string' && ['stars', 'waves', 'aurora', 'particles', 'rain'].includes(v),
-        pres_bg_nature: (v) =>
-          typeof v === 'string' && ['dawn', 'morning', 'afternoon', 'sunset', 'night'].includes(v),
+        pres_bg_nature: (v) => typeof v === 'string' && ['dawn', 'morning', 'afternoon', 'sunset', 'night'].includes(v),
         sepia_mode: (v) => typeof v === 'boolean',
         reading_stats: (v) => typeof v === 'object' && v !== null,
       };

@@ -338,9 +338,7 @@ describe('select-mode', () => {
     });
 
     it('should use navigator.share when available', () => {
-      mockGetSelectedAyahs.mockReturnValue([
-        { surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 },
-      ]);
+      mockGetSelectedAyahs.mockReturnValue([{ surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 }]);
       const shareMock = vi.fn().mockResolvedValue(undefined);
       const originalShare = navigator.share;
       Object.defineProperty(navigator, 'share', { value: shareMock, configurable: true });
@@ -356,9 +354,7 @@ describe('select-mode', () => {
     });
 
     it('should handle navigator.share rejection gracefully', () => {
-      mockGetSelectedAyahs.mockReturnValue([
-        { surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 },
-      ]);
+      mockGetSelectedAyahs.mockReturnValue([{ surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 }]);
       const shareMock = vi.fn().mockRejectedValue(new Error('User cancelled'));
       const originalShare = navigator.share;
       Object.defineProperty(navigator, 'share', { value: shareMock, configurable: true });
@@ -369,9 +365,7 @@ describe('select-mode', () => {
     });
 
     it('should copy to clipboard when navigator.share is not available', () => {
-      mockGetSelectedAyahs.mockReturnValue([
-        { surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 },
-      ]);
+      mockGetSelectedAyahs.mockReturnValue([{ surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 }]);
       const originalShare = navigator.share;
       Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
 
@@ -383,9 +377,7 @@ describe('select-mode', () => {
     });
 
     it('should show success toast with count when copying to clipboard', () => {
-      mockGetSelectedAyahs.mockReturnValue([
-        { surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 },
-      ]);
+      mockGetSelectedAyahs.mockReturnValue([{ surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 }]);
       const originalShare = navigator.share;
       Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
 
@@ -420,9 +412,7 @@ describe('select-mode', () => {
     });
 
     it('should format share text with ornamental brackets', () => {
-      mockGetSelectedAyahs.mockReturnValue([
-        { surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 },
-      ]);
+      mockGetSelectedAyahs.mockReturnValue([{ surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 }]);
       const originalShare = navigator.share;
       Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
 
@@ -440,9 +430,7 @@ describe('select-mode', () => {
     });
 
     it('should trim trailing whitespace from share text', () => {
-      mockGetSelectedAyahs.mockReturnValue([
-        { surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 },
-      ]);
+      mockGetSelectedAyahs.mockReturnValue([{ surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 }]);
       const originalShare = navigator.share;
       Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
 
@@ -474,18 +462,14 @@ describe('select-mode', () => {
     });
 
     it('should share with correct title using app_title i18n key', () => {
-      mockGetSelectedAyahs.mockReturnValue([
-        { surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 },
-      ]);
+      mockGetSelectedAyahs.mockReturnValue([{ surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 }]);
       const shareMock = vi.fn().mockResolvedValue(undefined);
       const originalShare = navigator.share;
       Object.defineProperty(navigator, 'share', { value: shareMock, configurable: true });
 
       shareSelected();
 
-      expect(shareMock).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'app_title' }),
-      );
+      expect(shareMock).toHaveBeenCalledWith(expect.objectContaining({ title: 'app_title' }));
 
       Object.defineProperty(navigator, 'share', { value: originalShare, configurable: true });
     });
@@ -599,9 +583,7 @@ describe('select-mode', () => {
       ayah.dataset['index'] = '0';
       document.body.appendChild(ayah);
 
-      mockGetSelectedAyahs.mockReturnValue([
-        { surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 },
-      ]);
+      mockGetSelectedAyahs.mockReturnValue([{ surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 }]);
 
       handleAyahSelect(1, 1, 'بسم الله', 'الفاتحة', 0);
 
@@ -697,9 +679,7 @@ describe('select-mode', () => {
       handleAyahSelect(1, 1, 'بسم الله', 'الفاتحة', 0);
 
       // Share
-      mockGetSelectedAyahs.mockReturnValue([
-        { surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 },
-      ]);
+      mockGetSelectedAyahs.mockReturnValue([{ surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0 }]);
       const originalShare = navigator.share;
       Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
       shareSelected();

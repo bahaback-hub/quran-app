@@ -175,7 +175,7 @@ describe('mushaf — sajda ayahs', () => {
     }
   });
 
-  it('sajda at 7:206 is obligatory (Surah Al-A\'raf)', async () => {
+  it("sajda at 7:206 is obligatory (Surah Al-A'raf)", async () => {
     const { SAJDA_AYAHS } = await import('../quran-meta.js');
     expect(SAJDA_AYAHS['7:206']).toBe('obligatory');
   });

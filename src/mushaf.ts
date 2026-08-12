@@ -13,7 +13,7 @@ import {
   surahSecretsBody,
 } from './templates.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
-import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from './app.js';
+import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from './surah-loader.js';
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from './audio.js';
 import { handlePageClick, getAyahHighlightRects } from './ayah-click.js';
 import { renderPage, loadPageData } from './mushaf-renderer.js';
@@ -136,7 +136,9 @@ export async function toggleMushafMode(): Promise<void> {
     populateSurahOverlay();
     loadPage(state.currentPage);
     if (wasPlaying && dom.audioPlayer?.paused) {
-      dom.audioPlayer.play().catch(() => { /* noop */ });
+      dom.audioPlayer.play().catch(() => {
+        /* noop */
+      });
       state.isPlaying = true;
       updatePlayPauseBtn();
     }
@@ -428,7 +430,9 @@ function preloadAdjacentLayouts(pageNum: number): void {
   }
 
   for (const p of toPreload) {
-    loadPageData(p).catch(() => { /* noop */ });
+    loadPageData(p).catch(() => {
+      /* noop */
+    });
   }
 }
 

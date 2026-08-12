@@ -435,11 +435,9 @@ describe('audio — full coverage', () => {
       const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
       await playCurrentAyah();
 
-      expect(mockAudioPlayer.addEventListener).toHaveBeenCalledWith(
-        'loadedmetadata',
-        expect.any(Function),
-        { once: true },
-      );
+      expect(mockAudioPlayer.addEventListener).toHaveBeenCalledWith('loadedmetadata', expect.any(Function), {
+        once: true,
+      });
       revokeSpy.mockRestore();
     });
 
@@ -479,10 +477,7 @@ describe('audio — full coverage', () => {
       bindAudioEvents();
 
       fireEvent(mockAudioPlayer, 'error');
-      expect(mockShowToast).toHaveBeenCalledWith(
-        expect.stringContaining('audio_error'),
-        'error',
-      );
+      expect(mockShowToast).toHaveBeenCalledWith(expect.stringContaining('audio_error'), 'error');
     });
 
     it('should skip to next ayah after exhausting retries', () => {
@@ -497,10 +492,7 @@ describe('audio — full coverage', () => {
       fireEvent(mockAudioPlayer, 'error');
       fireEvent(mockAudioPlayer, 'error');
 
-      expect(mockShowToast).toHaveBeenCalledWith(
-        expect.stringContaining('audio_error'),
-        'error',
-      );
+      expect(mockShowToast).toHaveBeenCalledWith(expect.stringContaining('audio_error'), 'error');
     });
 
     it('should full stop when cannot skip (last ayah)', () => {
@@ -545,10 +537,7 @@ describe('audio — full coverage', () => {
 
       fireEvent(mockAudioPlayer, 'ended');
 
-      expect(mockShowToast).toHaveBeenCalledWith(
-        expect.stringContaining('surah_complete'),
-        'success',
-      );
+      expect(mockShowToast).toHaveBeenCalledWith(expect.stringContaining('surah_complete'), 'success');
     });
 
     it('should auto-play next surah when autoPlayNext is true', () => {
@@ -578,10 +567,7 @@ describe('audio — full coverage', () => {
 
       fireEvent(mockAudioPlayer, 'ended');
 
-      expect(mockShowToast).toHaveBeenCalledWith(
-        expect.stringContaining('surah_complete'),
-        'success',
-      );
+      expect(mockShowToast).toHaveBeenCalledWith(expect.stringContaining('surah_complete'), 'success');
     });
   });
 
@@ -1173,19 +1159,13 @@ describe('audio — full coverage', () => {
 
     it('should set a timer and show toast', () => {
       setSleepTimer(5);
-      expect(mockShowToast).toHaveBeenCalledWith(
-        expect.stringContaining('sleep_timer_set'),
-        'success',
-      );
+      expect(mockShowToast).toHaveBeenCalledWith(expect.stringContaining('sleep_timer_set'), 'success');
       expect(getSleepTimerMinutes()).toBe(5);
     });
 
     it('should cancel timer when minutes <= 0', () => {
       setSleepTimer(0);
-      expect(mockShowToast).toHaveBeenCalledWith(
-        expect.stringContaining('sleep_timer_cancelled'),
-        '',
-      );
+      expect(mockShowToast).toHaveBeenCalledWith(expect.stringContaining('sleep_timer_cancelled'), '');
       expect(getSleepTimerMinutes()).toBe(0);
     });
 
@@ -1210,10 +1190,7 @@ describe('audio — full coverage', () => {
       vi.advanceTimersByTime(60000); // advance 1 minute
 
       expect(mockAudioPlayer.pause).toHaveBeenCalled();
-      expect(mockShowToast).toHaveBeenCalledWith(
-        expect.stringContaining('sleep_timer_stopped'),
-        'success',
-      );
+      expect(mockShowToast).toHaveBeenCalledWith(expect.stringContaining('sleep_timer_stopped'), 'success');
     });
 
     it('should clear existing timer when setting new one', () => {

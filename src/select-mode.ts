@@ -66,7 +66,9 @@ export function shareSelected(): void {
   }
   text = text.trim();
   if (navigator.share) {
-    navigator.share({ title: __('app_title'), text }).catch(() => { /* noop */ });
+    navigator.share({ title: __('app_title'), text }).catch(() => {
+      /* noop */
+    });
   } else {
     copyToClipboard(text);
     showToast(`${__('select_mode_copied', String(sorted.length))}`, 'success');

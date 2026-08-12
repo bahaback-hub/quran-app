@@ -69,12 +69,7 @@ export interface CacheStats {
 }
 
 /** Download progress callback type. */
-export type ProgressCallback = (
-  surah: number,
-  reciter: string,
-  current: number,
-  total: number,
-) => void;
+export type ProgressCallback = (surah: number, reciter: string, current: number, total: number) => void;
 
 /* ===================== IndexedDB HELPERS ===================== */
 
@@ -215,9 +210,7 @@ async function evictIfNeeded(db?: IDBDatabase): Promise<void> {
       });
 
       if (import.meta.env.DEV) {
-        console.warn(
-          `[AudioCache] Evicted ${toDelete.length} files, freed ${(freedSize / 1024 / 1024).toFixed(1)} MB`,
-        );
+        console.warn(`[AudioCache] Evicted ${toDelete.length} files, freed ${(freedSize / 1024 / 1024).toFixed(1)} MB`);
       }
     }
   } catch (err) {
@@ -291,9 +284,7 @@ export async function cacheSurahAudio(
     await evictIfNeeded();
 
     if (import.meta.env.DEV) {
-      console.warn(
-        `[AudioCache] Cached ${cached}/${total} audio files for surah ${surah}, reciter ${reciter}`,
-      );
+      console.warn(`[AudioCache] Cached ${cached}/${total} audio files for surah ${surah}, reciter ${reciter}`);
     }
   })();
 
@@ -479,9 +470,7 @@ export async function deleteSurahCache(surah: number, reciter: string): Promise<
       req.onerror = () => resolve([]);
     });
 
-    const toDelete = entries.filter(
-      (e: CacheMetaEntry) => e.surah === surah && e.reciter === reciter,
-    );
+    const toDelete = entries.filter((e: CacheMetaEntry) => e.surah === surah && e.reciter === reciter);
 
     if (toDelete.length === 0) {
       return 0;
@@ -500,9 +489,7 @@ export async function deleteSurahCache(surah: number, reciter: string): Promise<
     });
 
     if (import.meta.env.DEV) {
-      console.warn(
-        `[AudioCache] Deleted ${toDelete.length} cached files for surah ${surah}, reciter ${reciter}`,
-      );
+      console.warn(`[AudioCache] Deleted ${toDelete.length} cached files for surah ${surah}, reciter ${reciter}`);
     }
 
     return toDelete.length;

@@ -495,7 +495,7 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   if (capMode) {
     const timeoutMs = 30000;
     let timedOut = false;
-    const mainPromise = _renderPageInternal(pageNum, targetCanvas).then(result => {
+    const mainPromise = _renderPageInternal(pageNum, targetCanvas).then((result) => {
       // If timeout already fired, discard the late result to avoid overwriting the fallback render
       if (timedOut) {
         return { canvas: null, layout: null };

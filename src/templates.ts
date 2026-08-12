@@ -706,7 +706,6 @@ export function readingStatsGrid(stats: Array<{ icon: string; label: string; val
   return `<div class="reading-stats-grid">${cards}</div>`;
 }
 
-
 /* ===================== RE-EXPORTS FROM templates-panels.ts ===================== */
 
 // The four large panel templates (settingsPanelHTML, floatingPlayerHTML,
@@ -714,9 +713,4 @@ export function readingStatsGrid(stats: Array<{ icon: string; label: string; val
 // to reduce this file's size from 1262 to ~688 lines.
 // They are re-exported here so existing imports from './templates.js'
 // continue to work unchanged.
-export {
-  settingsPanelHTML,
-  floatingPlayerHTML,
-  arabicKeyboardHTML,
-  helpPanelHTML,
-} from './templates-panels.js';
+export { settingsPanelHTML, floatingPlayerHTML, arabicKeyboardHTML, helpPanelHTML } from './templates-panels.js';

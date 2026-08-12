@@ -94,7 +94,10 @@ function createMockCtx() {
       // Return image data with non-white pixels to make verifyFontOnCanvas return true
       const data = new Uint8ClampedArray(4 * 80 * 80);
       // Make first pixel non-white so font verification succeeds
-      data[0] = 0; data[1] = 0; data[2] = 0; data[3] = 255;
+      data[0] = 0;
+      data[1] = 0;
+      data[2] = 0;
+      data[3] = 255;
       return { data };
     }),
   };
@@ -317,9 +320,7 @@ describe('mushaf-renderer.ts', () => {
     });
 
     it('should return null when response is not ok', async () => {
-      const mockFetch = vi.fn(() =>
-        Promise.resolve({ ok: false, status: 404, json: () => Promise.resolve({}) }),
-      );
+      const mockFetch = vi.fn(() => Promise.resolve({ ok: false, status: 404, json: () => Promise.resolve({}) }));
       vi.stubGlobal('fetch', mockFetch);
       const result = await loadPageData(2002);
       expect(result).toBeNull();
@@ -331,9 +332,7 @@ describe('mushaf-renderer.ts', () => {
         font: 'QCF4_Hafs_01',
         lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] }],
       };
-      const mockFetch = vi.fn(() =>
-        Promise.resolve({ ok: true, json: () => Promise.resolve(mockData) }),
-      );
+      const mockFetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(mockData) }));
       vi.stubGlobal('fetch', mockFetch);
       const result = await loadPageData(2003);
       expect(result).not.toBeNull();
@@ -344,9 +343,7 @@ describe('mushaf-renderer.ts', () => {
 
     it('should cache page data and not re-fetch', async () => {
       const mockData: PageLayoutData = { font: 'QCF4_Hafs_01', lines: [] };
-      const mockFetch = vi.fn(() =>
-        Promise.resolve({ ok: true, json: () => Promise.resolve(mockData) }),
-      );
+      const mockFetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(mockData) }));
       vi.stubGlobal('fetch', mockFetch);
 
       const uniquePage = 2004;
@@ -359,9 +356,7 @@ describe('mushaf-renderer.ts', () => {
     });
 
     it('should request the correct URL with zero-padded page number', async () => {
-      const mockFetch = vi.fn(() =>
-        Promise.resolve({ ok: true, json: () => Promise.resolve({ lines: [] }) }),
-      );
+      const mockFetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ lines: [] }) }));
       vi.stubGlobal('fetch', mockFetch);
       await loadPageData(2005);
       expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('2005.json'));
@@ -423,9 +418,7 @@ describe('mushaf-renderer.ts', () => {
     });
 
     it('should not throw on page numbers outside valid range', async () => {
-      const mockFetch = vi.fn(() =>
-        Promise.resolve({ ok: false, status: 404 }),
-      );
+      const mockFetch = vi.fn(() => Promise.resolve({ ok: false, status: 404 }));
       vi.stubGlobal('fetch', mockFetch);
 
       const canvas = document.createElement('canvas');
@@ -450,9 +443,7 @@ describe('mushaf-renderer.ts', () => {
     it('should successfully render a page with layout data', async () => {
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم', verse_key: '1:1' }] },
-        ],
+        lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم', verse_key: '1:1' }] }],
       };
 
       setupFetchMock(mockData);
@@ -498,9 +489,7 @@ describe('mushaf-renderer.ts', () => {
     it('should handle surah_header line type during rendering', async () => {
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [{ char: 'سورة', type: 'surah_header' }] },
-        ],
+        lines: [{ words: [{ char: 'سورة', type: 'surah_header' }] }],
       };
       setupFetchMock(mockData);
 
@@ -515,10 +504,7 @@ describe('mushaf-renderer.ts', () => {
     it('should handle lines with empty words arrays', async () => {
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [] },
-          { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] },
-        ],
+        lines: [{ words: [] }, { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] }],
       };
       setupFetchMock(mockData);
 
@@ -611,9 +597,7 @@ describe('mushaf-renderer.ts', () => {
       document.body.classList.add('night-mode');
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم', verse_key: '1:1' }] },
-        ],
+        lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم', verse_key: '1:1' }] }],
       };
       setupFetchMock(mockData);
 
@@ -630,9 +614,7 @@ describe('mushaf-renderer.ts', () => {
     it('should render with day mode colors by default', async () => {
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم', verse_key: '1:1' }] },
-        ],
+        lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم', verse_key: '1:1' }] }],
       };
       setupFetchMock(mockData);
 
@@ -651,9 +633,7 @@ describe('mushaf-renderer.ts', () => {
     it('should call fillRect for background', async () => {
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم' }] },
-        ],
+        lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم' }] }],
       };
       setupFetchMock(mockData);
 
@@ -669,9 +649,7 @@ describe('mushaf-renderer.ts', () => {
     it('should call strokeRect for page frame', async () => {
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم' }] },
-        ],
+        lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم' }] }],
       };
       setupFetchMock(mockData);
 
@@ -687,9 +665,7 @@ describe('mushaf-renderer.ts', () => {
     it('should call fillText for word rendering', async () => {
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم' }] },
-        ],
+        lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', text: 'بسم' }] }],
       };
       setupFetchMock(mockData);
 
@@ -784,9 +760,7 @@ describe('mushaf-renderer.ts', () => {
     it('should handle page with word-level font overrides', async () => {
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [{ char: 'ب', font: 'QCF4_Hafs_02', type: 'word', text: 'بسم', verse_key: '1:1' }] },
-        ],
+        lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_02', type: 'word', text: 'بسم', verse_key: '1:1' }] }],
       };
       setupFetchMock(mockData);
 
@@ -807,9 +781,7 @@ describe('mushaf-renderer.ts', () => {
 
       const mockData: PageLayoutData = {
         font: 'QCF4_Hafs_01',
-        lines: [
-          { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] },
-        ],
+        lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] }],
       };
       setupFetchMock(mockData);
 

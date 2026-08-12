@@ -781,7 +781,8 @@ function openItemDialog(opts: {
 
   const titleEl = document.createElement('h3');
   titleEl.textContent = opts.title;
-  titleEl.style.cssText = 'margin:0 0 20px;color:var(--text-primary,#000);font-size:18px;font-weight:bold;text-align:center;';
+  titleEl.style.cssText =
+    'margin:0 0 20px;color:var(--text-primary,#000);font-size:18px;font-weight:bold;text-align:center;';
 
   const textLabel = document.createElement('label');
   textLabel.textContent = __('adhkar_enter_text');

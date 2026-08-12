@@ -22,8 +22,16 @@ import { describe, it, expect } from 'vitest';
 type PluralForm = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other';
 
 const ARABIC_DIGITS: Record<string, string> = {
-  '0': '٠', '1': '١', '2': '٢', '3': '٣', '4': '٤',
-  '5': '٥', '6': '٦', '7': '٧', '8': '٨', '9': '٩',
+  '0': '٠',
+  '1': '١',
+  '2': '٢',
+  '3': '٣',
+  '4': '٤',
+  '5': '٥',
+  '6': '٦',
+  '7': '٧',
+  '8': '٨',
+  '9': '٩',
 };
 
 function toArabicDigits(value: string | number): string {
@@ -39,21 +47,13 @@ function toLatinDigits(value: string): string {
 }
 
 /** Replicates the __n function's core logic for testing. */
-function selectPluralForm(
-  bundle: Record<PluralForm, string>,
-  count: number,
-  lang: string,
-): string {
+function selectPluralForm(bundle: Record<PluralForm, string>, count: number, lang: string): string {
   const rules = new Intl.PluralRules(lang, { type: 'cardinal' });
   const rule = rules.select(count) as PluralForm;
   return bundle[rule] ?? bundle.other ?? '';
 }
 
-function substitute(
-  template: string,
-  count: number,
-  lang: string,
-): string {
+function substitute(template: string, count: number, lang: string): string {
   return template.replace(/\{(\w+)\}/g, (_match, key: string) => {
     if (key === 'count') {
       if (lang === 'ar') {

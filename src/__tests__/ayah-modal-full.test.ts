@@ -9,7 +9,14 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 vi.mock('../state.js', () => ({
   state: {
     fullQuranText: null as Array<{ surah: number; surahName: string; ayah: number; text: string }> | null,
-    favorites: [] as Array<{ key: string; surah: number; surahName: string; ayah: number; text: string; timestamp: number }>,
+    favorites: [] as Array<{
+      key: string;
+      surah: number;
+      surahName: string;
+      ayah: number;
+      text: string;
+      timestamp: number;
+    }>,
     surahData: null as unknown,
     currentSurah: 0,
     ayahsAudios: [] as string[],
@@ -69,7 +76,12 @@ vi.mock('../reciters.js', () => ({
   getReciterById: vi.fn((id: string) => {
     const map: Record<string, { id: string; name: string; source: string; server?: string }> = {
       'ar.alafasy': { id: 'ar.alafasy', name: 'Mishary Alafasy', source: 'api' },
-      'ar.abdulbasit': { id: 'ar.abdulbasit', name: 'Abdul Basit', source: 'mp3quran', server: 'https://server.mp3quran.net/abdulbasit/' },
+      'ar.abdulbasit': {
+        id: 'ar.abdulbasit',
+        name: 'Abdul Basit',
+        source: 'mp3quran',
+        server: 'https://server.mp3quran.net/abdulbasit/',
+      },
     };
     return map[id] || null;
   }),
@@ -392,9 +404,7 @@ describe('ayah-modal-full', () => {
     });
 
     it('should hide next ayah navigation when at last ayah', () => {
-      (state as Record<string, unknown>).fullQuranText = [
-        { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'Text 1' },
-      ];
+      (state as Record<string, unknown>).fullQuranText = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'Text 1' }];
       initAyahModal();
       openAyahModal({
         surah: 1,

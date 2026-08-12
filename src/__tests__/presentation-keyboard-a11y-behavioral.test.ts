@@ -204,16 +204,18 @@ describe('keyboard — font size adjustment', () => {
 describe('a11y — reduced motion', () => {
   beforeAll(() => {
     // jsdom doesn't implement matchMedia — polyfill it
-    window.matchMedia = window.matchMedia || ((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })) as unknown as typeof window.matchMedia;
+    window.matchMedia =
+      window.matchMedia ||
+      (((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })) as unknown as typeof window.matchMedia);
   });
 
   it('prefers-reduced-motion can be queried', () => {
