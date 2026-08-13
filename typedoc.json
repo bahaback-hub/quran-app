@@ -3,11 +3,14 @@
   "entryPoints": ["src"],
   "entryPointStrategy": "expand",
   "out": "docs/api",
+  "tsconfig": "tsconfig.docs.json",
   "exclude": [
     "**/__tests__/**",
     "**/*.test.ts",
     "**/*.spec.ts",
-    "src/translations/**"
+    "src/translations/**",
+    "src/state/**",
+    "src/templates/**"
   ],
   "excludePrivate": true,
   "excludeProtected": false,
