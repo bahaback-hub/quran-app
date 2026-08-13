@@ -59,13 +59,18 @@ jobs:
         run: |
           # Prevent coverage gaming: every source file must have at least 50% line coverage.
           # Files with very low coverage indicate untested modules (real tests needed, not boosters).
+          # Barrel files (state.ts, templates/index.ts) are excluded — they only re-export.
           node -e '
             const summary = require("./coverage/coverage-summary.json");
             const failures = [];
             const THRESHOLD = 50;
+            const BARREL_FILES = ["src/state.ts", "src/templates/index.ts"];
             for (const [file, data] of Object.entries(summary)) {
               if (file === "total") continue;
               if (!file.includes("/src/") || file.includes("__tests__")) continue;
+              const normalized = file.replace(/\\/g, "/").split("/src/")[1];
+              const srcPath = "src/" + (normalized || "");
+              if (BARREL_FILES.some((b) => srcPath.endsWith(b))) continue;
               const pct = data.lines.pct;
               if (typeof pct === "number" && pct < THRESHOLD) {
                 failures.push(`  ${file}: ${pct}% (lines)`);

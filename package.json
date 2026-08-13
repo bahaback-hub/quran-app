@@ -23,7 +23,7 @@
     "build:analyze": "vite build && node scripts/generate-csp-hashes.mjs",
     "test:a11y": "npm run build && npx serve dist -p 4173 & sleep 3 && node scripts/a11y-audit.mjs",
     "test:all": "npm run lint && npm run typecheck && npm test && npm run test:e2e",
-    "docs": "typedoc --out docs/api src --exclude '**/__tests__/**' --readme none",
+    "docs": "typedoc",
     "lighthouse:badge": "node scripts/update-lighthouse-badge.mjs",
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "knip": "knip --no-progress",
