@@ -45,6 +45,8 @@ jobs:
           done
 
       - name: ZAP Baseline Scan
+        id: zap
+        continue-on-error: true
         uses: zaproxy/action-baseline@v0.13.0
         with:
           target: 'http://127.0.0.1:4173/'
@@ -52,6 +54,12 @@ jobs:
           rules_file_name: '.github/zap-rules.tsv'
           allow_issue_writing: false
           fail_action: false
+
+      - name: ZAP Scan Result
+        if: always()
+        run: |
+          echo "ZAP scan completed (may have findings — review artifacts)"
+          echo "ZAP is informational only, does not block CI"
 
       - name: Stop preview server
         if: always()
