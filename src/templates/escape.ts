@@ -18,7 +18,16 @@ export function escapeHtml(text: string | null | undefined): string {
     .replace(/'/g, '&#39;');
 }
 
-export const escapeAttr = escapeHtml;
+/**
+ * Escape text for use inside an HTML attribute value.
+ * Same as escapeHtml but emphasizes the attribute context.
+ *
+ * @example
+ *   `<input value="${escapeAttr(userValue)}">`
+ */
+export function escapeAttr(text: string | null | undefined): string {
+  return escapeHtml(text);
+}
 
 export function escapeUriParam(text: string | null | undefined): string {
   if (text == null) {
