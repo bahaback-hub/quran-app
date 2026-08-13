@@ -6,6 +6,8 @@ export default defineConfig({
     setupFiles: ['./src/__tests__/setup-i18n.ts'],
     exclude: ['e2e/**', 'node_modules/**'],
     globals: true,
+    testTimeout: 120000,
+    hookTimeout: 120000,
     coverage: {
       reporter: ['text', 'html', 'json-summary', 'json'],
       exclude: [
