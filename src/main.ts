@@ -3,6 +3,8 @@ import { initApp } from './app.js';
 import { initI18n, __ } from './i18n.js';
 import { isCapacitorNative, getCapacitor } from './types.js';
 import { updateBanner } from './templates.js';
+import { initWebVitalsMonitoring } from './web-vitals.js';
+import { initMemoryManager } from './memory-manager.js';
 
 /**
  * One-time Service Worker cleanup (DISABLED — was causing infinite loop).
@@ -192,6 +194,12 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
       .catch(() => { /* noop */ });
   }
 }
+
+// Initialize Web Vitals monitoring (Real User Monitoring for Core Web Vitals)
+initWebVitalsMonitoring();
+
+// Initialize Memory Manager (proactive leak prevention)
+initMemoryManager();
 
 initI18n().then(() => initApp());
 
