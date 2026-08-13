@@ -109,4 +109,15 @@ describe('state.ts barrel module', () => {
     const s: AppState = state;
     expect(s).toBe(state);
   });
+
+  it('state.ts does NOT export internal functions (knip compliance)', async () => {
+    // These are internal to the state modules and should not be re-exported
+    const stateModule = await import('../state.js');
+    expect((stateModule as Record<string, unknown>).notifySubscribers).toBeUndefined();
+    expect((stateModule as Record<string, unknown>).flushPendingChanges).toBeUndefined();
+    expect((stateModule as Record<string, unknown>).recordChange).toBeUndefined();
+    expect((stateModule as Record<string, unknown>).enterBatch).toBeUndefined();
+    expect((stateModule as Record<string, unknown>).exitBatch).toBeUndefined();
+    expect((stateModule as Record<string, unknown>).getBatchDepth).toBeUndefined();
+  });
 });

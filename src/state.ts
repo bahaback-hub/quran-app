@@ -1,5 +1,5 @@
 /**
- * Reactive State Management for Quran App — BarreL Module.
+ * Reactive State Management for Quran App — Barrel Module.
  *
  * This file re-exports everything from the modular state implementation
  * under `src/state/`. All existing imports of `./state.js` continue to
@@ -37,12 +37,6 @@ export type { StateChangeCallback, TypedStateChangeCallback } from './state/subs
 export {
   subscribe,
   subscribeAll,
-  notifySubscribers,
-  flushPendingChanges,
-  recordChange,
-  enterBatch,
-  exitBatch,
-  getBatchDepth,
   immutablePush,
   immutableSplice,
   immutableMapSet,
@@ -56,8 +50,6 @@ export {
   setState,
   batch,
   resetState,
-  _flushForTests,
-  _getRawState,
 } from './state/proxy.js';
 
 export {
@@ -65,5 +57,4 @@ export {
   getStateHistory,
   clearStateHistory,
   isDevToolsInstalled,
-  _resetDevToolsForTests,
 } from './state/devtools.js';
