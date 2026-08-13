@@ -697,6 +697,17 @@ function handleKeyClick(e: MouseEvent): void {
 let _keyboardInitialized = false;
 
 /**
+ * Reset the keyboard initialization state.
+ * Useful for testing: allows re-binding handlers to new DOM elements
+ * in isolated test cases. In production, this should not be called.
+ *
+ * @internal
+ */
+export function _resetKeyboardForTests(): void {
+  _keyboardInitialized = false;
+}
+
+/**
  * Initialize the on-screen Arabic keyboard.
  * Binds toggle button click, individual key presses (letters, space,
  * backspace, clear, shift), and an outside-click dismiss handler.

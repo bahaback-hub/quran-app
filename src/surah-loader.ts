@@ -534,7 +534,7 @@ const _chunkHeightCache = new Map<string, number>();
 const _renderedChunks = new Set<number>();
 
 /** Total number of chunks for current surah. */
-let _totalChunks = 0;
+const _totalChunks = 0;
 
 /** Reference to current surah text data for virtual scroll operations. */
 let _currentTextData: SurahTextData | null = null;
@@ -794,7 +794,7 @@ function onVirtualScroll(): void {
  * Set up the scroll-based virtual scrolling observer.
  * Uses a scroll event listener with requestAnimationFrame throttling.
  */
-function setupVirtualScrollObserver(): void {
+function _setupVirtualScrollObserver(): void {
   cleanupVirtualScrollObserver();
   window.addEventListener('scroll', onVirtualScroll, { passive: true });
 }

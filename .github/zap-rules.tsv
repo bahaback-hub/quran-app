@@ -1,0 +1,12 @@
+# OWASP ZAP Baseline Rules Configuration
+# Format: <rule-id>	<action>	<justification>
+# Actions: IGNORE | WARN | FAIL
+
+10020	IGNORE	Local preview server, out-of-range not applicable
+10021	WARN	Reviewed: assets served with correct Content-Type
+10038	IGNORE	SPA app, no framing intended
+10036	IGNORE	Vite preview server header in dev/CI only
+10037	IGNORE	Vite preview header in dev/CI only
+10041	IGNORE	Set explicitly in public/_headers
+10055	WARN	Strict CSP present, monitor for weakening
+10096	WARN	Informational only
