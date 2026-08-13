@@ -64,6 +64,9 @@ jobs:
       - name: Generate CSP hashes
         run: node scripts/generate-csp-hashes.mjs
 
+      - name: Check performance budget
+        run: node scripts/check-performance-budget.mjs
+
       - name: Upload bundle analysis
         if: always()
         uses: actions/upload-artifact@v4

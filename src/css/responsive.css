@@ -814,6 +814,59 @@
   }
 }
 
+/* ========== الوضع الأفقي على الموبايل (Landscape) ========== */
+@media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+  body { padding: 4px; padding-bottom: 60px; }
+  .header { padding: 6px 10px; padding-top: 38px; }
+  .header h1 { font-size: 16px; }
+  .header p { display: none; }
+  .header-action-btn, .header-menu-btn { width: 32px; height: 32px; font-size: 14px; }
+  .prayer-bar.collapsed { height: 28px; }
+  .collapsed-preview { height: 28px; font-size: 11px; }
+  .player.collapsed { height: 36px; bottom: 0; }
+  .player:not(.collapsed) { padding: 4px 8px; padding-bottom: 44px; }
+  .bottom-nav { display: none; }
+  .surah-content { padding: 8px; min-height: 180px; }
+  .surah-title { font-size: 18px; }
+  .bismillah { font-size: 20px; }
+}
+
+/* ========== الشاشات الكبيرة جداً (Ultra-wide / 4K) ========== */
+@media (min-width: 1800px) {
+  .container { max-width: 1400px; }
+  .surah-content { font-size: 24px; }
+  .surah-title { font-size: 36px; }
+  .bismillah { font-size: 36px; }
+  .ayah-number { min-width: 40px; height: 40px; line-height: 40px; font-size: 16px; }
+  .header h1 { font-size: 32px; }
+}
+
+/* ========== تفضيل تقليل الحركة (prefers-reduced-motion) — WCAG 2.3.3 ========== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========== تباين عالٍ (prefers-contrast: high) — WCAG 1.4.6 ========== */
+@media (prefers-contrast: high) {
+  :root {
+    --accent: #000000;
+    --text: #000000;
+    --text-muted: #333333;
+    --surface: #ffffff;
+    --surface-alt: #f0f0f0;
+    --border: #000000;
+  }
+  .btn, .control-group button, .header-action-btn, .header-menu-btn, .bottom-nav-btn {
+    border: 2px solid currentColor !important;
+  }
+  .ayah.current { outline: 3px solid currentColor !important; outline-offset: 2px; }
+}
+
 /* ========== الطباعة ========== */
 @media print {
   body {

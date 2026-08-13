@@ -122,7 +122,7 @@ vi.mock('../internal-state.js', () => ({
 
 // ─── Import after mocks ────────────────────────────────────────
 
-import { performExactSearch, initSearchAutocomplete, startVoiceSearch, initKeyboard } from '../search-ui.js';
+import { performExactSearch, initSearchAutocomplete, startVoiceSearch, initKeyboard, _resetKeyboardForTests } from '../search-ui.js';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { showToast } from '../ui.js';
@@ -741,6 +741,7 @@ describe('initKeyboard', () => {
   let keyBtn: HTMLElement;
 
   beforeEach(() => {
+    _resetKeyboardForTests();
     toggleBtn = document.createElement('button');
     toggleBtn.id = 'kbdToggleBtn';
     keyBtn = document.createElement('button');

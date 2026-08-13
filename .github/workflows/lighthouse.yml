@@ -3,11 +3,14 @@ name: Lighthouse CI
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   lighthouse:
     name: Lighthouse Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,9 +19,96 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+
       - name: Lighthouse CI
         run: |
           npm install -g @lhci/cli
           lhci autorun
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Extract scores to JSON
+        if: always()
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const dir = 'lighthouseci';
+          if (!fs.existsSync(dir)) { console.log('{}'); process.exit(0); }
+          const files = fs.readdirSync(dir).filter(f => f.endsWith('-report.json'));
+          if (!files.length) { console.log('no reports'); process.exit(0); }
+          const latest = files.sort().pop();
+          const report = JSON.parse(fs.readFileSync(path.join(dir, latest), 'utf8'));
+          const scores = {
+            url: report.finalUrl || report.finalDisplayedUrl,
+            fetchTime: report.fetchTime,
+            performance: Math.round((report.categories.performance?.score || 0) * 100),
+            accessibility: Math.round((report.categories.accessibility?.score || 0) * 100),
+            bestPractices: Math.round((report.categories['best-practices']?.score || 0) * 100),
+            seo: Math.round((report.categories.seo?.score || 0) * 100),
+            pwa: Math.round((report.categories.pwa?.score || 0) * 100),
+            metrics: {
+              fcp: report.audits['first-contentful-paint']?.displayValue,
+              lcp: report.audits['largest-contentful-paint']?.displayValue,
+              tbt: report.audits['total-blocking-time']?.displayValue,
+              cls: report.audits['cumulative-layout-shift']?.displayValue,
+              si: report.audits['speed-index']?.displayValue,
+              tti: report.audits['interactive']?.displayValue
+            }
+          };
+          fs.writeFileSync('lighthouse-scores.json', JSON.stringify(scores, null, 2));
+          console.log(JSON.stringify(scores, null, 2));
+          "
+
+      - name: Upload Lighthouse report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: |
+            lighthouseci/
+            lighthouse-scores.json
+          retention-days: 30
+
+      - name: Comment PR with scores
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('lighthouse-scores.json')) return;
+            const scores = JSON.parse(fs.readFileSync('lighthouse-scores.json', 'utf8'));
+            const emoji = (s) => s >= 90 ? '🟢' : s >= 50 ? '🟠' : '🔴';
+            const body = [
+              '## 📊 Lighthouse Scores',
+              '',
+              `**URL:** ${scores.url}  `,
+              `**Time:** ${scores.fetchTime}`,
+              '',
+              '| Category | Score | |',
+              '|----------|-------|---|',
+              `| Performance | ${scores.performance} | ${emoji(scores.performance)} |`,
+              `| Accessibility | ${scores.accessibility} | ${emoji(scores.accessibility)} |`,
+              `| Best Practices | ${scores.bestPractices} | ${emoji(scores.bestPractices)} |`,
+              `| SEO | ${scores.seo} | ${emoji(scores.seo)} |`,
+              `| PWA | ${scores.pwa} | ${emoji(scores.pwa)} |`,
+              '',
+              '### Core Web Vitals',
+              '',
+              `| Metric | Value |`,
+              `|--------|-------|`,
+              `| First Contentful Paint | ${scores.metrics.fcp} |`,
+              `| Largest Contentful Paint | ${scores.metrics.lcp} |`,
+              `| Total Blocking Time | ${scores.metrics.tbt} |`,
+              `| Cumulative Layout Shift | ${scores.metrics.cls} |`,
+              `| Speed Index | ${scores.metrics.si} |`,
+              `| Time to Interactive | ${scores.metrics.tti} |`,
+              '',
+              '_Full report available in workflow artifacts._'
+            ].join('\n');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });

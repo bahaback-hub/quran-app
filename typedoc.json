@@ -17,7 +17,7 @@
   "categoryOrder": ["Core", "Audio", "UI", "Utilities", "*"],
   "cleanOutputDir": true,
   "readme": "none",
-  "githubPages": false,
+  "githubPages": true,
   "name": "Quran App API Documentation",
   "intentionallyNotExported": [],
   "validation": {

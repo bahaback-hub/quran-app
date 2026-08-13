@@ -20,6 +20,7 @@ import {
   togglePlayPause,
   updatePlayPauseBtn,
 } from './audio.js';
+import { toggleAdhkarPanel } from './adhkar.js';
 
 /**
  * Initialize all navigation event listeners for the app.
@@ -179,8 +180,7 @@ export function initNavigation(): void {
         break;
       case 'more':
         // Open adhkar panel (was opening settings, but adhkar had no button)
-        // Use dynamic import to avoid circular dependency at module load time
-        import('./adhkar.js').then((m) => m.toggleAdhkarPanel()).catch(() => { /* noop */ });
+        toggleAdhkarPanel();
         dom.controls?.classList.remove('mobile-show');
         break;
       default:

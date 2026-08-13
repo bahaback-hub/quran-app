@@ -101,6 +101,27 @@ export default defineConfig({
             type: 'image/png',
             form_factor: 'wide',
             label: 'وضع العرض'
+          },
+          {
+            src: 'screenshots/reading-mode.png',
+            sizes: '1080x1920',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'وضع قراءة القرآن — الجوال'
+          },
+          {
+            src: 'screenshots/mushaf-mode.png',
+            sizes: '1080x1920',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'وضع المصحف — الجوال'
+          },
+          {
+            src: 'screenshots/presentation-mode.png',
+            sizes: '1080x1920',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'وضع العرض — الجوال'
           }
         ],
         icons: [
@@ -122,7 +143,7 @@ export default defineConfig({
           {
             name: 'مواقيت الصلاة',
             short_name: 'الصلاة',
-            description: 'عرض مواقيت الصلاة',
+            description: 'عرض مواقيت الصلاة القادمة والأذان',
             url: './#prayer',
             icons: [{ src: 'icon-192.png', sizes: '192x192' }]
           },
@@ -131,6 +152,27 @@ export default defineConfig({
             short_name: 'استماع',
             description: 'الاستماع إلى القرآن الكريم',
             url: './#audio',
+            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'البحث',
+            short_name: 'بحث',
+            description: 'البحث في القرآن الكريم',
+            url: './#search',
+            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'المفضلة',
+            short_name: 'مفضلة',
+            description: 'عرض الآيات المفضلة',
+            url: './#favorites',
+            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'الأذكار',
+            short_name: 'أذكار',
+            description: 'أذكار الصباح والمساء',
+            url: './#adhkar',
             icons: [{ src: 'icon-192.png', sizes: '192x192' }]
           }
         ]
