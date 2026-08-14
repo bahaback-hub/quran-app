@@ -344,7 +344,7 @@
   }
 }
 
-/* الجوال: نخفي التفسير الجانبي ونستخدم المودال بدلاً عنه */
+/* الجوال: ستارة التفسير تظهر من الأسفل (bottom sheet) */
 @media (max-width: 600px) {
   .tafsir-curtain {
     width: 100vw;
@@ -365,9 +365,10 @@
     bottom: 0;
     left: 0;
   }
+  /* زر فتح الستارة — يظهر في أسفل الشاشة على الجوال */
   .tafsir-curtain-handle {
     position: fixed;
-    bottom: -60px;
+    bottom: 120px;
     top: auto;
     left: 50%;
     transform: translateX(-50%);
@@ -534,13 +535,34 @@
     padding: 8px 12px;
   }
 
-  /* أدوات التحكم — تخفى افتراضياً وتظهر عند الضغط على تبويب "أدوات" */
+  /* أدوات التحكم — تخفى افتراضياً وتظهر عند الضغط على تبويب "أدوات"
+     لكن control-card الذي يحتوي على طرق العرض يبقى مرئياً دائماً */
   .controls {
     padding: 8px;
     display: none;
   }
   .controls.mobile-show {
     display: flex;
+  }
+  /* control-card الذي يحتوي على طرق العرض — مرئي دائماً على الجوال */
+  .control-card.control-card-persistent {
+    display: block !important;
+    padding: 8px;
+    margin: 8px 0;
+    background: var(--controls-bg, rgba(255, 255, 255, 0.1));
+    border-radius: 12px;
+  }
+  /* طرق العرض (سورة/مصحف/عرض) — مرئية دائماً على الجوال */
+  .view-mode-group {
+    display: flex !important;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 0;
+  }
+  .view-mode-btn {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 20px;
   }
   .controls-row .control-group {
     min-width: 100%;

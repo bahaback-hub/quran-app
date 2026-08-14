@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.2 (2026-08-14) — Mobile UI Fixes (Tafsir + View Modes)
+
+### 🐛 Bug Fixes — Mobile UI
+
+1. **ستارة التفسير لا تظهر على الجوال** (was hidden off-screen)
+   - المشكلة: `.tafsir-curtain-handle` كان مخفياً بـ `bottom: -60px` على الجوال
+   - المستخدم لا يستطيع رؤية الزر الذي يفتح الستارة
+   - الإصلاح: تغيير `bottom: -60px` → `bottom: 120px` (يظهر فوق شريط التنقل)
+   - النتيجة: زر الستارة يظهر في أسفل الشاشة على الجوال
+
+2. **اختفاء طرق العرض على الجوال** (view-mode-group hidden)
+   - المشكلة: `.controls` كان مخفياً بـ `display: none` على الجوال
+   - هذا أخفى كل ما بداخله بما في ذلك أزرار (سورة/مصحف/عرض)
+   - الإصلاح: إضافة class `control-card-persistent` للـ card الذي يحتوي على طرق العرض
+   - CSS جديد: `.control-card.control-card-persistent { display: block !important }`
+   - النتيجة: أزرار طرق العرض تظهر دائماً على الجوال (مستقلة عن تبويب "أدوات")
+
+### 📱 تحسينات إضافية
+- تكبير أزرار طرق العرض على الجوال (44×44px للّمس)
+- تكبير حجم الأيقونات (20px بدل 14px)
+- إضافة خلفية و border-radius لطرق العرض
+
+### ✅ الفحوصات
+- typecheck: 0 أخطاء
+- lint: 0 أخطاء، 0 تحذيرات
+- build: 0 تحذيرات
+
 ## 2.0.0 (2026-08-14) — Zero Skipped Tests (Real Mock Instead of Skip)
 
 ### 🎯 Major Achievement: Zero Skipped Tests
