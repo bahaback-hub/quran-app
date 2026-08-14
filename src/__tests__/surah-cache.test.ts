@@ -1,40 +1,33 @@
 /**
  * Tests for surah-cache.ts — IndexedDB operations for offline surah data.
  *
- * NOTE: This test suite is skipped on CI because fake-indexeddb is extremely
- * slow on GitHub Actions Ubuntu runners (60s+ per test). The tests pass
- * locally and provide value during development. CI uses the surah-cache
- * behavioral tests instead (surah-cache-behavioral.test.ts) which don't
- * require real IndexedDB operations.
+ * Uses a lightweight in-memory IndexedDB mock (mock-indexeddb.ts) instead
+ * of fake-indexeddb which is extremely slow on CI (60s+ per test).
+ * The mock implements only the subset of IDB API used by surah-cache.ts.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import 'fake-indexeddb/auto';
+import './mocks/mock-indexeddb.js';
 import { cacheSurahToIDB, getCachedSurahFromIDB, type CachedSurahEntry } from '../surah-cache.js';
-
-// Skip on CI — fake-indexeddb is too slow on GitHub Actions runners
-const describeOrSkip = process.env.CI === 'true' ? describe.skip : describe;
 
 // Helper to delete the database between tests for clean state
 function deleteDatabase(): Promise<void> {
   return new Promise((resolve) => {
     const req = indexedDB.deleteDatabase('QuranSurahDB');
     req.onsuccess = () => resolve();
-    req.onerror = () => resolve(); // Ignore errors — DB may not exist
+    req.onerror = () => resolve();
     req.onblocked = () => resolve();
   });
 }
 
-describeOrSkip('surah-cache', () => {
-  // Increase hook timeout for CI environments where IndexedDB operations
-  // may be slower (fake-indexeddb on Ubuntu runners can be sluggish).
+describe('surah-cache', () => {
   beforeEach(async () => {
     await deleteDatabase();
-  }, 30000);
+  });
 
   afterEach(async () => {
     await deleteDatabase();
-  }, 30000);
+  });
 
   /* ===================== cacheSurahToIDB ===================== */
 
