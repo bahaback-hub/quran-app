@@ -793,6 +793,9 @@ function onVirtualScroll(): void {
 /**
  * Set up the scroll-based virtual scrolling observer.
  * Uses a scroll event listener with requestAnimationFrame throttling.
+ *
+ * NOTE: Currently unused — renderSurah() renders all ayahs at once instead of
+ * using virtual scrolling. Kept for future re-enablement if performance requires it.
  */
 function _setupVirtualScrollObserver(): void {
   cleanupVirtualScrollObserver();
@@ -802,18 +805,6 @@ function _setupVirtualScrollObserver(): void {
 function cleanupVirtualScrollObserver(): void {
   window.removeEventListener('scroll', onVirtualScroll);
   _scrollRafPending = false;
-}
-
-function _ensureVirtualSentinel(textData: SurahTextData): void {
-  cleanupVirtualObserver();
-  // With windowed virtual scrolling, we no longer need the sentinel
-  // All chunks are managed by the scroll observer instead.
-  // But we still need to ensure all ayahs have been generated at least once
-  // for the total chunk count to be correct.
-  if (_ayahsReadyCount < textData.ayahs.length) {
-    // We'll lazily generate HTML on demand via updateVisibleChunks
-    _ayahsReadyCount = textData.ayahs.length; // Mark all as "ready" since we generate on demand
-  }
 }
 
 function cleanupVirtualObserver(): void {
