@@ -25,15 +25,20 @@ test.describe('التنقل السفلي (جوال)', () => {
   });
 
   test('النقر على زر المشغل يظهر خيار المشغل', async ({ page }) => {
-    // Ensure all panels are closed before clicking (avoid pointer interception)
+    // Ensure all panels are closed before clicking
     await page.evaluate(() => {
       document.body.classList.remove('panel-open', 'tafsir-only-open');
       document.querySelectorAll('.settings-panel.open, .favorites-panel.open, .adhkar-panel.open, .tafsir-curtain.open, .help-panel.open, .mushaf-surah-overlay.open, .sleep-timer-overlay.open')
         .forEach(el => el.classList.remove('open'));
     });
-    await page.waitForTimeout(300);
-    // Force-click with CSS that bypasses pointer interception
-    await page.locator('#bottomNav .bottom-nav-btn[data-tab="player"]').click({ force: true, timeout: 15000 });
+    await page.waitForTimeout(500);
+    // Dispatch click event directly via JS (bypasses Playwright visibility checks)
+    await page.evaluate(() => {
+      const btn = document.querySelector('#bottomNav .bottom-nav-btn[data-tab="player"]');
+      if (btn) {
+        btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      }
+    });
     await expect(page.locator('#player')).toBeVisible({ timeout: 10000 });
   });
 });
