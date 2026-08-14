@@ -8,6 +8,13 @@ export default defineConfig({
     globals: true,
     testTimeout: 120000,
     hookTimeout: 120000,
+    teardownTimeout: 30000,
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
     coverage: {
       reporter: ['text', 'html', 'json-summary', 'json'],
       exclude: [
