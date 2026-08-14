@@ -458,6 +458,139 @@ body.night-mode .mushaf-image-skeleton {
   }
 }
 
+/* ===== تحسينات وضع المصحف على الجوال (شامل) ===== */
+@media (max-width: 600px) {
+  /* الحاوية الرئيسية — تأخذ كامل الشاشة المتاحة */
+  .mushaf-container {
+    padding: 8px 6px;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  /* رأس الصفحة — تصغير المسافات */
+  .mushaf-header {
+    padding: 4px 0 6px;
+    margin-bottom: 8px;
+  }
+  .mushaf-header-row .mushaf-surah-names {
+    font-size: 14px;
+    gap: 4px;
+  }
+  .mushaf-header-row .mushaf-surah-name {
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+  .mushaf-header-row .mushaf-juz {
+    font-size: 12px;
+  }
+
+  /* تذييل الصفحة — تصغير */
+  .mushaf-footer {
+    font-size: 16px;
+    padding: 6px 0 2px;
+    letter-spacing: 2px;
+  }
+
+  /* الـ canvas — يأخذ كامل العرض */
+  .mushaf-page-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* أزرار التنقل بين الصفحات — أكبر للّمس */
+  .mushaf-page-nav-btn {
+    width: 44px;
+    height: 56px;
+    font-size: 22px;
+    opacity: 0.6;
+  }
+  .mushaf-page-nav-btn:hover,
+  .mushaf-page-nav-btn:active {
+    opacity: 1;
+  }
+
+  /* قائمة السور (overlay) — تأخذ كامل الشاشة على الجوال */
+  .mushaf-surah-overlay {
+    z-index: 6000;
+  }
+  .mushaf-surah-overlay-inner {
+    width: 95%;
+    max-width: 95%;
+    max-height: 85vh;
+    margin: 0 auto;
+  }
+  .mushaf-surah-overlay-header {
+    padding: 12px 14px;
+  }
+  .mushaf-surah-overlay-header h3 {
+    font-size: 16px;
+  }
+  .mushaf-surah-overlay-list {
+    padding: 6px;
+  }
+  .mushaf-surah-overlay-btn {
+    padding: 12px 14px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+
+  /* pageSlider و pageSelect — أكبر للّمس */
+  #pageSlider {
+    height: 44px;
+    width: 100%;
+  }
+  #pageSelect {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  /* Tajweed legend — تصغير على الجوال */
+  .mushaf-tajweed-legend {
+    margin-top: 8px;
+    padding: 8px;
+  }
+  .mushaf-tajweed-legend-title {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  .mushaf-tajweed-legend-item {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  /* page indicator — أوضح */
+  .page-indicator {
+    font-size: 11px;
+  }
+}
+
+/* ===== تحسينات إضافية للشاشات الصغيرة جداً (≤400px) ===== */
+@media (max-width: 400px) {
+  .mushaf-container {
+    padding: 4px 2px;
+  }
+  .mushaf-header-row {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .mushaf-header-row .mushaf-surah-names {
+    font-size: 12px;
+  }
+  .mushaf-header-row .mushaf-surah-name {
+    font-size: 11px;
+    padding: 1px 4px;
+  }
+  .mushaf-footer {
+    font-size: 14px;
+  }
+  .mushaf-page-nav-btn {
+    width: 36px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
 /* ===== Tajweed legend ===== */
 .mushaf-tajweed-legend {
   margin-top: 16px;
@@ -500,4 +633,11 @@ body.night-mode .mushaf-image-skeleton {
 }
 .mushaf-tajweed-legend-label {
   white-space: nowrap;
+}
+
+/* ===== أزرار التنقل على أجهزة اللمس (دائماً مرئية) ===== */
+@media (hover: none) and (pointer: coarse) {
+  .mushaf-page-nav-btn {
+    opacity: 0.7;
+  }
 }

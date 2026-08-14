@@ -4,6 +4,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.3 (2026-08-14) — Mushaf Mode Mobile Fixes (Comprehensive)
+
+### 🐛 Bug Fixes — Mushaf Mode on Mobile (8 issues fixed)
+
+1. **أزرار التنقل بين الصفحات صغيرة جداً**
+   - قبل: 32×40px (أصغر من حد اللمس WCAG 44px)
+   - بعد: 44×56px (مناسبة للّمس)
+   - إظهار دائم على أجهزة اللمس (بدلاً من hover فقط)
+
+2. **رأس صفحة المصحف يأخذ مساحة كبيرة**
+   - تصغير المسافات (padding 4px بدل 6px)
+   - تصغير أسماء السور (14px بدل 20px)
+   - تصغير رقم الجزء (12px بدل 15px)
+
+3. **تذييل الصفحة (رقم الصفحة) كبير**
+   - تصغير من 22px → 16px
+   - تقليل letter-spacing من 3px → 2px
+
+4. **قائمة السور (overlay) لا تظهر بشكل صحيح**
+   - z-index مرفوع من 5000 → 6000 (فوق شريط التنقل)
+   - تأخذ 95% من عرض الشاشة (بدل 90%)
+   - ارتفاع أقصى 85vh (بدل 80vh)
+   - أزرار السور أكبر للّمس (44px min-height)
+
+5. **pageSlider و pageSelect صغيرة**
+   - ارتفاع 44px للّمس
+   - عرض كامل للـ slider
+
+6. **Tajweed legend يأخذ مساحة كبيرة**
+   - تصغير padding من 12px → 8px
+   - تصغير الخط من 14px → 12px
+   - تصغير عناصر القائمة من 12px → 10px
+
+7. **الـ canvas لا يتمركز جيداً**
+   - width: 100% + height: auto (يحافظ على النسبة)
+
+8. **الشاشات الصغيرة جداً (≤400px)**
+   - تصغير إضافي للمسافات
+   - التفاف أسماء السور (flex-wrap)
+   - تصغير أزرار التنقل إلى 36×48px
+
+### 📱 تحسينات إضافية
+- إضافة قاعدة `@media (hover: none)` لأجهزة اللمس
+- تحسين opacity للأزرار (0.6 افتراضياً، 1 عند hover/active)
+
+### ✅ الفحوصات
+- typecheck: 0 أخطاء
+- lint: 0 أخطاء، 0 تحذيرات
+- build: 0 تحذيرات
+
 ## 2.0.2 (2026-08-14) — Mobile UI Fixes (Tafsir + View Modes)
 
 ### 🐛 Bug Fixes — Mobile UI
