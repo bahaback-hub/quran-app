@@ -4,6 +4,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.4 (2026-08-14) — Mushaf Mobile Overflow Fix (Screen Expansion)
+
+### 🐛 Bug Fix — Mushaf Mode Causes Screen Expansion on Mobile
+
+**المشكلة**: عند فتح وضع المصحف على الجوال، تتوسع الشاشة أفقياً وتصبح غير منظمة.
+
+**السبب الجذري**:
+- الـ canvas لأبعاد ثابتة 1080×1540 بكسل (أكبر من عرض شاشة الجوال)
+- CSS `max-width: 100%` لم يكن كافياً لإجبار canvas على التقلص
+- عدم وجود `width: 100%` صريح على canvas
+- الحاويات الأب لم تمنع الـ overflow الأفقي بشكل صارم
+
+**الإصلاح**:
+1. **إضافة `width: 100% !important` على canvas** (بدلاً من max-width فقط)
+2. **إضافة `height: auto !important`** للحفاظ على النسبة
+3. **إضافة `box-sizing: border-box`** على كل الحاويات
+4. **قواعد `body.mushaf-active`** جديدة:
+   - `overflow-x: hidden` على body
+   - `max-width: 100vw` لمنع التوسع
+   - كل الحاويات (container, surah-content, mushaf-container, mushaf-image-wrapper) تمنع overflow
+5. **قواعد خاصة بالجوال (max-width: 600px)**:
+   - تصغير padding إلى 4px على surah-content
+   - تصغير padding إلى 6px على mushaf-container
+   - `touch-action: manipulation` لمنع zoom العرضي
+
+### 📱 النتيجة
+- صفحة المصحف تبقى ضمن حدود الشاشة على الجوال
+- لا يوجد تمرير أفقي مزعج
+- المحتوى يتمركز بشكل صحيح
+- الـ canvas يتقلص ليناسب الشاشة
+
+### ✅ الفحوصات
+- typecheck: 0 أخطاء
+- lint: 0 أخطاء، 0 تحذيرات
+- build: 0 تحذيرات
+
 ## 2.0.3 (2026-08-14) — Mushaf Mode Mobile Fixes (Comprehensive)
 
 ### 🐛 Bug Fixes — Mushaf Mode on Mobile (8 issues fixed)
