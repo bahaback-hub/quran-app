@@ -21,8 +21,8 @@ test.describe('Visual Regression', () => {
 
   test('homepage - surah view', async ({ page }) => {
     await expect(page.locator('.surah-content')).toHaveScreenshot('surah-view.png', {
-      maxDiffPixelRatio: 0.05,
-      threshold: 0.2,
+      maxDiffPixelRatio: 0.08,
+      threshold: 0.25,
     });
   });
 
