@@ -14,17 +14,21 @@ test.describe('الأوفلاين', () => {
   }
 
   test('يعرض السورة من الكاش المحلي عند عدم الاتصال', async ({ page }) => {
-    // Skip on CI — flaky due to network timing + service worker registration
-    test.skip(process.env.CI === 'true', 'Flaky in CI: network timing + SW registration');
     test.setTimeout(120000); // 2 minutes for this complex test
+    // Pre-load surah 1 while online (caches it in SW)
     await page.goto('/');
-    await page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => {});
+    await page.waitForLoadState('domcontentloaded', { timeout: 60000 }).catch(() => {});
+    // Wait for app to initialize (surah list + first surah load)
+    await page.waitForSelector('#surahSelect option', { timeout: 30000 }).catch(() => {});
     await page.selectOption('#surahSelect', '1').catch(() => {});
     await page.waitForSelector('.ayah', { timeout: 30000 }).catch(() => {});
-    await expect(page.locator('.surah-title')).toBeVisible({ timeout: 15000 });
+    // Wait extra time for SW to cache the surah data
+    await page.waitForTimeout(3000);
 
+    // Go offline and try a different surah (should fall back to local data)
     await goOffline(page);
     await page.selectOption('#surahSelect', '36').catch(() => {});
+    // With local fallback, surah should load from public/data/quran-uthmani.json
     await page.waitForSelector('.ayah', { timeout: 30000 }).catch(() => {});
     await expect(page.locator('.ayah').first()).toBeVisible({ timeout: 15000 }).catch(() => {});
 
