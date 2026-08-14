@@ -75,7 +75,9 @@
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
+  overflow-x: hidden;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -246,12 +248,16 @@ body.night-mode .mushaf-surah-overlay-inner {
   padding: 0;
   margin: 0;
   width: 100%;
+  max-width: 100%;
   overflow: hidden;
+  /* منع التوسع الأفقي على الجوال */
+  box-sizing: border-box;
 }
 
 .mushaf-page-img {
   display: block;
   max-width: 100%;
+  width: 100%;
   height: auto;
   object-fit: contain;
   border-radius: 2px;
@@ -265,10 +271,14 @@ body.night-mode .mushaf-page-img {
 
 .mushaf-page-canvas {
   display: block;
-  max-width: 100%;
-  height: auto;
+  /* إجبار canvas على التقلص ليناسب الحاوية */
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
   border-radius: 2px;
   background: #f5f0e8;
+  /* منع التوسع الأفقي */
+  box-sizing: border-box;
 }
 
 /* ===== تظليل الآية الحالية ===== */
@@ -639,5 +649,70 @@ body.night-mode .mushaf-image-skeleton {
 @media (hover: none) and (pointer: coarse) {
   .mushaf-page-nav-btn {
     opacity: 0.7;
+  }
+}
+
+/* ===== منع التوسع الأفقي على الجوال في وضع المصحف ===== */
+/* المشكلة: canvas بأبعاد 1080×1540 قد يسبب overflow أفقي على الجوال */
+/* الحل: إجبار كل الحاويات على عدم التجاوز */
+
+body.mushaf-active {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+body.mushaf-active .container,
+body.mushaf-active .surah-content,
+body.mushaf-active .mushaf-container,
+body.mushaf-active .mushaf-image-wrapper {
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+body.mushaf-active .mushaf-page-canvas {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* ===== منع التوسع على الجوال بشكل خاص ===== */
+@media (max-width: 600px) {
+  body.mushaf-active {
+    overflow-x: hidden;
+    max-width: 100vw;
+    position: relative;
+  }
+
+  body.mushaf-active .surah-content {
+    padding: 4px;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  body.mushaf-active .mushaf-container {
+    padding: 6px 4px;
+    margin: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  body.mushaf-active .mushaf-image-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  body.mushaf-active .mushaf-page-canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    display: block;
+  }
+
+  /* منع zoom العرضي على الجوال */
+  body.mushaf-active .mushaf-page-nav-btn {
+    touch-action: manipulation;
   }
 }
