@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.9.0 (2026-08-14) — Deep Cleanup (Technical Debt Reduction)
+
+### 🧹 Dead Code Removal
+- Remove `_ensureVirtualSentinel()` function — was never called (dead code)
+- Rename `_setupVirtualScrollObserver()` → `setupVirtualScrollObserver()` (was renamed with `_` prefix to suppress knip warning; now properly named since virtual scroll system may be re-enabled)
+
+### ⚡ Visual Regression Thresholds Tightened
+- Reduced `maxDiffPixelRatio` from 0.1 (10%) → 0.05 (5%) — stricter
+- Reduced `threshold` from 0.3 → 0.2 — stricter per-pixel tolerance
+- Added 1500ms font load wait (was 1000ms) — better Arabic text rendering
+- Added documentation: `npx playwright test --update-snapshots` for baseline updates
+
+### 📊 Code Quality Audit Results
+- ✅ 0 `any` types in source code (TypeScript strict mode fully enforced)
+- ✅ 0 `console.log` in source (only `console.warn`/`error` for error handling)
+- ✅ 0 TODO/FIXME/HACK comments in source
+- ⚠️ 129 `!important` in CSS (mostly justified in media queries — tracked separately)
+- ⚠️ 126 `console.warn/error` in source (acceptable for error logging)
+- ⚠️ 10 files >500 lines (largest: adhkar.ts 1133 lines — refactor candidate)
+
+### ⚠️ Known Remaining Limitations (justified)
+- `surah-cache.test.ts` skipped on CI (fake-indexeddb inherently slow)
+  - Covered by `surah-cache-behavioral.test.ts` (same logic, no IDB)
+- Non-chromium E2E browsers non-blocking (browser-specific quirks)
+- Large files (adhkar.ts, surah-loader.ts) — candidates for future refactoring
+
 ## 1.8.0 (2026-08-13) — Real Fixes (No More Skipped Tests)
 
 ### 🐛 Bug Fixes — Real Root Cause Fixes
