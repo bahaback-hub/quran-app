@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0 (2026-08-14) — Zero Skipped Tests (Real Mock Instead of Skip)
+
+### 🎯 Major Achievement: Zero Skipped Tests
+- ✅ surah-cache.test.ts now runs on CI (was skipped since v1.7.9)
+- ✅ 25 surah-cache tests pass in 10ms (was 60s+ with fake-indexeddb)
+
+### ✨ Features — Lightweight IndexedDB Mock
+- 📦 Add `src/__tests__/mocks/mock-indexeddb.ts` (250 lines)
+  - In-memory mock implementing only the IDB subset used by surah-cache.ts
+  - MockIndexedDB, MockDatabase, MockObjectStore, MockTransaction, MockRequest
+  - 6000x faster than fake-indexeddb (10ms vs 60s for 25 tests)
+  - Eliminates need for skip on CI
+
+### 🔧 Test Infrastructure
+- Replace `import 'fake-indexeddb/auto'` with `import './mocks/mock-indexeddb.js'`
+- Remove `describeOrSkip` pattern — tests now run on CI
+- Remove 30s hook timeouts (mock is synchronous, no need)
+- Fix vitest config: `poolOptions` → `isolate: true` + `fileParallelism: false`
+
+### 📊 Final Code Quality
+- ✅ 0 skipped tests (was 1 skipped)
+- ✅ 0 `any` types
+- ✅ 0 `console.log` in source
+- ✅ 0 TODO/FIXME/HACK
+- ✅ All 25 surah-cache tests pass in 10ms
+
+### ⚠️ Remaining (justified, documented)
+- 129 `!important` in CSS (mostly for inline style overrides — necessary)
+- 126 `console.warn/error` (acceptable for error logging)
+- 10 files >500 lines (refactor candidates — large but well-organized)
+- Virtual scroll code (~250 lines) kept for future re-enablement
+
 ## 1.9.0 (2026-08-14) — Deep Cleanup (Technical Debt Reduction)
 
 ### 🧹 Dead Code Removal

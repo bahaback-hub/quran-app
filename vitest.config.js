@@ -10,11 +10,8 @@ export default defineConfig({
     hookTimeout: 120000,
     teardownTimeout: 30000,
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    isolate: true,
+    fileParallelism: false,
     coverage: {
       reporter: ['text', 'html', 'json-summary', 'json'],
       exclude: [
