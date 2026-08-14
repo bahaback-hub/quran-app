@@ -735,21 +735,30 @@
     font-size: 10px;
   }
   /* على الشاشات الصغيرة جداً (≤320px):
-     - أزرار الرأس 40×40 (7×40 + 6×2 = 292px — يفي بـ 320px)
-     - مبدّل المظهر 36×36 (3×36 + 2×2 + 4 padding = 116px) */
+     - تصغير الأزرار لتناسب الشاشة (8 أزرار × 34px = 272px + 7 فجوات × 1px = 279px)
+     - السماح بالالتفاف (flex-wrap) إذا لزم الأمر */
   .header-action-btn,
   .header-menu-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 17px;
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
   }
   .header-menu-container {
     gap: 1px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
   .theme-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 13px;
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .theme-switcher {
+    padding: 1px;
+  }
+  /* إخفاء زر التعليمات على الشاشات الصغيرة جداً (يُدمج مع الإعدادات) */
+  #helpToggleBtn {
+    display: none;
   }
   .bottom-nav-btn {
     font-size: 15px;
