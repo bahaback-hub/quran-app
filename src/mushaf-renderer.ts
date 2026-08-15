@@ -77,6 +77,10 @@ export const TOP_OFFSET = 30;
 export const BOTTOM_OFFSET = 50;
 export const STD_LINES = 15;
 
+/** The Fatiha page and opening of Al-Baqarah use the compact Madinah Mushaf text block. */
+const OPENING_PAGE_TEXT_SCALE = 0.82;
+const OPENING_PAGE_WORD_GAP_SCALE = 0.2;
+
 const LAYOUT_CACHE_MAX = 50; // LRU cache limit to prevent unbounded memory growth
 const layoutCache = new Map<string, PageLayoutData>();
 
@@ -269,10 +273,13 @@ function createFontPreloadElement(fontName: string): void {
   span.id = id;
   span.setAttribute('aria-hidden', 'true');
   span.style.cssText = `
-    position: absolute;
-    left: -9999px;
-    top: -9999px;
-    visibility: hidden;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
     font-family: "${fontName}";
     font-size: 40px;
     pointer-events: none;
@@ -541,7 +548,7 @@ async function _renderPageWithCurrentFonts(
     const colors = getColors();
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-    renderPageContent(ctx, data, pageFont, colors);
+    renderPageContent(ctx, data, pageFont, colors, pageNum);
     drawPageFrame(ctx, colors);
     drawPageNumber(ctx, pageNum, colors);
     return { canvas, layout: data };
@@ -621,7 +628,7 @@ async function _renderPageInternal(
   ctx!.fillStyle = colors.bg;
   ctx!.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-  renderPageContent(ctx!, data, pageFont, colors);
+  renderPageContent(ctx!, data, pageFont, colors, pageNum);
 
   drawPageFrame(ctx!, colors);
 
@@ -643,7 +650,7 @@ async function _renderPageInternal(
           if (ctx2) {
             ctx2.fillStyle = renderData.colors.bg;
             ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
-            renderPageContent(ctx2, renderData.data, renderData.pageFont, renderData.colors);
+            renderPageContent(ctx2, renderData.data, renderData.pageFont, renderData.colors, renderData.pageNum);
             drawPageFrame(ctx2, renderData.colors);
             drawPageNumber(ctx2, renderData.pageNum, renderData.colors);
             console.warn(`[Mushaf] Capacitor: Re-render of page ${renderData.pageNum} complete`);
@@ -752,6 +759,7 @@ function renderPageContent(
   data: PageLayoutData,
   pageFont: string,
   colors: PageColors,
+  pageNum: number,
 ): void {
   const lines = data.lines;
   if (!lines || lines.length === 0) {
@@ -760,11 +768,13 @@ function renderPageContent(
 
   const lineCount = lines.length;
   const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
-  const availableW = CANVAS_W - PAD_H * 2;
+  const isOpeningPage = pageNum === 1 || pageNum === 2;
+  const availableW = (CANVAS_W - PAD_H * 2) * (isOpeningPage ? OPENING_PAGE_TEXT_SCALE : 1);
+  const textRight = (CANVAS_W + availableW) / 2;
 
   const stdLineHeight = usableHeight / STD_LINES;
   const baseFontSize = Math.max(26, Math.min(55, stdLineHeight * 0.85));
-  const pageFontSize = baseFontSize;
+  const pageFontSize = baseFontSize * (isOpeningPage ? OPENING_PAGE_TEXT_SCALE : 1);
 
   const isShortPage = lineCount < 15;
   const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / Math.max(1, lineCount - 1) : stdLineHeight;
@@ -778,7 +788,13 @@ function renderPageContent(
     }
     const widths = measureLine(ctx, line.words, pageFont, pageFontSize);
     const totalW = widths.reduce((a: number, b: number) => a + b, 0);
-    const gap = line.words.length > 1 ? (availableW - totalW) / (line.words.length - 1) : 0;
+    // The opening pages use centered, naturally spaced lines like the Madinah Mushaf.
+    // Justifying their short lines would spread the words too far apart.
+    const gap = isOpeningPage
+      ? pageFontSize * OPENING_PAGE_WORD_GAP_SCALE
+      : line.words.length > 1
+        ? (availableW - totalW) / (line.words.length - 1)
+        : 0;
     lineWidths.push({ widths, gap: Math.max(0, gap) });
   }
 
@@ -824,7 +840,8 @@ function renderPageContent(
       continue;
     }
 
-    let x = CANVAS_W - PAD_H;
+    const lineWidth = widths.reduce((total, width) => total + width, 0) + gap * Math.max(0, words.length - 1);
+    let x = isOpeningPage ? CANVAS_W / 2 + lineWidth / 2 : textRight;
 
     for (let j = 0; j < words.length; j++) {
       const w = words[j]!;
@@ -839,7 +856,12 @@ function renderPageContent(
         ctx.fillStyle = wordColor || colors.txt;
       }
 
-      ctx.fillText(w.char, x, y);
+      if (isOpeningPage && isHeaderLine) {
+        ctx.textAlign = 'center';
+        ctx.fillText(w.char, CANVAS_W / 2, y);
+      } else {
+        ctx.fillText(w.char, x, y);
+      }
       x -= widths[j]! + gap;
     }
   }
