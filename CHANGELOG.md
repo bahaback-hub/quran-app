@@ -4,6 +4,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.5 (2026-08-16) — CI Recovery After User Update
+
+### 🐛 Bug Fixes — CI Broken After Manual Update
+
+After the user's manual update (commit 15887b1), all 8 CI workflows broke because:
+
+1. **`package-lock.json` was inconsistent**
+   - User manually edited `package-lock.json` incorrectly
+   - Some dependencies marked as `peer: true` incorrectly
+   - Some packages (e.g., `@emnapi/core`, `@emnapi/runtime`) were removed
+   - This made `npm ci` fail (lockfile mismatch)
+
+2. **`.playwright-mcp/` folder uploaded by mistake**
+   - 15 YAML snapshot files from playwright-mcp tool
+   - These are temporary files that should not be in the repo
+   - Added to `.gitignore` to prevent future uploads
+
+### 🔧 Fixes Applied
+
+1. **Regenerate `package-lock.json`**
+   - Deleted the broken lockfile
+   - Ran `npm install` to regenerate it properly
+   - `npm ci` now works correctly
+
+2. **Remove `.playwright-mcp/` from repo**
+   - `git rm -r --cached .playwright-mcp/`
+   - Added `.playwright-mcp/` to `.gitignore`
+   - Prevents future accidental uploads
+
+### ✅ Verification
+- typecheck: 0 errors
+- lint: 0 errors, 0 warnings
+- build: 0 warnings (successful)
+
+### 📝 Note on User's Changes
+The user's actual code changes (CSS, mushaf-renderer, pres-styles) are good and were kept:
+- Mobile layout improvements (safe-area insets, overflow fixes)
+- Mushaf canvas sizing (max-height: 50dvh on mobile)
+- Presentation mode framed images on mobile
+- Opening page (Fatiha/Baqarah) text scaling fix
+
 ## 2.0.4 (2026-08-14) — Mushaf Mobile Overflow Fix (Screen Expansion)
 
 ### 🐛 Bug Fix — Mushaf Mode Causes Screen Expansion on Mobile

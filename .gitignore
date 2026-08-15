@@ -56,3 +56,6 @@ quran-app/
 agent-ctx/
 a11y-results.json
 docs/
+
+# Playwright MCP snapshots (temp)
+.playwright-mcp/
