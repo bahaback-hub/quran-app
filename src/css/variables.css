@@ -7,6 +7,7 @@
   --touch-target-default: 32px;
   --font-size-touch: 16px;        /* prevents iOS zoom */
   --select-min-height: 32px;
+  --mobile-nav-height: 56px;
 }
 
 @media (hover: none) and (pointer: coarse) {
@@ -15,6 +16,7 @@
     --touch-target-default: 44px;
     --font-size-touch: 16px;
     --select-min-height: 44px;
+    --mobile-nav-height: 56px;
   }
 }
 
