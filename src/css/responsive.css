@@ -467,9 +467,17 @@
 
 /* الواجهة الثالثة: جوال (600px فأقل) */
 @media (max-width: 600px) {
+  /* Desktop mosque photos are too visually dominant on narrow, tall screens. */
+  body:not(.night-mode):not(.sepia-mode),
+  body.night-mode,
+  body.sepia-mode {
+    background: var(--bg-gradient) !important;
+    background-attachment: scroll !important;
+  }
+
   body {
     padding: 8px;
-    padding-bottom: 120px;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0));
   }
   .container {
     border-radius: 10px;
@@ -479,16 +487,26 @@
   .header {
     padding: 12px 10px;
     /* على الجوال: اترك مساحة علوية كافية لصف أزرار الإجراءات */
-    padding-top: 56px;
+    padding-top: calc(56px + env(safe-area-inset-top, 0));
   }
   .header h1 {
     font-size: 18px;
     margin-bottom: 0;
   }
   .header-menu-container {
-    top: 8px;
+    top: calc(8px + env(safe-area-inset-top, 0));
     left: 8px;
     gap: 2px;
+    max-width: calc(100vw - 16px);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .header-menu-container::-webkit-scrollbar {
+    display: none;
+  }
+  .header-actions {
+    flex-wrap: nowrap;
+    min-width: max-content;
   }
   .header-action-btn,
   .header-menu-btn {
@@ -540,6 +558,8 @@
   .controls {
     padding: 8px;
     display: none;
+    max-width: 100%;
+    overflow-x: clip;
   }
   .controls.mobile-show {
     display: flex;
@@ -564,6 +584,20 @@
     min-height: 44px;
     font-size: 20px;
   }
+  .search-toggle-btn {
+    box-sizing: border-box;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+  .controls-row > .control-card {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
   .controls-row .control-group {
     min-width: 100%;
     max-width: 100%;
@@ -574,8 +608,25 @@
     height: 36px;
   }
   .controls-row .search-input-group {
-    min-width: 100%;
-    max-width: 100%;
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+    flex: 0 0 100%;
+    box-sizing: border-box;
+  }
+  .search-input-wrapper input {
+    min-width: 0;
+    width: auto;
+    flex: 1;
+  }
+  .search-input-wrapper .kbd-toggle-btn,
+  .search-input-wrapper .voice-search-btn {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
   }
 
   /* شريط المواقيت مصغر */
@@ -717,10 +768,10 @@
 
   /* المشغل لا يتزاحم مع الشريط السفلي */
   .player {
-    bottom: 56px;
+    bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0));
   }
   .player.collapsed {
-    bottom: 56px;
+    bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0));
   }
 
   /* لوحة المفاتيح العربية */
