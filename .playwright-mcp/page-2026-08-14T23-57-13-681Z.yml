@@ -1,0 +1,175 @@
+- generic [active] [ref=e1]:
+  - progressbar "تقدم القراءة"
+  - link "تخطّي إلى المحتوى" [ref=e2] [cursor=pointer]:
+    - /url: "#surahContent"
+  - status [ref=e3]: 🔌 No internet connection — some features may not work
+  - application "تطبيق القرآن الكريم" [ref=e4]:
+    - complementary "مواقيت الصلاة" [ref=e5]:
+      - button "توسيع شريط المواقيت" [ref=e6] [cursor=pointer]: ▼
+      - generic [ref=e7]:
+        - generic [ref=e8]: "--:--"
+        - generic [ref=e9]: "---"
+    - banner [ref=e10]:
+      - generic [ref=e12]:
+        - group "تبديل المظهر" [ref=e13]:
+          - button "الوضع النهاري" [pressed] [ref=e14] [cursor=pointer]: ☀️
+          - button "وضع السيبيا" [ref=e15] [cursor=pointer]: 📜
+          - button "الوضع الليلي" [ref=e16] [cursor=pointer]: 🌙
+        - button "الأذكار" [ref=e17] [cursor=pointer]
+        - button "اتجاه القبلة" [ref=e18] [cursor=pointer]
+        - button "المفضلة" [ref=e19] [cursor=pointer]
+        - button "الإعدادات" [ref=e20] [cursor=pointer]
+        - button "التعليمات" [ref=e21] [cursor=pointer]
+      - generic [ref=e22]:
+        - heading "القرآن الكريم" [level=1] [ref=e23]
+        - generic [ref=e27]: —
+    - region "أدوات التحكم" [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: السورة
+          - generic [ref=e36]:
+            - combobox "اختيار السورة" [ref=e37]:
+              - option "Loading surah list..." [selected]
+            - combobox "اختيار القارئ" [ref=e38]:
+              - option "Mishary Alafasy" [selected]
+              - option "Abdul Basit (Murattal)"
+              - option "Abdul Samad"
+              - option "Abdurrahman As-Sudais"
+              - option "Mahmoud Khalil Al-Husary"
+              - option "Mohamed Siddiq Al-Minshawi (Murattal)"
+              - option "Mohamed Siddiq Al-Minshawi (Mujawwad)"
+              - option "Muhammad Ayyoub"
+              - option "Abu Bakr Ash-Shatri"
+              - option "Abdullah Basfar"
+              - option "Ahmed Al-Ajamy"
+              - option "Saad Al-Ghamdi"
+              - option "Saud Ash-Shuraim"
+              - option "Mohammed Al-Budair"
+              - option "Mohammed Al-Bukhater"
+              - option "Abdullah Al-Hudhaify"
+              - option "Ahmed Jaber"
+              - option "Abdurrahman Al-Abbad"
+              - option "Yasser Ad-Dossary"
+              - option "Saad As-Salamah"
+              - option "Nasser Al-Qatami"
+              - option "Maher Al-Muaiqly"
+              - option "Mohammed Al-Qasim"
+              - option "Abdurrahman As-Sudais"
+              - option "Maher Al-Muaiqly"
+              - option "Mohammed Jibreel"
+              - option "Mohamed Siddiq Al-Minshawi"
+              - option "Abu Bakr Ash-Shatri"
+              - option "Mustafa At-Tanji"
+        - generic [ref=e39]:
+          - generic [ref=e40]: العرض
+          - generic [ref=e44]:
+            - button "وضع السورة" [pressed] [ref=e45] [cursor=pointer]: 📖
+            - button "وضع المصحف" [ref=e46] [cursor=pointer]: 📄
+            - button "وضع العرض" [ref=e47] [cursor=pointer]: 🖼️
+        - generic [ref=e48]:
+          - generic [ref=e49]: بحث
+          - button "بحث" [ref=e53] [cursor=pointer]
+          - button "بدء البحث" [ref=e57] [cursor=pointer]: Search
+    - main "نص السورة" [ref=e58]:
+      - paragraph [ref=e59]: select_hint
+    - contentinfo [ref=e60]:
+      - text: اللهم اجعل هذا العمل في ميزان أعمال عائلة السليماني — البيانات من
+      - link "AlQuran.cloud API" [ref=e61] [cursor=pointer]:
+        - /url: https://alquran.cloud/
+      - text: و
+      - link "Tafsir API" [ref=e62] [cursor=pointer]:
+        - /url: https://github.com/spa5k/tafsir_api
+  - button "فتح/إغلاق التفسير" [ref=e63] [cursor=pointer]: Tafsir
+  - complementary "نافذة التفسير" [ref=e64]:
+    - generic [ref=e65]: Tafsir
+    - combobox "اختيار التفسير" [ref=e67] [cursor=pointer]:
+      - option "التفسير الميسّر" [selected]
+      - option "تفسير الطبري"
+      - option "تفسير ابن كثير"
+      - option "تفسير السعدي"
+      - option "تفسير البغوي"
+      - option "تفسير القرطبي"
+    - paragraph [ref=e69]: tafsir_no_ayah
+  - complementary "الأذكار" [ref=e70]:
+    - generic [ref=e71]:
+      - heading "🕌 الأذكار" [level=2] [ref=e72]
+      - button "إغلاق الأذكار" [ref=e73] [cursor=pointer]: ✖
+    - paragraph [ref=e75]: 🕌 اختر تبويباً لبدء الأذكار
+  - complementary "الآيات المفضلة" [ref=e76]:
+    - generic [ref=e77]:
+      - heading "❤️ المفضلة" [level=2] [ref=e78]
+      - button "إغلاق المفضلة" [ref=e79] [cursor=pointer]: ✖
+    - generic [ref=e80]:
+      - button "📄 تصدير كنص" [ref=e81] [cursor=pointer]
+      - button "💾 تصدير JSON" [ref=e82] [cursor=pointer]
+    - paragraph [ref=e84]: لا توجد آيات مفضلة بعد
+  - status [ref=e85]
+  - generic:
+    - region "مشغل التلاوة" [ref=e86]:
+      - generic [ref=e87]:
+        - button "تشغيل/إيقاف" [ref=e88] [cursor=pointer]
+        - generic [ref=e91]: —
+    - complementary "لوحة الإعدادات" [ref=e92]:
+      - generic [ref=e93]:
+        - heading "⚙️ الإعدادات" [level=2] [ref=e94]
+        - button "إغلاق الإعدادات" [ref=e95] [cursor=pointer]: ✖
+      - generic [ref=e96]:
+        - generic [ref=e97]: "--:--:--"
+        - generic [ref=e98]: "---"
+        - generic [ref=e99]: "---"
+      - generic [ref=e100]:
+        - button "🕌 المواقيت" [ref=e101] [cursor=pointer]
+        - button "🎨 العرض" [ref=e102] [cursor=pointer]
+        - button "🔔 الأذان" [ref=e103] [cursor=pointer]
+        - button "🕌 الأذكار" [ref=e104] [cursor=pointer]
+        - button "🌐 اللغة" [ref=e105] [cursor=pointer]
+        - button "⚙️ أدوات" [ref=e106] [cursor=pointer]
+      - generic [ref=e107]:
+        - paragraph [ref=e110]: ⏳ جاري تحميل المواقيت...
+        - generic [ref=e111]:
+          - generic [ref=e112]: 📍 الموقع وطريقة الحساب
+          - generic [ref=e113]:
+            - generic [ref=e114]: "المدينة:"
+            - textbox "المدينة:" [ref=e115]:
+              - /placeholder: مكة
+              - text: makkah
+          - generic [ref=e116]:
+            - generic [ref=e117]: "الدولة:"
+            - textbox "الدولة:" [ref=e118]:
+              - /placeholder: SA
+              - text: SA
+          - generic [ref=e119]:
+            - generic [ref=e120]: "اختيار سريع:"
+            - combobox "اختيار سريع:" [ref=e121]:
+              - option "— اختر —" [selected]
+              - option "مكة المكرمة"
+              - option "المدينة المنورة"
+              - option "الرياض"
+              - option "القاهرة"
+              - option "دمشق"
+              - option "عمّان"
+              - option "بغداد"
+              - option "الدوحة"
+              - option "الكويت"
+              - option "دبي"
+              - option "بيروت"
+              - option "الجزائر"
+              - option "الرباط"
+              - option "تونس"
+              - option "الخرطوم"
+              - option "صنعاء"
+              - option "إسطنبول"
+          - generic [ref=e122]:
+            - generic [ref=e123]: "طريقة الحساب:"
+            - combobox "طريقة الحساب:" [ref=e124]:
+              - option "أم القرى — مكة" [selected]
+              - option "الهيئة المصرية"
+              - option "رابطة العالم الإسلامي"
+              - option "ISNA — أمريكا الشمالية"
+              - option "جامعة العلوم — كراتشي"
+              - option "الديوان الكويتي"
+              - option "قطر"
+              - option "سنغافورة"
+              - option "اتحاد علماء أوروبا"
+              - option "ديانت — تركيا"
+          - button "💾 حفظ الموقع وتحديث المواقيت" [ref=e126] [cursor=pointer]

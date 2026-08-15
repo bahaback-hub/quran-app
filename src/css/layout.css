@@ -548,8 +548,8 @@ body {
   /* Safe area for Android gesture navigation */
   padding-bottom: env(safe-area-inset-bottom, 0);
   /* CLS: Fixed height prevents layout shift when nav appears */
-  height: 56px;
-  min-height: 56px;
+  height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0));
+  min-height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0));
 }
 .bottom-nav-btn {
   background: none;
