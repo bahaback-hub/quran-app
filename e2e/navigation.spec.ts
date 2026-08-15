@@ -124,6 +124,39 @@ test.describe('Quran App — Search Functionality', () => {
   });
 });
 
+test.describe('Quran App — Mobile Layout', () => {
+  test.use({ viewport: { width: 320, height: 700 } });
+
+  test('should keep search controls inside a narrow viewport', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    await page.evaluate(() => {
+      document.getElementById('controls')?.classList.add('mobile-show');
+      document.getElementById('searchInputGroup')?.classList.remove('hidden');
+    });
+
+    const elements = [
+      page.locator('#searchInput'),
+      page.locator('#kbdToggleBtn'),
+      page.locator('#voiceSearchBtn'),
+    ];
+    const viewportWidth = page.viewportSize()!.width;
+
+    for (const element of elements) {
+      await expect(element).toBeVisible();
+      const box = await element.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(viewportWidth);
+    }
+
+    const hasHorizontalOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
+    expect(hasHorizontalOverflow).toBe(false);
+  });
+});
+
 test.describe('Quran App — Keyboard Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');

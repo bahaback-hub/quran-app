@@ -407,6 +407,44 @@ export function injectStyles(): void {
         padding: 8px !important;
       }
     }
+
+    /* ===== MOBILE: SHRINK BACKGROUND IMAGE INTO A FRAMED PICTURE ===== */
+    /* On phones, the full-bleed nature image (background-size: cover) dominates
+       the whole screen. Instead, show it as a smaller centered framed picture
+       while keeping the ayah text readable above it. */
+    @media (max-width: 600px) {
+      .presentation-overlay.pres-nature,
+      .presentation-overlay.pres-auto {
+        background-size: 0;
+        background-repeat: no-repeat;
+        background-color: #14141f;
+      }
+      .presentation-overlay.pres-nature::after,
+      .presentation-overlay.pres-auto::after {
+        content: '';
+        position: absolute;
+        inset: 14vh 4vw;
+        z-index: 0;
+        pointer-events: none;
+        background-image: inherit;
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-color: rgba(0, 0, 0, 0.3);
+        background-blend-mode: multiply;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
+      }
+      /* Animated mode: frame the moving background layer instead of full-bleed */
+      .presentation-overlay.pres-animated .pres-bg-layer {
+        inset: 14vh 4vw;
+        background-size: contain;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
+      }
+    }
     @media (min-width: 1200px) {
       .presentation-ayah-text { font-size: 72px; }
     }
