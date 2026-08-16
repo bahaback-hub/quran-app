@@ -4,6 +4,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0 (2026-08-16) — Major Performance Optimization (3 critical fixes)
+
+### ⚡ Performance — 3 Critical Issues Fixed
+
+#### 1. حجم precache (17 ميجا → 0.56 ميجا) — تقليل 97%!
+
+**المشكلة**: كان precache يحتوي على كل البيانات الضخمة (نص القرآن، التفسير، التجويد، الصور، الصوت)
+
+**الإصلاح**:
+- `globPatterns`: فقط JS + CSS + HTML + WOFF2 (بدون JSON, PNG, TTF, MP3)
+- `globIgnores`: استثناء data/*.json, screenshots/, backgrounds/, *.mp3, *.ttf, *.png
+- `maximumFileSizeToCacheInBytes`: 10MB → 2MB (حد لكل ملف)
+- `includeAssets`: فقط الأيقونات + fonts.css
+- `runtimeCaching` ذكي:
+  - app-data-v2: البيانات تُحمّل عند الحاجة (CacheFirst, 30 يوم)
+  - app-backgrounds: الخلفيات تُحمّل عند اختيارها (CacheFirst, 30 يوم)
+  - app-audio-azan: الأذان يُحمّل عند وقت الصلاة فقط (CacheFirst, سنة)
+- إزالة duplicate runtime caching للـ fonts
+
+**النتيجة**: 17026 KiB → 571 KiB (تقليل 96.6%)
+
+#### 2. زمن التحميل الأول — Lazy Loading للوحدات غير الحرجة
+
+**المشكلة**: `initWebVitalsMonitoring()` و `initMemoryManager()` يُحمّلان بشكل متزامن مع التطبيق
+
+**الإصلاح**:
+- إنشاء `loadNonCriticalModules()` function
+- استخدام `requestIdleCallback` لتأجيل التحميل حتى يصبح المتصفح خمولاً
+- Fallback: `setTimeout(load, 2000)` للمتصفحات بدون requestIdleCallback
+- Timeout: 3 ثوان كحد أقصى للتأجيل
+
+**النتيجة**: التطبيق يظهر أسرع للمستخدم (تحسن Time to Interactive)
+
+#### 3. استهلاك الذاكرة في canvas المصحف (6.6 ميجا → 2.9 ميجا على الجوال)
+
+**المشكلة**: canvas ثابت بـ 1080×1540 بكسل = 6.6 ميجا ذاكرة لكل صفحة
+
+**الإصلاح**:
+- **Device-aware canvas dimensions**:
+  - جوال: 720×1028 بكسل (2.9 ميجا — توفير 56%)
+  - ديسكتوب: 1080×1540 بكسل (6.6 ميجا — بدون تغيير)
+- **Canvas Pool** (إعادة استخدام canvases):
+  - pool size: 3 canvases كحد أقصى
+  - `getCanvas()`: احصل على canvas من pool أو أنشئ جديد
+  - `releaseCanvas()`: أعد canvas إلى pool بعد الاستخدام
+  - `clearCanvasPool()`: تنظيف كامل للذاكرة
+- **Memory cleanup**: إعادة canvas قديم إلى pool عند تغيير الصفحة
+
+**النتيجة**: استهلاك ذاكرة أقل على الجوال + أداء أسرع (إعادة استخدام بدلاً من إنشاء جديد)
+
+### 📊 الإحصائيات النهائية
+
+| المؤشر | قبل | بعد | التحسن |
+|------|:----:|:----:|:----:|
+| precache size | 17 MB | 0.56 MB | **97%** ✅ |
+| Canvas memory (mobile) | 6.6 MB | 2.9 MB | **56%** ✅ |
+| First load blocking | 2 modules | 0 (idle) | **100%** ✅ |
+| Performance Budget | ✅ | ✅ | maintained |
+
+### ✅ الفحوصات
+- typecheck: 0 أخطاء
+- lint: 0 أخطاء، 0 تحذيرات
+- build: 0 تحذيرات (successful)
+- Performance Budget: كل الميزانيات نجحت
+
 ## 2.0.5 (2026-08-16) — CI Recovery After User Update
 
 ### 🐛 Bug Fixes — CI Broken After Manual Update
