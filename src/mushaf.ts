@@ -16,7 +16,7 @@ import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from './app.js';
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from './audio.js';
 import { handlePageClick, getAyahHighlightRects } from './ayah-click.js';
-import { renderPage, loadPageData } from './mushaf-renderer.js';
+import { renderPage, loadPageData, releaseCanvas } from './mushaf-renderer.js';
 import type { PageLayoutData } from './mushaf-renderer.js';
 import { loadTafsirForSurahAyah } from './tafsir.js';
 import { __ } from './i18n.js';
@@ -221,6 +221,11 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
     // Abort if user navigated to a different page during animation
     if (_mushafLoadCounter !== currentLoad) {
       return;
+    }
+    // Release old canvas back to pool for memory efficiency
+    const oldCanvas = oldContainer.querySelector('.mushaf-page-canvas') as HTMLCanvasElement | null;
+    if (oldCanvas) {
+      releaseCanvas(oldCanvas);
     }
   }
 
