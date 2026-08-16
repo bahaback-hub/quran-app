@@ -7,6 +7,7 @@
     "src/web-vitals.ts",
     "src/memory-manager.ts",
     "src/offline-pack.ts",
+    "src/mushaf-renderer.ts",
     "src/state/types.ts",
     "src/state/subscriptions.ts",
     "src/state/proxy.ts",
