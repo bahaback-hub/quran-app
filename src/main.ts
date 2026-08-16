@@ -3,8 +3,29 @@ import { initApp } from './app.js';
 import { initI18n, __ } from './i18n.js';
 import { isCapacitorNative, getCapacitor } from './types.js';
 import { updateBanner } from './templates.js';
-import { initWebVitalsMonitoring } from './web-vitals.js';
-import { initMemoryManager } from './memory-manager.js';
+
+/**
+ * Performance: Load non-critical modules lazily after initial render.
+ * Web Vitals monitoring and Memory Manager are useful but not needed
+ * for first paint. Loading them lazily improves Time to Interactive.
+ */
+function loadNonCriticalModules(): void {
+  // Use requestIdleCallback to defer until browser is idle
+  const load = (): void => {
+    import('./web-vitals.js')
+      .then(({ initWebVitalsMonitoring }) => initWebVitalsMonitoring())
+      .catch(() => { /* non-critical */ });
+    import('./memory-manager.js')
+      .then(({ initMemoryManager }) => initMemoryManager())
+      .catch(() => { /* non-critical */ });
+  };
+
+  if ('requestIdleCallback' in window) {
+    (window as Window).requestIdleCallback(load, { timeout: 3000 });
+  } else {
+    setTimeout(load, 2000);
+  }
+}
 
 /**
  * One-time Service Worker cleanup (DISABLED — was causing infinite loop).
@@ -195,11 +216,9 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
   }
 }
 
-// Initialize Web Vitals monitoring (Real User Monitoring for Core Web Vitals)
-initWebVitalsMonitoring();
-
-// Initialize Memory Manager (proactive leak prevention)
-initMemoryManager();
+// Performance: Load non-critical modules (Web Vitals, Memory Manager) lazily
+// after the browser is idle. This improves Time to Interactive.
+loadNonCriticalModules();
 
 initI18n().then(() => initApp());
 

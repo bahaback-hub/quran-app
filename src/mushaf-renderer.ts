@@ -69,12 +69,73 @@ const PAGE_BASE = 'https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4
 const FONT_BASE = 'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2/';
 const BSML_FONT = 'QCF4_QBSML';
 
-export const CANVAS_W = 1080;
-export const CANVAS_H = 1540;
+// Canvas dimensions — scaled based on device capabilities to reduce memory usage
+// Full HD (1080×1540) uses 6.6MB per canvas — too much for low-end mobile
+// We scale down on mobile devices to save memory while keeping quality acceptable
+const MOBILE_CANVAS_W = 720;
+const MOBILE_CANVAS_H = 1028;  // Maintains 7:10 aspect ratio
+const DESKTOP_CANVAS_W = 1080;
+const DESKTOP_CANVAS_H = 1540;
+
+/** Detect if device is mobile (low memory) */
+function isMobileDevice(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  return (
+    window.innerWidth <= 600 ||
+    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 1 && window.innerWidth <= 900)
+  );
+}
+
+/** Get optimal canvas dimensions based on device */
+function getCanvasDimensions(): { width: number; height: number } {
+  return isMobileDevice()
+    ? { width: MOBILE_CANVAS_W, height: MOBILE_CANVAS_H }
+    : { width: DESKTOP_CANVAS_W, height: DESKTOP_CANVAS_H };
+}
+
+export const CANVAS_W = getCanvasDimensions().width;
+export const CANVAS_H = getCanvasDimensions().height;
 export const PAD_H = 30;
 export const PAD_V = 30;
 export const TOP_OFFSET = 30;
 export const BOTTOM_OFFSET = 50;
+
+/** Canvas pool — reuse canvases to avoid GC pressure and memory allocation */
+const canvasPool: HTMLCanvasElement[] = [];
+const MAX_POOL_SIZE = 3;
+
+/** Get a canvas from pool or create new one */
+function getCanvas(): HTMLCanvasElement {
+  const cached = canvasPool.pop();
+  if (cached) {
+    return cached;
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = CANVAS_W;
+  canvas.height = CANVAS_H;
+  return canvas;
+}
+
+/** Release canvas back to pool for reuse */
+export function releaseCanvas(canvas: HTMLCanvasElement): void {
+  if (canvasPool.length < MAX_POOL_SIZE) {
+    // Clear the canvas before returning to pool
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    canvasPool.push(canvas);
+  }
+  // If pool is full, let GC handle it
+}
+
+/** Clear all canvases from pool (memory cleanup) */
+export function clearCanvasPool(): void {
+  canvasPool.length = 0;
+}
 export const STD_LINES = 15;
 
 /** The Fatiha page and opening of Al-Baqarah use the compact Madinah Mushaf text block. */
@@ -537,7 +598,7 @@ async function _renderPageWithCurrentFonts(
     }
 
     const pageFont = data.font || getPageFont(pageNum, null);
-    const canvas = targetCanvas || document.createElement('canvas');
+    const canvas = targetCanvas || getCanvas();
     canvas.width = CANVAS_W;
     canvas.height = CANVAS_H;
     const ctx = canvas.getContext('2d');
@@ -618,7 +679,7 @@ async function _renderPageInternal(
     }
   }
 
-  const canvas = targetCanvas || document.createElement('canvas');
+  const canvas = targetCanvas || getCanvas();
   canvas.width = CANVAS_W;
   canvas.height = CANVAS_H;
   const ctx = canvas.getContext('2d');

@@ -66,7 +66,7 @@ export default defineConfig({
       // users always get the latest version on next page load.
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['azan.mp3', 'icon-192.png', 'icon-512.png', 'fonts/*.ttf', 'fonts/fonts.css', 'data/*.json', 'screenshots/*.png'],
+      includeAssets: ['icon-192.png', 'icon-512.png', 'fonts/fonts.css'],
       manifest: {
         name: 'القرآن الكريم',
         short_name: 'القرآن',
@@ -178,8 +178,18 @@ export default defineConfig({
         ]
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,json,png,ttf}'],
+        maximumFileSizeToCacheInBytes: 2 * 1024 * 1024, // 2MB limit per file (was 10MB)
+        // Only precache small essential files — large data files are runtime-cached
+        globPatterns: ['**/*.{js,css,html,woff2}'],
+        // Exclude large data files from precache — they're runtime-cached on demand
+        globIgnores: [
+          '**/data/*.json',      // Quran text, tafsir, tajweed — loaded on demand
+          '**/screenshots/**',    // PWA screenshots — not needed for offline
+          '**/backgrounds/**',    // Background images — not essential
+          '**/*.mp3',             // Audio files — runtime cached
+          '**/*.ttf',             // Fonts — runtime cached via CacheFirst
+          '**/*.png',             // Icons/screenshots — handled separately
+        ],
         offlineGoogleAnalytics: false,
         navigateFallback: 'index.html',
         // Don't intercept same-origin requests — let Capacitor handle them
@@ -193,12 +203,49 @@ export default defineConfig({
         // get fresh API data instead of stale offline cache forever.
         cleanupOutdatedCaches: true,
         runtimeCaching: [
+          // Self-hosted fonts — CacheFirst (small, essential, never change)
           {
-            urlPattern: /\/fonts\/.*\.(ttf|css)$/i,
+            urlPattern: /\/fonts\/.*\.(ttf|woff2|css)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'self-hosted-fonts',
+              cacheName: 'app-fonts-v2',
               expiration: { maxEntries: 10, maxAgeSeconds: 86400 * 365 }
+            }
+          },
+          // App data (Quran text, tafsir, tajweed) — StaleWhileRevalidate
+          // Large files loaded on demand, cached for offline use
+          {
+            urlPattern: /\/data\/.*\.json$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'app-data-v2',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 86400 * 30, // 30 days
+                purgeOnQuotaError: true,
+              },
+            },
+          },
+          // Background images — CacheFirst (only when user selects them)
+          {
+            urlPattern: /\/backgrounds\/.*\.(jpg|png|webp)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'app-backgrounds',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 86400 * 30,
+                purgeOnQuotaError: true,
+              },
+            },
+          },
+          // Azan audio — CacheFirst (loaded only when prayer time arrives)
+          {
+            urlPattern: /\/azan\.mp3$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'app-audio-azan',
+              expiration: { maxEntries: 1, maxAgeSeconds: 86400 * 365 }
             }
           },
           {
@@ -263,15 +310,6 @@ export default defineConfig({
             options: {
               cacheName: 'mushaf-fonts',
               expiration: { maxEntries: 50, maxAgeSeconds: 86400 * 365 }
-            }
-          },
-          // Cache self-hosted fonts locally (precache covers this, but runtime cache ensures freshness)
-          {
-            urlPattern: /\/fonts\/.*\.(ttf|css)$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'app-fonts',
-              expiration: { maxEntries: 10, maxAgeSeconds: 86400 * 365 }
             }
           }
         ]
