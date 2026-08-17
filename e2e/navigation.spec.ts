@@ -53,6 +53,9 @@ test.describe('Quran App — Surah Navigation', () => {
     await surahSelect.selectOption('36'); // Ya-Sin
     // The app should still show content after loading
     await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    // Wait for ayahs to be rendered (not just the container)
+    await page.waitForSelector('.ayah', { timeout: 15000 }).catch(() => {});
+    await page.waitForTimeout(1000); // Give app time to render ayahs
     const ayahs = page.locator('.ayah');
     const count = await ayahs.count();
     expect(count).toBeGreaterThan(0);
