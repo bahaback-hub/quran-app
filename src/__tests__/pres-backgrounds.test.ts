@@ -11,6 +11,33 @@ vi.mock('../i18n.js', () => ({
   __: (key: string, ..._args: unknown[]) => key,
 }));
 
+// Mock IntersectionObserver — jsdom doesn't implement it
+// This mock immediately calls the callback with isIntersecting: true
+class MockIntersectionObserver {
+  callback: (entries: { isIntersecting: boolean; target: Element }[]) => void;
+  static instances: MockIntersectionObserver[] = [];
+
+  constructor(cb: (entries: { isIntersecting: boolean; target: Element }[]) => void) {
+    this.callback = cb;
+    MockIntersectionObserver.instances.push(this);
+  }
+
+  observe(target: Element): void {
+    // Immediately trigger with isIntersecting: true
+    Promise.resolve().then(() => {
+      this.callback([{ isIntersecting: true, target }]);
+    });
+  }
+
+  disconnect(): void { /* noop */ }
+  unobserve(): void { /* noop */ }
+  takeRecords(): [] { return []; }
+}
+
+// Install mock before importing the module
+(globalThis as unknown as { IntersectionObserver: typeof MockIntersectionObserver }).IntersectionObserver =
+  MockIntersectionObserver as unknown as typeof IntersectionObserver;
+
 import {
   NATURE_BACKGROUNDS,
   getAutoBackground,
@@ -240,8 +267,10 @@ describe('applyAnimatedBg', () => {
     expect(overlay.querySelector('.pres-bg-layer')).not.toBeNull();
   });
 
-  it('should set background image on the layer', () => {
+  it('should set background image on the layer', async () => {
     applyAnimatedBg(overlay, 'backgrounds/sunset.jpg');
+    // IntersectionObserver is async — wait for microtask
+    await new Promise((r) => setTimeout(r, 0));
     const layer = overlay.querySelector('.pres-bg-layer') as HTMLElement;
     expect(layer.style.backgroundImage).toContain('backgrounds/sunset.jpg');
   });
@@ -264,13 +293,15 @@ describe('applyAnimatedBg', () => {
     expect((overlay.firstChild as HTMLElement).classList.contains('pres-bg-layer')).toBe(true);
   });
 
-  it('should replace existing bg layer', () => {
+  it('should replace existing bg layer', async () => {
     applyAnimatedBg(overlay, 'backgrounds/dawn.jpg');
     applyAnimatedBg(overlay, 'backgrounds/night.jpg');
 
     const layers = overlay.querySelectorAll('.pres-bg-layer');
     expect(layers.length).toBe(1);
     const layer = layers[0] as HTMLElement;
+    // IntersectionObserver is async — wait for microtask
+    await new Promise((r) => setTimeout(r, 0));
     expect(layer.style.backgroundImage).toContain('night.jpg');
   });
 });
