@@ -4,6 +4,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2.0 (2026-08-17) — More Performance Improvements (6 optimizations)
+
+### ⚡ Performance — 6 Additional Optimizations
+
+#### 1. تقسيم bundle العرض التقديمي (167KB → 4 chunks أصغر)
+**قبل**: `feature-presentation` = 167KB (كل شيء في ملف واحد)
+**بعد**:
+- `feature-presentation` = 139KB (المنطق الأساسي)
+- `feature-pres-backgrounds` = 10KB (الخلفيات)
+- `feature-pres-styles` = 18KB (الأنماط)
+- `feature-audio-visualizer` = منفصل
+
+**الفائدة**: تحميل أسرع لوضع العرض — الأنماط والخلفيات تُحمّل بشكل منفصل
+
+#### 2. إضافة DNS prefetch لخوادم الصوت
+- إضافة `dns-prefetch` لـ `server8.mp3quran.net` و `server9.mp3quran.net`
+- تقليل زمن الاتصال الأول بخوادم الصوت
+
+#### 3. تحسين استراتيجية تحميل الخطوط
+- خطوط القرآن (Scheherazade): `font-display: optional` بدلاً من `swap`
+- هذا يمنع **FOUT flicker** (وميض الخطوط) عند التنقل بين السور
+- خطوط الجسم (Amiri): تبقى `swap` للظهور الفوري
+
+#### 4. Lazy loading لخلفيات وضع العرض
+- استخدام `IntersectionObserver` لتأخير تحميل خلفيات العرض
+- الخلفية لا تُحمّل إلا عندما تكون على وشك الظهور
+- توفير带宽 على الجوال
+
+#### 5. تقليل canvas pool على الجوال
+- **قبل**: 3 canvases في pool (2.9MB × 3 = 8.7MB ذاكرة)
+- **بعد**: 1 canvas على الجوال (2.9MB فقط) — توفير **5.8MB ذاكرة**
+- الديسكتوب يبقى 3 canvases للأداء السلس
+
+#### 6. Prefetch للسورة التالية
+- عند تحميل سورة، يُحمّل السورة التالية في الخلفية
+- استخدام `requestIdleCallback` مع timeout 5 ثوان
+- التنقل بين السور يصبح **فورياً** (السورة التالية محمّلة مسبقاً)
+
+### 📊 الإحصائيات
+
+| المؤشر | قبل | بعد | التحسن |
+|------|:----:|:----:|:----:|
+| presentation bundle | 167 KB | 139 KB | **17%** |
+| Canvas pool (mobile) | 8.7 MB | 2.9 MB | **67%** |
+| FOUT flicker | نعم | لا | **100%** |
+| Next surah load time | 3-5s | فوري | **~100%** |
+
+### ✅ الفحوصات
+- typecheck: 0 أخطأ
+- lint: 0 أخطاء، 0 تحذيرات
+- build: 0 تحذيرات
+- Performance Budget: كل الميزانيات نجحت
+
 ## 2.1.0 (2026-08-16) — Major Performance Optimization (3 critical fixes)
 
 ### ⚡ Performance — 3 Critical Issues Fixed

@@ -7,7 +7,11 @@
  *   - Reduces DNS lookups and connection overhead
  *   - Works fully offline after first load (PWA caches via Workbox)
  *   - No tracking by Google Fonts
- *   - font-display: swap ensures text is visible immediately
+ *
+ * font-display strategy:
+ *   - swap: for body text (Amiri) — show fallback immediately, swap when loaded
+ *   - optional: for Quran text (Scheherazade) — only use if cached, else fallback
+ *     This prevents layout shift when switching between surahs
  */
 
 /* ── Amiri (Arabic serif — body text) ── */
@@ -37,12 +41,14 @@
 }
 
 /* ── Scheherazade New (Arabic Naskh — Quran text) ── */
+/* Using 'optional' for Quran text: if font is cached, use it; if not, use fallback.
+   This prevents FOUT flicker when navigating between surahs. */
 
 @font-face {
   font-family: 'Scheherazade New';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
   src: url('./scheherazade-regular-400.ttf') format('truetype');
 }
 
@@ -50,6 +56,6 @@
   font-family: 'Scheherazade New';
   font-style: normal;
   font-weight: 700;
-  font-display: swap;
+  font-display: optional;
   src: url('./scheherazade-bold-700.ttf') format('truetype');
 }

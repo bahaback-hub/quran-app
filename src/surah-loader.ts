@@ -948,6 +948,24 @@ function finalizeSurahLoad(opts: LoadSurahOptions): void {
   if (state.autoSave) {
     saveCurrentPosition();
   }
+
+  // Performance: Prefetch next surah data when browser is idle
+  // This makes "next surah" navigation feel instant
+  if (state.currentSurah < 114) {
+    const nextSurah = state.currentSurah + 1;
+    const prefetchNext = (): void => {
+      // Only prefetch if user is still on the same surah
+      if (state.currentSurah !== surahData?.number) {
+        return;
+      }
+      // Silent prefetch — don't await, don't show errors
+      loadSurah(nextSurah, { autoPlay: false }).catch(() => { /* silent */ });
+    };
+
+    if ('requestIdleCallback' in window) {
+      (window as Window).requestIdleCallback(prefetchNext, { timeout: 5000 });
+    }
+  }
 }
 
 /** Scroll to and highlight the current ayah. */
