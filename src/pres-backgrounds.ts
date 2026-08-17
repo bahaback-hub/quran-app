@@ -74,7 +74,20 @@ export function applyAnimatedBg(overlay: HTMLElement, bgSrc: string): void {
   removeAnimatedBgLayer(overlay);
   const layer = document.createElement('div');
   layer.className = 'pres-bg-layer ' + getRandomKenBurns();
-  layer.style.backgroundImage = `url('${bgSrc}')`;
+  // Performance: Use Intersection Observer to delay background image loading
+  // until the layer is actually visible (saves bandwidth on mobile)
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          layer.style.backgroundImage = `url('${bgSrc}')`;
+          observer.disconnect();
+        }
+      }
+    },
+    { rootMargin: '100px' }
+  );
+  observer.observe(layer);
   overlay.insertBefore(layer, overlay.firstChild);
 }
 

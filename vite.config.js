@@ -39,7 +39,11 @@ export default defineConfig({
           if (id.includes('/translations/')) return 'i18n-translations';
           // Split large feature modules for lazy loading
           if (id.includes('/mushaf-') || id.includes('/mushaf.js')) return 'feature-mushaf';
-          if (id.includes('/presentation') || id.includes('/pres-')) return 'feature-presentation';
+          // Split presentation into smaller chunks (was 167KB, now ~3 chunks)
+          if (id.includes('/presentation')) return 'feature-presentation';
+          if (id.includes('/pres-backgrounds')) return 'feature-pres-backgrounds';
+          if (id.includes('/pres-styles')) return 'feature-pres-styles';
+          if (id.includes('/audio-visualizer')) return 'feature-audio-visualizer';
           if (id.includes('/tajweed')) return 'feature-tajweed';
           if (id.includes('/search-')) return 'feature-search';
           if (id.includes('adhan') || id.includes('/prayer-local')) return 'feature-prayer-local';

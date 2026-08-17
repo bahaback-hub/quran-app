@@ -103,9 +103,11 @@ export const PAD_V = 30;
 export const TOP_OFFSET = 30;
 export const BOTTOM_OFFSET = 50;
 
-/** Canvas pool — reuse canvases to avoid GC pressure and memory allocation */
+/** Canvas pool — reuse canvases to avoid GC pressure and memory allocation.
+ * On mobile, keep pool size small (1) to save memory.
+ * On desktop, keep 3 for smoother page navigation. */
+const MAX_POOL_SIZE = isMobileDevice() ? 1 : 3;
 const canvasPool: HTMLCanvasElement[] = [];
-const MAX_POOL_SIZE = 3;
 
 /** Get a canvas from pool or create new one */
 function getCanvas(): HTMLCanvasElement {
