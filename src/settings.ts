@@ -24,6 +24,9 @@ import { __ } from './i18n.js';
 
 /* ===================== FONT SIZE ===================== */
 
+const SURAH_FONT_SIZES = [20, 24, 28, 32, 36, 40, 44];
+const MUSHAF_ZOOM_LEVELS = [100, 125, 150, 175, 200];
+
 /** Apply a specific font size to the ayahs container and persist it. */
 export function applyFontSize(size: number): void {
   state.fontSize = size;
@@ -35,6 +38,45 @@ export function applyFontSize(size: number): void {
   if (dom.fontSizeSelect) {
     dom.fontSizeSelect.value = String(size);
   }
+  updateReaderZoomControl();
+}
+
+/** Apply a persisted scale for QCF4 Mushaf pages without changing their font. */
+export function applyMushafZoom(level: number): void {
+  const maximum = MUSHAF_ZOOM_LEVELS[MUSHAF_ZOOM_LEVELS.length - 1]!;
+  const clamped = Math.min(maximum, Math.max(MUSHAF_ZOOM_LEVELS[0]!, level));
+  state.mushafZoom = clamped;
+  document.documentElement.style.setProperty('--mushaf-page-width', `${clamped}%`);
+  storage.set('mushaf_zoom', clamped);
+  updateReaderZoomControl();
+}
+
+/** Change the active reader's scale by one accessible preset step. */
+export function changeReaderZoom(direction: 1 | -1): void {
+  const levels = state.mushafMode ? MUSHAF_ZOOM_LEVELS : SURAH_FONT_SIZES;
+  const current = state.mushafMode ? state.mushafZoom : state.fontSize;
+  const closest = levels.reduce((best, level) =>
+    Math.abs(level - current) < Math.abs(best - current) ? level : best,
+  );
+  const target = levels[Math.min(levels.length - 1, Math.max(0, levels.indexOf(closest) + direction))]!;
+  if (state.mushafMode) {
+    applyMushafZoom(target);
+  } else {
+    applyFontSize(target);
+  }
+}
+
+/** Keep the persistent zoom control descriptive as the reading mode changes. */
+export function updateReaderZoomControl(): void {
+  if (dom.readerZoomValue) {
+    dom.readerZoomValue.value = state.mushafMode ? `${state.mushafZoom}%` : `${state.fontSize}px`;
+    dom.readerZoomValue.textContent = dom.readerZoomValue.value;
+  }
+  const levels = state.mushafMode ? MUSHAF_ZOOM_LEVELS : SURAH_FONT_SIZES;
+  const current = state.mushafMode ? state.mushafZoom : state.fontSize;
+  const index = levels.indexOf(current);
+  dom.readerZoomOutBtn?.toggleAttribute('disabled', index <= 0);
+  dom.readerZoomInBtn?.toggleAttribute('disabled', index >= levels.length - 1);
 }
 
 /* ===================== NIGHT MODE ===================== */
@@ -365,6 +407,7 @@ export function resetSettings(): void {
   confirmBtn.addEventListener('click', () => {
     const keys = [
       'font_size',
+      'mushaf_zoom',
       'night_mode',
       'sepia_mode',
       'city',
@@ -424,6 +467,7 @@ export function resetSettings(): void {
 export function exportSettings(): void {
   const keys = [
     'font_size',
+    'mushaf_zoom',
     'night_mode',
     'sepia_mode',
     'city',
@@ -472,6 +516,7 @@ export function exportSettings(): void {
 /** Allowlist of valid setting keys for import validation. Exported for testing. */
 export const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'font_size',
+  'mushaf_zoom',
   'night_mode',
   'city',
   'country',
@@ -509,6 +554,7 @@ export const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
 /** Type validators for setting keys — ensures imported values match expected types. Exported for testing. */
 export const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
   font_size: (v) => typeof v === 'number',
+  mushaf_zoom: (v) => typeof v === 'number' && MUSHAF_ZOOM_LEVELS.includes(v),
   night_mode: (v) => typeof v === 'boolean',
   city: (v) => typeof v === 'string',
   country: (v) => typeof v === 'string',
@@ -679,6 +725,7 @@ export function restoreSettings(): void {
   if (dom.fontSizeSelect) {
     dom.fontSizeSelect.value = String(state.fontSize);
   }
+  applyMushafZoom(storage.get<number>('mushaf_zoom', 100) ?? 100);
   const ft = storage.get<string>('font_type');
   if (ft) {
     applyFontType(ft);

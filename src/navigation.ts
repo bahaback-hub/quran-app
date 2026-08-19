@@ -17,6 +17,7 @@ import {
   toggleHifdh,
   toggleRepeat,
   expandPlayer,
+  collapsePlayer,
   togglePlayPause,
   updatePlayPauseBtn,
 } from './audio.js';
@@ -41,8 +42,7 @@ export function initNavigation(): void {
 
   /* ========== PLAYER CONTROLS ========== */
   dom.collapsePlayerBtn?.addEventListener('click', () => {
-    dom.player?.classList.add('collapsed');
-    storage.set('player_collapsed', true);
+    collapsePlayer();
   });
   dom.collapsedContent?.addEventListener('click', (e: MouseEvent) => {
     if ((e.target as HTMLElement).closest('#collapsedPlayBtn')) {
@@ -76,7 +76,11 @@ export function initNavigation(): void {
 
   /* ========== VIEW MODE TOGGLES ========== */
   dom.viewSurahBtn?.addEventListener('click', () => {
-    import('./presentation.js').then((m) => m.closePresentation()).catch(() => { /* noop */ });
+    import('./presentation.js')
+      .then((m) => m.closePresentation())
+      .catch(() => {
+        /* noop */
+      });
     if (state.mushafMode) {
       import('./mushaf.js').then((m) => m.toggleMushafMode());
     }
@@ -94,7 +98,11 @@ export function initNavigation(): void {
     }
   });
   dom.viewMushafBtn?.addEventListener('click', () => {
-    import('./presentation.js').then((m) => m.closePresentation()).catch(() => { /* noop */ });
+    import('./presentation.js')
+      .then((m) => m.closePresentation())
+      .catch(() => {
+        /* noop */
+      });
     import('./mushaf.js').then((m) => m.toggleMushafMode());
   });
   dom.viewPresBtn?.addEventListener('click', () => {

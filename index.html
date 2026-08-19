@@ -2,7 +2,10 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content"
+    />
     <meta name="theme-color" content="#5c2e2e" />
     <meta name="description" content="تطبيق القرآن الكريم — تلاوة، بحث، تفسير، ومواقيت الصلاة" />
     <!-- Open Graph / Social Sharing -->
@@ -49,7 +52,9 @@
     <style>
       /* Reduced motion: disable animations and transitions for users who need it */
       @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
           animation-duration: 0.01ms !important;
           animation-iteration-count: 1 !important;
           transition-duration: 0.01ms !important;
@@ -80,7 +85,15 @@
     </style>
   </head>
   <body>
-    <div class="reading-progress" id="readingProgress" role="progressbar" aria-label="تقدم القراءة" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div
+      class="reading-progress"
+      id="readingProgress"
+      role="progressbar"
+      aria-label="تقدم القراءة"
+      aria-valuenow="0"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    ></div>
 
     <noscript>
       <div style="background: #fee; color: #c33; padding: 20px; text-align: center; font-size: 18px">
@@ -90,7 +103,9 @@
 
     <a href="#surahContent" class="skip-link">تخطّي إلى المحتوى</a>
 
-    <div class="network-banner" id="networkBanner" role="status" aria-live="polite" data-i18n="offline_banner">🔌 لا يوجد اتصال بالإنترنت — بعض الميزات قد لا تعمل</div>
+    <div class="network-banner" id="networkBanner" role="status" aria-live="polite" data-i18n="offline_banner">
+      🔌 لا يوجد اتصال بالإنترنت — بعض الميزات قد لا تعمل
+    </div>
 
     <div class="container" role="application" aria-label="تطبيق القرآن الكريم">
       <!-- ========== شريط مواقيت الصلاة ========== -->
@@ -161,11 +176,35 @@
         <div class="header-menu-container">
           <div class="header-actions">
             <div class="theme-switcher" id="themeToggle" role="group" aria-label="تبديل المظهر">
-              <button class="theme-btn active" data-theme="light" title="الوضع النهاري" aria-label="الوضع النهاري" aria-pressed="true">☀️</button>
-              <button class="theme-btn" data-theme="sepia" title="وضع السيبيا" aria-label="وضع السيبيا" aria-pressed="false">📜</button>
-              <button class="theme-btn" data-theme="night" title="الوضع الليلي" aria-label="الوضع الليلي" aria-pressed="false">🌙</button>
+              <button
+                class="theme-btn active"
+                data-theme="light"
+                title="الوضع النهاري"
+                aria-label="الوضع النهاري"
+                aria-pressed="true"
+              >
+                ☀️
+              </button>
+              <button
+                class="theme-btn"
+                data-theme="sepia"
+                title="وضع السيبيا"
+                aria-label="وضع السيبيا"
+                aria-pressed="false"
+              >
+                📜
+              </button>
+              <button
+                class="theme-btn"
+                data-theme="night"
+                title="الوضع الليلي"
+                aria-label="الوضع الليلي"
+                aria-pressed="false"
+              >
+                🌙
+              </button>
             </div>
-            <button class="header-action-btn" id="adhkarBtn" title="الأذكار" aria-label="الأذكار">
+            <button class="header-action-btn" id="adhkarBtn" data-i18n-title="adhkar" data-i18n-aria-label="adhkar" title="الأذكار" aria-label="الأذكار">
               <svg
                 class="icon icon-adhkar"
                 width="20"
@@ -182,7 +221,7 @@
                 <path d="M2 12l10 5 10-5" />
               </svg>
             </button>
-            <button class="header-action-btn" id="qiblaBtn" title="اتجاه القبلة" aria-label="اتجاه القبلة">
+            <button class="header-action-btn" id="qiblaBtn" data-i18n-title="qibla" data-i18n-aria-label="qibla" title="اتجاه القبلة" aria-label="اتجاه القبلة">
               <svg
                 class="icon icon-qibla"
                 width="20"
@@ -198,7 +237,7 @@
                 <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
               </svg>
             </button>
-            <button class="header-action-btn" id="favoritesOpenBtn" title="المفضلة" aria-label="المفضلة">
+            <button class="header-action-btn" id="favoritesOpenBtn" data-i18n-title="favorites" data-i18n-aria-label="favorites" title="المفضلة" aria-label="المفضلة">
               <svg
                 class="icon icon-favorites"
                 width="20"
@@ -210,10 +249,12 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                />
               </svg>
             </button>
-            <button class="header-action-btn" id="settingsToggleBtn" title="الإعدادات" aria-label="الإعدادات">
+            <button class="header-action-btn" id="settingsToggleBtn" data-i18n-title="settings" data-i18n-aria-label="settings" title="الإعدادات" aria-label="الإعدادات">
               <svg
                 class="icon icon-settings"
                 width="20"
@@ -231,7 +272,7 @@
                 />
               </svg>
             </button>
-            <button class="header-action-btn" id="helpToggleBtn" title="التعليمات" aria-label="التعليمات">
+            <button class="header-action-btn" id="helpToggleBtn" data-i18n-title="help" data-i18n-aria-label="help" title="التعليمات" aria-label="التعليمات">
               <svg
                 class="icon icon-help"
                 width="20"
@@ -268,7 +309,7 @@
               <path d="M8 7h8" />
               <path d="M8 11h6" />
             </svg>
-            القرآن الكريم
+            <span data-i18n="app_title">القرآن الكريم</span>
           </h1>
           <div class="breadcrumbs" id="breadcrumbs">
             <span class="breadcrumb-item" id="breadcrumbSurah">—</span>
@@ -293,7 +334,7 @@
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
               </svg>
-              السورة</span
+              <span data-i18n="surah">السورة</span></span
             >
             <div class="surah-reciter-group">
               <select id="surahSelect" aria-label="اختيار السورة"></select>
@@ -316,15 +357,69 @@
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
-              العرض</span
+              <span data-i18n="view">العرض</span></span
             >
             <div class="view-mode-group">
-              <button class="view-mode-btn active" id="viewSurahBtn" data-mode="surah" title="وضع السورة" aria-label="وضع السورة" aria-pressed="true">📖</button>
-              <button class="view-mode-btn" id="viewMushafBtn" data-mode="mushaf" title="وضع المصحف" aria-label="وضع المصحف" aria-pressed="false">📄</button>
-              <button class="view-mode-btn" id="viewPresBtn" data-mode="presentation" title="وضع العرض" aria-label="وضع العرض" aria-pressed="false">🖼️</button>
-              <button class="view-mode-btn view-mode-btn-trans hidden" id="translationToggle" title="الترجمة" aria-label="تبديل الترجمة" aria-pressed="false">
+              <button
+                class="view-mode-btn active"
+                id="viewSurahBtn"
+                data-mode="surah"
+                title="وضع السورة"
+                aria-label="وضع السورة"
+                aria-pressed="true"
+              >
+                📖
+              </button>
+              <button
+                class="view-mode-btn"
+                id="viewMushafBtn"
+                data-mode="mushaf"
+                title="وضع المصحف"
+                aria-label="وضع المصحف"
+                aria-pressed="false"
+              >
+                📄
+              </button>
+              <button
+                class="view-mode-btn"
+                id="viewPresBtn"
+                data-mode="presentation"
+                title="وضع العرض"
+                aria-label="وضع العرض"
+                aria-pressed="false"
+              >
+                🖼️
+              </button>
+              <button
+                class="view-mode-btn view-mode-btn-trans hidden"
+                id="translationToggle"
+                title="الترجمة"
+                aria-label="تبديل الترجمة"
+                aria-pressed="false"
+              >
                 🌐
               </button>
+            </div>
+            <div class="reader-zoom-control" role="group" data-i18n-aria-label="reader_zoom" aria-label="تكبير القراءة">
+              <button
+                class="reader-zoom-btn"
+                id="readerZoomOutBtn"
+                type="button"
+                data-i18n-title="reader_zoom_out"
+                data-i18n-aria-label="reader_zoom_out"
+                title="تصغير القراءة"
+                aria-label="تصغير القراءة"
+              >A−</button>
+              <output id="readerZoomValue" class="reader-zoom-value" aria-live="polite">28px</output>
+              <button
+                class="reader-zoom-btn"
+                id="readerZoomInBtn"
+                type="button"
+                data-i18n-title="reader_zoom_in"
+                data-i18n-aria-label="reader_zoom_in"
+                title="تكبير القراءة"
+                aria-label="تكبير القراءة"
+              >A+</button>
             </div>
             <span class="page-indicator hidden" id="pageIndicator">صفحة ١ من ٦٠٤</span>
           </div>
@@ -342,9 +437,16 @@
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-              بحث</span
+              <span data-i18n="search">بحث</span></span
             >
-            <button class="search-toggle-btn" id="searchToggleBtn" title="بحث" aria-label="بحث" aria-expanded="false" aria-controls="searchInputGroup">
+            <button
+              class="search-toggle-btn"
+              id="searchToggleBtn"
+              title="بحث"
+              aria-label="بحث"
+              aria-expanded="false"
+              aria-controls="searchInputGroup"
+            >
               <svg
                 class="icon icon-sm"
                 width="14"
@@ -358,7 +460,9 @@
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </button>
-            <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">📲</button>
+            <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">
+              📲
+            </button>
             <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
             <div class="control-group search-input-group hidden" id="searchInputGroup">
               <div class="search-input-wrapper">
@@ -386,7 +490,13 @@
       </section>
 
       <!-- ========== نتائج البحث ========== -->
-      <section class="search-results" id="searchResults" role="region" aria-label="نتائج البحث" aria-live="polite"></section>
+      <section
+        class="search-results"
+        id="searchResults"
+        role="region"
+        aria-label="نتائج البحث"
+        aria-live="polite"
+      ></section>
 
       <!-- ========== محتوى السورة ========== -->
       <main class="surah-content" id="surahContent" role="main" aria-label="نص السورة">
@@ -428,10 +538,10 @@
     <!-- Settings panel injected by overlays.ts via settingsPanelHTML() -->
 
     <!-- ========== لوحة الأذكار ========== -->
-    <aside class="adhkar-panel" id="adhkarPanel" role="complementary" aria-label="الأذكار">
+    <aside class="adhkar-panel" id="adhkarPanel" role="complementary" data-i18n-aria-label="adhkar" aria-label="الأذكار">
       <div class="adhkar-header">
-        <h2>🕌 الأذكار</h2>
-        <button class="adhkar-close" id="adhkarCloseBtn" aria-label="إغلاق الأذكار">✖</button>
+        <h2>🕌 <span data-i18n="adhkar">الأذكار</span></h2>
+        <button class="adhkar-close" id="adhkarCloseBtn" data-i18n-aria-label="close" aria-label="إغلاق الأذكار">✖</button>
       </div>
       <div class="adhkar-tabs" id="adhkarTabs"></div>
       <div class="adhkar-content" id="adhkarContent">
@@ -442,10 +552,10 @@
     <!-- Overlays injected by overlays.ts: adhkarNotification, adhkarAddOverlay -->
 
     <!-- ========== لوحة المفضلة ========== -->
-    <aside class="favorites-panel" id="favoritesPanel" role="complementary" aria-label="الآيات المفضلة">
+    <aside class="favorites-panel" id="favoritesPanel" role="complementary" data-i18n-aria-label="favorites" aria-label="الآيات المفضلة">
       <div class="favorites-header">
-        <h2>❤️ المفضلة</h2>
-        <button class="favorites-close" id="favoritesCloseBtn" aria-label="إغلاق المفضلة">✖</button>
+        <h2>❤️ <span data-i18n="favorites">المفضلة</span></h2>
+        <button class="favorites-close" id="favoritesCloseBtn" data-i18n-aria-label="close" aria-label="إغلاق المفضلة">✖</button>
       </div>
       <div class="favorites-export-row">
         <button class="btn btn-sm export-btn" id="favExportTextBtn">📄 تصدير كنص</button>
@@ -457,7 +567,13 @@
     </aside>
 
     <!-- ========== قائمة السور في وضع المصحف ========== -->
-    <div class="mushaf-surah-overlay hidden" id="mushafSurahOverlay" role="dialog" aria-label="قائمة السور" aria-modal="true">
+    <div
+      class="mushaf-surah-overlay hidden"
+      id="mushafSurahOverlay"
+      role="dialog"
+      aria-label="قائمة السور"
+      aria-modal="true"
+    >
       <div class="mushaf-surah-overlay-inner">
         <div class="mushaf-surah-overlay-header">
           <h3>📖 اختر السورة</h3>
@@ -507,9 +623,9 @@
           <path
             d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"
           /></svg
-        ><span data-i18n="play">المشغل</span>
+        ><span data-i18n="player">المشغل</span>
       </button>
-      <button class="bottom-nav-btn" data-tab="controls" data-i18n-aria-label="settings" aria-label="الأدوات">
+      <button class="bottom-nav-btn" data-tab="controls" data-i18n-aria-label="reader_tools" aria-label="أدوات القراءة">
         <svg
           class="icon icon-nav"
           width="20"
@@ -523,7 +639,7 @@
           <path
             d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
           /></svg
-        ><span data-i18n="settings">أدوات</span>
+        ><span data-i18n="reader_tools">أدوات القراءة</span>
       </button>
       <button class="bottom-nav-btn" data-tab="search" data-i18n-aria-label="all_quran" aria-label="البحث">
         <svg
@@ -537,9 +653,9 @@
         >
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" /></svg
-        ><span data-i18n="all_quran">بحث</span>
+        ><span data-i18n="search">بحث</span>
       </button>
-      <button class="bottom-nav-btn" data-tab="more" data-i18n-aria-label="settings" aria-label="القائمة">
+      <button class="bottom-nav-btn" data-tab="more" data-i18n-aria-label="adhkar" aria-label="الأذكار">
         <svg
           class="icon icon-nav"
           width="20"
@@ -552,7 +668,7 @@
           <line x1="3" y1="6" x2="21" y2="6" />
           <line x1="3" y1="12" x2="21" y2="12" />
           <line x1="3" y1="18" x2="21" y2="18" /></svg
-        ><span data-i18n="settings">القائمة</span>
+        ><span data-i18n="adhkar">أذكار</span>
       </button>
     </nav>
 

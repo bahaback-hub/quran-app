@@ -11,6 +11,8 @@ import { showToast } from './ui.js';
 import { __, AVAILABLE_LANGUAGES, getLang, setLang } from './i18n.js';
 import {
   applyFontSize,
+  changeReaderZoom,
+  updateReaderZoomControl,
   toggleNightMode,
   applyTheme,
   applyFontType,
@@ -27,17 +29,24 @@ import {
   initSettingsTabs,
 } from './settings.js';
 import { cacheSurahAudio, isSurahCached, deleteSurahCache } from './audio-cache.js';
-import { togglePrayerBar, testAzan, stopAzan, hideQiblaCompass, hideAzanNotification, showQiblaCompass } from './prayer.js';
 import {
-  toggleFavorite,
-  openFavorites,
-  closeFavorites,
-  setBookmark,
-  gotoBookmark,
-} from './favorites.js';
+  togglePrayerBar,
+  testAzan,
+  stopAzan,
+  hideQiblaCompass,
+  hideAzanNotification,
+  showQiblaCompass,
+} from './prayer.js';
+import { toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah, toggleTranslation } from './surah-loader.js';
-import { performExactSearch, initKeyboard, initSearchAutocomplete, loadFullQuranText, startVoiceSearch } from './search-ui.js';
+import {
+  performExactSearch,
+  initKeyboard,
+  initSearchAutocomplete,
+  loadFullQuranText,
+  startVoiceSearch,
+} from './search-ui.js';
 import { showSleepTimerModal } from './sleep-timer-modal.js';
 import { loadTajweedAnnotationsForSurah } from './tajweed-data.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
@@ -185,6 +194,9 @@ export function bindDisplaySettingsEvents(): void {
   dom.fontSizeSelect?.addEventListener('change', (e: Event) =>
     applyFontSize(parseInt((e.target as HTMLSelectElement).value, 10)),
   );
+  dom.readerZoomOutBtn?.addEventListener('click', () => changeReaderZoom(-1));
+  dom.readerZoomInBtn?.addEventListener('click', () => changeReaderZoom(1));
+  updateReaderZoomControl();
   dom.fontTypeSelect?.addEventListener('change', (e: Event) => applyFontType((e.target as HTMLSelectElement).value));
   dom.lineSpacingSelect?.addEventListener('change', (e: Event) =>
     applyLineSpacing((e.target as HTMLSelectElement).value),
@@ -334,17 +346,17 @@ async function handleDownloadAudio(): Promise<void> {
   }
 
   try {
-    await cacheSurahAudio(audioUrls, surah, reciter, (
-      _surah: number,
-      _reciter: string,
-      current: number,
-      total: number,
-    ) => {
-      // Update button text with progress
-      if (dom.downloadAudioBtn) {
-        dom.downloadAudioBtn.textContent = `${current}/${total}`;
-      }
-    });
+    await cacheSurahAudio(
+      audioUrls,
+      surah,
+      reciter,
+      (_surah: number, _reciter: string, current: number, total: number) => {
+        // Update button text with progress
+        if (dom.downloadAudioBtn) {
+          dom.downloadAudioBtn.textContent = `${current}/${total}`;
+        }
+      },
+    );
 
     // Download complete
     showToast(__('download_audio_done'), 'success');
@@ -380,10 +392,7 @@ function handleAutoPlayNextToggle(): void {
   if (dom.autoPlayNextBtn) {
     dom.autoPlayNextBtn.classList.toggle('active', state.autoPlayNext);
   }
-  showToast(
-    state.autoPlayNext ? __('autoplay_next_enabled') : __('autoplay_next_disabled'),
-    'success',
-  );
+  showToast(state.autoPlayNext ? __('autoplay_next_enabled') : __('autoplay_next_disabled'), 'success');
 }
 
 /**
@@ -449,6 +458,10 @@ export function bindGlobalClickHandler(): void {
       settingsTarget === dom.settingsToggleBtn ||
       settingsTarget.closest?.('#settingsToggleBtn') !== null ||
       settingsTarget.closest?.('[data-tab="more"]');
+    const isAdhkarTrigger =
+      settingsTarget === dom.adhkarBtn ||
+      settingsTarget.closest?.('#adhkarBtn') !== null ||
+      settingsTarget.closest?.('[data-tab="more"]');
     if (
       dom.settingsPanel?.classList.contains('open') &&
       !dom.settingsPanel.contains(e.target as Node) &&
@@ -466,7 +479,7 @@ export function bindGlobalClickHandler(): void {
     if (
       dom.adhkarPanel?.classList.contains('open') &&
       !dom.adhkarPanel.contains(e.target as Node) &&
-      !dom.adhkarBtn?.contains(e.target as Node)
+      !isAdhkarTrigger
     ) {
       closeAdhkarPanel();
     }
@@ -567,14 +580,8 @@ export function bindHelpEvents(): void {
   // Close help when clicking outside
   document.addEventListener('click', (e: MouseEvent) => {
     const helpTarget = e.target as HTMLElement;
-    const isHelpTrigger =
-      helpTarget === dom.helpToggleBtn ||
-      helpTarget.closest?.('#helpToggleBtn') !== null;
-    if (
-      dom.helpPanel?.classList.contains('open') &&
-      !dom.helpPanel.contains(e.target as Node) &&
-      !isHelpTrigger
-    ) {
+    const isHelpTrigger = helpTarget === dom.helpToggleBtn || helpTarget.closest?.('#helpToggleBtn') !== null;
+    if (dom.helpPanel?.classList.contains('open') && !dom.helpPanel.contains(e.target as Node) && !isHelpTrigger) {
       closeHelp();
     }
   });

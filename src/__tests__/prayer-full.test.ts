@@ -295,9 +295,12 @@ describe('prayer.ts', () => {
       await loadPrayerTimes();
 
       expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
-      expect(mockStorageSet).toHaveBeenCalledWith('cached_prayer_times', expect.objectContaining({
-        timings: SAMPLE_PRAYER_TIMES,
-      }));
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_prayer_times',
+        expect.objectContaining({
+          timings: SAMPLE_PRAYER_TIMES,
+        }),
+      );
       expect(mockPrayerFetch).not.toHaveBeenCalled();
     });
 
@@ -310,9 +313,12 @@ describe('prayer.ts', () => {
       await loadPrayerTimes();
 
       expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
-      expect(mockStorageSet).toHaveBeenCalledWith('cached_prayer_times', expect.objectContaining({
-        timings: SAMPLE_PRAYER_TIMES,
-      }));
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_prayer_times',
+        expect.objectContaining({
+          timings: SAMPLE_PRAYER_TIMES,
+        }),
+      );
     });
 
     it('should fall back to API when local calculation throws', async () => {
@@ -432,11 +438,14 @@ describe('prayer.ts', () => {
 
       await loadPrayerTimes();
 
-      expect(mockStorageSet).toHaveBeenCalledWith('cached_prayer_times', expect.objectContaining({
-        city: 'الرياض',
-        country: 'SA',
-        method: '1',
-      }));
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_prayer_times',
+        expect.objectContaining({
+          city: 'الرياض',
+          country: 'SA',
+          method: '1',
+        }),
+      );
 
       (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
       (mockDom.countryInput as HTMLInputElement).value = 'SA';
@@ -454,11 +463,14 @@ describe('prayer.ts', () => {
 
       await loadPrayerTimes();
 
-      expect(mockStorageSet).toHaveBeenCalledWith('cached_prayer_times', expect.objectContaining({
-        city: state.city,
-        country: state.country,
-        method: state.method,
-      }));
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_prayer_times',
+        expect.objectContaining({
+          city: state.city,
+          country: state.country,
+          method: state.method,
+        }),
+      );
 
       mockDom.cityInput = savedCity;
       mockDom.countryInput = savedCountry;
@@ -1095,13 +1107,16 @@ describe('prayer.ts', () => {
       });
     });
 
-    it('should update compass rotation and angle display on geolocation success', () => {
+    it('should point the needle to the Qibla while keeping the compass dial fixed', () => {
       const overlay = document.createElement('div');
       overlay.id = 'qiblaOverlay';
       document.body.appendChild(overlay);
 
       const compass = document.createElement('div');
       compass.id = 'qiblaCompass';
+      const needle = document.createElement('div');
+      needle.className = 'qibla-needle';
+      compass.appendChild(needle);
       document.body.appendChild(compass);
 
       const angleDisplay = document.createElement('div');
@@ -1126,7 +1141,8 @@ describe('prayer.ts', () => {
 
       showQiblaCompass();
 
-      expect(compass.style.transform).toMatch(/rotate/);
+      expect(compass.style.transform).toBe('');
+      expect(needle.style.transform).toMatch(/translateX\(-50%\) rotate/);
       expect(angleDisplay.textContent).toMatch(/^\d+°$/);
       expect(direction.textContent).toContain('qibla_direction');
 
@@ -1164,10 +1180,7 @@ describe('prayer.ts', () => {
       const mockRequestPermission = vi.fn(() => Promise.resolve('granted'));
       const OriginalDOE = window.DeviceOrientationEvent;
       Object.defineProperty(window, 'DeviceOrientationEvent', {
-        value: Object.assign(
-          function DeviceOrientationEvent() {},
-          { requestPermission: mockRequestPermission },
-        ),
+        value: Object.assign(function DeviceOrientationEvent() {}, { requestPermission: mockRequestPermission }),
         configurable: true,
       });
 
@@ -1339,9 +1352,12 @@ describe('prayer.ts', () => {
       checkAzanTime();
       await vi.advanceTimersByTimeAsync(0);
 
-      expect(mockNotification).toHaveBeenCalledWith('prayer_time_come', expect.objectContaining({
-        tag: 'azan-Dhuhr',
-      }));
+      expect(mockNotification).toHaveBeenCalledWith(
+        'prayer_time_come',
+        expect.objectContaining({
+          tag: 'azan-Dhuhr',
+        }),
+      );
 
       Object.defineProperty(globalThis, 'Notification', {
         value: origNotification,
@@ -1359,6 +1375,9 @@ describe('prayer.ts', () => {
 
       const compass = document.createElement('div');
       compass.id = 'qiblaCompass';
+      const needle = document.createElement('div');
+      needle.className = 'qibla-needle';
+      compass.appendChild(needle);
       document.body.appendChild(compass);
 
       const mockGetCurrentPos = vi.fn((success: (pos: GeolocationPosition) => void) => {
@@ -1388,9 +1407,8 @@ describe('prayer.ts', () => {
       expect(addEventListenerSpy).toHaveBeenCalledWith('deviceorientation', expect.any(Function));
 
       // Now dispatch a deviceorientation event to test the handler
-      const handler = addEventListenerSpy.mock.calls.find(
-        (call) => call[0] === 'deviceorientation',
-      )?.[1] as ((e: DeviceOrientationEvent) => void) | undefined;
+      const handler = addEventListenerSpy.mock.calls.find((call) => call[0] === 'deviceorientation')?.[1] as
+        ((e: DeviceOrientationEvent) => void) | undefined;
 
       if (handler) {
         const event = new Event('deviceorientation') as DeviceOrientationEvent;
@@ -1399,8 +1417,9 @@ describe('prayer.ts', () => {
         Object.defineProperty(event, 'gamma', { value: 0, configurable: true });
         handler(event);
 
-        // Compass should have been rotated based on heading
-        expect(compass.style.transform).toMatch(/rotate/);
+        // Needle should rotate based on heading while the dial stays fixed.
+        expect(compass.style.transform).toBe('');
+        expect(needle.style.transform).toMatch(/translateX\(-50%\) rotate/);
       }
 
       addEventListenerSpy.mockRestore();
@@ -1423,6 +1442,9 @@ describe('prayer.ts', () => {
 
       const compass = document.createElement('div');
       compass.id = 'qiblaCompass';
+      const needle = document.createElement('div');
+      needle.className = 'qibla-needle';
+      compass.appendChild(needle);
       document.body.appendChild(compass);
 
       const mockGetCurrentPos = vi.fn((success: (pos: GeolocationPosition) => void) => {
@@ -1447,9 +1469,8 @@ describe('prayer.ts', () => {
 
       showQiblaCompass();
 
-      const handler = addEventListenerSpy.mock.calls.find(
-        (call) => call[0] === 'deviceorientation',
-      )?.[1] as ((e: unknown) => void) | undefined;
+      const handler = addEventListenerSpy.mock.calls.find((call) => call[0] === 'deviceorientation')?.[1] as
+        ((e: unknown) => void) | undefined;
 
       if (handler) {
         // Simulate iOS event with webkitCompassHeading
@@ -1461,8 +1482,9 @@ describe('prayer.ts', () => {
         };
         handler(iosEvent);
 
-        // Compass should rotate based on webkitCompassHeading
-        expect(compass.style.transform).toMatch(/rotate/);
+        // Needle should rotate based on webkitCompassHeading.
+        expect(compass.style.transform).toBe('');
+        expect(needle.style.transform).toMatch(/translateX\(-50%\) rotate/);
       }
 
       addEventListenerSpy.mockRestore();

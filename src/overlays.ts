@@ -186,20 +186,20 @@ const ayahModalHTML = `
 /* ===================== QIBLA OVERLAY ===================== */
 
 const qiblaOverlayHTML = `
-<div class="qibla-overlay hidden" id="qiblaOverlay" role="dialog" aria-label="اتجاه القبلة" aria-modal="true">
+<div class="qibla-overlay hidden" id="qiblaOverlay" role="dialog" data-i18n-aria-label="qibla" aria-label="اتجاه القبلة" aria-modal="true">
   <div class="qibla-panel">
-    <h2>🧭 اتجاه القبلة</h2>
+    <h2>🧭 <span data-i18n="qibla">اتجاه القبلة</span></h2>
     <div class="qibla-compass" id="qiblaCompass">
       <div class="qibla-needle"></div>
       <div class="qibla-center"></div>
-      <span class="qibla-label qibla-n">شمال</span>
-      <span class="qibla-label qibla-s">جنوب</span>
-      <span class="qibla-label qibla-e">شرق</span>
-      <span class="qibla-label qibla-w">غرب</span>
+      <span class="qibla-label qibla-n" data-i18n="prayer_dirs_n">شمال</span>
+      <span class="qibla-label qibla-s" data-i18n="prayer_dirs_s">جنوب</span>
+      <span class="qibla-label qibla-e" data-i18n="prayer_dirs_e">شرق</span>
+      <span class="qibla-label qibla-w" data-i18n="prayer_dirs_w">غرب</span>
     </div>
     <div class="qibla-angle" id="qiblaAngle">---</div>
     <div class="qibla-direction" id="qiblaDirection">جاري تحديد الموقع...</div>
-    <button class="qibla-close" id="qiblaCloseBtn">✖ إغلاق</button>
+    <button class="qibla-close" id="qiblaCloseBtn">✖ <span data-i18n="close">إغلاق</span></button>
   </div>
 </div>
 `;

@@ -123,6 +123,7 @@ export interface UIStateSlice {
 
 export interface MushafStateSlice {
   mushafMode: boolean;
+  mushafZoom: number;
   currentPage: number;
   currentPageLayout: PageLayoutData | null;
   surahOffsets: SurahOffset[] | null;
@@ -189,6 +190,7 @@ export interface AppState {
   azanPlaying: boolean;
   loadingSurah: number | null;
   mushafMode: boolean;
+  mushafZoom: number;
   currentPage: number;
   fullQuranText: QuranTextEntry[] | null;
   fullQuranLoaded: boolean;
@@ -255,6 +257,7 @@ export function createDefaultState(): AppState {
     azanPlaying: false,
     loadingSurah: null,
     mushafMode: false,
+    mushafZoom: 100,
     currentPage: 1,
     fullQuranText: null,
     fullQuranLoaded: false,

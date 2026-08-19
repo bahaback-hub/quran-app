@@ -42,12 +42,12 @@ export function settingsPanelHTML(): string {
       </div>
 
       <div class="settings-tabs" id="settingsTabs">
-        <button class="settings-tab active" data-tab="prayer">🕌 المواقيت</button>
-        <button class="settings-tab" data-tab="display">🎨 العرض</button>
-        <button class="settings-tab" data-tab="azan">🔔 الأذان</button>
-        <button class="settings-tab" data-tab="adhkar">🕌 الأذكار</button>
-        <button class="settings-tab" data-tab="language">🌐 اللغة</button>
-        <button class="settings-tab" data-tab="tools">⚙️ أدوات</button>
+        <button class="settings-tab active" data-tab="prayer">🕌 <span data-i18n="prayer_times">المواقيت</span></button>
+        <button class="settings-tab" data-tab="display">🎨 <span data-i18n="display">العرض</span></button>
+        <button class="settings-tab" data-tab="azan">🔔 <span data-i18n="azan">الأذان</span></button>
+        <button class="settings-tab" data-tab="adhkar">🕌 <span data-i18n="adhkar">الأذكار</span></button>
+        <button class="settings-tab" data-tab="language">🌐 <span data-i18n="language">اللغة</span></button>
+        <button class="settings-tab" data-tab="tools">⚙️ <span data-i18n="tools">أدوات</span></button>
       </div>
 
       <div class="settings-tab-content active" data-tab="prayer">
@@ -57,7 +57,7 @@ export function settingsPanelHTML(): string {
           </div>
         </div>
         <div class="settings-section">
-          <div class="settings-section-title">📍 الموقع وطريقة الحساب</div>
+          <div class="settings-section-title">📍 <span data-i18n="location_calculation">الموقع وطريقة الحساب</span></div>
           <div class="settings-row">
             <label for="cityInput" data-i18n="city">المدينة:</label>
             <input type="text" id="cityInput" placeholder="مكة" />
@@ -69,7 +69,7 @@ export function settingsPanelHTML(): string {
           <div class="settings-row">
             <label for="cityQuickSelect" data-i18n="quick_select">اختيار سريع:</label>
             <select id="cityQuickSelect">
-              <option value="">— اختر —</option>
+              <option value="" data-i18n="select_option">— اختر —</option>
               <option value="مكة|SA">مكة المكرمة</option>
               <option value="المدينة|SA">المدينة المنورة</option>
               <option value="الرياض|SA">الرياض</option>
@@ -114,9 +114,9 @@ export function settingsPanelHTML(): string {
 
       <div class="settings-tab-content" data-tab="display">
         <div class="settings-section">
-          <div class="settings-section-title">🎨 العرض</div>
+          <div class="settings-section-title">🎨 <span data-i18n="display">العرض</span></div>
           <div class="settings-row">
-            <label for="fontSizeSelect">حجم الخط:</label>
+            <label for="fontSizeSelect" data-i18n="font_size">حجم الخط:</label>
             <select id="fontSizeSelect">
               <option value="20">20</option>
               <option value="24">24</option>
@@ -128,7 +128,7 @@ export function settingsPanelHTML(): string {
             </select>
           </div>
           <div class="settings-row">
-            <label for="fontTypeSelect">نوع الخط:</label>
+            <label for="fontTypeSelect" data-i18n="font_type">نوع الخط:</label>
             <select id="fontTypeSelect">
               <option value="'Amiri','Traditional Arabic',serif" selected>أميري</option>
               <option value="'Scheherazade New','Traditional Arabic',serif">شهرزاد</option>
@@ -138,16 +138,16 @@ export function settingsPanelHTML(): string {
             </select>
           </div>
           <div class="settings-row">
-            <label for="lineSpacingSelect">تباعد الأسطر:</label>
+            <label for="lineSpacingSelect" data-i18n="line_spacing">تباعد الأسطر:</label>
             <select id="lineSpacingSelect">
-              <option value="1.4">ضيق</option>
-              <option value="1.8" selected>عادي</option>
-              <option value="2.2">واسع</option>
-              <option value="2.6">واسع جداً</option>
+              <option value="1.4" data-i18n="compact">ضيق</option>
+              <option value="1.8" selected data-i18n="normal">عادي</option>
+              <option value="2.2" data-i18n="spacious">واسع</option>
+              <option value="2.6" data-i18n="extra_spacious">واسع جداً</option>
             </select>
           </div>
           <div class="settings-row">
-            <label>ألوان التجويد (المصحف المجود):</label>
+            <label data-i18n="tajweed_colors">ألوان التجويد</label>
             <div class="toggle-switch on" id="tajweedToggle" role="switch" aria-label="ألوان التجويد"></div>
           </div>
           <div class="settings-row">
@@ -182,13 +182,13 @@ export function settingsPanelHTML(): string {
             </select>
           </div>
           <div class="settings-row">
-            <label>حفظ آخر موضع تلقائياً:</label>
+            <label data-i18n="auto_save_position">حفظ آخر موضع تلقائياً</label>
             <div class="toggle-switch on" id="autoSaveToggle" role="switch" aria-label="حفظ آخر موضع"></div>
           </div>
           <div class="settings-row">
-            <label for="translationSelect">الترجمة:</label>
+            <label for="translationSelect" data-i18n="translation">الترجمة:</label>
             <select id="translationSelect" aria-label="اختيار الترجمة">
-              <option value="">— بدون ترجمة —</option>
+              <option value="" data-i18n="no_translation">— بدون ترجمة —</option>
               <option value="en.sahih">Sahih International</option>
               <option value="en.pickthall">Pickthall</option>
               <option value="en.yusufali">Yusuf Ali</option>
@@ -219,13 +219,13 @@ export function settingsPanelHTML(): string {
 
       <div class="settings-tab-content" data-tab="adhkar">
         <div class="settings-section">
-          <div class="settings-section-title">🕌 الأذكار</div>
+          <div class="settings-section-title">🕌 <span data-i18n="adhkar">الأذكار</span></div>
           <div class="settings-row">
-            <label>تفعيل التذكير العام:</label>
+            <label data-i18n="adhkar_reminder">تفعيل التذكير العام</label>
             <div class="toggle-switch" id="adhkarEnabledToggle" role="switch" aria-label="تفعيل التذكير"></div>
           </div>
           <div class="settings-row">
-            <label>🔔 صوت التنبيه:</label>
+            <label>🔔 <span data-i18n="notification_sound">صوت التنبيه</span></label>
             <div class="toggle-switch" id="adhkarSoundToggle" role="switch" aria-label="صوت التنبيه"></div>
           </div>
           <div id="adhkarSettingsList"></div>
@@ -250,12 +250,12 @@ export function settingsPanelHTML(): string {
 
       <div class="settings-tab-content" data-tab="tools">
         <div class="settings-section">
-          <div class="settings-section-title">⚙️ أدوات</div>
+          <div class="settings-section-title">⚙️ <span data-i18n="tools">أدوات</span></div>
           <div class="settings-row">
-            <button class="btn btn-gold" id="exportSettingsBtn">📤 تصدير الإعدادات</button>
+            <button class="btn btn-gold" id="exportSettingsBtn">📤 <span data-i18n="export_settings">تصدير الإعدادات</span></button>
           </div>
           <div class="settings-row">
-            <button class="btn" id="importSettingsBtn">📥 استيراد الإعدادات</button>
+            <button class="btn" id="importSettingsBtn">📥 <span data-i18n="import_settings">استيراد الإعدادات</span></button>
           </div>
           <div class="settings-row">
             <button class="btn btn-danger" id="resetSettingsBtn" data-i18n="reset_settings">

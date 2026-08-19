@@ -12,6 +12,7 @@ vi.mock('../audio.js', () => ({
   toggleHifdh: vi.fn(),
   toggleRepeat: vi.fn(),
   expandPlayer: vi.fn(),
+  collapsePlayer: vi.fn(),
   prepareAudioForNewSurah: vi.fn(),
   playCurrentAyah: vi.fn(),
 }));
@@ -55,7 +56,16 @@ vi.mock('../presentation.js', () => ({
 }));
 
 import { initKeyboardShortcuts } from '../keyboard.js';
-import { togglePlayPause, nextAyah, prevAyah, nextSurah, prevSurah, toggleHifdh, toggleRepeat } from '../audio.js';
+import {
+  togglePlayPause,
+  nextAyah,
+  prevAyah,
+  nextSurah,
+  prevSurah,
+  toggleHifdh,
+  toggleRepeat,
+  collapsePlayer,
+} from '../audio.js';
 import { toggleNightMode, applyFontSize, closeSettings } from '../settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark } from '../favorites.js';
 import { stopAzan } from '../prayer.js';
@@ -290,9 +300,7 @@ describe('keyboard shortcuts - Escape', () => {
     const player = { classList: { contains: vi.fn().mockReturnValue(false), add: vi.fn() } } as unknown as HTMLElement;
     dom.player = player;
     pressKey('Escape');
-    expect(
-      (dom.player as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add,
-    ).toHaveBeenCalledWith('collapsed');
+    expect(collapsePlayer).toHaveBeenCalled();
   });
 
   it('should not collapse player if already collapsed on Escape', () => {

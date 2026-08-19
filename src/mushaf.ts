@@ -20,6 +20,7 @@ import { renderPage, loadPageData, releaseCanvas } from './mushaf-renderer.js';
 import type { PageLayoutData } from './mushaf-renderer.js';
 import { loadTafsirForSurahAyah } from './tafsir.js';
 import { __ } from './i18n.js';
+import { updateReaderZoomControl } from './settings.js';
 import type { SurahData } from './types.js';
 
 /* ===================== INTERFACES ===================== */
@@ -163,6 +164,7 @@ export async function toggleMushafMode(): Promise<void> {
     }
   }
   storage.set('mushaf_mode', state.mushafMode);
+  updateReaderZoomControl();
 }
 
 /* ===================== PAGE SELECT ===================== */

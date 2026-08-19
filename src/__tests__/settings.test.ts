@@ -62,6 +62,7 @@ describe('settings', () => {
   beforeEach(() => {
     resetState();
     localStorage.clear();
+    document.documentElement.style.removeProperty('--mushaf-page-width');
   });
 
   describe('applyFontSize', () => {
@@ -82,6 +83,24 @@ describe('settings', () => {
       const { applyFontSize } = await import('../settings.js');
       applyFontSize(30);
       expect(mockContainer.style.fontSize).toBe('30px');
+    });
+
+    it('should keep the Mushaf scale independent from Surah font size', async () => {
+      const { applyFontSize, applyMushafZoom } = await import('../settings.js');
+      applyMushafZoom(150);
+      applyFontSize(42);
+      expect(document.documentElement.style.getPropertyValue('--mushaf-page-width')).toBe('150%');
+    });
+  });
+
+  describe('applyMushafZoom', () => {
+    it('should apply and persist an allowed QCF4 page scale', async () => {
+      const { applyMushafZoom } = await import('../settings.js');
+      const storageSet = vi.spyOn(storage, 'set');
+      applyMushafZoom(175);
+      expect(state.mushafZoom).toBe(175);
+      expect(document.documentElement.style.getPropertyValue('--mushaf-page-width')).toBe('175%');
+      expect(storageSet).toHaveBeenCalledWith('mushaf_zoom', 175);
     });
   });
 

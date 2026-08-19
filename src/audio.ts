@@ -408,7 +408,15 @@ function onSeeking(): void {
  */
 export function expandPlayer(): void {
   dom.player?.classList.remove('collapsed');
+  document.body.classList.add('player-expanded');
   storage.set('player_collapsed', false);
+}
+
+/** Collapse the player and restore the mobile reading controls around it. */
+export function collapsePlayer(): void {
+  dom.player?.classList.add('collapsed');
+  document.body.classList.remove('player-expanded');
+  storage.set('player_collapsed', true);
 }
 
 /**

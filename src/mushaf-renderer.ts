@@ -69,11 +69,19 @@ const PAGE_BASE = 'https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4
 const FONT_BASE = 'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2/';
 const BSML_FONT = 'QCF4_QBSML';
 
+// Page 107 (Surah Al-Ma'idah) uses Hafs_08.  Android WebView may report this
+// external font as ready before its glyph table is usable on Canvas, resulting
+// in missing-glyph boxes.  Ship this official QCF4 asset with the APK so that
+// the page is rendered reliably offline and without the WebView timing race.
+const LOCAL_QCF4_FONTS: Record<string, string> = {
+  QCF4_Hafs_08: `${import.meta.env.BASE_URL}fonts/qcf4/QCF4_Hafs_08_W.woff2`,
+};
+
 // Canvas dimensions — scaled based on device capabilities to reduce memory usage
 // Full HD (1080×1540) uses 6.6MB per canvas — too much for low-end mobile
 // We scale down on mobile devices to save memory while keeping quality acceptable
 const MOBILE_CANVAS_W = 720;
-const MOBILE_CANVAS_H = 1028;  // Maintains 7:10 aspect ratio
+const MOBILE_CANVAS_H = 1028; // Maintains 7:10 aspect ratio
 const DESKTOP_CANVAS_W = 1080;
 const DESKTOP_CANVAS_H = 1540;
 
@@ -219,6 +227,9 @@ export async function loadPageData(pageNum: number): Promise<PageLayoutData | nu
  * BSML font uses a different naming convention than Hafs fonts.
  */
 function getFontUrl(fontName: string): string {
+  if (LOCAL_QCF4_FONTS[fontName]) {
+    return LOCAL_QCF4_FONTS[fontName]!;
+  }
   if (fontName === BSML_FONT) {
     return `${FONT_BASE}${BSML_FONT}.woff2`;
   }
@@ -565,7 +576,7 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
   if (capMode) {
     const timeoutMs = 30000;
     let timedOut = false;
-    const mainPromise = _renderPageInternal(pageNum, targetCanvas).then(result => {
+    const mainPromise = _renderPageInternal(pageNum, targetCanvas).then((result) => {
       // If timeout already fired, discard the late result to avoid overwriting the fallback render
       if (timedOut) {
         return { canvas: null, layout: null };
