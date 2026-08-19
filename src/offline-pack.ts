@@ -197,10 +197,25 @@ export async function downloadOfflinePack(
   });
 
   try {
-    const response = await fetchWithTimeout('/data/tajweed.json');
-    if (response.ok) {
-      const data = await response.json();
-      totalBytes += JSON.stringify(data).length;
+    const manifestResponse = await fetchWithTimeout('/data/tajweed/manifest.json');
+    if (manifestResponse.ok) {
+      const manifest = await manifestResponse.json() as { files?: string[] };
+      const files = manifest.files || [];
+      for (const [index, file] of files.entries()) {
+        const response = await fetchWithTimeout(`/data/tajweed/${file}`);
+        if (!response.ok) {
+          throw new Error(`Tajweed ${file}: HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        totalBytes += JSON.stringify(data).length;
+        onProgress?.({
+          phase: 'tajweed',
+          percent: 55 + Math.round(((index + 1) / files.length) * 5),
+          message: 'بيانات التجويد...',
+          completed: index + 1,
+          total: files.length,
+        });
+      }
       succeeded++;
     }
   } catch {

@@ -37,9 +37,9 @@ import {
 } from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah, toggleTranslation } from './surah-loader.js';
-import { performExactSearch, initKeyboard, initSearchAutocomplete, startVoiceSearch } from './search-ui.js';
+import { performExactSearch, initKeyboard, initSearchAutocomplete, loadFullQuranText, startVoiceSearch } from './search-ui.js';
 import { showSleepTimerModal } from './sleep-timer-modal.js';
-import { loadTajweedAnnotations } from './tajweed-data.js';
+import { loadTajweedAnnotationsForSurah } from './tajweed-data.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { toggleTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import * as audioModule from './audio.js';
@@ -209,7 +209,7 @@ export function bindDisplaySettingsEvents(): void {
       }
     };
     if (state.tajweedEnabled) {
-      loadTajweedAnnotations().then(reload);
+      loadTajweedAnnotationsForSurah(state.currentSurah).then(reload);
     } else {
       reload();
     }
@@ -402,10 +402,14 @@ export function initAutoPlayNextButton(): void {
  * Bind search controls.
  */
 export function bindSearchEvents(): void {
-  dom.searchBtn?.addEventListener('click', () => {
+  dom.searchBtn?.addEventListener('click', async () => {
     const q = dom.searchInput?.value.trim();
     if (!q) {
       return;
+    }
+    if (!state.fullQuranLoaded) {
+      showToast(__('quran_db_loading'));
+      await loadFullQuranText();
     }
     performExactSearch(q);
   });

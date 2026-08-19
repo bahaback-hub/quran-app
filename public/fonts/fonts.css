@@ -21,7 +21,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('./amiri-regular-400.ttf') format('truetype');
+  src: url('./amiri-regular-400.woff2') format('woff2');
 }
 
 @font-face {
@@ -29,7 +29,7 @@
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: url('./amiri-italic-400.ttf') format('truetype');
+  src: url('./amiri-italic-400.woff2') format('woff2');
 }
 
 @font-face {
@@ -37,7 +37,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('./amiri-bold-700.ttf') format('truetype');
+  src: url('./amiri-bold-700.woff2') format('woff2');
 }
 
 /* ── Scheherazade New (Arabic Naskh — Quran text) ── */
@@ -49,7 +49,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: optional;
-  src: url('./scheherazade-regular-400.ttf') format('truetype');
+  src: url('./scheherazade-regular-400.woff2') format('woff2');
 }
 
 @font-face {
@@ -57,5 +57,5 @@
   font-style: normal;
   font-weight: 700;
   font-display: optional;
-  src: url('./scheherazade-bold-700.ttf') format('truetype');
+  src: url('./scheherazade-bold-700.woff2') format('woff2');
 }

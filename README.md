@@ -87,13 +87,13 @@ This rating is an **internal self-audit**, not an external certification. We lis
 ## 📸 لقطات الشاشة / Screenshots
 
 ### 📖 وضع القراءة / Reading Mode
-![Reading Mode](screenshots/reading-mode.png)
+![Reading Mode](screenshots/reading-mode.webp)
 
 ### 📄 وضع المصحف / Mushaf Mode
-![Mushaf Mode](screenshots/mushaf-mode.png)
+![Mushaf Mode](screenshots/mushaf-mode.webp)
 
 ### 🖼️ وضع العرض / Presentation Mode
-![Presentation Mode](screenshots/presentation-mode.png)
+![Presentation Mode](screenshots/presentation-mode.webp)
 
 ---
 

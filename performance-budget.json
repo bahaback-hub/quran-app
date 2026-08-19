@@ -9,6 +9,7 @@
         { "resourceType": "font", "budget": 1500 },
         { "resourceType": "media", "budget": 2500 },
         { "resourceType": "document", "budget": 50 },
+        { "resourceType": "data", "budget": 2000 },
         { "resourceType": "other", "budget": 2000 },
         { "resourceType": "total", "budget": 12000 }
       ],

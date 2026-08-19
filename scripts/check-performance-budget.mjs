@@ -40,7 +40,7 @@ const TYPE_EXTENSIONS = {
   stylesheet: ['.css'],
   image: ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.ico', '.avif'],
   font: ['.woff', '.woff2', '.ttf', '.otf', '.eot'],
-  media: ['.mp3', '.mp4', '.webm', '.ogg', '.wav'],
+  media: ['.mp3', '.mp4', '.webm', '.ogg', '.opus', '.wav'],
   document: ['.html'],
   other: ['.json', '.map', '.txt'],
 };
@@ -57,6 +57,7 @@ function* walk(dir) {
 }
 
 function getResourceType(filePath) {
+  if (filePath.split(path.sep).includes('data')) return 'data';
   const ext = path.extname(filePath).toLowerCase();
   for (const [type, exts] of Object.entries(TYPE_EXTENSIONS)) {
     if (exts.includes(ext)) return type;
