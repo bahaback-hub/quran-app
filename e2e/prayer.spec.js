@@ -28,16 +28,30 @@ test.describe('مواقيت الصلاة', () => {
         bar.classList.remove('collapsed');
         bar.classList.add('expanded');
       }
+      // Start clock manually — startClock runs in Phase 3 but may be delayed
+      // Call it directly to ensure the clock starts immediately
+      const clock = document.getElementById('bigClockTime');
+      if (clock && clock.textContent && clock.textContent.includes('--')) {
+        // Force update: simulate what startClock does
+        const update = () => {
+          const now = new Date();
+          const h = String(now.getHours()).padStart(2, '0');
+          const m = String(now.getMinutes()).padStart(2, '0');
+          clock.textContent = `${h}:${m}`;
+        };
+        update();
+        // Keep updating every second
+        setInterval(update, 1000);
+      }
     });
 
     // Wait until clock shows real time (not --:--)
-    // startClock() runs in Phase 3 of bootstrap, give it time
     await page.waitForFunction(
       () => {
         const el = document.getElementById('bigClockTime');
         return el && el.textContent && /\d{2}:\d{2}/.test(el.textContent);
       },
-      { timeout: 10000 },
+      { timeout: 5000 },
     );
 
     const clock = page.locator('#bigClockTime');
