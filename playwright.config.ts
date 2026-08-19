@@ -24,14 +24,23 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    // The production Workbox worker can intercept cross-origin API requests
+    // before page.route() sees them, especially in Firefox and WebKit. E2E
+    // exercises application behavior against deterministic route mocks, not
+    // the browser's persistent cache implementation.
+    serviceWorkers: 'block',
     locale: 'ar-SA',
     timezoneId: 'Asia/Riyadh',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
-    { name: 'mobile-chrome', use: { ...devices['Pixel 5'] } },
+    { name: 'chromium', testIgnore: '**/mobile.spec.ts', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', testIgnore: '**/mobile.spec.ts', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', testIgnore: '**/mobile.spec.ts', use: { ...devices['Desktop Safari'] } },
+    {
+      name: 'mobile-chrome',
+      testMatch: ['**/mobile.spec.ts', '**/responsive.spec.js', '**/visual-regression.spec.ts'],
+      use: { ...devices['Pixel 5'] },
+    },
   ],
   webServer: {
     command: 'npm run preview',

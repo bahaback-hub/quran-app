@@ -458,8 +458,10 @@ describe('surah-loader deep2 coverage', () => {
       await loadSurah(1);
 
       highlightCurrentAyah();
+      await vi.dynamicImportSettled();
 
-      // Just verify no crash — the mushaf highlight is async
+      // The mushaf highlight is deferred; settle it before Vitest tears down
+      // the module graph so the behavior is verified without leaked imports.
     });
   });
 

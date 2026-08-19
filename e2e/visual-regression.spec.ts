@@ -14,9 +14,11 @@ import { test, expect } from './fixtures/mock-network';
 test.describe('Visual Regression', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('./');
-    await page.waitForSelector('.surah-content', { timeout: 15000 });
-    // Wait for fonts to load (critical for Arabic text rendering)
-    await page.waitForTimeout(2000);
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
+    // Wait for Arabic fonts to load only after the reader has actual content.
+    // Waiting for `.surah-content` alone can capture either a skeleton or a
+    // fully rendered surah, producing different snapshot dimensions in CI.
+    await page.waitForFunction(() => document.fonts.status === 'loaded');
   });
 
   test('homepage - surah view', async ({ page }) => {

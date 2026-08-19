@@ -36,7 +36,7 @@ import {
   gotoBookmark,
 } from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
-import { loadSurah } from './surah-loader.js';
+import { loadSurah, toggleTranslation } from './surah-loader.js';
 import { performExactSearch, initKeyboard, initSearchAutocomplete, startVoiceSearch } from './search-ui.js';
 import { showSleepTimerModal } from './sleep-timer-modal.js';
 import { loadTajweedAnnotations } from './tajweed-data.js';
@@ -152,6 +152,7 @@ export function bindAzanEvents(): void {
  */
 export function bindTafsirEvents(): void {
   dom.tafsirCurtainHandle?.addEventListener('click', () => toggleTafsir());
+  dom.translationToggle?.addEventListener('click', toggleTranslation);
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect!.value;
     storage.set('tafsir_edition', state.currentTafsirEdition);

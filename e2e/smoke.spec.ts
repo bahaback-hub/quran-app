@@ -7,11 +7,14 @@
 
 import { test, expect } from './fixtures/mock-network';
 
+async function waitForInitialSurah(page: import('@playwright/test').Page): Promise<void> {
+  await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
+}
+
 test.describe('Quran App — Core Smoke Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Wait for the app to initialize (surah content appears)
-    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    await waitForInitialSurah(page);
   });
 
   test('should load the app and display surah content', async ({ page }) => {
@@ -71,7 +74,7 @@ test.describe('Quran App — Core Smoke Tests', () => {
 test.describe('Quran App — Settings Panel', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    await waitForInitialSurah(page);
   });
 
   test('should open settings panel', async ({ page }) => {
@@ -99,7 +102,7 @@ test.describe('Quran App — Settings Panel', () => {
 test.describe('Quran App — Player', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    await waitForInitialSurah(page);
     // The floating player starts collapsed (.player.collapsed). The
     // .expanded-content section (which contains #audioPlayer and
     // #playPauseBtn) is `display: none` while collapsed. Expand the
@@ -127,7 +130,7 @@ test.describe('Quran App — Player', () => {
 test.describe('Quran App — Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    await waitForInitialSurah(page);
   });
 
   test('should have aria-label on interactive elements', async ({ page }) => {

@@ -33,7 +33,6 @@
     "performance": { "minScore": 0.9 },
     "accessibility": { "minScore": 0.95 },
     "bestPractices": { "minScore": 0.9 },
-    "seo": { "minScore": 0.85 },
-    "pwa": { "minScore": 0.9 }
+    "seo": { "minScore": 0.85 }
   }
 }

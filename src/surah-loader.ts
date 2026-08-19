@@ -949,23 +949,11 @@ function finalizeSurahLoad(opts: LoadSurahOptions): void {
     saveCurrentPosition();
   }
 
-  // Performance: Prefetch next surah data when browser is idle
-  // This makes "next surah" navigation feel instant
-  if (state.currentSurah < 114) {
-    const nextSurah = state.currentSurah + 1;
-    const prefetchNext = (): void => {
-      // Only prefetch if user is still on the same surah
-      if (state.currentSurah !== surahData?.number) {
-        return;
-      }
-      // Silent prefetch — don't await, don't show errors
-      loadSurah(nextSurah, { autoPlay: false }).catch(() => { /* silent */ });
-    };
-
-    if ('requestIdleCallback' in window) {
-      (window as Window).requestIdleCallback(prefetchNext, { timeout: 5000 });
-    }
-  }
+  // Do not call `loadSurah` as a prefetch mechanism. It changes the active
+  // surah, clears the visible ayahs, and aborts the reader's current request.
+  // A future prefetch implementation must fetch and cache data independently
+  // of the reader state; correctness of the current reading session takes
+  // precedence over speculative loading.
 }
 
 /** Scroll to and highlight the current ayah. */

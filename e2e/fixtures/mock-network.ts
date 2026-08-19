@@ -120,18 +120,15 @@ const mockTranslation = {
   code: 200,
   status: 'OK',
   data: {
-    surahs: [{
-      number: 1,
-      ayahs: [
-        { numberInSurah: 1, text: 'In the name of Allah, the Entirely Merciful, the Especially Merciful.' },
-        { numberInSurah: 2, text: 'All praise is due to Allah, Lord of the worlds.' },
-        { numberInSurah: 3, text: 'The Entirely Merciful, the Especially Merciful.' },
-        { numberInSurah: 4, text: 'Sovereign of the Day of Recompense.' },
-        { numberInSurah: 5, text: 'It is You we worship and You we ask for help.' },
-        { numberInSurah: 6, text: 'Guide us to the straight path.' },
-        { numberInSurah: 7, text: 'The path of those upon whom You have bestowed favor, not of those who have evoked anger or of those who are astray.' },
-      ],
-    }],
+    ayahs: [
+      { numberInSurah: 1, text: 'In the name of Allah, the Entirely Merciful, the Especially Merciful.' },
+      { numberInSurah: 2, text: 'All praise is due to Allah, Lord of the worlds.' },
+      { numberInSurah: 3, text: 'The Entirely Merciful, the Especially Merciful.' },
+      { numberInSurah: 4, text: 'Sovereign of the Day of Recompense.' },
+      { numberInSurah: 5, text: 'It is You we worship and You we ask for help.' },
+      { numberInSurah: 6, text: 'Guide us to the straight path.' },
+      { numberInSurah: 7, text: 'The path of those upon whom You have bestowed favor, not of those who are astray.' },
+    ],
   },
 };
 
@@ -178,8 +175,11 @@ const surahMocks: Record<string, typeof mockSurah1> = {
 
 /** Setup all network mocks on a Playwright page */
 export async function setupNetworkMocks(page: import('@playwright/test').Page): Promise<void> {
-  // Mock AlQuran.cloud API — surah text + editions
-  await page.route('https://api.alquran.cloud/v1/surah/*', (route) => {
+  // Mock AlQuran.cloud API — match every path segment after `/surah/`.
+  // `*` stops at a slash, so it never intercepted requests such as
+  // `/surah/2/quran-uthmani` in Firefox and WebKit. A double-star route
+  // keeps the suite deterministic for text, audio, and translation requests.
+  await page.route('https://api.alquran.cloud/v1/surah/**', (route) => {
     const url = route.request().url();
     const match = url.match(/\/surah\/(\d+)/);
     const surahNum = match ? match[1] : '1';
@@ -211,15 +211,6 @@ export async function setupNetworkMocks(page: import('@playwright/test').Page): 
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify(surahMock),
-    });
-  });
-
-  // Mock AlQuran.cloud API — translations
-  await page.route('https://api.alquran.cloud/v1/surah/*/editions/*', (route) => {
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(mockTranslation),
     });
   });
 
@@ -278,6 +269,17 @@ export async function setupNetworkMocks(page: import('@playwright/test').Page): 
     });
   });
 
+  // Mock quran.com recitation timings. Returning an empty timestamp set makes
+  // the reader take its deterministic character-count fallback immediately
+  // instead of waiting for an unmocked external request before it re-renders.
+  await page.route('https://api.quran.com/api/v4/chapter_recitations/**', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ audio_file: { timestamps: [] } }),
+    });
+  });
+
   // Mock raw.githubusercontent.com for mushaf page data
   await page.route('https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/**', (route) => {
     route.fulfill({
@@ -295,6 +297,13 @@ export const test = base.extend<{
   mockedPage: import('@playwright/test').Page;
 }>({
   page: async ({ page }, use) => {
+    // Do not let the first-use help overlay block unrelated controls,
+    // particularly on the compact mobile viewport. Tests that exercise the
+    // guide can remove this value explicitly and assert its own behavior.
+    await page.addInitScript(() => {
+      localStorage.setItem('quran_app_help_seen', JSON.stringify(true));
+    });
+
     // Setup all network mocks before each test
     await setupNetworkMocks(page);
     await use(page);
