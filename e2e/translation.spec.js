@@ -1,9 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mock-network';
 
 test.describe('الترجمة', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForSelector('.surah-content', { timeout: 15000 });
     await page.evaluate(() => {
       const ws = document.getElementById('welcomeScreen');
       if (ws) ws.remove();

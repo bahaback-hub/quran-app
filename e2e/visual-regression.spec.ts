@@ -9,7 +9,7 @@
  * If screenshots fail after intentional UI changes, update baselines with:
  *   npx playwright test --update-snapshots
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mock-network';
 
 test.describe('Visual Regression', () => {
   test.beforeEach(async ({ page }) => {

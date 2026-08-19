@@ -2,7 +2,7 @@
  * E2E tests for offline and performance features.
  * Tests self-hosted fonts, offline prayer calculation, and service worker.
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mock-network';
 
 test.describe('Offline & Performance Features', () => {
   test.beforeEach(async ({ page }) => {

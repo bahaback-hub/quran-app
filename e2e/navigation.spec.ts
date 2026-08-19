@@ -5,11 +5,12 @@
  * and keyboard accessibility across desktop and mobile viewports.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mock-network';
 
 test.describe('Quran App — Surah Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('.ayahs-container', { timeout: 15000 });
   });
 
@@ -22,9 +23,8 @@ test.describe('Quran App — Surah Navigation', () => {
   test('should navigate to Al-Baqarah and display ayahs', async ({ page }) => {
     const surahSelect = page.locator('#surahSelect');
     await surahSelect.selectOption('2');
-    await page.waitForTimeout(2000);
-
-    // Should have ayah elements
+    // Wait for ayahs to appear (mock API is instant)
+    await page.waitForSelector('.ayah', { timeout: 10000 });
     const ayahs = page.locator('.ayah');
     const count = await ayahs.count();
     expect(count).toBeGreaterThan(0);
@@ -33,8 +33,7 @@ test.describe('Quran App — Surah Navigation', () => {
   test('should navigate to An-Nas (surah 114) — last surah', async ({ page }) => {
     const surahSelect = page.locator('#surahSelect');
     await surahSelect.selectOption('114');
-    await page.waitForTimeout(2000);
-
+    await page.waitForSelector('.ayah', { timeout: 10000 });
     const ayahs = page.locator('.ayah');
     const count = await ayahs.count();
     expect(count).toBeGreaterThan(0);
@@ -51,11 +50,8 @@ test.describe('Quran App — Surah Navigation', () => {
   test('should show loading progress when switching surahs', async ({ page }) => {
     const surahSelect = page.locator('#surahSelect');
     await surahSelect.selectOption('36'); // Ya-Sin
-    // The app should still show content after loading
     await page.waitForSelector('.ayahs-container', { timeout: 15000 });
-    // Wait for ayahs to be rendered (not just the container)
-    await page.waitForSelector('.ayah', { timeout: 15000 }).catch(() => {});
-    await page.waitForTimeout(1000); // Give app time to render ayahs
+    await page.waitForSelector('.ayah', { timeout: 10000 });
     const ayahs = page.locator('.ayah');
     const count = await ayahs.count();
     expect(count).toBeGreaterThan(0);
