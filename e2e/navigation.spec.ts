@@ -7,11 +7,15 @@
 
 import { test, expect } from './fixtures/mock-network';
 
+async function waitForSurah(page: import('@playwright/test').Page, surah: number): Promise<void> {
+  await expect(page.locator(`.ayah[data-surah="${surah}"]`).first()).toBeVisible({ timeout: 30000 });
+}
+
 test.describe('Quran App — Surah Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    await waitForSurah(page, 1);
   });
 
   test('should load Al-Fatiha (surah 1) by default', async ({ page }) => {
@@ -23,9 +27,8 @@ test.describe('Quran App — Surah Navigation', () => {
   test('should navigate to Al-Baqarah and display ayahs', async ({ page }) => {
     const surahSelect = page.locator('#surahSelect');
     await surahSelect.selectOption('2');
-    // Wait for ayahs to appear (mock API is instant)
-    await page.waitForSelector('.ayah', { timeout: 10000 });
-    const ayahs = page.locator('.ayah');
+    await waitForSurah(page, 2);
+    const ayahs = page.locator('.ayah[data-surah="2"]');
     const count = await ayahs.count();
     expect(count).toBeGreaterThan(0);
   });
@@ -33,8 +36,8 @@ test.describe('Quran App — Surah Navigation', () => {
   test('should navigate to An-Nas (surah 114) — last surah', async ({ page }) => {
     const surahSelect = page.locator('#surahSelect');
     await surahSelect.selectOption('114');
-    await page.waitForSelector('.ayah', { timeout: 10000 });
-    const ayahs = page.locator('.ayah');
+    await waitForSurah(page, 114);
+    const ayahs = page.locator('.ayah[data-surah="114"]');
     const count = await ayahs.count();
     expect(count).toBeGreaterThan(0);
   });
@@ -50,9 +53,8 @@ test.describe('Quran App — Surah Navigation', () => {
   test('should show loading progress when switching surahs', async ({ page }) => {
     const surahSelect = page.locator('#surahSelect');
     await surahSelect.selectOption('36'); // Ya-Sin
-    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
-    await page.waitForSelector('.ayah', { timeout: 10000 });
-    const ayahs = page.locator('.ayah');
+    await waitForSurah(page, 36);
+    const ayahs = page.locator('.ayah[data-surah="36"]');
     const count = await ayahs.count();
     expect(count).toBeGreaterThan(0);
   });

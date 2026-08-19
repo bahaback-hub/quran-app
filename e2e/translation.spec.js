@@ -1,16 +1,18 @@
 import { test, expect } from './fixtures/mock-network';
 
+async function waitForTranslation(page) {
+  await expect(page.locator('.translation-text').first()).toBeVisible({ timeout: 30000 });
+}
+
 test.describe('الترجمة', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForSelector('.surah-content', { timeout: 15000 });
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
     await page.evaluate(() => {
       const ws = document.getElementById('welcomeScreen');
       if (ws) ws.remove();
     });
-    await page.selectOption('#surahSelect', '1');
-    await page.waitForTimeout(3000);
     // The translation toggle is initially hidden (`.hidden` class) until
     // the surah finishes loading and the view-mode buttons are revealed.
     // Remove the .hidden class so tests can interact with it.
@@ -35,49 +37,18 @@ test.describe('الترجمة', () => {
       return sel ? sel.value : '';
     });
 
-    await page.evaluate(() => {
-      const toggle = document.getElementById('translationToggle');
-      if (toggle) toggle.click();
-    });
-
-    // Translations are fetched from AlQuran.cloud API asynchronously.
-    // Try to wait for .translation-text to appear (network-dependent).
-    // If network is slow/blocked in CI, fall back to verifying the
-    // toggle was actually invoked by checking that the select value
-    // changed (the toggle handler sets translationSelect.value).
-    try {
-      await page.waitForSelector('.translation-text', { timeout: 15000 });
-      const count = await page.locator('.translation-text').count();
-      expect(count).toBeGreaterThan(0);
-    } catch {
-      // Network unavailable — verify the toggle handler ran by checking
-      // that translationSelect.value is now non-empty (the toggle sets
-      // it to a default edition like 'en.sahih' when enabling).
-      const afterEnabled = await page.evaluate(() => {
-        const sel = document.getElementById('translationSelect');
-        return sel ? sel.value : '';
-      });
-      // The toggle enables translation and sets a default edition —
-      // if before was empty, after should be non-empty (or vice versa).
-      // Either way, the toggle had an effect.
-      expect(afterEnabled).toBeDefined();
-    }
+    await page.locator('#translationToggle').click();
+    await waitForTranslation(page);
+    const afterEnabled = await page.locator('#translationSelect').inputValue();
+    expect(afterEnabled).not.toBe(beforeEnabled);
   });
 
   test('إيقاف الترجمة يخفي النص المترجم', async ({ page }) => {
-    await page.evaluate(() => {
-      const toggle = document.getElementById('translationToggle');
-      if (toggle) toggle.click();
-    });
-    await page.waitForTimeout(3000);
-    await page.evaluate(() => {
-      const toggle = document.getElementById('translationToggle');
-      if (toggle) toggle.click();
-    });
-    await page.waitForTimeout(3000);
+    await page.locator('#translationToggle').click();
+    await waitForTranslation(page);
+    await page.locator('#translationToggle').click();
     const translationTexts = page.locator('.translation-text');
-    const count = await translationTexts.count();
-    expect(count).toBe(0);
+    await expect(translationTexts).toHaveCount(0, { timeout: 30000 });
   });
 
   test('قائمة اختيار الترجمة موجودة بعد التفعيل', async ({ page }) => {
@@ -108,20 +79,14 @@ test.describe('الترجمة', () => {
   });
 
   test('تغيير الترجمة يعيد تحميل المحتوى', async ({ page }) => {
-    await page.evaluate(() => {
-      const toggle = document.getElementById('translationToggle');
-      if (toggle) toggle.click();
-    });
-    await page.waitForTimeout(2000);
-    await page.evaluate(() => {
-      const sel = document.getElementById('translationSelect');
-      if (sel) sel.value = 'en.pickthall';
-      const evt = new Event('change', { bubbles: true });
-      if (sel) sel.dispatchEvent(evt);
-    });
-    await page.waitForSelector('.translation-text', { timeout: 15000 });
-    const translationTexts = page.locator('.translation-text');
-    const count = await translationTexts.count();
-    expect(count).toBeGreaterThan(0);
+    await page.locator('#translationToggle').click();
+    await waitForTranslation(page);
+    await page.locator('#settingsToggleBtn').click();
+    await page.locator('.settings-tab[data-tab="display"]').click();
+    const translationSelect = page.locator('#translationSelect');
+    await expect(translationSelect).toBeVisible();
+    await translationSelect.selectOption('en.pickthall');
+    await expect(translationSelect).toHaveValue('en.pickthall');
+    await waitForTranslation(page);
   });
 });

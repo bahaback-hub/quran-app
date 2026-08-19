@@ -14,7 +14,7 @@
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-A022A0.svg)](https://web.dev/progressive-web-apps/)
 [![Tests](https://img.shields.io/badge/Tests-Vitest%204-brightgreen.svg)]()
 [![Coverage](https://img.shields.io/badge/Coverage-%E2%89%A580%25-brightgreen.svg)]()
-[![Release](https://img.shields.io/badge/Release-v3.0.2-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
+[![Release](https://img.shields.io/badge/Release-v3.1.0-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
 [![CodeQL](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml)
 [![Quality](https://img.shields.io/badge/Quality-Internal%20Audit-blue?style=for-the-badge)](#-تقييم-الجودة--quality-rating)
 
@@ -38,13 +38,13 @@ This rating is an **internal self-audit**, not an external certification. We lis
 
 | المحور / Dimension | الحالة / Status | التفاصيل / Details |
 |:---:|:---:|:---|
-| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | **3,650+ اختبار وحدوي (100% نجاح) + 78+ E2E عبر 4 متصفحات**، تغطية ≥ 80% إلزامية + per-file ≥ 50% |
+| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | **3,699 اختبار وحدوي + 274 حالة E2E محلية عبر 4 مشاريع**؛ تشمل Chromium وFirefox وWebKit وChrome للجوال، وتغطي تدفقات الهاتف المخصصة |
 | 🔒 **الأمان / Security** | ✅ ممتاز / Excellent | CodeQL + OWASP ZAP baseline + `npm audit` مُلزِم + فحص رخص + CSP صارمة + **Security policy شامل** |
 | ♿ **إتاحة / Accessibility** | ✅ ممتاز / Excellent | 0 انتهاكات WCAG 2.1 AA + prefers-reduced-motion + prefers-contrast:high + focus trap + axe-core محلي |
-| ⚡ **الأداء / Performance** | ✅ ممتاز / Excellent | Code splitting + lazy injection + 3-phase bootstrap + **Performance Budget مُلزِم** + Lighthouse مُلزِم ≥ 90 + **Web Vitals RUM** |
+| ⚡ **الأداء / Performance** | ✅ ممتاز / Excellent | Code splitting + lazy injection + 3-phase bootstrap + **Performance Budget مُلزِم** + Lighthouse مُلزِم بمعايير Core Web Vitals موحّدة + **Web Vitals RUM** |
 | 📚 **التوثيق / Documentation** | ✅ ممتاز / Excellent | README شامل + AGENTS.md + CONTRIBUTING + SECURITY + CODE_OF_CONDUCT + NOTICE.md + **TypeDoc منشور على GitHub Pages** |
 | 🏗️ **المعمارية / Architecture** | ✅ ممتاز / Excellent | TypeScript 6 صارم + Proxy reactive + state.ts مفكّك (878→4 ملفات) + عميل API موحّد + **Memory Manager** |
-| 🔄 **CI/CD** | ✅ ممتاز / Excellent | 13 workflow كلها خضراء (CI/E2E multi-browser/CodeQL/ZAP/Lighthouse/a11y/budget/docs/security/release/deploy/labeler/stale) |
+| 🔄 **CI/CD** | ✅ ممتاز / Excellent | بوابات CI تشمل lint والأنواع والوحدات والبناء وLighthouse وE2E على 4 مشاريع؛ حالة التنفيذ الحية متاحة من شارات GitHub أعلاه |
 | 📱 **متعدد المنصات / Cross-platform** | ✅ ممتاز / Excellent | ويب + PWA (shortcuts + narrow screenshots) + Android (Capacitor) + responsive (landscape + ultra-wide) |
 | 📴 **Offline** | ✅ ممتاز / Excellent | 4-tier fallback + **Offline Pack** (تحميل الكل بنقرة واحدة) + 3 قواعد IndexedDB |
 | 🧠 **Memory** | ✅ ممتاز / Excellent | **Memory Manager** (object URL tracking + AbortController registry + listener leak detection + periodic cleanup) |
@@ -56,10 +56,10 @@ This rating is an **internal self-audit**, not an external certification. We lis
 | السير / Workflow | الوصف / Description |
 |:---|:---|
 | `ci.yml` | lint + typecheck + unit tests + coverage (≥ 80%) |
-| `e2e.yml` | Playwright E2E على **4 متصفحات** (chromium + firefox + webkit + mobile-chrome) |
+| `e2e.yml` | Playwright E2E إلزامي على **4 مشاريع**: chromium + firefox + webkit + mobile-chrome؛ يختبر الجوال تدفقات اللمس والاستجابة الخاصة به |
 | `codeql.yml` | تحليل أمني عميق من GitHub |
 | `zap-scan.yml` | **OWASP ZAP baseline scan** أسبوعي + عند PR |
-| `lighthouse.yml` | Lighthouse CI + تعليق على PR بالنتائج + رفع artifact |
+| `lighthouse.yml` | Lighthouse CI إلزامي + تعليق على PR بالنتائج + رفع artifact |
 | `a11y.yml` | axe-core على البناء النهائي (0 WCAG violations) |
 | `bundle-size.yml` | تحليل حجم الحزمة + **Performance Budget** مُلزِم |
 | `docs.yml` | توليد TypeDoc + نشر على GitHub Pages (`/api/`) |
@@ -74,9 +74,12 @@ This rating is an **internal self-audit**, not an external certification. We lis
 
 <!-- LIGHTHOUSE-SCORES:START -->
 <!-- يتم تحديث هذا القسم تلقائياً بواسطة scripts/update-lighthouse-badge.mjs -->
-> لم يتم تشغيل Lighthouse بعد — سيتحديث الجدول تلقائياً بعد أول تشغيل CI.
->
-> Lighthouse has not been run yet — the table will auto-update after the first CI run.
+| Audit context | Performance | Accessibility | Best Practices | SEO | FCP | LCP | TBT | CLS |
+|:---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Local production build, 2026-08-19 | 93 | 100 | 96 | 91 | 0.7s | 1.7s | 0ms | 0.003 |
+
+> تُطبّق بوابة Lighthouse الآن الحدود نفسها المعرّفة في `performance-budget.json`. أزيل فحص فئة PWA من Lighthouse لأن الإصدارات الحديثة لم تعد تنشر هذه الفئة، بينما تستمر اختبارات PWA وE2E المنفصلة في تغطية سلوك التطبيق.
+> Lighthouse now enforces the same thresholds defined in `performance-budget.json`. The obsolete Lighthouse PWA-category assertion was removed; dedicated PWA and E2E coverage remains in place.
 <!-- LIGHTHOUSE-SCORES:END -->
 
 ---

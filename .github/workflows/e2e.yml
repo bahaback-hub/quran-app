@@ -15,7 +15,6 @@ jobs:
     name: Playwright E2E (${{ matrix.project }})
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    continue-on-error: ${{ matrix.project != 'chromium' }}
     strategy:
       fail-fast: false
       matrix:
