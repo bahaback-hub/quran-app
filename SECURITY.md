@@ -2,12 +2,15 @@
 
 ## Supported Versions
 
-| Version | Supported          | Notes                        |
-| ------- | ------------------ | ---------------------------- |
-| 1.7.x   | :white_check_mark: | Current — full support       |
-| 1.6.x   | :white_check_mark: | Security fixes only          |
-| 1.5.x   | :warning:          | Critical fixes only          |
-| < 1.5   | :x:                | End of life                  |
+| Version | Supported          | Notes                                      |
+| ------- | ------------------ | ------------------------------------------ |
+| 3.x     | :white_check_mark: | Current — full support                     |
+| 2.x     | :white_check_mark: | Security fixes only                        |
+| 1.x     | :warning:          | Critical security fixes only               |
+| < 1.0   | :x:                | End of life                                |
+
+> **Note**: The current version is defined in `package.json`. This table is
+> aligned with the actual release version as of the last update.
 
 ## Reporting a Vulnerability
 
