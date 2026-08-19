@@ -114,6 +114,11 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
+    # Match the project Playwright version so Chromium and its system
+    # dependencies are available without an unreliable runtime download.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.0-noble
+      options: --user 1001
     needs: build
     timeout-minutes: 20
     # E2E tests are MANDATORY — no continue-on-error.
@@ -126,7 +131,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - run: npm run build
       # Run only the chromium project here. The mobile-chrome project in
       # playwright.config.ts is intentionally excluded from CI — its tests
