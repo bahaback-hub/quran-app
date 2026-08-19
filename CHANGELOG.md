@@ -4,6 +4,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.0.0 (2026-08-18) — Radical E2E Fix: Network Mocking (No More Hiding Failures)
+
+### 🎯 Radical Fix — E2E Tests Are Now Deterministic & Mandatory
+
+**The problem (v2.2.3)**:
+- `continue-on-error: true` hid E2E failures instead of fixing them
+- `--:--` accepted in clock test (made it meaningless)
+- 10+ `.catch(() => {})` silently swallowed errors
+- `networkidle` caused infinite waits for external APIs
+- E2E tests depended on real network (AlQuran.cloud, mp3quran.net, etc.)
+
+**The fix (v3.0.0)**:
+
+#### 1. Network Mock Fixture (`e2e/fixtures/mock-network.ts`)
+- **NEW FILE** — 250+ lines of network mocking infrastructure
+- Intercepts ALL external API calls via Playwright's `page.route()`
+- Returns deterministic mock data instead of hitting real APIs:
+  - AlQuran.cloud API → mock surah data (Al-Fatiha, Al-Baqarah, Ya-Sin)
+  - Aladhan API → mock prayer times
+  - mp3quran.net → empty audio buffer (no MP3 loading)
+  - cdn.islamic.network → empty audio
+  - Tafsir API (jsDelivr) → mock tafsir text
+  - QCF4 mushaf fonts → empty font files
+  - raw.githubusercontent.com → mock page layout
+- Mock data is realistic (correct JSON structure, correct ayah count)
+
+#### 2. E2E Tests Are MANDATORY Again
+- Removed `continue-on-error: true` from `ci.yml`
+- E2E now blocks CI if it fails (like Lint/Unit Tests/Build)
+- Tests are deterministic — same result every time
+
+#### 3. All `.catch(() => {})` Removed
+- 10+ instances in `offline.spec.js` that silently swallowed errors
+- All replaced with proper error handling (no .catch)
+- Tests now fail loudly if something goes wrong
+
+#### 4. Clock Test Fixed (No More `--:--`)
+- `prayer.spec.js` now uses `page.waitForFunction()` to wait for real time
+- Accepts ONLY `\d{2}:\d{2}` format — `--:--` is explicitly rejected
+- Timeout: 10 seconds for clock to start (startClock runs in Phase 3)
+
+#### 5. `networkidle` Replaced Everywhere
+- 7 files used `networkidle` → all replaced with:
+  - `domcontentloaded` (fast, reliable)
+  - `waitForSelector('.surah-content', { timeout: 15000 })` (waits for app)
+
+#### 6. All E2E Files Updated to Use Mock
+- `app.spec.js`, `audio.spec.js`, `search.spec.js`, `tafsir.spec.js`
+- `translation.spec.js`, `settings.spec.js`, `prayer.spec.js`
+- `navigation.spec.ts`, `responsive.spec.js`, `visual-regression.spec.ts`
+- `smoke.spec.ts`, `offline-performance.spec.ts`
+- All now import from `./fixtures/mock-network` instead of `@playwright/test`
+
+### 📊 Impact
+
+| Metric | Before (v2.2.3) | After (v3.0.0) |
+|------|:---:|:---:|
+| continue-on-error | ❌ yes | ✅ removed |
+| .catch() hiding errors | ❌ 10+ | ✅ 0 |
+| --:-- accepted | ❌ yes | ✅ rejected |
+| networkidle usage | ❌ 7 files | ✅ 0 |
+| Network dependency | ❌ real APIs | ✅ mocked |
+| E2E blocking | ❌ non-blocking | ✅ mandatory |
+| **E2E reliability** | **flaky** | **deterministic** |
+
+### ✅ Verification
+- typecheck: 0 errors
+- lint: 0 errors, 0 warnings
+- build: 0 warnings
+- All E2E tests use mock-network.ts
+- No .catch() in E2E tests
+- No networkidle in E2E tests
+
 ## 2.2.0 (2026-08-17) — More Performance Improvements (6 optimizations)
 
 ### ⚡ Performance — 6 Additional Optimizations

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mock-network';
 
 // Note: Some tests are skipped on CI (process.env.CI === 'true') due to
 // environment-specific flakiness (headless browser timing, panel-open

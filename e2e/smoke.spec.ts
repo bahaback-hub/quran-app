@@ -5,7 +5,7 @@
  * and key UI elements are present and functional.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mock-network';
 
 test.describe('Quran App — Core Smoke Tests', () => {
   test.beforeEach(async ({ page }) => {

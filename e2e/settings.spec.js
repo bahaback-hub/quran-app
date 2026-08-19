@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mock-network';
 
 /**
  * Helper: activate a settings tab by its data-tab attribute.
@@ -25,7 +25,8 @@ async function activateTab(page, tabName) {
 test.describe('الإعدادات', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForSelector('.surah-content', { timeout: 15000 });
     await page.evaluate(() => {
       const panel = document.getElementById('settingsPanel');
       if (panel) {

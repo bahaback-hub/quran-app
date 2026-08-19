@@ -1,9 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mock-network';
 
 test.describe('البحث', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForSelector('.surah-content', { timeout: 15000 });
     // Reveal the search input group. The `.hidden` class uses
     // `display: none !important`, so we must remove the class — setting
     // `style.display` alone is overridden by !important.
