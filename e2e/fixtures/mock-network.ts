@@ -146,11 +146,34 @@ const mockTafsir = {
 
 /* ===================== MOCK ROUTES ===================== */
 
+/** Mock surah 114 (An-Nas) */
+const mockSurah114 = {
+  code: 200,
+  status: 'OK',
+  data: {
+    number: 114,
+    name: 'الناس',
+    englishName: 'An-Nas',
+    englishNameTranslation: 'Mankind',
+    revelationType: 'Meccan',
+    numberOfAyahs: 6,
+    ayahs: [
+      { number: 6326, text: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ', numberInSurah: 1, audio: 'https://cdn.islamic.network/quran/114/1.mp3' },
+      { number: 6327, text: 'مَلِكِ النَّاسِ', numberInSurah: 2, audio: 'https://cdn.islamic.network/quran/114/2.mp3' },
+      { number: 6328, text: 'إِلَٰهِ النَّاسِ', numberInSurah: 3, audio: 'https://cdn.islamic.network/quran/114/3.mp3' },
+      { number: 6329, text: 'مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ', numberInSurah: 4, audio: 'https://cdn.islamic.network/quran/114/4.mp3' },
+      { number: 6330, text: 'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ', numberInSurah: 5, audio: 'https://cdn.islamic.network/quran/114/5.mp3' },
+      { number: 6331, text: 'مِنَ الْجِنَّةِ وَالنَّاسِ', numberInSurah: 6, audio: 'https://cdn.islamic.network/quran/114/6.mp3' },
+    ],
+  },
+};
+
 /** Map surah numbers to their mock data */
 const surahMocks: Record<string, typeof mockSurah1> = {
   '1': mockSurah1,
   '2': mockSurah2,
   '36': mockSurah36,
+  '114': mockSurah114,
 };
 
 /** Setup all network mocks on a Playwright page */
