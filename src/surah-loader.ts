@@ -13,7 +13,7 @@ import { state, batch, immutableMapSet, immutableMapDelete, SurahInfo } from './
 import { getReciterById, buildAudioUrl, getTimingApiId } from './reciters.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
 import type { TajweedRule } from './tajweed.js';
-import { getAyahAnnotations } from './tajweed-data.js';
+import { getAyahAnnotations, loadTajweedAnnotationsForSurah } from './tajweed-data.js';
 import { SURAH_SECRETS } from './surahs-data.js';
 import { isSajdaAyah, isJuzStart } from './quran-meta.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './audio.js';
@@ -202,6 +202,12 @@ let currentSurahController: AbortController | null = null;
 /** Separate AbortController for background refresh — not cancelled when loading a new surah. */
 let _refreshController: AbortController | null = null;
 
+async function prepareTajweedForSurah(surahNum: number): Promise<void> {
+  if (state.tajweedEnabled) {
+    await loadTajweedAnnotationsForSurah(surahNum);
+  }
+}
+
 /**
  * Load a surah (text + audio + translation), render it, finalize.
  */
@@ -278,6 +284,10 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       state.ayahTimings = [];
     }
     state.translationData = cached.translation || null;
+    await prepareTajweedForSurah(surahNum);
+    if (_loadCounter !== currentLoad) {
+      return;
+    }
     renderSurah(cached.text);
     finalizeSurahLoad(opts);
     state.loadingSurah = null;
@@ -303,6 +313,10 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       state.ayahTimings = [];
     }
     state.translationData = idbCached.translation || null;
+    await prepareTajweedForSurah(surahNum);
+    if (_loadCounter !== currentLoad) {
+      return;
+    }
     renderSurah(idbCached.text);
     finalizeSurahLoad(opts);
     state.loadingSurah = null;
@@ -339,6 +353,10 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     }
     state.surahData = textData as SurahData;
 
+    await prepareTajweedForSurah(surahNum);
+    if (_loadCounter !== currentLoad) {
+      return;
+    }
     renderSurah(textData);
     const autoPlay = opts.autoPlay;
     finalizeSurahLoad({ ...opts, autoPlay: false });

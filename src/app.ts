@@ -19,17 +19,17 @@ import { startClock, loadPrayerTimes, scheduleNextAzanCheck } from './prayer.js'
 import { loadFavorites } from './favorites.js';
 import { initAdhkarState, loadAdhkarSettings, startAdhkarNotificationScheduler } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah } from './audio.js';
-import { loadFullQuranText } from './search-ui.js';
 import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
 import { initNavigation } from './navigation.js';
 import { initToggleSwitchAccessibility, initReducedMotionDetection } from './a11y.js';
 import { loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect } from './surah-loader.js';
-import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { handleVisibilityChange, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
 import { injectOverlays } from './overlays.js';
+import { loadFullQuranText } from './search-ui.js';
+import { preloadTajweedIfNeeded } from './tajweed-data.js';
 
 export {
   loadSurah,
@@ -67,15 +67,15 @@ export async function initApp(): Promise<void> {
   cacheDom();
   restoreSettings();
   initSystemThemeDetection();
-  preloadTajweedIfNeeded();
   populateReciterSelect();
 
   await loadSurahList();
   buildSurahOffsets();
 
-  const fullQuranPromise = loadFullQuranText().catch(console.warn);
+  // Keep search ready when offline, where an on-demand fetch may not be
+  // possible. Connected readers load the index only when opening search.
   if (!navigator.onLine) {
-    await fullQuranPromise;
+    await loadFullQuranText();
   }
 
   const last = storage.get<LastPosition>('last_position');
@@ -85,6 +85,10 @@ export async function initApp(): Promise<void> {
   } else {
     await loadSurah(1);
   }
+
+  // This now resolves to the active surah's small tajweed chunk, not the
+  // full corpus, and is a no-op when tajweed is disabled.
+  void preloadTajweedIfNeeded();
 
   bindAudioEvents();
 
@@ -157,40 +161,41 @@ export async function initApp(): Promise<void> {
 
     // Group 4: Heavy feature modules — lazy-import, lowest priority
     // Uses safeLoad() for retry + user-visible error UI (instead of silent console.error)
-    scheduleIdle(async () => {
-      const { safeLoad } = await import('./error-boundary.js');
+    scheduleIdle(() => {
+      void (async () => {
+        try {
+          const { safeLoad } = await import('./error-boundary.js');
 
-      const ayahModal = await safeLoad(() => import('./ayah-modal.js'), {
-        label: 'نافذة الآية',
-        maxRetries: 2,
-        baseDelay: 800,
-      });
-      if (ayahModal.success && ayahModal.module) {
-        ayahModal.module.initAyahModal();
-      }
+          const ayahModal = await safeLoad(() => import('./ayah-modal.js'), {
+            label: 'نافذة الآية',
+            maxRetries: 2,
+            baseDelay: 800,
+          });
+          if (ayahModal.success && ayahModal.module) {
+            ayahModal.module.initAyahModal();
+          }
 
-      const presentation = await safeLoad(() => import('./presentation.js'), {
-        label: 'وضع العرض',
-        maxRetries: 2,
-        baseDelay: 800,
-      });
-      if (presentation.success && presentation.module) {
-        presentation.module.initPresentation();
-      }
+          const presentation = await safeLoad(() => import('./presentation.js'), {
+            label: 'وضع العرض',
+            maxRetries: 2,
+            baseDelay: 800,
+          });
+          if (presentation.success && presentation.module) {
+            presentation.module.initPresentation();
+          }
 
-      const mushaf = await safeLoad(() => import('./mushaf.js'), {
-        label: 'وضع المصحف',
-        maxRetries: 2,
-        baseDelay: 800,
-      });
-      if (mushaf.success && mushaf.module) {
-        mushaf.module.populateSurahOverlay();
-      }
-
-      // Ensure full Quran text is loaded when online (non-blocking)
-      if (navigator.onLine) {
-        fullQuranPromise.catch(console.warn);
-      }
+          const mushaf = await safeLoad(() => import('./mushaf.js'), {
+            label: 'وضع المصحف',
+            maxRetries: 2,
+            baseDelay: 800,
+          });
+          if (mushaf.success && mushaf.module) {
+            mushaf.module.populateSurahOverlay();
+          }
+        } catch (error) {
+          console.warn('[App] Deferred feature initialization skipped:', error);
+        }
+      })();
     });
   });
 }

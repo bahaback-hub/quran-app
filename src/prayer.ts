@@ -247,6 +247,11 @@ export function stopAzan(): void {
   hideAzanNotification();
 }
 
+function getAzanSource(): string {
+  const supportsOpus = dom.azanPlayer?.canPlayType('audio/ogg; codecs="opus"');
+  return supportsOpus ? '/azan.opus' : CONFIG.AZAN_FILE;
+}
+
 export function testAzan(): void {
   if (!dom.azanPlayer) {
     return;
@@ -262,7 +267,7 @@ export function testAzan(): void {
       document.body.classList.remove('audio-playing');
       updatePlayPauseBtn();
     }
-    dom.azanPlayer.src = CONFIG.AZAN_FILE;
+    dom.azanPlayer.src = getAzanSource();
     dom.azanPlayer.load();
     dom.azanPlayer
       .play()
@@ -325,7 +330,7 @@ export function checkAzanTime(): void {
           document.body.classList.remove('audio-playing');
           updatePlayPauseBtn();
         }
-        dom.azanPlayer.src = CONFIG.AZAN_FILE;
+        dom.azanPlayer.src = getAzanSource();
         dom.azanPlayer.currentTime = 0;
         dom.azanPlayer
           .play()

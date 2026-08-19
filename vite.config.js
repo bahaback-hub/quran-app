@@ -20,16 +20,14 @@ export default defineConfig({
     reportCompressedSize: false,
     rollupOptions: {
       input: './index.html',
-      treeshake: {
-        moduleSideEffects: false,
-        propertyReadSideEffects: false,
-        tryCatchDeoptimization: false,
-      },
+        treeshake: {
+          moduleSideEffects: false,
+          propertyReadSideEffects: false,
+        },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
-        compact: true,
         manualChunks(id) {
           if (id.includes('node_modules')) {
               if (id.includes('ajv') || id.includes('json-schema')) return 'vendor-json';
@@ -84,48 +82,27 @@ export default defineConfig({
         dir: 'rtl',
         categories: ['education', 'lifestyle'],
         prefer_related_applications: false,
-        screenshots: [
-          {
-            src: 'screenshots/reading-mode.png',
+          screenshots: [
+            {
+            src: 'screenshots/reading-mode.webp',
             sizes: '1920x919',
-            type: 'image/png',
+            type: 'image/webp',
             form_factor: 'wide',
             label: 'وضع قراءة القرآن'
           },
           {
-            src: 'screenshots/mushaf-mode.png',
+            src: 'screenshots/mushaf-mode.webp',
             sizes: '1920x919',
-            type: 'image/png',
+            type: 'image/webp',
             form_factor: 'wide',
             label: 'وضع المصحف'
           },
           {
-            src: 'screenshots/presentation-mode.png',
+            src: 'screenshots/presentation-mode.webp',
             sizes: '1920x919',
-            type: 'image/png',
+            type: 'image/webp',
             form_factor: 'wide',
             label: 'وضع العرض'
-          },
-          {
-            src: 'screenshots/reading-mode.png',
-            sizes: '1080x1920',
-            type: 'image/png',
-            form_factor: 'narrow',
-            label: 'وضع قراءة القرآن — الجوال'
-          },
-          {
-            src: 'screenshots/mushaf-mode.png',
-            sizes: '1080x1920',
-            type: 'image/png',
-            form_factor: 'narrow',
-            label: 'وضع المصحف — الجوال'
-          },
-          {
-            src: 'screenshots/presentation-mode.png',
-            sizes: '1080x1920',
-            type: 'image/png',
-            form_factor: 'narrow',
-            label: 'وضع العرض — الجوال'
           }
         ],
         icons: [
@@ -187,7 +164,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,woff2}'],
         // Exclude large data files from precache — they're runtime-cached on demand
         globIgnores: [
-          '**/data/*.json',      // Quran text, tafsir, tajweed — loaded on demand
+          '**/data/*.json',      // Quran text, tafsir, tajweed chunks — loaded on demand
           '**/screenshots/**',    // PWA screenshots — not needed for offline
           '**/backgrounds/**',    // Background images — not essential
           '**/*.mp3',             // Audio files — runtime cached

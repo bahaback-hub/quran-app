@@ -66,6 +66,7 @@ vi.mock('../surah-loader.js', () => ({
 // Mock search-ui
 vi.mock('../search-ui.js', () => ({
   performExactSearch: vi.fn(),
+  loadFullQuranText: vi.fn(() => Promise.resolve()),
   initKeyboard: vi.fn(),
   initSearchAutocomplete: vi.fn(),
   startVoiceSearch: vi.fn(),
@@ -79,6 +80,7 @@ vi.mock('../sleep-timer-modal.js', () => ({
 // Mock tajweed-data
 vi.mock('../tajweed-data.js', () => ({
   loadTajweedAnnotations: vi.fn(() => Promise.resolve()),
+  loadTajweedAnnotationsForSurah: vi.fn(() => Promise.resolve()),
 }));
 
 // Mock share module
