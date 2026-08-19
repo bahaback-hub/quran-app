@@ -483,41 +483,42 @@
     border-radius: 10px;
   }
 
-  /* رأس الصفحة مبسط */
+  /* الهاتف: العنوان في صف مستقل، ثم صف إجراءات قابل للالتفاف.
+     لا نُخفي أي وظيفة؛ هذا يمنع تداخل العنوان مع الأيقونات على الشاشات الضيقة. */
   .header {
-    padding: 12px 10px;
-    /* على الجوال: اترك مساحة علوية كافية لصف أزرار الإجراءات */
-    padding-top: calc(56px + env(safe-area-inset-top, 0));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: calc(12px + env(safe-area-inset-top, 0)) 10px 12px;
   }
   .header h1 {
-    font-size: 18px;
+    font-size: 20px;
     margin-bottom: 0;
   }
-  .header-menu-container {
-    top: calc(8px + env(safe-area-inset-top, 0));
-    left: 8px;
-    gap: 2px;
-    max-width: calc(100vw - 16px);
-    overflow-x: auto;
-    scrollbar-width: none;
+  .header-title-row {
+    order: 1;
   }
-  .header-menu-container::-webkit-scrollbar {
-    display: none;
+  .header-menu-container {
+    position: static;
+    order: 2;
+    width: 100%;
   }
   .header-actions {
-    flex-wrap: nowrap;
-    min-width: max-content;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    gap: 6px;
   }
   .header-action-btn,
   .header-menu-btn {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     font-size: 18px;
   }
-  /* مبدّل المظهر: أبقه أكبر للّمس (3 أزرار × 40 = 120px + فجوات = لا يفيض على 320px) */
+  /* تبقى خيارات المظهر والأذكار والتعليمات متاحة، وتنتقل تلقائياً لسطر إضافي عند الحاجة. */
   .theme-btn {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     font-size: 16px;
   }
   .theme-switcher {
@@ -728,6 +729,12 @@
   .tafsir-curtain-handle.open {
     left: auto;
     right: 0;
+  }
+  /* ستارة التفسير كانت تتراكب مع أزرار المشغل عند فتحه من الشريط السفلي. */
+  body.player-expanded .tafsir-curtain-handle:not(.open) {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
   }
 
   /* Toast اعلى المشغل */

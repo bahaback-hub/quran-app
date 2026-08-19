@@ -16,12 +16,12 @@ import {
   prevSurah,
   toggleHifdh,
   toggleRepeat,
+  collapsePlayer,
 } from './audio.js';
 import { toggleNightMode, applyFontSize, closeSettings } from './settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './favorites.js';
 import { stopAzan } from './prayer.js';
 import { toggleTafsir, closeTafsir } from './tafsir.js';
-import { storage } from './storage.js';
 
 /**
  * Initialize global keyboard shortcut listeners.
@@ -113,11 +113,15 @@ export function initKeyboardShortcuts(): void {
         if (state.presentationMode) {
           import('./presentation.js')
             .then((m: { closePresentation: () => void }) => m.closePresentation())
-            .catch(() => { /* noop */ });
+            .catch(() => {
+              /* noop */
+            });
         } else {
           import('./presentation.js')
             .then((m: { openPresentation: () => void }) => m.openPresentation())
-            .catch(() => { /* noop */ });
+            .catch(() => {
+              /* noop */
+            });
         }
         break;
       case 'g':
@@ -153,8 +157,7 @@ export function initKeyboardShortcuts(): void {
         }
         closeTafsir();
         if (dom.player && !dom.player.classList.contains('collapsed')) {
-          dom.player.classList.add('collapsed');
-          storage.set('player_collapsed', true);
+          collapsePlayer();
         }
         break;
       default:

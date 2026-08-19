@@ -674,6 +674,8 @@ body.night-mode .ayah-modal-actions .btn-sm {
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  transition: transform 0.35s ease-out;
   border-radius: 2px;
 }
 .qibla-center {

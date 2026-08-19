@@ -11,6 +11,8 @@ import { storage } from '../storage.js';
 // Mock settings module
 vi.mock('../settings.js', () => ({
   applyFontSize: vi.fn(),
+  changeReaderZoom: vi.fn(),
+  updateReaderZoomControl: vi.fn(),
   toggleNightMode: vi.fn(),
   applyTheme: vi.fn(),
   applyFontType: vi.fn(),
@@ -753,6 +755,19 @@ describe('app-events', () => {
       document.body.click();
       const { closeAdhkarPanel } = await import('../adhkar.js');
       expect(closeAdhkarPanel).toHaveBeenCalled();
+    });
+
+    it('should keep the adhkar panel open when the mobile adhkar tab is pressed', async () => {
+      dom.adhkarPanel!.classList.add('open');
+      const mobileAdhkarTab = document.createElement('button');
+      mobileAdhkarTab.dataset['tab'] = 'more';
+      document.body.appendChild(mobileAdhkarTab);
+      const { bindGlobalClickHandler } = await import('../app-events.js');
+      bindGlobalClickHandler();
+      mobileAdhkarTab.click();
+      const { closeAdhkarPanel } = await import('../adhkar.js');
+      expect(closeAdhkarPanel).not.toHaveBeenCalled();
+      mobileAdhkarTab.remove();
     });
   });
 

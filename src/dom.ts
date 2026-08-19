@@ -149,6 +149,9 @@ interface DomMap {
   viewSurahBtn: HTMLElement | null;
   viewMushafBtn: HTMLElement | null;
   viewPresBtn: HTMLElement | null;
+  readerZoomOutBtn: HTMLElement | null;
+  readerZoomInBtn: HTMLElement | null;
+  readerZoomValue: HTMLOutputElement | null;
   qiblaOverlay: HTMLElement | null;
   qiblaCompass: HTMLElement | null;
   qiblaAngle: HTMLElement | null;
@@ -316,6 +319,9 @@ const DOM_IDS: (keyof DomMap)[] = [
   'viewSurahBtn',
   'viewMushafBtn',
   'viewPresBtn',
+  'readerZoomOutBtn',
+  'readerZoomInBtn',
+  'readerZoomValue',
   'qiblaOverlay',
   'qiblaCompass',
   'qiblaAngle',

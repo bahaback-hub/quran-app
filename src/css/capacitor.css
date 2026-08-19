@@ -65,9 +65,9 @@ body.capacitor-native .mushaf-page-canvas {
   /* Ensure the canvas background is visible even when no text renders */
   background: #f5f0e8;
   min-height: 200px;
-  /* CRITICAL: Ensure canvas fits within screen width */
-  max-width: 100% !important;
-  width: 100% !important;
+  /* Respect the reader's zoom while allowing the wrapper to scroll safely. */
+  max-width: none !important;
+  width: var(--mushaf-page-width, 100%) !important;
   height: auto !important;
   display: block !important;
   box-sizing: border-box !important;
@@ -89,7 +89,7 @@ body.capacitor-native .mushaf-image-wrapper {
   width: 100% !important;
   max-width: 100% !important;
   position: relative;
-  overflow: hidden !important;
+  overflow: auto !important;
   box-sizing: border-box !important;
   /* CRITICAL: This is the key fix — wrapper must not exceed screen width */
   margin: 0 auto !important;
@@ -210,16 +210,14 @@ body.capacitor-native .tafsir-curtain.open {
   visibility: visible !important;
 }
 
-/* CRITICAL: When in mushaf mode, panels must NOT be visible at all.
-   Note: NO SPACE between .capacitor-native and .mushaf-active — both classes
-   are on the SAME element (document.body).
-   A space (descendant combinator) would look for .mushaf-active as a child,
-   which would NEVER match because .mushaf-active is on body itself. */
-body.capacitor-native.mushaf-active .settings-panel,
-body.capacitor-native.mushaf-active .favorites-panel,
-body.capacitor-native.mushaf-active .adhkar-panel {
-  display: none !important;
-  visibility: hidden !important;
+/* Closed panels are removed above. An explicitly opened panel remains usable
+   in Mushaf mode and appears above the page without leaving the viewport. */
+body.capacitor-native.mushaf-active .settings-panel.open,
+body.capacitor-native.mushaf-active .favorites-panel.open,
+body.capacitor-native.mushaf-active .adhkar-panel.open {
+  display: block !important;
+  visibility: visible !important;
+  z-index: 9000;
 }
 
 /* Also ensure panels don't cover mushaf when in mushaf mode */
@@ -372,14 +370,14 @@ body.capacitor-native .ayahs-container {
   user-select: text;
 }
 
-/* Fix header for Capacitor status bar */
+/* MainActivity now applies real Android system-bar insets to the WebView. */
 body.capacitor-native .header {
-  padding-top: calc(24px + env(safe-area-inset-top, 0));
+  padding-top: 24px;
 }
 
 /* Fix reading progress bar for Capacitor */
 body.capacitor-native .reading-progress {
-  top: env(safe-area-inset-top, 0);
+  top: 0;
 }
 
 /* Smooth scrolling for Capacitor */
@@ -390,7 +388,7 @@ body.capacitor-native {
 
 /* Fix modals for Capacitor */
 body.capacitor-native .modal-overlay {
-  padding-top: env(safe-area-inset-top, 0);
+  padding-top: 0;
 }
 
 /* Ensure keyboard doesn't break layout */

@@ -15,6 +15,7 @@ vi.mock('../audio.js', () => ({
   toggleHifdh: vi.fn(),
   toggleRepeat: vi.fn(),
   expandPlayer: vi.fn(),
+  collapsePlayer: vi.fn(),
   togglePlayPause: vi.fn(),
   updatePlayPauseBtn: vi.fn(),
 }));
@@ -82,7 +83,18 @@ import { initNavigation } from '../navigation.js';
 import { dom } from '../dom.js';
 import { state } from '../state.js';
 import { storage } from '../storage.js';
-import { prevAyah, nextAyah, prevSurah, nextSurah, toggleHifdh, toggleRepeat, expandPlayer, togglePlayPause, updatePlayPauseBtn } from '../audio.js';
+import {
+  prevAyah,
+  nextAyah,
+  prevSurah,
+  nextSurah,
+  toggleHifdh,
+  toggleRepeat,
+  expandPlayer,
+  collapsePlayer,
+  togglePlayPause,
+  updatePlayPauseBtn,
+} from '../audio.js';
 import { openSettings } from '../settings.js';
 
 Element.prototype.scrollIntoView = vi.fn();
@@ -179,14 +191,14 @@ describe('navigation-full', () => {
       const { initNavigation } = await import('../navigation.js');
       initNavigation();
       dom.collapsePlayerBtn!.click();
-      expect(dom.player!.classList.contains('collapsed')).toBe(true);
+      expect(collapsePlayer).toHaveBeenCalled();
     });
 
     it('should save player_collapsed to storage on collapse', async () => {
       const { initNavigation } = await import('../navigation.js');
       initNavigation();
       dom.collapsePlayerBtn!.click();
-      expect(storage.set).toHaveBeenCalledWith('player_collapsed', true);
+      expect(collapsePlayer).toHaveBeenCalled();
     });
 
     it('should expand player when collapsedContent clicked (not on play btn)', async () => {

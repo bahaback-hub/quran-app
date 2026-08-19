@@ -9,6 +9,8 @@ import { __, getPrayerName } from './i18n.js';
 import { prayerTimesRows } from './templates.js';
 import { updatePlayPauseBtn } from './audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
+import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 
 /* ===================== INTERFACES ===================== */
 
@@ -24,6 +26,11 @@ interface CachedPrayerTimes {
 /** DeviceOrientationEvent with iOS-specific webkitCompassHeading. */
 interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
   webkitCompassHeading?: number;
+}
+
+interface QiblaCoordinates {
+  latitude: number;
+  longitude: number;
 }
 
 /* ===================== CLOCK ===================== */
@@ -114,7 +121,9 @@ export async function loadPrayerTimes(): Promise<void> {
   // ── Strategy 2: Remote API (requires internet) ──
   const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
   try {
-    const data: import('./types.js').AladhanTimingsResponse = await prayerFetch(query, { errorMsg: __('failed_prayer') });
+    const data: import('./types.js').AladhanTimingsResponse = await prayerFetch(query, {
+      errorMsg: __('failed_prayer'),
+    });
     if (data?.data?.timings) {
       // Aladhan returns Record<string,string>; cast to PrayerTimes for type-safe state
       state.prayerTimes = data.data.timings as import('./types.js').PrayerTimes;
@@ -319,7 +328,7 @@ export function checkAzanTime(): void {
     if (raw === cur) {
       const stamp = key + '_' + now.toDateString() + '_' + cur;
       if (state.lastAzanFired === stamp) {
-        continue;  // Skip already-fired prayer, check remaining ones
+        continue; // Skip already-fired prayer, check remaining ones
       }
       state.lastAzanFired = stamp;
       if (dom.azanPlayer) {
@@ -436,6 +445,21 @@ export function calculateQibla(lat: number, lng: number): number {
   return qibla;
 }
 
+/** Request coordinates through Capacitor's native Android permission flow. */
+async function getNativeQiblaCoordinates(): Promise<QiblaCoordinates> {
+  const permissions = await Geolocation.requestPermissions({ permissions: ['location'] });
+  if (permissions.location !== 'granted') {
+    throw new Error('Location permission was not granted');
+  }
+  const position = await Geolocation.getCurrentPosition({
+    enableHighAccuracy: true,
+    enableLocationFallback: true,
+    timeout: 20_000,
+    maximumAge: 60_000,
+  });
+  return { latitude: position.coords.latitude, longitude: position.coords.longitude };
+}
+
 /** Show the Qibla compass overlay. */
 export function showQiblaCompass(): void {
   const overlay = document.getElementById('qiblaOverlay');
@@ -446,84 +470,100 @@ export function showQiblaCompass(): void {
   overlay.style.display = 'flex';
 
   const compass = document.getElementById('qiblaCompass');
+  const needle = compass?.querySelector<HTMLElement>('.qibla-needle') || null;
   const direction = document.getElementById('qiblaDirection');
   const angleDisplay = document.getElementById('qiblaAngle');
 
+  const applyCoordinates = ({ latitude, longitude }: QiblaCoordinates): void => {
+    const qiblaAngle = calculateQibla(latitude, longitude);
+
+    // Keep the North/East/South/West dial fixed. Only rotate the needle so it
+    // points to the Kaaba rather than making the full compass look northbound.
+    if (compass) {
+      compass.style.transform = '';
+    }
+    if (needle) {
+      needle.style.transform = `translateX(-50%) rotate(${qiblaAngle}deg)`;
+    }
+    if (angleDisplay) {
+      angleDisplay.textContent = `${Math.round(qiblaAngle)}°`;
+    }
+
+    // Remove any previous handler to prevent memory leaks
+    if (_qiblaOrientationHandler) {
+      window.removeEventListener('deviceorientation', _qiblaOrientationHandler);
+      _qiblaOrientationHandler = null;
+    }
+
+    const handleOrientation = (e: DeviceOrientationEventiOS): void => {
+      let heading = e.alpha != null ? e.alpha : 0;
+      if (e.webkitCompassHeading) {
+        heading = e.webkitCompassHeading;
+      }
+      // The bearing is measured clockwise from true north. On a phone held
+      // towards `heading`, the Kaaba is located at bearing - heading.
+      const adjusted = (qiblaAngle - heading + 360) % 360;
+      if (needle) {
+        needle.style.transform = `translateX(-50%) rotate(${adjusted}deg)`;
+      }
+    };
+
+    // Store reference so we can remove it later
+    _qiblaOrientationHandler = handleOrientation as (ev: DeviceOrientationEvent) => void;
+
+    if (window.DeviceOrientationEvent) {
+      const DOE = DeviceOrientationEvent as unknown as import('./types.js').WebkitDeviceOrientationEvent;
+      if (typeof DOE.requestPermission === 'function') {
+        DOE.requestPermission()
+          .then((permState: string) => {
+            if (permState === 'granted') {
+              window.addEventListener('deviceorientation', _qiblaOrientationHandler!);
+            }
+          })
+          .catch(() => {
+            /* noop */
+          });
+      } else {
+        window.addEventListener('deviceorientation', _qiblaOrientationHandler);
+      }
+    }
+
+    if (direction) {
+      const dirs = [
+        __('prayer_dirs'),
+        __('prayer_dirs_ne'),
+        __('prayer_dirs_e'),
+        __('prayer_dirs_se'),
+        __('prayer_dirs_s'),
+        __('prayer_dirs_sw'),
+        __('prayer_dirs_w'),
+        __('prayer_dirs_nw'),
+      ];
+      const idx = Math.round(qiblaAngle / 45) % 8;
+      direction.textContent = `${__('qibla_direction', dirs[idx]!, String(Math.round(qiblaAngle)))}`;
+    }
+  };
+  const showLocationFailure = (error: unknown): void => {
+    console.warn('[Qibla] Unable to get location:', error);
+    if (direction) {
+      direction.textContent = __('qibla_location_failed');
+    }
+  };
+
+  if (Capacitor.isNativePlatform()) {
+    void getNativeQiblaCoordinates().then(applyCoordinates).catch(showLocationFailure);
+    return;
+  }
   if (!navigator.geolocation) {
     if (direction) {
       direction.textContent = __('location_not_supported');
     }
     return;
   }
-
   navigator.geolocation.getCurrentPosition(
-    (pos: GeolocationPosition) => {
-      const { latitude, longitude } = pos.coords;
-      const qiblaAngle = calculateQibla(latitude, longitude);
-
-      if (compass) {
-        compass.style.transform = `rotate(${-qiblaAngle}deg)`;  // Static: Qibla from North
-      }
-      if (angleDisplay) {
-        angleDisplay.textContent = `${Math.round(qiblaAngle)}°`;
-      }
-
-      // Remove any previous handler to prevent memory leaks
-      if (_qiblaOrientationHandler) {
-        window.removeEventListener('deviceorientation', _qiblaOrientationHandler);
-        _qiblaOrientationHandler = null;
-      }
-
-      const handleOrientation = (e: DeviceOrientationEventiOS): void => {
-        let heading = e.alpha != null ? e.alpha : 0;
-        if (e.webkitCompassHeading) {
-          heading = e.webkitCompassHeading;
-        }
-        const adjusted = heading - qiblaAngle;
-        if (compass) {
-          compass.style.transform = `rotate(${adjusted}deg)`;
-        }
-      };
-
-      // Store reference so we can remove it later
-      _qiblaOrientationHandler = handleOrientation as (ev: DeviceOrientationEvent) => void;
-
-      if (window.DeviceOrientationEvent) {
-        const DOE = DeviceOrientationEvent as unknown as import('./types.js').WebkitDeviceOrientationEvent;
-        if (typeof DOE.requestPermission === 'function') {
-          DOE.requestPermission()
-            .then((permState: string) => {
-              if (permState === 'granted') {
-                window.addEventListener('deviceorientation', _qiblaOrientationHandler!);
-              }
-            })
-            .catch(() => { /* noop */ });
-        } else {
-          window.addEventListener('deviceorientation', _qiblaOrientationHandler);
-        }
-      }
-
-      if (direction) {
-        const dirs = [
-          __('prayer_dirs'),
-          __('prayer_dirs_ne'),
-          __('prayer_dirs_e'),
-          __('prayer_dirs_se'),
-          __('prayer_dirs_s'),
-          __('prayer_dirs_sw'),
-          __('prayer_dirs_w'),
-          __('prayer_dirs_nw'),
-        ];
-        const idx = Math.round(qiblaAngle / 45) % 8;
-        direction.textContent = `${__('qibla_direction', dirs[idx]!, String(Math.round(qiblaAngle)))}`;
-      }
-    },
-    () => {
-      if (direction) {
-        direction.textContent = __('qibla_location_failed');
-      }
-    },
-    { enableHighAccuracy: true },
+    (position) => applyCoordinates({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+    showLocationFailure,
+    { enableHighAccuracy: true, timeout: 20_000, maximumAge: 60_000 },
   );
 }
 

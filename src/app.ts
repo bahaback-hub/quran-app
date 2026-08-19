@@ -66,6 +66,9 @@ export async function initApp(): Promise<void> {
   setLoadSurah(loadSurah);
   injectOverlays(); // Must run before cacheDom — injects overlay HTML into DOM
   cacheDom();
+  // initI18n runs before panel injection; apply once more so newly injected
+  // settings, player, and help menus immediately use the selected language.
+  applyTranslations();
   restoreSettings();
   initSystemThemeDetection();
   populateReciterSelect();
@@ -121,6 +124,7 @@ export async function initApp(): Promise<void> {
   const savedPlayerCollapsed = storage.get<boolean>('player_collapsed');
   if (savedPlayerCollapsed === false && dom.player) {
     dom.player.classList.remove('collapsed');
+    document.body.classList.add('player-expanded');
   }
 
   window.addEventListener('online', () => {
@@ -142,9 +146,8 @@ export async function initApp(): Promise<void> {
   // Use requestIdleCallback when available to avoid blocking user interaction.
   // Falls back to setTimeout for browsers without rIC support.
   // This improves INP (Interaction to Next Paint) by yielding to the main thread.
-  const scheduleIdle = (typeof requestIdleCallback === 'function')
-    ? requestIdleCallback
-    : (cb: () => void) => setTimeout(cb, 1);
+  const scheduleIdle =
+    typeof requestIdleCallback === 'function' ? requestIdleCallback : (cb: () => void) => setTimeout(cb, 1);
 
   scheduleIdle(() => {
     loadingBar.init();

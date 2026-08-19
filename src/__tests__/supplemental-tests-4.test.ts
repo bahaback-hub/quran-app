@@ -165,6 +165,7 @@ vi.mock('../audio.js', () => ({
   toggleHifdh: vi.fn(),
   toggleRepeat: vi.fn(),
   expandPlayer: vi.fn(),
+  collapsePlayer: vi.fn(),
   prepareAudioForNewSurah: vi.fn(),
   playCurrentAyah: vi.fn(),
 }));
@@ -457,7 +458,6 @@ describe('a11y.ts — extended branches', () => {
     syncAriaExpanded(null, true); // no throw
   });
 
-
   it('restoreFocusOnPanelClose does not throw with no args', () => {
     expect(() => restoreFocusOnPanelClose()).not.toThrow();
     expect(() => restoreFocusOnPanelClose(null, null)).not.toThrow();
@@ -470,7 +470,6 @@ describe('a11y.ts — extended branches', () => {
   it('initToggleSwitchAccessibility does not throw', () => {
     expect(() => initToggleSwitchAccessibility()).not.toThrow();
   });
-
 });
 
 /* ------------------------------------------------------------------ */
