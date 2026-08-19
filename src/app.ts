@@ -30,6 +30,7 @@ import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
 import { injectOverlays } from './overlays.js';
 import { loadFullQuranText } from './search-ui.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
+import { refreshRecentExternalData } from './external-data-cache.js';
 
 export {
   loadSurah,
@@ -122,7 +123,12 @@ export async function initApp(): Promise<void> {
     dom.player.classList.remove('collapsed');
   }
 
-  window.addEventListener('online', updateNetworkBanner);
+  window.addEventListener('online', () => {
+    updateNetworkBanner();
+    // Refresh only recently used remote JSON responses after reconnecting.
+    // This is silent and bounded so it does not disturb reading or playback.
+    void refreshRecentExternalData();
+  });
   window.addEventListener('offline', updateNetworkBanner);
   updateNetworkBanner();
 

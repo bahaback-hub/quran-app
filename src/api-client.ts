@@ -23,6 +23,7 @@ import { CONFIG } from './config.js';
 // produced an INEFFECTIVE_DYNAMIC_IMPORT warning without any actual benefit).
 import { showToast } from './ui.js';
 import { __ } from './i18n.js';
+import { fetchJsonWithOfflineFallback } from './external-data-cache.js';
 
 /* ===================== TYPES ===================== */
 
@@ -38,6 +39,8 @@ export interface FetchOptions {
   retryDelay?: number;
   /** Skip request deduplication for this call. Default: false. */
   noDedup?: boolean;
+  /** Use the bounded IndexedDB fallback for public JSON endpoints. Default: true. */
+  offlineCache?: boolean;
 }
 
 interface TimeoutController {
@@ -364,7 +367,7 @@ async function _singleFetch<T>(
  */
 export function apiFetch<T = unknown>(path: string, options?: FetchOptions): Promise<T> {
   const url = `${CONFIG.API_BASE}${path}`;
-  return safeFetch<T>(url, options);
+  return cachedJsonRequest<T>(url, options);
 }
 
 /**
@@ -377,7 +380,7 @@ export function apiFetch<T = unknown>(path: string, options?: FetchOptions): Pro
  */
 export function prayerFetch<T = unknown>(query: string, options?: FetchOptions): Promise<T> {
   const url = `${CONFIG.PRAYER_API}${query}`;
-  return safeFetch<T>(url, { timeout: 20000, ...options });
+  return cachedJsonRequest<T>(url, { timeout: 20000, ...options });
 }
 
 /**
@@ -390,7 +393,7 @@ export function prayerFetch<T = unknown>(query: string, options?: FetchOptions):
  */
 export function tafsirFetch<T = unknown>(path: string, options?: FetchOptions): Promise<T> {
   const url = `${CONFIG.TAFSIR_API}${path}`;
-  return safeFetch<T>(url, { timeout: 10000, ...options });
+  return cachedJsonRequest<T>(url, { timeout: 10000, ...options });
 }
 
 /**
@@ -402,5 +405,13 @@ export function tafsirFetch<T = unknown>(path: string, options?: FetchOptions): 
  *   const data = await jsonFetch<SurahList>('data/surah-list.json');
  */
 export function jsonFetch<T = unknown>(url: string, options?: FetchOptions): Promise<T> {
-  return safeFetch<T>(url, { expectJSON: true, ...options });
+  return cachedJsonRequest<T>(url, { expectJSON: true, ...options });
+}
+
+/** Apply offline fallback only to JSON calls; binary/raw response callers keep native semantics. */
+function cachedJsonRequest<T>(url: string, options?: FetchOptions): Promise<T> {
+  if (options?.expectJSON === false || options?.offlineCache === false) {
+    return safeFetch<T>(url, options);
+  }
+  return fetchJsonWithOfflineFallback(url, () => safeFetch<T>(url, options), options?.signal);
 }
