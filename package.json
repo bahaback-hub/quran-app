@@ -1,6 +1,6 @@
 {
   "name": "quran-app",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Professional Quran Web App — Recitation, Audio, Search, Tafsir, Prayer Times, Adhkar & More (PWA/Android)",
   "type": "module",
   "scripts": {
