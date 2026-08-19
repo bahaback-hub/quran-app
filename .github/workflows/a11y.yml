@@ -14,6 +14,11 @@ jobs:
   a11y:
     name: Axe Accessibility Check
     runs-on: ubuntu-latest
+    # Browser executables and system dependencies are preinstalled in the
+    # version-matched image, keeping the mandatory Axe audit deterministic.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.0-noble
+      options: --user 1001
     steps:
       - uses: actions/checkout@v4
 
@@ -28,9 +33,6 @@ jobs:
 
       - name: Build for production
         run: npm run build
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium chromium-headless-shell
 
       - name: Run accessibility audit
         run: |
