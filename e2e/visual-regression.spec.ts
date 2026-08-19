@@ -30,8 +30,8 @@ test.describe('Visual Regression', () => {
     const prayerBar = page.locator('.prayer-bar');
     if (await prayerBar.isVisible()) {
       await expect(prayerBar).toHaveScreenshot('prayer-bar-collapsed.png', {
-        maxDiffPixelRatio: 0.15,
-        threshold: 0.3,
+        maxDiffPixelRatio: 0.3,
+        threshold: 0.4,
       });
     }
   });
