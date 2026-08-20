@@ -342,148 +342,123 @@
             </div>
             <input type="range" id="pageSlider" min="1" max="604" value="1" class="hidden" />
           </div>
-          <div class="control-card control-card-persistent">
-            <span class="control-card-title"
-              ><svg
-                class="icon icon-sm"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              <span data-i18n="view">العرض</span></span
-            >
-            <div class="view-mode-group">
-              <button
-                class="view-mode-btn active"
-                id="viewSurahBtn"
-                data-mode="surah"
-                title="وضع السورة"
-                aria-label="وضع السورة"
-                aria-pressed="true"
-              >
-                📖
-              </button>
-              <button
-                class="view-mode-btn"
-                id="viewMushafBtn"
-                data-mode="mushaf"
-                title="وضع المصحف"
-                aria-label="وضع المصحف"
-                aria-pressed="false"
-              >
-                📄
-              </button>
-              <button
-                class="view-mode-btn"
-                id="viewPresBtn"
-                data-mode="presentation"
-                title="وضع العرض"
-                aria-label="وضع العرض"
-                aria-pressed="false"
-              >
-                🖼️
-              </button>
-              <button
-                class="view-mode-btn view-mode-btn-trans hidden"
-                id="translationToggle"
-                title="الترجمة"
-                aria-label="تبديل الترجمة"
-                aria-pressed="false"
-              >
-                🌐
-              </button>
-            </div>
-            <div class="reader-zoom-control" role="group" data-i18n-aria-label="reader_zoom" aria-label="تكبير القراءة">
-              <button
-                class="reader-zoom-btn"
-                id="readerZoomOutBtn"
-                type="button"
-                data-i18n-title="reader_zoom_out"
-                data-i18n-aria-label="reader_zoom_out"
-                title="تصغير القراءة"
-                aria-label="تصغير القراءة"
-              >A−</button>
-              <output id="readerZoomValue" class="reader-zoom-value" aria-live="polite">28px</output>
-              <button
-                class="reader-zoom-btn"
-                id="readerZoomInBtn"
-                type="button"
-                data-i18n-title="reader_zoom_in"
-                data-i18n-aria-label="reader_zoom_in"
-                title="تكبير القراءة"
-                aria-label="تكبير القراءة"
-              >A+</button>
-            </div>
-            <span class="page-indicator hidden" id="pageIndicator">صفحة ١ من ٦٠٤</span>
-          </div>
-          <div class="control-card">
-            <span class="control-card-title"
-              ><svg
-                class="icon icon-sm"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <span data-i18n="search">بحث</span></span
-            >
-            <button
-              class="search-toggle-btn"
-              id="searchToggleBtn"
-              title="بحث"
-              aria-label="بحث"
-              aria-expanded="false"
-              aria-controls="searchInputGroup"
-            >
-              <svg
-                class="icon icon-sm"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </button>
-            <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">
-              📲
-            </button>
-            <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
-            <div class="control-group search-input-group hidden" id="searchInputGroup">
-              <div class="search-input-wrapper">
-                <input
-                  id="searchInput"
-                  type="text"
-                  data-i18n-placeholder="search_placeholder"
-                  data-i18n-aria-label="search"
-                  placeholder="ابحث..."
-                  aria-label="مربع البحث"
-                  autocomplete="off"
-                />
-                <div class="search-autocomplete hidden" id="searchAutocomplete"></div>
-                <button class="kbd-toggle-btn" id="kbdToggleBtn" aria-label="إظهار لوحة المفاتيح" title="لوحة المفاتيح">
-                  ⌨
-                </button>
-                <button class="voice-search-btn" id="voiceSearchBtn" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
+          <div class="control-card reader-command-bar control-card-persistent" aria-label="البحث وأنماط العرض">
+            <div class="reader-command-section reader-command-search">
+              <span class="sr-only" data-i18n="search">بحث</span>
+              <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
+              <div class="control-group search-input-group reader-search-input" id="searchInputGroup">
+                <div class="search-input-wrapper">
+                  <input
+                    id="searchInput"
+                    type="text"
+                    data-i18n-placeholder="search_placeholder"
+                    data-i18n-aria-label="search"
+                    placeholder="ابحث في القرآن..."
+                    aria-label="البحث في القرآن"
+                    autocomplete="off"
+                  />
+                  <div class="search-autocomplete hidden" id="searchAutocomplete"></div>
+                  <button
+                    class="search-toggle-btn active"
+                    id="searchToggleBtn"
+                    type="button"
+                    title="بدء البحث"
+                    aria-label="بدء البحث"
+                    aria-controls="searchInputGroup"
+                  >
+                    <svg
+                      class="icon icon-sm"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                  </button>
+                  <button class="kbd-toggle-btn" id="kbdToggleBtn" aria-label="إظهار لوحة المفاتيح" title="لوحة المفاتيح">
+                    ⌨
+                  </button>
+                  <button class="voice-search-btn" id="voiceSearchBtn" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
+                </div>
+                <!-- Arabic keyboard injected by overlays.ts via arabicKeyboardHTML() -->
+                <div id="arabicKeyboardMount"></div>
               </div>
-              <!-- Arabic keyboard injected by overlays.ts via arabicKeyboardHTML() -->
-              <div id="arabicKeyboardMount"></div>
+              <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">📲</button>
+              <button class="sr-only" id="searchBtn" data-i18n="search" aria-label="بدء البحث">بحث</button>
             </div>
-            <button class="btn btn-gold btn-sm" id="searchBtn" data-i18n="search" aria-label="بدء البحث">🔎 بحث</button>
+
+            <span class="reader-command-divider" aria-hidden="true"></span>
+
+            <div class="reader-command-section reader-command-display">
+              <span class="sr-only" data-i18n="view">العرض</span>
+              <div class="view-mode-group" aria-label="أنواع العرض">
+                <button
+                  class="view-mode-btn active"
+                  id="viewSurahBtn"
+                  data-mode="surah"
+                  title="وضع السورة"
+                  aria-label="وضع السورة"
+                  aria-pressed="true"
+                >
+                  📖
+                </button>
+                <button
+                  class="view-mode-btn"
+                  id="viewMushafBtn"
+                  data-mode="mushaf"
+                  title="وضع المصحف"
+                  aria-label="وضع المصحف"
+                  aria-pressed="false"
+                >
+                  📄
+                </button>
+                <button
+                  class="view-mode-btn"
+                  id="viewPresBtn"
+                  data-mode="presentation"
+                  title="وضع العرض"
+                  aria-label="وضع العرض"
+                  aria-pressed="false"
+                >
+                  🖼️
+                </button>
+                <button
+                  class="view-mode-btn view-mode-btn-trans hidden"
+                  id="translationToggle"
+                  title="الترجمة"
+                  aria-label="تبديل الترجمة"
+                  aria-pressed="false"
+                >
+                  🌐
+                </button>
+              </div>
+              <div class="reader-zoom-control" role="group" data-i18n-aria-label="reader_zoom" aria-label="تكبير القراءة">
+                <button
+                  class="reader-zoom-btn"
+                  id="readerZoomOutBtn"
+                  type="button"
+                  data-i18n-title="reader_zoom_out"
+                  data-i18n-aria-label="reader_zoom_out"
+                  title="تصغير القراءة"
+                  aria-label="تصغير القراءة"
+                >A−</button>
+                <output id="readerZoomValue" class="reader-zoom-value" aria-live="polite">28px</output>
+                <button
+                  class="reader-zoom-btn"
+                  id="readerZoomInBtn"
+                  type="button"
+                  data-i18n-title="reader_zoom_in"
+                  data-i18n-aria-label="reader_zoom_in"
+                  title="تكبير القراءة"
+                  aria-label="تكبير القراءة"
+                >A+</button>
+              </div>
+              <span class="page-indicator hidden" id="pageIndicator">صفحة ١ من ٦٠٤</span>
+            </div>
           </div>
         </div>
       </section>

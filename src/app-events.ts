@@ -52,7 +52,6 @@ import { loadTajweedAnnotationsForSurah } from './tajweed-data.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { toggleTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import * as audioModule from './audio.js';
-import { syncAriaExpanded } from './a11y.js';
 
 /** API response shape for ayah page lookup. */
 interface AyahPageResponse {
@@ -492,19 +491,14 @@ export function bindHeaderMenuEvents(): void {
 }
 
 /**
- * Bind search toggle, mushaf overlay, adhkar, qibla, reading stats.
+ * Bind search submit shortcut, mushaf overlay, adhkar, qibla, reading stats.
  */
 export function bindMiscEvents(): void {
   dom.searchToggleBtn?.addEventListener('click', () => {
-    if (dom.searchInputGroup) {
-      dom.searchInputGroup.classList.toggle('hidden');
-    }
-    if (dom.searchToggleBtn) {
-      dom.searchToggleBtn.classList.toggle('active');
-    }
-    const isExpanded = dom.searchInputGroup?.classList.contains('hidden') === false;
-    syncAriaExpanded(dom.searchToggleBtn, isExpanded);
-    if (isExpanded) {
+    const query = dom.searchInput?.value.trim() ?? '';
+    if (query) {
+      dom.searchBtn?.click();
+    } else {
       dom.searchInput?.focus();
     }
   });

@@ -568,8 +568,7 @@
     padding: 8px 12px;
   }
 
-  /* أدوات التحكم — تخفى افتراضياً وتظهر عند الضغط على تبويب "أدوات"
-     لكن control-card الذي يحتوي على طرق العرض يبقى مرئياً دائماً */
+  /* أدوات التحكم — تخفى افتراضياً وتظهر عند الضغط على تبويب "أدوات". */
   .controls {
     padding: 8px;
     display: none;
@@ -579,34 +578,36 @@
   .controls.mobile-show {
     display: flex;
   }
-  /* control-card الذي يحتوي على طرق العرض — مرئي دائماً على الجوال */
-  .control-card.control-card-persistent {
-    display: block !important;
+  /* الشريط المركب: البحث وأنواع العرض يتشاركان بطاقة واحدة على الهاتف. */
+  .control-card.reader-command-bar.control-card-persistent {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 1px minmax(144px, 0.7fr);
+    align-items: stretch;
+    gap: 7px;
     padding: 8px;
     margin: 8px 0;
     background: var(--controls-bg, rgba(255, 255, 255, 0.1));
     border-radius: 12px;
   }
-  /* طرق العرض (سورة/مصحف/عرض) — مرئية دائماً على الجوال */
-  .view-mode-group {
+  .reader-command-search .search-input-wrapper input {
+    min-width: 0;
+    padding-inline: 7px;
+    font-size: 13px;
+  }
+  .reader-command-search .search-toggle-btn {
+    flex-basis: 34px;
+    width: 34px;
+  }
+  .reader-command-display .view-mode-group {
     display: flex !important;
     justify-content: center;
-    gap: 6px;
-    padding: 4px 0;
+    gap: 2px;
+    padding: 0;
   }
   .view-mode-btn {
-    min-width: 44px;
-    min-height: 44px;
-    font-size: 20px;
-  }
-  .search-toggle-btn {
-    box-sizing: border-box;
-    flex: 0 0 44px;
-    width: 44px;
-    height: 44px;
-    min-height: 44px;
-    padding: 0;
-    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 18px;
   }
   .controls-row > .control-card {
     min-width: 0;
@@ -622,25 +623,13 @@
     font-size: 13px;
     height: 36px;
   }
-  .controls-row .search-input-group {
-    min-width: 0;
-    max-width: none;
-    width: 100%;
-    flex: 0 0 100%;
-    box-sizing: border-box;
-  }
-  .search-input-wrapper input {
-    min-width: 0;
-    width: auto;
-    flex: 1;
-  }
-  .search-input-wrapper .kbd-toggle-btn,
-  .search-input-wrapper .voice-search-btn {
-    flex: 0 0 44px;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
+  .reader-command-search .search-input-wrapper .kbd-toggle-btn,
+  .reader-command-search .search-input-wrapper .voice-search-btn {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 36px;
+    min-width: 34px;
+    min-height: 36px;
     padding: 0;
   }
 
