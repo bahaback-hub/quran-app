@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.18 (2026-08-20) — إصلاحات موقع الهاتف
+
+### Fixed
+- أصبحت واجهة القبلة في Chrome على Android تستمع إلى حدث `deviceorientationabsolute` المعاير، إلى جانب حدث `deviceorientation` القياسي كبديل متوافق؛ لذلك تصل بيانات اتجاه الهاتف الصحيحة إلى إبرة القبلة بدلاً من بقائها على اتجاه غير موثوق.
+- تأكدت تغطية الهاتف من إظهار حقول نطاق التكرار (من، إلى، وعدد المرات) بعد تفعيله من المشغل؛ كان إصلاح المصدر موجوداً بالفعل لكن نسخة Pages القديمة لم تكن قد استلمته بسبب نشر سابق فاشل.
+
+### Quality gates
+- أضيف اختبار واجهة هاتف يحاكي حدث الاتجاه المطلق في Chrome ويتحقق من دوران إبرة القبلة، مع الإبقاء على اختبار لوحة نطاق التكرار.
+
 ## Unreleased
 
 ### Fixed

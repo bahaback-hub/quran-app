@@ -1403,7 +1403,9 @@ describe('prayer.ts', () => {
 
       showQiblaCompass();
 
-      // Should add deviceorientation listener (non-iOS path)
+      // Chrome on Android reports calibrated data through deviceorientationabsolute;
+      // keep the standard event as a browser fallback.
+      expect(addEventListenerSpy).toHaveBeenCalledWith('deviceorientationabsolute', expect.any(Function));
       expect(addEventListenerSpy).toHaveBeenCalledWith('deviceorientation', expect.any(Function));
 
       // Now dispatch a deviceorientation event to test the handler
@@ -1433,6 +1435,52 @@ describe('prayer.ts', () => {
         value: OriginalDOE,
         configurable: true,
       });
+    });
+
+    it('should use a calibrated deviceorientationabsolute event from Chrome on Android', async () => {
+      const overlay = document.createElement('div');
+      overlay.id = 'qiblaOverlay';
+      document.body.appendChild(overlay);
+
+      const compass = document.createElement('div');
+      compass.id = 'qiblaCompass';
+      const needle = document.createElement('div');
+      needle.className = 'qibla-needle';
+      compass.appendChild(needle);
+      document.body.appendChild(compass);
+
+      const originalGeo = navigator.geolocation;
+      Object.defineProperty(navigator, 'geolocation', {
+        value: {
+          getCurrentPosition: (success: (pos: GeolocationPosition) => void) =>
+            success({ coords: { latitude: 30, longitude: 31, accuracy: 10 } } as GeolocationPosition),
+        },
+        configurable: true,
+      });
+      const originalDOE = window.DeviceOrientationEvent;
+      Object.defineProperty(window, 'DeviceOrientationEvent', {
+        value: function DeviceOrientationEvent() {},
+        configurable: true,
+      });
+      const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+
+      showQiblaCompass();
+      const handler = addEventListenerSpy.mock.calls.find((call) => call[0] === 'deviceorientationabsolute')?.[1] as
+        ((event: DeviceOrientationEvent) => void) | undefined;
+      const bearingBeforeCompass = needle.style.transform;
+      const event = new Event('deviceorientationabsolute') as DeviceOrientationEvent;
+      Object.defineProperty(event, 'absolute', { value: true, configurable: true });
+      Object.defineProperty(event, 'alpha', { value: 90, configurable: true });
+      handler?.(event);
+
+      expect(needle.style.transform).not.toBe(bearingBeforeCompass);
+      expect(needle.style.transform).toMatch(/rotate/);
+
+      addEventListenerSpy.mockRestore();
+      document.body.removeChild(overlay);
+      document.body.removeChild(compass);
+      Object.defineProperty(navigator, 'geolocation', { value: originalGeo, configurable: true });
+      Object.defineProperty(window, 'DeviceOrientationEvent', { value: originalDOE, configurable: true });
     });
 
     it('should handle webkitCompassHeading in orientation events', async () => {

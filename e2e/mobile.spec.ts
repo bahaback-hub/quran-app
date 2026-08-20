@@ -82,6 +82,30 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('#qiblaStatus')).toContainText(/الشمال الحقيقي|البوصلة الحية/);
   });
 
+  test('should rotate the Qibla needle from Chrome Android absolute orientation events', async ({ page, context }) => {
+    await context.grantPermissions(['geolocation']);
+    await context.setGeolocation({ latitude: 24.7136, longitude: 46.6753 });
+
+    await page.locator('#qiblaBtn').click();
+    await expect(page.locator('#qiblaOverlay')).toBeVisible();
+    const needle = page.locator('#qiblaCompass .qibla-needle');
+    const bearingBeforeHeading = await needle.getAttribute('style');
+
+    await page.evaluate(() => {
+      const event = new Event('deviceorientationabsolute');
+      Object.defineProperties(event, {
+        absolute: { value: true, configurable: true },
+        alpha: { value: 90, configurable: true },
+        beta: { value: 0, configurable: true },
+        gamma: { value: 0, configurable: true },
+      });
+      window.dispatchEvent(event);
+    });
+
+    await expect.poll(() => needle.getAttribute('style')).not.toBe(bearingBeforeHeading);
+    await expect(needle).toHaveAttribute('style', /rotate/);
+  });
+
   test('should keep primary header actions in one row and keep theme controls separate', async ({ page }) => {
     const primaryActions = page.locator('.header-primary-actions .header-action-btn');
     await expect(primaryActions).toHaveCount(5);
