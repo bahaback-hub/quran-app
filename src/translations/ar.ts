@@ -33,6 +33,7 @@ export default {
   calculation_method: 'طريقة الحساب',
   font_size: 'حجم الخط',
   font_type: 'نوع الخط',
+  font_uthmanic_hafs: 'حفص عثماني رسمي',
   line_spacing: 'تباعد الأسطر',
   compact: 'ضيق',
   normal: 'عادي',

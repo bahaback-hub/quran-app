@@ -21,6 +21,7 @@ export default {
   language: 'Bahasa',
   settings: 'Pengaturan',
   reader_tools: 'Alat baca',
+  font_uthmanic_hafs: 'Hafs Utsmani resmi',
   adhkar: 'Dzikir',
   mushaf_data_pack: 'Data Mushaf luring',
   mushaf_data_pack_not_installed: 'Data halaman Mushaf belum diunduh.',

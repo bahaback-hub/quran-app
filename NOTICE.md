@@ -35,6 +35,7 @@ text, audio recitations, or prayer-times data fetched at runtime.
 | Scheherazade New | https://github.com/silnrsi/font-scheherazade | OFL 1.1 |
 | Reem Kufi | https://github.com/aliftype/reem-kufi | OFL 1.1 |
 | Noto Sans / Noto Sans SC | https://fonts.google.com | OFL 1.1 |
+| KFGQPC HAFS Uthmanic Script 2.2 | https://fonts.qurancomplex.gov.sa/hafs-reading/ | © King Fahd Glorious Quran Printing Complex. The official usage notice permits free copying, distribution, and personal/commercial use in applications and websites worldwide, provided the font is attributed to the Complex and is not modified, reprogrammed, or sold. The bundled TTF is shipped unchanged. |
 
 ## JavaScript Libraries (npm dependencies)
 

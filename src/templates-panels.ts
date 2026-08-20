@@ -133,7 +133,7 @@ export function settingsPanelHTML(): string {
               <option value="'Amiri','Traditional Arabic',serif" selected>أميري</option>
               <option value="'Scheherazade New','Traditional Arabic',serif">شهرزاد</option>
               <option value="'Traditional Arabic',serif">عربي تقليدي</option>
-              <option value="'Uthmanic Hafs','Traditional Arabic',serif">عثماني</option>
+              <option value="'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif" data-i18n="font_uthmanic_hafs">حفص عثماني رسمي</option>
               <option value="'Al Qalam','Traditional Arabic',serif">القلم</option>
             </select>
           </div>

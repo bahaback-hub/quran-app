@@ -83,6 +83,26 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('#deleteMushafDataPackBtn')).toBeDisabled();
   });
 
+  test('should load and apply the official Uthmanic Hafs font only through reading settings', async ({ page }) => {
+    await page.locator('#settingsToggleBtn').click();
+    await page.locator('.settings-tab[data-tab="display"]').click();
+    const fontSelect = page.locator('#fontTypeSelect');
+    const officialHafs = "'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif";
+
+    await expect(fontSelect.locator(`option[value="${officialHafs}"]`)).toHaveCount(1);
+    const loaded = await page.evaluate(async () => {
+      await document.fonts.load('28px "KFGQPC HAFS Uthmanic Script"', 'بِسْمِ اللَّهِ');
+      return document.fonts.check('28px "KFGQPC HAFS Uthmanic Script"', 'بِسْمِ اللَّهِ');
+    });
+    expect(loaded).toBe(true);
+
+    await fontSelect.selectOption(officialHafs);
+    await expect(fontSelect).toHaveValue(officialHafs);
+    await expect.poll(() => page.locator('.ayahs-container').evaluate((element) => element.style.fontFamily)).toContain(
+      'KFGQPC HAFS Uthmanic Script',
+    );
+  });
+
   test('should show a clear static Qibla bearing when a live compass is unavailable', async ({ page, context }) => {
     await context.grantPermissions(['geolocation']);
     await context.setGeolocation({ latitude: 24.7136, longitude: 46.6753 });

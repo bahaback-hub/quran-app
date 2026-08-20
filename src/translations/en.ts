@@ -33,6 +33,7 @@ export default {
   calculation_method: 'Calculation method',
   font_size: 'Font size',
   font_type: 'Font family',
+  font_uthmanic_hafs: 'Official Uthmanic Hafs',
   line_spacing: 'Line spacing',
   compact: 'Compact',
   normal: 'Normal',
