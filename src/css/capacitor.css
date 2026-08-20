@@ -370,9 +370,10 @@ body.capacitor-native .ayahs-container {
   user-select: text;
 }
 
-/* MainActivity now applies real Android system-bar insets to the WebView. */
+/* MainActivity reserves system bars with native WebView margins. Do not add a
+   guessed CSS top inset: it creates a second, device-dependent offset. */
 body.capacitor-native .header {
-  padding-top: 24px;
+  padding-top: 0;
 }
 
 /* Fix reading progress bar for Capacitor */

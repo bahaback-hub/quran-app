@@ -4,7 +4,8 @@
  * hardware back button behavior on Android/Capacitor builds, closing panels and
  * overlays in a priority order: presentation → mushaf overlay → secrets overlay →
  * active panels (settings, adhkar, favorites, ayah modal, tafsir) → player
- * collapse → mushaf mode exit → search close.
+ * collapse → mushaf mode exit. The reader search field is permanently visible,
+ * so Android back now leaves it in place rather than hiding a core control.
  */
 
 import { closeSettings } from './settings.js';
@@ -108,12 +109,6 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
         return;
       }
 
-      // If search is open, close it
-      const searchInputGroup = document.getElementById('searchInputGroup');
-      if (searchInputGroup && !searchInputGroup.classList.contains('hidden')) {
-        searchInputGroup.classList.add('hidden');
-        return;
-      }
     });
   } catch (e: unknown) {
     console.warn('Capacitor back button init failed:', e);

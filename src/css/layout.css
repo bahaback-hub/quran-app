@@ -410,6 +410,85 @@ body.night-mode .control-group label {
   white-space: nowrap;
 }
 
+/* ========== شريط القارئ الموحد: بحث + أنماط العرض ========== */
+.reader-command-bar {
+  flex: 1 1 390px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) 1px minmax(150px, 0.9fr);
+  align-items: stretch;
+  gap: 10px;
+  padding: 9px 12px;
+  flex-wrap: nowrap;
+}
+.reader-command-section {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.reader-command-search {
+  position: relative;
+  gap: 6px;
+}
+.reader-command-search .search-input-group,
+.reader-command-search .search-input-group.hidden {
+  display: block;
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  flex: 1;
+}
+.reader-command-search .search-input-wrapper {
+  width: 100%;
+  min-height: 38px;
+}
+.reader-command-search .search-input-wrapper input {
+  height: 36px;
+  font-size: 14px;
+}
+.reader-command-search .search-toggle-btn {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  border: 0;
+  border-inline-start: 1px solid var(--border-soft);
+  border-radius: 0;
+  padding: 0;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+.reader-command-search .search-toggle-btn.active {
+  background: transparent;
+  color: var(--accent-dark);
+}
+.reader-command-divider {
+  width: 1px;
+  min-height: 54px;
+  background: var(--border-soft);
+  opacity: 0.8;
+  align-self: center;
+}
+.reader-command-display {
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+.reader-command-display .view-mode-group {
+  width: 100%;
+  justify-content: center;
+}
+.reader-command-display .view-mode-btn {
+  min-width: 38px;
+}
+.reader-command-display .reader-zoom-control {
+  margin-top: 0;
+}
+.reader-command-display .page-indicator {
+  margin-top: 2px;
+  text-align: center;
+}
+
 /* ========== قائمة منسدلة حجم الخط ========== */
 .font-size-select {
   background: var(--font-size-select-bg);

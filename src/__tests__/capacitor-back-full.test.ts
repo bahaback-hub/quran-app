@@ -397,9 +397,9 @@ describe('capacitor-back-full', () => {
     expect(() => listener()).not.toThrow();
   });
 
-  /* ===================== Priority 7: Close search ===================== */
+  /* ===================== Reader search stays visible ===================== */
 
-  it('should close search when search is visible', () => {
+  it('should leave the persistent search field visible', () => {
     const searchInputGroup = document.createElement('div');
     searchInputGroup.id = 'searchInputGroup';
     document.body.appendChild(searchInputGroup);
@@ -411,10 +411,10 @@ describe('capacitor-back-full', () => {
 
     const listener = createBackListener();
     listener();
-    expect(searchInputGroup.classList.contains('hidden')).toBe(true);
+    expect(searchInputGroup.classList.contains('hidden')).toBe(false);
   });
 
-  it('should not close search that already has hidden class', () => {
+  it('should handle a search field that is already hidden without errors', () => {
     const searchInputGroup = document.createElement('div');
     searchInputGroup.id = 'searchInputGroup';
     searchInputGroup.classList.add('hidden');

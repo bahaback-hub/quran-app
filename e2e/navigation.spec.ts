@@ -97,26 +97,18 @@ test.describe('Quran App — Search Functionality', () => {
     await page.waitForSelector('.ayahs-container', { timeout: 15000 });
   });
 
-  test('should open search when search button is clicked', async ({ page }) => {
-    // #searchBtn only triggers a search — it does NOT open the input.
-    // The input is revealed by clicking #searchToggleBtn (the magnifier
-    // icon in the header). Click that first, then assert the input is
-    // visible.
-    const searchToggle = page.locator('#searchToggleBtn');
-    await searchToggle.click();
-
+  test('should keep the search field visible in the reader command bar', async ({ page }) => {
     const searchInput = page.locator('#searchInput');
     await expect(searchInput).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.reader-command-bar')).toBeVisible();
   });
 
   test('should display search results for Arabic query', async ({ page }) => {
-    // Open the search input first.
-    await page.locator('#searchToggleBtn').click();
     const searchInput = page.locator('#searchInput');
     await expect(searchInput).toBeVisible({ timeout: 10000 });
     await searchInput.fill('بسم الله');
-    // Click the search button to execute the search (Enter also works).
-    await page.locator('#searchBtn').click();
+    // The visible magnifier starts the query; Enter also works.
+    await page.locator('#searchToggleBtn').click();
     // Wait for results to render (search index loads on idle).
     await page.waitForTimeout(3000);
 
@@ -128,7 +120,7 @@ test.describe('Quran App — Search Functionality', () => {
 test.describe('Quran App — Mobile Layout', () => {
   test.use({ viewport: { width: 320, height: 700 } });
 
-  test('should keep search controls inside a narrow viewport', async ({ page }) => {
+  test('should keep the unified search and display controls inside a narrow viewport', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.ayahs-container', { timeout: 15000 });
     await page.evaluate(() => {
@@ -140,6 +132,9 @@ test.describe('Quran App — Mobile Layout', () => {
       page.locator('#searchInput'),
       page.locator('#kbdToggleBtn'),
       page.locator('#voiceSearchBtn'),
+      page.locator('#viewSurahBtn'),
+      page.locator('#viewMushafBtn'),
+      page.locator('#viewPresBtn'),
     ];
     const viewportWidth = page.viewportSize()!.width;
 
@@ -155,6 +150,18 @@ test.describe('Quran App — Mobile Layout', () => {
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
     );
     expect(hasHorizontalOverflow).toBe(false);
+
+    const commandBar = page.locator('.reader-command-bar');
+    const searchBox = await page.locator('#searchInputGroup').boundingBox();
+    const displayBox = await page.locator('.reader-command-display').boundingBox();
+    const commandBox = await commandBar.boundingBox();
+    expect(commandBox).not.toBeNull();
+    expect(searchBox).not.toBeNull();
+    expect(displayBox).not.toBeNull();
+    const sectionsAreSideBySide =
+      searchBox!.x + searchBox!.width <= displayBox!.x || displayBox!.x + displayBox!.width <= searchBox!.x;
+    expect(sectionsAreSideBySide).toBe(true);
+    expect(commandBox!.height).toBeLessThan(130);
   });
 });
 

@@ -351,15 +351,14 @@ describe('app-events.ts — exported functions', () => {
     expect((dom.helpPanel as HTMLElement).classList.contains('open')).toBe(false);
   });
 
-  it('search toggle button toggles search input group', () => {
+  it('search shortcut focuses the persistent search input when empty', () => {
     bindMiscEvents();
     const btn = dom.searchToggleBtn as HTMLButtonElement;
-    const group = dom.searchInputGroup as HTMLElement;
-    group.classList.add('hidden');
+    const input = dom.searchInput as HTMLInputElement;
+    input.value = '';
+    const focusSpy = vi.spyOn(input, 'focus');
     btn.click();
-    expect(group.classList.contains('hidden')).toBe(false);
-    btn.click();
-    expect(group.classList.contains('hidden')).toBe(true);
+    expect(focusSpy).toHaveBeenCalled();
   });
 });
 

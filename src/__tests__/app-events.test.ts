@@ -783,13 +783,22 @@ describe('app-events', () => {
   /* ==================== bindMiscEvents ==================== */
 
   describe('bindMiscEvents', () => {
-    it('should toggle search input group visibility on searchToggleBtn click', async () => {
-      dom.searchInputGroup!.classList.add('hidden');
+    it('should start a populated search from the search shortcut', async () => {
+      dom.searchInput!.value = 'الله';
+      const searchSpy = vi.spyOn(dom.searchBtn!, 'click');
       const { bindMiscEvents } = await import('../app-events.js');
       bindMiscEvents();
       dom.searchToggleBtn!.click();
-      expect(dom.searchInputGroup!.classList.contains('hidden')).toBe(false);
-      expect(dom.searchToggleBtn!.classList.contains('active')).toBe(true);
+      expect(searchSpy).toHaveBeenCalled();
+    });
+
+    it('should focus the always-visible search field when the shortcut has no query', async () => {
+      dom.searchInput!.value = '';
+      const focusSpy = vi.spyOn(dom.searchInput!, 'focus');
+      const { bindMiscEvents } = await import('../app-events.js');
+      bindMiscEvents();
+      dom.searchToggleBtn!.click();
+      expect(focusSpy).toHaveBeenCalled();
     });
 
     it('should call wireAdhkarEvents', async () => {
