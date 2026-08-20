@@ -796,6 +796,9 @@ export function getDefaultRepeatRange(surahData: SurahData): RepeatRange {
 export function applyRepeatUI(active: boolean): void {
   dom.repeatBtn?.classList.toggle('active', active);
   if (dom.repeatControls) {
+    // `.hidden` uses `display: none !important`; remove it before showing
+    // the range controls or Android will keep them invisible.
+    dom.repeatControls.classList.toggle('hidden', !active);
     dom.repeatControls.style.display = active ? 'flex' : 'none';
   }
 }

@@ -54,6 +54,24 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('#playPauseBtn')).toBeVisible();
   });
 
+  test('should reveal the repeat range controls when repeat is enabled', async ({ page }) => {
+    await page.locator('#bottomNav .bottom-nav-btn[data-tab="player"]').click();
+    await page.locator('#playerMoreBtn').click();
+    await expect(page.locator('#repeatBtn')).toBeVisible();
+
+    await page.locator('#repeatBtn').click();
+
+    await expect(page.locator('#repeatControls')).toBeVisible();
+    await expect(page.locator('#repeatFrom')).toBeVisible();
+    await expect(page.locator('#repeatTo')).toBeVisible();
+    await expect(page.locator('#repeatTimes')).toBeVisible();
+    await expect(page.locator('#repeatFrom')).toHaveValue('1');
+    await expect(page.locator('#repeatTimes')).toHaveValue('3');
+
+    await page.locator('#repeatBtn').click();
+    await expect(page.locator('#repeatControls')).toBeHidden();
+  });
+
   test('should show a clear static Qibla bearing when a live compass is unavailable', async ({ page, context }) => {
     await context.grantPermissions(['geolocation']);
     await context.setGeolocation({ latitude: 24.7136, longitude: 46.6753 });

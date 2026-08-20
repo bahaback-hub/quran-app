@@ -734,6 +734,27 @@ describe('toggleRepeat', () => {
     expect(btn.classList.toggle).toHaveBeenCalledWith('active', true);
   });
 
+  it('should reveal the repeat range controls when enabling', () => {
+    const controls = document.createElement('div');
+    controls.classList.add('hidden');
+    dom.repeatControls = controls;
+
+    applyRepeatUI(true);
+
+    expect(controls.classList.contains('hidden')).toBe(false);
+    expect(controls.style.display).toBe('flex');
+  });
+
+  it('should hide the repeat range controls again when disabling', () => {
+    const controls = document.createElement('div');
+    dom.repeatControls = controls;
+
+    applyRepeatUI(false);
+
+    expect(controls.classList.contains('hidden')).toBe(true);
+    expect(controls.style.display).toBe('none');
+  });
+
   it('should set default repeat range when enabling with surahData', () => {
     state.repeatMode = false;
     state.surahData = createSurahData(7);
