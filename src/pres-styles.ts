@@ -450,6 +450,23 @@ export function injectStyles(): void {
         border: 1px solid rgba(255, 255, 255, 0.18);
         box-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
       }
+
+      /* Fullscreen is an immersive reading surface, not a framed preview. */
+      .presentation-overlay:fullscreen.pres-nature,
+      .presentation-overlay:fullscreen.pres-auto {
+        background-size: cover;
+      }
+      .presentation-overlay:fullscreen.pres-nature::after,
+      .presentation-overlay:fullscreen.pres-auto::after {
+        content: none;
+      }
+      .presentation-overlay:fullscreen.pres-animated .pres-bg-layer {
+        inset: 0;
+        background-size: cover;
+        border-radius: 0;
+        border: 0;
+        box-shadow: none;
+      }
     }
     @media (min-width: 1200px) {
       .presentation-ayah-text { font-size: 72px; }
