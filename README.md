@@ -2,9 +2,9 @@
 
 # 📖 القرآن الكريم
 
-**تطبيق ويب احترافي للقرآن الكريم** — تلاوة، استماع، بحث، تفسير، مواقيت الصلاة، وأكثر
+**تطبيق القرآن الكريم للويب وAndroid** — تلاوة، استماع، بحث، تفسير، مواقيت الصلاة، وأكثر
 
-**Professional Quran Web App** — Recitation, Audio, Search, Tafsir, Prayer Times & More
+**Professional Quran App for Web & Android** — Recitation, Audio, Search, Tafsir, Prayer Times & More
 
 [![CI](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml)
 [![E2E](https://github.com/bahaback-hub/quran-app/actions/workflows/e2e.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/e2e.yml)
@@ -24,6 +24,14 @@
 
 ---
 
+## 📲 تثبيت Android APK / Android Installation
+
+**الإصدار الحالي: 3.1.17.** نزّل [ملف APK للأندرويد](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.17/quran-app-v3.1.17-fullscreen-arabic-regression-fix-debug.apk)، ثم افتحه من التنزيلات وثبّته فوق النسخة السابقة. إن طلب الهاتف إذنًا، فعّل مؤقتًا خيار **السماح بالتثبيت من هذا المصدر** لتطبيق المتصفح أو مدير الملفات المستخدم.
+
+> ملف APK الحالي موقّع من نوع **Debug** ومتاح للاختبار الميداني. يستخدم ملف الإصدار الرسمي المستقبلي توقيع نشر مستقل قبل توزيعه على نطاق أوسع.
+
+---
+
 ## 🏆 تقييم الجودة / Quality Rating
 
 <div align="center">
@@ -38,7 +46,7 @@ This rating is an **internal self-audit**, not an external certification. We lis
 
 | المحور / Dimension | الحالة / Status | التفاصيل / Details |
 |:---:|:---:|:---|
-| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | **3,699 اختبار وحدوي + 274 حالة E2E محلية عبر 4 مشاريع**؛ تشمل Chromium وFirefox وWebKit وChrome للجوال، وتغطي تدفقات الهاتف المخصصة |
+| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | **3,732 اختبار وحدة + 281 حالة E2E محلية عبر 4 مشاريع**؛ تشمل Chromium وFirefox وWebKit وChrome للجوال، وتغطي تدفقات الهاتف المخصصة |
 | 🔒 **الأمان / Security** | ✅ ممتاز / Excellent | CodeQL + OWASP ZAP baseline + `npm audit` مُلزِم + فحص رخص + CSP صارمة + **Security policy شامل** |
 | ♿ **إتاحة / Accessibility** | ✅ ممتاز / Excellent | 0 انتهاكات WCAG 2.1 AA + prefers-reduced-motion + prefers-contrast:high + focus trap + axe-core محلي |
 | ⚡ **الأداء / Performance** | ✅ ممتاز / Excellent | Code splitting + lazy injection + 3-phase bootstrap + **Performance Budget مُلزِم** + Lighthouse مُلزِم بمعايير Core Web Vitals موحّدة + **Web Vitals RUM** |
@@ -87,13 +95,13 @@ This rating is an **internal self-audit**, not an external certification. We lis
 ## 📸 لقطات الشاشة / Screenshots
 
 ### 📖 وضع القراءة / Reading Mode
-![Reading Mode](screenshots/reading-mode.webp)
+![Reading Mode](screenshots/reading-mode.png)
 
 ### 📄 وضع المصحف / Mushaf Mode
-![Mushaf Mode](screenshots/mushaf-mode.webp)
+![Mushaf Mode](screenshots/mushaf-mode.png)
 
 ### 🖼️ وضع العرض / Presentation Mode
-![Presentation Mode](screenshots/presentation-mode.webp)
+![Presentation Mode](screenshots/presentation-mode.png)
 
 ---
 
@@ -264,7 +272,7 @@ This rating is an **internal self-audit**, not an external certification. We lis
 
 | الميزة | الوصف |
 |--------|-------|
-| **مشاركة أصلية** | Web Share API لمشاركة نص الآية |
+| **مشاركة أصلية** | Capacitor Share على Android، وWeb Share API في المتصفح، مع نسخ النص كبديل عند التعذر |
 | **نسخ بتشكيل** | نسخة كاملة بالتشكيل |
 | **نسخ بدون تشكيل** | تجريد التشكيل |
 | **واتساب** | رابط مشاركة مباشر |
@@ -324,7 +332,7 @@ This rating is an **internal self-audit**, not an external certification. We lis
 | **اللغة** | TypeScript 6.0 (وضع صارم) |
 | **البناء** | Vite 8 مع LightningCSS |
 | **PWA** | vite-plugin-pwa (Workbox) |
-| **أندرويد** | Capacitor 8 (@capacitor/android, splash-screen, status-bar) |
+| **أندرويد** | Capacitor 8 (@capacitor/android, app, share, splash-screen, status-bar) |
 | **الاختبار** | Vitest 4 (وحدات)، Playwright 1.60 (E2E) |
 | **فحص الكود** | ESLint 9 + typescript-eslint |
 | **التنسيق** | Prettier 3 |
@@ -381,6 +389,8 @@ npm run android:build   # بناء + مزامنة Capacitor
 npm run android:open    # فتح في Android Studio
 npm run android:run     # بناء + تشغيل على الجهاز
 ```
+
+> لتنزيل التطبيق فقط، لا تحتاج إلى بناء المشروع؛ استخدم [ملف APK 3.1.17 المباشر](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.17/quran-app-v3.1.17-fullscreen-arabic-regression-fix-debug.apk).
 
 ---
 
