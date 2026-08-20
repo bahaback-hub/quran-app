@@ -78,6 +78,8 @@ describe('injectStyles', () => {
     injectStyles();
     const styleEl = document.getElementById('pres-styles')!;
     expect(styleEl.textContent).toContain(':fullscreen');
+    expect(styleEl.textContent).toContain('word-break: normal');
+    expect(styleEl.textContent).not.toContain('word-break: break-word');
   });
 
   it('should contain mobile responsive styles', () => {

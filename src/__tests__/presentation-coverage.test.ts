@@ -321,6 +321,24 @@ describe('presentation coverage', () => {
       // The important thing is the click handler doesn't throw
       expect(true).toBe(true);
     });
+
+    it('should render a continuous Arabic run in fullscreen and restore tajweed on exit', async () => {
+      const { isFullscreen } = await import('../types.js');
+      const { buildAyahHtml } = await import('../pres-styles.js');
+      const { openPresentation, initPresentation } = await import('../presentation.js');
+      initPresentation();
+      openPresentation();
+      vi.mocked(buildAyahHtml).mockClear();
+
+      vi.mocked(isFullscreen).mockReturnValue(true);
+      document.dispatchEvent(new Event('fullscreenchange'));
+      expect(buildAyahHtml).toHaveBeenCalledWith('بسم الله الرحمن الرحيم', 1, 1, false);
+
+      vi.mocked(buildAyahHtml).mockClear();
+      vi.mocked(isFullscreen).mockReturnValue(false);
+      document.dispatchEvent(new Event('fullscreenchange'));
+      expect(buildAyahHtml).toHaveBeenCalledWith('بسم الله الرحمن الرحيم', 1, 1, true);
+    });
   });
 
   /* ==================== Tajweed Toggle ==================== */

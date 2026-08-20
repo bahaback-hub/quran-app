@@ -328,6 +328,10 @@ export function injectStyles(): void {
     }
     .presentation-overlay:fullscreen .presentation-ayah-text {
       font-size: 80px;
+      /* Keep Quranic Arabic words intact in Android WebView fullscreen. */
+      word-break: normal;
+      overflow-wrap: normal;
+      hyphens: none;
     }
     @media (max-width: 600px) {
       .presentation-overlay:fullscreen .presentation-ayah-text { font-size: 40px; }
@@ -346,10 +350,12 @@ export function injectStyles(): void {
       font-size: 60px; line-height: 1.8; text-align: center;
       color: #fff; max-width: 900px;
       word-spacing: 6px;
-      /* Allow long ayahs to shrink to fit screen */
+      /* Quranic ayahs wrap at spaces only; never split an Arabic word. */
       font-size: clamp(24px, 6vw, 60px);
-      overflow-wrap: break-word;
-      word-break: break-word;
+      white-space: normal;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: none;
     }
     .presentation-translation {
       font-size: 24px; line-height: 1.6; text-align: center;
