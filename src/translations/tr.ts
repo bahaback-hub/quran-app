@@ -21,6 +21,7 @@ export default {
   language: 'Dil',
   settings: 'Ayarlar',
   reader_tools: 'Okuma araçları',
+  font_uthmanic_hafs: 'Resmî Osmanlı Hafs',
   adhkar: 'Zikirler',
   mushaf_data_pack: 'Çevrimdışı Mushaf verileri',
   mushaf_data_pack_not_installed: 'Mushaf sayfa verileri henüz indirilmedi.',

@@ -59,3 +59,16 @@
   font-display: optional;
   src: url('./scheherazade-bold-700.woff2') format('woff2');
 }
+
+/* ── KFGQPC HAFS Uthmanic Script 2.2 (Quran text) ── */
+/* Original TTF distributed by King Fahd Glorious Quran Printing Complex.
+   It is intentionally shipped unchanged: no conversion, subsetting, or edits.
+   This family is offered only in Surah/text reading; the page-based QCF4
+   renderer keeps its own glyph fonts and is not affected by this declaration. */
+@font-face {
+  font-family: 'KFGQPC HAFS Uthmanic Script';
+  font-style: normal;
+  font-weight: 400;
+  font-display: optional;
+  src: url('./official/UthmanicHafs_V22.ttf') format('truetype');
+}

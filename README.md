@@ -4,9 +4,9 @@
 
 تطبيق عربي للقرآن الكريم يتيح **القراءة والاستماع والبحث والتفسير ومواقيت الصلاة والأذكار**، ويعمل في المتصفح وعلى أجهزة Android.
 
-[📲 تحميل تطبيق Android](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.19/quran-app-v3.1.19-verified-mushaf-data-pack-debug.apk) · [🌐 تجربة التطبيق في المتصفح](https://bahaback-hub.github.io/quran-app/) · [🐛 الإبلاغ عن مشكلة](https://github.com/bahaback-hub/quran-app/issues) · [💡 اقتراح ميزة](https://github.com/bahaback-hub/quran-app/issues) · [💬 المناقشات](https://github.com/bahaback-hub/quran-app/discussions)
+[📲 تحميل تطبيق Android](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.20/quran-app-v3.1.20-official-uthmanic-hafs-debug.apk) · [🌐 تجربة التطبيق في المتصفح](https://bahaback-hub.github.io/quran-app/) · [🐛 الإبلاغ عن مشكلة](https://github.com/bahaback-hub/quran-app/issues) · [💡 اقتراح ميزة](https://github.com/bahaback-hub/quran-app/issues) · [💬 المناقشات](https://github.com/bahaback-hub/quran-app/discussions)
 
-[![الإصدار الحالي](https://img.shields.io/badge/Android-v3.1.19-16794C.svg)](https://github.com/bahaback-hub/quran-app/releases/tag/v3.1.19)
+[![الإصدار الحالي](https://img.shields.io/badge/Android-v3.1.20-16794C.svg)](https://github.com/bahaback-hub/quran-app/releases/tag/v3.1.20)
 [![حالة الفحوصات](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -14,7 +14,7 @@
 
 ## 📲 تثبيت التطبيق على Android
 
-**الإصدار الحالي: 3.1.19.** لتثبيت التطبيق، نزّل [ملف APK](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.19/quran-app-v3.1.19-verified-mushaf-data-pack-debug.apk)، ثم افتحه من مجلد التنزيلات واختر **تثبيت**. يمكنك تثبيته فوق النسخة السابقة مباشرةً.
+**الإصدار الحالي: 3.1.20.** لتثبيت التطبيق، نزّل [ملف APK](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.20/quran-app-v3.1.20-official-uthmanic-hafs-debug.apk)، ثم افتحه من مجلد التنزيلات واختر **تثبيت**. يمكنك تثبيته فوق النسخة السابقة مباشرةً.
 
 إذا طلب الهاتف إذنًا للتثبيت، فعّل مؤقتًا خيار **السماح بالتثبيت من هذا المصدر** للمتصفح أو مدير الملفات الذي فتحت منه الملف، ثم أعد إيقافه عند الانتهاء.
 
@@ -28,7 +28,7 @@
 
 | المجال | الحالة | ما تم التحقق منه |
 |:---|:---:|:---|
-| الاختبارات | ✅ | **3,737 اختبار وحدة و283 حالة اختبار للواجهة** عبر المتصفحات والهاتف. |
+| الاختبارات | ✅ | **3,740 اختبار وحدة و284 حالة اختبار للواجهة** عبر المتصفحات والهاتف. |
 | الأمان | ✅ | تحليل CodeQL وفحص `npm audit` وسياسة محتوى صارمة والتحقق من الرخص. |
 | إمكانية الوصول | ✅ | فحص تلقائي لمتطلبات WCAG، ودعم قارئ الشاشة والحركة المخففة والتركيز بلوحة المفاتيح. |
 | الأداء | ✅ | تقسيم الشفرة، وقياس مؤشرات الأداء، وحدود أداء تلقائية في مسار البناء. |
@@ -110,6 +110,7 @@
 | **ترجمة معاني** | 5 ترجمات: Sahih International, Pickthall, Yusuf Ali, Hamidullah, Jalandhry |
 | **ألوان التجويد** | 18 قاعدة تجويد بألوان مميزة (نهاري + ليلي) |
 | **وضع الحفظ (حصن)** | إخفاء نص الآيات للتدريب على الاسترجاع |
+| **خط حفص العثماني الرسمي** | خيار مرخّص للقراءة النصية من مجمع الملك فهد لطباعة المصحف الشريف. يُطبّق على وضع السورة فقط، بينما يبقى وضع المصحف الصفحي على QCF4 للحفاظ على تطابق الصفحات. |
 | **بيانات المصحف الموثقة دون اتصال** | تنزيل اختياري لتخطيطات 604 صفحات وفهارسها بعد فحص بصمة SHA-256 لكل ملف. مصدرها مثبت بإصدار محدد وترخيص MIT، مع بقاء خطوط QCF4 خارج الحزمة إلى حين توفر إذن توزيع مكتوب. |
 
 ### 🎧 الاستماع الصوتي / Audio Playback
@@ -368,7 +369,7 @@ npm run android:open    # فتح في Android Studio
 npm run android:run     # بناء + تشغيل على الجهاز
 ```
 
-> لتنزيل التطبيق فقط، لا تحتاج إلى بناء المشروع؛ استخدم [ملف APK 3.1.19 المباشر](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.19/quran-app-v3.1.19-verified-mushaf-data-pack-debug.apk).
+> لتنزيل التطبيق فقط، لا تحتاج إلى بناء المشروع؛ استخدم [ملف APK 3.1.20 المباشر](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.20/quran-app-v3.1.20-official-uthmanic-hafs-debug.apk).
 
 ---
 
