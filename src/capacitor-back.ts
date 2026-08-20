@@ -13,6 +13,7 @@ import { state } from './state.js';
 import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
+import { __ } from './i18n.js';
 import { getCapacitor } from './types.js';
 import type { CapacitorPlugins } from './types.js';
 
@@ -107,6 +108,11 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
           viewSurahBtn.click();
         }
         return;
+      }
+
+      // At the reader root, Android back is destructive. Ask explicitly before exiting.
+      if (window.confirm(__('exit_app_confirm'))) {
+        app.exitApp?.();
       }
 
     });

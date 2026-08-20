@@ -451,6 +451,24 @@ describe('capacitor-back-full', () => {
     expect(closeTafsir).not.toHaveBeenCalled();
   });
 
+  it('should ask for confirmation before exiting and exit only when confirmed', () => {
+    let listener: (() => void) | undefined;
+    const addListener = vi.fn((_event: string, callback: () => void) => {
+      listener = callback;
+    });
+    const exitApp = vi.fn();
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    initCapacitorBackButton({ App: { addListener, exitApp } });
+
+    listener!();
+    expect(confirm).toHaveBeenCalledWith(expect.any(String));
+    expect(exitApp).not.toHaveBeenCalled();
+
+    confirm.mockReturnValue(true);
+    listener!();
+    expect(exitApp).toHaveBeenCalledTimes(1);
+  });
+
   it('should handle missing DOM elements gracefully', () => {
     // No DOM elements at all
     const listener = createBackListener();

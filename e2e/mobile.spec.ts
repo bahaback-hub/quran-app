@@ -76,4 +76,25 @@ test.describe('Quran App — Mobile Controls', () => {
 
     await expect(page.locator('.juz-label').first()).not.toHaveText('juz_num');
   });
+
+  test('should resize the tafsir sheet with its grip and keep its body scroll-contained', async ({ page }) => {
+    await page.locator('#tafsirCurtainHandle').click();
+    const curtain = page.locator('#tafsirCurtain');
+    const grip = page.locator('#tafsirCurtainGrip');
+    const body = page.locator('#tafsirCurtainBody');
+    await expect(curtain).toHaveClass(/open/);
+    await expect(grip).toBeVisible();
+
+    const before = await curtain.boundingBox();
+    expect(before).not.toBeNull();
+    await grip.dispatchEvent('pointerdown', { pointerId: 31, clientY: 500 });
+    await grip.dispatchEvent('pointermove', { pointerId: 31, clientY: 420 });
+    await grip.dispatchEvent('pointerup', { pointerId: 31, clientY: 420 });
+
+    const after = await curtain.boundingBox();
+    expect(after).not.toBeNull();
+    expect(after!.height).toBeGreaterThan(before!.height + 40);
+    await expect(body).toHaveCSS('overflow-y', 'auto');
+    await expect(body).toHaveCSS('overscroll-behavior-y', 'contain');
+  });
 });

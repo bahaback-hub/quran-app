@@ -70,6 +70,7 @@ export interface CapacitorGlobal {
     };
     App?: {
       addListener?: (event: string, callback: () => void) => void;
+      exitApp?: () => void;
     };
   };
 }

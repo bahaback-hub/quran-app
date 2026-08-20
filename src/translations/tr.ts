@@ -12,6 +12,7 @@ export default {
 
   // === Genel ===
   app_title: "Kur'an-ı Kerim",
+  exit_app_confirm: 'Uygulamadan gerçekten çıkmak istiyor musunuz?',
   makkah: 'Mekke',
   close: 'Kapat',
   success: 'Başarılı',
