@@ -35,7 +35,10 @@ public class MainActivity extends BridgeActivity {
         }
 
         webView.setBackgroundColor(Color.rgb(245, 240, 232));
-        webView.setClipToPadding(false);
+        // The first in-flow element is the prayer-times bar. Clip the page to
+        // the native inset padding so it can never paint beneath the status
+        // icons, clock, camera cutout, or battery indicator.
+        webView.setClipToPadding(true);
 
         ViewCompat.setOnApplyWindowInsetsListener(webView, (view, windowInsets) -> {
             Insets safeArea = windowInsets.getInsets(

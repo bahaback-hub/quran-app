@@ -483,13 +483,16 @@
     border-radius: 10px;
   }
 
-  /* الهاتف: العنوان في صف مستقل، ثم صف إجراءات قابل للالتفاف.
-     لا نُخفي أي وظيفة؛ هذا يمنع تداخل العنوان مع الأيقونات على الشاشات الضيقة. */
+  /* الهاتف: العنوان في صف مستقل، ثم صف ثابت للإجراءات الأساسية
+     يليه صف مستقل للمظهر. هذا يمنع التفاف التعليمات أو مزاحمة المظهر. */
   .header {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: calc(12px + env(safe-area-inset-top, 0)) 10px 12px;
+    padding: 12px 10px;
+  }
+  body:not(.capacitor-native) .header {
+    padding-top: calc(12px + env(safe-area-inset-top, 0));
   }
   .header h1 {
     font-size: 20px;
@@ -504,18 +507,29 @@
     width: 100%;
   }
   .header-actions {
-    flex-wrap: wrap;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
     width: 100%;
-    justify-content: center;
+    gap: 10px;
+  }
+  .header-primary-actions {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    align-items: center;
+    width: min(100%, 360px);
     gap: 6px;
   }
   .header-action-btn,
   .header-menu-btn {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     font-size: 18px;
+    justify-self: center;
   }
-  /* تبقى خيارات المظهر والأذكار والتعليمات متاحة، وتنتقل تلقائياً لسطر إضافي عند الحاجة. */
+  /* مبدّل المظهر يحتل صفاً مستقلاً ولا يزاحم الإجراءات الأساسية. */
   .theme-btn {
     width: 36px;
     height: 36px;
@@ -814,19 +828,14 @@
     padding: 4px 6px;
     font-size: 10px;
   }
-  /* على الشاشات الصغيرة جداً (≤320px):
-     - تصغير الأزرار لتناسب الشاشة (8 أزرار × 34px = 272px + 7 فجوات × 1px = 279px)
-     - السماح بالالتفاف (flex-wrap) إذا لزم الأمر */
+  /* تبقى الإجراءات الخمس مرئية في صف واحد حتى الشاشات الصغيرة جداً. */
   .header-action-btn,
   .header-menu-btn {
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     font-size: 15px;
-  }
-  .header-menu-container {
-    gap: 1px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
   }
   .theme-btn {
     width: 30px;
@@ -836,9 +845,8 @@
   .theme-switcher {
     padding: 1px;
   }
-  /* إخفاء زر التعليمات على الشاشات الصغيرة جداً (يُدمج مع الإعدادات) */
   #helpToggleBtn {
-    display: none;
+    display: flex;
   }
   .bottom-nav-btn {
     font-size: 15px;

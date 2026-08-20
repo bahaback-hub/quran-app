@@ -602,6 +602,12 @@ describe('templates.ts — branch coverage', () => {
     expect(html).toContain('آية 1');
   });
 
+  it('collapsedPlayerInfo can render only the surah name', () => {
+    const html = collapsedPlayerInfo('الفاتحة');
+    expect(html).toContain('الفاتحة');
+    expect(html).not.toContain('آية');
+  });
+
   it('escapeHtml escapes dangerous characters', () => {
     expect(escapeHtmlTpl('<script>alert("x")</script>')).toContain('&lt;');
     expect(escapeHtmlTpl('a & b')).toContain('&amp;');
