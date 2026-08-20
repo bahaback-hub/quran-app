@@ -44,6 +44,7 @@ import {
 } from './search-core.js';
 import { CONFIG } from './config.js';
 import { __ } from './i18n.js';
+import { shareText } from './share.js';
 
 
 /** Data shape for opening the ayah modal. */
@@ -334,16 +335,7 @@ async function shareSpecificAyah(surah: number, ayah: number): Promise<void> {
   const shareMsg = text
     ? `﴿${text}﴾\n— ${surahName.trim()} — ${__('ayah')} ${ayah}`
     : `${__('ayah')} ${ayah} ${__('surah')} ${surahName.trim()}`;
-  if (navigator.share) {
-    navigator.share({ title: __('app_title'), text: shareMsg }).catch((err) => {
-      if (err.name !== 'AbortError') {
-        console.warn('Share failed:', err);
-      }
-    });
-  } else {
-    copyToClipboard(shareMsg);
-    showToast(__('copied'), 'success');
-  }
+  void shareText(shareMsg, __('copied'));
 }
 
 /* ===================== AUTOCOMPLETE ===================== */

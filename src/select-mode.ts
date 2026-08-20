@@ -17,7 +17,7 @@ import {
   filterSelectedAyahs,
 } from './internal-state.js';
 import { showToast } from './ui.js';
-import { copyToClipboard } from './utils.js';
+import { shareText } from './share.js';
 
 /** Toggle multi-ayah select mode on/off. */
 export function toggleSelectMode(): void {
@@ -65,12 +65,7 @@ export function shareSelected(): void {
     text += `﴿${item.text}﴾ — ${item.surahName} — ${__('ayah')} ${item.ayah}\n\n`;
   }
   text = text.trim();
-  if (navigator.share) {
-    navigator.share({ title: __('app_title'), text }).catch(() => { /* noop */ });
-  } else {
-    copyToClipboard(text);
-    showToast(`${__('select_mode_copied', String(sorted.length))}`, 'success');
-  }
+  void shareText(text, __('select_mode_copied', String(sorted.length)));
 }
 
 function updateSelectable(): void {

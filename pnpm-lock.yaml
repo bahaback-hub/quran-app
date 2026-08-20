@@ -26,6 +26,9 @@ importers:
       '@capacitor/geolocation':
         specifier: 8.2.2
         version: 8.2.2(@capacitor/core@8.5.0)
+      '@capacitor/share':
+        specifier: ^8.0.1
+        version: 8.0.1(@capacitor/core@8.5.0)
       '@capacitor/splash-screen':
         specifier: ^8.0.1
         version: 8.0.2(@capacitor/core@8.5.0)
@@ -660,6 +663,11 @@ packages:
 
   '@capacitor/geolocation@8.2.2':
     resolution: {integrity: sha512-X8ryw6CfL4LspJnnfVL4++DUKKZVfdUIA9JljWVRljEDIQxZQZtz6xf7qstht+ymc+le6oa5EaUChVA6KsCYlA==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
+
+  '@capacitor/share@8.0.1':
+    resolution: {integrity: sha512-3cSBKBCJVon54rKDROP2rqGyeGks4pBh9TbaEk9S375Kbek/ZHe72N50zIa0Vn9Eac/SuhwgehO/mmA4CsUOiw==}
     peerDependencies:
       '@capacitor/core': '>=8.0.0'
 
@@ -4459,6 +4467,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 8.5.0
       '@capacitor/synapse': 1.0.4
+
+  '@capacitor/share@8.0.1(@capacitor/core@8.5.0)':
+    dependencies:
+      '@capacitor/core': 8.5.0
 
   '@capacitor/splash-screen@8.0.2(@capacitor/core@8.5.0)':
     dependencies:

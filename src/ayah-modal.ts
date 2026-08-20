@@ -9,6 +9,7 @@ import { RECITERS, getReciterById, buildAudioUrl, getReciterDisplayName } from '
 import { fetchTafsirText } from './tafsir.js';
 import { apiFetch } from './api-client.js';
 import { __ } from './i18n.js';
+import { shareText } from './share.js';
 
 /* ===================== TYPES ===================== */
 
@@ -335,12 +336,7 @@ function shareModalAyah(): void {
     return;
   }
   const text: string = `﴿${current.text}﴾ — ${current.surahName}، ${__('ayah')} ${current.ayah}`;
-  if (navigator.share) {
-    navigator.share({ title: __('app_title'), text }).catch(() => { /* noop */ });
-  } else {
-    copyToClipboard(text);
-    showToast(__('copy_for_share'), 'success');
-  }
+  void shareText(text);
 }
 
 /* ===================== AUDIO ===================== */
