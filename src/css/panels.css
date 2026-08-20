@@ -464,6 +464,22 @@ body.night-mode .settings-section-title {
 .settings-row:last-child {
   margin-bottom: 0;
 }
+.mushaf-data-pack {
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  background: color-mix(in srgb, var(--controls-bg) 86%, var(--accent));
+}
+.mushaf-data-pack .settings-note {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.mushaf-data-pack-actions {
+  justify-content: flex-start;
+}
+.mushaf-data-pack-actions .btn {
+  flex: 1 1 140px;
+}
 .settings-row label {
   font-size: 14px;
   font-weight: bold;

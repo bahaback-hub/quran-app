@@ -72,6 +72,17 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('#repeatControls')).toBeHidden();
   });
 
+  test('should expose verified offline Mushaf data controls in settings', async ({ page }) => {
+    await page.locator('#settingsToggleBtn').click();
+    await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+    await page.locator('.settings-tab[data-tab="tools"]').click();
+
+    await expect(page.locator('#mushafDataPackSection')).toBeVisible();
+    await expect(page.locator('#downloadMushafDataPackBtn')).toBeVisible();
+    await expect(page.locator('#verifyMushafDataPackBtn')).toBeDisabled();
+    await expect(page.locator('#deleteMushafDataPackBtn')).toBeDisabled();
+  });
+
   test('should show a clear static Qibla bearing when a live compass is unavailable', async ({ page, context }) => {
     await context.grantPermissions(['geolocation']);
     await context.setGeolocation({ latitude: 24.7136, longitude: 46.6753 });
@@ -88,16 +99,16 @@ test.describe('Quran App — Mobile Controls', () => {
 
     await page.locator('#qiblaBtn').click();
     await expect(page.locator('#qiblaOverlay')).toBeVisible();
+    await expect(page.locator('#qiblaStatus')).toContainText(/جاري تفعيل البوصلة|Starting compass/);
     const needle = page.locator('#qiblaCompass .qibla-needle');
     const bearingBeforeHeading = await needle.getAttribute('style');
 
     await page.evaluate(() => {
-      const event = new Event('deviceorientationabsolute');
-      Object.defineProperties(event, {
-        absolute: { value: true, configurable: true },
-        alpha: { value: 90, configurable: true },
-        beta: { value: 0, configurable: true },
-        gamma: { value: 0, configurable: true },
+      const event = new DeviceOrientationEvent('deviceorientationabsolute', {
+        absolute: true,
+        alpha: 90,
+        beta: 0,
+        gamma: 0,
       });
       window.dispatchEvent(event);
     });

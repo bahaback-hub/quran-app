@@ -257,6 +257,18 @@ export function settingsPanelHTML(): string {
           <div class="settings-row">
             <button class="btn" id="importSettingsBtn">📥 <span data-i18n="import_settings">استيراد الإعدادات</span></button>
           </div>
+          <div class="settings-section mushaf-data-pack" id="mushafDataPackSection">
+            <div class="settings-section-title">📚 <span data-i18n="mushaf_data_pack">بيانات المصحف دون اتصال</span></div>
+            <p class="settings-note" id="mushafDataPackStatus" aria-live="polite" data-i18n="mushaf_data_pack_not_installed">لم تُنزّل بيانات صفحات المصحف بعد.</p>
+            <p class="settings-note" data-i18n="mushaf_data_pack_note">تنزّل بيانات الصفحات والفهارس فقط؛ خطوط QCF4 غير مشمولة.</p>
+            <div class="settings-row">
+              <button class="btn btn-gold" id="downloadMushafDataPackBtn">⬇️ <span data-i18n="mushaf_data_pack_download">تنزيل بيانات المصحف</span></button>
+            </div>
+            <div class="settings-row mushaf-data-pack-actions">
+              <button class="btn" id="verifyMushafDataPackBtn">🛡️ <span data-i18n="mushaf_data_pack_verify">فحص السلامة</span></button>
+              <button class="btn btn-danger" id="deleteMushafDataPackBtn">🗑️ <span data-i18n="mushaf_data_pack_delete">حذف البيانات</span></button>
+            </div>
+          </div>
           <div class="settings-row">
             <button class="btn btn-danger" id="resetSettingsBtn" data-i18n="reset_settings">
               🔄 إعادة ضبط الإعدادات
