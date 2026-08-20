@@ -432,6 +432,7 @@ export function togglePrayerBar(): void {
 /** Stored reference to the deviceorientation handler so it can be removed. */
 let _qiblaOrientationHandler: ((ev: DeviceOrientationEvent) => void) | null = null;
 let _stopNativeQiblaCompass: (() => Promise<void>) | null = null;
+const QIBLA_ORIENTATION_EVENTS = ['deviceorientationabsolute', 'deviceorientation'] as const;
 
 /** Keep headings in the conventional 0°–359.999° clockwise-from-north range. */
 export function normalizeQiblaAngle(angle: number): number {
@@ -463,7 +464,9 @@ export function getWebQiblaHeading(event: DeviceOrientationEventiOS): number | n
 
 function removeQiblaSources(): void {
   if (_qiblaOrientationHandler) {
-    window.removeEventListener('deviceorientation', _qiblaOrientationHandler);
+    for (const eventName of QIBLA_ORIENTATION_EVENTS) {
+      window.removeEventListener(eventName, _qiblaOrientationHandler);
+    }
     _qiblaOrientationHandler = null;
   }
   if (_stopNativeQiblaCompass) {
@@ -617,7 +620,9 @@ export function showQiblaCompass(): void {
       void DOE.requestPermission()
         .then((permState: string) => {
           if (permState === 'granted') {
-            window.addEventListener('deviceorientation', _qiblaOrientationHandler!);
+            for (const eventName of QIBLA_ORIENTATION_EVENTS) {
+              window.addEventListener(eventName, _qiblaOrientationHandler!);
+            }
             if (status) {
               status.textContent = __('qibla_compass_starting');
             }
@@ -627,7 +632,9 @@ export function showQiblaCompass(): void {
         })
         .catch(() => showStaticBearing(__('qibla_compass_unavailable')));
     } else {
-      window.addEventListener('deviceorientation', _qiblaOrientationHandler);
+      for (const eventName of QIBLA_ORIENTATION_EVENTS) {
+        window.addEventListener(eventName, _qiblaOrientationHandler);
+      }
       if (status) {
         status.textContent = __('qibla_compass_starting');
       }
