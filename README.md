@@ -2,60 +2,37 @@
 
 # 📖 القرآن الكريم
 
-**تطبيق القرآن الكريم للويب وAndroid** — تلاوة، استماع، بحث، تفسير، مواقيت الصلاة، وأكثر
+تطبيق عربي للقرآن الكريم يتيح **القراءة والاستماع والبحث والتفسير ومواقيت الصلاة والأذكار**، ويعمل في المتصفح وعلى أجهزة Android.
 
-**Professional Quran App for Web & Android** — Recitation, Audio, Search, Tafsir, Prayer Times & More
+[📲 تحميل تطبيق Android](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.17/quran-app-v3.1.17-fullscreen-arabic-regression-fix-debug.apk) · [🌐 تجربة التطبيق في المتصفح](https://bahaback-hub.github.io/quran-app/) · [🐛 الإبلاغ عن مشكلة](https://github.com/bahaback-hub/quran-app/issues) · [💡 اقتراح ميزة](https://github.com/bahaback-hub/quran-app/issues) · [💬 المناقشات](https://github.com/bahaback-hub/quran-app/discussions)
 
-[![CI](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml)
-[![E2E](https://github.com/bahaback-hub/quran-app/actions/workflows/e2e.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/e2e.yml)
+[![الإصدار الحالي](https://img.shields.io/badge/Android-v3.1.17-16794C.svg)](https://github.com/bahaback-hub/quran-app/releases/tag/v3.1.17)
+[![حالة الفحوصات](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-8.0-646CFF.svg)](https://vitejs.dev/)
-[![PWA Ready](https://img.shields.io/badge/PWA-Ready-A022A0.svg)](https://web.dev/progressive-web-apps/)
-[![Tests](https://img.shields.io/badge/Tests-Vitest%204-brightgreen.svg)]()
-[![Coverage](https://img.shields.io/badge/Coverage-%E2%89%A580%25-brightgreen.svg)]()
-[![Release](https://img.shields.io/badge/Release-v3.1.17-blue.svg)](https://github.com/bahaback-hub/quran-app/releases/tag/v3.1.17)
-[![CodeQL](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml)
-[![Quality](https://img.shields.io/badge/Quality-Internal%20Audit-blue?style=for-the-badge)](#-تقييم-الجودة--quality-rating)
-
-[📲 تنزيل Android APK 3.1.17](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.17/quran-app-v3.1.17-fullscreen-arabic-regression-fix-debug.apk) · [🌐 عرض مباشر / Live Demo](https://bahaback-hub.github.io/quran-app/) · [🐛 تقرير خطأ / Report Bug](https://github.com/bahaback-hub/quran-app/issues) · [💡 طلب ميزة / Request Feature](https://github.com/bahaback-hub/quran-app/issues) · [💬 نقاشات / Discussions](https://github.com/bahaback-hub/quran-app/discussions)
-
-</div>
 
 ---
 
-## 📲 تثبيت Android APK / Android Installation
+## 📲 تثبيت التطبيق على Android
 
-**الإصدار الحالي: 3.1.17.** نزّل [ملف APK للأندرويد](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.17/quran-app-v3.1.17-fullscreen-arabic-regression-fix-debug.apk)، ثم افتحه من التنزيلات وثبّته فوق النسخة السابقة. إن طلب الهاتف إذنًا، فعّل مؤقتًا خيار **السماح بالتثبيت من هذا المصدر** لتطبيق المتصفح أو مدير الملفات المستخدم.
+**الإصدار الحالي: 3.1.17.** لتثبيت التطبيق، نزّل [ملف APK](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.17/quran-app-v3.1.17-fullscreen-arabic-regression-fix-debug.apk)، ثم افتحه من مجلد التنزيلات واختر **تثبيت**. يمكنك تثبيته فوق النسخة السابقة مباشرةً.
 
-> ملف APK الحالي موقّع من نوع **Debug** ومتاح للاختبار الميداني. يستخدم ملف الإصدار الرسمي المستقبلي توقيع نشر مستقل قبل توزيعه على نطاق أوسع.
+إذا طلب الهاتف إذنًا للتثبيت، فعّل مؤقتًا خيار **السماح بالتثبيت من هذا المصدر** للمتصفح أو مدير الملفات الذي فتحت منه الملف، ثم أعد إيقافه عند الانتهاء.
+
+> هذه النسخة موقعة بتوقيع **Debug** ومخصصة للاختبار الميداني. ستستخدم النسخة العامة القادمة توقيع نشر مستقل قبل توزيعها على نطاق أوسع.
 
 ---
 
-## 🏆 تقييم الجودة / Quality Rating
+## 🏆 الجودة والاختبارات
 
-<div align="center">
+هذا القسم يلخص ما تم التحقق منه داخل المشروع. وهو **تقييم فني داخلي** يوضح حالة الأدوات والاختبارات، وليس شهادة مستقلة من جهة خارجية.
 
-### 📋 تقييم داخلي صادق / Honest Internal Audit
-
-**هذا التقييم مبني على فحص فني داخلي، وليس شهادة خارجية. نعرض النقاط القوية والضعيفة بشفافية.**
-
-This rating is an **internal self-audit**, not an external certification. We list both strengths and known gaps transparently.
-
-</div>
-
-| المحور / Dimension | الحالة / Status | التفاصيل / Details |
-|:---:|:---:|:---|
-| 🧪 **اختبارات / Tests** | ✅ ممتاز / Excellent | **3,732 اختبار وحدة + 281 حالة E2E محلية عبر 4 مشاريع**؛ تشمل Chromium وFirefox وWebKit وChrome للجوال، وتغطي تدفقات الهاتف المخصصة |
-| 🔒 **الأمان / Security** | ✅ ممتاز / Excellent | CodeQL + OWASP ZAP baseline + `npm audit` مُلزِم + فحص رخص + CSP صارمة + **Security policy شامل** |
-| ♿ **إتاحة / Accessibility** | ✅ ممتاز / Excellent | 0 انتهاكات WCAG 2.1 AA + prefers-reduced-motion + prefers-contrast:high + focus trap + axe-core محلي |
-| ⚡ **الأداء / Performance** | ✅ ممتاز / Excellent | Code splitting + lazy injection + 3-phase bootstrap + **Performance Budget مُلزِم** + Lighthouse مُلزِم بمعايير Core Web Vitals موحّدة + **Web Vitals RUM** |
-| 📚 **التوثيق / Documentation** | ✅ ممتاز / Excellent | README شامل + AGENTS.md + CONTRIBUTING + SECURITY + CODE_OF_CONDUCT + NOTICE.md + **TypeDoc منشور على GitHub Pages** |
-| 🏗️ **المعمارية / Architecture** | ✅ ممتاز / Excellent | TypeScript 6 صارم + Proxy reactive + state.ts مفكّك (878→4 ملفات) + عميل API موحّد + **Memory Manager** |
-| 🔄 **CI/CD** | ✅ ممتاز / Excellent | بوابات CI تشمل lint والأنواع والوحدات والبناء وLighthouse وE2E على 4 مشاريع؛ حالة التنفيذ الحية متاحة من شارات GitHub أعلاه |
-| 📱 **متعدد المنصات / Cross-platform** | ✅ ممتاز / Excellent | ويب + PWA (shortcuts + narrow screenshots) + Android (Capacitor) + responsive (landscape + ultra-wide) |
-| 📴 **Offline** | ✅ ممتاز / Excellent | 4-tier fallback + **Offline Pack** (تحميل الكل بنقرة واحدة) + 3 قواعد IndexedDB |
-| 🧠 **Memory** | ✅ ممتاز / Excellent | **Memory Manager** (object URL tracking + AbortController registry + listener leak detection + periodic cleanup) |
+| المجال | الحالة | ما تم التحقق منه |
+|:---|:---:|:---|
+| الاختبارات | ✅ | **3,732 اختبار وحدة و281 حالة اختبار للواجهة** عبر المتصفحات والهاتف. |
+| الأمان | ✅ | تحليل CodeQL وفحص `npm audit` وسياسة محتوى صارمة والتحقق من الرخص. |
+| إمكانية الوصول | ✅ | فحص تلقائي لمتطلبات WCAG، ودعم قارئ الشاشة والحركة المخففة والتركيز بلوحة المفاتيح. |
+| الأداء | ✅ | تقسيم الشفرة، وقياس مؤشرات الأداء، وحدود أداء تلقائية في مسار البناء. |
+| التوثيق والبناء | ✅ | تعليمات تطوير واختبار، وبوابات فحص للكود والأنواع والبناء والواجهة. |
 
 ---
 
