@@ -14,6 +14,7 @@ import { hapticFeedback, copyToClipboard } from './utils.js';
 import { __ } from './i18n.js';
 import { loadSurah } from './surah-loader.js';
 import { favoritesEmptyMessage, favoriteMeta, favoritesCountMessage } from './templates.js';
+import { shareText } from './share.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -144,13 +145,8 @@ export function renderFavorites(): void {
         const text = target.dataset['text'] || '';
         const surahName = target.dataset['surahName'] || '';
         const ayah = target.dataset['ayah'] || '';
-        const shareText = `${text} — ${surahName} — ${__('ayah')} ${ayah}`;
-        if (navigator.share) {
-          navigator.share({ title: __('app_title'), text: shareText }).catch(() => { /* noop */ });
-        } else {
-          copyToClipboard(shareText);
-          showToast(__('copied'), 'success');
-        }
+        const sharePayload = `${text} — ${surahName} — ${__('ayah')} ${ayah}`;
+        void shareText(sharePayload, __('copied'));
         return;
       }
       if (target.classList.contains('fav-remove')) {
