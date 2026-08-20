@@ -57,4 +57,23 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('#collapsedInfo')).not.toHaveText('');
     await expect(page.locator('#collapsedInfo')).not.toContainText(/آية/);
   });
+
+  test('should keep the surah information button beside one localized title', async ({ page }) => {
+    const title = page.locator('[data-surah-title-name]');
+    const infoButton = page.locator('.surah-secret-title-btn');
+    await expect(title).toBeVisible();
+    await expect(infoButton).toBeVisible();
+
+    const titleText = await title.textContent();
+    expect(titleText).toMatch(/الفاتحة|Al-Faatiha/);
+    expect(titleText).not.toMatch(/الفاتحة.*Al-Faatiha|Al-Faatiha.*الفاتحة/);
+
+    const titleBox = await title.boundingBox();
+    const infoBox = await infoButton.boundingBox();
+    expect(titleBox).not.toBeNull();
+    expect(infoBox).not.toBeNull();
+    expect(Math.abs(titleBox!.y - infoBox!.y)).toBeLessThan(8);
+
+    await expect(page.locator('.juz-label').first()).not.toHaveText('juz_num');
+  });
 });

@@ -46,6 +46,8 @@ vi.mock('../ui.js', () => ({
 
 vi.mock('../i18n.js', () => ({
   __: vi.fn((key: string) => key),
+  getLang: vi.fn(() => 'ar'),
+  toArabicDigits: (value: string | number) => String(value),
 }));
 
 vi.mock('../tajweed.js', () => ({

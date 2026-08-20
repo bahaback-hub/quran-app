@@ -26,6 +26,8 @@ vi.unmock('../storage.js');
 // Re-mock i18n with getReciterName (which reciters.ts uses)
 vi.mock('../i18n.js', () => ({
   __: (key: string, ..._args: string[]) => key,
+  getLang: vi.fn(() => 'ar'),
+  toArabicDigits: (value: string | number) => String(value),
   setLocale: vi.fn(),
   getCurrentLocale: vi.fn(() => 'ar'),
   loadLocale: vi.fn(() => Promise.resolve()),

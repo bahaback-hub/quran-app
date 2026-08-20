@@ -6,6 +6,7 @@
 vi.mock('../i18n.js', () => ({
   __: (key: string, ..._args: string[]) => key,
   __n: (key: string, count: number) => `${key}:${count}`,
+  getLang: vi.fn(() => 'ar'),
   toArabicDigits: (v: string | number) => String(v),
   toLatinDigits: (v: string | number) => String(v),
   setLocale: vi.fn(),

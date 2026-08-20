@@ -49,6 +49,8 @@ vi.mock('../ui.js', () => ({
 
 vi.mock('../i18n.js', () => ({
   __: vi.fn((key: string) => key),
+  getLang: vi.fn(() => 'ar'),
+  toArabicDigits: (value: string | number) => String(value),
 }));
 
 vi.mock('../tajweed.js', () => ({
@@ -644,8 +646,7 @@ describe('surah-loader-full', () => {
   describe('renderSurah', () => {
     it('should render surah title', () => {
       renderSurah(SAMPLE_SURAH_DATA);
-      expect(dom.surahContent!.innerHTML).toContain('الفاتحة');
-      expect(dom.surahContent!.innerHTML).toContain('Al-Fatiha');
+      expect(dom.surahContent!.querySelector('[data-surah-title-name]')?.textContent).toBe('الفاتحة');
     });
 
     it('should render bismillah for non-Fatiha non-Tawbah surahs', () => {

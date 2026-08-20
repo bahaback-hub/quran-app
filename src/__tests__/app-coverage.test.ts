@@ -145,6 +145,7 @@ vi.mock('../surah-loader.js', () => ({
   renderSurah: vi.fn(),
   highlightCurrentAyah: vi.fn(),
   updatePlayerInfo: vi.fn(),
+  updateCurrentSurahLocale: vi.fn(),
 }));
 
 vi.mock('../tajweed-data.js', () => ({

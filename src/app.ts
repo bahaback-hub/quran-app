@@ -23,7 +23,13 @@ import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
 import { initNavigation } from './navigation.js';
 import { initToggleSwitchAccessibility, initReducedMotionDetection } from './a11y.js';
-import { loadSurah, loadSurahList, buildSurahOffsets, populateReciterSelect } from './surah-loader.js';
+import {
+  loadSurah,
+  loadSurahList,
+  buildSurahOffsets,
+  populateReciterSelect,
+  updateCurrentSurahLocale,
+} from './surah-loader.js';
 import { handleVisibilityChange, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
@@ -114,6 +120,7 @@ export async function initApp(): Promise<void> {
   // Listen for language changes to update UI text (custom event from i18n module)
   window.addEventListener('app:langchange', () => {
     applyTranslations();
+    updateCurrentSurahLocale();
     const hint = document.getElementById('keyboardHint');
     if (hint) {
       hint.textContent = '';

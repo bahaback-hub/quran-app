@@ -2,7 +2,7 @@ import { CONFIG } from './config.js';
 import { storage } from './storage.js';
 import { dom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
-import { __ } from './i18n.js';
+import { __, getLang, toArabicDigits } from './i18n.js';
 import {
   skeletonLoading,
   surahLoadError,
@@ -557,6 +557,39 @@ const _totalChunks = 0;
 /** Reference to current surah text data for virtual scroll operations. */
 let _currentTextData: SurahTextData | null = null;
 
+/** Select one concise, locale-appropriate surah name for the reader title. */
+function getLocalizedSurahName(textData: SurahTextData): string {
+  return getLang() === 'ar' ? textData.name : textData.englishName;
+}
+
+/** Format a juz marker without exposing a missing translation key to readers. */
+function getLocalizedJuzLabel(juz: number): string {
+  const lang = getLang();
+  const numeral = lang === 'ar' ? toArabicDigits(juz) : String(juz);
+  return __('juz_info', numeral);
+}
+
+/** Update language-dependent reader metadata without re-rendering ayahs or audio state. */
+export function updateCurrentSurahLocale(): void {
+  if (!dom.surahContent || !_currentTextData) {
+    return;
+  }
+
+  const titleName = dom.surahContent.querySelector<HTMLElement>('[data-surah-title-name]');
+  if (titleName) {
+    const isArabic = getLang() === 'ar';
+    titleName.textContent = getLocalizedSurahName(_currentTextData);
+    titleName.dir = isArabic ? 'rtl' : 'ltr';
+  }
+
+  for (const marker of dom.surahContent.querySelectorAll<HTMLElement>('[data-juz-number]')) {
+    const juz = Number(marker.dataset['juzNumber']);
+    if (Number.isFinite(juz)) {
+      marker.textContent = getLocalizedJuzLabel(juz);
+    }
+  }
+}
+
 /** Get the chunk index for a given ayah index. */
 function getChunkIndex(ayahIndex: number): number {
   return Math.floor(ayahIndex / VIRTUAL_CHUNK_SIZE);
@@ -598,7 +631,7 @@ function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string
   // Juz marker: if this ayah starts a new juz, insert a divider
   const juzNum = isJuzStart(textData.number, a.numberInSurah);
   if (juzNum !== null) {
-    html += `<div class="juz-marker"><span class="juz-label">${__('juz_num', String(juzNum))}</span></div>`;
+    html += `<div class="juz-marker"><span class="juz-label" data-juz-number="${juzNum}">${getLocalizedJuzLabel(juzNum)}</span></div>`;
   }
   html += `<span class="ayah" data-index="${i}" data-surah="${textData.number}" data-ayah="${a.numberInSurah}">`;
   html += buildAyahWordsHtml(txt, i, colorMap);
@@ -852,9 +885,10 @@ export function renderSurah(textData: SurahTextData): void {
     breadcrumbSurah.classList.add('breadcrumb-surah');
   }
 
-  let html = `<h2 class="surah-title">${escapeHtml(textData.name)} — ${escapeHtml(textData.englishName)}`;
+  const isArabicTitle = getLang() === 'ar';
+  let html = `<h2 class="surah-title"><span class="surah-title-name" data-surah-title-name dir="${isArabicTitle ? 'rtl' : 'ltr'}">${escapeHtml(getLocalizedSurahName(textData))}</span>`;
   if (SURAH_SECRETS[textData.number]) {
-    html += ` <button class="surah-secret-title-btn" data-surah="${textData.number}" data-surahname="${escapeHtml(textData.name)}" title="${__('surah_info_title')}" aria-label="${__('surah_info_title')}">ℹ️</button>`;
+    html += `<button class="surah-secret-title-btn" data-surah="${textData.number}" data-surahname="${escapeHtml(textData.name)}" title="${__('surah_info_title')}" aria-label="${__('surah_info_title')}">ℹ️</button>`;
   }
   html += `</h2>`;
   if (textData.number !== 1 && textData.number !== 9) {

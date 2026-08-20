@@ -3,6 +3,8 @@ import { state } from '../state.js';
 import { dom } from '../dom.js';
 import type { SurahData } from '../types.js';
 
+const { getLangMock } = vi.hoisted(() => ({ getLangMock: vi.fn(() => 'ar') }));
+
 // Mock i18n — __() returns key (matching setup-i18n.ts mock)
 vi.mock('../i18n.js', () => ({
   __: (key: string, ...args: string[]) => {
@@ -15,6 +17,8 @@ vi.mock('../i18n.js', () => ({
   setLocale: vi.fn(),
   getCurrentLocale: vi.fn(() => 'ar'),
   loadLocale: vi.fn(() => Promise.resolve()),
+  getLang: getLangMock,
+  toArabicDigits: (value: string | number) => String(value),
 }));
 
 vi.mock('../storage.js', () => ({
@@ -34,6 +38,7 @@ vi.mock('../utils.js', async (importOriginal) => {
 });
 
 import { renderSurah } from '../app.js';
+import { updateCurrentSurahLocale } from '../surah-loader.js';
 import { buildShareText } from '../share.js';
 
 const sampleAyahs = [
@@ -54,13 +59,27 @@ beforeEach(() => {
   state.fontSize = 28;
   state.surahData = null;
   state.currentAyahIndex = 0;
+  getLangMock.mockReturnValue('ar');
 });
 
 describe('renderSurah', () => {
-  it('should render surah title and ayahs', () => {
+  it('should render the Arabic surah title and ayahs for an Arabic interface', () => {
     renderSurah(sampleSurah);
-    expect(dom.surahContent!.innerHTML).toContain('سُورَةُ الفَاتِحَةِ');
-    expect(dom.surahContent!.innerHTML).toContain('Al-Faatiha');
+    expect(dom.surahContent!.querySelector('[data-surah-title-name]')?.textContent).toBe('سُورَةُ الفَاتِحَةِ');
+  });
+
+  it('should render only the English surah title for a non-Arabic interface', () => {
+    getLangMock.mockReturnValue('en');
+    renderSurah(sampleSurah);
+    expect(dom.surahContent!.querySelector('[data-surah-title-name]')?.textContent).toBe('Al-Faatiha');
+  });
+
+  it('should update the visible title and juz label when the interface language changes', () => {
+    renderSurah(sampleSurah);
+    getLangMock.mockReturnValue('en');
+    updateCurrentSurahLocale();
+    expect(dom.surahContent!.querySelector('[data-surah-title-name]')?.textContent).toBe('Al-Faatiha');
+    expect(dom.surahContent!.querySelector('.juz-label')?.textContent).toBe('juz_info');
   });
 
   it('should not render bismillah for surah 1', () => {

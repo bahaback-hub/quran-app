@@ -19,7 +19,12 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  line-height: 1.35;
+}
+.surah-title-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .surah-secret-title-btn {
   background: var(--hover-bg);
@@ -32,6 +37,7 @@
   line-height: 1;
   vertical-align: middle;
   opacity: 0.85;
+  flex: 0 0 auto;
 }
 .surah-secret-title-btn:hover {
   background: var(--accent);
@@ -427,4 +433,3 @@ body.night-mode .ayah-number::before {
   background: var(--accent);
   opacity: 0.1;
 }
-
