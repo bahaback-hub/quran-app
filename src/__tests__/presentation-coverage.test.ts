@@ -217,6 +217,35 @@ describe('presentation coverage', () => {
     });
   });
 
+  describe('Android fullscreen transition', () => {
+    it('renders one uninterrupted Arabic run as soon as fullscreen is requested', async () => {
+      const { openPresentation, initPresentation } = await import('../presentation.js');
+      const { buildAyahHtml } = await import('../pres-styles.js');
+      const { requestFullscreen } = await import('../types.js');
+
+      initPresentation();
+      openPresentation();
+      expect(buildAyahHtml).toHaveBeenLastCalledWith(
+        'بسم الله الرحمن الرحيم',
+        1,
+        1,
+        true,
+      );
+
+      // The mock keeps isFullscreen() false to model Android WebView before it
+      // reports document.fullscreenElement. The local request state must still
+      // remove tajweed spans immediately so Arabic letters keep their shaping.
+      dom.presFullscreenBtn!.click();
+      expect(requestFullscreen).toHaveBeenCalledWith(dom.presentationOverlay);
+      expect(buildAyahHtml).toHaveBeenLastCalledWith(
+        'بسم الله الرحمن الرحيم',
+        1,
+        1,
+        false,
+      );
+    });
+  });
+
   /* ==================== Keyboard Navigation ==================== */
 
   describe('keyboard navigation — arrow keys', () => {

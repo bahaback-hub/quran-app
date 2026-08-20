@@ -25,6 +25,13 @@ let _presTajweedEnabled = true;
 /** Timeout for auto-hiding presentation controls. */
 let _hideControlsTimeout: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * Tracks a user-requested fullscreen transition before Android WebView reflects
+ * it in document.fullscreenElement. Arabic shaping must already be continuous
+ * during that short native transition.
+ */
+let _presFullscreenRequested = false;
+
 /** Show presentation control buttons and reset auto-hide timer. */
 function showControls(): void {
   const overlay = dom.presentationOverlay;
@@ -75,10 +82,23 @@ function togglePresFullscreen(): void {
     return;
   }
   const fsElement = getFullscreenElement();
-  if (fsElement) {
-    exitFullscreen().catch(() => { /* noop */ });
+  if (fsElement || _presFullscreenRequested) {
+    _presFullscreenRequested = false;
+    updateDisplay();
+    exitFullscreen().catch(() => {
+      _presFullscreenRequested = isFullscreen();
+      updateDisplay();
+    });
   } else {
-    requestFullscreen(overlay).catch(() => { /* noop */ });
+    // Android WebView may resolve the request before it updates
+    // document.fullscreenElement. Mark the request immediately so the ayah is
+    // rebuilt as one uninterrupted Arabic run before the native transition.
+    _presFullscreenRequested = true;
+    updateDisplay();
+    requestFullscreen(overlay).catch(() => {
+      _presFullscreenRequested = false;
+      updateDisplay();
+    });
   }
 }
 
@@ -173,7 +193,7 @@ function updateDisplay(): void {
     // Android WebView can split Arabic shaping runs at the coloured inline
     // tajweed spans in fullscreen. Render a single uninterrupted text run
     // there; normal presentation mode keeps its local tajweed colours.
-    const usePresentationTajweed = _presTajweedEnabled && !isFullscreen();
+    const usePresentationTajweed = _presTajweedEnabled && !isFullscreen() && !_presFullscreenRequested;
     dom.presentationAyahText.innerHTML = buildAyahHtml(
       ayah.text,
       state.currentSurah,
@@ -301,6 +321,7 @@ export function openPresentation(): void {
   }
 
   state.presentationMode = true;
+  _presFullscreenRequested = false;
   // Sync presentation tajweed with global setting on open
   _presTajweedEnabled = state.tajweedEnabled;
   injectStyles();
@@ -350,6 +371,7 @@ export function openPresentation(): void {
 
 export function closePresentation(): void {
   state.presentationMode = false;
+  _presFullscreenRequested = false;
   // Exit fullscreen if active
   if (isFullscreen()) {
     exitFullscreen().catch(() => { /* noop */ });
@@ -436,6 +458,7 @@ function handleOverlayMouseMove(): void {
 
 /** Handle fullscreen change event — update button icon and resize canvas. */
 function handleFullscreenChange(): void {
+  _presFullscreenRequested = isFullscreen();
   updatePresFullscreenBtn();
   // Rebuild the ayah after the fullscreen state changes so Android receives
   // one continuous Arabic shaping run in fullscreen and restores tajweed on exit.
