@@ -350,6 +350,11 @@ body.capacitor-native .skip-link {
   display: none !important;
 }
 
+/* The fixed reading-progress indicator looks like a stray accent beneath Android's system bar. */
+body.capacitor-native .reading-progress {
+  display: none !important;
+}
+
 body.capacitor-native .view-mode-btn {
   min-width: 44px;
   min-height: 44px;

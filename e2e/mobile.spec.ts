@@ -35,9 +35,12 @@ test.describe('Quran App — Mobile Controls', () => {
 
   test('should hide the skip link only for the native Android class', async ({ page }) => {
     const skipLink = page.locator('.skip-link');
+    const readingProgress = page.locator('.reading-progress');
     await expect(skipLink).toBeVisible();
+    await expect(readingProgress).toHaveCSS('display', 'block');
     await page.locator('body').evaluate((body) => body.classList.add('capacitor-native'));
     await expect(skipLink).toBeHidden();
+    await expect(readingProgress).toHaveCSS('display', 'none');
   });
 
   test('should reveal the search field from the search tab', async ({ page }) => {
