@@ -14,11 +14,11 @@
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-A022A0.svg)](https://web.dev/progressive-web-apps/)
 [![Tests](https://img.shields.io/badge/Tests-Vitest%204-brightgreen.svg)]()
 [![Coverage](https://img.shields.io/badge/Coverage-%E2%89%A580%25-brightgreen.svg)]()
-[![Release](https://img.shields.io/badge/Release-v3.1.0-blue.svg)](https://github.com/bahaback-hub/quran-app/releases)
+[![Release](https://img.shields.io/badge/Release-v3.1.17-blue.svg)](https://github.com/bahaback-hub/quran-app/releases/tag/v3.1.17)
 [![CodeQL](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/codeql.yml)
 [![Quality](https://img.shields.io/badge/Quality-Internal%20Audit-blue?style=for-the-badge)](#-تقييم-الجودة--quality-rating)
 
-[🌐 عرض مباشر / Live Demo](https://bahaback-hub.github.io/quran-app/) · [🐛 تقرير خطأ / Report Bug](https://github.com/bahaback-hub/quran-app/issues) · [💡 طلب ميزة / Request Feature](https://github.com/bahaback-hub/quran-app/issues) · [💬 نقاشات / Discussions](https://github.com/bahaback-hub/quran-app/discussions)
+[📲 تنزيل Android APK 3.1.17](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.17/quran-app-v3.1.17-fullscreen-arabic-regression-fix-debug.apk) · [🌐 عرض مباشر / Live Demo](https://bahaback-hub.github.io/quran-app/) · [🐛 تقرير خطأ / Report Bug](https://github.com/bahaback-hub/quran-app/issues) · [💡 طلب ميزة / Request Feature](https://github.com/bahaback-hub/quran-app/issues) · [💬 نقاشات / Discussions](https://github.com/bahaback-hub/quran-app/discussions)
 
 </div>
 
