@@ -18,6 +18,7 @@ import { buildColorMap, getTajweedColor } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
 import type { TajweedAnnotation } from './tajweed-data.js';
 import { isCapacitorNative } from './types.js';
+import { getMushafPageLayout } from './mushaf-data-pack.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -202,11 +203,19 @@ export async function loadPageData(pageNum: number): Promise<PageLayoutData | nu
   }
   const padded = String(pageNum).padStart(3, '0');
   try {
-    const res = await fetch(`${PAGE_BASE}${padded}.json`);
-    if (!res.ok) {
+    // A verified, user-installed data pack has priority and supports offline
+    // page rendering. The remote fixed source remains the fallback until the
+    // optional MIT-licensed layout data pack is installed.
+    const installedData = await getMushafPageLayout(pageNum);
+    const data = installedData
+      ? (installedData as PageLayoutData)
+      : await (async (): Promise<PageLayoutData | null> => {
+          const res = await fetch(`${PAGE_BASE}${padded}.json`);
+          return res.ok ? ((await res.json()) as PageLayoutData) : null;
+        })();
+    if (!data) {
       return null;
     }
-    const data = (await res.json()) as PageLayoutData;
     // Evict oldest entry if cache is full (LRU policy)
     if (layoutCache.size >= LAYOUT_CACHE_MAX) {
       const firstKey = layoutCache.keys().next().value;

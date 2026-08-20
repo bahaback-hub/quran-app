@@ -30,6 +30,13 @@ import {
 } from './settings.js';
 import { cacheSurahAudio, isSurahCached, deleteSurahCache } from './audio-cache.js';
 import {
+  deleteMushafDataPack,
+  downloadMushafDataPack,
+  formatMushafDataBytes,
+  getMushafDataPackStatus,
+  verifyMushafDataPack,
+} from './mushaf-data-pack.js';
+import {
   togglePrayerBar,
   testAzan,
   stopAzan,
@@ -134,7 +141,75 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
   document.getElementById('exportSettingsBtn')?.addEventListener('click', () => exportSettings());
   document.getElementById('importSettingsBtn')?.addEventListener('click', () => importSettings());
+  bindMushafDataPackEvents();
   initSettingsTabs();
+}
+
+function bindMushafDataPackEvents(): void {
+  const status = document.getElementById('mushafDataPackStatus');
+  const downloadButton = document.getElementById('downloadMushafDataPackBtn') as HTMLButtonElement | null;
+  const verifyButton = document.getElementById('verifyMushafDataPackBtn') as HTMLButtonElement | null;
+  const deleteButton = document.getElementById('deleteMushafDataPackBtn') as HTMLButtonElement | null;
+  if (!status || !downloadButton || !verifyButton || !deleteButton) {
+    return;
+  }
+
+  const setBusy = (busy: boolean) => {
+    downloadButton.disabled = busy;
+    verifyButton.disabled = busy;
+    deleteButton.disabled = busy;
+  };
+  const refresh = async () => {
+    const pack = await getMushafDataPackStatus();
+    status.textContent = pack.installed
+      ? `${__('mushaf_data_pack_installed')} (${formatMushafDataBytes(pack.totalBytes)})`
+      : __('mushaf_data_pack_not_installed');
+    verifyButton.disabled = !pack.installed;
+    deleteButton.disabled = !pack.installed;
+  };
+  void refresh();
+
+  downloadButton.addEventListener('click', async () => {
+    setBusy(true);
+    try {
+      await downloadMushafDataPack((progress) => {
+        status.textContent = `${__('mushaf_data_pack_downloading')} ${progress.completed}/${progress.total}`;
+      });
+      status.textContent = __('mushaf_data_pack_verified');
+      showToast(__('mushaf_data_pack_verified'), 'success');
+    } catch {
+      status.textContent = __('mushaf_data_pack_failed');
+      showToast(__('mushaf_data_pack_failed'), 'error');
+    } finally {
+      setBusy(false);
+      await refresh();
+    }
+  });
+
+  verifyButton.addEventListener('click', async () => {
+    setBusy(true);
+    try {
+      const valid = await verifyMushafDataPack((progress) => {
+        status.textContent = `${__('mushaf_data_pack_verify')} ${progress.completed}/${progress.total}`;
+      });
+      status.textContent = valid ? __('mushaf_data_pack_verified') : __('mushaf_data_pack_failed');
+      showToast(valid ? __('mushaf_data_pack_verified') : __('mushaf_data_pack_failed'), valid ? 'success' : 'error');
+    } finally {
+      setBusy(false);
+      await refresh();
+    }
+  });
+
+  deleteButton.addEventListener('click', async () => {
+    setBusy(true);
+    try {
+      await deleteMushafDataPack();
+      showToast(__('mushaf_data_pack_deleted'), 'success');
+    } finally {
+      setBusy(false);
+      await refresh();
+    }
+  });
 }
 
 /**
