@@ -319,29 +319,6 @@
       <!-- ========== أدوات التحكم ========== -->
       <section class="controls" id="controls" aria-label="أدوات التحكم">
         <div class="controls-row">
-          <div class="control-card">
-            <span class="control-card-title"
-              ><svg
-                class="icon icon-sm"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-              </svg>
-              <span data-i18n="surah">السورة</span></span
-            >
-            <div class="surah-reciter-group">
-              <select id="surahSelect" aria-label="اختيار السورة"></select>
-              <select id="pageSelect" aria-label="اختيار صفحة المصحف" class="hidden"></select>
-              <select id="reciterSelect" aria-label="اختيار القارئ"></select>
-            </div>
-            <input type="range" id="pageSlider" min="1" max="604" value="1" class="hidden" />
-          </div>
           <div class="control-card reader-command-bar control-card-persistent" aria-label="البحث وأنماط العرض">
             <div class="reader-command-section reader-command-search">
               <span class="sr-only" data-i18n="search">بحث</span>
@@ -459,6 +436,14 @@
               </div>
               <span class="page-indicator hidden" id="pageIndicator">صفحة ١ من ٦٠٤</span>
             </div>
+          </div>
+          <div class="control-card reader-context-card">
+            <div class="surah-reciter-group">
+              <select id="surahSelect" aria-label="اختيار السورة"></select>
+              <select id="pageSelect" aria-label="اختيار صفحة المصحف" class="hidden"></select>
+              <select id="reciterSelect" aria-label="اختيار القارئ"></select>
+            </div>
+            <input type="range" id="pageSlider" min="1" max="604" value="1" class="hidden" />
           </div>
         </div>
       </section>

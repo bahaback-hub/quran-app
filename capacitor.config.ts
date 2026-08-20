@@ -34,6 +34,10 @@ const config: CapacitorConfig = {
     CapacitorHttp: {
       enabled: false,
     },
+    App: {
+      // The reader owns Android Back navigation and asks before closing at root.
+      disableBackButtonHandler: false,
+    },
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#5c2e2e',

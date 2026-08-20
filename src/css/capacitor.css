@@ -345,6 +345,11 @@ body.capacitor-native .presentation-counter {
 }
 
 /* Better touch targets in Capacitor */
+/* The skip link remains available on the web, but Android's focus restoration can surface it on launch. */
+body.capacitor-native .skip-link {
+  display: none !important;
+}
+
 body.capacitor-native .view-mode-btn {
   min-width: 44px;
   min-height: 44px;

@@ -409,6 +409,12 @@ body.night-mode .control-group label {
   margin-left: 4px;
   white-space: nowrap;
 }
+.reader-context-card {
+  flex: 1 1 100%;
+  width: 100%;
+  justify-content: center;
+  min-height: 54px;
+}
 
 /* ========== شريط القارئ الموحد: بحث + أنماط العرض ========== */
 .reader-command-bar {

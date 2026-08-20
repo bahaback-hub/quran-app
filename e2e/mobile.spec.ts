@@ -18,6 +18,28 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('#reciterSelect')).toBeVisible();
   });
 
+  test('should place the command bar before the compact surah and reciter controls', async ({ page }) => {
+    await page.locator('#bottomNav .bottom-nav-btn[data-tab="controls"]').click();
+    const commandBar = page.locator('.reader-command-bar');
+    const contextCard = page.locator('.reader-context-card');
+    await expect(commandBar).toBeVisible();
+    await expect(contextCard).toBeVisible();
+
+    const commandBox = await commandBar.boundingBox();
+    const contextBox = await contextCard.boundingBox();
+    expect(commandBox).not.toBeNull();
+    expect(contextBox).not.toBeNull();
+    expect(commandBox!.y).toBeLessThan(contextBox!.y);
+    await expect(contextCard.locator('.control-card-title')).toHaveCount(0);
+  });
+
+  test('should hide the skip link only for the native Android class', async ({ page }) => {
+    const skipLink = page.locator('.skip-link');
+    await expect(skipLink).toBeVisible();
+    await page.locator('body').evaluate((body) => body.classList.add('capacitor-native'));
+    await expect(skipLink).toBeHidden();
+  });
+
   test('should reveal the search field from the search tab', async ({ page }) => {
     await page.locator('#bottomNav .bottom-nav-btn[data-tab="search"]').click();
     await expect(page.locator('#searchInput')).toBeVisible();
