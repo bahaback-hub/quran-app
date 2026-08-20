@@ -28,4 +28,14 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('#player')).not.toHaveClass(/collapsed/);
     await expect(page.locator('#playPauseBtn')).toBeVisible();
   });
+
+  test('should show a clear static Qibla bearing when a live compass is unavailable', async ({ page, context }) => {
+    await context.grantPermissions(['geolocation']);
+    await context.setGeolocation({ latitude: 24.7136, longitude: 46.6753 });
+
+    await page.locator('#qiblaBtn').click();
+    await expect(page.locator('#qiblaOverlay')).toBeVisible();
+    await expect(page.locator('#qiblaAngle')).toHaveText(/\d+°/);
+    await expect(page.locator('#qiblaStatus')).toContainText(/الشمال الحقيقي|البوصلة الحية/);
+  });
 });

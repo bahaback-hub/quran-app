@@ -156,6 +156,7 @@ interface DomMap {
   qiblaCompass: HTMLElement | null;
   qiblaAngle: HTMLElement | null;
   qiblaDirection: HTMLElement | null;
+  qiblaStatus: HTMLElement | null;
   qiblaCloseBtn: HTMLElement | null;
   readingStatsPanel: HTMLElement | null;
   readingStatsContent: HTMLElement | null;
@@ -326,6 +327,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'qiblaCompass',
   'qiblaAngle',
   'qiblaDirection',
+  'qiblaStatus',
   'qiblaCloseBtn',
   'readingStatsPanel',
   'readingStatsContent',

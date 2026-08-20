@@ -279,6 +279,11 @@ export default {
 
   // === Qibla ===
   qibla_location_failed: 'Failed to get location',
+  qibla_compass_starting: 'Starting compass…',
+  qibla_compass_active: 'Live compass active — true north',
+  qibla_calibration_required: 'Move the phone in a figure 8 away from metal to calibrate the compass.',
+  qibla_static_mode: 'Qibla bearing from true north. A live compass is not available on this device.',
+  qibla_compass_unavailable: 'Live compass could not start. Showing the Qibla bearing from true north.',
 
   // === Sleep Timer ===
   sleep_timer_title: 'Sleep Timer',

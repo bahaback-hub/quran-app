@@ -19,6 +19,9 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Register before BridgeActivity creates the bridge so the web reader can
+        // receive a calibrated, screen-aware true-north heading on Android.
+        registerPlugin(QiblaCompassPlugin.class);
         super.onCreate(savedInstanceState);
 
         // Keep the app edge-to-edge at the window level, but reserve every unsafe

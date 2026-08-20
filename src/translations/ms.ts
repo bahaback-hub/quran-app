@@ -250,6 +250,11 @@ export default {
 
   // === Kiblat ===
   qibla_location_failed: 'Gagal mendapatkan lokasi',
+  qibla_compass_starting: 'Memulakan kompas…',
+  qibla_compass_active: 'Kompas langsung aktif — utara sebenar',
+  qibla_calibration_required: 'Gerakkan telefon dalam bentuk angka 8 dan jauhkan daripada logam untuk menentukur kompas.',
+  qibla_static_mode: 'Arah kiblat dari utara sebenar. Kompas langsung tidak tersedia pada peranti ini.',
+  qibla_compass_unavailable: 'Kompas langsung tidak dapat dimulakan. Menunjukkan arah kiblat dari utara sebenar.',
 
   // === Pemasa Tidur ===
   sleep_timer_title: 'Pemasa Tidur',
