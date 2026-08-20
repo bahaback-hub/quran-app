@@ -297,6 +297,7 @@ export interface ReciterEntry {
 export interface CapacitorPlugins {
   App?: {
     addListener?: (event: string, callback: () => void) => void;
+    exitApp?: () => void;
   };
   SplashScreen?: {
     hide?: (opts?: { fadeOutDuration?: number }) => void;

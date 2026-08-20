@@ -10,6 +10,7 @@
  */
 
 import { storage } from './storage.js';
+import { App as CapacitorApp } from '@capacitor/app';
 import { dom, cacheDom } from './dom.js';
 import { loadingBar } from './ui.js';
 import { getLang, applyTranslations } from './i18n.js';
@@ -108,7 +109,18 @@ export async function initApp(): Promise<void> {
 
   initNavigation();
   initKeyboardShortcuts();
-  initCapacitorBackButton();
+  initCapacitorBackButton({
+    App: {
+      addListener: (event, callback) => {
+        if (event === 'backButton') {
+          void CapacitorApp.addListener('backButton', callback);
+        }
+      },
+      exitApp: () => {
+        void CapacitorApp.exitApp();
+      },
+    },
+  });
   initToggleSwitchAccessibility();
   initReducedMotionDetection();
 
