@@ -160,6 +160,11 @@
   gap: 6px;
   align-items: center;
 }
+.header-primary-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
 /* ========== مبدّل المظهر (نهاري / سيبيا / ليلي) ========== */
 .theme-switcher {

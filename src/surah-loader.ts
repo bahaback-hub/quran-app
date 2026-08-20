@@ -1044,9 +1044,8 @@ export function updatePlayerInfo(): void {
     const preview = a.text.length > 80 ? a.text.substring(0, 80) + '...' : a.text;
     dom.playerCurrentAyah.textContent = `﴿${preview}﴾ — ${__('ayah')} ${a.numberInSurah}`;
   }
-  if (dom.collapsedInfo && a) {
-    const short = a.text.length > 50 ? a.text.substring(0, 50) + '...' : a.text;
-    dom.collapsedInfo.innerHTML = collapsedPlayerInfo(`${surahData.name} — ${__('ayah')} ${a.numberInSurah}`, short);
+  if (dom.collapsedInfo) {
+    dom.collapsedInfo.innerHTML = collapsedPlayerInfo(surahData.name);
   }
 }
 

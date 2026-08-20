@@ -38,4 +38,23 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('#qiblaAngle')).toHaveText(/\d+°/);
     await expect(page.locator('#qiblaStatus')).toContainText(/الشمال الحقيقي|البوصلة الحية/);
   });
+
+  test('should keep primary header actions in one row and keep theme controls separate', async ({ page }) => {
+    const primaryActions = page.locator('.header-primary-actions .header-action-btn');
+    await expect(primaryActions).toHaveCount(5);
+    await expect(page.locator('#helpToggleBtn')).toBeVisible();
+    await expect(page.locator('#breadcrumbs')).toHaveCount(0);
+
+    const firstAction = await primaryActions.nth(0).boundingBox();
+    const lastAction = await primaryActions.nth(4).boundingBox();
+    const theme = await page.locator('#themeToggle').boundingBox();
+    expect(firstAction).not.toBeNull();
+    expect(lastAction).not.toBeNull();
+    expect(theme).not.toBeNull();
+    expect(Math.abs(firstAction!.y - lastAction!.y)).toBeLessThan(2);
+    expect(theme!.y).toBeGreaterThan(firstAction!.y + firstAction!.height);
+
+    await expect(page.locator('#collapsedInfo')).not.toHaveText('');
+    await expect(page.locator('#collapsedInfo')).not.toContainText(/آية/);
+  });
 });

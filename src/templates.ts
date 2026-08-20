@@ -617,8 +617,9 @@ export function surahContentShell(surahName: string, bismillah: string): string 
 /**
  * Generate collapsed player info.
  */
-export function collapsedPlayerInfo(surahName: string, ayahInfo: string): string {
-  return `<span class="fi-surah">${escapeHtml(surahName)}</span><span>${escapeHtml(ayahInfo)}</span>`;
+export function collapsedPlayerInfo(surahName: string, ayahInfo = ''): string {
+  const ayah = ayahInfo ? `<span>${escapeHtml(ayahInfo)}</span>` : '';
+  return `<span class="fi-surah">${escapeHtml(surahName)}</span>${ayah}`;
 }
 
 /* ===================== FAVORITES TEMPLATES ===================== */
