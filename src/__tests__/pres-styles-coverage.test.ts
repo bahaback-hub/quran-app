@@ -87,6 +87,15 @@ describe('injectStyles', () => {
     const styleEl = document.getElementById('pres-styles')!;
     expect(styleEl.textContent).toContain('@media (max-width: 600px)');
   });
+
+  it('should keep selected backgrounds full-bleed in fullscreen on phones', () => {
+    injectStyles();
+    const styleEl = document.getElementById('pres-styles')!;
+    expect(styleEl.textContent).toContain('.presentation-overlay:fullscreen.pres-nature');
+    expect(styleEl.textContent).toContain('.presentation-overlay:fullscreen.pres-auto::after');
+    expect(styleEl.textContent).toContain('content: none');
+    expect(styleEl.textContent).toContain('.presentation-overlay:fullscreen.pres-animated .pres-bg-layer');
+  });
 });
 
 describe('buildAyahHtml', () => {
