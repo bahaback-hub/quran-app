@@ -199,6 +199,7 @@ const qiblaOverlayHTML = `
     </div>
     <div class="qibla-angle" id="qiblaAngle">---</div>
     <div class="qibla-direction" id="qiblaDirection">جاري تحديد الموقع...</div>
+    <div class="qibla-status" id="qiblaStatus" aria-live="polite">جاري تفعيل البوصلة...</div>
     <button class="qibla-close" id="qiblaCloseBtn">✖ <span data-i18n="close">إغلاق</span></button>
   </div>
 </div>

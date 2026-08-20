@@ -279,6 +279,11 @@ export default {
 
   // === Qibla ===
   qibla_location_failed: 'فشل تحديد الموقع',
+  qibla_compass_starting: 'جاري تفعيل البوصلة…',
+  qibla_compass_active: 'البوصلة الحية نشطة — الشمال الحقيقي',
+  qibla_calibration_required: 'حرّك الهاتف بشكل رقم 8 وبعيدًا عن المعادن لمعايرة البوصلة.',
+  qibla_static_mode: 'زاوية القبلة من الشمال الحقيقي. البوصلة الحية غير متاحة على هذا الجهاز.',
+  qibla_compass_unavailable: 'تعذر تفعيل البوصلة الحية. يُعرض اتجاه القبلة من الشمال الحقيقي.',
 
   // === مؤقت النوم ===
   sleep_timer_title: 'مؤقت النوم',

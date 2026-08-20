@@ -11,6 +11,7 @@ import { updatePlayPauseBtn } from './audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
+import { startNativeQiblaCompass } from './qibla-compass.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -26,11 +27,13 @@ interface CachedPrayerTimes {
 /** DeviceOrientationEvent with iOS-specific webkitCompassHeading. */
 interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
   webkitCompassHeading?: number;
+  webkitCompassAccuracy?: number;
 }
 
 interface QiblaCoordinates {
   latitude: number;
   longitude: number;
+  altitude?: number;
 }
 
 /* ===================== CLOCK ===================== */
@@ -428,6 +431,46 @@ export function togglePrayerBar(): void {
 
 /** Stored reference to the deviceorientation handler so it can be removed. */
 let _qiblaOrientationHandler: ((ev: DeviceOrientationEvent) => void) | null = null;
+let _stopNativeQiblaCompass: (() => Promise<void>) | null = null;
+
+/** Keep headings in the conventional 0°–359.999° clockwise-from-north range. */
+export function normalizeQiblaAngle(angle: number): number {
+  const normalized = angle % 360;
+  return normalized < 0 ? normalized + 360 : normalized;
+}
+
+/** Return the smallest angular separation, preserving the 359° → 0° wraparound. */
+export function circularQiblaDifference(first: number, second: number): number {
+  const difference = Math.abs(normalizeQiblaAngle(first) - normalizeQiblaAngle(second));
+  return difference > 180 ? 360 - difference : difference;
+}
+
+/**
+ * Derive a usable web heading only from an explicit compass value or absolute
+ * orientation. Android's raw alpha runs counter to conventional compass
+ * heading, hence the 360 - alpha conversion used by mature web compasses.
+ */
+export function getWebQiblaHeading(event: DeviceOrientationEventiOS): number | null {
+  if (typeof event.webkitCompassHeading === 'number' && Number.isFinite(event.webkitCompassHeading)) {
+    return normalizeQiblaAngle(event.webkitCompassHeading);
+  }
+  if (event.absolute === true && typeof event.alpha === 'number' && Number.isFinite(event.alpha)) {
+    const screenAngle = window.screen?.orientation?.angle ?? 0;
+    return normalizeQiblaAngle(360 - event.alpha + screenAngle);
+  }
+  return null;
+}
+
+function removeQiblaSources(): void {
+  if (_qiblaOrientationHandler) {
+    window.removeEventListener('deviceorientation', _qiblaOrientationHandler);
+    _qiblaOrientationHandler = null;
+  }
+  if (_stopNativeQiblaCompass) {
+    void _stopNativeQiblaCompass().catch((error: unknown) => console.warn('[Qibla] Native compass stop failed:', error));
+    _stopNativeQiblaCompass = null;
+  }
+}
 
 /** Calculate Qibla direction from a given latitude/longitude. */
 export function calculateQibla(lat: number, lng: number): number {
@@ -438,11 +481,7 @@ export function calculateQibla(lat: number, lng: number): number {
   const dLng = kaabaLng - userLng;
   const y = Math.sin(dLng);
   const x = Math.cos(userLat) * Math.tan(kaabaLat) - Math.sin(userLat) * Math.cos(dLng);
-  let qibla = (Math.atan2(y, x) * 180) / Math.PI;
-  if (qibla < 0) {
-    qibla += 360;
-  }
-  return qibla;
+  return normalizeQiblaAngle((Math.atan2(y, x) * 180) / Math.PI);
 }
 
 /** Request coordinates through Capacitor's native Android permission flow. */
@@ -457,7 +496,11 @@ async function getNativeQiblaCoordinates(): Promise<QiblaCoordinates> {
     timeout: 20_000,
     maximumAge: 60_000,
   });
-  return { latitude: position.coords.latitude, longitude: position.coords.longitude };
+  return {
+    latitude: position.coords.latitude,
+    longitude: position.coords.longitude,
+    altitude: position.coords.altitude ?? 0,
+  };
 }
 
 /** Show the Qibla compass overlay. */
@@ -473,60 +516,50 @@ export function showQiblaCompass(): void {
   const needle = compass?.querySelector<HTMLElement>('.qibla-needle') || null;
   const direction = document.getElementById('qiblaDirection');
   const angleDisplay = document.getElementById('qiblaAngle');
+  const status = document.getElementById('qiblaStatus');
 
-  const applyCoordinates = ({ latitude, longitude }: QiblaCoordinates): void => {
+  const applyCoordinates = ({ latitude, longitude, altitude = 0 }: QiblaCoordinates): void => {
     const qiblaAngle = calculateQibla(latitude, longitude);
+
+    const setNeedle = (heading: number): void => {
+      if (needle) {
+        needle.style.transform = `translateX(-50%) rotate(${normalizeQiblaAngle(qiblaAngle - heading)}deg)`;
+      }
+    };
+    const showStaticBearing = (message: string): void => {
+      setNeedle(0);
+      if (status) {
+        status.textContent = message;
+      }
+    };
 
     // Keep the North/East/South/West dial fixed. Only rotate the needle so it
     // points to the Kaaba rather than making the full compass look northbound.
     if (compass) {
       compass.style.transform = '';
     }
-    if (needle) {
-      needle.style.transform = `translateX(-50%) rotate(${qiblaAngle}deg)`;
-    }
+    setNeedle(0);
     if (angleDisplay) {
       angleDisplay.textContent = `${Math.round(qiblaAngle)}°`;
     }
 
-    // Remove any previous handler to prevent memory leaks
-    if (_qiblaOrientationHandler) {
-      window.removeEventListener('deviceorientation', _qiblaOrientationHandler);
-      _qiblaOrientationHandler = null;
-    }
+    removeQiblaSources();
 
     const handleOrientation = (e: DeviceOrientationEventiOS): void => {
-      let heading = e.alpha != null ? e.alpha : 0;
-      if (e.webkitCompassHeading) {
-        heading = e.webkitCompassHeading;
+      const heading = getWebQiblaHeading(e);
+      if (heading === null) {
+        showStaticBearing(__('qibla_static_mode'));
+        return;
       }
-      // The bearing is measured clockwise from true north. On a phone held
-      // towards `heading`, the Kaaba is located at bearing - heading.
-      const adjusted = (qiblaAngle - heading + 360) % 360;
-      if (needle) {
-        needle.style.transform = `translateX(-50%) rotate(${adjusted}deg)`;
+      setNeedle(heading);
+      if (status) {
+        const iOSAccuracy = e.webkitCompassAccuracy;
+        status.textContent =
+          typeof iOSAccuracy === 'number' && iOSAccuracy > 20
+            ? __('qibla_calibration_required')
+            : __('qibla_compass_active');
       }
     };
-
-    // Store reference so we can remove it later
-    _qiblaOrientationHandler = handleOrientation as (ev: DeviceOrientationEvent) => void;
-
-    if (window.DeviceOrientationEvent) {
-      const DOE = DeviceOrientationEvent as unknown as import('./types.js').WebkitDeviceOrientationEvent;
-      if (typeof DOE.requestPermission === 'function') {
-        DOE.requestPermission()
-          .then((permState: string) => {
-            if (permState === 'granted') {
-              window.addEventListener('deviceorientation', _qiblaOrientationHandler!);
-            }
-          })
-          .catch(() => {
-            /* noop */
-          });
-      } else {
-        window.addEventListener('deviceorientation', _qiblaOrientationHandler);
-      }
-    }
 
     if (direction) {
       const dirs = [
@@ -542,11 +575,71 @@ export function showQiblaCompass(): void {
       const idx = Math.round(qiblaAngle / 45) % 8;
       direction.textContent = `${__('qibla_direction', dirs[idx]!, String(Math.round(qiblaAngle)))}`;
     }
+
+    if (Capacitor.getPlatform() === 'android') {
+      if (status) {
+        status.textContent = __('qibla_compass_starting');
+      }
+      void startNativeQiblaCompass(
+        { latitude, longitude, altitude },
+        {
+          onHeading: ({ heading, isReliable }) => {
+            setNeedle(heading);
+            if (status) {
+              status.textContent = isReliable ? __('qibla_compass_active') : __('qibla_calibration_required');
+            }
+          },
+          onAccuracy: ({ isReliable }) => {
+            if (status) {
+              status.textContent = isReliable ? __('qibla_compass_active') : __('qibla_calibration_required');
+            }
+          },
+        },
+      )
+        .then((stop) => {
+          _stopNativeQiblaCompass = stop;
+        })
+        .catch((error: unknown) => {
+          console.warn('[Qibla] Native compass could not start:', error);
+          showStaticBearing(__('qibla_compass_unavailable'));
+        });
+      return;
+    }
+
+    if (!window.DeviceOrientationEvent) {
+      showStaticBearing(__('qibla_static_mode'));
+      return;
+    }
+
+    _qiblaOrientationHandler = handleOrientation as (ev: DeviceOrientationEvent) => void;
+    const DOE = DeviceOrientationEvent as unknown as import('./types.js').WebkitDeviceOrientationEvent;
+    if (typeof DOE.requestPermission === 'function') {
+      void DOE.requestPermission()
+        .then((permState: string) => {
+          if (permState === 'granted') {
+            window.addEventListener('deviceorientation', _qiblaOrientationHandler!);
+            if (status) {
+              status.textContent = __('qibla_compass_starting');
+            }
+          } else {
+            showStaticBearing(__('qibla_compass_unavailable'));
+          }
+        })
+        .catch(() => showStaticBearing(__('qibla_compass_unavailable')));
+    } else {
+      window.addEventListener('deviceorientation', _qiblaOrientationHandler);
+      if (status) {
+        status.textContent = __('qibla_compass_starting');
+      }
+    }
   };
   const showLocationFailure = (error: unknown): void => {
     console.warn('[Qibla] Unable to get location:', error);
     if (direction) {
       direction.textContent = __('qibla_location_failed');
+    }
+    if (status) {
+      status.textContent = '';
     }
   };
 
@@ -561,7 +654,12 @@ export function showQiblaCompass(): void {
     return;
   }
   navigator.geolocation.getCurrentPosition(
-    (position) => applyCoordinates({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+    (position) =>
+      applyCoordinates({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        altitude: position.coords.altitude ?? 0,
+      }),
     showLocationFailure,
     { enableHighAccuracy: true, timeout: 20_000, maximumAge: 60_000 },
   );
@@ -574,9 +672,5 @@ export function hideQiblaCompass(): void {
     overlay.classList.add('hidden');
     overlay.style.display = 'none';
   }
-  // Remove orientation handler to prevent memory leak
-  if (_qiblaOrientationHandler) {
-    window.removeEventListener('deviceorientation', _qiblaOrientationHandler);
-    _qiblaOrientationHandler = null;
-  }
+  removeQiblaSources();
 }

@@ -711,6 +711,13 @@ body.night-mode .ayah-modal-actions .btn-sm {
   font-size: 16px;
   opacity: 0.9;
 }
+.qibla-status {
+  min-height: 1.4em;
+  margin-top: 8px;
+  color: #f6d365;
+  font-size: 13px;
+  line-height: 1.4;
+}
 .qibla-close {
   margin-top: 20px;
   padding: 10px 30px;

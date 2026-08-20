@@ -250,6 +250,11 @@ export default {
 
   // === Kıble ===
   qibla_location_failed: 'Konum alınamadı',
+  qibla_compass_starting: 'Pusula başlatılıyor…',
+  qibla_compass_active: 'Canlı pusula etkin — gerçek kuzey',
+  qibla_calibration_required: 'Pusulayı kalibre etmek için telefonu metalden uzakta 8 şeklinde hareket ettirin.',
+  qibla_static_mode: 'Gerçek kuzeye göre kıble açısı. Bu cihazda canlı pusula kullanılamıyor.',
+  qibla_compass_unavailable: 'Canlı pusula başlatılamadı. Gerçek kuzeye göre kıble açısı gösteriliyor.',
 
   // === Uyku Zamanlayıcı ===
   sleep_timer_title: 'Uyku Zamanlayıcı',
