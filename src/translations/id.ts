@@ -12,6 +12,7 @@ export default {
 
   // === Umum ===
   app_title: 'Al-Quran',
+  exit_app_confirm: 'Apakah Anda benar-benar ingin keluar dari aplikasi?',
   makkah: 'Makkah',
   close: 'Tutup',
   success: 'Berhasil',

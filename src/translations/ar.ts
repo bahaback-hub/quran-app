@@ -12,6 +12,7 @@ export default {
 
   // === عام ===
   app_title: 'القرآن الكريم',
+  exit_app_confirm: 'هل تريد حقًا الخروج من التطبيق؟',
   makkah: 'مكة المكرمة',
   close: 'إغلاق',
   success: 'تم بنجاح',

@@ -160,6 +160,7 @@ export function bindAzanEvents(): void {
  */
 export function bindTafsirEvents(): void {
   dom.tafsirCurtainHandle?.addEventListener('click', () => toggleTafsir());
+  bindTafsirSheetGestures();
   dom.translationToggle?.addEventListener('click', toggleTranslation);
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect!.value;
@@ -184,6 +185,83 @@ export function bindTafsirEvents(): void {
       loadSurah(state.currentSurah);
     }
   });
+}
+
+/** Keep the mobile tafsir sheet resizable without allowing its scroll to move the reader behind it. */
+function bindTafsirSheetGestures(): void {
+  const curtain = dom.tafsirCurtain;
+  const body = dom.tafsirCurtainBody;
+  const grip = document.getElementById('tafsirCurtainGrip');
+  if (!curtain || !body || !grip) {
+    return;
+  }
+
+  const isMobileSheet = () => window.matchMedia('(max-width: 600px)').matches;
+  const clampHeight = (height: number) => Math.min(window.innerHeight * 0.84, Math.max(window.innerHeight * 0.35, height));
+  let startY = 0;
+  let startHeight = 0;
+  let pointerId: number | null = null;
+  let lastTouchY: number | null = null;
+
+  grip.addEventListener('pointerdown', (event: PointerEvent) => {
+    if (!isMobileSheet() || !curtain.classList.contains('open')) {
+      return;
+    }
+    event.preventDefault();
+    pointerId = event.pointerId;
+    startY = event.clientY;
+    startHeight = curtain.getBoundingClientRect().height;
+    curtain.classList.add('is-resizing');
+    grip.setPointerCapture?.(event.pointerId);
+  });
+
+  grip.addEventListener('pointermove', (event: PointerEvent) => {
+    if (pointerId !== event.pointerId) {
+      return;
+    }
+    const nextHeight = clampHeight(startHeight + startY - event.clientY);
+    document.documentElement.style.setProperty('--tafsir-sheet-height', `${Math.round(nextHeight)}px`);
+  });
+
+  const finishResize = (event: PointerEvent) => {
+    if (pointerId !== event.pointerId) {
+      return;
+    }
+    grip.releasePointerCapture?.(event.pointerId);
+    pointerId = null;
+    curtain.classList.remove('is-resizing');
+  };
+  grip.addEventListener('pointerup', finishResize);
+  grip.addEventListener('pointercancel', finishResize);
+
+  body.addEventListener('wheel', (event: WheelEvent) => {
+    const atTop = body.scrollTop <= 0;
+    const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
+    if ((event.deltaY < 0 && atTop) || (event.deltaY > 0 && atBottom)) {
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  body.addEventListener('touchstart', (event: TouchEvent) => {
+    lastTouchY = event.touches[0]?.clientY ?? null;
+  }, { passive: true });
+  body.addEventListener('touchmove', (event: TouchEvent) => {
+    const currentY = event.touches[0]?.clientY;
+    if (currentY === undefined || lastTouchY === null) {
+      return;
+    }
+    const atTop = body.scrollTop <= 0;
+    const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
+    const movingDown = currentY > lastTouchY;
+    const movingUp = currentY < lastTouchY;
+    if ((movingDown && atTop) || (movingUp && atBottom)) {
+      event.preventDefault();
+    }
+    lastTouchY = currentY;
+  }, { passive: false });
+  body.addEventListener('touchend', () => {
+    lastTouchY = null;
+  }, { passive: true });
 }
 
 /**

@@ -81,7 +81,11 @@
 }
 .tafsir-curtain-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   line-height: 1.9;
   font-size: 16px;
   color: var(--tafsir-text);
