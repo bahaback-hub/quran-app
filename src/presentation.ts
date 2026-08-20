@@ -170,11 +170,15 @@ function updateDisplay(): void {
     return;
   }
   if (dom.presentationAyahText) {
+    // Android WebView can split Arabic shaping runs at the coloured inline
+    // tajweed spans in fullscreen. Render a single uninterrupted text run
+    // there; normal presentation mode keeps its local tajweed colours.
+    const usePresentationTajweed = _presTajweedEnabled && !isFullscreen();
     dom.presentationAyahText.innerHTML = buildAyahHtml(
       ayah.text,
       state.currentSurah,
       ayah.numberInSurah,
-      _presTajweedEnabled,
+      usePresentationTajweed,
     );
   }
 
@@ -433,6 +437,11 @@ function handleOverlayMouseMove(): void {
 /** Handle fullscreen change event — update button icon and resize canvas. */
 function handleFullscreenChange(): void {
   updatePresFullscreenBtn();
+  // Rebuild the ayah after the fullscreen state changes so Android receives
+  // one continuous Arabic shaping run in fullscreen and restores tajweed on exit.
+  if (state.presentationMode) {
+    updateDisplay();
+  }
   // Resize canvas scene if active
   const overlay = dom.presentationOverlay;
   if (overlay && state.presBgMode === 'scene') {
