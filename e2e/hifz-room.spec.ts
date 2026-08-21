@@ -48,12 +48,16 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(room.locator('#hifzRoomSurah')).toHaveValue('1');
     await room.locator('#hifzRoomFrom').selectOption('2');
     await room.locator('#hifzRoomTo').selectOption('5');
-    await room.locator('[data-hifz-repeat="10"]').click();
+    await room.locator('[data-hifz-repeat="15"]').click();
     await room.locator('[data-hifz-review="tomorrow"]').click();
 
-    await expect(room.locator('#hifzRoomSummary')).toContainText(/2.*5.*10/);
-    await expect(room.locator('[data-hifz-repeat="10"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(room.locator('#hifzRoomSummary')).toContainText(/2.*5.*15/);
+    await expect(room.locator('[data-hifz-repeat="15"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(room.locator('[data-hifz-review="tomorrow"]')).toHaveAttribute('aria-pressed', 'true');
+
+    await room.locator('#hifzRoomCustomRepeat').fill('37');
+    await room.locator('#hifzRoomCustomRepeat').press('Tab');
+    await expect(room.locator('#hifzRoomSummary')).toContainText(/2.*5.*37/);
 
     await room.locator('#hifzRoomReturn').click();
     await expect(room).not.toHaveClass(/is-open/);
