@@ -12,6 +12,17 @@ export default {
 
   // === عام ===
   app_title: 'القرآن الكريم',
+  hifz_room: 'غرفة الحفظ',
+  hifz_room_eyebrow: 'مساحتك الهادئة',
+  hifz_room_tagline: 'وردك يتقدم بخطوة ثابتة، بين التلاوة والمراجعة.',
+  hifz_room_today: 'وردك الآن',
+  hifz_room_current_range: 'ابدأ من موضعك الحالي',
+  hifz_room_session_hint: 'تُفعّل أدوات التكرار والحفظ الموجودة في المشغل.',
+  hifz_room_start: 'ابدأ جلسة الحفظ',
+  hifz_room_review: 'المراجعة التالية',
+  hifz_room_review_empty: 'حدّد نطاق الآيات من المشغل للبدء.',
+  hifz_room_session_active: 'فُعّل الحفظ والتكرار. حدّد النطاق من المشغل.',
+  hifz_room_footnote: 'مساحة للحفظ الهادئ، بلا عدّاد أو مقارنة.',
   exit_app_confirm: 'هل تريد حقًا الخروج من التطبيق؟',
   makkah: 'مكة المكرمة',
   close: 'إغلاق',

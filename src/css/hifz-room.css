@@ -1,0 +1,287 @@
+/* Hifz Room — web-only, Rawdah-inspired side space. It overlays the reader
+   instead of changing the existing layout or reader CSS contract. */
+body.capacitor-native #hifzRoom,
+body.capacitor-native #hifzRoomToggle,
+body.capacitor-native #hifzRoomBackdrop,
+html.capacitor-native #hifzRoom,
+html.capacitor-native #hifzRoomToggle,
+html.capacitor-native #hifzRoomBackdrop {
+  display: none !important;
+}
+
+.hifz-room-backdrop {
+  position: fixed;
+  z-index: 1099;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background-image:
+    linear-gradient(90deg, rgb(19 57 47 / 30%), rgb(19 57 47 / 8%) 48%, rgb(243 238 225 / 4%)),
+    var(--hifz-room-background);
+  background-position: center;
+  background-size: cover;
+  transition: opacity 260ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+body.hifz-room-active .hifz-room-backdrop {
+  opacity: 1;
+}
+
+body.hifz-room-active .hifz-room-toggle {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.hifz-room-toggle {
+  position: fixed;
+  z-index: 1100;
+  top: 47vh;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  border: 1px solid rgb(243 238 225 / 48%);
+  border-radius: 0 999px 999px 0;
+  padding: 0.74rem 0.82rem 0.74rem 0.64rem;
+  color: #f3eee1;
+  background: #1f5b49;
+  box-shadow: 0 12px 30px rgb(16 47 39 / 28%);
+  font: inherit;
+  font-weight: 700;
+  cursor: grab;
+  transition: transform 160ms var(--ease-out, ease-out), background 160ms ease-out, opacity 160ms ease-out;
+}
+
+.hifz-room-toggle--rtl {
+  right: 0;
+  left: auto;
+  border-radius: 999px 0 0 999px;
+  padding: 0.74rem 0.64rem 0.74rem 0.82rem;
+}
+
+.hifz-room-toggle:hover,
+.hifz-room-toggle:focus-visible {
+  background: #173f34;
+  transform: translateX(-2px);
+  outline: 3px solid rgb(165 132 82 / 55%);
+  outline-offset: -3px;
+}
+
+.hifz-room-toggle--rtl:hover,
+.hifz-room-toggle--rtl:focus-visible {
+  transform: translateX(2px);
+}
+
+.hifz-room {
+  position: fixed;
+  z-index: 1101;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(38vw, 540px);
+  min-width: 380px;
+  overflow: hidden;
+  color: #26352d;
+  background: #e7e1d2;
+  box-shadow: 18px 0 56px rgb(20 35 29 / 34%);
+  transform: translateX(-110%);
+  transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.hifz-room--rtl {
+  right: 0;
+  left: auto;
+  box-shadow: -18px 0 56px rgb(20 35 29 / 34%);
+  transform: translateX(110%);
+}
+
+.hifz-room.is-open {
+  transform: translateX(0);
+}
+
+.hifz-room.is-dragging {
+  transition: none;
+}
+
+.hifz-room-scene {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(90deg, rgb(22 61 51 / 90%) 0%, rgb(31 91 73 / 56%) 30%, rgb(243 238 225 / 15%) 62%),
+    var(--hifz-room-background);
+  background-position: center center;
+  background-size: cover;
+}
+
+.hifz-room--rtl .hifz-room-scene {
+  background-image:
+    linear-gradient(270deg, rgb(22 61 51 / 90%) 0%, rgb(31 91 73 / 56%) 30%, rgb(243 238 225 / 15%) 62%),
+    var(--hifz-room-background);
+}
+
+.hifz-room-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  margin: 9vh 5% 10vh;
+  padding: clamp(1.45rem, 3vw, 2.35rem);
+  border: 1px solid rgb(255 255 255 / 64%);
+  border-radius: 24px;
+  background: rgb(243 238 225 / 93%);
+  box-shadow: 0 24px 62px rgb(24 49 41 / 26%);
+  backdrop-filter: blur(10px);
+}
+
+.hifz-room-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hifz-room-eyebrow,
+.hifz-room-card-label,
+.hifz-room-review p {
+  margin: 0;
+  color: #1f5b49;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.hifz-room h2 {
+  margin: 0.22rem 0 0;
+  color: #173f34;
+  font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.hifz-room-close {
+  width: 2.45rem;
+  height: 2.45rem;
+  border: 0;
+  border-radius: 50%;
+  color: #26352d;
+  background: rgb(31 91 73 / 10%);
+  font: inherit;
+  cursor: pointer;
+}
+
+.hifz-room-close:hover,
+.hifz-room-close:focus-visible {
+  color: #fff;
+  background: #1f5b49;
+  outline: none;
+}
+
+.hifz-room-lede {
+  max-width: 25ch;
+  margin: 1.4rem 0 1.8rem;
+  color: #506158;
+  font-size: 0.96rem;
+  line-height: 1.8;
+}
+
+.hifz-room-card {
+  padding: 1.35rem;
+  border: 1px solid rgb(31 91 73 / 14%);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgb(255 255 255 / 76%), rgb(232 225 209 / 74%));
+}
+
+.hifz-room-card-title {
+  margin: 0.75rem 0 0.42rem;
+  color: #173f34;
+  font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
+  font-size: 1.55rem;
+  line-height: 1.55;
+}
+
+.hifz-room-card-meta,
+.hifz-room-footnote {
+  margin: 0;
+  color: #66746b;
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+
+.hifz-room-start {
+  width: 100%;
+  margin-top: 1.25rem;
+  border: 0;
+  border-radius: 12px;
+  padding: 0.86rem 1rem;
+  color: #f8f3e9;
+  background: #1f5b49;
+  box-shadow: 0 8px 18px rgb(31 91 73 / 20%);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out, ease-out), background 160ms ease-out;
+}
+
+.hifz-room-start:hover,
+.hifz-room-start:focus-visible {
+  background: #173f34;
+  outline: 3px solid rgb(165 132 82 / 54%);
+  outline-offset: 3px;
+}
+
+.hifz-room-start:active {
+  transform: scale(0.98);
+}
+
+.hifz-room-review {
+  display: flex;
+  gap: 0.72rem;
+  align-items: flex-start;
+  margin-top: 1.4rem;
+  padding: 1rem 0.2rem;
+  border-top: 1px solid rgb(31 91 73 / 14%);
+}
+
+.hifz-room-review-mark {
+  width: 0.62rem;
+  height: 0.62rem;
+  margin-top: 0.36rem;
+  border-radius: 50%;
+  background: #a58452;
+}
+
+.hifz-room-review strong {
+  display: block;
+  margin-top: 0.28rem;
+  color: #40554a;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.hifz-room-footnote {
+  margin-top: auto;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgb(31 91 73 / 12%);
+}
+
+@media (max-width: 760px) {
+  .hifz-room {
+    width: min(92vw, 540px);
+    min-width: 0;
+  }
+
+  .hifz-room-panel {
+    margin: 7vh 4% 8vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hifz-room,
+  .hifz-room-backdrop,
+  .hifz-room-toggle,
+  .hifz-room-start {
+    transition: none;
+  }
+}

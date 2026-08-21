@@ -12,6 +12,17 @@ export default {
 
   // === Genel ===
   app_title: "Kur'an-ı Kerim",
+  hifz_room: 'Ezber Odası',
+  hifz_room_eyebrow: 'Sakin alanınız',
+  hifz_room_tagline: 'Günlük bölümünüzü tilavet ve tekrar ile istikrarlı ilerletin.',
+  hifz_room_today: 'Şimdiki bölümünüz',
+  hifz_room_current_range: 'Mevcut yerinizden başlayın',
+  hifz_room_session_hint: 'Oynatıcının mevcut tekrar ve ezber araçlarını açar.',
+  hifz_room_start: 'Ezber oturumunu başlat',
+  hifz_room_review: 'Sonraki tekrar',
+  hifz_room_review_empty: 'Başlamak için ayet aralığını oynatıcıdan seçin.',
+  hifz_room_session_active: 'Ezber ve tekrar etkin. Aralığı oynatıcıdan belirleyin.',
+  hifz_room_footnote: 'Seri veya karşılaştırma olmadan, ezber için sakin bir alan.',
   exit_app_confirm: 'Uygulamadan gerçekten çıkmak istiyor musunuz?',
   makkah: 'Mekke',
   close: 'Kapat',

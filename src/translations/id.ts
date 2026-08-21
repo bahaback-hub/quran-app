@@ -12,6 +12,17 @@ export default {
 
   // === Umum ===
   app_title: 'Al-Quran',
+  hifz_room: 'Ruang Hafalan',
+  hifz_room_eyebrow: 'Ruang tenang Anda',
+  hifz_room_tagline: 'Lanjutkan wirid harian dengan tilawah dan murajaah yang teratur.',
+  hifz_room_today: 'Wirid Anda sekarang',
+  hifz_room_current_range: 'Mulai dari posisi saat ini',
+  hifz_room_session_hint: 'Membuka alat pengulangan dan hafalan yang sudah ada di pemutar.',
+  hifz_room_start: 'Mulai sesi hafalan',
+  hifz_room_review: 'Murajaah berikutnya',
+  hifz_room_review_empty: 'Pilih rentang ayat di pemutar untuk memulai.',
+  hifz_room_session_active: 'Hafalan dan pengulangan aktif. Atur rentang di pemutar.',
+  hifz_room_footnote: 'Ruang hafalan yang tenang tanpa streak atau perbandingan.',
   exit_app_confirm: 'Apakah Anda benar-benar ingin keluar dari aplikasi?',
   makkah: 'Makkah',
   close: 'Tutup',

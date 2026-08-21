@@ -168,6 +168,20 @@ export async function initApp(): Promise<void> {
   const scheduleIdle =
     typeof requestIdleCallback === 'function' ? requestIdleCallback : (cb: () => void) => setTimeout(cb, 1);
 
+  // Web-only visual extension. Defer it until the browser is idle so the
+  // existing reader remains the only work on the critical path. Capacitor
+  // retains its current UI because the module is never imported there.
+  const isCapNative = document.documentElement.classList.contains('capacitor-native') || document.body.classList.contains('capacitor-native');
+  if (!isCapNative) {
+    scheduleIdle(() => {
+      void import('./hifz-room.js')
+        .then(({ initHifzRoom }) => initHifzRoom())
+        .catch((error: unknown) => {
+          console.warn('[App] Hifz Room initialization skipped:', error);
+        });
+    });
+  }
+
   scheduleIdle(() => {
     loadingBar.init();
     loadingBar.hide();
