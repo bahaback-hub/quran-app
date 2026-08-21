@@ -195,6 +195,31 @@ async function loadApiAudio(
   }
 }
 
+/**
+ * Fetch audio URLs for a chosen reciter without loading or rendering the reader.
+ * Used by the web-only Memorization Room to download just its selected range.
+ */
+export async function loadAudioUrlsForSession(
+  surahNum: number,
+  reciterId: string,
+  ayahCount: number,
+): Promise<string[]> {
+  const reciterInfo = getReciterById(reciterId) as ReciterInfo;
+  if (reciterInfo.source === 'mp3quran') {
+    const url = buildAudioUrl(reciterInfo, surahNum);
+    return url ? Array.from({ length: ayahCount }, () => url) : [];
+  }
+
+  try {
+    const json = (await apiFetch(`/surah/${surahNum}/${reciterId}`, { silent: true })) as {
+      data?: { ayahs?: AyahEntry[] };
+    };
+    return json?.data?.ayahs?.map((ayah) => ayah.audio || '') || [];
+  } catch {
+    return [];
+  }
+}
+
 /* ===================== LOAD & RENDER SURAH ===================== */
 
 let _loadCounter = 0;
