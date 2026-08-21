@@ -5,15 +5,19 @@
  */
 
 import { __ } from './i18n.js';
-import { loadSurah } from './surah-loader.js';
+import { playCurrentAyah, togglePlayPause } from './audio.js';
+import { getReciterDisplayName, RECITERS } from './reciters.js';
+import { highlightCurrentAyah, loadSurah } from './surah-loader.js';
 import { state } from './state.js';
 import { storage } from './storage.js';
 
 const BACKGROUND_URL = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663901108942/aQJlASvxkRWbBYrT.png';
 const ROOM_ID = 'hifzRoom';
 const TOGGLE_ID = 'hifzRoomToggle';
+const STAGE_ID = 'hifzRoomStage';
 const PLAN_STORAGE_KEY = 'hifz_plan_v1';
 const REPEAT_COUNTS = [2, 3, 5, 10, 20];
+const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5];
 
 type ReviewChoice = 'today' | 'tomorrow' | 'later';
 
@@ -24,6 +28,8 @@ interface HifzPlan {
   to: number;
   times: number;
   review: ReviewChoice;
+  reciter: string;
+  speed: number;
   updatedAt: number;
 }
 
@@ -34,6 +40,20 @@ interface HifzRoomControls {
   summary: HTMLElement;
   status: HTMLElement;
   start: HTMLButtonElement;
+}
+
+interface FocusedSessionControls {
+  stage: HTMLElement;
+  stageMeta: HTMLElement;
+  stageText: HTMLElement;
+  reciter: HTMLSelectElement;
+  speed: HTMLSelectElement;
+  play: HTMLButtonElement;
+  restart: HTMLButtonElement;
+  repeat: HTMLElement;
+  hideText: HTMLButtonElement;
+  toggleRange: HTMLButtonElement;
+  end: HTMLButtonElement;
 }
 
 function label(key: string, ...args: string[]): string {
@@ -71,7 +91,7 @@ function getSurahName(surah: number): string {
   return mainOption?.textContent?.replace(/^\d+\.\s*/, '') || String(surah);
 }
 
-function normalizePlan(candidate: Omit<HifzPlan, 'updatedAt'> & Partial<Pick<HifzPlan, 'updatedAt'>>): HifzPlan {
+function normalizePlan(candidate: Omit<HifzPlan, 'updatedAt' | 'reciter' | 'speed'> & Partial<Pick<HifzPlan, 'updatedAt' | 'reciter' | 'speed'>>): HifzPlan {
   const surah = Math.min(Math.max(1, candidate.surah), 114);
   const count = getAyahCount(surah);
   const from = Math.min(Math.max(1, candidate.from), count);
@@ -83,6 +103,8 @@ function normalizePlan(candidate: Omit<HifzPlan, 'updatedAt'> & Partial<Pick<Hif
     to,
     times: REPEAT_COUNTS.includes(candidate.times) ? candidate.times : 5,
     review: candidate.review === 'tomorrow' || candidate.review === 'later' ? candidate.review : 'today',
+    reciter: RECITERS.some((reciter) => reciter.id === candidate.reciter) ? candidate.reciter! : state.currentReciter,
+    speed: PLAYBACK_SPEEDS.includes(candidate.speed || 1) ? candidate.speed || 1 : 1,
     updatedAt: candidate.updatedAt || Date.now(),
   };
 }
@@ -93,7 +115,17 @@ function getDefaultPlan(): HifzPlan {
     return normalizePlan(stored);
   }
   const from = getCurrentAyah();
-  return normalizePlan({ version: 1, surah: state.currentSurah || 1, from, to: from + 4, times: 5, review: 'today' });
+  const savedSpeed = parseFloat(storage.get<string>('playback_speed') || '1');
+  return normalizePlan({
+    version: 1,
+    surah: state.currentSurah || 1,
+    from,
+    to: from + 4,
+    times: 5,
+    review: 'today',
+    reciter: state.currentReciter,
+    speed: PLAYBACK_SPEEDS.includes(savedSpeed) ? savedSpeed : 1,
+  });
 }
 
 function savePlan(plan: HifzPlan): void {
@@ -140,6 +172,43 @@ function fillAyahOptions(select: HTMLSelectElement, count: number, selected: num
   select.value = String(Math.min(Math.max(1, selected), count));
 }
 
+function fillReciterOptions(select: HTMLSelectElement, selected: string): void {
+  select.replaceChildren(...RECITERS.map((reciter) => {
+    const option = document.createElement('option');
+    option.value = reciter.id;
+    option.textContent = getReciterDisplayName(reciter);
+    return option;
+  }));
+  select.value = RECITERS.some((reciter) => reciter.id === selected) ? selected : RECITERS[0]!.id;
+}
+
+function fillSpeedOptions(select: HTMLSelectElement, selected: number): void {
+  select.replaceChildren(...PLAYBACK_SPEEDS.map((speed) => {
+    const option = document.createElement('option');
+    option.value = String(speed);
+    option.textContent = `${speed}×`;
+    return option;
+  }));
+  select.value = String(PLAYBACK_SPEEDS.includes(selected) ? selected : 1);
+}
+
+function getFocusedControls(room: HTMLElement): FocusedSessionControls | null {
+  const stage = document.getElementById(STAGE_ID);
+  const stageMeta = stage?.querySelector<HTMLElement>('#hifzRoomStageMeta');
+  const stageText = stage?.querySelector<HTMLElement>('#hifzRoomStageText');
+  const reciter = room.querySelector<HTMLSelectElement>('#hifzRoomReciter');
+  const speed = room.querySelector<HTMLSelectElement>('#hifzRoomSpeed');
+  const play = room.querySelector<HTMLButtonElement>('#hifzRoomPlay');
+  const restart = room.querySelector<HTMLButtonElement>('#hifzRoomRestart');
+  const repeat = room.querySelector<HTMLElement>('#hifzRoomRepeatProgress');
+  const hideText = room.querySelector<HTMLButtonElement>('#hifzRoomHideText');
+  const toggleRange = room.querySelector<HTMLButtonElement>('#hifzRoomToggleRange');
+  const end = room.querySelector<HTMLButtonElement>('#hifzRoomEnd');
+  return stage && stageMeta && stageText && reciter && speed && play && restart && repeat && hideText && toggleRange && end
+    ? { stage, stageMeta, stageText, reciter, speed, play, restart, repeat, hideText, toggleRange, end }
+    : null;
+}
+
 function readPlan(room: HTMLElement): HifzPlan | null {
   const controls = getControls(room);
   if (!controls) {
@@ -173,6 +242,142 @@ function updateSummary(room: HTMLElement): void {
   }
 }
 
+function readSessionPlan(room: HTMLElement): HifzPlan | null {
+  const plan = readPlan(room);
+  const focused = getFocusedControls(room);
+  if (!plan || !focused) {
+    return plan;
+  }
+  return normalizePlan({
+    ...plan,
+    reciter: focused.reciter.value,
+    speed: parseFloat(focused.speed.value),
+  });
+}
+
+function getPlanAyahs(plan: HifzPlan): { numberInSurah: number; text: string }[] {
+  if (state.currentSurah !== plan.surah || !state.surahData) {
+    return [];
+  }
+  return state.surahData.ayahs.filter((ayah) => ayah.numberInSurah >= plan.from && ayah.numberInSurah <= plan.to);
+}
+
+function currentPlanAyah(plan: HifzPlan): { numberInSurah: number; text: string } | null {
+  const ayahs = getPlanAyahs(plan);
+  if (!ayahs.length) {
+    return null;
+  }
+  return ayahs.find((ayah) => ayah.numberInSurah === getCurrentAyah()) || ayahs[0]!;
+}
+
+function updateFocusedSession(room: HTMLElement, plan: HifzPlan): void {
+  const controls = getFocusedControls(room);
+  if (!controls) {
+    return;
+  }
+  const textHidden = room.classList.contains('hifz-room-text-hidden');
+  const showRange = room.classList.contains('hifz-room-show-range');
+  const ayahs = getPlanAyahs(plan);
+  const visibleAyahs = showRange ? ayahs : [currentPlanAyah(plan)].filter((ayah): ayah is { numberInSurah: number; text: string } => ayah !== null);
+  controls.stageMeta.textContent = `${getSurahName(plan.surah)} — ${label('hifz_room_ayahs', String(plan.from), String(plan.to))}`;
+  controls.stageText.textContent = textHidden
+    ? '۞'
+    : visibleAyahs.map((ayah) => `${ayah.text} ﴿${ayah.numberInSurah}﴾`).join('   ');
+  controls.stage.classList.toggle('is-text-hidden', textHidden);
+  controls.stage.classList.toggle('is-range-view', showRange);
+  controls.play.textContent = label(state.isPlaying ? 'pause' : 'play');
+  controls.restart.textContent = label('hifz_room_restart');
+  controls.repeat.textContent = label('hifz_room_repeat_progress', String(Math.min(state.repeatCounter + 1, plan.times)), String(plan.times));
+  controls.hideText.textContent = label(textHidden ? 'hifz_room_show_text' : 'hifz_room_hide_text');
+  controls.toggleRange.textContent = label(showRange ? 'hifz_room_show_one' : 'hifz_room_show_range');
+  controls.end.textContent = label('hifz_room_end');
+  fillReciterOptions(controls.reciter, plan.reciter);
+  fillSpeedOptions(controls.speed, plan.speed);
+}
+
+function applySessionAudioPreferences(plan: HifzPlan): void {
+  state.currentReciter = plan.reciter;
+  storage.set('reciter', plan.reciter);
+  storage.set('playback_speed', String(plan.speed));
+  const mainReciter = document.getElementById('reciterSelect') as HTMLSelectElement | null;
+  const mainSpeed = document.getElementById('speedSelect') as HTMLSelectElement | null;
+  const audio = document.getElementById('audioPlayer') as HTMLAudioElement | null;
+  if (mainReciter) {
+    mainReciter.value = plan.reciter;
+  }
+  if (mainSpeed) {
+    mainSpeed.value = String(plan.speed);
+  }
+  if (audio) {
+    audio.playbackRate = plan.speed;
+  }
+}
+
+function enterFocusedSession(room: HTMLElement, plan: HifzPlan): void {
+  const focused = getFocusedControls(room);
+  if (!focused) {
+    return;
+  }
+  room.classList.add('hifz-room-focused');
+  room.classList.remove('hifz-room-text-hidden', 'hifz-room-show-range');
+  focused.stage.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('hifz-room-focused-active');
+  updateFocusedSession(room, plan);
+  window.setTimeout(() => focused.play.focus(), 0);
+}
+
+function leaveFocusedSession(room: HTMLElement, restoreSetup = true): void {
+  const focused = getFocusedControls(room);
+  room.classList.remove('hifz-room-focused', 'hifz-room-text-hidden', 'hifz-room-show-range');
+  document.body.classList.remove('hifz-room-focused-active');
+  focused?.stage.setAttribute('aria-hidden', 'true');
+  if (restoreSetup) {
+    const plan = readSessionPlan(room);
+    if (plan) {
+      savePlan(plan);
+      refreshForm(room, plan);
+    }
+  }
+}
+
+function restartFocusedPortion(room: HTMLElement): void {
+  const plan = readSessionPlan(room);
+  if (!plan || !state.surahData) {
+    return;
+  }
+  const index = state.surahData.ayahs.findIndex((ayah) => ayah.numberInSurah === plan.from);
+  if (index < 0) {
+    return;
+  }
+  state.currentAyahIndex = index;
+  state.repeatCounter = 0;
+  highlightCurrentAyah();
+  void playCurrentAyah().finally(() => updateFocusedSession(room, plan));
+}
+
+async function updateFocusedReciter(room: HTMLElement): Promise<void> {
+  const plan = readSessionPlan(room);
+  if (!plan || !room.classList.contains('hifz-room-focused')) {
+    return;
+  }
+  applySessionAudioPreferences(plan);
+  savePlan(plan);
+  const currentAyah = getCurrentAyah();
+  await loadSurah(plan.surah, { startAyah: currentAyah });
+  activateCurrentHifzTools(plan);
+  updateFocusedSession(room, plan);
+}
+
+function updateFocusedSpeed(room: HTMLElement): void {
+  const plan = readSessionPlan(room);
+  if (!plan) {
+    return;
+  }
+  applySessionAudioPreferences(plan);
+  savePlan(plan);
+  updateFocusedSession(room, plan);
+}
+
 function refreshForm(room: HTMLElement, plan = getDefaultPlan()): void {
   const controls = getControls(room);
   if (!controls) {
@@ -185,6 +390,11 @@ function refreshForm(room: HTMLElement, plan = getDefaultPlan()): void {
   setChoice(room, '[data-hifz-repeat]', String(normalized.times));
   setChoice(room, '[data-hifz-review]', normalized.review);
   controls.status.textContent = label('hifz_room_session_hint');
+  const focused = getFocusedControls(room);
+  if (focused) {
+    fillReciterOptions(focused.reciter, normalized.reciter);
+    fillSpeedOptions(focused.speed, normalized.speed);
+  }
   updateSummary(room);
 }
 
@@ -214,6 +424,7 @@ export function closeHifzRoom(returnFocus = false): void {
   if (!room) {
     return;
   }
+  leaveFocusedSession(room, false);
   room.classList.remove('is-open', 'is-dragging');
   room.style.removeProperty('transform');
   room.setAttribute('aria-hidden', 'true');
@@ -273,7 +484,7 @@ function activateCurrentHifzTools(plan: HifzPlan): void {
 
 async function startHifzSession(room: HTMLElement): Promise<void> {
   const controls = getControls(room);
-  const plan = readPlan(room);
+  const plan = readSessionPlan(room);
   if (!controls || !plan) {
     return;
   }
@@ -281,6 +492,7 @@ async function startHifzSession(room: HTMLElement): Promise<void> {
   controls.start.disabled = true;
   controls.status.textContent = label('hifz_room_loading');
   try {
+    applySessionAudioPreferences(plan);
     await loadSurah(plan.surah, { startAyah: plan.from });
     const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
     if (mainSelect) {
@@ -289,6 +501,7 @@ async function startHifzSession(room: HTMLElement): Promise<void> {
     activateCurrentHifzTools(plan);
     controls.status.textContent = label('hifz_room_session_active');
     room.classList.add('hifz-room-session-active');
+    enterFocusedSession(room, plan);
   } catch {
     controls.status.textContent = label('hifz_room_load_failed');
   } finally {
@@ -362,13 +575,23 @@ export function initHifzRoom(): void {
     <div class="hifz-room-scene" aria-hidden="true"></div>
     <section class="hifz-room-panel" aria-labelledby="hifzRoomTitle">
       <header class="hifz-room-header"><div><p class="hifz-room-eyebrow" data-hifz-key="hifz_room_eyebrow"></p><h2 id="hifzRoomTitle" data-hifz-key="hifz_room"></h2></div><button class="hifz-room-close" id="hifzRoomClose" type="button" data-hifz-key="close"></button></header>
-      <p class="hifz-room-lede" data-hifz-key="hifz_room_tagline"></p>
-      <ol class="hifz-room-steps" aria-label="خطوات جلسة الحفظ"><li data-hifz-key="hifz_room_step_portion"></li><li data-hifz-key="hifz_room_step_repeat"></li><li data-hifz-key="hifz_room_step_start"></li></ol>
-      <section class="hifz-room-session" aria-labelledby="hifzRoomToday"><p id="hifzRoomToday" class="hifz-room-card-label" data-hifz-key="hifz_room_today"></p><label class="hifz-room-field hifz-room-field-full"><span data-hifz-key="hifz_room_surah"></span><select id="hifzRoomSurah"></select></label><div class="hifz-room-range"><label class="hifz-room-field"><span data-hifz-key="hifz_room_from_ayah"></span><select id="hifzRoomFrom"></select></label><label class="hifz-room-field"><span data-hifz-key="hifz_room_to_ayah"></span><select id="hifzRoomTo"></select></label></div></section>
-      <section class="hifz-room-repeat" aria-labelledby="hifzRoomRepeatTitle"><p id="hifzRoomRepeatTitle" class="hifz-room-card-label" data-hifz-key="hifz_room_repeat"></p><div class="hifz-room-choice-row" role="group"><button type="button" data-hifz-repeat="3">3×</button><button type="button" data-hifz-repeat="5">5×</button><button type="button" data-hifz-repeat="10">10×</button></div></section>
-      <p class="hifz-room-summary" id="hifzRoomSummary"></p><button class="hifz-room-start" id="hifzRoomStart" type="button" data-hifz-key="hifz_room_start"></button><button class="hifz-room-return" id="hifzRoomReturn" type="button" data-hifz-key="hifz_room_return_reader"></button><p class="hifz-room-status" id="hifzRoomStatus" aria-live="polite"></p>
-      <section class="hifz-room-review" aria-labelledby="hifzRoomReviewTitle"><span class="hifz-room-review-mark" aria-hidden="true"></span><div><p id="hifzRoomReviewTitle" data-hifz-key="hifz_room_review"></p><div class="hifz-room-choice-row hifz-room-review-choices" role="group"><button type="button" data-hifz-review="today" data-hifz-key="hifz_room_review_today"></button><button type="button" data-hifz-review="tomorrow" data-hifz-key="hifz_room_review_tomorrow"></button><button type="button" data-hifz-review="later" data-hifz-key="hifz_room_review_later"></button></div></div></section>
-      <p class="hifz-room-footnote" data-hifz-key="hifz_room_footnote"></p>
+      <div class="hifz-room-setup-only">
+        <p class="hifz-room-lede" data-hifz-key="hifz_room_tagline"></p>
+        <ol class="hifz-room-steps" aria-label="خطوات جلسة الحفظ"><li data-hifz-key="hifz_room_step_portion"></li><li data-hifz-key="hifz_room_step_repeat"></li><li data-hifz-key="hifz_room_step_start"></li></ol>
+        <section class="hifz-room-session" aria-labelledby="hifzRoomToday"><p id="hifzRoomToday" class="hifz-room-card-label" data-hifz-key="hifz_room_today"></p><label class="hifz-room-field hifz-room-field-full"><span data-hifz-key="hifz_room_surah"></span><select id="hifzRoomSurah"></select></label><div class="hifz-room-range"><label class="hifz-room-field"><span data-hifz-key="hifz_room_from_ayah"></span><select id="hifzRoomFrom"></select></label><label class="hifz-room-field"><span data-hifz-key="hifz_room_to_ayah"></span><select id="hifzRoomTo"></select></label></div></section>
+        <section class="hifz-room-repeat" aria-labelledby="hifzRoomRepeatTitle"><p id="hifzRoomRepeatTitle" class="hifz-room-card-label" data-hifz-key="hifz_room_repeat"></p><div class="hifz-room-choice-row" role="group"><button type="button" data-hifz-repeat="3">3×</button><button type="button" data-hifz-repeat="5">5×</button><button type="button" data-hifz-repeat="10">10×</button></div></section>
+        <p class="hifz-room-summary" id="hifzRoomSummary"></p><button class="hifz-room-start" id="hifzRoomStart" type="button" data-hifz-key="hifz_room_start"></button><button class="hifz-room-return" id="hifzRoomReturn" type="button" data-hifz-key="hifz_room_return_reader"></button><p class="hifz-room-status" id="hifzRoomStatus" aria-live="polite"></p>
+        <section class="hifz-room-review" aria-labelledby="hifzRoomReviewTitle"><span class="hifz-room-review-mark" aria-hidden="true"></span><div><p id="hifzRoomReviewTitle" data-hifz-key="hifz_room_review"></p><div class="hifz-room-choice-row hifz-room-review-choices" role="group"><button type="button" data-hifz-review="today" data-hifz-key="hifz_room_review_today"></button><button type="button" data-hifz-review="tomorrow" data-hifz-key="hifz_room_review_tomorrow"></button><button type="button" data-hifz-review="later" data-hifz-key="hifz_room_review_later"></button></div></div></section>
+        <p class="hifz-room-footnote" data-hifz-key="hifz_room_footnote"></p>
+      </div>
+      <section class="hifz-room-focus-controls" aria-labelledby="hifzRoomFocusTitle">
+        <p id="hifzRoomFocusTitle" class="hifz-room-card-label" data-hifz-key="hifz_room_session_title"></p>
+        <div class="hifz-room-audio-grid"><label class="hifz-room-field"><span data-hifz-key="hifz_room_reciter"></span><select id="hifzRoomReciter"></select></label><label class="hifz-room-field"><span data-hifz-key="hifz_room_speed"></span><select id="hifzRoomSpeed"></select></label></div>
+        <p id="hifzRoomRepeatProgress" class="hifz-room-repeat-progress" aria-live="polite"></p>
+        <div class="hifz-room-focus-actions"><button id="hifzRoomPlay" type="button"></button><button id="hifzRoomRestart" type="button"></button></div>
+        <div class="hifz-room-focus-actions hifz-room-focus-actions-secondary"><button id="hifzRoomHideText" type="button"></button><button id="hifzRoomToggleRange" type="button"></button></div>
+        <button class="hifz-room-return" id="hifzRoomEnd" type="button"></button>
+      </section>
     </section>`;
   const toggle = document.createElement('button');
   const backdrop = document.createElement('div');
@@ -376,6 +599,11 @@ export function initHifzRoom(): void {
   backdrop.className = 'hifz-room-backdrop';
   backdrop.setAttribute('aria-hidden', 'true');
   backdrop.style.setProperty('--hifz-room-background', `url("${BACKGROUND_URL}")`);
+  const stage = document.createElement('section');
+  stage.id = STAGE_ID;
+  stage.className = 'hifz-room-stage';
+  stage.setAttribute('aria-hidden', 'true');
+  stage.innerHTML = '<p id="hifzRoomStageMeta" class="hifz-room-stage-meta"></p><p id="hifzRoomStageText" class="hifz-room-stage-text" aria-live="polite"></p>';
   toggle.id = TOGGLE_ID;
   toggle.className = 'hifz-room-toggle hifz-room-toggle--rtl';
   toggle.type = 'button';
@@ -383,7 +611,7 @@ export function initHifzRoom(): void {
   toggle.setAttribute('aria-expanded', 'false');
   toggle.setAttribute('title', 'H');
   toggle.innerHTML = '<span aria-hidden="true">۞</span><span data-hifz-toggle-label></span>';
-  document.body.append(backdrop, room, toggle);
+  document.body.append(backdrop, stage, room, toggle);
   renderRoomText(room);
   const toggleLabel = toggle.querySelector<HTMLElement>('[data-hifz-toggle-label]');
   if (toggleLabel) {
@@ -396,6 +624,35 @@ export function initHifzRoom(): void {
   closeButton?.addEventListener('click', () => closeHifzRoom(true));
   room.querySelector<HTMLButtonElement>('#hifzRoomReturn')?.addEventListener('click', () => closeHifzRoom(false));
   getControls(room)?.start.addEventListener('click', () => void startHifzSession(room));
+  const focused = getFocusedControls(room);
+  if (focused) {
+    const refreshFocused = () => {
+      const plan = readSessionPlan(room);
+      if (plan && room.classList.contains('hifz-room-focused')) {
+        updateFocusedSession(room, plan);
+      }
+    };
+    focused.play.addEventListener('click', () => {
+      togglePlayPause();
+      window.setTimeout(refreshFocused, 0);
+    });
+    focused.restart.addEventListener('click', () => restartFocusedPortion(room));
+    focused.hideText.addEventListener('click', () => {
+      room.classList.toggle('hifz-room-text-hidden');
+      refreshFocused();
+    });
+    focused.toggleRange.addEventListener('click', () => {
+      room.classList.toggle('hifz-room-show-range');
+      refreshFocused();
+    });
+    focused.end.addEventListener('click', () => leaveFocusedSession(room));
+    focused.reciter.addEventListener('change', () => void updateFocusedReciter(room));
+    focused.speed.addEventListener('change', () => updateFocusedSpeed(room));
+    const audio = document.getElementById('audioPlayer') as HTMLAudioElement | null;
+    audio?.addEventListener('play', () => window.setTimeout(refreshFocused, 0));
+    audio?.addEventListener('pause', () => window.setTimeout(refreshFocused, 0));
+    audio?.addEventListener('ended', () => window.setTimeout(refreshFocused, 0));
+  }
   room.querySelector<HTMLSelectElement>('#hifzRoomSurah')?.addEventListener('change', () => {
     const plan = readPlan(room);
     const controls = getControls(room);
@@ -434,7 +691,7 @@ export function initHifzRoom(): void {
     }
   }, true);
   window.addEventListener('app:langchange', () => {
-    const plan = readPlan(room) || getDefaultPlan();
+    const plan = readSessionPlan(room) || getDefaultPlan();
     renderRoomText(room);
     if (toggleLabel) {
       toggleLabel.textContent = label('hifz_room');
@@ -442,5 +699,8 @@ export function initHifzRoom(): void {
     closeButton?.setAttribute('aria-label', `${label('close')} ${label('hifz_room')}`);
     updateDirection(room, toggle);
     refreshForm(room, plan);
+    if (room.classList.contains('hifz-room-focused')) {
+      updateFocusedSession(room, plan);
+    }
   });
 }

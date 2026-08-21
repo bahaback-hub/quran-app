@@ -9,23 +9,38 @@ const translations: Record<string, string> = {
   hifz_room_summary: '{0} — الآيات {1}–{2} — {3} مرات', hifz_room_return_reader: 'العودة إلى القراءة',
   hifz_room_review_today: 'مساء اليوم', hifz_room_review_tomorrow: 'غداً', hifz_room_review_later: 'لاحقاً',
   hifz_room_loading: 'جارٍ تجهيز الورد في القارئ…', hifz_room_load_failed: 'تعذر تجهيز الورد. حاول مرة أخرى.',
+  hifz_room_session_title: 'جلسة الحفظ', hifz_room_reciter: 'المقرئ', hifz_room_speed: 'سرعة التلاوة',
+  hifz_room_ayahs: 'الآيات {0}–{1}', hifz_room_restart: 'إعادة المقطع', hifz_room_repeat_progress: 'التكرار {0} من {1}',
+  hifz_room_hide_text: 'إخفاء الآيات', hifz_room_show_text: 'إظهار الآيات', hifz_room_show_range: 'عرض المقطع كاملاً',
+  hifz_room_show_one: 'عرض آية واحدة', hifz_room_end: 'إنهاء الجلسة',
 };
 
-const { mockState, mockStorage, mockLoadSurah } = vi.hoisted(() => ({
+const { mockState, mockStorage, mockLoadSurah, mockHighlightCurrentAyah, mockPlayCurrentAyah, mockTogglePlayPause } = vi.hoisted(() => ({
   mockState: {
     currentSurah: 1,
     currentAyahIndex: 0,
-    surahData: null as { name: string; ayahs: { numberInSurah: number }[] } | null,
+    currentReciter: 'ar.alafasy',
+    repeatCounter: 0,
+    isPlaying: false,
+    surahData: null as { name: string; ayahs: { numberInSurah: number; text: string }[] } | null,
     surahList: [] as { number: number; name: string; numberOfAyahs: number }[],
   },
   mockStorage: { get: vi.fn(), set: vi.fn() },
   mockLoadSurah: vi.fn(),
+  mockHighlightCurrentAyah: vi.fn(),
+  mockPlayCurrentAyah: vi.fn().mockResolvedValue(undefined),
+  mockTogglePlayPause: vi.fn(),
 }));
 
 vi.mock('../i18n.js', () => ({ __: (key: string, ...args: string[]) => (translations[key] || key).replace(/\{(\d+)\}/g, (_, index) => args[Number(index)] || '') }));
 vi.mock('../state.js', () => ({ state: mockState }));
 vi.mock('../storage.js', () => ({ storage: mockStorage }));
-vi.mock('../surah-loader.js', () => ({ loadSurah: mockLoadSurah }));
+vi.mock('../surah-loader.js', () => ({ loadSurah: mockLoadSurah, highlightCurrentAyah: mockHighlightCurrentAyah }));
+vi.mock('../audio.js', () => ({ playCurrentAyah: mockPlayCurrentAyah, togglePlayPause: mockTogglePlayPause }));
+vi.mock('../reciters.js', () => ({
+  RECITERS: [{ id: 'ar.alafasy' }, { id: 'ar.husary' }],
+  getReciterDisplayName: (reciter: { id: string }) => reciter.id === 'ar.husary' ? 'الحصري' : 'العفاسي',
+}));
 
 import { closeHifzRoom, initHifzRoom, isHifzRoomOpen, openHifzRoom } from '../hifz-room.js';
 
@@ -53,13 +68,13 @@ function addPlayerControls(): { hifdhClick: ReturnType<typeof vi.fn>; repeatClic
 
 beforeEach(() => {
   document.body.innerHTML = ''; document.body.className = ''; document.documentElement.className = ''; document.documentElement.dir = 'rtl';
-  mockState.currentSurah = 1; mockState.currentAyahIndex = 1;
-  mockState.surahData = { name: 'الفاتحة', ayahs: Array.from({ length: 7 }, (_, index) => ({ numberInSurah: index + 1 })) };
+  mockState.currentSurah = 1; mockState.currentAyahIndex = 1; mockState.currentReciter = 'ar.alafasy'; mockState.repeatCounter = 0; mockState.isPlaying = false;
+  mockState.surahData = { name: 'الفاتحة', ayahs: Array.from({ length: 7 }, (_, index) => ({ numberInSurah: index + 1, text: `آية ${index + 1}` })) };
   mockState.surahList = [
     { number: 1, name: 'الفاتحة', numberOfAyahs: 7 },
     { number: 67, name: 'الملك', numberOfAyahs: 30 },
   ];
-  mockStorage.get.mockReturnValue(null); mockStorage.set.mockReturnValue(true); mockLoadSurah.mockResolvedValue(undefined);
+  mockStorage.get.mockReturnValue(null); mockStorage.set.mockReturnValue(true); mockLoadSurah.mockResolvedValue(undefined); mockPlayCurrentAyah.mockResolvedValue(undefined);
   vi.clearAllMocks();
 });
 
@@ -120,6 +135,26 @@ describe('Hifz Room', () => {
     expect(mockLoadSurah).toHaveBeenCalledWith(1, { startAyah: 2 }); expect(hifdhClick).toHaveBeenCalledTimes(1); expect(repeatClick).toHaveBeenCalledTimes(1);
     expect((document.getElementById('repeatFrom') as HTMLSelectElement).value).toBe('2'); expect((document.getElementById('repeatTo') as HTMLSelectElement).value).toBe('5'); expect((document.getElementById('repeatTimes') as HTMLSelectElement).value).toBe('10');
     expect(room.querySelector('#hifzRoomStatus')!.textContent).toContain('فُعّل الحفظ والتكرار.');
+  });
+
+  it('runs a focused in-room session with ayah display, audio preferences, and manual hiding', async () => {
+    addPlayerControls(); const audio = document.createElement('audio'); audio.id = 'audioPlayer'; document.body.append(audio);
+    initHifzRoom(); const room = document.getElementById('hifzRoom')!;
+    room.querySelector<HTMLSelectElement>('#hifzRoomFrom')!.value = '2'; room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.value = '3';
+    room.querySelector<HTMLButtonElement>('[data-hifz-repeat="3"]')!.click(); room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
+    await Promise.resolve(); await Promise.resolve();
+    const stage = document.getElementById('hifzRoomStage')!;
+    expect(room.classList.contains('hifz-room-focused')).toBe(true); expect(stage.getAttribute('aria-hidden')).toBe('false'); expect(stage.textContent).toContain('آية 2');
+    room.querySelector<HTMLButtonElement>('#hifzRoomHideText')!.click(); expect(stage.textContent).toContain('۞');
+    room.querySelector<HTMLButtonElement>('#hifzRoomHideText')!.click(); room.querySelector<HTMLButtonElement>('#hifzRoomToggleRange')!.click(); expect(stage.textContent).toContain('آية 3');
+    room.querySelector<HTMLSelectElement>('#hifzRoomSpeed')!.value = '1.5'; room.querySelector<HTMLSelectElement>('#hifzRoomSpeed')!.dispatchEvent(new Event('change'));
+    expect(audio.playbackRate).toBe(1.5); expect(mockStorage.set).toHaveBeenCalledWith('playback_speed', '1.5');
+    room.querySelector<HTMLSelectElement>('#hifzRoomReciter')!.value = 'ar.husary'; room.querySelector<HTMLSelectElement>('#hifzRoomReciter')!.dispatchEvent(new Event('change'));
+    await Promise.resolve(); await Promise.resolve();
+    expect(mockState.currentReciter).toBe('ar.husary'); expect(mockLoadSurah).toHaveBeenCalledWith(1, { startAyah: 2 });
+    room.querySelector<HTMLButtonElement>('#hifzRoomPlay')!.click(); expect(mockTogglePlayPause).toHaveBeenCalledTimes(1);
+    room.querySelector<HTMLButtonElement>('#hifzRoomRestart')!.click(); expect(mockPlayCurrentAyah).toHaveBeenCalledTimes(1);
+    room.querySelector<HTMLButtonElement>('#hifzRoomEnd')!.click(); expect(room.classList.contains('hifz-room-focused')).toBe(false); expect(stage.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('retains the room on the physical right edge when the language changes', () => {

@@ -3,9 +3,11 @@
 body.capacitor-native #hifzRoom,
 body.capacitor-native #hifzRoomToggle,
 body.capacitor-native #hifzRoomBackdrop,
+body.capacitor-native #hifzRoomStage,
 html.capacitor-native #hifzRoom,
 html.capacitor-native #hifzRoomToggle,
-html.capacitor-native #hifzRoomBackdrop {
+html.capacitor-native #hifzRoomBackdrop,
+html.capacitor-native #hifzRoomStage {
   display: none !important;
 }
 
@@ -435,6 +437,138 @@ body.hifz-room-active .hifz-room-toggle {
   padding: 0 0.6rem;
 }
 
+/* Focused session: the selected ayah stays in the Rawdah scene while controls stay on the right. */
+.hifz-room-stage {
+  position: fixed;
+  z-index: 1100;
+  top: 0;
+  bottom: 0;
+  right: min(38vw, 540px);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8vh clamp(2rem, 7vw, 9rem);
+  color: #f8f3e9;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-1.25rem);
+  transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1), opacity 260ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+body.hifz-room-focused-active .hifz-room-stage {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hifz-room-stage::before {
+  position: absolute;
+  inset: 14% 7%;
+  border: 1px solid rgb(243 238 225 / 24%);
+  border-radius: 2rem;
+  background: linear-gradient(115deg, rgb(18 49 40 / 60%), rgb(18 49 40 / 16%));
+  content: '';
+}
+
+.hifz-room-stage-meta,
+.hifz-room-stage-text {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  text-align: center;
+}
+
+.hifz-room-stage-meta {
+  margin-bottom: 1.15rem;
+  color: rgb(243 238 225 / 82%);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.hifz-room-stage-text {
+  max-width: 20ch;
+  align-self: center;
+  color: #fffaf0;
+  font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
+  font-size: clamp(2.35rem, 4.9vw, 5.6rem);
+  line-height: 1.8;
+  text-shadow: 0 3px 22px rgb(12 34 28 / 72%);
+}
+
+.hifz-room-stage.is-range-view .hifz-room-stage-text {
+  max-width: 28ch;
+  font-size: clamp(1.75rem, 3.25vw, 3.7rem);
+  line-height: 1.95;
+}
+
+.hifz-room-stage.is-text-hidden .hifz-room-stage-text {
+  color: #d7bb81;
+  font-size: clamp(4rem, 8vw, 7rem);
+}
+
+.hifz-room-focus-controls {
+  display: none;
+}
+
+.hifz-room-focused .hifz-room-setup-only {
+  display: none;
+}
+
+.hifz-room-focused .hifz-room-focus-controls {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.86rem;
+  justify-content: center;
+}
+
+.hifz-room-audio-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(5.8rem, 0.8fr);
+  gap: 0.72rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgb(31 91 73 / 16%);
+  border-bottom: 1px solid rgb(31 91 73 / 16%);
+}
+
+.hifz-room-repeat-progress {
+  margin: 0;
+  color: #a58452;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.hifz-room-focus-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.hifz-room-focus-actions button {
+  min-height: 2.65rem;
+  border: 1px solid rgb(31 91 73 / 26%);
+  border-radius: 8px;
+  color: #f8f3e9;
+  background: #1f5b49;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.hifz-room-focus-actions-secondary button {
+  color: #40554a;
+  background: rgb(255 255 255 / 56%);
+}
+
+.hifz-room-focus-actions button:hover,
+.hifz-room-focus-actions button:focus-visible {
+  outline: 3px solid rgb(165 132 82 / 55%);
+  outline-offset: 2px;
+}
+
 @media (max-width: 760px) {
   .hifz-room {
     width: min(92vw, 540px);
@@ -449,13 +583,27 @@ body.hifz-room-active .hifz-room-toggle {
   .hifz-room-steps li {
     font-size: 0.65rem;
   }
+
+  .hifz-room-stage {
+    right: 0;
+    padding: 4vh 6vw 48vh;
+  }
+
+  .hifz-room-stage::before {
+    inset: 5% 5% 42%;
+  }
+
+  .hifz-room-stage-text {
+    font-size: clamp(1.7rem, 8.5vw, 2.75rem);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hifz-room,
   .hifz-room-backdrop,
   .hifz-room-toggle,
-  .hifz-room-start {
+  .hifz-room-start,
+  .hifz-room-stage {
     transition: none;
   }
 }
