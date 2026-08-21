@@ -266,6 +266,175 @@ body.hifz-room-active .hifz-room-toggle {
   border-top: 1px solid rgb(31 91 73 / 12%);
 }
 
+/* One clear session: these controls remain isolated inside the web-only drawer. */
+.hifz-room-panel {
+  margin: 5vh 5% 4vh;
+  min-height: calc(100% - 9vh);
+  overflow-y: auto;
+}
+
+.hifz-room-lede {
+  margin: 0.9rem 0 1rem;
+}
+
+.hifz-room-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: hifz-step;
+}
+
+.hifz-room-steps li {
+  min-height: 2.55rem;
+  padding: 0.48rem 0.38rem;
+  border-top: 2px solid rgb(165 132 82 / 55%);
+  color: #526158;
+  font-size: 0.71rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.hifz-room-steps li::before {
+  content: counter(hifz-step) ' — ';
+  counter-increment: hifz-step;
+  color: #a58452;
+}
+
+.hifz-room-session,
+.hifz-room-repeat {
+  padding: 0.9rem 0;
+  border-top: 1px solid rgb(31 91 73 / 15%);
+}
+
+.hifz-room-field {
+  display: grid;
+  gap: 0.34rem;
+  color: #1f5b49;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.hifz-room-field-full {
+  margin-top: 0.6rem;
+}
+
+.hifz-room-field select {
+  width: 100%;
+  min-height: 2.45rem;
+  border: 1px solid rgb(31 91 73 / 22%);
+  border-radius: 8px;
+  padding: 0 0.62rem;
+  color: #26352d;
+  background: rgb(255 255 255 / 76%);
+  font: inherit;
+  font-size: 0.84rem;
+}
+
+.hifz-room-field select:focus-visible,
+.hifz-room-choice-row button:focus-visible,
+.hifz-room-return:focus-visible {
+  outline: 3px solid rgb(165 132 82 / 55%);
+  outline-offset: 2px;
+}
+
+.hifz-room-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.72rem;
+  margin-top: 0.72rem;
+}
+
+.hifz-room-choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.55rem;
+}
+
+.hifz-room-choice-row button {
+  min-width: 2.7rem;
+  min-height: 2.15rem;
+  border: 1px solid rgb(31 91 73 / 26%);
+  border-radius: 7px;
+  color: #526158;
+  background: rgb(255 255 255 / 52%);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hifz-room-choice-row button.is-selected {
+  border-color: #1f5b49;
+  color: #f3eee1;
+  background: #1f5b49;
+}
+
+.hifz-room-summary {
+  min-height: 3rem;
+  margin: 0.1rem 0 0.82rem;
+  padding: 0.68rem 0.8rem;
+  border-top: 1px solid rgb(165 132 82 / 60%);
+  border-bottom: 1px solid rgb(165 132 82 / 60%);
+  color: #173f34;
+  font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
+  font-size: 1.18rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.hifz-room-start {
+  margin-top: 0;
+}
+
+.hifz-room-start:disabled {
+  cursor: progress;
+  opacity: 0.62;
+}
+
+.hifz-room-return {
+  width: 100%;
+  min-height: 2.4rem;
+  margin-top: 0.4rem;
+  border: 0;
+  color: #466056;
+  background: transparent;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hifz-room-status {
+  min-height: 1.45rem;
+  margin: 0;
+  color: #66746b;
+  font-size: 0.75rem;
+  line-height: 1.65;
+}
+
+.hifz-room-session-active .hifz-room-status {
+  color: #1f5b49;
+  font-weight: 800;
+}
+
+.hifz-room-review {
+  margin-top: 0.55rem;
+  padding: 0.82rem 0.2rem;
+}
+
+.hifz-room-review-choices {
+  margin-top: 0.42rem;
+}
+
+.hifz-room-review-choices button {
+  min-width: auto;
+  padding: 0 0.6rem;
+}
+
 @media (max-width: 760px) {
   .hifz-room {
     width: min(92vw, 540px);
@@ -274,6 +443,11 @@ body.hifz-room-active .hifz-room-toggle {
 
   .hifz-room-panel {
     margin: 7vh 4% 8vh;
+    min-height: calc(100% - 15vh);
+  }
+
+  .hifz-room-steps li {
+    font-size: 0.65rem;
   }
 }
 
