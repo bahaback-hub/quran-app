@@ -12,6 +12,17 @@ export default {
 
   // === General ===
   app_title: 'Holy Quran',
+  hifz_room: 'Memorization Room',
+  hifz_room_eyebrow: 'Your quiet space',
+  hifz_room_tagline: 'Let your daily portion advance through steady recitation and review.',
+  hifz_room_today: 'Your portion now',
+  hifz_room_current_range: 'Begin from your current place',
+  hifz_room_session_hint: 'This opens the player’s existing repeat and memorization tools.',
+  hifz_room_start: 'Start memorization session',
+  hifz_room_review: 'Next review',
+  hifz_room_review_empty: 'Choose the ayah range in the player to begin.',
+  hifz_room_session_active: 'Memorization and repeat are active. Set the range in the player.',
+  hifz_room_footnote: 'A calm place for memorization, without streaks or comparison.',
   exit_app_confirm: 'Do you really want to exit the app?',
   makkah: 'Makkah',
   close: 'Close',
