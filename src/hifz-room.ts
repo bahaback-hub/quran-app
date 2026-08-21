@@ -18,10 +18,9 @@ const TOGGLE_ID = 'hifzRoomToggle';
 const STAGE_ID = 'hifzRoomStage';
 const PLAN_STORAGE_KEY = 'hifz_plan_v1';
 const DOWNLOAD_STORAGE_KEY = 'hifz_session_downloads_v1';
-const REPEAT_COUNTS = [2, 3, 5, 10, 20];
 const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5];
 
-type ReviewChoice = 'today' | 'tomorrow' | 'later';
+type ReviewChoice = 'today' | 'tomorrow' | 'later' | 'custom';
 
 interface HifzPlan {
   version: 1;
@@ -30,6 +29,7 @@ interface HifzPlan {
   to: number;
   times: number;
   review: ReviewChoice;
+  reviewAt?: string;
   reciter: string;
   speed: number;
   updatedAt: number;
@@ -39,6 +39,8 @@ interface HifzRoomControls {
   surah: HTMLSelectElement;
   from: HTMLSelectElement;
   to: HTMLSelectElement;
+  repeat: HTMLInputElement;
+  reviewAt: HTMLInputElement;
   summary: HTMLElement;
   status: HTMLElement;
   start: HTMLButtonElement;
@@ -102,18 +104,28 @@ function getSurahName(surah: number): string {
   return mainOption?.textContent?.replace(/^\d+\.\s*/, '') || String(surah);
 }
 
+function normalizeRepeatCount(value: number): number {
+  return Number.isFinite(value) ? Math.min(100, Math.max(1, Math.trunc(value))) : 5;
+}
+
+function normalizeReviewAt(value?: string): string | undefined {
+  return value && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value) ? value : undefined;
+}
+
 function normalizePlan(candidate: Omit<HifzPlan, 'updatedAt' | 'reciter' | 'speed'> & Partial<Pick<HifzPlan, 'updatedAt' | 'reciter' | 'speed'>>): HifzPlan {
   const surah = Math.min(Math.max(1, candidate.surah), 114);
   const count = getAyahCount(surah);
   const from = Math.min(Math.max(1, candidate.from), count);
   const to = Math.min(Math.max(from, candidate.to), count);
+  const reviewAt = normalizeReviewAt(candidate.reviewAt);
   return {
     version: 1,
     surah,
     from,
     to,
-    times: REPEAT_COUNTS.includes(candidate.times) ? candidate.times : 5,
-    review: candidate.review === 'tomorrow' || candidate.review === 'later' ? candidate.review : 'today',
+    times: normalizeRepeatCount(candidate.times),
+    review: reviewAt ? 'custom' : (candidate.review === 'tomorrow' || candidate.review === 'later' ? candidate.review : 'today'),
+    reviewAt,
     reciter: RECITERS.some((reciter) => reciter.id === candidate.reciter) ? candidate.reciter! : state.currentReciter,
     speed: PLAYBACK_SPEEDS.includes(candidate.speed || 1) ? candidate.speed || 1 : 1,
     updatedAt: candidate.updatedAt || Date.now(),
@@ -147,13 +159,15 @@ function getControls(room: HTMLElement): HifzRoomControls | null {
   const surah = room.querySelector<HTMLSelectElement>('#hifzRoomSurah');
   const from = room.querySelector<HTMLSelectElement>('#hifzRoomFrom');
   const to = room.querySelector<HTMLSelectElement>('#hifzRoomTo');
+  const repeat = room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat');
+  const reviewAt = room.querySelector<HTMLInputElement>('#hifzRoomReviewAt');
   const summary = room.querySelector<HTMLElement>('#hifzRoomSummary');
   const status = room.querySelector<HTMLElement>('#hifzRoomStatus');
   const start = room.querySelector<HTMLButtonElement>('#hifzRoomStart');
   const download = room.querySelector<HTMLButtonElement>('#hifzRoomDownload');
   const downloadStatus = room.querySelector<HTMLElement>('#hifzRoomDownloadStatus');
-  return surah && from && to && summary && status && start && download && downloadStatus
-    ? { surah, from, to, summary, status, start, download, downloadStatus }
+  return surah && from && to && repeat && reviewAt && summary && status && start && download && downloadStatus
+    ? { surah, from, to, repeat, reviewAt, summary, status, start, download, downloadStatus }
     : null;
 }
 
@@ -233,13 +247,15 @@ function readPlan(room: HTMLElement): HifzPlan | null {
   }
   const repeat = room.querySelector<HTMLButtonElement>('[data-hifz-repeat][aria-pressed="true"]');
   const review = room.querySelector<HTMLButtonElement>('[data-hifz-review][aria-pressed="true"]');
+  const reviewAt = normalizeReviewAt(controls.reviewAt.value);
   return normalizePlan({
     version: 1,
     surah: parseInt(controls.surah.value, 10),
     from: parseInt(controls.from.value, 10),
     to: parseInt(controls.to.value, 10),
-    times: parseInt(repeat?.dataset['hifzRepeat'] || '5', 10),
-    review: (review?.dataset['hifzReview'] as ReviewChoice | undefined) || 'today',
+    times: parseInt(controls.repeat.value || repeat?.dataset['hifzRepeat'] || '5', 10),
+    review: reviewAt ? 'custom' : ((review?.dataset['hifzReview'] as ReviewChoice | undefined) || 'today'),
+    reviewAt,
   });
 }
 
@@ -517,6 +533,8 @@ function refreshForm(room: HTMLElement, plan = getDefaultPlan()): void {
   fillSurahOptions(controls.surah, normalized.surah);
   fillAyahOptions(controls.from, getAyahCount(normalized.surah), normalized.from);
   fillAyahOptions(controls.to, getAyahCount(normalized.surah), normalized.to);
+  controls.repeat.value = String(normalized.times);
+  controls.reviewAt.value = normalized.reviewAt || '';
   setChoice(room, '[data-hifz-repeat]', String(normalized.times));
   setChoice(room, '[data-hifz-review]', normalized.review);
   controls.status.textContent = label('hifz_room_session_hint');
@@ -595,6 +613,9 @@ function applyExistingRepeatRange(plan: HifzPlan): void {
   from.dispatchEvent(new Event('change', { bubbles: true }));
   to.value = String(plan.to);
   to.dispatchEvent(new Event('change', { bubbles: true }));
+  if (!Array.from(times.options).some((option) => option.value === String(plan.times))) {
+    times.add(new Option(`${plan.times}×`, String(plan.times)));
+  }
   times.value = String(plan.times);
   times.dispatchEvent(new Event('change', { bubbles: true }));
 }
@@ -710,11 +731,10 @@ export function initHifzRoom(): void {
       <div class="hifz-room-setup-only">
         <p class="hifz-room-lede" data-hifz-key="hifz_room_tagline"></p>
         <ol class="hifz-room-steps" aria-label="خطوات جلسة الحفظ"><li data-hifz-key="hifz_room_step_portion"></li><li data-hifz-key="hifz_room_step_repeat"></li><li data-hifz-key="hifz_room_step_start"></li></ol>
-        <section class="hifz-room-session" aria-labelledby="hifzRoomToday"><p id="hifzRoomToday" class="hifz-room-card-label" data-hifz-key="hifz_room_today"></p><label class="hifz-room-field hifz-room-field-full"><span data-hifz-key="hifz_room_surah"></span><select id="hifzRoomSurah"></select></label><div class="hifz-room-range"><label class="hifz-room-field"><span data-hifz-key="hifz_room_from_ayah"></span><select id="hifzRoomFrom"></select></label><label class="hifz-room-field"><span data-hifz-key="hifz_room_to_ayah"></span><select id="hifzRoomTo"></select></label></div></section>
-        <section class="hifz-room-repeat" aria-labelledby="hifzRoomRepeatTitle"><p id="hifzRoomRepeatTitle" class="hifz-room-card-label" data-hifz-key="hifz_room_repeat"></p><div class="hifz-room-choice-row" role="group"><button type="button" data-hifz-repeat="3">3×</button><button type="button" data-hifz-repeat="5">5×</button><button type="button" data-hifz-repeat="10">10×</button></div></section>
+        <section class="hifz-room-session"><label class="hifz-room-field hifz-room-field-full"><span data-hifz-key="hifz_room_surah"></span><select id="hifzRoomSurah"></select></label><div class="hifz-room-range"><label class="hifz-room-field"><span data-hifz-key="hifz_room_from_ayah"></span><select id="hifzRoomFrom"></select></label><label class="hifz-room-field"><span data-hifz-key="hifz_room_to_ayah"></span><select id="hifzRoomTo"></select></label></div></section>
+        <section class="hifz-room-repeat" aria-labelledby="hifzRoomRepeatTitle"><p id="hifzRoomRepeatTitle" class="hifz-room-card-label" data-hifz-key="hifz_room_repeat"></p><div class="hifz-room-repeat-options" role="group"><button type="button" data-hifz-repeat="3">3×</button><label class="hifz-room-custom-repeat"><span data-hifz-key="hifz_room_custom_repeat"></span><input id="hifzRoomCustomRepeat" type="number" min="1" max="100" step="1" inputmode="numeric"></label><button type="button" data-hifz-repeat="15">15×</button></div></section>
         <p class="hifz-room-summary" id="hifzRoomSummary"></p><button class="hifz-room-start" id="hifzRoomStart" type="button" data-hifz-key="hifz_room_start"></button><button class="hifz-room-download" id="hifzRoomDownload" type="button" data-hifz-key="hifz_room_download"></button><p class="hifz-room-download-status" id="hifzRoomDownloadStatus" aria-live="polite"></p><button class="hifz-room-return" id="hifzRoomReturn" type="button" data-hifz-key="hifz_room_return_reader"></button><p class="hifz-room-status" id="hifzRoomStatus" aria-live="polite"></p>
-        <section class="hifz-room-review" aria-labelledby="hifzRoomReviewTitle"><span class="hifz-room-review-mark" aria-hidden="true"></span><div><p id="hifzRoomReviewTitle" data-hifz-key="hifz_room_review"></p><div class="hifz-room-choice-row hifz-room-review-choices" role="group"><button type="button" data-hifz-review="today" data-hifz-key="hifz_room_review_today"></button><button type="button" data-hifz-review="tomorrow" data-hifz-key="hifz_room_review_tomorrow"></button><button type="button" data-hifz-review="later" data-hifz-key="hifz_room_review_later"></button></div></div></section>
-        <p class="hifz-room-footnote" data-hifz-key="hifz_room_footnote"></p>
+        <section class="hifz-room-review" aria-labelledby="hifzRoomReviewTitle"><span class="hifz-room-review-mark" aria-hidden="true"></span><div><p id="hifzRoomReviewTitle" data-hifz-key="hifz_room_review"></p><div class="hifz-room-choice-row hifz-room-review-choices" role="group"><button type="button" data-hifz-review="today" data-hifz-key="hifz_room_review_today"></button><button type="button" data-hifz-review="tomorrow" data-hifz-key="hifz_room_review_tomorrow"></button><button type="button" data-hifz-review="later" data-hifz-key="hifz_room_review_later"></button></div><label class="hifz-room-review-time"><span data-hifz-key="hifz_room_review_custom"></span><input id="hifzRoomReviewAt" type="datetime-local"></label></div></section>
       </div>
       <section class="hifz-room-focus-controls" aria-labelledby="hifzRoomFocusTitle">
         <p id="hifzRoomFocusTitle" class="hifz-room-card-label" data-hifz-key="hifz_room_session_title"></p>
@@ -805,16 +825,43 @@ export function initHifzRoom(): void {
     void refreshSessionDownloadStatus(room);
   }));
   room.querySelectorAll<HTMLButtonElement>('[data-hifz-repeat]').forEach((button) => button.addEventListener('click', () => {
-    setChoice(room, '[data-hifz-repeat]', button.dataset['hifzRepeat'] || '5');
+    const times = normalizeRepeatCount(parseInt(button.dataset['hifzRepeat'] || '5', 10));
+    const controls = getControls(room);
+    if (controls) {
+      controls.repeat.value = String(times);
+    }
+    setChoice(room, '[data-hifz-repeat]', String(times));
     updateSummary(room);
   }));
+  room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat')?.addEventListener('change', (event) => {
+    const input = event.currentTarget as HTMLInputElement;
+    const times = normalizeRepeatCount(parseInt(input.value, 10));
+    input.value = String(times);
+    setChoice(room, '[data-hifz-repeat]', String(times));
+    updateSummary(room);
+  });
   room.querySelectorAll<HTMLButtonElement>('[data-hifz-review]').forEach((button) => button.addEventListener('click', () => {
     setChoice(room, '[data-hifz-review]', button.dataset['hifzReview'] || 'today');
+    const controls = getControls(room);
+    if (controls) {
+      controls.reviewAt.value = '';
+    }
     const plan = readPlan(room);
     if (plan) {
       savePlan(plan);
     }
   }));
+  room.querySelector<HTMLInputElement>('#hifzRoomReviewAt')?.addEventListener('change', () => {
+    const controls = getControls(room);
+    if (!controls) {
+      return;
+    }
+    setChoice(room, '[data-hifz-review]', controls.reviewAt.value ? 'custom' : 'today');
+    const plan = readPlan(room);
+    if (plan) {
+      savePlan(plan);
+    }
+  });
   attachMouseDrag(room, toggle);
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && isHifzRoomOpen()) {

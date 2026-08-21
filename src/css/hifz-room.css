@@ -126,9 +126,12 @@ body.hifz-room-active .hifz-room-toggle {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
-  margin: 9vh 5% 10vh;
-  padding: clamp(1.45rem, 3vw, 2.35rem);
+  box-sizing: border-box;
+  height: auto;
+  max-height: calc(100% - 5vh);
+  min-height: 0;
+  margin: 2.5vh 4%;
+  padding: clamp(0.9rem, 2vw, 1.5rem);
   border: 1px solid rgb(255 255 255 / 64%);
   border-radius: 24px;
   background: rgb(243 238 225 / 93%);
@@ -157,7 +160,7 @@ body.hifz-room-active .hifz-room-toggle {
   margin: 0.22rem 0 0;
   color: #173f34;
   font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
-  font-size: clamp(2rem, 4vw, 2.7rem);
+  font-size: clamp(1.75rem, 3.3vw, 2.25rem);
   font-weight: 500;
   line-height: 1.1;
 }
@@ -181,11 +184,12 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-lede {
-  max-width: 25ch;
-  margin: 1.4rem 0 1.8rem;
+  max-width: none;
+  margin: 0.6rem 0 0.7rem;
   color: #506158;
-  font-size: 0.96rem;
-  line-height: 1.8;
+  font-size: clamp(0.72rem, 1.45vw, 0.84rem);
+  line-height: 1.45;
+  white-space: nowrap;
 }
 
 .hifz-room-card {
@@ -270,33 +274,31 @@ body.hifz-room-active .hifz-room-toggle {
 
 /* One clear session: these controls remain isolated inside the web-only drawer. */
 .hifz-room-panel {
-  margin: 5vh 5% 4vh;
-  min-height: calc(100% - 9vh);
   overflow-y: auto;
 }
 
 .hifz-room-lede {
-  margin: 0.9rem 0 1rem;
+  margin: 0.6rem 0 0.7rem;
 }
 
 .hifz-room-steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.35rem;
-  margin: 0 0 1rem;
+  margin: 0 0 0.55rem;
   padding: 0;
   list-style: none;
   counter-reset: hifz-step;
 }
 
 .hifz-room-steps li {
-  min-height: 2.55rem;
-  padding: 0.48rem 0.38rem;
+  min-height: 2.05rem;
+  padding: 0.35rem 0.3rem;
   border-top: 2px solid rgb(165 132 82 / 55%);
   color: #526158;
-  font-size: 0.71rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1.35;
 }
 
 .hifz-room-steps li::before {
@@ -307,7 +309,7 @@ body.hifz-room-active .hifz-room-toggle {
 
 .hifz-room-session,
 .hifz-room-repeat {
-  padding: 0.9rem 0;
+  padding: 0.6rem 0;
   border-top: 1px solid rgb(31 91 73 / 15%);
 }
 
@@ -320,12 +322,12 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-field-full {
-  margin-top: 0.6rem;
+  margin-top: 0;
 }
 
 .hifz-room-field select {
   width: 100%;
-  min-height: 2.45rem;
+  min-height: 2.2rem;
   border: 1px solid rgb(31 91 73 / 22%);
   border-radius: 8px;
   padding: 0 0.62rem;
@@ -345,20 +347,20 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-range {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.72rem;
-  margin-top: 0.72rem;
+  gap: 0.55rem;
+  margin-top: 0.45rem;
 }
 
 .hifz-room-choice-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
-  margin-top: 0.55rem;
+  margin-top: 0.35rem;
 }
 
 .hifz-room-choice-row button {
   min-width: 2.7rem;
-  min-height: 2.15rem;
+  min-height: 1.95rem;
   border: 1px solid rgb(31 91 73 / 26%);
   border-radius: 7px;
   color: #526158;
@@ -376,15 +378,15 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-summary {
-  min-height: 3rem;
-  margin: 0.1rem 0 0.82rem;
-  padding: 0.68rem 0.8rem;
+  min-height: 0;
+  margin: 0 0 0.55rem;
+  padding: 0.45rem 0.6rem;
   border-top: 1px solid rgb(165 132 82 / 60%);
   border-bottom: 1px solid rgb(165 132 82 / 60%);
   color: #173f34;
   font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
-  font-size: 1.18rem;
-  line-height: 1.5;
+  font-size: 1.02rem;
+  line-height: 1.35;
   text-align: center;
 }
 
@@ -399,8 +401,8 @@ body.hifz-room-active .hifz-room-toggle {
 
 .hifz-room-download {
   width: 100%;
-  min-height: 2.55rem;
-  margin-top: 0.55rem;
+  min-height: 2.25rem;
+  margin-top: 0.35rem;
   border: 1px solid rgb(31 91 73 / 30%);
   border-radius: 10px;
   color: #1f5b49;
@@ -430,8 +432,8 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-download-status {
-  min-height: 1.35rem;
-  margin: 0.35rem 0 0;
+  min-height: 1rem;
+  margin: 0.2rem 0 0;
   color: #66746b;
   font-size: 0.73rem;
   line-height: 1.55;
@@ -450,8 +452,8 @@ body.hifz-room-active .hifz-room-toggle {
 
 .hifz-room-return {
   width: 100%;
-  min-height: 2.4rem;
-  margin-top: 0.4rem;
+  min-height: 1.85rem;
+  margin-top: 0.1rem;
   border: 0;
   color: #466056;
   background: transparent;
@@ -462,7 +464,7 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-status {
-  min-height: 1.45rem;
+  min-height: 1rem;
   margin: 0;
   color: #66746b;
   font-size: 0.75rem;
@@ -475,8 +477,8 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-review {
-  margin-top: 0.55rem;
-  padding: 0.82rem 0.2rem;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.2rem 0;
 }
 
 .hifz-room-review-choices {
@@ -486,6 +488,66 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-review-choices button {
   min-width: auto;
   padding: 0 0.6rem;
+}
+
+.hifz-room-repeat-options {
+  display: grid;
+  grid-template-columns: minmax(3rem, 0.7fr) minmax(6.7rem, 1.4fr) minmax(3rem, 0.7fr);
+  align-items: end;
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+}
+
+.hifz-room-repeat-options button {
+  min-height: 2.2rem;
+  border: 1px solid rgb(31 91 73 / 26%);
+  border-radius: 7px;
+  color: #526158;
+  background: rgb(255 255 255 / 52%);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hifz-room-repeat-options button.is-selected {
+  border-color: #1f5b49;
+  color: #f3eee1;
+  background: #1f5b49;
+}
+
+.hifz-room-custom-repeat,
+.hifz-room-review-time {
+  display: grid;
+  gap: 0.22rem;
+  color: #1f5b49;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.hifz-room-custom-repeat input,
+.hifz-room-review-time input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.2rem;
+  border: 1px solid rgb(31 91 73 / 22%);
+  border-radius: 7px;
+  padding: 0 0.45rem;
+  color: #26352d;
+  background: rgb(255 255 255 / 76%);
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.hifz-room-review-time {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.42rem;
+}
+
+.hifz-room-review-time input {
+  min-height: 1.95rem;
 }
 
 /* Focused session: the selected ayah stays in the Rawdah scene while controls stay on the right. */
@@ -631,8 +693,9 @@ body.hifz-room-focused-active .hifz-room-stage {
   }
 
   .hifz-room-panel {
-    margin: 7vh 4% 8vh;
-    min-height: calc(100% - 15vh);
+    height: auto;
+    max-height: calc(100% - 4vh);
+    margin: 2vh 3%;
   }
 
   .hifz-room-steps li {

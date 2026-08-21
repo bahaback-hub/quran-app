@@ -2,12 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const translations: Record<string, string> = {
   close: 'إغلاق', hifz_room: 'غرفة الحفظ', hifz_room_eyebrow: 'مساحتك الهادئة', hifz_room_tagline: 'وردك يتقدم بثبات.',
-  hifz_room_today: 'وردك الآن', hifz_room_session_hint: 'استخدم أدوات المشغل.', hifz_room_start: 'ابدأ جلسة الحفظ',
+  hifz_room_today: '', hifz_room_session_hint: 'استخدم أدوات المشغل.', hifz_room_start: 'ابدأ جلسة الحفظ',
   hifz_room_review: 'المراجعة التالية', hifz_room_session_active: 'فُعّل الحفظ والتكرار.', hifz_room_footnote: 'مساحة هادئة للحفظ.',
-  hifz_room_step_portion: 'اختر الورد', hifz_room_step_repeat: 'اضبط التكرار', hifz_room_step_start: 'ابدأ',
-  hifz_room_surah: 'السورة', hifz_room_from_ayah: 'من آية', hifz_room_to_ayah: 'إلى آية', hifz_room_repeat: 'عدد التكرارات',
+  hifz_room_step_portion: 'اختر السورة', hifz_room_step_repeat: 'اضبط التكرار بشكل صحيح', hifz_room_step_start: 'ابدأ',
+  hifz_room_surah: 'السورة', hifz_room_from_ayah: 'من آية', hifz_room_to_ayah: 'إلى آية', hifz_room_repeat: 'عدد التكرارات', hifz_room_custom_repeat: 'عدد مخصص (1–100)',
   hifz_room_summary: '{0} — الآيات {1}–{2} — {3} مرات', hifz_room_return_reader: 'العودة إلى القراءة',
-  hifz_room_review_today: 'مساء اليوم', hifz_room_review_tomorrow: 'غداً', hifz_room_review_later: 'لاحقاً',
+  hifz_room_review_today: 'مساء اليوم', hifz_room_review_tomorrow: 'غداً', hifz_room_review_later: 'لاحقاً', hifz_room_review_custom: 'حدد التاريخ والوقت',
   hifz_room_loading: 'جارٍ تجهيز الورد في القارئ…', hifz_room_load_failed: 'تعذر تجهيز الورد. حاول مرة أخرى.',
   hifz_room_session_title: 'جلسة الحفظ', hifz_room_reciter: 'المقرئ', hifz_room_speed: 'سرعة التلاوة',
   hifz_room_ayahs: 'الآيات {0}–{1}', hifz_room_restart: 'إعادة المقطع', hifz_room_repeat_progress: 'التكرار {0} من {1}',
@@ -102,6 +102,9 @@ describe('Hifz Room', () => {
     expect(room.querySelector<HTMLSelectElement>('#hifzRoomSurah')!.value).toBe('1');
     expect(room.querySelector<HTMLSelectElement>('#hifzRoomFrom')!.value).toBe('2');
     expect(room.querySelector('#hifzRoomSummary')!.textContent).toContain('الفاتحة');
+    expect(room.querySelector('#hifzRoomToday')).toBeNull();
+    expect(room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat')!.max).toBe('100');
+    expect(room.querySelector<HTMLInputElement>('#hifzRoomReviewAt')).not.toBeNull();
   });
 
   it('does not inject inside the Capacitor-native container', () => {
@@ -131,21 +134,40 @@ describe('Hifz Room', () => {
 
   it('updates the live summary and keeps the review choice locally', () => {
     initHifzRoom(); const room = document.getElementById('hifzRoom')!;
-    room.querySelector<HTMLButtonElement>('[data-hifz-repeat="10"]')!.click();
+    room.querySelector<HTMLButtonElement>('[data-hifz-repeat="15"]')!.click();
     room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.value = '5'; room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.dispatchEvent(new Event('change'));
     room.querySelector<HTMLButtonElement>('[data-hifz-review="tomorrow"]')!.click();
     expect(room.querySelector('#hifzRoomSummary')!.textContent).toContain('2–5');
-    expect(room.querySelector('#hifzRoomSummary')!.textContent).toContain('10 مرات');
+    expect(room.querySelector('#hifzRoomSummary')!.textContent).toContain('15 مرات');
     expect(mockStorage.set).toHaveBeenCalledWith('hifz_plan_v1', expect.objectContaining({ review: 'tomorrow' }));
+  });
+
+  it('uses a custom repeat count up to 100 and supplies it to the existing repeat control', async () => {
+    addPlayerControls(); initHifzRoom(); const room = document.getElementById('hifzRoom')!;
+    const customRepeat = room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat')!;
+    customRepeat.value = '37'; customRepeat.dispatchEvent(new Event('change'));
+    expect(room.querySelector('#hifzRoomSummary')!.textContent).toContain('37 مرات');
+    room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
+    await Promise.resolve(); await Promise.resolve();
+    expect((document.getElementById('repeatTimes') as HTMLSelectElement).value).toBe('37');
+  });
+
+  it('stores a selected custom review date and time locally', () => {
+    initHifzRoom(); const room = document.getElementById('hifzRoom')!;
+    const reviewAt = room.querySelector<HTMLInputElement>('#hifzRoomReviewAt')!;
+    reviewAt.value = '2026-08-25T19:30'; reviewAt.dispatchEvent(new Event('change'));
+    expect(mockStorage.set).toHaveBeenCalledWith('hifz_plan_v1', expect.objectContaining({ review: 'custom', reviewAt: '2026-08-25T19:30' }));
+    room.querySelector<HTMLButtonElement>('[data-hifz-review="tomorrow"]')!.click();
+    expect(reviewAt.value).toBe('');
   });
 
   it('loads the chosen portion before activating current Hifdh and repeat controls', async () => {
     const { hifdhClick, repeatClick } = addPlayerControls(); initHifzRoom(); const room = document.getElementById('hifzRoom')!;
     room.querySelector<HTMLSelectElement>('#hifzRoomFrom')!.value = '2'; room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.value = '5';
-    room.querySelector<HTMLButtonElement>('[data-hifz-repeat="10"]')!.click(); room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
+    room.querySelector<HTMLButtonElement>('[data-hifz-repeat="15"]')!.click(); room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
     await Promise.resolve(); await Promise.resolve();
     expect(mockLoadSurah).toHaveBeenCalledWith(1, { startAyah: 2 }); expect(hifdhClick).toHaveBeenCalledTimes(1); expect(repeatClick).toHaveBeenCalledTimes(1);
-    expect((document.getElementById('repeatFrom') as HTMLSelectElement).value).toBe('2'); expect((document.getElementById('repeatTo') as HTMLSelectElement).value).toBe('5'); expect((document.getElementById('repeatTimes') as HTMLSelectElement).value).toBe('10');
+    expect((document.getElementById('repeatFrom') as HTMLSelectElement).value).toBe('2'); expect((document.getElementById('repeatTo') as HTMLSelectElement).value).toBe('5'); expect((document.getElementById('repeatTimes') as HTMLSelectElement).value).toBe('15');
     expect(room.querySelector('#hifzRoomStatus')!.textContent).toContain('فُعّل الحفظ والتكرار.');
   });
 
