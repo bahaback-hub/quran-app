@@ -59,6 +59,30 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(room).not.toHaveClass(/is-open/);
   });
 
+  test('runs the selected portion inside the focused room with text and audio controls', async ({ page }) => {
+    await page.locator('#hifzRoomToggle').click();
+    const room = page.locator('#hifzRoom');
+    await room.locator('#hifzRoomFrom').selectOption('1');
+    await room.locator('#hifzRoomTo').selectOption('2');
+    await room.locator('[data-hifz-repeat="3"]').click();
+    await room.locator('#hifzRoomStart').click();
+
+    await expect(room).toHaveClass(/hifz-room-focused/);
+    await expect(page.locator('#hifzRoomStage')).toHaveAttribute('aria-hidden', 'false');
+    await expect(page.locator('#hifzRoomStageText')).not.toBeEmpty();
+    await expect(room.locator('#hifzRoomReciter')).toBeVisible();
+    await room.locator('#hifzRoomSpeed').selectOption('1.25');
+    await expect(page.locator('#speedSelect')).toHaveValue('1.25');
+    await room.locator('#hifzRoomHideText').click();
+    await expect(page.locator('#hifzRoomStageText')).toHaveText('۞');
+    await room.locator('#hifzRoomHideText').click();
+    await room.locator('#hifzRoomToggleRange').click();
+    await expect(page.locator('#hifzRoomStageText')).not.toHaveText('۞');
+    await room.locator('#hifzRoomEnd').click();
+    await expect(room).not.toHaveClass(/hifz-room-focused/);
+    await expect(page.locator('#hifzRoomStage')).toHaveAttribute('aria-hidden', 'true');
+  });
+
   test('opens when its right-edge handle is dragged toward the reader', async ({ page }) => {
     const handle = page.locator('#hifzRoomToggle');
     const box = await handle.boundingBox();
@@ -78,5 +102,6 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(page.locator('#hifzRoom')).toHaveCSS('display', 'none');
     await expect(page.locator('#hifzRoomToggle')).toHaveCSS('display', 'none');
     await expect(page.locator('#hifzRoomBackdrop')).toHaveCSS('display', 'none');
+    await expect(page.locator('#hifzRoomStage')).toHaveCSS('display', 'none');
   });
 });
