@@ -18,6 +18,17 @@ import 'fake-indexeddb/auto';
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
+const runtimeCacheEntries = new Map<string, Response>();
+const mockRuntimeCache = {
+  put: vi.fn(async (url: string, response: Response) => {
+    runtimeCacheEntries.set(String(url), response);
+  }),
+};
+vi.stubGlobal('caches', {
+  open: vi.fn(async () => mockRuntimeCache),
+  match: vi.fn(async (url: string) => runtimeCacheEntries.get(String(url))),
+});
+
 // Mock console methods to suppress DEV-mode logging
 vi.spyOn(console, 'warn').mockImplementation(() => {});
 vi.spyOn(console, 'info').mockImplementation(() => {});
@@ -56,6 +67,8 @@ function mockResponse(ok: boolean, status: number, blobSize: number): Response {
 describe('audio-cache — deep coverage', () => {
   beforeEach(async () => {
     mockFetch.mockReset();
+    runtimeCacheEntries.clear();
+    mockRuntimeCache.put.mockClear();
     mockCreateObjectURL.mockClear();
     mockRevokeObjectURL.mockClear();
     await clearAudioCache();
@@ -78,6 +91,22 @@ describe('audio-cache — deep coverage', () => {
       mockFetch.mockRejectedValue(new Error('Network failure'));
       const result = await cacheSurahAudio(['https://example.com/fail.mp3'], 1, 'ar.alafasy');
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe('CORS-restricted audio fallback', () => {
+    it('should cache an opaque audio response and report it available offline', async () => {
+      const opaqueResponse = { clone: () => opaqueResponse } as unknown as Response;
+      mockFetch.mockRejectedValueOnce(new Error('CORS blocked')).mockResolvedValueOnce(opaqueResponse);
+
+      await cacheSurahAudio(['https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3'], 1, 'ar.alafasy');
+
+      expect(mockFetch).toHaveBeenLastCalledWith(
+        'https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3',
+        { mode: 'no-cors' },
+      );
+      expect(mockRuntimeCache.put).toHaveBeenCalledTimes(1);
+      expect(await isSurahCached(['https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3'])).toBe(true);
     });
   });
 
