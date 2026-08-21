@@ -116,6 +116,28 @@ test.describe('Quran App — Mobile Controls', () => {
   test('should rotate the Qibla needle from Chrome Android absolute orientation events', async ({ page, context }) => {
     await context.grantPermissions(['geolocation']);
     await context.setGeolocation({ latitude: 24.7136, longitude: 46.6753 });
+    await page.evaluate(() => {
+      // Headless Chromium may omit DeviceOrientationEvent even though Chrome
+      // Android supplies it. Keep this behavioral test focused on the exact
+      // absolute-orientation contract the app consumes on a real handset.
+      if (!window.DeviceOrientationEvent) {
+        class OrientationEvent extends Event {
+          constructor(type: string, init: DeviceOrientationEventInit = {}) {
+            super(type);
+            Object.defineProperties(this, {
+              absolute: { value: init.absolute ?? false },
+              alpha: { value: init.alpha ?? null },
+              beta: { value: init.beta ?? null },
+              gamma: { value: init.gamma ?? null },
+            });
+          }
+        }
+        Object.defineProperty(window, 'DeviceOrientationEvent', {
+          configurable: true,
+          value: OrientationEvent,
+        });
+      }
+    });
 
     await page.locator('#qiblaBtn').click();
     await expect(page.locator('#qiblaOverlay')).toBeVisible();
