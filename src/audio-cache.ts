@@ -38,6 +38,9 @@ const AUDIO_STORE = 'audioFiles';
 /** Object store name for cache metadata. */
 const META_STORE = 'cacheMeta';
 
+/** Runtime cache names shared with the PWA's Workbox audio routes. */
+const RUNTIME_AUDIO_CACHE_NAMES = ['islamic-cdn', 'quran-audio'];
+
 /* ===================== INTERFACES ===================== */
 
 /** Metadata entry for a cached audio file. */
@@ -161,6 +164,40 @@ async function storeAudioFile(url: string, surah: number, reciter: string): Prom
 }
 
 /**
+ * Store a cross-origin audio response for service-worker playback when the CDN
+ * permits normal media playback but does not expose bytes to fetch() via CORS.
+ */
+async function storeOpaqueAudioFile(url: string): Promise<boolean> {
+  if (!('caches' in globalThis)) {
+    return false;
+  }
+  try {
+    const cacheName = url.includes('mp3quran.net') ? RUNTIME_AUDIO_CACHE_NAMES[1]! : RUNTIME_AUDIO_CACHE_NAMES[0]!;
+    const response = await fetch(url, { mode: 'no-cors' });
+    const cache = await caches.open(cacheName);
+    await cache.put(url, response.clone());
+    return true;
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[AudioCache] Error storing opaque audio response:', err);
+    }
+    return false;
+  }
+}
+
+/** Check browser Cache Storage as a fallback for CORS-restricted audio CDNs. */
+async function isRuntimeAudioCached(url: string): Promise<boolean> {
+  if (!('caches' in globalThis)) {
+    return false;
+  }
+  try {
+    return Boolean(await caches.match(url));
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Evict oldest entries until the total cache size is within the limit.
  * Uses LRU (Least Recently Used) strategy — removes entries with the oldest lastAccessed time.
  *
@@ -270,8 +307,7 @@ export async function cacheSurahAudio(
       const url = validUrls[i]!;
 
       // Skip if already cached
-      const existing = await getCachedAudioBlob(url);
-      if (existing) {
+      if (await isAudioCached(url)) {
         // Update access time
         await updateAccessTime(url);
         cached++;
@@ -279,7 +315,8 @@ export async function cacheSurahAudio(
         continue;
       }
 
-      const success = await storeAudioFile(url, surah, reciter);
+      const storedInIndexedDB = await storeAudioFile(url, surah, reciter);
+      const success = storedInIndexedDB || await storeOpaqueAudioFile(url);
       if (success) {
         cached++;
       }
@@ -395,7 +432,7 @@ async function updateAccessTime(url: string): Promise<void> {
  */
 export async function isAudioCached(url: string): Promise<boolean> {
   const blob = await getCachedAudioBlob(url);
-  return blob !== null;
+  return blob !== null || isRuntimeAudioCached(url);
 }
 
 /**
