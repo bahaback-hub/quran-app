@@ -40,6 +40,25 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(page.locator('#hifzRoom')).toHaveAttribute('inert', '');
   });
 
+  test('lets the reader prepare a portion, repetition, and private review from inside the room', async ({ page }) => {
+    await page.locator('#hifzRoomToggle').click();
+
+    const room = page.locator('#hifzRoom');
+    await expect(room.locator('.hifz-room-steps li')).toHaveCount(3);
+    await expect(room.locator('#hifzRoomSurah')).toHaveValue('1');
+    await room.locator('#hifzRoomFrom').selectOption('2');
+    await room.locator('#hifzRoomTo').selectOption('5');
+    await room.locator('[data-hifz-repeat="10"]').click();
+    await room.locator('[data-hifz-review="tomorrow"]').click();
+
+    await expect(room.locator('#hifzRoomSummary')).toContainText(/2.*5.*10/);
+    await expect(room.locator('[data-hifz-repeat="10"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(room.locator('[data-hifz-review="tomorrow"]')).toHaveAttribute('aria-pressed', 'true');
+
+    await room.locator('#hifzRoomReturn').click();
+    await expect(room).not.toHaveClass(/is-open/);
+  });
+
   test('opens when its right-edge handle is dragged toward the reader', async ({ page }) => {
     const handle = page.locator('#hifzRoomToggle');
     const box = await handle.boundingBox();
