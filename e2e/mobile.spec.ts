@@ -141,7 +141,7 @@ test.describe('Quran App — Mobile Controls', () => {
 
     await page.locator('#qiblaBtn').click();
     await expect(page.locator('#qiblaOverlay')).toBeVisible();
-    await expect(page.locator('#qiblaStatus')).toContainText(/جاري تفعيل البوصلة|Starting compass/);
+    await expect(page.locator('#qiblaStatus')).toContainText(/جاري تفعيل البوصلة|Starting compass|الشمال الحقيقي|البوصلة الحية/);
     const needle = page.locator('#qiblaCompass .qibla-needle');
     const bearingBeforeHeading = await needle.getAttribute('style');
 
