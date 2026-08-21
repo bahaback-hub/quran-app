@@ -12,22 +12,30 @@ const translations: Record<string, string> = {
   hifz_room_session_title: 'جلسة الحفظ', hifz_room_reciter: 'المقرئ', hifz_room_speed: 'سرعة التلاوة',
   hifz_room_ayahs: 'الآيات {0}–{1}', hifz_room_restart: 'إعادة المقطع', hifz_room_repeat_progress: 'التكرار {0} من {1}',
   hifz_room_hide_text: 'إخفاء الآيات', hifz_room_show_text: 'إظهار الآيات', hifz_room_show_range: 'عرض المقطع كاملاً',
-  hifz_room_show_one: 'عرض آية واحدة', hifz_room_end: 'إنهاء الجلسة',
+  hifz_room_show_one: 'عرض آية واحدة', hifz_room_end: 'إنهاء الجلسة', hifz_room_download: 'تنزيل الجلسة',
+  hifz_room_download_working: 'جارٍ تنزيل الجلسة…', hifz_room_download_hint: 'احفظ الآيات المختارة لتعمل الجلسة دون إنترنت.',
+  hifz_room_download_preparing: 'جارٍ تجهيز ملفات الجلسة…', hifz_room_download_progress: 'جارٍ تنزيل الجلسة: {0}/{1}',
+  hifz_room_download_ready: 'الجلسة جاهزة للاستماع دون إنترنت.', hifz_room_download_cached: 'هذه الجلسة محفوظة بالفعل وتعمل دون إنترنت.',
+  hifz_room_download_failed: 'تعذر تنزيل الجلسة. تحقق من الاتصال ثم أعد المحاولة.',
 };
 
-const { mockState, mockStorage, mockLoadSurah, mockHighlightCurrentAyah, mockPlayCurrentAyah, mockTogglePlayPause } = vi.hoisted(() => ({
+const { mockState, mockStorage, mockLoadSurah, mockLoadAudioUrlsForSession, mockHighlightCurrentAyah, mockCacheSurahAudio, mockIsSurahCached, mockPlayCurrentAyah, mockTogglePlayPause } = vi.hoisted(() => ({
   mockState: {
     currentSurah: 1,
     currentAyahIndex: 0,
     currentReciter: 'ar.alafasy',
     repeatCounter: 0,
     isPlaying: false,
+    ayahsAudios: [] as string[],
     surahData: null as { name: string; ayahs: { numberInSurah: number; text: string }[] } | null,
     surahList: [] as { number: number; name: string; numberOfAyahs: number }[],
   },
   mockStorage: { get: vi.fn(), set: vi.fn() },
   mockLoadSurah: vi.fn(),
+  mockLoadAudioUrlsForSession: vi.fn(),
   mockHighlightCurrentAyah: vi.fn(),
+  mockCacheSurahAudio: vi.fn(),
+  mockIsSurahCached: vi.fn(),
   mockPlayCurrentAyah: vi.fn().mockResolvedValue(undefined),
   mockTogglePlayPause: vi.fn(),
 }));
@@ -35,8 +43,9 @@ const { mockState, mockStorage, mockLoadSurah, mockHighlightCurrentAyah, mockPla
 vi.mock('../i18n.js', () => ({ __: (key: string, ...args: string[]) => (translations[key] || key).replace(/\{(\d+)\}/g, (_, index) => args[Number(index)] || '') }));
 vi.mock('../state.js', () => ({ state: mockState }));
 vi.mock('../storage.js', () => ({ storage: mockStorage }));
-vi.mock('../surah-loader.js', () => ({ loadSurah: mockLoadSurah, highlightCurrentAyah: mockHighlightCurrentAyah }));
+vi.mock('../surah-loader.js', () => ({ loadSurah: mockLoadSurah, loadAudioUrlsForSession: mockLoadAudioUrlsForSession, highlightCurrentAyah: mockHighlightCurrentAyah }));
 vi.mock('../audio.js', () => ({ playCurrentAyah: mockPlayCurrentAyah, togglePlayPause: mockTogglePlayPause }));
+vi.mock('../audio-cache.js', () => ({ cacheSurahAudio: mockCacheSurahAudio, isSurahCached: mockIsSurahCached }));
 vi.mock('../reciters.js', () => ({
   RECITERS: [{ id: 'ar.alafasy' }, { id: 'ar.husary' }],
   getReciterDisplayName: (reciter: { id: string }) => reciter.id === 'ar.husary' ? 'الحصري' : 'العفاسي',
@@ -69,12 +78,15 @@ function addPlayerControls(): { hifdhClick: ReturnType<typeof vi.fn>; repeatClic
 beforeEach(() => {
   document.body.innerHTML = ''; document.body.className = ''; document.documentElement.className = ''; document.documentElement.dir = 'rtl';
   mockState.currentSurah = 1; mockState.currentAyahIndex = 1; mockState.currentReciter = 'ar.alafasy'; mockState.repeatCounter = 0; mockState.isPlaying = false;
+  mockState.ayahsAudios = [];
   mockState.surahData = { name: 'الفاتحة', ayahs: Array.from({ length: 7 }, (_, index) => ({ numberInSurah: index + 1, text: `آية ${index + 1}` })) };
   mockState.surahList = [
     { number: 1, name: 'الفاتحة', numberOfAyahs: 7 },
     { number: 67, name: 'الملك', numberOfAyahs: 30 },
   ];
   mockStorage.get.mockReturnValue(null); mockStorage.set.mockReturnValue(true); mockLoadSurah.mockResolvedValue(undefined); mockPlayCurrentAyah.mockResolvedValue(undefined);
+  mockLoadAudioUrlsForSession.mockResolvedValue(Array.from({ length: 7 }, (_, index) => `https://audio.test/${index + 1}.mp3`));
+  mockCacheSurahAudio.mockResolvedValue(undefined); mockIsSurahCached.mockResolvedValue(false);
   vi.clearAllMocks();
 });
 
@@ -135,6 +147,29 @@ describe('Hifz Room', () => {
     expect(mockLoadSurah).toHaveBeenCalledWith(1, { startAyah: 2 }); expect(hifdhClick).toHaveBeenCalledTimes(1); expect(repeatClick).toHaveBeenCalledTimes(1);
     expect((document.getElementById('repeatFrom') as HTMLSelectElement).value).toBe('2'); expect((document.getElementById('repeatTo') as HTMLSelectElement).value).toBe('5'); expect((document.getElementById('repeatTimes') as HTMLSelectElement).value).toBe('10');
     expect(room.querySelector('#hifzRoomStatus')!.textContent).toContain('فُعّل الحفظ والتكرار.');
+  });
+
+  it('downloads only the selected session range and marks it ready for offline listening', async () => {
+    mockIsSurahCached.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    initHifzRoom(); const room = document.getElementById('hifzRoom')!;
+    room.querySelector<HTMLSelectElement>('#hifzRoomFrom')!.value = '2'; room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.value = '5';
+    room.querySelector<HTMLButtonElement>('#hifzRoomDownload')!.click();
+    await vi.waitFor(() => expect(mockCacheSurahAudio).toHaveBeenCalledWith(
+      ['https://audio.test/2.mp3', 'https://audio.test/3.mp3', 'https://audio.test/4.mp3', 'https://audio.test/5.mp3'],
+      1,
+      'ar.alafasy',
+      expect.any(Function),
+    ));
+    await vi.waitFor(() => expect(room.querySelector('#hifzRoomDownloadStatus')!.textContent).toContain('جاهزة للاستماع دون إنترنت'));
+    expect(mockStorage.set).toHaveBeenCalledWith('hifz_session_downloads_v1', expect.any(Object));
+  });
+
+  it('reuses a fully cached selected session instead of downloading it again', async () => {
+    mockIsSurahCached.mockResolvedValue(true);
+    initHifzRoom(); const room = document.getElementById('hifzRoom')!;
+    room.querySelector<HTMLButtonElement>('#hifzRoomDownload')!.click();
+    await vi.waitFor(() => expect(room.querySelector('#hifzRoomDownloadStatus')!.textContent).toContain('محفوظة بالفعل'));
+    expect(mockCacheSurahAudio).not.toHaveBeenCalled();
   });
 
   it('runs a focused in-room session with ayah display, audio preferences, and manual hiding', async () => {

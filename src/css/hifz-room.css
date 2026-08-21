@@ -397,6 +397,57 @@ body.hifz-room-active .hifz-room-toggle {
   opacity: 0.62;
 }
 
+.hifz-room-download {
+  width: 100%;
+  min-height: 2.55rem;
+  margin-top: 0.55rem;
+  border: 1px solid rgb(31 91 73 / 30%);
+  border-radius: 10px;
+  color: #1f5b49;
+  background: rgb(255 255 255 / 62%);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out, ease-out), background 160ms ease-out, color 160ms ease-out;
+}
+
+.hifz-room-download:hover,
+.hifz-room-download:focus-visible {
+  color: #f8f3e9;
+  background: #1f5b49;
+  outline: 3px solid rgb(165 132 82 / 55%);
+  outline-offset: 2px;
+}
+
+.hifz-room-download:active {
+  transform: scale(0.98);
+}
+
+.hifz-room-download:disabled {
+  cursor: progress;
+  opacity: 0.65;
+}
+
+.hifz-room-download-status {
+  min-height: 1.35rem;
+  margin: 0.35rem 0 0;
+  color: #66746b;
+  font-size: 0.73rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.hifz-room-download-status[data-state='ready'] {
+  color: #1f5b49;
+  font-weight: 800;
+}
+
+.hifz-room-download-status[data-state='error'] {
+  color: #9b3f2b;
+  font-weight: 700;
+}
+
 .hifz-room-return {
   width: 100%;
   min-height: 2.4rem;
@@ -567,6 +618,10 @@ body.hifz-room-focused-active .hifz-room-stage {
 .hifz-room-focus-actions button:focus-visible {
   outline: 3px solid rgb(165 132 82 / 55%);
   outline-offset: 2px;
+}
+
+.hifz-room-focus-controls .hifz-room-download {
+  margin-top: 0.1rem;
 }
 
 @media (max-width: 760px) {

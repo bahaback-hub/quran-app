@@ -6,8 +6,9 @@
 
 import { __ } from './i18n.js';
 import { playCurrentAyah, togglePlayPause } from './audio.js';
+import { cacheSurahAudio, isSurahCached } from './audio-cache.js';
 import { getReciterDisplayName, RECITERS } from './reciters.js';
-import { highlightCurrentAyah, loadSurah } from './surah-loader.js';
+import { highlightCurrentAyah, loadAudioUrlsForSession, loadSurah } from './surah-loader.js';
 import { state } from './state.js';
 import { storage } from './storage.js';
 
@@ -16,6 +17,7 @@ const ROOM_ID = 'hifzRoom';
 const TOGGLE_ID = 'hifzRoomToggle';
 const STAGE_ID = 'hifzRoomStage';
 const PLAN_STORAGE_KEY = 'hifz_plan_v1';
+const DOWNLOAD_STORAGE_KEY = 'hifz_session_downloads_v1';
 const REPEAT_COUNTS = [2, 3, 5, 10, 20];
 const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5];
 
@@ -40,6 +42,8 @@ interface HifzRoomControls {
   summary: HTMLElement;
   status: HTMLElement;
   start: HTMLButtonElement;
+  download: HTMLButtonElement;
+  downloadStatus: HTMLElement;
 }
 
 interface FocusedSessionControls {
@@ -53,7 +57,14 @@ interface FocusedSessionControls {
   repeat: HTMLElement;
   hideText: HTMLButtonElement;
   toggleRange: HTMLButtonElement;
+  download: HTMLButtonElement;
+  downloadStatus: HTMLElement;
   end: HTMLButtonElement;
+}
+
+interface SessionDownloadRecord {
+  urls: string[];
+  downloadedAt: number;
 }
 
 function label(key: string, ...args: string[]): string {
@@ -139,7 +150,11 @@ function getControls(room: HTMLElement): HifzRoomControls | null {
   const summary = room.querySelector<HTMLElement>('#hifzRoomSummary');
   const status = room.querySelector<HTMLElement>('#hifzRoomStatus');
   const start = room.querySelector<HTMLButtonElement>('#hifzRoomStart');
-  return surah && from && to && summary && status && start ? { surah, from, to, summary, status, start } : null;
+  const download = room.querySelector<HTMLButtonElement>('#hifzRoomDownload');
+  const downloadStatus = room.querySelector<HTMLElement>('#hifzRoomDownloadStatus');
+  return surah && from && to && summary && status && start && download && downloadStatus
+    ? { surah, from, to, summary, status, start, download, downloadStatus }
+    : null;
 }
 
 function fillSurahOptions(select: HTMLSelectElement, selected: number): void {
@@ -203,9 +218,11 @@ function getFocusedControls(room: HTMLElement): FocusedSessionControls | null {
   const repeat = room.querySelector<HTMLElement>('#hifzRoomRepeatProgress');
   const hideText = room.querySelector<HTMLButtonElement>('#hifzRoomHideText');
   const toggleRange = room.querySelector<HTMLButtonElement>('#hifzRoomToggleRange');
+  const download = room.querySelector<HTMLButtonElement>('#hifzRoomFocusDownload');
+  const downloadStatus = room.querySelector<HTMLElement>('#hifzRoomFocusDownloadStatus');
   const end = room.querySelector<HTMLButtonElement>('#hifzRoomEnd');
-  return stage && stageMeta && stageText && reciter && speed && play && restart && repeat && hideText && toggleRange && end
-    ? { stage, stageMeta, stageText, reciter, speed, play, restart, repeat, hideText, toggleRange, end }
+  return stage && stageMeta && stageText && reciter && speed && play && restart && repeat && hideText && toggleRange && download && downloadStatus && end
+    ? { stage, stageMeta, stageText, reciter, speed, play, restart, repeat, hideText, toggleRange, download, downloadStatus, end }
     : null;
 }
 
@@ -253,6 +270,118 @@ function readSessionPlan(room: HTMLElement): HifzPlan | null {
     reciter: focused.reciter.value,
     speed: parseFloat(focused.speed.value),
   });
+}
+
+function sessionDownloadKey(plan: HifzPlan): string {
+  return `${plan.surah}:${plan.from}:${plan.to}:${plan.reciter}`;
+}
+
+function getSavedSessionDownload(plan: HifzPlan): SessionDownloadRecord | null {
+  const records = storage.get<Record<string, SessionDownloadRecord>>(DOWNLOAD_STORAGE_KEY);
+  const record = records?.[sessionDownloadKey(plan)];
+  return record && Array.isArray(record.urls) && record.urls.length === plan.to - plan.from + 1 ? record : null;
+}
+
+function saveSessionDownload(plan: HifzPlan, urls: string[]): void {
+  const records = storage.get<Record<string, SessionDownloadRecord>>(DOWNLOAD_STORAGE_KEY) || {};
+  records[sessionDownloadKey(plan)] = { urls, downloadedAt: Date.now() };
+  storage.set(DOWNLOAD_STORAGE_KEY, records);
+}
+
+function getDownloadButtons(room: HTMLElement): HTMLButtonElement[] {
+  return [
+    room.querySelector<HTMLButtonElement>('#hifzRoomDownload'),
+    room.querySelector<HTMLButtonElement>('#hifzRoomFocusDownload'),
+  ].filter((button): button is HTMLButtonElement => button !== null);
+}
+
+function setSessionDownloadStatus(room: HTMLElement, key: string, stateName = 'idle', ...args: string[]): void {
+  room.querySelectorAll<HTMLElement>('#hifzRoomDownloadStatus, #hifzRoomFocusDownloadStatus').forEach((status) => {
+    status.textContent = label(key, ...args);
+    status.dataset['state'] = stateName;
+  });
+}
+
+function setSessionDownloadBusy(room: HTMLElement, busy: boolean): void {
+  getDownloadButtons(room).forEach((button) => {
+    button.disabled = busy;
+    button.textContent = label(busy ? 'hifz_room_download_working' : 'hifz_room_download');
+  });
+}
+
+async function resolveSessionAudioUrls(plan: HifzPlan): Promise<string[]> {
+  const expectedCount = plan.to - plan.from + 1;
+  if (state.currentSurah === plan.surah && state.currentReciter === plan.reciter && state.ayahsAudios.length >= plan.to) {
+    const currentUrls = state.ayahsAudios.slice(plan.from - 1, plan.to).filter((url): url is string => Boolean(url));
+    if (currentUrls.length === expectedCount) {
+      return currentUrls;
+    }
+  }
+  const allUrls = await loadAudioUrlsForSession(plan.surah, plan.reciter, getAyahCount(plan.surah));
+  const rangeUrls = allUrls.slice(plan.from - 1, plan.to).filter((url): url is string => Boolean(url));
+  if (rangeUrls.length !== expectedCount) {
+    throw new Error('Session audio URLs are unavailable');
+  }
+  return rangeUrls;
+}
+
+async function refreshSessionDownloadStatus(room: HTMLElement, plan = readSessionPlan(room)): Promise<void> {
+  if (!plan) {
+    return;
+  }
+  getDownloadButtons(room).forEach((button) => {
+    if (!button.disabled) {
+      button.textContent = label('hifz_room_download');
+    }
+  });
+  const record = getSavedSessionDownload(plan);
+  if (!record || !(await isSurahCached(record.urls))) {
+    setSessionDownloadStatus(room, 'hifz_room_download_hint');
+    return;
+  }
+  setSessionDownloadStatus(room, 'hifz_room_download_cached', 'ready');
+}
+
+async function hydrateDownloadedSessionAudio(plan: HifzPlan): Promise<void> {
+  const record = getSavedSessionDownload(plan);
+  if (!record || !state.surahData || state.currentSurah !== plan.surah || !(await isSurahCached(record.urls))) {
+    return;
+  }
+  const hydrated = Array.from({ length: state.surahData.ayahs.length }, (_, index) => state.ayahsAudios[index] || '');
+  record.urls.forEach((url, index) => {
+    hydrated[plan.from - 1 + index] = url;
+  });
+  state.ayahsAudios = hydrated;
+}
+
+async function downloadSessionAudio(room: HTMLElement): Promise<void> {
+  const plan = readSessionPlan(room);
+  if (!plan) {
+    return;
+  }
+  setSessionDownloadBusy(room, true);
+  setSessionDownloadStatus(room, 'hifz_room_download_preparing', 'working');
+  try {
+    const playbackUrls = await resolveSessionAudioUrls(plan);
+    if (await isSurahCached(playbackUrls)) {
+      saveSessionDownload(plan, playbackUrls);
+      setSessionDownloadStatus(room, 'hifz_room_download_cached', 'ready');
+      return;
+    }
+    const uniqueUrls = [...new Set(playbackUrls)];
+    await cacheSurahAudio(uniqueUrls, plan.surah, plan.reciter, (_surah, _reciter, current, total) => {
+      setSessionDownloadStatus(room, 'hifz_room_download_progress', 'working', String(current), String(total));
+    });
+    if (!(await isSurahCached(playbackUrls))) {
+      throw new Error('Session audio cache is incomplete');
+    }
+    saveSessionDownload(plan, playbackUrls);
+    setSessionDownloadStatus(room, 'hifz_room_download_ready', 'ready');
+  } catch {
+    setSessionDownloadStatus(room, 'hifz_room_download_failed', 'error');
+  } finally {
+    setSessionDownloadBusy(room, false);
+  }
 }
 
 function getPlanAyahs(plan: HifzPlan): { numberInSurah: number; text: string }[] {
@@ -366,6 +495,7 @@ async function updateFocusedReciter(room: HTMLElement): Promise<void> {
   await loadSurah(plan.surah, { startAyah: currentAyah });
   activateCurrentHifzTools(plan);
   updateFocusedSession(room, plan);
+  void refreshSessionDownloadStatus(room, plan);
 }
 
 function updateFocusedSpeed(room: HTMLElement): void {
@@ -396,6 +526,7 @@ function refreshForm(room: HTMLElement, plan = getDefaultPlan()): void {
     fillSpeedOptions(focused.speed, normalized.speed);
   }
   updateSummary(room);
+  void refreshSessionDownloadStatus(room, normalized);
 }
 
 function renderRoomText(room: HTMLElement): void {
@@ -494,6 +625,7 @@ async function startHifzSession(room: HTMLElement): Promise<void> {
   try {
     applySessionAudioPreferences(plan);
     await loadSurah(plan.surah, { startAyah: plan.from });
+    await hydrateDownloadedSessionAudio(plan);
     const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
     if (mainSelect) {
       mainSelect.value = String(plan.surah);
@@ -580,7 +712,7 @@ export function initHifzRoom(): void {
         <ol class="hifz-room-steps" aria-label="خطوات جلسة الحفظ"><li data-hifz-key="hifz_room_step_portion"></li><li data-hifz-key="hifz_room_step_repeat"></li><li data-hifz-key="hifz_room_step_start"></li></ol>
         <section class="hifz-room-session" aria-labelledby="hifzRoomToday"><p id="hifzRoomToday" class="hifz-room-card-label" data-hifz-key="hifz_room_today"></p><label class="hifz-room-field hifz-room-field-full"><span data-hifz-key="hifz_room_surah"></span><select id="hifzRoomSurah"></select></label><div class="hifz-room-range"><label class="hifz-room-field"><span data-hifz-key="hifz_room_from_ayah"></span><select id="hifzRoomFrom"></select></label><label class="hifz-room-field"><span data-hifz-key="hifz_room_to_ayah"></span><select id="hifzRoomTo"></select></label></div></section>
         <section class="hifz-room-repeat" aria-labelledby="hifzRoomRepeatTitle"><p id="hifzRoomRepeatTitle" class="hifz-room-card-label" data-hifz-key="hifz_room_repeat"></p><div class="hifz-room-choice-row" role="group"><button type="button" data-hifz-repeat="3">3×</button><button type="button" data-hifz-repeat="5">5×</button><button type="button" data-hifz-repeat="10">10×</button></div></section>
-        <p class="hifz-room-summary" id="hifzRoomSummary"></p><button class="hifz-room-start" id="hifzRoomStart" type="button" data-hifz-key="hifz_room_start"></button><button class="hifz-room-return" id="hifzRoomReturn" type="button" data-hifz-key="hifz_room_return_reader"></button><p class="hifz-room-status" id="hifzRoomStatus" aria-live="polite"></p>
+        <p class="hifz-room-summary" id="hifzRoomSummary"></p><button class="hifz-room-start" id="hifzRoomStart" type="button" data-hifz-key="hifz_room_start"></button><button class="hifz-room-download" id="hifzRoomDownload" type="button" data-hifz-key="hifz_room_download"></button><p class="hifz-room-download-status" id="hifzRoomDownloadStatus" aria-live="polite"></p><button class="hifz-room-return" id="hifzRoomReturn" type="button" data-hifz-key="hifz_room_return_reader"></button><p class="hifz-room-status" id="hifzRoomStatus" aria-live="polite"></p>
         <section class="hifz-room-review" aria-labelledby="hifzRoomReviewTitle"><span class="hifz-room-review-mark" aria-hidden="true"></span><div><p id="hifzRoomReviewTitle" data-hifz-key="hifz_room_review"></p><div class="hifz-room-choice-row hifz-room-review-choices" role="group"><button type="button" data-hifz-review="today" data-hifz-key="hifz_room_review_today"></button><button type="button" data-hifz-review="tomorrow" data-hifz-key="hifz_room_review_tomorrow"></button><button type="button" data-hifz-review="later" data-hifz-key="hifz_room_review_later"></button></div></div></section>
         <p class="hifz-room-footnote" data-hifz-key="hifz_room_footnote"></p>
       </div>
@@ -590,6 +722,7 @@ export function initHifzRoom(): void {
         <p id="hifzRoomRepeatProgress" class="hifz-room-repeat-progress" aria-live="polite"></p>
         <div class="hifz-room-focus-actions"><button id="hifzRoomPlay" type="button"></button><button id="hifzRoomRestart" type="button"></button></div>
         <div class="hifz-room-focus-actions hifz-room-focus-actions-secondary"><button id="hifzRoomHideText" type="button"></button><button id="hifzRoomToggleRange" type="button"></button></div>
+        <button class="hifz-room-download" id="hifzRoomFocusDownload" type="button" data-hifz-key="hifz_room_download"></button><p class="hifz-room-download-status" id="hifzRoomFocusDownloadStatus" aria-live="polite"></p>
         <button class="hifz-room-return" id="hifzRoomEnd" type="button"></button>
       </section>
     </section>`;
@@ -624,6 +757,7 @@ export function initHifzRoom(): void {
   closeButton?.addEventListener('click', () => closeHifzRoom(true));
   room.querySelector<HTMLButtonElement>('#hifzRoomReturn')?.addEventListener('click', () => closeHifzRoom(false));
   getControls(room)?.start.addEventListener('click', () => void startHifzSession(room));
+  getControls(room)?.download.addEventListener('click', () => void downloadSessionAudio(room));
   const focused = getFocusedControls(room);
   if (focused) {
     const refreshFocused = () => {
@@ -646,6 +780,7 @@ export function initHifzRoom(): void {
       refreshFocused();
     });
     focused.end.addEventListener('click', () => leaveFocusedSession(room));
+    focused.download.addEventListener('click', () => void downloadSessionAudio(room));
     focused.reciter.addEventListener('change', () => void updateFocusedReciter(room));
     focused.speed.addEventListener('change', () => updateFocusedSpeed(room));
     const audio = document.getElementById('audioPlayer') as HTMLAudioElement | null;
@@ -663,8 +798,12 @@ export function initHifzRoom(): void {
     fillAyahOptions(controls.from, count, Math.min(plan.from, count));
     fillAyahOptions(controls.to, count, Math.min(Math.max(plan.from, plan.to), count));
     updateSummary(room);
+    void refreshSessionDownloadStatus(room);
   });
-  room.querySelectorAll<HTMLSelectElement>('#hifzRoomFrom, #hifzRoomTo').forEach((select) => select.addEventListener('change', () => updateSummary(room)));
+  room.querySelectorAll<HTMLSelectElement>('#hifzRoomFrom, #hifzRoomTo').forEach((select) => select.addEventListener('change', () => {
+    updateSummary(room);
+    void refreshSessionDownloadStatus(room);
+  }));
   room.querySelectorAll<HTMLButtonElement>('[data-hifz-repeat]').forEach((button) => button.addEventListener('click', () => {
     setChoice(room, '[data-hifz-repeat]', button.dataset['hifzRepeat'] || '5');
     updateSummary(room);
