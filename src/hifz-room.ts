@@ -59,6 +59,7 @@ export function closeHifzRoom(returnFocus = false): void {
   room.classList.remove('is-open', 'is-dragging');
   room.style.removeProperty('transform');
   room.setAttribute('aria-hidden', 'true');
+  room.setAttribute('inert', '');
   document.body.classList.remove('hifz-room-active');
   toggle?.setAttribute('aria-expanded', 'false');
   if (returnFocus) {
@@ -77,6 +78,7 @@ export function openHifzRoom(): void {
   room.classList.add('is-open');
   room.style.removeProperty('transform');
   room.setAttribute('aria-hidden', 'false');
+  room.removeAttribute('inert');
   document.body.classList.add('hifz-room-active');
   toggle?.setAttribute('aria-expanded', 'true');
   window.setTimeout(() => closeButton?.focus(), 0);
@@ -174,6 +176,7 @@ export function initHifzRoom(): void {
   room.className = 'hifz-room hifz-room--rtl';
   room.dir = 'rtl';
   room.setAttribute('aria-hidden', 'true');
+  room.setAttribute('inert', '');
   room.style.setProperty('--hifz-room-background', `url("${BACKGROUND_URL}")`);
   room.innerHTML = `
     <div class="hifz-room-scene" aria-hidden="true"></div>

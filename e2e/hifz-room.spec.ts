@@ -13,6 +13,7 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     const room = page.locator('#hifzRoom');
     await expect(room).toHaveClass(/is-open/);
     await expect(room).toHaveAttribute('aria-hidden', 'false');
+    await expect(room).not.toHaveAttribute('inert', '');
     await expect(room.locator('#hifzRoomTitle')).toHaveText(/غرفة الحفظ/);
     await expect(room.locator('.hifz-room-scene')).toHaveCSS('background-image', /files\.manuscdn\.com/);
     await expect(room.locator('#hifzRoomStart')).toBeVisible();
@@ -36,6 +37,7 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await page.keyboard.press('Escape');
     await expect(page.locator('#hifzRoom')).not.toHaveClass(/is-open/);
     await expect(page.locator('#hifzRoom')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('#hifzRoom')).toHaveAttribute('inert', '');
   });
 
   test('opens when its right-edge handle is dragged toward the reader', async ({ page }) => {
