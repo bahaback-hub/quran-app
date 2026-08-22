@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "status": "partial-draft",
-  "totalEntries": 3127,
+  "status": "complete-local-draft",
+  "totalEntries": 6236,
   "surahs": [
     {
       "surah": 1,
@@ -181,16 +181,625 @@
     {
       "surah": 26,
       "file": "surah-026.json",
-      "ayahCount": 163,
+      "ayahCount": 227,
       "firstAyah": 1,
       "lastAyah": 227
     },
     {
       "surah": 27,
       "file": "surah-027.json",
-      "ayahCount": 32,
+      "ayahCount": 93,
       "firstAyah": 1,
-      "lastAyah": 32
+      "lastAyah": 93
+    },
+    {
+      "surah": 28,
+      "file": "surah-028.json",
+      "ayahCount": 88,
+      "firstAyah": 1,
+      "lastAyah": 88
+    },
+    {
+      "surah": 29,
+      "file": "surah-029.json",
+      "ayahCount": 69,
+      "firstAyah": 1,
+      "lastAyah": 69
+    },
+    {
+      "surah": 30,
+      "file": "surah-030.json",
+      "ayahCount": 60,
+      "firstAyah": 1,
+      "lastAyah": 60
+    },
+    {
+      "surah": 31,
+      "file": "surah-031.json",
+      "ayahCount": 34,
+      "firstAyah": 1,
+      "lastAyah": 34
+    },
+    {
+      "surah": 32,
+      "file": "surah-032.json",
+      "ayahCount": 30,
+      "firstAyah": 1,
+      "lastAyah": 30
+    },
+    {
+      "surah": 33,
+      "file": "surah-033.json",
+      "ayahCount": 73,
+      "firstAyah": 1,
+      "lastAyah": 73
+    },
+    {
+      "surah": 34,
+      "file": "surah-034.json",
+      "ayahCount": 54,
+      "firstAyah": 1,
+      "lastAyah": 54
+    },
+    {
+      "surah": 35,
+      "file": "surah-035.json",
+      "ayahCount": 45,
+      "firstAyah": 1,
+      "lastAyah": 45
+    },
+    {
+      "surah": 36,
+      "file": "surah-036.json",
+      "ayahCount": 83,
+      "firstAyah": 1,
+      "lastAyah": 83
+    },
+    {
+      "surah": 37,
+      "file": "surah-037.json",
+      "ayahCount": 182,
+      "firstAyah": 1,
+      "lastAyah": 182
+    },
+    {
+      "surah": 38,
+      "file": "surah-038.json",
+      "ayahCount": 88,
+      "firstAyah": 1,
+      "lastAyah": 88
+    },
+    {
+      "surah": 39,
+      "file": "surah-039.json",
+      "ayahCount": 75,
+      "firstAyah": 1,
+      "lastAyah": 75
+    },
+    {
+      "surah": 40,
+      "file": "surah-040.json",
+      "ayahCount": 85,
+      "firstAyah": 1,
+      "lastAyah": 85
+    },
+    {
+      "surah": 41,
+      "file": "surah-041.json",
+      "ayahCount": 54,
+      "firstAyah": 1,
+      "lastAyah": 54
+    },
+    {
+      "surah": 42,
+      "file": "surah-042.json",
+      "ayahCount": 53,
+      "firstAyah": 1,
+      "lastAyah": 53
+    },
+    {
+      "surah": 43,
+      "file": "surah-043.json",
+      "ayahCount": 89,
+      "firstAyah": 1,
+      "lastAyah": 89
+    },
+    {
+      "surah": 44,
+      "file": "surah-044.json",
+      "ayahCount": 59,
+      "firstAyah": 1,
+      "lastAyah": 59
+    },
+    {
+      "surah": 45,
+      "file": "surah-045.json",
+      "ayahCount": 37,
+      "firstAyah": 1,
+      "lastAyah": 37
+    },
+    {
+      "surah": 46,
+      "file": "surah-046.json",
+      "ayahCount": 35,
+      "firstAyah": 1,
+      "lastAyah": 35
+    },
+    {
+      "surah": 47,
+      "file": "surah-047.json",
+      "ayahCount": 38,
+      "firstAyah": 1,
+      "lastAyah": 38
+    },
+    {
+      "surah": 48,
+      "file": "surah-048.json",
+      "ayahCount": 29,
+      "firstAyah": 1,
+      "lastAyah": 29
+    },
+    {
+      "surah": 49,
+      "file": "surah-049.json",
+      "ayahCount": 18,
+      "firstAyah": 1,
+      "lastAyah": 18
+    },
+    {
+      "surah": 50,
+      "file": "surah-050.json",
+      "ayahCount": 45,
+      "firstAyah": 1,
+      "lastAyah": 45
+    },
+    {
+      "surah": 51,
+      "file": "surah-051.json",
+      "ayahCount": 60,
+      "firstAyah": 1,
+      "lastAyah": 60
+    },
+    {
+      "surah": 52,
+      "file": "surah-052.json",
+      "ayahCount": 49,
+      "firstAyah": 1,
+      "lastAyah": 49
+    },
+    {
+      "surah": 53,
+      "file": "surah-053.json",
+      "ayahCount": 62,
+      "firstAyah": 1,
+      "lastAyah": 62
+    },
+    {
+      "surah": 54,
+      "file": "surah-054.json",
+      "ayahCount": 55,
+      "firstAyah": 1,
+      "lastAyah": 55
+    },
+    {
+      "surah": 55,
+      "file": "surah-055.json",
+      "ayahCount": 78,
+      "firstAyah": 1,
+      "lastAyah": 78
+    },
+    {
+      "surah": 56,
+      "file": "surah-056.json",
+      "ayahCount": 96,
+      "firstAyah": 1,
+      "lastAyah": 96
+    },
+    {
+      "surah": 57,
+      "file": "surah-057.json",
+      "ayahCount": 29,
+      "firstAyah": 1,
+      "lastAyah": 29
+    },
+    {
+      "surah": 58,
+      "file": "surah-058.json",
+      "ayahCount": 22,
+      "firstAyah": 1,
+      "lastAyah": 22
+    },
+    {
+      "surah": 59,
+      "file": "surah-059.json",
+      "ayahCount": 24,
+      "firstAyah": 1,
+      "lastAyah": 24
+    },
+    {
+      "surah": 60,
+      "file": "surah-060.json",
+      "ayahCount": 13,
+      "firstAyah": 1,
+      "lastAyah": 13
+    },
+    {
+      "surah": 61,
+      "file": "surah-061.json",
+      "ayahCount": 14,
+      "firstAyah": 1,
+      "lastAyah": 14
+    },
+    {
+      "surah": 62,
+      "file": "surah-062.json",
+      "ayahCount": 11,
+      "firstAyah": 1,
+      "lastAyah": 11
+    },
+    {
+      "surah": 63,
+      "file": "surah-063.json",
+      "ayahCount": 11,
+      "firstAyah": 1,
+      "lastAyah": 11
+    },
+    {
+      "surah": 64,
+      "file": "surah-064.json",
+      "ayahCount": 18,
+      "firstAyah": 1,
+      "lastAyah": 18
+    },
+    {
+      "surah": 65,
+      "file": "surah-065.json",
+      "ayahCount": 12,
+      "firstAyah": 1,
+      "lastAyah": 12
+    },
+    {
+      "surah": 66,
+      "file": "surah-066.json",
+      "ayahCount": 12,
+      "firstAyah": 1,
+      "lastAyah": 12
+    },
+    {
+      "surah": 67,
+      "file": "surah-067.json",
+      "ayahCount": 30,
+      "firstAyah": 1,
+      "lastAyah": 30
+    },
+    {
+      "surah": 68,
+      "file": "surah-068.json",
+      "ayahCount": 52,
+      "firstAyah": 1,
+      "lastAyah": 52
+    },
+    {
+      "surah": 69,
+      "file": "surah-069.json",
+      "ayahCount": 52,
+      "firstAyah": 1,
+      "lastAyah": 52
+    },
+    {
+      "surah": 70,
+      "file": "surah-070.json",
+      "ayahCount": 44,
+      "firstAyah": 1,
+      "lastAyah": 44
+    },
+    {
+      "surah": 71,
+      "file": "surah-071.json",
+      "ayahCount": 28,
+      "firstAyah": 1,
+      "lastAyah": 28
+    },
+    {
+      "surah": 72,
+      "file": "surah-072.json",
+      "ayahCount": 28,
+      "firstAyah": 1,
+      "lastAyah": 28
+    },
+    {
+      "surah": 73,
+      "file": "surah-073.json",
+      "ayahCount": 20,
+      "firstAyah": 1,
+      "lastAyah": 20
+    },
+    {
+      "surah": 74,
+      "file": "surah-074.json",
+      "ayahCount": 56,
+      "firstAyah": 1,
+      "lastAyah": 56
+    },
+    {
+      "surah": 75,
+      "file": "surah-075.json",
+      "ayahCount": 40,
+      "firstAyah": 1,
+      "lastAyah": 40
+    },
+    {
+      "surah": 76,
+      "file": "surah-076.json",
+      "ayahCount": 31,
+      "firstAyah": 1,
+      "lastAyah": 31
+    },
+    {
+      "surah": 77,
+      "file": "surah-077.json",
+      "ayahCount": 50,
+      "firstAyah": 1,
+      "lastAyah": 50
+    },
+    {
+      "surah": 78,
+      "file": "surah-078.json",
+      "ayahCount": 40,
+      "firstAyah": 1,
+      "lastAyah": 40
+    },
+    {
+      "surah": 79,
+      "file": "surah-079.json",
+      "ayahCount": 46,
+      "firstAyah": 1,
+      "lastAyah": 46
+    },
+    {
+      "surah": 80,
+      "file": "surah-080.json",
+      "ayahCount": 42,
+      "firstAyah": 1,
+      "lastAyah": 42
+    },
+    {
+      "surah": 81,
+      "file": "surah-081.json",
+      "ayahCount": 29,
+      "firstAyah": 1,
+      "lastAyah": 29
+    },
+    {
+      "surah": 82,
+      "file": "surah-082.json",
+      "ayahCount": 19,
+      "firstAyah": 1,
+      "lastAyah": 19
+    },
+    {
+      "surah": 83,
+      "file": "surah-083.json",
+      "ayahCount": 36,
+      "firstAyah": 1,
+      "lastAyah": 36
+    },
+    {
+      "surah": 84,
+      "file": "surah-084.json",
+      "ayahCount": 25,
+      "firstAyah": 1,
+      "lastAyah": 25
+    },
+    {
+      "surah": 85,
+      "file": "surah-085.json",
+      "ayahCount": 22,
+      "firstAyah": 1,
+      "lastAyah": 22
+    },
+    {
+      "surah": 86,
+      "file": "surah-086.json",
+      "ayahCount": 17,
+      "firstAyah": 1,
+      "lastAyah": 17
+    },
+    {
+      "surah": 87,
+      "file": "surah-087.json",
+      "ayahCount": 19,
+      "firstAyah": 1,
+      "lastAyah": 19
+    },
+    {
+      "surah": 88,
+      "file": "surah-088.json",
+      "ayahCount": 26,
+      "firstAyah": 1,
+      "lastAyah": 26
+    },
+    {
+      "surah": 89,
+      "file": "surah-089.json",
+      "ayahCount": 30,
+      "firstAyah": 1,
+      "lastAyah": 30
+    },
+    {
+      "surah": 90,
+      "file": "surah-090.json",
+      "ayahCount": 20,
+      "firstAyah": 1,
+      "lastAyah": 20
+    },
+    {
+      "surah": 91,
+      "file": "surah-091.json",
+      "ayahCount": 15,
+      "firstAyah": 1,
+      "lastAyah": 15
+    },
+    {
+      "surah": 92,
+      "file": "surah-092.json",
+      "ayahCount": 21,
+      "firstAyah": 1,
+      "lastAyah": 21
+    },
+    {
+      "surah": 93,
+      "file": "surah-093.json",
+      "ayahCount": 11,
+      "firstAyah": 1,
+      "lastAyah": 11
+    },
+    {
+      "surah": 94,
+      "file": "surah-094.json",
+      "ayahCount": 8,
+      "firstAyah": 1,
+      "lastAyah": 8
+    },
+    {
+      "surah": 95,
+      "file": "surah-095.json",
+      "ayahCount": 8,
+      "firstAyah": 1,
+      "lastAyah": 8
+    },
+    {
+      "surah": 96,
+      "file": "surah-096.json",
+      "ayahCount": 19,
+      "firstAyah": 1,
+      "lastAyah": 19
+    },
+    {
+      "surah": 97,
+      "file": "surah-097.json",
+      "ayahCount": 5,
+      "firstAyah": 1,
+      "lastAyah": 5
+    },
+    {
+      "surah": 98,
+      "file": "surah-098.json",
+      "ayahCount": 8,
+      "firstAyah": 1,
+      "lastAyah": 8
+    },
+    {
+      "surah": 99,
+      "file": "surah-099.json",
+      "ayahCount": 8,
+      "firstAyah": 1,
+      "lastAyah": 8
+    },
+    {
+      "surah": 100,
+      "file": "surah-100.json",
+      "ayahCount": 11,
+      "firstAyah": 1,
+      "lastAyah": 11
+    },
+    {
+      "surah": 101,
+      "file": "surah-101.json",
+      "ayahCount": 11,
+      "firstAyah": 1,
+      "lastAyah": 11
+    },
+    {
+      "surah": 102,
+      "file": "surah-102.json",
+      "ayahCount": 8,
+      "firstAyah": 1,
+      "lastAyah": 8
+    },
+    {
+      "surah": 103,
+      "file": "surah-103.json",
+      "ayahCount": 3,
+      "firstAyah": 1,
+      "lastAyah": 3
+    },
+    {
+      "surah": 104,
+      "file": "surah-104.json",
+      "ayahCount": 9,
+      "firstAyah": 1,
+      "lastAyah": 9
+    },
+    {
+      "surah": 105,
+      "file": "surah-105.json",
+      "ayahCount": 5,
+      "firstAyah": 1,
+      "lastAyah": 5
+    },
+    {
+      "surah": 106,
+      "file": "surah-106.json",
+      "ayahCount": 4,
+      "firstAyah": 1,
+      "lastAyah": 4
+    },
+    {
+      "surah": 107,
+      "file": "surah-107.json",
+      "ayahCount": 7,
+      "firstAyah": 1,
+      "lastAyah": 7
+    },
+    {
+      "surah": 108,
+      "file": "surah-108.json",
+      "ayahCount": 3,
+      "firstAyah": 1,
+      "lastAyah": 3
+    },
+    {
+      "surah": 109,
+      "file": "surah-109.json",
+      "ayahCount": 6,
+      "firstAyah": 1,
+      "lastAyah": 6
+    },
+    {
+      "surah": 110,
+      "file": "surah-110.json",
+      "ayahCount": 3,
+      "firstAyah": 1,
+      "lastAyah": 3
+    },
+    {
+      "surah": 111,
+      "file": "surah-111.json",
+      "ayahCount": 5,
+      "firstAyah": 1,
+      "lastAyah": 5
+    },
+    {
+      "surah": 112,
+      "file": "surah-112.json",
+      "ayahCount": 4,
+      "firstAyah": 1,
+      "lastAyah": 4
+    },
+    {
+      "surah": 113,
+      "file": "surah-113.json",
+      "ayahCount": 5,
+      "firstAyah": 1,
+      "lastAyah": 5
+    },
+    {
+      "surah": 114,
+      "file": "surah-114.json",
+      "ayahCount": 6,
+      "firstAyah": 1,
+      "lastAyah": 6
     }
   ]
 }
