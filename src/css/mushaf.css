@@ -1,4 +1,4 @@
-/* Style: calm editorial Quran reader; real reading previews, warm paper tones, and clear text hierarchy. */
+/* Style: calm editorial Quran reader; real reading previews that follow the active theme, warm paper tones, and clear text hierarchy. */
 /* Mushaf mode — page navigation, mushaf fonts, page images */
 
 /* ========== وضع المصحف ========== */
@@ -97,6 +97,36 @@
   text-align: center;
   text-shadow: 0 1px 5px #6c4440;
   white-space: nowrap;
+}
+/* Theme-synced real previews: each preview uses a capture from the same reading mode. */
+body:not(.night-mode):not(.sepia-mode) .reading-mode-preview-surah {
+  background-image: linear-gradient(90deg, rgba(255, 253, 247, 0.03), rgba(122, 92, 58, 0.12)), url('../../public/screenshots/reading-mode-day.webp');
+}
+body:not(.night-mode):not(.sepia-mode) .reading-mode-preview-mushaf {
+  background-image: linear-gradient(90deg, rgba(255, 253, 247, 0.02), rgba(122, 92, 58, 0.1)), url('../../public/screenshots/mushaf-mode-day.webp');
+}
+body:not(.night-mode):not(.sepia-mode) .reading-mode-preview-featured {
+  background-image: linear-gradient(90deg, rgba(92, 52, 49, 0.06), rgba(92, 52, 49, 0.24)), url('../../public/backgrounds/dawn.jpg');
+}
+body.sepia-mode .reading-mode-preview-surah {
+  background-image: linear-gradient(90deg, rgba(74, 53, 32, 0.08), rgba(74, 53, 32, 0.28)), url('../../public/screenshots/reading-mode-sepia.webp');
+}
+body.sepia-mode .reading-mode-preview-mushaf {
+  background-image: linear-gradient(90deg, rgba(74, 53, 32, 0.06), rgba(74, 53, 32, 0.24)), url('../../public/screenshots/mushaf-mode-sepia.webp');
+}
+body.sepia-mode .reading-mode-preview-featured {
+  background-image: linear-gradient(90deg, rgba(74, 53, 32, 0.12), rgba(74, 53, 32, 0.32)), url('../../public/backgrounds/sunset.jpg');
+  text-shadow: 0 1px 5px #442b20;
+}
+body.night-mode .reading-mode-preview-surah {
+  background-image: linear-gradient(90deg, rgba(12, 18, 44, 0.08), rgba(12, 18, 44, 0.3)), url('../../public/screenshots/reading-mode.webp');
+}
+body.night-mode .reading-mode-preview-mushaf {
+  background-image: linear-gradient(90deg, rgba(12, 18, 44, 0.04), rgba(12, 18, 44, 0.24)), url('../../public/screenshots/mushaf-mode.webp');
+}
+body.night-mode .reading-mode-preview-featured {
+  background-image: linear-gradient(90deg, rgba(3, 9, 22, 0.18), rgba(3, 9, 22, 0.48)), url('../../public/backgrounds/nightsky.jpg');
+  text-shadow: 0 1px 5px #060b1b;
 }
 .reading-mode-copy {
   min-width: 0;
