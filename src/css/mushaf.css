@@ -30,11 +30,10 @@
   width: 100%;
 }
 .view-mode-btn {
-  min-height: 58px;
+  min-height: 62px;
   width: 100%;
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  align-items: stretch;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
   gap: 9px;
   padding: 5px;
   background: var(--controls-bg);
@@ -62,6 +61,7 @@
 .view-mode-btn-trans {
   min-height: 32px;
   display: flex;
+  grid-column: 1 / -1;
   grid-template-columns: none;
   align-items: center;
   justify-content: center;
@@ -69,8 +69,8 @@
 }
 .reading-mode-preview {
   display: block;
-  min-height: 46px;
-  height: 100%;
+  min-height: 48px;
+  height: 48px;
   border-radius: 4px;
   background-size: cover;
   background-position: center;
