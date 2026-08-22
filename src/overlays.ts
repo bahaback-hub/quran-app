@@ -150,6 +150,9 @@ const ayahModalHTML = `
     <div class="ayah-modal-section">
       <button class="btn btn-gold btn-block" id="ayahModalTafsirBtn">📖 صفحة التفسير الكاملة</button>
     </div>
+    <div class="ayah-modal-section ayah-modal-contemplation-action">
+      <button class="btn btn-block" id="ayahModalContemplationBtn" hidden>✦ تأمل في الآية</button>
+    </div>
     <div class="ayah-modal-actions">
       <button class="btn btn-sm" id="ayahModalShareBtn">📤 مشاركة</button>
       <button class="btn btn-sm" id="ayahModalCopyBtn">📋 نسخ بتشكيل</button>
@@ -180,6 +183,25 @@ const ayahModalHTML = `
       <p class="tafsir-loading">⏳ جاري تحميل التفسير...</p>
     </div>
   </div>
+</div>
+`;
+
+/* ===================== CONTEMPLATION SHEET ===================== */
+
+const contemplationSheetHTML = `
+<div class="contemplation-sheet hidden" id="contemplationSheet" role="dialog" aria-modal="true" aria-label="تأمل في الآية">
+  <section class="contemplation-sheet-inner" role="document">
+    <div class="contemplation-sheet-grip" aria-hidden="true"><span></span></div>
+    <div class="contemplation-sheet-header">
+      <div>
+        <p class="contemplation-sheet-reference" id="contemplationReference"></p>
+        <h2 id="contemplationTitle">تأمل في الآية</h2>
+      </div>
+      <button class="contemplation-close-btn" id="contemplationCloseBtn" aria-label="إغلاق">✕</button>
+    </div>
+    <p class="contemplation-sheet-hint" id="contemplationHint">أسئلة للتدبر، لا إجابات جاهزة.</p>
+    <ol class="contemplation-questions" id="contemplationQuestions"></ol>
+  </section>
 </div>
 `;
 
@@ -257,6 +279,7 @@ export function injectOverlays(): void {
     azanHTML,
     surahSecretsOverlayHTML,
     ayahModalHTML,
+    contemplationSheetHTML,
     qiblaOverlayHTML,
     readingStatsPanelHTML,
   ];
