@@ -74,6 +74,16 @@
   flex: 1;
 }
 
+.help-intro {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-inline-start: 3px solid var(--accent);
+  background: var(--hover-bg, rgba(0, 0, 0, 0.04));
+  color: var(--text-secondary, #6b7280);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
 .help-section {
   margin-bottom: 4px;
   border-radius: 10px;

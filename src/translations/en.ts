@@ -456,6 +456,7 @@ export default {
 
   // === Help Guide ===
   help_guide: 'User Guide',
+  help_intro: 'Start with what you need now: read, listen, memorize, or pause with a verse for reflection.',
   help_playback: 'Playback & Listening',
   help_play_pause: 'Play / Pause',
   help_play_pause_desc:
@@ -471,6 +472,16 @@ export default {
   help_hifdh: 'Memorization Mode',
   help_hifdh_desc:
     'Tap ⁝ in the player then 🕋 Hifdh. This hides the ayah text to help you review from memory. Tap a hidden ayah to reveal it temporarily.',
+  help_hifz_room: 'Memorization Room',
+  help_hifz_room_open: '1. Open your quiet space',
+  help_hifz_room_open_desc:
+    'Tap the ۞ Memorization Room button beside the reader. It opens a focused space for setting your passage without changing the main reading page.',
+  help_hifz_room_prepare: '2. Set the passage and repeats',
+  help_hifz_room_prepare_desc:
+    'Choose a surah, then set the first and last ayah. Select a repeat count or enter a custom number from 1 to 100 to fit your plan.',
+  help_hifz_room_session: '3. Start the memorization session',
+  help_hifz_room_session_desc:
+    'Choose a reciter and playback speed, then start. You can show or hide ayahs for review, download the selected passage for offline listening, and set the next review time.',
   help_ayah_number: 'Quick Jump — Tap Ayah Number',
   help_ayah_number_desc:
     'Tap the ayah number ﴿٥﴾ directly in the surah text — the player starts playing from that ayah immediately. Tapping the ayah text opens the detail modal instead.',
@@ -492,6 +503,13 @@ export default {
   help_voice_search: 'Voice Search',
   help_voice_search_desc:
     'Tap 🎤 next to the search field. Speak a word or phrase and the search will be performed automatically.',
+  help_contemplation: 'Reflect on a Verse',
+  help_contemplation_open: 'From a verse to three questions',
+  help_contemplation_open_desc:
+    'Tap the verse text to open its details, then choose ✦ Reflect on this verse. You will see three calm questions about meaning, purpose, or context, without ready-made answers.',
+  help_contemplation_privacy: 'Reflect in complete privacy',
+  help_contemplation_privacy_desc:
+    'You never type an answer and no reflection history is stored. Questions come from local app data; neither the verse nor your interaction is sent to an external service. The option appears only for verses prepared locally.',
   help_extras: 'Extra Features',
   help_sleep_timer: 'Sleep Timer',
   help_sleep_timer_desc:
