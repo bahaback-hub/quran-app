@@ -57,5 +57,10 @@ agent-ctx/
 a11y-results.json
 docs/
 
+# Local content-generation inputs and resumable workspaces
+.content-source/
+.content-work/
+scripts/__pycache__/
+
 # Playwright MCP snapshots (temp)
 .playwright-mcp/

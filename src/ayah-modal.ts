@@ -10,6 +10,7 @@ import { fetchTafsirText } from './tafsir.js';
 import { apiFetch } from './api-client.js';
 import { __ } from './i18n.js';
 import { shareText } from './share.js';
+import { initContemplation, openContemplation, syncContemplationAction } from './contemplation.js';
 
 /* ===================== TYPES ===================== */
 
@@ -43,6 +44,7 @@ interface ModalDomMap {
   ayahModalJuz: HTMLElement | null;
   ayahModalSurahAyah: HTMLElement | null;
   ayahModalTafsirBtn: HTMLElement | null;
+  ayahModalContemplationBtn: HTMLElement | null;
   ayahModalShareBtn: HTMLElement | null;
   ayahModalCopyBtn: HTMLElement | null;
   ayahModalCopySimpleBtn: HTMLElement | null;
@@ -87,6 +89,7 @@ function cache(): void {
     'ayahModalJuz',
     'ayahModalSurahAyah',
     'ayahModalTafsirBtn',
+    'ayahModalContemplationBtn',
     'ayahModalShareBtn',
     'ayahModalCopyBtn',
     'ayahModalCopySimpleBtn',
@@ -111,6 +114,7 @@ function cache(): void {
 export function initAyahModal(): void {
   cache();
   bind();
+  initContemplation();
   populateQaris();
 }
 
@@ -131,6 +135,12 @@ export function openAyahModal(data: ModalAyahData): void {
   M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(data.ayah), data.surahName)}`;
   M.ayahModalText!.textContent = data.text;
   M.ayahModalSurahAyah!.textContent = `${data.surahName} — ${__('ayah')} ${data.ayah}`;
+  const contemplationButton = M.ayahModalContemplationBtn;
+  if (contemplationButton) {
+    contemplationButton.textContent = `✦ ${__('contemplation')}`;
+    contemplationButton.setAttribute('aria-label', __('contemplation'));
+    void syncContemplationAction(contemplationButton, data.surah, data.ayah);
+  }
   updateNav();
   updateFavBtn();
   loadMeta();
@@ -170,6 +180,14 @@ function bind(): void {
       closeAyahModal();
       loadSurah(current.surah, { startAyah: current.ayah });
     }
+  });
+  M.ayahModalContemplationBtn?.addEventListener('click', () => {
+    if (!current) {
+      return;
+    }
+    const selected = current;
+    closeAyahModal();
+    void openContemplation(selected.surah, selected.ayah, selected.surahName);
   });
   M.ayahModalShareBtn?.addEventListener('click', shareModalAyah);
   M.ayahModalCopyBtn?.addEventListener('click', () => copyModalAyah(false));
@@ -217,6 +235,9 @@ function goToNextAyah(): void {
   M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(next.ayah), next.surahName)}`;
   M.ayahModalText!.textContent = next.text;
   M.ayahModalSurahAyah!.textContent = `${next.surahName} — ${__('ayah')} ${next.ayah}`;
+  if (M.ayahModalContemplationBtn) {
+    void syncContemplationAction(M.ayahModalContemplationBtn, next.surah, next.ayah);
+  }
   updateNav();
   updateFavBtn();
   loadMeta();
