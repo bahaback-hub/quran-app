@@ -336,6 +336,15 @@ export default {
 
   // === وضع العرض ===
   pres_counter_zero: '٠ / ٠',
+  presentation_share_image: 'مشاركة صورة الآية',
+  presentation_share_preview: 'معاينة صورة الآية',
+  presentation_share_now: 'مشاركة الآن',
+  presentation_share_download: 'تنزيل PNG',
+  presentation_share_prepare: 'جارٍ تجهيز الصورة…',
+  presentation_share_ready: 'الصورة جاهزة للمشاركة',
+  presentation_share_failed: 'تعذر تجهيز الصورة. حاول مرة أخرى.',
+  presentation_share_download_hint: 'يمكنك تنزيل الصورة ومشاركتها من جهازك.',
+  presentation_share_saved: 'تم تنزيل صورة الآية',
   bg_dawn: 'فجر',
   bg_morning: 'صباح',
   bg_afternoon: 'ظهر',

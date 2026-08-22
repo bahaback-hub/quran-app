@@ -303,6 +303,15 @@ export default {
 
   // === Mod Persembahan ===
   pres_counter_zero: '٠ / ٠',
+  presentation_share_image: 'Kongsi imej ayat',
+  presentation_share_preview: 'Pratonton imej ayat',
+  presentation_share_now: 'Kongsi sekarang',
+  presentation_share_download: 'Muat turun PNG',
+  presentation_share_prepare: 'Menyediakan imej…',
+  presentation_share_ready: 'Imej sedia dikongsi',
+  presentation_share_failed: 'Imej tidak dapat disediakan. Cuba lagi.',
+  presentation_share_download_hint: 'Anda boleh memuat turun imej dan berkongsi dari peranti.',
+  presentation_share_saved: 'Imej ayat telah dimuat turun',
   bg_dawn: 'Fajar',
   bg_morning: 'Pagi',
   bg_afternoon: 'Petang',

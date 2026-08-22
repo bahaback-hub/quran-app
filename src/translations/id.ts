@@ -303,6 +303,15 @@ export default {
 
   // === Mode Presentasi ===
   pres_counter_zero: '٠ / ٠',
+  presentation_share_image: 'Bagikan gambar ayat',
+  presentation_share_preview: 'Pratinjau gambar ayat',
+  presentation_share_now: 'Bagikan sekarang',
+  presentation_share_download: 'Unduh PNG',
+  presentation_share_prepare: 'Menyiapkan gambar…',
+  presentation_share_ready: 'Gambar siap dibagikan',
+  presentation_share_failed: 'Gagal menyiapkan gambar. Coba lagi.',
+  presentation_share_download_hint: 'Anda dapat mengunduh gambar dan membagikannya dari perangkat.',
+  presentation_share_saved: 'Gambar ayat telah diunduh',
   bg_dawn: 'Fajar',
   bg_morning: 'Pagi',
   bg_afternoon: 'Siang',

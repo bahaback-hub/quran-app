@@ -78,6 +78,7 @@ const presentationOverlayHTML = `
       <button class="presentation-header-btn pres-control-btn" id="presPlayPauseBtn" aria-label="تشغيل / إيقاف">▶</button>
       <button class="presentation-header-btn pres-control-btn pres-tajweed-btn" id="presTajweedBtn" aria-label="ألوان التجويد" title="تشغيل/إيقاف ألوان التجويد">🎨</button>
       <button class="presentation-header-btn pres-control-btn" id="presFullscreenBtn" aria-label="ملء الشاشة">⛶</button>
+      <button class="presentation-header-btn pres-control-btn" id="presShareBtn" aria-label="مشاركة صورة الآية" title="مشاركة صورة الآية">↗</button>
       <button class="presentation-header-btn" id="presentationNextBtn" aria-label="الآية التالية">⏭</button>
       <button class="presentation-close-btn" id="presentationCloseBtn" aria-label="خروج">✖</button>
     </div>
@@ -87,6 +88,25 @@ const presentationOverlayHTML = `
     </div>
     <div class="presentation-footer">
       <span class="presentation-counter" id="presentationCounter">٠ / ٠</span>
+    </div>
+  </div>
+</div>
+`;
+
+const presentationSharePreviewHTML = `
+<div class="presentation-share-preview hidden" id="presentationSharePreview" role="dialog" aria-modal="true" aria-labelledby="presentationShareHeading">
+  <div class="presentation-share-preview-inner">
+    <div class="presentation-share-preview-header">
+      <h3 id="presentationShareHeading">معاينة صورة الآية</h3>
+      <button class="presentation-share-close" id="presentationShareCloseBtn" aria-label="إغلاق">✖ إغلاق</button>
+    </div>
+    <div class="presentation-share-image-wrap">
+      <img id="presentationShareImage" alt="" />
+    </div>
+    <p id="presentationShareStatus" class="presentation-share-status" role="status" aria-live="polite">جارٍ تجهيز الصورة…</p>
+    <div class="presentation-share-actions">
+      <button class="presentation-share-primary" id="presentationShareNativeBtn" type="button" disabled>↗ مشاركة الآن</button>
+      <button class="presentation-share-secondary" id="presentationShareDownloadBtn" type="button" disabled>↓ تنزيل PNG</button>
     </div>
   </div>
 </div>
@@ -277,6 +297,7 @@ export function injectOverlays(): void {
     adhkarNotificationHTML,
     adhkarAddOverlayHTML,
     presentationOverlayHTML,
+    presentationSharePreviewHTML,
     azanHTML,
     surahSecretsOverlayHTML,
     ayahModalHTML,
