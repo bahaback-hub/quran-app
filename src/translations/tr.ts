@@ -303,6 +303,15 @@ export default {
 
   // === Sunum Modu ===
   pres_counter_zero: '0 / 0',
+  presentation_share_image: 'Ayet görselini paylaş',
+  presentation_share_preview: 'Ayet görseli önizlemesi',
+  presentation_share_now: 'Şimdi paylaş',
+  presentation_share_download: 'PNG indir',
+  presentation_share_prepare: 'Görsel hazırlanıyor…',
+  presentation_share_ready: 'Görsel paylaşmaya hazır',
+  presentation_share_failed: 'Görsel hazırlanamadı. Lütfen tekrar deneyin.',
+  presentation_share_download_hint: 'Görseli indirip cihazınızdan paylaşabilirsiniz.',
+  presentation_share_saved: 'Ayet görseli indirildi',
   bg_dawn: 'Şafak',
   bg_morning: 'Sabah',
   bg_afternoon: 'Öğle',

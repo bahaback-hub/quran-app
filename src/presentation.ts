@@ -16,6 +16,7 @@ import {
   startSceneAnimation,
 } from './pres-backgrounds.js';
 import { injectStyles, buildAyahHtml } from './pres-styles.js';
+import { closePresentationSharePreview, initPresentationShare } from './presentation-share.js';
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -372,6 +373,7 @@ export function openPresentation(): void {
 export function closePresentation(): void {
   state.presentationMode = false;
   _presFullscreenRequested = false;
+  closePresentationSharePreview();
   // Exit fullscreen if active
   if (isFullscreen()) {
     exitFullscreen().catch(() => { /* noop */ });
@@ -495,6 +497,7 @@ export function initPresentation(): void {
     console.error('[Presentation] ERROR: presentationOverlay element not found in DOM!');
     return;
   }
+  initPresentationShare();
   console.warn('[Presentation] Overlay element found, binding event handlers...');
 
   if (dom.presentationCloseBtn) {

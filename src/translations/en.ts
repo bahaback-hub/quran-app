@@ -336,6 +336,15 @@ export default {
 
   // === Presentation Mode ===
   pres_counter_zero: '0 / 0',
+  presentation_share_image: 'Share ayah image',
+  presentation_share_preview: 'Ayah image preview',
+  presentation_share_now: 'Share now',
+  presentation_share_download: 'Download PNG',
+  presentation_share_prepare: 'Preparing image…',
+  presentation_share_ready: 'Image ready to share',
+  presentation_share_failed: 'Could not prepare the image. Please try again.',
+  presentation_share_download_hint: 'You can download the image and share it from your device.',
+  presentation_share_saved: 'Ayah image downloaded',
   bg_dawn: 'Dawn',
   bg_morning: 'Morning',
   bg_afternoon: 'Afternoon',

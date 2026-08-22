@@ -199,6 +199,39 @@ export function injectStyles(): void {
     .presentation-overlay.pres-light .presentation-ayah-text {
       color: #1a1a1a;
     }
+    .presentation-share-preview {
+      position: fixed; inset: 0; z-index: 100001;
+      display: none; align-items: center; justify-content: center;
+      padding: 20px; direction: rtl;
+      background: rgba(5, 12, 16, 0.72); backdrop-filter: blur(12px);
+      font-family: 'Amiri', 'Traditional Arabic', serif;
+    }
+    .presentation-share-preview:not(.hidden) { display: flex !important; }
+    .presentation-share-preview-inner {
+      width: min(420px, 100%); max-height: min(760px, calc(100vh - 40px));
+      display: flex; flex-direction: column; gap: 14px;
+      padding: 16px; border: 1px solid rgba(216, 178, 95, 0.58);
+      background: #12201f; color: #fffaf0;
+      box-shadow: 0 20px 62px rgba(0, 0, 0, 0.5);
+    }
+    .presentation-share-preview-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .presentation-share-preview-header h3 { margin: 0; color: #f7dd9e; font-size: 1.18rem; font-weight: 600; }
+    .presentation-share-close, .presentation-share-secondary, .presentation-share-primary {
+      border: 1px solid rgba(255,255,255,0.28); min-height: 42px; padding: 8px 13px;
+      color: #fffaf0; background: rgba(255,255,255,0.08); font: inherit; cursor: pointer;
+    }
+    .presentation-share-primary { border-color: #e1c06e; background: #b98b25; color: #1d170c; font-weight: 700; }
+    .presentation-share-primary:disabled, .presentation-share-secondary:disabled { opacity: 0.48; cursor: wait; }
+    .presentation-share-image-wrap { min-height: 280px; display: grid; place-items: center; background: #0b1516; }
+    .presentation-share-image-wrap img { display: block; width: auto; max-width: 100%; max-height: 440px; object-fit: contain; }
+    .presentation-share-status { min-height: 1.5em; margin: 0; text-align: center; color: #efe2bd; font-size: 0.95rem; }
+    .presentation-share-actions { display: flex; gap: 10px; }
+    .presentation-share-actions > button { flex: 1; }
+    @media (max-width: 520px) {
+      .presentation-share-preview { padding: 12px; }
+      .presentation-share-preview-inner { padding: 14px; }
+      .presentation-share-image-wrap img { max-height: 380px; }
+    }
     .presentation-overlay.pres-nature .presentation-ayah-text,
     .presentation-overlay.pres-auto .presentation-ayah-text {
       color: #fff;
