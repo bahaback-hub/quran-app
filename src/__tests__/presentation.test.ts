@@ -366,6 +366,22 @@ describe('presentation', () => {
       expect(dom.presentationCounter!.textContent).toBe('1 / 3');
     });
 
+    it('should reduce an overflowing long ayah to keep its start and end in view', async () => {
+      state.presentationMode = true;
+      state.surahData!.ayahs[0]!.text = 'آية طويلة '.repeat(70);
+      Object.defineProperty(dom.presentationBody!, 'clientHeight', { configurable: true, value: 460 });
+      Object.defineProperty(dom.presentationAyahText!, 'scrollHeight', {
+        configurable: true,
+        get: () => (Number.parseFloat(dom.presentationAyahText!.style.fontSize || '72') > 42 ? 780 : 420),
+      });
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1280 });
+      const { syncPresentation } = await import('../presentation.js');
+      syncPresentation();
+      expect(Number.parseFloat(dom.presentationAyahText!.style.fontSize)).toBeLessThanOrEqual(42);
+      expect(dom.presentationAyahText!.style.lineHeight).toBe('1.48');
+      expect(dom.presentationBody!.scrollTop).toBe(0);
+    });
+
     it('should show translation when enabled', async () => {
       state.presentationMode = true;
       state.translationEnabled = true;

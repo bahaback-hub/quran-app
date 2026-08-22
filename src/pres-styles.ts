@@ -376,7 +376,8 @@ export function injectStyles(): void {
     .presentation-body {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      padding: 40px 20px; overflow-y: auto;
+      min-height: 0;
+      padding: 40px 20px; overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
     }
     .presentation-ayah-text {
@@ -419,7 +420,7 @@ export function injectStyles(): void {
     }
     @media (max-width: 600px) {
       .presentation-ayah-text { font-size: clamp(22px, 5.5vw, 32px); }
-      .presentation-body { padding: 16px 10px; overflow-y: auto !important; }
+      .presentation-body { padding: 16px 10px; overflow-y: hidden !important; }
       .presentation-translation { font-size: 16px; margin-top: 12px; }
       /* Compact header for mobile: wrap buttons into two rows */
       .presentation-header {

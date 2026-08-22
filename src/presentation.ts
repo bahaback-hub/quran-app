@@ -33,6 +33,58 @@ let _hideControlsTimeout: ReturnType<typeof setTimeout> | null = null;
  */
 let _presFullscreenRequested = false;
 
+/**
+ * Fit the current ayah entirely inside the presentation body.
+ *
+ * Long ayahs previously kept the desktop font size and could exceed the body
+ * height. Since the body is centred, that hid both the beginning and the end
+ * of the ayah. Keep the normal reading scale whenever it fits, then tighten
+ * line spacing and reduce the size in small steps only when required.
+ */
+function fitPresentationAyahText(): void {
+  const ayahText = dom.presentationAyahText;
+  const body = dom.presentationBody;
+  if (!ayahText || !body) {
+    return;
+  }
+
+  ayahText.style.fontSize = '';
+  ayahText.style.lineHeight = '';
+  body.scrollTop = 0;
+
+  const translation = dom.presentationTranslation;
+  const translationVisible = Boolean(translation && translation.style.display !== 'none');
+  const translationHeight = translationVisible && translation
+    ? translation.getBoundingClientRect().height + Number.parseFloat(window.getComputedStyle(translation).marginTop || '0')
+    : 0;
+  const availableHeight = body.clientHeight - translationHeight - 8;
+  if (availableHeight <= 0 || ayahText.scrollHeight <= availableHeight) {
+    return;
+  }
+
+  const computed = window.getComputedStyle(ayahText);
+  const measuredSize = Number.parseFloat(computed.fontSize);
+  const initialSize = Number.isFinite(measuredSize) && measuredSize > 0
+    ? measuredSize
+    : window.innerWidth <= 600
+      ? 32
+      : 60;
+
+  const minimumSize = window.innerWidth <= 600 ? 19 : 26;
+  let size = initialSize;
+
+  // First preserve the font size and recover vertical room by using a still
+  // comfortable Quranic line height. This is enough for many medium ayahs.
+  ayahText.style.lineHeight = '1.48';
+
+  while (ayahText.scrollHeight > availableHeight && size > minimumSize) {
+    size = Math.max(minimumSize, size - 2);
+    ayahText.style.fontSize = `${size}px`;
+  }
+
+  body.scrollTop = 0;
+}
+
 /** Show presentation control buttons and reset auto-hide timer. */
 function showControls(): void {
   const overlay = dom.presentationOverlay;
@@ -203,23 +255,6 @@ function updateDisplay(): void {
     );
   }
 
-  // Dynamic font size for long ayahs on mobile — shrink if text overflows
-  if (dom.presentationAyahText) {
-    const el = dom.presentationAyahText;
-    const textLen = ayah.text.length;
-    // On small screens, reduce font size for long ayahs
-    if (window.innerWidth <= 600) {
-      if (textLen > 300) {
-        el.style.fontSize = 'clamp(18px, 4vw, 22px)';
-      } else if (textLen > 200) {
-        el.style.fontSize = 'clamp(20px, 4.5vw, 26px)';
-      } else {
-        el.style.fontSize = ''; // use CSS default
-      }
-    } else {
-      el.style.fontSize = ''; // use CSS default on larger screens
-    }
-  }
   if (dom.presentationAyahNum) {
     dom.presentationAyahNum.textContent = String(ayah.numberInSurah);
   }
@@ -242,6 +277,7 @@ function updateDisplay(): void {
       dom.presentationTranslation.style.display = 'none';
     }
   }
+  fitPresentationAyahText();
   // Smooth crossfade transition: fade out → update already done above → fade in
   if (_prevHighlightTimeout) {
     clearTimeout(_prevHighlightTimeout);
@@ -480,6 +516,13 @@ function handleFullscreenChange(): void {
   }
 }
 
+/** Re-fit the text on a viewport resize without rebuilding the background. */
+function handlePresentationResize(): void {
+  if (state.presentationMode) {
+    fitPresentationAyahText();
+  }
+}
+
 export function syncPresentation(): void {
   if (state.presentationMode) {
     updateDisplay();
@@ -550,6 +593,7 @@ export function initPresentation(): void {
   // Fullscreen change event
   document.addEventListener('fullscreenchange', handleFullscreenChange);
   document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+  window.addEventListener('resize', handlePresentationResize);
 
   console.warn('[Presentation] initPresentation() completed successfully');
 }
