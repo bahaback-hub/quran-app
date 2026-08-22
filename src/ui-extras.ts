@@ -157,13 +157,12 @@ export function updateNetworkBanner(): void {
   if (!dom.networkBanner) {
     return;
   }
-  const isOnline = navigator.onLine;
-  if (!isOnline) {
-    dom.networkBanner.classList.add('show');
-    dom.networkBanner.classList.remove('online');
-  } else {
-    dom.networkBanner.classList.remove('show');
-  }
+  const isOnline = navigator.onLine !== false;
+  // `hidden` prevents a stale `.show` class from leaving a false offline
+  // message visible after a browser restores connectivity from its cache.
+  dom.networkBanner.hidden = isOnline;
+  dom.networkBanner.classList.toggle('show', !isOnline);
+  dom.networkBanner.classList.remove('online');
 
   // Announce connection state changes to screen readers.
   // announceToScreenReader is statically imported at the top of this module.

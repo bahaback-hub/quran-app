@@ -153,7 +153,16 @@ export async function initApp(): Promise<void> {
     void refreshRecentExternalData();
   });
   window.addEventListener('offline', updateNetworkBanner);
+  window.addEventListener('focus', updateNetworkBanner);
+  window.addEventListener('pageshow', updateNetworkBanner);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      updateNetworkBanner();
+    }
+  });
   updateNetworkBanner();
+  // Some browsers restore a cached page before their network state settles.
+  window.setTimeout(updateNetworkBanner, 0);
 
   document.addEventListener('visibilitychange', handleVisibilityChange);
 
