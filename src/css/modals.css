@@ -469,6 +469,13 @@ body.night-mode .adhkar-add-inner {
 .btn-block {
   width: 100%;
 }
+.ayah-modal-contemplation-status {
+  margin: 8px 4px 0;
+  color: var(--text-secondary, #6b7280);
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: center;
+}
 .ayah-modal-actions {
   display: flex;
   gap: 6px;

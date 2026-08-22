@@ -152,6 +152,7 @@ const ayahModalHTML = `
     </div>
     <div class="ayah-modal-section ayah-modal-contemplation-action">
       <button class="btn btn-block" id="ayahModalContemplationBtn" hidden>✦ تأمل في الآية</button>
+      <p class="ayah-modal-contemplation-status" id="ayahModalContemplationStatus" aria-live="polite" hidden></p>
     </div>
     <div class="ayah-modal-actions">
       <button class="btn btn-sm" id="ayahModalShareBtn">📤 مشاركة</button>
