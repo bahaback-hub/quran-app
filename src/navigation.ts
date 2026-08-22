@@ -84,9 +84,13 @@ export function initNavigation(): void {
     if (state.mushafMode) {
       import('./mushaf.js').then((m) => m.toggleMushafMode());
     }
-    document
-      .querySelectorAll('.view-mode-btn')
-      .forEach((b) => b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'surah'));
+    document.querySelectorAll('.view-mode-btn').forEach((b) => {
+      const active = (b as HTMLElement).dataset['mode'] === 'surah';
+      b.classList.toggle('active', active);
+      if (typeof (b as HTMLElement).setAttribute === 'function') {
+        b.setAttribute('aria-pressed', String(active));
+      }
+    });
     if (dom.pageSelect) {
       dom.pageSelect.style.display = 'none';
     }

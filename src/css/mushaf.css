@@ -1,3 +1,4 @@
+/* Style: calm editorial Quran reader; real reading previews, warm paper tones, and clear text hierarchy. */
 /* Mushaf mode — page navigation, mushaf fonts, page images */
 
 /* ========== وضع المصحف ========== */
@@ -24,37 +25,97 @@
   min-width: 100px;
 }
 .view-mode-group {
-  display: flex;
-  gap: 2px;
-  background: var(--controls-bg);
-  border-radius: 8px;
-  padding: 2px;
-  border: 1.5px solid var(--border-soft);
+  display: grid;
+  gap: 6px;
+  width: 100%;
 }
 .view-mode-btn {
-  background: transparent;
-  color: var(--text-secondary);
-  padding: 4px 6px;
-  border-radius: 6px;
+  min-height: 58px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 9px;
+  padding: 5px;
+  background: var(--controls-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
   cursor: pointer;
-  border: none;
-  font-size: 14px;
-  white-space: nowrap;
-  transition: all 0.2s ease;
   font-family: inherit;
-  font-weight: bold;
-  height: 30px;
-  display: flex;
-  align-items: center;
+  text-align: start;
+  overflow: hidden;
+  transition: border-color 180ms cubic-bezier(0.23, 1, 0.32, 1), background-color 180ms cubic-bezier(0.23, 1, 0.32, 1), transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .view-mode-btn:hover {
-  background: rgba(217, 119, 6, 0.1);
-  color: var(--accent-dark);
+  border-color: var(--accent);
+  background: var(--hover-bg);
+}
+.view-mode-btn:active {
+  transform: scale(0.98);
 }
 .view-mode-btn.active {
-  background: var(--accent);
-  color: #2c3e50;
-  box-shadow: 0 0 6px rgba(217, 119, 6, 0.3);
+  border: 2px solid var(--accent-dark);
+  padding: 4px;
+  background: color-mix(in srgb, var(--controls-bg) 90%, var(--accent) 10%);
+}
+.view-mode-btn-trans {
+  min-height: 32px;
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+}
+.reading-mode-preview {
+  display: block;
+  min-height: 46px;
+  height: 100%;
+  border-radius: 4px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+.reading-mode-preview-surah {
+  background-image: linear-gradient(90deg, rgba(12, 18, 44, 0.08), rgba(12, 18, 44, 0.3)), url('../../public/screenshots/reading-mode.webp');
+  background-position: 50% 55%;
+}
+.reading-mode-preview-mushaf {
+  background-image: linear-gradient(90deg, rgba(12, 18, 44, 0.04), rgba(12, 18, 44, 0.24)), url('../../public/screenshots/mushaf-mode.webp');
+  background-position: 50% 58%;
+}
+.reading-mode-preview-featured {
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  background-image: linear-gradient(90deg, rgba(92, 52, 49, 0.06), rgba(92, 52, 49, 0.24)), url('../../public/backgrounds/dawn.jpg');
+  color: #fffdf5;
+  font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
+  font-size: clamp(13px, 1.3vw, 17px);
+  line-height: 1.25;
+  text-align: center;
+  text-shadow: 0 1px 5px #6c4440;
+  white-space: nowrap;
+}
+.reading-mode-copy {
+  min-width: 0;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.reading-mode-title {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.reading-mode-desc {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.35;
 }
 .view-mode-btn-trans.on {
   background: var(--accent);
