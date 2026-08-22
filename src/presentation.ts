@@ -344,7 +344,11 @@ export function openPresentation(): void {
     }
     // Update view mode buttons to show surah mode (not mushaf)
     document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
-      b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'surah');
+      const active = (b as HTMLElement).dataset['mode'] === 'surah';
+      b.classList.toggle('active', active);
+      if (typeof (b as HTMLElement).setAttribute === 'function') {
+        b.setAttribute('aria-pressed', String(active));
+      }
     });
     // Re-render the surah content in the background (async, non-blocking)
     import('./app.js')
@@ -393,7 +397,11 @@ export function openPresentation(): void {
   }
   document.body.classList.add('presentation-active');
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
-    b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'presentation');
+    const active = (b as HTMLElement).dataset['mode'] === 'presentation';
+    b.classList.toggle('active', active);
+    if (typeof (b as HTMLElement).setAttribute === 'function') {
+      b.setAttribute('aria-pressed', String(active));
+    }
   });
   document.addEventListener('keydown', handleKeyDown);
   // Show controls initially, then auto-hide
@@ -444,7 +452,11 @@ export function closePresentation(): void {
   document.body.classList.remove('presentation-active');
   document.removeEventListener('keydown', handleKeyDown);
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
-    b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'surah');
+    const active = (b as HTMLElement).dataset['mode'] === 'surah';
+    b.classList.toggle('active', active);
+    if (typeof (b as HTMLElement).setAttribute === 'function') {
+      b.setAttribute('aria-pressed', String(active));
+    }
   });
 }
 

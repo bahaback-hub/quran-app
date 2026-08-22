@@ -68,10 +68,11 @@ export async function toggleMushafMode(): Promise<void> {
   const wasPlaying = state.isPlaying;
   state.mushafMode = !state.mushafMode;
   document.querySelectorAll('.view-mode-btn').forEach((b: Element) => {
-    if (state.mushafMode) {
-      b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'mushaf');
-    } else {
-      b.classList.toggle('active', (b as HTMLElement).dataset['mode'] === 'surah');
+    const activeMode = state.mushafMode ? 'mushaf' : 'surah';
+    const active = (b as HTMLElement).dataset['mode'] === activeMode;
+    b.classList.toggle('active', active);
+    if (typeof (b as HTMLElement).setAttribute === 'function') {
+      b.setAttribute('aria-pressed', String(active));
     }
   });
   if (state.mushafMode) {

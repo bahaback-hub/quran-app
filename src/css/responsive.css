@@ -600,10 +600,10 @@
   .controls.mobile-show {
     display: flex;
   }
-  /* الشريط المركب: البحث وأنواع العرض يتشاركان بطاقة واحدة على الهاتف. */
+  /* الشريط المركب: البحث وطريقة القراءة يتشاركان بطاقة واحدة على الهاتف. */
   .control-card.reader-command-bar.control-card-persistent {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 1px minmax(144px, 0.7fr);
+    grid-template-columns: minmax(0, 1fr) 1px minmax(166px, 0.9fr);
     align-items: stretch;
     gap: 7px;
     padding: 8px;
@@ -621,15 +621,21 @@
     width: 34px;
   }
   .reader-command-display .view-mode-group {
-    display: flex !important;
-    justify-content: center;
-    gap: 2px;
+    display: grid !important;
+    gap: 5px;
     padding: 0;
   }
   .view-mode-btn {
-    min-width: 40px;
+    min-width: 0;
+    min-height: 52px;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 6px;
+  }
+  .reading-mode-preview {
     min-height: 40px;
-    font-size: 18px;
+  }
+  .reading-mode-desc {
+    font-size: 10px;
   }
   .controls-row > .control-card {
     min-width: 0;

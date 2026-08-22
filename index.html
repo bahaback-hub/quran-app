@@ -371,37 +371,52 @@
             <span class="reader-command-divider" aria-hidden="true"></span>
 
             <div class="reader-command-section reader-command-display">
-              <span class="sr-only" data-i18n="view">العرض</span>
-              <div class="view-mode-group" aria-label="أنواع العرض">
+              <div class="reader-mode-label" data-i18n="reading_mode_label">طريقة القراءة</div>
+              <div class="view-mode-group" data-i18n-aria-label="reading_mode_label" aria-label="طريقة القراءة">
                 <button
                   class="view-mode-btn active"
                   id="viewSurahBtn"
                   data-mode="surah"
-                  title="وضع السورة"
-                  aria-label="وضع السورة"
+                  type="button"
+                  data-i18n-aria-label="reading_mode_surah"
+                  aria-label="السورة"
                   aria-pressed="true"
                 >
-                  📖
+                  <span class="reading-mode-preview reading-mode-preview-surah" aria-hidden="true"></span>
+                  <span class="reading-mode-copy">
+                    <span class="reading-mode-title" data-i18n="reading_mode_surah">السورة</span>
+                    <span class="reading-mode-desc" data-i18n="reading_mode_surah_desc">نص السورة كاملاً في قراءة متصلة</span>
+                  </span>
                 </button>
                 <button
                   class="view-mode-btn"
                   id="viewMushafBtn"
                   data-mode="mushaf"
-                  title="وضع المصحف"
-                  aria-label="وضع المصحف"
+                  type="button"
+                  data-i18n-aria-label="reading_mode_mushaf"
+                  aria-label="المصحف"
                   aria-pressed="false"
                 >
-                  📄
+                  <span class="reading-mode-preview reading-mode-preview-mushaf" aria-hidden="true"></span>
+                  <span class="reading-mode-copy">
+                    <span class="reading-mode-title" data-i18n="reading_mode_mushaf">المصحف</span>
+                    <span class="reading-mode-desc" data-i18n="reading_mode_mushaf_desc">تصفح الآيات على هيئة صفحات</span>
+                  </span>
                 </button>
                 <button
                   class="view-mode-btn"
                   id="viewPresBtn"
                   data-mode="presentation"
-                  title="وضع العرض"
-                  aria-label="وضع العرض"
+                  type="button"
+                  data-i18n-aria-label="reading_mode_featured"
+                  aria-label="آية مميزة"
                   aria-pressed="false"
                 >
-                  🖼️
+                  <span class="reading-mode-preview reading-mode-preview-featured" aria-hidden="true"><span>ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ</span></span>
+                  <span class="reading-mode-copy">
+                    <span class="reading-mode-title" data-i18n="reading_mode_featured">آية مميزة</span>
+                    <span class="reading-mode-desc" data-i18n="reading_mode_featured_desc">آية واحدة بخلفية هادئة</span>
+                  </span>
                 </button>
                 <button
                   class="view-mode-btn view-mode-btn-trans hidden"

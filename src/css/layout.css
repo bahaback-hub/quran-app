@@ -421,7 +421,7 @@ body.night-mode .control-group label {
   flex: 1 1 390px;
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) 1px minmax(150px, 0.9fr);
+  grid-template-columns: minmax(0, 1.15fr) 1px minmax(250px, 1fr);
   align-items: stretch;
   gap: 10px;
   padding: 9px 12px;
@@ -477,15 +477,18 @@ body.night-mode .control-group label {
 }
 .reader-command-display {
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: stretch;
   gap: 5px;
+}
+.reader-mode-label {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+  padding-inline: 2px;
 }
 .reader-command-display .view-mode-group {
   width: 100%;
-  justify-content: center;
-}
-.reader-command-display .view-mode-btn {
-  min-width: 38px;
 }
 .reader-command-display .reader-zoom-control {
   margin-top: 0;
