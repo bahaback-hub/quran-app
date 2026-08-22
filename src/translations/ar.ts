@@ -120,6 +120,7 @@ export default {
   contemplation: 'تأمل في الآية',
   contemplation_title: 'تأمل في الآية',
   contemplation_hint: 'أسئلة للتدبر، لا إجابات جاهزة.',
+  contemplation_not_ready: 'تُضاف أسئلة التأمل لهذه الآية تدريجياً.',
   pause: 'إيقاف مؤقت',
   play: 'تشغيل',
   minutes: 'دقيقة',

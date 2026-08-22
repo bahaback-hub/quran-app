@@ -45,6 +45,7 @@ interface ModalDomMap {
   ayahModalSurahAyah: HTMLElement | null;
   ayahModalTafsirBtn: HTMLElement | null;
   ayahModalContemplationBtn: HTMLElement | null;
+  ayahModalContemplationStatus: HTMLElement | null;
   ayahModalShareBtn: HTMLElement | null;
   ayahModalCopyBtn: HTMLElement | null;
   ayahModalCopySimpleBtn: HTMLElement | null;
@@ -90,6 +91,7 @@ function cache(): void {
     'ayahModalSurahAyah',
     'ayahModalTafsirBtn',
     'ayahModalContemplationBtn',
+    'ayahModalContemplationStatus',
     'ayahModalShareBtn',
     'ayahModalCopyBtn',
     'ayahModalCopySimpleBtn',
@@ -139,7 +141,7 @@ export function openAyahModal(data: ModalAyahData): void {
   if (contemplationButton) {
     contemplationButton.textContent = `✦ ${__('contemplation')}`;
     contemplationButton.setAttribute('aria-label', __('contemplation'));
-    void syncContemplationAction(contemplationButton, data.surah, data.ayah);
+    void syncContemplationAction(contemplationButton, M.ayahModalContemplationStatus, data.surah, data.ayah);
   }
   updateNav();
   updateFavBtn();
@@ -217,6 +219,23 @@ function bind(): void {
       loadTafsirTab(tab.dataset['edition'] as string);
     }
   });
+  window.addEventListener('app:langchange', () => {
+    if (!current) {
+      return;
+    }
+    M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(current.ayah), current.surahName)}`;
+    M.ayahModalSurahAyah!.textContent = `${current.surahName} — ${__('ayah')} ${current.ayah}`;
+    if (M.ayahModalContemplationBtn) {
+      M.ayahModalContemplationBtn.textContent = `✦ ${__('contemplation')}`;
+      M.ayahModalContemplationBtn.setAttribute('aria-label', __('contemplation'));
+      void syncContemplationAction(
+        M.ayahModalContemplationBtn,
+        M.ayahModalContemplationStatus,
+        current.surah,
+        current.ayah,
+      );
+    }
+  });
 }
 
 /* ===================== NAVIGATION ===================== */
@@ -236,7 +255,8 @@ function goToNextAyah(): void {
   M.ayahModalText!.textContent = next.text;
   M.ayahModalSurahAyah!.textContent = `${next.surahName} — ${__('ayah')} ${next.ayah}`;
   if (M.ayahModalContemplationBtn) {
-    void syncContemplationAction(M.ayahModalContemplationBtn, next.surah, next.ayah);
+    M.ayahModalContemplationBtn.textContent = `✦ ${__('contemplation')}`;
+    void syncContemplationAction(M.ayahModalContemplationBtn, M.ayahModalContemplationStatus, next.surah, next.ayah);
   }
   updateNav();
   updateFavBtn();

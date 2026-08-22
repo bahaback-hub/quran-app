@@ -9,6 +9,7 @@ import { storage } from './storage.js';
 import { state } from './state.js';
 import { showToast } from './ui.js';
 import { __, AVAILABLE_LANGUAGES, getLang, setLang } from './i18n.js';
+import { helpPanelHTML } from './templates.js';
 import {
   applyFontSize,
   changeReaderZoom,
@@ -717,6 +718,60 @@ function closeHelp(): void {
   }
 }
 
+function bindHelpPanelInteractions(panel: HTMLElement): void {
+  panel.addEventListener('click', (e: MouseEvent) => {
+    const toggle = (e.target as HTMLElement).closest('.help-section-toggle') as HTMLElement | null;
+    if (!toggle) {
+      return;
+    }
+    const section = toggle.dataset['section'];
+    if (!section) {
+      return;
+    }
+    const content = panel.querySelector(`.help-section-content[data-section="${section}"]`);
+    if (content) {
+      content.classList.toggle('open');
+    }
+    const icon = toggle.querySelector('.help-toggle-icon');
+    if (icon) {
+      icon.textContent = content?.classList.contains('open') ? '▲' : '▼';
+    }
+  });
+}
+
+function refreshHelpPanelForLanguage(): void {
+  const previous = dom.helpPanel;
+  if (!previous) {
+    return;
+  }
+  const wasOpen = previous.classList.contains('open');
+  const expanded = [...previous.querySelectorAll('.help-section-content.open')]
+    .map((item) => item.getAttribute('data-section'))
+    .filter((section): section is string => Boolean(section));
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = helpPanelHTML();
+  const next = wrapper.firstElementChild as HTMLElement | null;
+  if (!next) {
+    return;
+  }
+  previous.replaceWith(next);
+  dom.helpPanel = next;
+  dom.helpCloseBtn = next.querySelector('#helpCloseBtn');
+  if (wasOpen) {
+    next.classList.add('open');
+  }
+  for (const section of expanded) {
+    const content = next.querySelector(`.help-section-content[data-section="${section}"]`);
+    const icon = next.querySelector(`.help-section-toggle[data-section="${section}"] .help-toggle-icon`);
+    content?.classList.add('open');
+    if (icon) {
+      icon.textContent = '▲';
+    }
+  }
+  dom.helpCloseBtn?.addEventListener('click', closeHelp);
+  bindHelpPanelInteractions(next);
+}
+
 /**
  * Bind help panel events: open/close toggle, accordion sections, first-use auto-open.
  */
@@ -733,25 +788,10 @@ export function bindHelpEvents(): void {
     }
   });
 
-  // Accordion toggle for help sections
-  dom.helpPanel?.addEventListener('click', (e: MouseEvent) => {
-    const toggle = (e.target as HTMLElement).closest('.help-section-toggle') as HTMLElement | null;
-    if (!toggle) {
-      return;
-    }
-    const section = toggle.dataset['section'];
-    if (!section) {
-      return;
-    }
-    const content = dom.helpPanel?.querySelector(`.help-section-content[data-section="${section}"]`);
-    if (content) {
-      content.classList.toggle('open');
-    }
-    const icon = toggle.querySelector('.help-toggle-icon');
-    if (icon) {
-      icon.textContent = content?.classList.contains('open') ? '▲' : '▼';
-    }
-  });
+  if (dom.helpPanel) {
+    bindHelpPanelInteractions(dom.helpPanel);
+  }
+  window.addEventListener('app:langchange', refreshHelpPanelForLanguage);
 
   // Auto-open help on first use
   const seen = storage.get<boolean>('help_seen', false);
