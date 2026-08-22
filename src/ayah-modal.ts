@@ -74,6 +74,18 @@ let ayahAudios: string[] = [];
 
 let audioLoadSurah: number | null = null;
 
+function getLocalizedModalSurahName(surah: number, fallbackName: string): string {
+  const isArabicInterface = document.documentElement.lang === 'ar' || !document.documentElement.lang;
+  if (isArabicInterface) {
+    return fallbackName;
+  }
+  return (
+    state.surahList.find((item) => item.number === surah)?.englishName ||
+    (state.currentSurah === surah ? state.surahData?.englishName : '') ||
+    fallbackName
+  );
+}
+
 /* ===================== INIT ===================== */
 
 function cache(): void {
@@ -115,9 +127,40 @@ function cache(): void {
 
 export function initAyahModal(): void {
   cache();
+  refreshLocalizedModalText();
   bind();
   initContemplation();
   populateQaris();
+}
+
+function refreshLocalizedModalText(): void {
+  if (!modalEl) {
+    return;
+  }
+  const staticLabels: Record<string, string> = {
+    ayah_modal_close: `✖ ${__('close')}`,
+    ayah_modal_bookmark: `🔖 ${__('ayah_modal_bookmark')}`,
+    ayah_modal_full_tafsir: `📖 ${__('ayah_modal_full_tafsir')}`,
+    ayah_modal_share: `📤 ${__('ayah_modal_share')}`,
+    ayah_modal_copy_diacritics: `📋 ${__('ayah_modal_copy_diacritics')}`,
+    ayah_modal_copy_plain: `📋 ${__('ayah_modal_copy_plain')}`,
+    ayah_modal_copy_tafsir: `📋 ${__('ayah_modal_copy_tafsir')}`,
+    ayah_modal_repeat: `🔁 ${__('ayah_modal_repeat')}`,
+    ayah_modal_download: `⬇️ ${__('ayah_modal_download')}`,
+  };
+  modalEl.setAttribute('aria-label', __('ayah_modal_dialog'));
+  modalEl.querySelectorAll<HTMLElement>('[data-ayah-key]').forEach((element) => {
+    const key = element.dataset['ayahKey'];
+    if (key && staticLabels[key]) {
+      element.textContent = staticLabels[key];
+    }
+  });
+  const selectedReciter = M.ayahModalQariSelect?.value;
+  populateQaris();
+  if (selectedReciter && M.ayahModalQariSelect) {
+    M.ayahModalQariSelect.value = selectedReciter;
+  }
+  updateFavBtn();
 }
 
 /* ===================== OPEN / CLOSE ===================== */
@@ -134,9 +177,11 @@ export function openAyahModal(data: ModalAyahData): void {
   modalEl.classList.remove('hidden');
   modalEl.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(data.ayah), data.surahName)}`;
+  refreshLocalizedModalText();
+  const localizedSurahName = getLocalizedModalSurahName(data.surah, data.surahName);
+  M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(data.ayah), localizedSurahName)}`;
   M.ayahModalText!.textContent = data.text;
-  M.ayahModalSurahAyah!.textContent = `${data.surahName} — ${__('ayah')} ${data.ayah}`;
+  M.ayahModalSurahAyah!.textContent = `${localizedSurahName} — ${__('ayah')} ${data.ayah}`;
   const contemplationButton = M.ayahModalContemplationBtn;
   if (contemplationButton) {
     contemplationButton.textContent = `✦ ${__('contemplation')}`;
@@ -223,8 +268,10 @@ function bind(): void {
     if (!current) {
       return;
     }
-    M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(current.ayah), current.surahName)}`;
-    M.ayahModalSurahAyah!.textContent = `${current.surahName} — ${__('ayah')} ${current.ayah}`;
+    refreshLocalizedModalText();
+    const localizedSurahName = getLocalizedModalSurahName(current.surah, current.surahName);
+    M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(current.ayah), localizedSurahName)}`;
+    M.ayahModalSurahAyah!.textContent = `${localizedSurahName} — ${__('ayah')} ${current.ayah}`;
     if (M.ayahModalContemplationBtn) {
       M.ayahModalContemplationBtn.textContent = `✦ ${__('contemplation')}`;
       M.ayahModalContemplationBtn.setAttribute('aria-label', __('contemplation'));
@@ -251,9 +298,10 @@ function goToNextAyah(): void {
   }
   const next = state.fullQuranText[idx]!;
   current = { surah: next.surah, ayah: next.ayah, text: next.text, surahName: next.surahName, index: idx };
-  M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(next.ayah), next.surahName)}`;
+  const localizedSurahName = getLocalizedModalSurahName(next.surah, next.surahName);
+  M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(next.ayah), localizedSurahName)}`;
   M.ayahModalText!.textContent = next.text;
-  M.ayahModalSurahAyah!.textContent = `${next.surahName} — ${__('ayah')} ${next.ayah}`;
+  M.ayahModalSurahAyah!.textContent = `${localizedSurahName} — ${__('ayah')} ${next.ayah}`;
   if (M.ayahModalContemplationBtn) {
     M.ayahModalContemplationBtn.textContent = `✦ ${__('contemplation')}`;
     void syncContemplationAction(M.ayahModalContemplationBtn, M.ayahModalContemplationStatus, next.surah, next.ayah);
@@ -272,7 +320,7 @@ function updateNav(): void {
   const next: number = current.index + 1;
   if (next < state.fullQuranText.length) {
     const n = state.fullQuranText[next]!;
-    M.ayahModalNextBtn!.textContent = `${__('next_ayah_label', String(n.ayah), n.surahName)}`;
+    M.ayahModalNextBtn!.textContent = `${__('next_ayah_label', String(n.ayah), getLocalizedModalSurahName(n.surah, n.surahName))}`;
     M.ayahModalNav!.style.display = '';
   } else {
     M.ayahModalNav!.style.display = 'none';

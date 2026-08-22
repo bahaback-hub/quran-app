@@ -3,7 +3,7 @@ import { dom } from './dom.js';
 import { loadSurah } from './surah-loader.js';
 import { stopClock, startClock } from './prayer.js';
 import { checkAdhkarNotifications } from './adhkar.js';
-import { __ } from './i18n.js';
+import { __, getLang } from './i18n.js';
 import { getAdhkarIntervalId, setAdhkarIntervalId } from './internal-state.js';
 // Static import of announceToScreenReader (was dynamic, but a11y.ts is
 // already statically imported by app.ts, app-events.ts, and
@@ -18,8 +18,10 @@ const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
 interface ContinueInfo {
   surah: number;
   surahName: string;
+  englishSurahName?: string;
   ayahNumberInSurah: number;
   timestamp?: number;
+  restored?: boolean;
 }
 
 function injectContinueWidgetStyles(): void {
@@ -36,7 +38,7 @@ function injectContinueWidgetStyles(): void {
       box-shadow: 0 8px 32px rgba(0,0,0,0.3); z-index: 3000;
       display: flex; align-items: center; gap: 12px;
       font-family: 'Amiri', 'Traditional Arabic', serif;
-      direction: rtl; cursor: pointer;
+      text-align: start; cursor: pointer;
       animation: slideUp 0.4s ease;
       border: 1px solid rgba(255,255,255,0.2);
       max-width: 90vw;
@@ -51,6 +53,7 @@ function injectContinueWidgetStyles(): void {
     .continue-widget-close:hover { background: rgba(255,255,255,0.4); }
     .continue-widget-text { font-size: 15px; line-height: 1.5; }
     .continue-widget-text strong { color: #ffe066; }
+    .continue-widget-text small { display: inline-block; margin-top: 1px; }
     .continue-widget-icon { font-size: 24px; flex-shrink: 0; }
     @keyframes slideUp {
       from { opacity: 0; transform: translateX(-50%) translateY(30px); }
@@ -74,6 +77,9 @@ export function showContinueWidget(info: ContinueInfo): void {
   const widget = document.createElement('div');
   widget.id = 'continueWidget';
   widget.className = 'continue-widget';
+  const lang = getLang();
+  widget.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  widget.setAttribute('role', 'status');
 
   const icon = document.createElement('span');
   icon.className = 'continue-widget-icon';
@@ -81,14 +87,16 @@ export function showContinueWidget(info: ContinueInfo): void {
 
   const text = document.createElement('span');
   text.className = 'continue-widget-text';
-  const dateStr = info.timestamp ? new Date(info.timestamp).toLocaleDateString('ar-SA') : '';
+  const locale = ({ ar: 'ar-SA', en: 'en', tr: 'tr', ms: 'ms', id: 'id' } as const)[lang];
+  const dateStr = info.timestamp ? new Date(info.timestamp).toLocaleDateString(locale) : '';
   const strong = document.createElement('strong');
-  strong.textContent = info.surahName;
+  const visibleSurahName = lang === 'ar' || !info.englishSurahName ? info.surahName : info.englishSurahName;
+  strong.textContent = visibleSurahName;
   const small = document.createElement('small');
   small.style.opacity = '0.7';
-  small.textContent = `${__('last_visit_time', dateStr)}`;
+  small.textContent = dateStr ? __('last_visit_time', dateStr) : '';
   text.append(
-    '📖 ',
+    `${__('continue_reading')}: `,
     strong,
     `${__('continue_ayah', String(info.ayahNumberInSurah))}`,
     document.createElement('br'),
@@ -110,10 +118,12 @@ export function showContinueWidget(info: ContinueInfo): void {
       return;
     }
     widget.remove();
-    if (dom.surahSelect) {
-      dom.surahSelect.value = String(info.surah);
+    if (!info.restored) {
+      if (dom.surahSelect) {
+        dom.surahSelect.value = String(info.surah);
+      }
+      void loadSurah(info.surah, { startAyah: info.ayahNumberInSurah || 1 });
     }
-    loadSurah(info.surah, { startAyah: info.ayahNumberInSurah || 1 });
   });
 
   document.body.appendChild(widget);

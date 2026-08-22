@@ -129,12 +129,12 @@ const ayahModalHTML = `
 <div class="ayah-modal hidden" id="ayahModal" role="dialog" aria-label="تفاصيل الآية" aria-modal="true">
   <div class="ayah-modal-inner">
     <div class="ayah-modal-header">
-      <button class="ayah-modal-close-btn" id="ayahModalCloseBtn">✖ إغلاق</button>
+      <button class="ayah-modal-close-btn" id="ayahModalCloseBtn" data-ayah-key="ayah_modal_close"></button>
       <span class="ayah-modal-title" id="ayahModalTitle">الآية — </span>
     </div>
     <div class="ayah-modal-badges">
-      <button class="btn btn-sm btn-outline" id="ayahModalBookmarkBtn">🔖 تحديد موضع الوقوف</button>
-      <button class="btn btn-sm btn-fav" id="ayahModalFavBtn">⭐ إضافة للمفضلة</button>
+      <button class="btn btn-sm btn-outline" id="ayahModalBookmarkBtn" data-ayah-key="ayah_modal_bookmark"></button>
+      <button class="btn btn-sm btn-fav" id="ayahModalFavBtn"></button>
     </div>
     <div class="ayah-modal-nav" id="ayahModalNav">
       <span class="ayah-modal-nav-btn" id="ayahModalNextBtn">← الآية التالية</span>
@@ -148,30 +148,30 @@ const ayahModalHTML = `
       <span class="ayah-modal-meta-item" id="ayahModalSurahAyah"></span>
     </div>
     <div class="ayah-modal-section">
-      <button class="btn btn-gold btn-block" id="ayahModalTafsirBtn">📖 صفحة التفسير الكاملة</button>
+      <button class="btn btn-gold btn-block" id="ayahModalTafsirBtn" data-ayah-key="ayah_modal_full_tafsir"></button>
     </div>
     <div class="ayah-modal-section ayah-modal-contemplation-action">
       <button class="btn btn-block" id="ayahModalContemplationBtn" hidden>✦ تأمل في الآية</button>
       <p class="ayah-modal-contemplation-status" id="ayahModalContemplationStatus" aria-live="polite" hidden></p>
     </div>
     <div class="ayah-modal-actions">
-      <button class="btn btn-sm" id="ayahModalShareBtn">📤 مشاركة</button>
-      <button class="btn btn-sm" id="ayahModalCopyBtn">📋 نسخ بتشكيل</button>
-      <button class="btn btn-sm" id="ayahModalCopySimpleBtn">📋 نسخ بدون تشكيل</button>
-      <button class="btn btn-sm" id="ayahModalCopyTafsirBtn">📋 نسخ مع التفسير</button>
+      <button class="btn btn-sm" id="ayahModalShareBtn" data-ayah-key="ayah_modal_share"></button>
+      <button class="btn btn-sm" id="ayahModalCopyBtn" data-ayah-key="ayah_modal_copy_diacritics"></button>
+      <button class="btn btn-sm" id="ayahModalCopySimpleBtn" data-ayah-key="ayah_modal_copy_plain"></button>
+      <button class="btn btn-sm" id="ayahModalCopyTafsirBtn" data-ayah-key="ayah_modal_copy_tafsir"></button>
     </div>
     <div class="ayah-modal-audio" id="ayahModalAudio">
       <div class="ayah-modal-audio-row">
         <select class="ayah-modal-qari-select" id="ayahModalQariSelect"></select>
-        <button class="btn btn-gold btn-audio-play" id="ayahModalPlayBtn">▶️ تشغيل</button>
+        <button class="btn btn-gold btn-audio-play" id="ayahModalPlayBtn">▶️</button>
       </div>
       <div class="ayah-modal-audio-progress">
         <span id="ayahModalAudioCurrent">0:00</span>
         <input type="range" class="ayah-modal-audio-slider" id="ayahModalAudioSlider" min="0" max="100" value="0" />
         <span id="ayahModalAudioDuration">0:00</span>
       </div>
-      <label class="ayah-modal-repeat-label"> <input type="checkbox" id="ayahModalRepeatChk" /> 🔁 تكرار </label>
-      <button class="btn btn-sm btn-block" id="ayahModalDownloadBtn">⬇️ تنزيل الآية</button>
+      <label class="ayah-modal-repeat-label"> <input type="checkbox" id="ayahModalRepeatChk" /><span data-ayah-key="ayah_modal_repeat"></span></label>
+      <button class="btn btn-sm btn-block" id="ayahModalDownloadBtn" data-ayah-key="ayah_modal_download"></button>
       <audio id="ayahModalAudioPlayer" preload="none"></audio>
     </div>
     <div class="ayah-modal-tafsir-tabs" id="ayahModalTafsirTabs">

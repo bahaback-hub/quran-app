@@ -31,7 +31,7 @@ import {
   populateReciterSelect,
   updateCurrentSurahLocale,
 } from './surah-loader.js';
-import { handleVisibilityChange, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
+import { handleVisibilityChange, showContinueWidget, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
 import { injectOverlays } from './overlays.js';
@@ -93,6 +93,18 @@ export async function initApp(): Promise<void> {
   if (last && last.surah) {
     state.currentSurah = last.surah;
     await loadSurah(last.surah, { startAyah: last.ayahNumberInSurah || 1 });
+    // Confirm the restored reading position with a short, dismissible card.
+    // The position itself remains local to the reader's device.
+    window.setTimeout(() => {
+      showContinueWidget({
+        surah: last.surah!,
+        surahName: state.surahData?.name || last.surahName || String(last.surah),
+        englishSurahName: state.surahData?.englishName,
+        ayahNumberInSurah: last.ayahNumberInSurah || 1,
+        timestamp: last.timestamp,
+        restored: true,
+      });
+    }, 420);
   } else {
     await loadSurah(1);
   }

@@ -93,7 +93,9 @@ function getCurrentAyah(): number {
 }
 
 function getSurahName(surah: number): string {
-  const storedName = state.surahList.find((item) => item.number === surah)?.name;
+  const item = state.surahList.find((entry) => entry.number === surah);
+  const isArabicInterface = document.documentElement.lang === 'ar' || !document.documentElement.lang;
+  const storedName = isArabicInterface ? item?.name : item?.englishName || item?.name;
   if (storedName) {
     return storedName;
   }
@@ -172,7 +174,7 @@ function getControls(room: HTMLElement): HifzRoomControls | null {
 }
 
 function fillSurahOptions(select: HTMLSelectElement, selected: number): void {
-  const entries = state.surahList.map((item) => ({ value: item.number, label: item.name }));
+  const entries = state.surahList.map((item) => ({ value: item.number, label: getSurahName(item.number) }));
   if (!entries.length) {
     const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
     entries.push(...(mainSelect ? Array.from(mainSelect.options)
@@ -318,6 +320,17 @@ function setSessionDownloadStatus(room: HTMLElement, key: string, stateName = 'i
   });
 }
 
+function setSessionReadyStatus(room: HTMLElement, plan: HifzPlan, alreadySaved = false): void {
+  const primary = label(alreadySaved ? 'hifz_room_download_cached' : 'hifz_room_download_ready');
+  const detail = label(
+    'hifz_room_download_ready_detail',
+    getSurahName(plan.surah),
+    String(plan.from),
+    String(plan.to),
+  );
+  setSessionDownloadStatus(room, `${primary} ${detail}`, 'ready');
+}
+
 function setSessionDownloadBusy(room: HTMLElement, busy: boolean): void {
   getDownloadButtons(room).forEach((button) => {
     button.disabled = busy;
@@ -355,7 +368,7 @@ async function refreshSessionDownloadStatus(room: HTMLElement, plan = readSessio
     setSessionDownloadStatus(room, 'hifz_room_download_hint');
     return;
   }
-  setSessionDownloadStatus(room, 'hifz_room_download_cached', 'ready');
+  setSessionReadyStatus(room, plan, true);
 }
 
 async function hydrateDownloadedSessionAudio(plan: HifzPlan): Promise<void> {
@@ -381,7 +394,7 @@ async function downloadSessionAudio(room: HTMLElement): Promise<void> {
     const playbackUrls = await resolveSessionAudioUrls(plan);
     if (await isSurahCached(playbackUrls)) {
       saveSessionDownload(plan, playbackUrls);
-      setSessionDownloadStatus(room, 'hifz_room_download_cached', 'ready');
+      setSessionReadyStatus(room, plan, true);
       return;
     }
     const uniqueUrls = [...new Set(playbackUrls)];
@@ -392,7 +405,7 @@ async function downloadSessionAudio(room: HTMLElement): Promise<void> {
       throw new Error('Session audio cache is incomplete');
     }
     saveSessionDownload(plan, playbackUrls);
-    setSessionDownloadStatus(room, 'hifz_room_download_ready', 'ready');
+    setSessionReadyStatus(room, plan);
   } catch {
     setSessionDownloadStatus(room, 'hifz_room_download_failed', 'error');
   } finally {
@@ -552,6 +565,12 @@ function renderRoomText(room: HTMLElement): void {
     const key = element.dataset['hifzKey'];
     if (key) {
       element.textContent = label(key);
+    }
+  });
+  room.querySelectorAll<HTMLElement>('[data-hifz-aria-key]').forEach((element) => {
+    const key = element.dataset['hifzAriaKey'];
+    if (key) {
+      element.setAttribute('aria-label', label(key));
     }
   });
   room.setAttribute('aria-label', label('hifz_room'));
@@ -730,7 +749,7 @@ export function initHifzRoom(): void {
       <header class="hifz-room-header"><div><p class="hifz-room-eyebrow" data-hifz-key="hifz_room_eyebrow"></p><h2 id="hifzRoomTitle" data-hifz-key="hifz_room"></h2></div><button class="hifz-room-close" id="hifzRoomClose" type="button" data-hifz-key="close"></button></header>
       <div class="hifz-room-setup-only">
         <p class="hifz-room-lede" data-hifz-key="hifz_room_tagline"></p>
-        <ol class="hifz-room-steps" aria-label="خطوات جلسة الحفظ"><li data-hifz-key="hifz_room_step_portion"></li><li data-hifz-key="hifz_room_step_repeat"></li><li data-hifz-key="hifz_room_step_start"></li></ol>
+        <ol class="hifz-room-steps" data-hifz-aria-key="hifz_room_steps_label"><li data-hifz-key="hifz_room_step_portion"></li><li data-hifz-key="hifz_room_step_repeat"></li><li data-hifz-key="hifz_room_step_start"></li></ol>
         <section class="hifz-room-session"><label class="hifz-room-field hifz-room-field-full"><span data-hifz-key="hifz_room_surah"></span><select id="hifzRoomSurah"></select></label><div class="hifz-room-range"><label class="hifz-room-field"><span data-hifz-key="hifz_room_from_ayah"></span><select id="hifzRoomFrom"></select></label><label class="hifz-room-field"><span data-hifz-key="hifz_room_to_ayah"></span><select id="hifzRoomTo"></select></label></div></section>
         <section class="hifz-room-repeat" aria-labelledby="hifzRoomRepeatTitle"><p id="hifzRoomRepeatTitle" class="hifz-room-card-label" data-hifz-key="hifz_room_repeat"></p><div class="hifz-room-repeat-options" role="group"><button type="button" data-hifz-repeat="3">3×</button><label class="hifz-room-custom-repeat"><span data-hifz-key="hifz_room_custom_repeat"></span><input id="hifzRoomCustomRepeat" type="number" min="1" max="100" step="1" inputmode="numeric"></label><button type="button" data-hifz-repeat="15">15×</button></div></section>
         <p class="hifz-room-summary" id="hifzRoomSummary"></p><button class="hifz-room-start" id="hifzRoomStart" type="button" data-hifz-key="hifz_room_start"></button><button class="hifz-room-download" id="hifzRoomDownload" type="button" data-hifz-key="hifz_room_download"></button><p class="hifz-room-download-status" id="hifzRoomDownloadStatus" aria-live="polite"></p><button class="hifz-room-return" id="hifzRoomReturn" type="button" data-hifz-key="hifz_room_return_reader"></button><p class="hifz-room-status" id="hifzRoomStatus" aria-live="polite"></p>
