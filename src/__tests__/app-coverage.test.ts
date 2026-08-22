@@ -156,6 +156,7 @@ vi.mock('../ui-extras.js', () => ({
   handleVisibilityChange: vi.fn(),
   updateNetworkBanner: vi.fn(),
   updateReadingProgress: vi.fn(),
+  showContinueWidget: vi.fn(),
 }));
 
 vi.mock('../settings.js', () => ({
