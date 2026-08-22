@@ -242,6 +242,8 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   }
   _loadCounter++;
   const currentLoad = _loadCounter;
+  const surahLabel = state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || String(surahNum);
+  const loadingMessage = `${__('loading_surah')} ${surahLabel}`;
   // Clear stale audio/translation before new load (batched to avoid intermediate notifications).
   // Also null out surahData and reset currentAyahIndex so consumers reading
   // state.currentSurah + state.surahData during the await below see a consistent
@@ -257,6 +259,11 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   });
 
   prepareAudioForNewSurah();
+
+  if (dom.surahContent) {
+    dom.surahContent.classList.add('is-loading');
+    dom.surahContent.setAttribute('aria-busy', 'true');
+  }
 
   if (state.hifdhMode) {
     batch(() => {
@@ -316,6 +323,8 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     renderSurah(cached.text);
     finalizeSurahLoad(opts);
     state.loadingSurah = null;
+    dom.surahContent?.classList.remove('is-loading');
+    dom.surahContent?.setAttribute('aria-busy', 'false');
     return;
   }
 
@@ -345,6 +354,8 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     renderSurah(idbCached.text);
     finalizeSurahLoad(opts);
     state.loadingSurah = null;
+    dom.surahContent?.classList.remove('is-loading');
+    dom.surahContent?.setAttribute('aria-busy', 'false');
     // If online, still try to refresh the data in background (stale-while-revalidate)
     // Use a SEPARATE AbortController so the refresh isn't cancelled when the user loads a different surah
     if (navigator.onLine) {
@@ -357,11 +368,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     return;
   }
 
-  loadingBar.show(
-    `${__('loading_surah')} ${state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || surahNum}...`,
-  );
+  loadingBar.show(`${loadingMessage}...`);
   if (dom.surahContent) {
-    dom.surahContent.innerHTML = skeletonLoading();
+    dom.surahContent.innerHTML = `<div class="surah-loading-notice" role="status"><span class="surah-loading-orb" aria-hidden="true"></span>${escapeHtml(loadingMessage)}</div>${skeletonLoading()}`;
   }
 
   try {
@@ -491,6 +500,8 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     // (prevents a stale load from clearing a newer load's indicator)
     if (_loadCounter === currentLoad) {
       state.loadingSurah = null;
+      dom.surahContent?.classList.remove('is-loading');
+      dom.surahContent?.setAttribute('aria-busy', 'false');
     }
   }
 }

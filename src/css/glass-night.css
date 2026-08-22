@@ -238,6 +238,7 @@ body.night-mode .ayah .translation-text {
 body.night-mode .control-group select,
 body.night-mode .control-group input {
   background: rgba(22, 28, 44, 0.8);
+  color: #f4f0e5;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -245,6 +246,7 @@ body.night-mode .control-group input {
 body.night-mode .settings-row select,
 body.night-mode .settings-row input {
   background: rgba(22, 28, 44, 0.8);
+  color: #f4f0e5;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -257,6 +259,29 @@ body.night-mode .search-input-wrapper {
   background: rgba(22, 28, 44, 0.8);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+
+/* Small secondary controls remain legible over the dark glass layers. */
+body.night-mode .settings-row,
+body.night-mode .control-card label,
+body.night-mode .prayer-row,
+body.night-mode .favorite-item,
+body.night-mode .search-result-item,
+body.night-mode .ayah-modal-meta-item {
+  color: #e8e4d8;
+}
+
+body.night-mode .settings-row small,
+body.night-mode .control-card small,
+body.night-mode .muted,
+body.night-mode .loading-msg {
+  color: #cfcab9;
+}
+
+body.night-mode .btn-sm,
+body.night-mode .ayah-modal-repeat-label,
+body.night-mode .header-dropdown button {
+  color: #f7f3e8;
 }
 
 /* ========== الأزرار ========== */

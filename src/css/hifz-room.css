@@ -441,13 +441,27 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-download-status[data-state='ready'] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.15rem;
+  padding: 0.38rem 0.65rem;
+  border: 1px solid rgb(31 91 73 / 24%);
+  border-radius: 0.65rem;
   color: #1f5b49;
+  background: rgb(232 245 237 / 72%);
   font-weight: 800;
 }
 
 .hifz-room-download-status[data-state='error'] {
   color: #9b3f2b;
   font-weight: 700;
+}
+
+body.night-mode .hifz-room-download-status[data-state='ready'] {
+  border-color: rgb(215 187 129 / 62%);
+  color: #fff3d5;
+  background: rgb(35 85 67 / 88%);
 }
 
 .hifz-room-return {
