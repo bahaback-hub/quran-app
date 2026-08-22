@@ -479,6 +479,7 @@ export function helpPanelHTML(): string {
         <button class="help-close" id="helpCloseBtn" aria-label="${__('close')}">✖</button>
       </div>
       <div class="help-body">
+        <p class="help-intro">${__('help_intro')}</p>
 
         <div class="help-section">
           <button class="help-section-toggle" data-section="playback">
@@ -509,6 +510,44 @@ export function helpPanelHTML(): string {
             <div class="help-item">
               <div class="help-item-title">﴿١﴾ ${__('help_ayah_number')}</div>
               <div class="help-item-desc">${__('help_ayah_number_desc')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-section">
+          <button class="help-section-toggle" data-section="hifz-room">
+            <span>۞ ${__('help_hifz_room')}</span>
+            <span class="help-toggle-icon">▼</span>
+          </button>
+          <div class="help-section-content" data-section="hifz-room">
+            <div class="help-item">
+              <div class="help-item-title">${__('help_hifz_room_open')}</div>
+              <div class="help-item-desc">${__('help_hifz_room_open_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('help_hifz_room_prepare')}</div>
+              <div class="help-item-desc">${__('help_hifz_room_prepare_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('help_hifz_room_session')}</div>
+              <div class="help-item-desc">${__('help_hifz_room_session_desc')}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-section">
+          <button class="help-section-toggle" data-section="contemplation">
+            <span>✦ ${__('help_contemplation')}</span>
+            <span class="help-toggle-icon">▼</span>
+          </button>
+          <div class="help-section-content" data-section="contemplation">
+            <div class="help-item">
+              <div class="help-item-title">${__('help_contemplation_open')}</div>
+              <div class="help-item-desc">${__('help_contemplation_open_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('help_contemplation_privacy')}</div>
+              <div class="help-item-desc">${__('help_contemplation_privacy_desc')}</div>
             </div>
           </div>
         </div>
