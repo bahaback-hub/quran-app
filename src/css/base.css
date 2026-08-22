@@ -115,6 +115,9 @@ body:not(.bg-css) {
 .network-banner.show {
   transform: translateY(0);
 }
+.network-banner[hidden] {
+  display: none !important;
+}
 .network-banner.online {
   background: #d97706;
 }

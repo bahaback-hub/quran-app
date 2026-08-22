@@ -103,6 +103,13 @@ window.installPWA = function (): void {
 // The SW intercepts fetch requests and breaks Capacitor's WebView loading
 if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
   let _swUpdateToastShown = false;
+  let _swUpdateInProgress = false;
+  let _swReloadFallback: number | null = null;
+
+  function hideUpdateBanner(): void {
+    document.getElementById('updateBanner')?.remove();
+    _swUpdateToastShown = false;
+  }
 
   /**
    * Create the update banner DOM element and attach a proper click handler
@@ -134,38 +141,41 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
     // Attach click handler to the update button (NOT inline onclick)
     const updateBtn = banner.querySelector('.update-banner-btn');
     if (updateBtn) {
-      updateBtn.addEventListener('click', (e: Event) => {
+      updateBtn.addEventListener('click', async (e: Event) => {
         e.preventDefault();
         e.stopPropagation();
+        if (_swUpdateInProgress) {
+          return;
+        }
+        _swUpdateInProgress = true;
         // Disable button to prevent double-clicks
         (updateBtn as HTMLButtonElement).disabled = true;
-        (updateBtn as HTMLButtonElement).textContent = '...';
-        // Hide banner immediately so it doesn't reappear on reload
-        banner.style.display = 'none';
-        // Set flag to suppress banner on next load (prevents loop)
-        sessionStorage.setItem('_updateClicked', '1');
-        // Simple reload — the SW with skipWaiting + clientsClaim
-        // will have already applied the update by the time banner shows
-        window.location.reload();
+        (updateBtn as HTMLButtonElement).textContent = 'جارٍ التحديث…';
+        try {
+          const registration = await navigator.serviceWorker.getRegistration();
+          if (registration?.waiting) {
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            // Reload only after the new worker controls the page. The fallback
+            // protects browsers that do not emit controllerchange reliably.
+            _swReloadFallback = window.setTimeout(() => window.location.reload(), 8_000);
+          } else {
+            window.location.reload();
+          }
+        } catch {
+          window.location.reload();
+        }
       });
     }
   }
 
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    // Prevent update banner loop: if user just clicked "Update now",
-    // suppress the banner for this page load.
-    if (sessionStorage.getItem('_updateClicked')) {
-      sessionStorage.removeItem('_updateClicked');
-      return; // Skip showing banner — user just updated
+    if (_swReloadFallback !== null) {
+      window.clearTimeout(_swReloadFallback);
+      _swReloadFallback = null;
     }
-    if (!_swUpdateToastShown) {
-      _swUpdateToastShown = true;
-      const el = document.getElementById('updateBanner');
-      if (el) {
-        el.style.display = 'flex';
-      } else {
-        createUpdateBanner();
-      }
+    hideUpdateBanner();
+    if (_swUpdateInProgress) {
+      window.location.reload();
     }
   });
 
@@ -192,8 +202,13 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
         }
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            showUpdateNotification();
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
+            // Wait for `registration.waiting` so the action reliably applies
+            // the exact worker advertised by the banner.
+            window.setTimeout(() => {
+              if (reg.waiting) {
+                showUpdateNotification();
+              }
+            }, 0);
           }
         });
       });

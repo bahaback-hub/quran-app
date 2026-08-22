@@ -85,6 +85,27 @@ describe('updateNetworkBanner', () => {
     expect(banner.classList.contains('show')).toBe(false);
   });
 
+  it('should hide a stale offline banner when the browser is online', () => {
+    banner.classList.add('show');
+    banner.hidden = false;
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
+
+    updateNetworkBanner();
+
+    expect(banner.hidden).toBe(true);
+    expect(banner.classList.contains('show')).toBe(false);
+  });
+
+  it('should reveal the banner when the browser goes offline', () => {
+    banner.hidden = true;
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+
+    updateNetworkBanner();
+
+    expect(banner.hidden).toBe(false);
+    expect(banner.classList.contains('show')).toBe(true);
+  });
+
   it('should remove online class when offline', () => {
     banner.classList.add('online');
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
