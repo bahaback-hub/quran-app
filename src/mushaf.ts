@@ -61,6 +61,36 @@ let _mushafLoadCounter = 0;
 /** AbortController for the surah-names fetch — cancelled when navigating to a new page. */
 let _surahNamesController: AbortController | null = null;
 
+/** Removes the current viewport-fit listener when the reader changes page or exits Mushaf mode. */
+let _mushafViewportFitCleanup: (() => void) | null = null;
+
+/**
+ * Fit the ornamental paper to the actual space between its header and the fixed player.
+ * This keeps a whole unzoomed page visible at regular browser zoom while preserving the
+ * canvas's independent zoom and scroll behaviour inside the frame.
+ */
+function bindMushafOrnamentViewportFit(wrapper: HTMLElement): void {
+  _mushafViewportFitCleanup?.();
+
+  const fit = (): void => {
+    if (!wrapper.isConnected) {
+      return;
+    }
+    const wrapperTop = wrapper.getBoundingClientRect().top;
+    const player = document.querySelector('.player') as HTMLElement | null;
+    const playerTop = player?.getBoundingClientRect().top ?? window.innerHeight;
+    const safeBottom = playerTop > wrapperTop ? playerTop - 12 : window.innerHeight - 12;
+    const availableHeight = Math.max(315, safeBottom - wrapperTop);
+    const availableWidth = wrapper.parentElement?.getBoundingClientRect().width ?? window.innerWidth;
+    const targetWidth = Math.min(availableWidth, Math.max(210, Math.floor(availableHeight * (2 / 3))));
+    wrapper.style.setProperty('--mushaf-ornament-fit-width', `${targetWidth}px`);
+  };
+
+  requestAnimationFrame(fit);
+  window.addEventListener('resize', fit, { passive: true });
+  _mushafViewportFitCleanup = () => window.removeEventListener('resize', fit);
+}
+
 /* ===================== TOGGLE MUSHAF MODE ===================== */
 
 /** Toggle between mushaf mode and surah mode. */
@@ -145,6 +175,8 @@ export async function toggleMushafMode(): Promise<void> {
   } else {
     // === Remove body class ===
     document.body.classList.remove('mushaf-active');
+    _mushafViewportFitCleanup?.();
+    _mushafViewportFitCleanup = null;
 
     if (dom.pageIndicator) {
       dom.pageIndicator.style.display = 'none';
@@ -354,6 +386,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   dom.surahContent.innerHTML = '';
   dom.surahContent.appendChild(container);
   dom.surahContent.appendChild(buildTajweedLegend());
+  bindMushafOrnamentViewportFit(canvasWrapper);
 
   renderPage(pageNum, canvas)
     .then(({ canvas: renderedCanvas, layout: layoutData }) => {

@@ -17,6 +17,7 @@
 @import './src/css/capacitor.css';
 @import './src/css/help.css';
 @import './src/css/hifz-room.css';
+@import './src/css/mushaf-ornament-layout.css';
 
 /* Virtual Scrolling — chunk containers for windowed rendering */
 .virtual-chunk {

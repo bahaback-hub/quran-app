@@ -1,0 +1,98 @@
+/* Style: the ornamental Mushaf page is one uninterrupted sheet of warm paper; QCF4 sits invisibly within the frame, while reader controls remain secondary. */
+
+/* In Mushaf mode, remove only the reader's glass/card layers so the ornamental page
+   is not perceived as a smaller rectangle placed inside another rectangle. */
+body.mushaf-active:not(.night-mode) .container {
+  background: #f8f0e0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body.mushaf-active:not(.night-mode) .surah-content {
+  padding: 10px 12px 18px;
+  min-height: 0;
+  background: #f8f0e0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body.mushaf-active:not(.night-mode) .mushaf-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+body.mushaf-active:not(.night-mode) .mushaf-container::before {
+  display: none;
+}
+
+body.mushaf-active:not(.night-mode) .mushaf-header {
+  width: min(100%, 620px);
+  margin: 0 auto 8px;
+  padding: 0 0 6px;
+  border-bottom-color: color-mix(in srgb, #9a6b24 36%, transparent);
+}
+
+/* The initial page height is derived from the visible viewport. This keeps the
+   complete page usable at normal browser zoom; the existing A+/A− controls still
+   enlarge it inside the same frame when the reader wants closer study. */
+body.mushaf-active .mushaf-image-wrapper.mushaf-ornament-page {
+  --mushaf-paper: #f8f0e0;
+  inline-size: min(100%, var(--mushaf-ornament-fit-width, clamp(210px, calc((100dvh - 430px) * 0.6667), 547px)));
+  max-inline-size: 100%;
+  aspect-ratio: 2 / 3;
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+  background-color: var(--mushaf-paper);
+  background-size: 100% 100%;
+  box-shadow: none;
+}
+
+/* The QCF4 canvas is still independent and interactive, but its edge now exactly
+   follows the empty centre of the artwork. The matching 7:10 aspect removes the
+   pale band that had remained under the page text. */
+body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .mushaf-ornament-text-viewport {
+  inset: 14% 12.4% 14.5%;
+  background: transparent;
+  overflow: auto;
+}
+
+body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .mushaf-page-canvas {
+  min-width: 100%;
+  background: var(--mushaf-paper);
+}
+
+/* The dark reader remains intentionally dark and retains its existing fallback. */
+body.mushaf-active.night-mode .mushaf-image-wrapper.mushaf-ornament-page {
+  inline-size: min(100%, var(--mushaf-ornament-fit-width, clamp(210px, calc((100dvh - 430px) * 0.6667), 547px)));
+  height: auto;
+  margin-inline: auto;
+}
+
+@media (max-width: 600px) {
+  body.mushaf-active:not(.night-mode) .surah-content {
+    padding: 6px 4px 14px;
+  }
+
+  body.mushaf-active:not(.night-mode) .mushaf-header {
+    width: calc(100% - 8px);
+    margin-bottom: 6px;
+  }
+
+  /* On phones the page keeps a comfortable width; page scrolling replaces the
+     desktop fit-to-height preference, while zoom remains available inside it. */
+  body.mushaf-active .mushaf-image-wrapper.mushaf-ornament-page,
+  body.mushaf-active.night-mode .mushaf-image-wrapper.mushaf-ornament-page {
+    inline-size: min(100%, 360px);
+  }
+
+  body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .mushaf-ornament-text-viewport {
+    inset: 14% 12.4% 14.5%;
+  }
+}
