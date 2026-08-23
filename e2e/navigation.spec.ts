@@ -158,10 +158,10 @@ test.describe('Quran App — Mobile Layout', () => {
     expect(commandBox).not.toBeNull();
     expect(searchBox).not.toBeNull();
     expect(displayBox).not.toBeNull();
-    const sectionsAreSideBySide =
-      searchBox!.x + searchBox!.width <= displayBox!.x || displayBox!.x + displayBox!.width <= searchBox!.x;
-    expect(sectionsAreSideBySide).toBe(true);
-    expect(commandBox!.height).toBeLessThan(130);
+    // On a narrow phone the display modes are deliberately placed above search,
+    // avoiding clipped controls while keeping both sections inside the viewport.
+    expect(displayBox!.y + displayBox!.height).toBeLessThanOrEqual(searchBox!.y);
+    expect(commandBox!.height).toBeLessThan(210);
   });
 });
 

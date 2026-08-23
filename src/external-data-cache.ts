@@ -228,7 +228,6 @@ export async function fetchJsonWithOfflineFallback<T>(
     }
     const cached = await cachedPromise;
     if (cached !== null) {
-      console.info('[ExternalCache] Serving last reliable response:', url);
       return cached;
     }
     throw error;

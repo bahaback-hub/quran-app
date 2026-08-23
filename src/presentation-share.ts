@@ -66,10 +66,18 @@ function setPreviewText(): void {
   const download = document.getElementById('presentationShareDownloadBtn');
   const close = document.getElementById('presentationShareCloseBtn');
   const trigger = dom.presShareBtn;
-  if (heading) heading.textContent = __('presentation_share_preview');
-  if (status && !status.dataset['state']) status.textContent = __('presentation_share_prepare');
-  if (share) share.textContent = `↗ ${__('presentation_share_now')}`;
-  if (download) download.textContent = `↓ ${__('presentation_share_download')}`;
+  if (heading) {
+    heading.textContent = __('presentation_share_preview');
+  }
+  if (status && !status.dataset['state']) {
+    status.textContent = __('presentation_share_prepare');
+  }
+  if (share) {
+    share.textContent = `↗ ${__('presentation_share_now')}`;
+  }
+  if (download) {
+    download.textContent = `↓ ${__('presentation_share_download')}`;
+  }
   if (close) {
     close.textContent = `✖ ${__('close')}`;
     close.setAttribute('aria-label', __('close'));
@@ -146,7 +154,9 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
       line = candidate;
     }
   }
-  if (line) lines.push(line);
+  if (line) {
+    lines.push(line);
+  }
   return lines;
 }
 
@@ -284,8 +294,12 @@ function updatePreviewStatus(message: string, stateName: string): void {
 function setPreviewActions(enabled: boolean): void {
   const share = document.getElementById('presentationShareNativeBtn') as HTMLButtonElement | null;
   const download = document.getElementById('presentationShareDownloadBtn') as HTMLButtonElement | null;
-  if (share) share.disabled = !enabled;
-  if (download) download.disabled = !enabled;
+  if (share) {
+    share.disabled = !enabled;
+  }
+  if (download) {
+    download.disabled = !enabled;
+  }
 }
 
 export function closePresentationSharePreview(): void {
