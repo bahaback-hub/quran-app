@@ -24,9 +24,6 @@ interface LayoutLine {
 /** A mushaf page layout. */
 interface PageLayout {
   lines: LayoutLine[];
-  renderedWordBoxes?: Array<Array<{ left: number; top: number; width: number; height: number }>>;
-  renderedCanvasWidth?: number;
-  renderedCanvasHeight?: number;
 }
 
 /** A rectangle for ayah highlighting. */
@@ -100,25 +97,6 @@ export async function handlePageClick(
     return null;
   }
 
-  const renderedBoxes = layout.renderedWordBoxes?.[lineIndex];
-  if (renderedBoxes?.length === line.words.length) {
-    const scaleX = imgWidth / Math.max(layout.renderedCanvasWidth || imgWidth, 1);
-    for (let i = 0; i < words.length; i++) {
-      const box = renderedBoxes[i];
-      if (!box) {
-        continue;
-      }
-      const left = box.left * scaleX;
-      const right = (box.left + box.width) * scaleX;
-      if (clickX >= left && clickX <= right) {
-        const info = getAyahFromWord(words[i]!);
-        if (info) {
-          return info;
-        }
-      }
-    }
-  }
-
   const charCounts = words.map((w: LayoutWord) => Math.max(1, arabicCharCount(w.char || w.word || '')));
   const totalChars = charCounts.reduce((a: number, b: number) => a + b, 0);
 
@@ -181,21 +159,6 @@ export async function getAyahHighlightRects(
     }
     if (ayahWordIndices.length === 0) {
       continue;
-    }
-
-    const renderedBoxes = layout.renderedWordBoxes?.[lineIndex];
-    if (renderedBoxes?.length === line.words.length) {
-      const selectedBoxes = ayahWordIndices.map((wordIndex) => renderedBoxes[wordIndex]).filter(Boolean);
-      if (selectedBoxes.length > 0) {
-        const scaleX = imgWidth / Math.max(layout.renderedCanvasWidth || imgWidth, 1);
-        const scaleY = imgHeight / Math.max(layout.renderedCanvasHeight || imgHeight, 1);
-        const left = Math.min(...selectedBoxes.map((box) => box!.left)) * scaleX;
-        const right = Math.max(...selectedBoxes.map((box) => box!.left + box!.width)) * scaleX;
-        const top = Math.min(...selectedBoxes.map((box) => box!.top)) * scaleY;
-        const bottom = Math.max(...selectedBoxes.map((box) => box!.top + box!.height)) * scaleY;
-        rects.push({ left, top, width: right - left, height: bottom - top });
-        continue;
-      }
     }
 
     const charCounts = words.map((w: LayoutWord) => Math.max(1, arabicCharCount(w.char || w.word || '')));

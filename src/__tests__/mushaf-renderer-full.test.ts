@@ -199,12 +199,12 @@ describe('mushaf-renderer.ts', () => {
   /* ===================== Constants ===================== */
 
   describe('Constants', () => {
-    it('should have CANVAS_W = 1800 for the desktop reading panel', () => {
-      expect(CANVAS_W).toBe(1800);
+    it('should have CANVAS_W = 1080', () => {
+      expect(CANVAS_W).toBe(1080);
     });
 
-    it('should have CANVAS_H = 860 for the desktop reading panel', () => {
-      expect(CANVAS_H).toBe(860);
+    it('should have CANVAS_H = 1540', () => {
+      expect(CANVAS_H).toBe(1540);
     });
 
     it('should have PAD_H = 30', () => {

@@ -420,43 +420,6 @@ body.night-mode .mushaf-page-img {
   box-sizing: border-box;
 }
 
-/* المصحف المزخرف: الإطار فني ثابت، أما النص العثماني فيبقى على قماش مستقل قابل للنقر والتكبير. */
-.mushaf-image-wrapper.mushaf-ornament-page {
-  width: min(100%, 780px);
-  aspect-ratio: 2 / 3;
-  margin-inline: auto;
-  display: block;
-  overflow: visible;
-  background-color: #f8f0e0;
-  background-image: url('../../public/backgrounds/mushaf-ornament-blue-sepia-continuous.webp');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  box-shadow: 0 14px 28px rgba(64, 43, 17, 0.16);
-}
-.mushaf-image-wrapper.mushaf-ornament-page .mushaf-ornament-text-viewport {
-  position: absolute;
-  inset: 12.2% 12.4% 12.8%;
-  overflow: auto;
-  background: #f8f0e0;
-}
-.mushaf-image-wrapper.mushaf-ornament-page .mushaf-page-canvas {
-  min-width: 100%;
-  background: #f8f0e0;
-  border-radius: 0;
-}
-.mushaf-ornament-footer {
-  display: none;
-}
-body.night-mode .mushaf-image-wrapper.mushaf-ornament-page {
-  background-image: none;
-  background-color: #1a1e2b;
-  box-shadow: none;
-}
-body.night-mode .mushaf-image-wrapper.mushaf-ornament-page .mushaf-ornament-text-viewport {
-  background: #1a1e2b;
-}
-
 /* ===== تظليل الآية الحالية ===== */
 .mushaf-highlight-overlay {
   pointer-events: none;

@@ -281,19 +281,14 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   header.innerHTML = mushafHeaderRow(__('mushaf_juz', toArabicNumeral(juz)));
 
   const canvasWrapper = document.createElement('div');
-  canvasWrapper.className = `mushaf-image-wrapper mushaf-ornament-page${pageNum <= 2 ? ' mushaf-ornament-opening' : ''}`;
+  canvasWrapper.className = 'mushaf-image-wrapper';
 
   const canvas = document.createElement('canvas');
   canvas.className = 'mushaf-page-canvas';
-  // renderPage() immediately assigns its device-specific drawing dimensions.
-  // Keep a neutral initial size here so mocked renderer tests stay decoupled.
   canvas.width = 1080;
   canvas.height = 1540;
 
-  const textViewport = document.createElement('div');
-  textViewport.className = 'mushaf-ornament-text-viewport';
-  textViewport.appendChild(canvas);
-  canvasWrapper.appendChild(textViewport);
+  canvasWrapper.appendChild(canvas);
 
   let pageLayout: PageLayoutData | null = null;
 
@@ -322,7 +317,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   canvasWrapper.addEventListener('click', clickHandler);
 
   const footer = document.createElement('div');
-  footer.className = 'mushaf-footer mushaf-ornament-footer';
+  footer.className = 'mushaf-footer';
   footer.innerHTML = `${toArabicNumeral(pageNum)}`;
 
   const navPrev = document.createElement('button');
