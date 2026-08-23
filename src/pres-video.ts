@@ -3,8 +3,8 @@
  * is created only while presentation mode is active and cleaned up on exit.
  */
 
-export const PRESENTATION_VIDEO_SRC = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663901108942/jyfFfwavVtQiRbjU.mp4';
-export const PRESENTATION_VIDEO_POSTER = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663901108942/YIMWXpcYagVGFveC.jpg';
+export const PRESENTATION_VIDEO_SRC = 'backgrounds/eva-calm-house.mp4';
+export const PRESENTATION_VIDEO_POSTER = 'backgrounds/eva-calm-house-poster.jpg';
 
 const VIDEO_SELECTOR = '.pres-video-bg';
 
