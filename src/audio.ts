@@ -342,6 +342,12 @@ function onTimeUpdate(): void {
       _autoAdvancing = true;
       dom.audioPlayer.pause();
       try {
+        if (handleRepeatOnEnd()) {
+          // Repeat playback takes over immediately; do not leave the guard set
+          // or later timeupdate events would be suppressed for five seconds.
+          _autoAdvancing = false;
+          return;
+        }
         if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
           nextAyah(true);
         } else {

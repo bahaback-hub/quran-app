@@ -490,6 +490,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     } catch {
       /* local fallback also failed — fall through to error display */
     }
+    if (_loadCounter !== currentLoad) {
+      return;
+    }
     if (dom.surahContent) {
       dom.surahContent.innerHTML = surahLoadError();
     }

@@ -90,7 +90,12 @@ vi.mock('../templates.js', () => ({
     `<button class="adhkar-tab${active ? ' active' : ''}" data-tab="${id}">${name}</button>`,
   adhkarCategoryTitle: (name: string, icon: string) =>
     `<div class="adhkar-category-title">${icon} ${name}</div>`,
-  escapeHtml: (str: string) => str,
+  escapeHtml: (str: string | null | undefined) => String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;'),
 }));
 
 // Mock adhkar-notifications
@@ -897,6 +902,22 @@ describe('renderPersonalAdhkar (via switchAdhkarTab "personal")', () => {
     const personalTab = dom.adhkarTabs!.querySelector('[data-tab="personal"]') as HTMLElement;
     if (personalTab) personalTab.click();
     expect(dom.adhkarContent!.innerHTML).toContain('08:00');
+  });
+
+  it('should escape HTML in the personal adhkar time display', () => {
+    state.adhkarSettings = createTestSettings({
+      personal_adhkar: [
+        { id: 'pa_safe', text: 'Test', count: 3, time: '<img src=x onerror=alert(1)>', duration: 1 },
+      ],
+      item_personal_pa_safe: 0,
+    });
+    toggleAdhkarPanel();
+    state.adhkarActiveTab = 'personal';
+    const personalTab = dom.adhkarTabs!.querySelector('[data-tab="personal"]') as HTMLElement;
+    if (personalTab) personalTab.click();
+
+    expect(dom.adhkarContent!.querySelector('.adhkar-item-reference img')).toBeNull();
+    expect(dom.adhkarContent!.textContent).toContain('<img src=x onerror=alert(1)>');
   });
 });
 

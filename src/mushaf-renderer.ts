@@ -702,6 +702,11 @@ async function _renderPageInternal(
   }
 
   const canvas = targetCanvas || getCanvas();
+  if (!canvas) {
+    return { canvas: null, layout: data };
+  }
+  const renderToken = (Number(canvas.dataset['renderToken'] || '0') + 1).toString();
+  canvas.dataset['renderToken'] = renderToken;
   canvas.width = CANVAS_W;
   canvas.height = CANVAS_H;
   const ctx = canvas.getContext('2d');
@@ -728,7 +733,7 @@ async function _renderPageInternal(
       console.warn(`[Mushaf] Capacitor: Re-rendering page ${renderData.pageNum} after 3s delay`);
       try {
         const c = targetCanvas || (document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement);
-        if (c && c.width === CANVAS_W) {
+        if (c && c.width === CANVAS_W && c.dataset['renderToken'] === renderToken) {
           const ctx2 = c.getContext('2d');
           if (ctx2) {
             ctx2.fillStyle = renderData.colors.bg;

@@ -413,13 +413,13 @@ function renderPersonalAdhkar(): void {
         <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
         <div class="adhkar-item-meta">
           <span class="adhkar-item-count">🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}</span>
-          <span class="adhkar-item-reference">${p.time ? '⏰ ' + p.time : ''}</span>
+          <span class="adhkar-item-reference">${p.time ? '⏰ ' + escapeHtml(p.time) : ''}</span>
           <div class="adhkar-personal-actions">
-            <button class="adhkar-personal-btn edit" data-action="edit-personal" data-id="${p.id}">✏️</button>
-            <button class="adhkar-personal-btn delete" data-action="delete-personal" data-id="${p.id}">🗑️</button>
+            <button class="adhkar-personal-btn edit" data-action="edit-personal" data-id="${escapeHtml(p.id)}">✏️</button>
+            <button class="adhkar-personal-btn delete" data-action="delete-personal" data-id="${escapeHtml(p.id)}">🗑️</button>
           </div>
           <div class="adhkar-counter">
-            <button class="adhkar-counter-btn${completed ? ' completed' : ''}" data-action="increment-personal" data-id="${p.id}">✓</button>
+            <button class="adhkar-counter-btn${completed ? ' completed' : ''}" data-action="increment-personal" data-id="${escapeHtml(p.id)}">✓</button>
             <span class="adhkar-counter-text">${counter}</span>
           </div>
         </div>

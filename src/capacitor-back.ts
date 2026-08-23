@@ -13,6 +13,7 @@ import { state } from './state.js';
 import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
+import { hideQiblaCompass } from './prayer.js';
 import { __ } from './i18n.js';
 import { getCapacitor } from './types.js';
 import type { CapacitorPlugins } from './types.js';
@@ -62,6 +63,30 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
       if (secretsOverlay && !secretsOverlay.classList.contains('hidden')) {
         secretsOverlay.classList.add('hidden');
         secretsOverlay.style.display = 'none';
+        return;
+      }
+
+      const qiblaOverlay = document.getElementById('qiblaOverlay');
+      if (qiblaOverlay && !qiblaOverlay.classList.contains('hidden')) {
+        hideQiblaCompass();
+        return;
+      }
+
+      const helpPanel = document.getElementById('helpPanel');
+      if (helpPanel?.classList.contains('open')) {
+        document.getElementById('helpCloseBtn')?.click();
+        return;
+      }
+
+      const readingStatsPanel = document.getElementById('readingStatsPanel');
+      if (readingStatsPanel && !readingStatsPanel.classList.contains('hidden') && readingStatsPanel.style.display !== 'none') {
+        document.getElementById('readingStatsCloseBtn')?.click();
+        return;
+      }
+
+      const sleepTimerModal = document.getElementById('sleepTimerModal');
+      if (sleepTimerModal) {
+        (sleepTimerModal.querySelector('.modal-btn-cancel') as HTMLButtonElement | null)?.click();
         return;
       }
 

@@ -2,6 +2,7 @@
  * Additional tests for offline-pack module to improve coverage.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import 'fake-indexeddb/auto';
 import {
   downloadOfflinePack,
   getOfflinePackStatus,
@@ -9,15 +10,44 @@ import {
   formatBytes,
   estimateOfflinePackSize,
 } from '../offline-pack.js';
+import { clearExternalDataCache, getCachedExternalData } from '../external-data-cache.js';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
 global.fetch = mockFetch as unknown as typeof fetch;
 
+const memoryCaches = new Map<string, Map<string, Response>>();
+const cacheStorage = {
+  open: vi.fn(async (name: string) => {
+    const entries = memoryCaches.get(name) || new Map<string, Response>();
+    memoryCaches.set(name, entries);
+    return {
+      put: async (request: RequestInfo | URL, response: Response) => {
+        entries.set(String(request), response.clone());
+      },
+      match: async (request: RequestInfo | URL) => entries.get(String(request))?.clone(),
+    };
+  }),
+  match: vi.fn(async (request: RequestInfo | URL) => {
+    for (const entries of memoryCaches.values()) {
+      const response = entries.get(String(request));
+      if (response) {
+        return response.clone();
+      }
+    }
+    return undefined;
+  }),
+};
+Object.defineProperty(globalThis, 'caches', { configurable: true, value: cacheStorage });
+
 describe('offline-pack — additional coverage', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear();
     mockFetch.mockReset();
+    memoryCaches.clear();
+    cacheStorage.open.mockClear();
+    cacheStorage.match.mockClear();
+    await clearExternalDataCache();
   });
 
   describe('downloadOfflinePack', () => {
@@ -38,6 +68,32 @@ describe('offline-pack — additional coverage', () => {
       expect(result.succeeded).toBeGreaterThan(0);
       expect(result.errors).toEqual([]);
       expect(result.elapsedMs).toBeGreaterThanOrEqual(0);
+    });
+
+    it('persists Quran text, translations, and tajweed files for offline readers', async () => {
+      mockFetch.mockImplementation((url: string) => Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(
+          url.includes('manifest')
+            ? { files: ['001.json'] }
+            : url.includes('tajweed')
+              ? [[1, []]]
+              : { data: `stored-${url}` },
+        ),
+      }));
+
+      const result = await downloadOfflinePack({ translationEditions: ['en.sahih'] });
+
+      expect(result.success).toBe(true);
+      await expect(
+        getCachedExternalData('https://api.alquran.cloud/v1/quran/quran-uthmani'),
+      ).resolves.toEqual({ data: 'stored-https://api.alquran.cloud/v1/quran/quran-uthmani' });
+      await expect(
+        getCachedExternalData('https://api.alquran.cloud/v1/quran/en.sahih'),
+      ).resolves.toEqual({ data: 'stored-https://api.alquran.cloud/v1/quran/en.sahih' });
+      const tajweedCache = await cacheStorage.open('app-data-v2');
+      await expect(tajweedCache.match('/data/tajweed/manifest.json')).resolves.toBeInstanceOf(Response);
+      await expect(tajweedCache.match('/data/tajweed/001.json')).resolves.toBeInstanceOf(Response);
     });
 
     it('records errors when fetch fails', async () => {
@@ -110,6 +166,12 @@ describe('offline-pack — additional coverage', () => {
 
     it('downloads audio when reciterId and audioSurahCount provided', async () => {
       mockFetch.mockImplementation((url: string) => {
+        if (url.includes('/surah/')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ data: { ayahs: [{ audio: 'https://audio.example/001.mp3' }] } }),
+          });
+        }
         if (url.includes('.mp3')) {
           return Promise.resolve({
             ok: true,
@@ -126,6 +188,7 @@ describe('offline-pack — additional coverage', () => {
       // Mock audio-cache module
       vi.doMock('../audio-cache.js', () => ({
         cacheSurahAudio: vi.fn().mockResolvedValue(undefined),
+        isSurahCached: vi.fn().mockResolvedValue(true),
       }));
 
       const result = await downloadOfflinePack({
@@ -154,6 +217,7 @@ describe('offline-pack — additional coverage', () => {
 
       vi.doMock('../audio-cache.js', () => ({
         cacheSurahAudio: vi.fn().mockResolvedValue(undefined),
+        isSurahCached: vi.fn().mockResolvedValue(true),
       }));
 
       const result = await downloadOfflinePack({
