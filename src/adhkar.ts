@@ -165,8 +165,10 @@ function renderAdhkarCategory(categoryId: string): void {
   const settings = state.adhkarSettings!;
   const catSettings = (settings[cat.id] as Partial<AdhkarCategorySettings>) || {};
   const enabled = !!catSettings.enabled;
-  const notifTime = catSettings.time || cat.defaultTime || '';
-  const notifDur = catSettings.duration ?? cat.defaultDuration ?? 1;
+  const notifTime = typeof catSettings.time === 'string' ? catSettings.time : cat.defaultTime || '';
+  const notifDur = typeof catSettings.duration === 'number' && Number.isFinite(catSettings.duration)
+    ? catSettings.duration
+    : cat.defaultDuration ?? 1;
   let html =
     adhkarCategoryTitle(cat.name, cat.icon) +
     `
@@ -176,7 +178,7 @@ function renderAdhkarCategory(categoryId: string): void {
         ${__('adhkar_enable_notification')}
       </label>
       <label class="adhkar-cat-label--time">
-        ⏰ <input type="time" class="adhkar-cat-time adhkar-cat-time-input" data-category="${cat.id}" value="${notifTime}">
+        ⏰ <input type="time" class="adhkar-cat-time adhkar-cat-time-input" data-category="${cat.id}" value="${escapeHtml(notifTime)}">
       </label>
       <label class="adhkar-cat-label--time">
         🔔 <input type="number" class="adhkar-cat-duration adhkar-cat-duration-input" data-category="${cat.id}" value="${notifDur}" min="1" max="60"> ${__('minutes')}
@@ -691,6 +693,10 @@ export function renderAdhkarSettingsList(): void {
   let html = '';
   for (const cat of ADHKAR_DATA.categories) {
     const s = (settings[cat.id] as Partial<AdhkarCategorySettings>) || {};
+    const time = typeof s.time === 'string' ? s.time : '';
+    const duration = typeof s.duration === 'number' && Number.isFinite(s.duration)
+      ? s.duration
+      : cat.defaultDuration ?? 1;
     html += `<div class="adhkar-setting-row">
       <div class="adhkar-setting-header">
         <span class="adhkar-setting-label">${cat.icon} ${cat.name}</span>
@@ -699,9 +705,9 @@ export function renderAdhkarSettingsList(): void {
         </div>
       </div>
       <div class="adhkar-setting-time">
-        ⏰ <input type="time" data-adhkar-time="${cat.id}" value="${s.time || ''}">
+        ⏰ <input type="time" data-adhkar-time="${cat.id}" value="${escapeHtml(time)}">
         <span>🔔</span>
-        <input type="number" data-adhkar-duration="${cat.id}" value="${s.duration ?? cat.defaultDuration ?? 1}" min="1" max="60" class="adhkar-setting-duration-input"> ${__('minutes')}
+        <input type="number" data-adhkar-duration="${cat.id}" value="${duration}" min="1" max="60" class="adhkar-setting-duration-input"> ${__('minutes')}
       </div>
     </div>`;
   }

@@ -301,7 +301,10 @@ function getCachedWordWeights(ayahIndex: number): WordWeightsResult | null {
     weights.push(Math.max(1, letters.length));
   }
   const totalWeight = weights.reduce((a: number, b: number) => a + b, 0);
-  const pauseRatio = words.length <= 3 ? 0.06 : words.length <= 8 ? 0.04 : 0.025;
+  const preferredPauseRatio = words.length <= 3 ? 0.06 : words.length <= 8 ? 0.04 : 0.025;
+  // Reserve at least 30% of the ayah duration for speech. A fixed pause per word
+  // otherwise makes speechRatio negative in long ayahs and reverses word timing.
+  const pauseRatio = Math.min(preferredPauseRatio, 0.7 / Math.max(1, words.length - 1));
   const speechRatio = 1 - pauseRatio * (words.length - 1);
   let cumTime = 0;
   const startTimes: number[] = [];

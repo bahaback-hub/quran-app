@@ -198,7 +198,11 @@ describe('SETTING_TYPE_VALIDATORS', () => {
   });
 
   it('should validate structurally safe adhkar_settings', () => {
-    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ morning: true })).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ morning: true })).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+      morning: { enabled: true, time: '07:30', duration: 15 },
+      item_morning_1: 3,
+    })).toBe(true);
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
       personal_adhkar: [{ id: 'custom_1', text: 'ذكر محفوظ', count: 3, time: '07:00', duration: 5 }],
     })).toBe(true);
@@ -208,6 +212,11 @@ describe('SETTING_TYPE_VALIDATORS', () => {
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
       personal_adhkar: [{ id: '" onmouseover="alert(1)', text: 'ذكر', count: 3, time: null, duration: 5 }],
     })).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+      morning: { enabled: true, time: 'x"><img src=x onerror=alert(1)>', duration: 5 },
+    })).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ morning: { enabled: true, time: '07:30', duration: 0 } })).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ item_morning_1: -1 })).toBe(false);
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ personal_adhkar: 'not-an-array' })).toBe(false);
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!(null)).toBe(false);
   });

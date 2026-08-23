@@ -80,6 +80,21 @@ export async function getCachedExternalData<T>(url: string): Promise<T | null> {
   if (!isExternalUrl(url)) {
     return null;
   }
+  const exact = await getExactCachedExternalData<T>(url);
+  if (exact !== null) {
+    return exact;
+  }
+
+  const fullQuranRequest = getFullQuranRequest(url);
+  if (!fullQuranRequest) {
+    return null;
+  }
+  const fullPayload = await getExactCachedExternalData<unknown>(fullQuranRequest.url);
+  const surah = getSurahFromFullPayload(fullPayload, fullQuranRequest.surahNumber);
+  return surah === null ? null : ({ data: surah } as T);
+}
+
+async function getExactCachedExternalData<T>(url: string): Promise<T | null> {
   const db = await openCacheDB();
   if (!db) {
     return null;
@@ -89,6 +104,43 @@ export async function getCachedExternalData<T>(url: string): Promise<T | null> {
     request.onsuccess = () => resolve((request.result as ExternalCacheEntry | undefined)?.payload as T ?? null);
     request.onerror = () => resolve(null);
   });
+}
+
+function getFullQuranRequest(url: string): { url: string; surahNumber: number } | null {
+  try {
+    const parsed = new URL(url);
+    const parts = parsed.pathname.split('/').filter(Boolean);
+    const surahIndex = parts.indexOf('surah');
+    if (surahIndex < 0 || !parts[surahIndex + 1] || !parts[surahIndex + 2]) {
+      return null;
+    }
+    const surahNumber = Number(parts[surahIndex + 1]);
+    if (!Number.isInteger(surahNumber) || surahNumber < 1 || surahNumber > 114) {
+      return null;
+    }
+    parts.splice(surahIndex, 2, 'quran');
+    parsed.pathname = `/${parts.join('/')}`;
+    return { url: parsed.toString(), surahNumber };
+  } catch {
+    return null;
+  }
+}
+
+function getSurahFromFullPayload(payload: unknown, surahNumber: number): unknown | null {
+  if (!payload || typeof payload !== 'object') {
+    return null;
+  }
+  const data = (payload as { data?: unknown }).data;
+  if (!data || typeof data !== 'object') {
+    return null;
+  }
+  const surahs = (data as { surahs?: unknown }).surahs;
+  if (!Array.isArray(surahs)) {
+    return null;
+  }
+  return surahs.find((surah) =>
+    typeof surah === 'object' && surah !== null && (surah as { number?: unknown }).number === surahNumber,
+  ) ?? null;
 }
 
 /**
