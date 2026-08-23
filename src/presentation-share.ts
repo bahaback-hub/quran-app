@@ -280,12 +280,6 @@ async function renderShareImage(): Promise<Blob> {
     }
   }
   drawShareOverlay(ctx, width, height, isWide);
-  ctx.strokeStyle = 'rgba(216, 178, 95, 0.78)';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(44, 44, width - 88, height - 88);
-  ctx.strokeStyle = 'rgba(255, 253, 246, 0.24)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(60, 60, width - 120, height - 120);
   drawShareText(ctx, ayah.text, currentReference(), width, height, isWide);
   if (isWide) {
     drawSulaimaniSignature(ctx, width, height);
