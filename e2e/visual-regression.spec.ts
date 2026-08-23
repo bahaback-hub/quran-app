@@ -12,6 +12,11 @@
 import { test, expect } from './fixtures/mock-network';
 
 test.describe('Visual Regression', () => {
+  // Pixel baselines are deliberately maintained for Chromium, where CI visual
+  // snapshots are generated. Firefox and WebKit still run every functional E2E
+  // test; their independent Arabic font rasterisation should not create noise.
+  test.skip(({ browserName }) => browserName !== 'chromium', 'Visual pixel baselines use Chromium rendering');
+
   test.beforeEach(async ({ page }) => {
     await page.goto('./');
     await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });

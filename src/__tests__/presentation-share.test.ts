@@ -12,6 +12,9 @@ vi.mock('../pres-backgrounds.js', () => ({
   getAutoBackground: () => ({ src: 'backgrounds/dawn.jpg' }),
   getNatureBgByMood: () => ({ src: 'backgrounds/dawn.jpg' }),
 }));
+vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform: () => false } }));
+vi.mock('@capacitor/filesystem', () => ({ Directory: { Cache: 'CACHE' }, Filesystem: { writeFile: vi.fn() } }));
+vi.mock('@capacitor/share', () => ({ Share: { canShare: vi.fn(), share: vi.fn() } }));
 vi.mock('../state.js', () => ({
   state: {
     currentSurah: 1,
@@ -40,7 +43,32 @@ function mountPreview(): void {
 describe('presentation image sharing', () => {
   beforeEach(() => {
     vi.resetModules();
+    vi.restoreAllMocks();
     mountPreview();
+    const NativeURL = globalThis.URL;
+    class TestURL extends NativeURL {}
+    Object.defineProperty(TestURL, 'createObjectURL', { value: vi.fn(() => 'blob:share-preview') });
+    Object.defineProperty(TestURL, 'revokeObjectURL', { value: vi.fn() });
+    vi.stubGlobal('URL', TestURL);
+    const gradient = { addColorStop: vi.fn() };
+    const context = {
+      createLinearGradient: vi.fn(() => gradient),
+      fillRect: vi.fn(),
+      strokeRect: vi.fn(),
+      fillText: vi.fn(),
+      drawImage: vi.fn(),
+      measureText: vi.fn(() => ({ width: 80 })),
+    } as unknown as CanvasRenderingContext2D;
+    Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+      configurable: true,
+      value: vi.fn(() => context),
+    });
+    Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+      configurable: true,
+      value: (callback: BlobCallback) => callback(new Blob(['image'], { type: 'image/png' })),
+    });
+    Object.defineProperty(navigator, 'canShare', { configurable: true, value: vi.fn(() => true) });
+    Object.defineProperty(navigator, 'share', { configurable: true, value: vi.fn(() => Promise.resolve()) });
   });
 
   it('localises and labels the share trigger on initialisation', async () => {
@@ -58,5 +86,34 @@ describe('presentation image sharing', () => {
     closePresentationSharePreview();
     expect(preview.classList.contains('hidden')).toBe(true);
     expect(preview.style.display).toBe('none');
+  });
+
+  it('renders a preview image and enables its sharing and download actions', async () => {
+    const { openPresentationSharePreview } = await import('../presentation-share.js');
+
+    await openPresentationSharePreview();
+
+    expect(document.getElementById('presentationSharePreview')?.style.display).toBe('flex');
+    expect((document.getElementById('presentationShareImage') as HTMLImageElement).src).toContain('blob:share-preview');
+    expect((document.getElementById('presentationShareNativeBtn') as HTMLButtonElement).disabled).toBe(false);
+    expect((document.getElementById('presentationShareDownloadBtn') as HTMLButtonElement).disabled).toBe(false);
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('ready');
+  });
+
+  it('uses the browser share sheet from both share actions after preparing the image', async () => {
+    const { initPresentationShare, openPresentationSharePreview } = await import('../presentation-share.js');
+    const share = vi.mocked(navigator.share);
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    await openPresentationSharePreview();
+    initPresentationShare();
+
+    mockDom.presShareBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    document.getElementById('presentationShareNativeBtn')?.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    document.getElementById('presentationShareDownloadBtn')?.click();
+
+    expect(share).toHaveBeenCalledTimes(2);
+    expect(anchorClick).toHaveBeenCalled();
   });
 });
