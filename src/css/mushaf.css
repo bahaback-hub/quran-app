@@ -67,6 +67,7 @@
   justify-content: center;
   padding: 4px 8px;
 }
+/* معاينات القراءة: الآية الموحدة واضحة فوق لقطة حقيقية من الوضع نفسه. */
 .reading-mode-preview {
   display: block;
   min-height: 48px;
@@ -76,6 +77,28 @@
   background-position: center;
   position: relative;
   overflow: hidden;
+}
+.reading-mode-preview::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 253, 247, 0.54), rgba(255, 253, 247, 0.7));
+  z-index: 0;
+}
+.reading-mode-preview-verse {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  padding: 2px 6px;
+  color: #4b351f;
+  font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
+  font-size: clamp(9px, 1.1vw, 16px);
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255, 253, 247, 0.92);
 }
 .reading-mode-preview-surah {
   background-image: linear-gradient(90deg, rgba(12, 18, 44, 0.08), rgba(12, 18, 44, 0.3)), url('../../public/screenshots/reading-mode.webp');
@@ -88,15 +111,7 @@
 .reading-mode-preview-featured {
   display: grid;
   place-items: center;
-  padding: 4px;
   background-image: linear-gradient(90deg, rgba(92, 52, 49, 0.06), rgba(92, 52, 49, 0.24)), url('../../public/backgrounds/dawn.jpg');
-  color: #fffdf5;
-  font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
-  font-size: clamp(13px, 1.3vw, 17px);
-  line-height: 1.25;
-  text-align: center;
-  text-shadow: 0 1px 5px #6c4440;
-  white-space: nowrap;
 }
 /* Theme-synced real previews: each preview uses a capture from the same reading mode. */
 body:not(.night-mode):not(.sepia-mode) .reading-mode-preview-surah {
@@ -126,7 +141,13 @@ body.night-mode .reading-mode-preview-mushaf {
 }
 body.night-mode .reading-mode-preview-featured {
   background-image: linear-gradient(90deg, rgba(3, 9, 22, 0.18), rgba(3, 9, 22, 0.48)), url('../../public/backgrounds/nightsky.jpg');
-  text-shadow: 0 1px 5px #060b1b;
+}
+body.night-mode .reading-mode-preview::before {
+  background: linear-gradient(90deg, rgba(6, 12, 27, 0.46), rgba(6, 12, 27, 0.62));
+}
+body.night-mode .reading-mode-preview-verse {
+  color: #fff8e7;
+  text-shadow: 0 1px 3px #060b1b;
 }
 .reading-mode-copy {
   min-width: 0;
