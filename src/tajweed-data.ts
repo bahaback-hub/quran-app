@@ -30,6 +30,33 @@ let _annotations: Map<string, TajweedAnnotation[]> | null = null;
 const _surahAnnotations = new Map<number, Map<string, TajweedAnnotation[]>>();
 let _manifestPromise: Promise<TajweedManifest | TajweedJsonEntry[]> | null = null;
 
+/**
+ * Read a local tajweed file from the network first, then from Cache Storage.
+ * This fallback is necessary in Capacitor, where the PWA service worker is
+ * deliberately disabled but an explicit offline package remains available.
+ */
+async function fetchCachedJson<T>(url: string): Promise<T> {
+  try {
+    const response = await fetch(url);
+    if (response.ok === false) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return await response.json() as T;
+  } catch (networkError) {
+    if ('caches' in globalThis) {
+      try {
+        const cached = await caches.match(url);
+        if (cached) {
+          return await cached.json() as T;
+        }
+      } catch {
+        // Preserve the original network error if Cache Storage is unavailable.
+      }
+    }
+    throw networkError;
+  }
+}
+
 function key(surah: number, ayah: number): string {
   return `${surah}:${ayah}`;
 }
@@ -44,7 +71,7 @@ function toAnnotationMap(data: TajweedJsonEntry[]): Map<string, TajweedAnnotatio
 
 async function getManifest(): Promise<TajweedManifest | TajweedJsonEntry[]> {
   if (!_manifestPromise) {
-    _manifestPromise = fetch('data/tajweed/manifest.json').then((response) => response.json());
+    _manifestPromise = fetchCachedJson<TajweedManifest | TajweedJsonEntry[]>('data/tajweed/manifest.json');
   }
   return _manifestPromise;
 }
@@ -54,7 +81,7 @@ async function readSurahChunk(surah: number, manifest: TajweedManifest): Promise
   if (!file) {
     return [];
   }
-  const compact: CompactTajweedEntry[] = await fetch(`data/tajweed/${file}`).then((response) => response.json());
+  const compact = await fetchCachedJson<CompactTajweedEntry[]>(`data/tajweed/${file}`);
   return compact.map(([ayah, annotations]) => ({
     surah,
     ayah,

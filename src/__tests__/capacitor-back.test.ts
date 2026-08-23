@@ -37,6 +37,48 @@ describe('initCapacitorBackButton', () => {
     expect(() => listener!()).not.toThrow();
   });
 
+  it('should close the visible qibla overlay before other navigation', async () => {
+    const overlay = document.createElement('div');
+    overlay.id = 'qiblaOverlay';
+    overlay.style.display = 'flex';
+    document.body.appendChild(overlay);
+    let listener: (() => void) | undefined;
+    const { initCapacitorBackButton } = await import('../capacitor-back.js');
+    initCapacitorBackButton({ App: { addListener: vi.fn((_event: string, cb: () => void) => { listener = cb; }) } });
+
+    listener!();
+
+    expect(overlay.classList.contains('hidden')).toBe(true);
+    expect(overlay.style.display).toBe('none');
+  });
+
+  it('should close help, reading statistics, and sleep timer overlays before exiting', async () => {
+    const help = document.createElement('div');
+    help.id = 'helpPanel'; help.classList.add('open');
+    const helpClose = document.createElement('button');
+    helpClose.id = 'helpCloseBtn'; helpClose.addEventListener('click', () => help.classList.remove('open'));
+    const stats = document.createElement('div');
+    stats.id = 'readingStatsPanel'; stats.style.display = 'flex';
+    const statsClose = document.createElement('button');
+    statsClose.id = 'readingStatsCloseBtn'; statsClose.addEventListener('click', () => { stats.classList.add('hidden'); stats.style.display = 'none'; });
+    const sleep = document.createElement('div');
+    sleep.id = 'sleepTimerModal';
+    const sleepCancel = document.createElement('button');
+    sleepCancel.className = 'modal-btn-cancel'; sleepCancel.addEventListener('click', () => sleep.remove());
+    sleep.appendChild(sleepCancel);
+    document.body.append(help, helpClose, stats, statsClose, sleep);
+    let listener: (() => void) | undefined;
+    const { initCapacitorBackButton } = await import('../capacitor-back.js');
+    initCapacitorBackButton({ App: { addListener: vi.fn((_event: string, cb: () => void) => { listener = cb; }) } });
+
+    listener!();
+    expect(help.classList.contains('open')).toBe(false);
+    listener!();
+    expect(stats.classList.contains('hidden')).toBe(true);
+    listener!();
+    expect(document.getElementById('sleepTimerModal')).toBeNull();
+  });
+
   it('should collapse player when no panel is open', async () => {
     const player = document.createElement('div');
     player.id = 'player';

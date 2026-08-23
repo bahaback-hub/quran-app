@@ -197,9 +197,27 @@ describe('SETTING_TYPE_VALIDATORS', () => {
     expect(SETTING_TYPE_VALIDATORS['reading_stats']!('string')).toBe(false);
   });
 
-  it('should validate adhkar_settings as non-null object', () => {
+  it('should validate structurally safe adhkar_settings', () => {
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ morning: true })).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+      personal_adhkar: [{ id: 'custom_1', text: 'ذكر محفوظ', count: 3, time: '07:00', duration: 5 }],
+    })).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+      personal_adhkar: [{ id: 'custom_1', text: 'ذكر', count: 3, time: '<img src=x>', duration: 5 }],
+    })).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+      personal_adhkar: [{ id: '" onmouseover="alert(1)', text: 'ذكر', count: 3, time: null, duration: 5 }],
+    })).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ personal_adhkar: 'not-an-array' })).toBe(false);
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!(null)).toBe(false);
+  });
+
+  it('should accept only reader font-size presets', () => {
+    expect(SETTING_TYPE_VALIDATORS['font_size']!(20)).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['font_size']!(44)).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['font_size']!(19)).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['font_size']!(Infinity)).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['font_size']!('32')).toBe(false);
   });
 
   it('should validate bookmark as null or object', () => {

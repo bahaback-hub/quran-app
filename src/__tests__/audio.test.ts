@@ -1326,6 +1326,28 @@ describe('Audio Event Handlers', () => {
     expect(state.currentAyahIndex).toBe(0); // back to ayah 1
   });
 
+  it('timeupdate at MP3 ayah boundary repeats the configured range before advancing', async () => {
+    setupAudioWithEvents();
+    realAudio.pause = vi.fn();
+    Object.defineProperty(realAudio, 'duration', { configurable: true, value: 40 });
+    Object.defineProperty(realAudio, 'currentTime', { configurable: true, writable: true, value: 19.9 });
+    state.surahData = createSurahData(3);
+    state.ayahsAudios = ['full-surah.mp3', 'full-surah.mp3', 'full-surah.mp3'];
+    state.ayahTimings = [0, 0.25, 0.5, 0.75];
+    state.currentAyahIndex = 1; // ayah 2 = configured repeat end
+    state.repeatMode = true;
+    state.repeatFrom = 1;
+    state.repeatTo = 2;
+    state.repeatTimes = 2;
+    state.repeatCounter = 0;
+
+    await playCurrentAyah();
+    eventHandlers['timeupdate']!(new Event('timeupdate'));
+
+    expect(state.repeatCounter).toBe(1);
+    expect(state.currentAyahIndex).toBe(0);
+  });
+
   it('onAudioEnded with repeatMode complete should stop', () => {
     setupAudioWithEvents();
     state.surahData = createSurahData(3);

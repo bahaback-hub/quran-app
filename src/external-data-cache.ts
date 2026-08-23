@@ -91,23 +91,32 @@ export async function getCachedExternalData<T>(url: string): Promise<T | null> {
   });
 }
 
-export async function cacheExternalData(url: string, payload: unknown): Promise<void> {
+/**
+ * Persist a reliable public JSON response and report whether it was written.
+ * Background cache refreshes may ignore the boolean, while an explicit offline
+ * download must fail honestly if persistent storage is unavailable.
+ */
+export async function cacheExternalData(url: string, payload: unknown): Promise<boolean> {
   if (!isExternalUrl(url)) {
-    return;
+    return false;
   }
   const db = await openCacheDB();
   if (!db) {
-    return;
+    return false;
   }
   const entry: ExternalCacheEntry = { key: url, url, payload, updatedAt: Date.now() };
-  await new Promise<void>((resolve) => {
+  const stored = await new Promise<boolean>((resolve) => {
     const transaction = db.transaction(STORE_NAME, 'readwrite');
     transaction.objectStore(STORE_NAME).put(entry);
-    transaction.oncomplete = () => resolve();
-    transaction.onerror = () => resolve();
-    transaction.onabort = () => resolve();
+    transaction.oncomplete = () => resolve(true);
+    transaction.onerror = () => resolve(false);
+    transaction.onabort = () => resolve(false);
   });
+  if (!stored) {
+    return false;
+  }
   await pruneCache();
+  return true;
 }
 
 async function pruneCache(): Promise<void> {

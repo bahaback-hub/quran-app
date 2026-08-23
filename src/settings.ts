@@ -551,9 +551,48 @@ export const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'reading_stats',
 ]);
 
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isValidPersonalAdhkar(value: unknown): boolean {
+  if (!isPlainRecord(value)) {
+    return false;
+  }
+  const id = value['id'];
+  const text = value['text'];
+  const count = value['count'];
+  const time = value['time'];
+  const duration = value['duration'];
+  return (
+    typeof id === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(id) &&
+    typeof text === 'string' && text.trim().length > 0 && text.length <= 2000 &&
+    typeof count === 'number' && Number.isInteger(count) && count >= 1 && count <= 1000 &&
+    (time === null || (typeof time === 'string' && time.length <= 120)) &&
+    typeof duration === 'number' && Number.isFinite(duration) && duration >= 0 && duration <= 1440
+  );
+}
+
+function isValidAdhkarSettings(value: unknown): boolean {
+  if (!isPlainRecord(value)) {
+    return false;
+  }
+  if ('adhkar_enabled' in value && typeof value['adhkar_enabled'] !== 'boolean') {
+    return false;
+  }
+  if ('adhkar_sound' in value && typeof value['adhkar_sound'] !== 'boolean') {
+    return false;
+  }
+  if ('_resetDate' in value && typeof value['_resetDate'] !== 'string') {
+    return false;
+  }
+  const personal = value['personal_adhkar'];
+  return personal === undefined || (Array.isArray(personal) && personal.length <= 100 && personal.every(isValidPersonalAdhkar));
+}
+
 /** Type validators for setting keys — ensures imported values match expected types. Exported for testing. */
 export const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = {
-  font_size: (v) => typeof v === 'number',
+  font_size: (v) => typeof v === 'number' && Number.isFinite(v) && SURAH_FONT_SIZES.includes(v),
   mushaf_zoom: (v) => typeof v === 'number' && MUSHAF_ZOOM_LEVELS.includes(v),
   night_mode: (v) => typeof v === 'boolean',
   city: (v) => typeof v === 'string',
@@ -575,7 +614,7 @@ export const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = 
   last_position: (v) => typeof v === 'string' || typeof v === 'number',
   mushaf_mode: (v) => typeof v === 'boolean',
   current_page: (v) => typeof v === 'number',
-  adhkar_settings: (v) => typeof v === 'object' && v !== null,
+  adhkar_settings: isValidAdhkarSettings,
   search_history: (v) => Array.isArray(v),
   font_type: (v) => typeof v === 'string',
   line_spacing: (v) => typeof v === 'string',

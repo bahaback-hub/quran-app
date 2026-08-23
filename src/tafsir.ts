@@ -136,14 +136,16 @@ async function fetchTafsirFromAPI(edition: string, surahNum: number, ayahNum: nu
         await saveTafsirToDB(cacheKey, legacyText);
         return legacyText;
       }
-      // No usable text — return fallback message
-      const fallbackText = __('no_tafsir_available');
-      await saveTafsirToDB(cacheKey, fallbackText);
-      return fallbackText;
+      // No usable text — return UI fallback only. Caching it would turn a
+      // transient API/schema problem into a permanent poisoned cache entry.
+      return __('no_tafsir_available');
     }
     // The schema validates `text` field; older API variants use `tafsir.text`.
     const legacy = raw as { tafsir?: { text?: string } } | null;
-    const text = legacy?.tafsir?.text || data.text || __('no_tafsir_available');
+    const text = legacy?.tafsir?.text || data.text;
+    if (!text?.trim()) {
+      return __('no_tafsir_available');
+    }
     await saveTafsirToDB(cacheKey, text);
     return text;
   } catch {

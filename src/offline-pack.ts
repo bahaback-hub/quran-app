@@ -10,6 +10,8 @@
  */
 
 import { CONFIG } from './config.js';
+import { cacheExternalData } from './external-data-cache.js';
+import { buildAudioUrl, getReciterById } from './reciters.js';
 
 /* ===================== TYPES ===================== */
 
@@ -58,6 +60,13 @@ const DEFAULT_TRANSLATIONS = [
 ];
 
 const FETCH_TIMEOUT_MS = 30_000;
+const TAJWEED_CACHE_NAME = 'app-data-v2';
+
+interface AudioEditionResponse {
+  data?: {
+    ayahs?: Array<{ audio?: string }>;
+  };
+}
 
 /* ===================== STATUS MANAGEMENT ===================== */
 
@@ -109,6 +118,43 @@ async function fetchWithTimeout(url: string): Promise<Response> {
   }
 }
 
+/** Store same-origin JSON in Cache Storage for the tajweed loader's offline fallback. */
+async function cacheLocalJson(url: string, data: unknown): Promise<void> {
+  if (!('caches' in globalThis)) {
+    throw new Error('Cache Storage is unavailable');
+  }
+  const cache = await caches.open(TAJWEED_CACHE_NAME);
+  await cache.put(
+    url,
+    new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } }),
+  );
+  if (!(await cache.match(url))) {
+    throw new Error(`Failed to persist ${url}`);
+  }
+}
+
+/** Return the exact audio URLs used by the normal reader for one surah. */
+async function getSurahAudioUrls(reciterId: string, surahNum: number): Promise<string[]> {
+  const reciter = getReciterById(reciterId);
+  const fullSurahUrl = buildAudioUrl(reciter, surahNum);
+  if (fullSurahUrl) {
+    return [fullSurahUrl];
+  }
+
+  const response = await fetchWithTimeout(`${CONFIG.API_BASE}/surah/${surahNum}/${reciter.id}`);
+  if (!response.ok) {
+    throw new Error(`Audio surah ${surahNum}: HTTP ${response.status}`);
+  }
+  const data = await response.json() as AudioEditionResponse;
+  const urls = data.data?.ayahs
+    ?.map((ayah) => ayah.audio)
+    .filter((url): url is string => typeof url === 'string' && url.length > 0) || [];
+  if (!urls.length) {
+    throw new Error(`Audio surah ${surahNum}: no playable URLs`);
+  }
+  return urls;
+}
+
 /* ===================== DOWNLOAD ORCHESTRATION ===================== */
 
 export async function downloadOfflinePack(
@@ -136,11 +182,13 @@ export async function downloadOfflinePack(
   });
 
   try {
-    const response = await fetchWithTimeout(
-      `${CONFIG.API_BASE}/quran/quran-uthmani`,
-    );
+    const url = `${CONFIG.API_BASE}/quran/quran-uthmani`;
+    const response = await fetchWithTimeout(url);
     if (response.ok) {
       const data = await response.json();
+      if (!(await cacheExternalData(url, data))) {
+        throw new Error('Quran text could not be persisted');
+      }
       totalBytes += JSON.stringify(data).length;
       succeeded++;
     } else {
@@ -171,11 +219,13 @@ export async function downloadOfflinePack(
     });
 
     try {
-      const response = await fetchWithTimeout(
-        `${CONFIG.API_BASE}/quran/${edition}`,
-      );
+      const url = `${CONFIG.API_BASE}/quran/${edition}`;
+      const response = await fetchWithTimeout(url);
       if (response.ok) {
         const data = await response.json();
+        if (!(await cacheExternalData(url, data))) {
+          throw new Error(`Translation ${edition} could not be persisted`);
+        }
         totalBytes += JSON.stringify(data).length;
         succeeded++;
       } else {
@@ -200,13 +250,16 @@ export async function downloadOfflinePack(
     const manifestResponse = await fetchWithTimeout('/data/tajweed/manifest.json');
     if (manifestResponse.ok) {
       const manifest = await manifestResponse.json() as { files?: string[] };
+      await cacheLocalJson('/data/tajweed/manifest.json', manifest);
       const files = manifest.files || [];
       for (const [index, file] of files.entries()) {
-        const response = await fetchWithTimeout(`/data/tajweed/${file}`);
+        const url = `/data/tajweed/${file}`;
+        const response = await fetchWithTimeout(url);
         if (!response.ok) {
           throw new Error(`Tajweed ${file}: HTTP ${response.status}`);
         }
         const data = await response.json();
+        await cacheLocalJson(url, data);
         totalBytes += JSON.stringify(data).length;
         onProgress?.({
           phase: 'tajweed',
@@ -217,9 +270,12 @@ export async function downloadOfflinePack(
         });
       }
       succeeded++;
+    } else {
+      throw new Error(`Tajweed manifest: HTTP ${manifestResponse.status}`);
     }
-  } catch {
-    succeeded++;
+  } catch (e) {
+    failed++;
+    errors.push(`Tajweed: ${(e as Error).message}`);
   }
 
   onProgress?.({
@@ -239,7 +295,7 @@ export async function downloadOfflinePack(
       total: audioSurahCount,
     });
 
-    const { cacheSurahAudio } = await import('./audio-cache.js');
+    const { cacheSurahAudio, isSurahCached } = await import('./audio-cache.js');
 
     for (let surahNum = 1; surahNum <= audioSurahCount; surahNum++) {
       onProgress?.({
@@ -251,23 +307,11 @@ export async function downloadOfflinePack(
       });
 
       try {
-        const paddedNum = String(surahNum).padStart(3, '0');
-        const serverUrl = `https://server8.mp3quran.net/${reciterId}/`;
-        const audioUrl = `${serverUrl}${paddedNum}.mp3`;
-
-        const audioResponse = await fetch(audioUrl);
-        if (!audioResponse.ok) {
-          failed++;
-          errors.push(`Audio surah ${surahNum}: HTTP ${audioResponse.status}`);
-          continue;
+        const audioUrls = await getSurahAudioUrls(reciterId, surahNum);
+        await cacheSurahAudio(audioUrls, surahNum, reciterId);
+        if (!(await isSurahCached(audioUrls))) {
+          throw new Error(`Audio surah ${surahNum} could not be persisted`);
         }
-
-        const blob = await audioResponse.blob();
-        totalBytes += blob.size;
-
-        await cacheSurahAudio([audioUrl], surahNum, reciterId).catch(() => {
-          // SW runtime cache will still hold it
-        });
 
         succeeded++;
       } catch (e) {
@@ -287,7 +331,7 @@ export async function downloadOfflinePack(
 
   saveOfflinePackStatus({
     installed: failed === 0,
-    installedAt: new Date().toISOString(),
+    installedAt: failed === 0 ? new Date().toISOString() : null,
     itemCount: succeeded,
     sizeBytes: totalBytes,
     reciterId: reciterId ?? null,
