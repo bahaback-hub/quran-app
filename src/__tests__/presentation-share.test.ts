@@ -42,6 +42,7 @@ function mountPreview(): void {
 
 describe('presentation image sharing', () => {
   let fillText: ReturnType<typeof vi.fn>;
+  let strokeRect: ReturnType<typeof vi.fn>;
   let renderedCanvasSize: [number, number] | null;
 
   beforeEach(() => {
@@ -57,10 +58,11 @@ describe('presentation image sharing', () => {
     vi.stubGlobal('URL', TestURL);
     const gradient = { addColorStop: vi.fn() };
     fillText = vi.fn();
+    strokeRect = vi.fn();
     const context = {
       createLinearGradient: vi.fn(() => gradient),
       fillRect: vi.fn(),
-      strokeRect: vi.fn(),
+      strokeRect,
       fillText,
       drawImage: vi.fn(),
       measureText: vi.fn(() => ({ width: 80 })),
@@ -128,7 +130,7 @@ describe('presentation image sharing', () => {
     expect(anchorClick).toHaveBeenCalled();
   });
 
-  it('adds the discreet Sulaimani signature to wide video-background shares', async () => {
+  it('renders wide video-background shares without a frame and with the discreet Sulaimani signature', async () => {
     mockState.presBgMode = 'video';
     const { openPresentationSharePreview } = await import('../presentation-share.js');
 
@@ -136,5 +138,6 @@ describe('presentation image sharing', () => {
 
     expect(fillText).toHaveBeenCalledWith('المصحف السليماني', expect.any(Number), expect.any(Number));
     expect(renderedCanvasSize).toEqual([1920, 1080]);
+    expect(strokeRect).not.toHaveBeenCalled();
   });
 });
