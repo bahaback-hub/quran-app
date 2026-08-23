@@ -41,6 +41,7 @@ vi.mock('../prayer.js', () => ({
   togglePrayerBar: vi.fn(),
   testAzan: vi.fn(),
   stopAzan: vi.fn(),
+  showQiblaCompass: vi.fn(),
   hideQiblaCompass: vi.fn(),
   hideAzanNotification: vi.fn(),
 }));
@@ -190,8 +191,10 @@ function createDomElements() {
   dom.mushafSurahOverlay = el('div');
   dom.surahSecretsCloseBtn = el('button');
   dom.surahSecretsOverlay = el('div');
+  dom.qiblaBtn = el('button');
   dom.qiblaCloseBtn = el('button');
   dom.qiblaOverlay = el('div');
+  dom.qiblaOverlay.classList.add('hidden');
   dom.readingStatsCloseBtn = el('button');
   dom.readingStatsPanel = el('div');
   dom.helpToggleBtn = el('button');
@@ -327,6 +330,15 @@ describe('app-events', () => {
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
       dom.settingsCloseBtn!.click();
+      const { closeSettings } = await import('../settings.js');
+      expect(closeSettings).toHaveBeenCalled();
+    });
+
+    it('should close settings when the open settings button is pressed again', async () => {
+      dom.settingsPanel!.classList.add('open');
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      dom.settingsToggleBtn!.click();
       const { closeSettings } = await import('../settings.js');
       expect(closeSettings).toHaveBeenCalled();
     });
@@ -630,6 +642,15 @@ describe('app-events', () => {
       expect(closeFavorites).toHaveBeenCalled();
     });
 
+    it('should close favorites when the open favorites button is pressed again', async () => {
+      dom.favoritesPanel!.classList.add('open');
+      const { bindPanelsAndShareEvents } = await import('../app-events.js');
+      bindPanelsAndShareEvents();
+      dom.favoritesOpenBtn!.click();
+      const { closeFavorites } = await import('../favorites.js');
+      expect(closeFavorites).toHaveBeenCalled();
+    });
+
     it('should bind collapseBarBtn and expandBarBtn to togglePrayerBar', async () => {
       const { bindPanelsAndShareEvents } = await import('../app-events.js');
       bindPanelsAndShareEvents();
@@ -816,6 +837,15 @@ describe('app-events', () => {
       expect(hideQiblaCompass).toHaveBeenCalled();
     });
 
+    it('should close qibla when its open button is pressed again', async () => {
+      dom.qiblaOverlay!.classList.remove('hidden');
+      const { bindMiscEvents } = await import('../app-events.js');
+      bindMiscEvents();
+      dom.qiblaBtn!.click();
+      const { hideQiblaCompass } = await import('../prayer.js');
+      expect(hideQiblaCompass).toHaveBeenCalled();
+    });
+
     it('should hide mushafSurahOverlay on close button click', async () => {
       dom.mushafSurahOverlay!.style.display = 'flex';
       dom.mushafSurahOverlay!.classList.remove('hidden');
@@ -851,10 +881,20 @@ describe('app-events', () => {
 
   describe('bindHelpEvents', () => {
     it('should open help panel on helpToggleBtn click', async () => {
+      vi.mocked(storage.get).mockReturnValue(true);
       const { bindHelpEvents } = await import('../app-events.js');
       bindHelpEvents();
       dom.helpToggleBtn!.click();
       expect(dom.helpPanel!.classList.contains('open')).toBe(true);
+    });
+
+    it('should close help panel when its open button is pressed again', async () => {
+      vi.mocked(storage.get).mockReturnValue(true);
+      const { bindHelpEvents } = await import('../app-events.js');
+      bindHelpEvents();
+      dom.helpToggleBtn!.click();
+      dom.helpToggleBtn!.click();
+      expect(dom.helpPanel!.classList.contains('open')).toBe(false);
     });
 
     it('should close help panel on helpCloseBtn click', async () => {

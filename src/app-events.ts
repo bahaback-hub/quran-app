@@ -133,7 +133,13 @@ export function bindHeaderAndSettingsEvents(): void {
       }
     }
   });
-  dom.settingsToggleBtn?.addEventListener('click', openSettings);
+  dom.settingsToggleBtn?.addEventListener('click', () => {
+    if (dom.settingsPanel?.classList.contains('open')) {
+      closeSettings();
+      return;
+    }
+    openSettings();
+  });
   dom.settingsCloseBtn?.addEventListener('click', closeSettings);
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
   dom.testAzanBtn?.addEventListener('click', testAzan);
@@ -423,7 +429,13 @@ export function bindDisplaySettingsEvents(): void {
  * Bind favorites, prayer bar collapse, share menu items.
  */
 export function bindPanelsAndShareEvents(): void {
-  dom.favoritesOpenBtn?.addEventListener('click', openFavorites);
+  dom.favoritesOpenBtn?.addEventListener('click', () => {
+    if (dom.favoritesPanel?.classList.contains('open')) {
+      closeFavorites();
+      return;
+    }
+    openFavorites();
+  });
   dom.favoritesCloseBtn?.addEventListener('click', closeFavorites);
   dom.collapseBarBtn?.addEventListener('click', togglePrayerBar);
   dom.expandBarBtn?.addEventListener('click', togglePrayerBar);
@@ -684,7 +696,14 @@ export function bindMiscEvents(): void {
 
   wireAdhkarEvents();
 
-  dom.qiblaBtn?.addEventListener('click', showQiblaCompass);
+  dom.qiblaBtn?.addEventListener('click', () => {
+    const qiblaOpen = Boolean(dom.qiblaOverlay && !dom.qiblaOverlay.classList.contains('hidden'));
+    if (qiblaOpen) {
+      hideQiblaCompass();
+      return;
+    }
+    showQiblaCompass();
+  });
   dom.qiblaCloseBtn?.addEventListener('click', hideQiblaCompass);
   dom.qiblaOverlay?.addEventListener('click', (e: MouseEvent) => {
     if (e.target === dom.qiblaOverlay) {
@@ -776,7 +795,13 @@ function refreshHelpPanelForLanguage(): void {
  * Bind help panel events: open/close toggle, accordion sections, first-use auto-open.
  */
 export function bindHelpEvents(): void {
-  dom.helpToggleBtn?.addEventListener('click', openHelp);
+  dom.helpToggleBtn?.addEventListener('click', () => {
+    if (dom.helpPanel?.classList.contains('open')) {
+      closeHelp();
+      return;
+    }
+    openHelp();
+  });
   dom.helpCloseBtn?.addEventListener('click', closeHelp);
 
   // Close help when clicking outside
