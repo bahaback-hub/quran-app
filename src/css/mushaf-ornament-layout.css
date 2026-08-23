@@ -38,12 +38,12 @@ body.mushaf-active:not(.night-mode) .mushaf-header {
   border-bottom-color: color-mix(in srgb, #9a6b24 36%, transparent);
 }
 
-/* The initial page height is derived from the visible viewport. This keeps the
-   complete page usable at normal browser zoom; the existing A+/A− controls still
-   enlarge it inside the same frame when the reader wants closer study. */
+/* A Mushaf page is a generous reading surface, not a thumbnail fitted into the
+   remaining screen height. On wide screens it keeps a book-like 660px maximum;
+   natural page scrolling is preferable to reducing the Qur'anic text. */
 body.mushaf-active .mushaf-image-wrapper.mushaf-ornament-page {
   --mushaf-paper: #f8f0e0;
-  inline-size: min(100%, var(--mushaf-ornament-fit-width, clamp(210px, calc((100dvh - 430px) * 0.6667), 547px)));
+  inline-size: min(100%, clamp(440px, 52vw, 660px));
   max-inline-size: 100%;
   aspect-ratio: 2 / 3;
   height: auto;
@@ -66,13 +66,6 @@ body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .
 body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .mushaf-page-canvas {
   min-width: 100%;
   background: var(--mushaf-paper);
-}
-
-/* The dark reader remains intentionally dark and retains its existing fallback. */
-body.mushaf-active.night-mode .mushaf-image-wrapper.mushaf-ornament-page {
-  inline-size: min(100%, var(--mushaf-ornament-fit-width, clamp(210px, calc((100dvh - 430px) * 0.6667), 547px)));
-  height: auto;
-  margin-inline: auto;
 }
 
 @media (max-width: 600px) {
