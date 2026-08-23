@@ -38,10 +38,22 @@ export interface PageLine {
   words: PageWord[];
 }
 
+/** The actual visual box of a word after the canvas renderer positions it. */
+export interface RenderedWordBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 /** Full layout data for a mushaf page (from QCF4 JSON). */
 export interface PageLayoutData {
   font?: string;
   lines: PageLine[];
+  /** Ephemeral draw geometry used to keep click and highlight actions aligned with QCF4 text. */
+  renderedWordBoxes?: RenderedWordBox[][];
+  renderedCanvasWidth?: number;
+  renderedCanvasHeight?: number;
 }
 
 /** Result of rendering a mushaf page. */
@@ -865,6 +877,7 @@ function renderPageContent(
   const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / Math.max(1, lineCount - 1) : stdLineHeight;
 
   const lineWidths: (LineWidths | null)[] = [];
+  const centeredLines: boolean[] = [];
   for (let i = 0; i < lineCount; i++) {
     const line = lines[i];
     if (!line?.words || line.words.length === 0) {
@@ -875,13 +888,19 @@ function renderPageContent(
     const totalW = widths.reduce((a: number, b: number) => a + b, 0);
     // The opening pages use centered, naturally spaced lines like the Madinah Mushaf.
     // Justifying their short lines would spread the words too far apart.
+    const naturalGap = pageFontSize * 0.54;
+    const justifiedGap = line.words.length > 1 ? (availableW - totalW) / (line.words.length - 1) : 0;
+    // A broad desktop panel must not stretch a short ayah into disconnected words.
+    // When full justification would exceed a natural reading gap, keep that line
+    // centred and preserve its calligraphic rhythm instead.
     const gap = isOpeningPage
       ? pageFontSize * OPENING_PAGE_WORD_GAP_SCALE
-      : line.words.length > 1
-        ? (availableW - totalW) / (line.words.length - 1)
-        : 0;
+      : Math.min(Math.max(0, justifiedGap), naturalGap);
+    centeredLines.push(!isOpeningPage && justifiedGap > naturalGap);
     lineWidths.push({ widths, gap: Math.max(0, gap) });
   }
+
+  const renderedWordBoxes: RenderedWordBox[][] = Array.from({ length: lineCount }, () => []);
 
   const tajweedColors = computePageTajweed(data);
   const tajweedLookup = new Map<string, string | null>();
@@ -926,7 +945,8 @@ function renderPageContent(
     }
 
     const lineWidth = widths.reduce((total, width) => total + width, 0) + gap * Math.max(0, words.length - 1);
-    let x = isOpeningPage ? CANVAS_W / 2 + lineWidth / 2 : textRight;
+    let x = isOpeningPage || centeredLines[i] ? CANVAS_W / 2 + lineWidth / 2 : textRight;
+    const lineBoxes: RenderedWordBox[] = [];
 
     for (let j = 0; j < words.length; j++) {
       const w = words[j]!;
@@ -947,9 +967,20 @@ function renderPageContent(
       } else {
         ctx.fillText(w.char, x, y);
       }
+      lineBoxes.push({
+        left: x - widths[j]!,
+        top: y - pageFontSize * 0.6,
+        width: widths[j]!,
+        height: pageFontSize * 1.2,
+      });
       x -= widths[j]! + gap;
     }
+    renderedWordBoxes[i] = lineBoxes;
   }
+
+  data.renderedWordBoxes = renderedWordBoxes;
+  data.renderedCanvasWidth = CANVAS_W;
+  data.renderedCanvasHeight = CANVAS_H;
 }
 
 function drawPageNumber(ctx: CanvasRenderingContext2D, pageNum: number, _colors: PageColors): void {

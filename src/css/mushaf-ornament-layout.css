@@ -34,7 +34,7 @@ body.mushaf-active:not(.night-mode) .mushaf-container::before {
 }
 
 body.mushaf-active:not(.night-mode) .mushaf-header {
-  width: min(100%, 1120px);
+  width: min(100%, 1440px);
   margin: 0 auto 8px;
   padding: 0 0 6px;
   border-bottom-color: color-mix(in srgb, #9a6b24 36%, transparent);
@@ -45,7 +45,7 @@ body.mushaf-active:not(.night-mode) .mushaf-header {
    slices are repeated around the panel rather than stretching the entire artwork. */
 body.mushaf-active .mushaf-image-wrapper.mushaf-ornament-page {
   --mushaf-paper: #f8f0e0;
-  inline-size: min(100%, clamp(760px, 92vw, 1180px));
+  inline-size: min(100%, clamp(760px, 96vw, 1500px));
   max-inline-size: 100%;
   aspect-ratio: 180 / 86;
   height: auto;
@@ -65,7 +65,9 @@ body.mushaf-active .mushaf-image-wrapper.mushaf-ornament-page {
 /* The QCF4 canvas is still independent and interactive. Its warm-paper background
    matches the panel centre exactly, so no second light rectangle appears behind it. */
 body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .mushaf-ornament-text-viewport {
-  inset: 8% 7.2%;
+  /* The vertical inset is calculated against the border-box content area. It
+     matches the 1800:860 QCF4 canvas at 100%, so the page itself scrolls. */
+  inset: 3.75% 7.2%;
   background: transparent;
   overflow: auto;
 }
