@@ -285,6 +285,8 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
 
   const canvas = document.createElement('canvas');
   canvas.className = 'mushaf-page-canvas';
+  // renderPage() immediately assigns its device-specific drawing dimensions.
+  // Keep a neutral initial size here so mocked renderer tests stay decoupled.
   canvas.width = 1080;
   canvas.height = 1540;
 

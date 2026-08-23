@@ -1,4 +1,6 @@
-/* Style: the ornamental Mushaf page is one uninterrupted sheet of warm paper; QCF4 sits invisibly within the frame, while reader controls remain secondary. */
+/* Style: the ornamental Mushaf is a wide, uninterrupted warm-paper reading panel.
+   QCF4 fills the panel on desktop; the intricate source ornament is sliced only
+   at its edges so it frames the full reader width without a stretched centre. */
 
 /* In Mushaf mode, remove only the reader's glass/card layers so the ornamental page
    is not perceived as a smaller rectangle placed inside another rectangle. */
@@ -32,33 +34,38 @@ body.mushaf-active:not(.night-mode) .mushaf-container::before {
 }
 
 body.mushaf-active:not(.night-mode) .mushaf-header {
-  width: min(100%, 620px);
+  width: min(100%, 1120px);
   margin: 0 auto 8px;
   padding: 0 0 6px;
   border-bottom-color: color-mix(in srgb, #9a6b24 36%, transparent);
 }
 
-/* A Mushaf page is a generous reading surface, not a thumbnail fitted into the
-   remaining screen height. On wide screens it keeps a book-like 660px maximum;
-   natural page scrolling is preferable to reducing the Qur'anic text. */
+/* Desktop reading is a broad panel across the available Mushaf area, matching the
+   boundaries indicated by the user. The ornament remains crisp because its edge
+   slices are repeated around the panel rather than stretching the entire artwork. */
 body.mushaf-active .mushaf-image-wrapper.mushaf-ornament-page {
   --mushaf-paper: #f8f0e0;
-  inline-size: min(100%, clamp(440px, 52vw, 660px));
+  inline-size: min(100%, clamp(760px, 92vw, 1180px));
   max-inline-size: 100%;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 180 / 86;
   height: auto;
   margin-inline: auto;
   overflow: visible;
   background-color: var(--mushaf-paper);
-  background-size: 100% 100%;
+  background-image: none;
+  border: 42px solid transparent;
+  border-image-source: url('../../public/backgrounds/mushaf-ornament-blue-sepia-continuous.webp');
+  border-image-slice: 210 180 210 180 fill;
+  border-image-width: 42px;
+  border-image-repeat: round;
   box-shadow: none;
+  box-sizing: border-box;
 }
 
-/* The QCF4 canvas is still independent and interactive, but its edge now exactly
-   follows the empty centre of the artwork. The matching 7:10 aspect removes the
-   pale band that had remained under the page text. */
+/* The QCF4 canvas is still independent and interactive. Its warm-paper background
+   matches the panel centre exactly, so no second light rectangle appears behind it. */
 body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .mushaf-ornament-text-viewport {
-  inset: 14% 12.4% 14.5%;
+  inset: 8% 7.2%;
   background: transparent;
   overflow: auto;
 }
@@ -66,6 +73,14 @@ body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .
 body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .mushaf-page-canvas {
   min-width: 100%;
   background: var(--mushaf-paper);
+}
+
+/* An ayah remains discoverable during playback without covering it with a coloured
+   rectangle that competes with the paper and ornament. */
+body.mushaf-active:not(.night-mode) .mushaf-ayah-highlight {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: inset 0 -2px 0 rgba(154, 107, 36, 0.48);
 }
 
 @media (max-width: 600px) {
@@ -83,6 +98,9 @@ body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .
   body.mushaf-active .mushaf-image-wrapper.mushaf-ornament-page,
   body.mushaf-active.night-mode .mushaf-image-wrapper.mushaf-ornament-page {
     inline-size: min(100%, 360px);
+    aspect-ratio: 2 / 3;
+    border-width: 24px;
+    border-image-width: 24px;
   }
 
   body.mushaf-active:not(.night-mode) .mushaf-image-wrapper.mushaf-ornament-page .mushaf-ornament-text-viewport {

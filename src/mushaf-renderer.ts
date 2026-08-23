@@ -78,13 +78,13 @@ const LOCAL_QCF4_FONTS: Record<string, string> = {
   QCF4_Hafs_08: `${import.meta.env.BASE_URL}fonts/qcf4/QCF4_Hafs_08_W.woff2`,
 };
 
-// Canvas dimensions — scaled based on device capabilities to reduce memory usage
-// Full HD (1080×1540) uses 6.6MB per canvas — too much for low-end mobile
-// We scale down on mobile devices to save memory while keeping quality acceptable
+// Canvas dimensions — the desktop Mushaf uses a broad reading panel, while mobile
+// keeps the familiar portrait page. QCF4 glyphs remain individually rendered,
+// so click mapping and word-level highlighting continue to use the actual canvas.
 const MOBILE_CANVAS_W = 720;
 const MOBILE_CANVAS_H = 1028; // Maintains 7:10 aspect ratio
-const DESKTOP_CANVAS_W = 1080;
-const DESKTOP_CANVAS_H = 1540;
+const DESKTOP_CANVAS_W = 1800;
+const DESKTOP_CANVAS_H = 860;
 
 /** Detect if device is mobile (low memory) */
 function isMobileDevice(): boolean {
