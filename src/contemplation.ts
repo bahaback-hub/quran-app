@@ -3,7 +3,7 @@
  * Questions are loaded per surah, never collect user input, and are never sent externally.
  */
 
-import { __, getLang } from './i18n.js';
+import { __ } from './i18n.js';
 import { AL_FATIHAH_CONTEMPLATION_SAMPLE } from './contemplation-questions.sample.js';
 
 interface ContemplationEntry {
@@ -232,7 +232,7 @@ export async function openContemplation(surah: number, ayah: number, surahName: 
   closeButton?.focus();
 }
 
-export function closeContemplation(): void {
+function closeContemplation(): void {
   if (!sheet) {
     return;
   }
@@ -240,8 +240,4 @@ export function closeContemplation(): void {
   sheet.style.display = 'none';
   document.body.style.overflow = '';
   activeContext = null;
-}
-
-export function contemplationUsesArabicQuestions(): boolean {
-  return getLang() !== 'ar';
 }
