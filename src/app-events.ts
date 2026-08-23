@@ -362,7 +362,7 @@ export function bindDisplaySettingsEvents(): void {
   );
   dom.presBgSelect?.addEventListener('change', (e: Event) =>
     applyPresBgMode(
-      (e.target as HTMLSelectElement).value as 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene',
+      (e.target as HTMLSelectElement).value as 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video',
     ),
   );
   dom.presBgSceneSelect?.addEventListener('change', (e: Event) =>

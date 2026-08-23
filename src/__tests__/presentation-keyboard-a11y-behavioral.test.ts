@@ -69,15 +69,20 @@ describe('presentation — mode toggle', () => {
     state.presBgMode = 'auto';
     expect(state.presBgMode).toBe('auto');
   });
+
+  it('can change presBgMode to video', () => {
+    state.presBgMode = 'video';
+    expect(state.presBgMode).toBe('video');
+  });
 });
 
 describe('presentation — background types', () => {
   it('all valid presBgMode values are supported', () => {
-    const validTypes = ['plain', 'nature', 'singleNature', 'animated', 'scene', 'auto'];
+    const validTypes = ['plain', 'nature', 'singleNature', 'animated', 'scene', 'auto', 'video'];
     for (const t of validTypes) {
       expect(typeof t).toBe('string');
     }
-    expect(validTypes.length).toBe(6);
+    expect(validTypes.length).toBe(7);
   });
 
   it('nature scenes include dawn, morning, afternoon, sunset, night', () => {

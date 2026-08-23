@@ -256,7 +256,7 @@ describe('settings', () => {
 
     it('should accept all valid modes', async () => {
       const { applyPresBgMode } = await import('../settings.js');
-      const modes = ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene'] as const;
+      const modes = ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene', 'video'] as const;
       for (const mode of modes) {
         applyPresBgMode(mode);
         expect(state.presBgMode).toBe(mode);
@@ -272,7 +272,7 @@ describe('settings', () => {
         city: (v) => typeof v === 'string',
         favorites: (v) => Array.isArray(v),
         pres_bg_mode: (v) =>
-          typeof v === 'string' && ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene'].includes(v),
+          typeof v === 'string' && ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene', 'video'].includes(v),
       };
 
       expect(validators.font_size(28)).toBe(true);

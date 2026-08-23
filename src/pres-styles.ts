@@ -160,6 +160,45 @@ export function injectStyles(): void {
       background: rgba(255,255,255,0.3);
     }
 
+    /* ===== VIDEO MODE =====
+       The moving asset always stays behind an opaque enough contrast layer. */
+    .presentation-overlay.pres-video {
+      background-color: #162426;
+      background-size: cover;
+      background-position: center;
+    }
+    .presentation-overlay.pres-video .pres-video-bg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .presentation-overlay.pres-video::before {
+      content: '';
+      position: absolute; inset: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(4, 11, 14, 0.62) 0%, rgba(7, 18, 19, 0.50) 44%, rgba(3, 8, 10, 0.70) 100%);
+    }
+    .presentation-overlay.pres-video .presentation-inner { position: relative; z-index: 2; }
+    .presentation-overlay.pres-video .presentation-ayah-text {
+      color: #fffdf5;
+      text-shadow: 0 3px 20px rgba(0,0,0,0.9), 0 1px 5px rgba(0,0,0,0.75);
+    }
+    .presentation-overlay.pres-video .presentation-translation {
+      color: rgba(255,253,245,0.9);
+      text-shadow: 0 1px 7px rgba(0,0,0,0.75);
+    }
+    .presentation-overlay.pres-video .presentation-title,
+    .presentation-overlay.pres-video .presentation-counter { color: rgba(255,253,245,0.82); }
+    .presentation-overlay.pres-video .presentation-ayah-num { color: #f3cf72; }
+    .presentation-overlay.pres-video .presentation-header,
+    .presentation-overlay.pres-video .presentation-footer { border-color: rgba(255,255,255,0.18); }
+    .presentation-overlay.pres-video .presentation-header-btn,
+    .presentation-overlay.pres-video .presentation-close-btn { color: #fffdf5; background: rgba(8,18,18,0.46); }
+    .presentation-overlay.pres-video .presentation-header-btn:hover,
+    .presentation-overlay.pres-video .presentation-close-btn:hover { background: rgba(8,18,18,0.72); }
+
     /* Animated mode text colors (same as nature) */
     .presentation-overlay.pres-animated .presentation-ayah-text {
       color: #fff;

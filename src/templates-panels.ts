@@ -151,14 +151,15 @@ export function settingsPanelHTML(): string {
             <div class="toggle-switch on" id="tajweedToggle" role="switch" aria-label="ألوان التجويد"></div>
           </div>
           <div class="settings-row">
-            <label for="presBgSelect">خلفية وضع العرض:</label>
+            <label for="presBgSelect" data-i18n="pres_bg_label">خلفية وضع العرض:</label>
             <select id="presBgSelect" aria-label="خلفية وضع العرض">
-              <option value="plain">صامتة</option>
-              <option value="nature">مناظر طبيعية</option>
-              <option value="singleNature">منظر طبيعي واحد</option>
-              <option value="animated">مناظر متحركة</option>
-              <option value="scene">منظر واحد متحرك</option>
-              <option value="auto">تلقائي (حسب الوقت)</option>
+              <option value="plain" data-i18n="pres_bg_plain">صامتة</option>
+              <option value="nature" data-i18n="pres_bg_nature">مناظر طبيعية</option>
+              <option value="singleNature" data-i18n="pres_bg_single_nature">منظر طبيعي واحد</option>
+              <option value="animated" data-i18n="pres_bg_animated">مناظر متحركة</option>
+              <option value="scene" data-i18n="pres_bg_scene">منظر واحد متحرك</option>
+              <option value="video" data-i18n="pres_bg_video">فيديو هادئ — منزل وماء</option>
+              <option value="auto" data-i18n="pres_bg_auto">تلقائي (حسب الوقت)</option>
             </select>
           </div>
           <div class="settings-row hidden" id="presBgNatureRow">
