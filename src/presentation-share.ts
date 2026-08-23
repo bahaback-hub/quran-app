@@ -7,9 +7,12 @@ import { Capacitor } from '@capacitor/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 
-const EXPORT_WIDTH = 1080;
-const EXPORT_HEIGHT = 1920;
+const PORTRAIT_EXPORT_WIDTH = 1080;
+const PORTRAIT_EXPORT_HEIGHT = 1920;
+const WIDE_EXPORT_WIDTH = 1920;
+const WIDE_EXPORT_HEIGHT = 1080;
 const GOLD = '#d8b25f';
+const SULAIMANI_SIGNATURE = 'المصحف السليماني';
 
 let shareBlob: Blob | null = null;
 let previewUrl: string | null = null;
@@ -19,7 +22,8 @@ let sharePreparation: Promise<Blob> | null = null;
 type ImageShareResult = 'shared' | 'cancelled' | 'unavailable';
 
 function shareImageFilename(): string {
-  return `quran-${state.currentSurah}-${state.currentAyahIndex + 1}.png`;
+  const layout = state.presBgMode === 'video' ? 'wide' : 'portrait';
+  return `quran-${state.currentSurah}-${state.currentAyahIndex + 1}-${layout}.png`;
 }
 
 function getShareBlobKey(): string {
@@ -121,24 +125,33 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function drawCover(ctx: CanvasRenderingContext2D, image: CanvasImageSource): void {
+function getShareDimensions(): { width: number; height: number; isWide: boolean } {
+  const isWide = state.presBgMode === 'video';
+  return {
+    width: isWide ? WIDE_EXPORT_WIDTH : PORTRAIT_EXPORT_WIDTH,
+    height: isWide ? WIDE_EXPORT_HEIGHT : PORTRAIT_EXPORT_HEIGHT,
+    isWide,
+  };
+}
+
+function drawCover(ctx: CanvasRenderingContext2D, image: CanvasImageSource, width: number, height: number): void {
   const source = image as HTMLImageElement;
   const sourceWidth = source.naturalWidth || source.width;
   const sourceHeight = source.naturalHeight || source.height;
-  const scale = Math.max(EXPORT_WIDTH / sourceWidth, EXPORT_HEIGHT / sourceHeight);
+  const scale = Math.max(width / sourceWidth, height / sourceHeight);
   const drawWidth = sourceWidth * scale;
   const drawHeight = sourceHeight * scale;
-  ctx.drawImage(image, (EXPORT_WIDTH - drawWidth) / 2, (EXPORT_HEIGHT - drawHeight) / 2, drawWidth, drawHeight);
+  ctx.drawImage(image, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
 }
 
-function drawFallbackBackground(ctx: CanvasRenderingContext2D): void {
+function drawFallbackBackground(ctx: CanvasRenderingContext2D, width: number, height: number): void {
   const dark = document.body.classList.contains('night-mode');
-  const gradient = ctx.createLinearGradient(0, 0, EXPORT_WIDTH, EXPORT_HEIGHT);
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
   gradient.addColorStop(0, dark ? '#08101a' : '#f7f0df');
   gradient.addColorStop(0.55, dark ? '#102a35' : '#d8c6a0');
   gradient.addColorStop(1, dark ? '#182122' : '#8c6a48');
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, EXPORT_WIDTH, EXPORT_HEIGHT);
+  ctx.fillRect(0, 0, width, height);
 }
 
 function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
@@ -160,19 +173,37 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
   return lines;
 }
 
-function drawShareText(ctx: CanvasRenderingContext2D, ayahText: string, reference: string): void {
-  const maxTextWidth = 860;
-  let fontSize = ayahText.length > 200 ? 88 : ayahText.length > 115 ? 112 : 140;
+function drawShareText(
+  ctx: CanvasRenderingContext2D,
+  ayahText: string,
+  reference: string,
+  width: number,
+  height: number,
+  isWide: boolean,
+): void {
+  const maxTextWidth = isWide ? 800 : 860;
+  let fontSize = isWide
+    ? ayahText.length > 200
+      ? 56
+      : ayahText.length > 115
+        ? 72
+        : 94
+    : ayahText.length > 200
+      ? 88
+      : ayahText.length > 115
+        ? 112
+        : 140;
   let lines: string[] = [];
   do {
     ctx.font = `${fontSize}px "Uthmanic Hafs Official", "Amiri", "Traditional Arabic", serif`;
     lines = wrapText(ctx, ayahText, maxTextWidth);
     fontSize -= 4;
-  } while (lines.length > 8 && fontSize >= 64);
+  } while (lines.length > (isWide ? 6 : 8) && fontSize >= (isWide ? 44 : 64));
 
   const lineHeight = Math.round(fontSize * 1.72);
   const contentHeight = lines.length * lineHeight;
-  const startY = EXPORT_HEIGHT / 2 - contentHeight / 2 + lineHeight * 0.2;
+  const textX = isWide ? Math.round(width * 0.28) : width / 2;
+  const startY = (isWide ? Math.round(height * 0.4) : height / 2) - contentHeight / 2 + lineHeight * 0.2;
   ctx.direction = 'rtl';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -181,13 +212,42 @@ function drawShareText(ctx: CanvasRenderingContext2D, ayahText: string, referenc
   ctx.shadowColor = 'rgba(0, 0, 0, 0.72)';
   ctx.shadowBlur = 18;
   for (const [index, line] of lines.entries()) {
-    ctx.fillText(line, EXPORT_WIDTH / 2, startY + index * lineHeight, maxTextWidth);
+    ctx.fillText(line, textX, startY + index * lineHeight, maxTextWidth);
   }
 
   ctx.shadowBlur = 0;
   ctx.fillStyle = GOLD;
   ctx.font = '500 46px "Amiri", "Traditional Arabic", serif';
-  ctx.fillText(reference, EXPORT_WIDTH / 2, EXPORT_HEIGHT - 156, 860);
+  const referenceY = isWide ? Math.min(height - 100, startY + contentHeight + 82) : height - 156;
+  ctx.fillText(reference, textX, referenceY, maxTextWidth);
+}
+
+function drawShareOverlay(ctx: CanvasRenderingContext2D, width: number, height: number, isWide: boolean): void {
+  if (isWide) {
+    const gradient = ctx.createLinearGradient(0, 0, width, 0);
+    gradient.addColorStop(0, 'rgba(0, 0, 0, 0.48)');
+    gradient.addColorStop(0.48, 'rgba(0, 0, 0, 0.28)');
+    gradient.addColorStop(0.72, 'rgba(0, 0, 0, 0.08)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.02)');
+    ctx.fillStyle = gradient;
+  } else {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+  }
+  ctx.fillRect(0, 0, width, height);
+}
+
+function drawSulaimaniSignature(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+  ctx.save();
+  ctx.direction = 'rtl';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  ctx.globalAlpha = 0.42;
+  ctx.fillStyle = '#f8f2e5';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.42)';
+  ctx.shadowBlur = 8;
+  ctx.font = `400 ${Math.round(width * 0.021)}px "Amiri", "Traditional Arabic", serif`;
+  ctx.fillText(SULAIMANI_SIGNATURE, Math.round(width * 0.035), height - Math.round(height * 0.065));
+  ctx.restore();
 }
 
 async function renderShareImage(): Promise<Blob> {
@@ -196,37 +256,40 @@ async function renderShareImage(): Promise<Blob> {
     throw new Error('No current ayah');
   }
   await document.fonts?.ready;
+  const { width, height, isWide } = getShareDimensions();
   const canvas = document.createElement('canvas');
-  canvas.width = EXPORT_WIDTH;
-  canvas.height = EXPORT_HEIGHT;
+  canvas.width = width;
+  canvas.height = height;
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Canvas unavailable');
   }
-  drawFallbackBackground(ctx);
+  drawFallbackBackground(ctx, width, height);
 
   const sceneCanvas = dom.presentationOverlay?.querySelector<HTMLCanvasElement>('.pres-canvas-bg');
   if (state.presBgMode === 'scene' && sceneCanvas) {
-    drawCover(ctx, sceneCanvas);
+    drawCover(ctx, sceneCanvas, width, height);
   } else {
     const source = getImageSource();
     if (source) {
       try {
-        drawCover(ctx, await loadImage(source));
+        drawCover(ctx, await loadImage(source), width, height);
       } catch {
         // The refined fallback background keeps sharing available when an image cannot be read.
       }
     }
   }
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
-  ctx.fillRect(0, 0, EXPORT_WIDTH, EXPORT_HEIGHT);
+  drawShareOverlay(ctx, width, height, isWide);
   ctx.strokeStyle = 'rgba(216, 178, 95, 0.78)';
   ctx.lineWidth = 3;
-  ctx.strokeRect(44, 44, EXPORT_WIDTH - 88, EXPORT_HEIGHT - 88);
+  ctx.strokeRect(44, 44, width - 88, height - 88);
   ctx.strokeStyle = 'rgba(255, 253, 246, 0.24)';
   ctx.lineWidth = 1;
-  ctx.strokeRect(60, 60, EXPORT_WIDTH - 120, EXPORT_HEIGHT - 120);
-  drawShareText(ctx, ayah.text, currentReference());
+  ctx.strokeRect(60, 60, width - 120, height - 120);
+  drawShareText(ctx, ayah.text, currentReference(), width, height, isWide);
+  if (isWide) {
+    drawSulaimaniSignature(ctx, width, height);
+  }
 
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('PNG export failed'))), 'image/png');
