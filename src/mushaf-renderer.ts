@@ -563,7 +563,9 @@ function getColors(): PageColors {
   if (isNightMode()) {
     return { bg: '#1a1e2b', txt: '#d4c4a8', frame: '#4a4e5e', frameInner: '#3a3e4e' };
   }
-  return { bg: '#f5f0e8', txt: '#1a1a1a', frame: '#c4a87c', frameInner: '#b8956a' };
+  // Keep the canvas background aligned with the sepia page behind the decorative frame.
+  // The visible page boundary is supplied by the ornamental DOM wrapper, not a second canvas frame.
+  return { bg: '#f8f0e0', txt: '#1a1a1a', frame: '#f8f0e0', frameInner: '#f8f0e0' };
 }
 
 /* ===================== RENDERING ===================== */
@@ -951,6 +953,9 @@ function renderPageContent(
 }
 
 function drawPageNumber(ctx: CanvasRenderingContext2D, pageNum: number, _colors: PageColors): void {
+  if (!isNightMode()) {
+    return;
+  }
   const cx = CANVAS_W / 2;
   const cy = CANVAS_H - 18;
   const numStr = pageNum.toLocaleString('ar-SA');
