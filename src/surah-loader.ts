@@ -24,6 +24,7 @@ import type { SurahData, AyahEntry } from './types.js';
 import { cacheSurahToIDB, getCachedSurahFromIDB } from './surah-cache.js';
 import type { CachedSurahEntry } from './surah-cache.js';
 import { loadLocalSurahText } from './api-fallback.js';
+import { getOfflinePackAudioUrls } from './offline-pack.js';
 
 // Re-export surah-list helpers so existing callers of surah-loader.loadSurahList /
 // populateReciterSelect / buildSurahOffsets continue to work without changing import paths.
@@ -193,6 +194,23 @@ async function loadApiAudio(
     console.warn('[API] Audio load failed (non-fatal):', e);
     return null;
   }
+}
+
+function getOfflinePackAudioResult(surahNum: number, textData: SurahTextData): AudioResult | null {
+  const urls = getOfflinePackAudioUrls(state.currentReciter, surahNum);
+  if (!urls.length) {
+    return null;
+  }
+  if (urls.length === 1) {
+    return {
+      audios: Array.from({ length: textData.ayahs.length }, () => urls[0]!),
+      timings: calculateAyahTimings(textData.ayahs, surahNum),
+    };
+  }
+  if (urls.length !== textData.ayahs.length) {
+    return null;
+  }
+  return { audios: urls, timings: [] };
 }
 
 /**
@@ -463,7 +481,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
           englishName: state.surahList.find((s: SurahInfo) => s.number === surahNum)?.englishName || '',
           ayahs: ayahs.map((a: { ayah: number; text: string }) => ({ numberInSurah: a.ayah, text: a.text })),
         };
-        state.ayahsAudios = [];
+        const offlineAudio = getOfflinePackAudioResult(surahNum, state.surahData);
+        state.ayahsAudios = offlineAudio?.audios.map((audio) => audio ?? '') ?? [];
+        state.ayahTimings = offlineAudio?.timings ?? [];
         renderSurah(state.surahData!);
         finalizeSurahLoad(opts);
         loadingBar.hide();
@@ -479,7 +499,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       const localSurah = await loadLocalSurahText(surahNum);
       if (localSurah && _loadCounter === currentLoad) {
         state.surahData = localSurah;
-        state.ayahsAudios = [];
+        const offlineAudio = getOfflinePackAudioResult(surahNum, localSurah);
+        state.ayahsAudios = offlineAudio?.audios.map((audio) => audio ?? '') ?? [];
+        state.ayahTimings = offlineAudio?.timings ?? [];
         renderSurah(localSurah);
         finalizeSurahLoad(opts);
         loadingBar.hide();

@@ -573,6 +573,20 @@ function isValidPersonalAdhkar(value: unknown): boolean {
   );
 }
 
+function isValidAdhkarCategory(value: unknown): boolean {
+  if (!isPlainRecord(value)) {
+    return false;
+  }
+  const enabled = value['enabled'];
+  const time = value['time'];
+  const duration = value['duration'];
+  return (
+    typeof enabled === 'boolean' &&
+    typeof time === 'string' && /^$|^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time) &&
+    typeof duration === 'number' && Number.isInteger(duration) && duration >= 1 && duration <= 60
+  );
+}
+
 function isValidAdhkarSettings(value: unknown): boolean {
   if (!isPlainRecord(value)) {
     return false;
@@ -587,7 +601,24 @@ function isValidAdhkarSettings(value: unknown): boolean {
     return false;
   }
   const personal = value['personal_adhkar'];
-  return personal === undefined || (Array.isArray(personal) && personal.length <= 100 && personal.every(isValidPersonalAdhkar));
+  if (personal !== undefined && (!Array.isArray(personal) || personal.length > 100 || !personal.every(isValidPersonalAdhkar))) {
+    return false;
+  }
+  for (const [key, entry] of Object.entries(value)) {
+    if (['adhkar_enabled', 'adhkar_sound', '_resetDate', 'personal_adhkar'].includes(key)) {
+      continue;
+    }
+    if (key.startsWith('item_')) {
+      if (typeof entry !== 'number' || !Number.isInteger(entry) || entry < 0 || entry > 10000) {
+        return false;
+      }
+      continue;
+    }
+    if (!isValidAdhkarCategory(entry)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /** Type validators for setting keys — ensures imported values match expected types. Exported for testing. */

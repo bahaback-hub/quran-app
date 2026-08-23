@@ -50,6 +50,7 @@ export interface OfflinePackStatus {
 /* ===================== CONSTANTS ===================== */
 
 const OFFLINE_PACK_KEY = 'offline_pack_status';
+const OFFLINE_AUDIO_URLS_KEY = 'offline_pack_audio_urls';
 
 const DEFAULT_TRANSLATIONS = [
   'en.sahih',
@@ -104,6 +105,31 @@ function saveOfflinePackStatus(status: OfflinePackStatus): void {
 
 export function clearOfflinePackStatus(): void {
   localStorage.removeItem(OFFLINE_PACK_KEY);
+}
+
+type OfflineAudioUrls = Record<string, Record<string, string[]>>;
+
+function saveOfflineAudioUrls(reciterId: string, surahNum: number, urls: string[]): void {
+  try {
+    const saved = JSON.parse(localStorage.getItem(OFFLINE_AUDIO_URLS_KEY) || '{}') as OfflineAudioUrls;
+    const byReciter = saved[reciterId] || {};
+    byReciter[String(surahNum)] = urls;
+    saved[reciterId] = byReciter;
+    localStorage.setItem(OFFLINE_AUDIO_URLS_KEY, JSON.stringify(saved));
+  } catch {
+    // Metadata is only written after audio persistence succeeds; a later download can restore it.
+  }
+}
+
+/** Return verified audio URLs from a downloaded offline pack for one reciter and surah. */
+export function getOfflinePackAudioUrls(reciterId: string, surahNum: number): string[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(OFFLINE_AUDIO_URLS_KEY) || '{}') as OfflineAudioUrls;
+    const urls = saved[reciterId]?.[String(surahNum)];
+    return Array.isArray(urls) ? urls.filter((url): url is string => typeof url === 'string' && url.length > 0) : [];
+  } catch {
+    return [];
+  }
 }
 
 /* ===================== INTERNAL FETCH ===================== */
@@ -312,6 +338,8 @@ export async function downloadOfflinePack(
         if (!(await isSurahCached(audioUrls))) {
           throw new Error(`Audio surah ${surahNum} could not be persisted`);
         }
+
+        saveOfflineAudioUrls(reciterId, surahNum, audioUrls);
 
         succeeded++;
       } catch (e) {

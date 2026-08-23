@@ -96,6 +96,28 @@ describe('offline-pack — additional coverage', () => {
       await expect(tajweedCache.match('/data/tajweed/001.json')).resolves.toBeInstanceOf(Response);
     });
 
+    it('persists full-Quran downloads under the per-surah keys consumed by the reader', async () => {
+      const quranSurah = { number: 50, name: 'ق', englishName: 'Qaf', ayahs: [{ numberInSurah: 1, text: 'ق' }] };
+      const translationSurah = { number: 50, name: 'Qaf', englishName: 'Qaf', ayahs: [{ numberInSurah: 1, text: 'Qaf' }] };
+      mockFetch.mockImplementation((url: string) => Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(
+          url.includes('manifest') ? { files: [] }
+            : url.includes('en.sahih') ? { data: { surahs: [translationSurah] } }
+              : { data: { surahs: [quranSurah] } },
+        ),
+      }));
+
+      await downloadOfflinePack({ translationEditions: ['en.sahih'] });
+
+      await expect(
+        getCachedExternalData('https://api.alquran.cloud/v1/surah/50/quran-uthmani'),
+      ).resolves.toEqual({ data: quranSurah });
+      await expect(
+        getCachedExternalData('https://api.alquran.cloud/v1/surah/50/en.sahih'),
+      ).resolves.toEqual({ data: translationSurah });
+    });
+
     it('records errors when fetch fails', async () => {
       mockFetch.mockImplementation(() => {
         return Promise.resolve({

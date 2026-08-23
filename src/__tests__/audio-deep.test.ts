@@ -546,6 +546,39 @@ describe('audio — deep coverage', () => {
 
       // Should not throw
     });
+
+    it('should keep long ayah word timing monotonic when an early word is much longer', async () => {
+      mockState.surahData = {
+        number: 1,
+        name: 'اختبار',
+        ayahs: [{ numberInSurah: 1, text: 'اختبار' }],
+      };
+      mockState.ayahsAudios = ['https://audio/long.mp3'];
+      mockState.currentAyahIndex = 0;
+
+      const ayahEl = document.createElement('span');
+      ayahEl.className = 'ayah';
+      ayahEl.dataset['index'] = '0';
+      const words: HTMLSpanElement[] = [];
+      for (let i = 0; i < 50; i++) {
+        const word = document.createElement('span');
+        word.className = 'word';
+        word.textContent = i === 0 ? 'ا'.repeat(500) : 'ب';
+        words.push(word);
+        ayahEl.appendChild(word);
+      }
+      document.body.appendChild(ayahEl);
+
+      const audio = mockDom.audioPlayer!;
+      Object.defineProperty(audio, 'duration', { value: 10, configurable: true });
+      Object.defineProperty(audio, 'currentTime', { value: 0, configurable: true });
+      bindAudioEvents();
+      await playCurrentAyah();
+      audio.dispatchEvent(new Event('timeupdate'));
+
+      expect(words[0]!.classList.contains('current-word')).toBe(true);
+      expect(words[8]!.classList.contains('current-word')).toBe(false);
+    });
   });
 
   describe('onSeeking', () => {

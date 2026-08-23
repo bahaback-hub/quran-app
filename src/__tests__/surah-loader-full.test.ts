@@ -498,6 +498,24 @@ describe('surah-loader-full', () => {
       expect(loadingBar.hide).toHaveBeenCalled();
     });
 
+    it('should restore verified offline-pack audio when falling back after a network failure', async () => {
+      const offlineUrls = ['https://audio.example/1.mp3', 'https://audio.example/2.mp3'];
+      localStorage.setItem('offline_pack_audio_urls', JSON.stringify({
+        'ar.alafasy': { '1': offlineUrls },
+      }));
+      vi.mocked(apiFetch).mockRejectedValue(new Error('Network error'));
+      state.surahList = SAMPLE_SURAH_LIST;
+      state.fullQuranLoaded = true;
+      state.fullQuranText = [
+        { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' },
+        { surah: 1, surahName: 'الفاتحة', ayah: 2, text: 'الحمد لله', normalized: 'الحمد لله' },
+      ];
+
+      await loadSurah(1);
+
+      expect(state.ayahsAudios).toEqual(offlineUrls);
+    });
+
     it('should cache loaded surah data', async () => {
       vi.mocked(apiFetch).mockResolvedValue({ data: SAMPLE_SURAH_DATA });
       vi.spyOn(storage, 'set').mockImplementation(() => true);
