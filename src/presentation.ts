@@ -15,6 +15,12 @@ import {
   removeSceneCanvas,
   startSceneAnimation,
 } from './pres-backgrounds.js';
+import {
+  applyPresentationVideo,
+  bindPresentationVideoVisibility,
+  removePresentationVideo,
+  syncPresentationVideoPlayback,
+} from './pres-video.js';
 import { injectStyles, buildAyahHtml } from './pres-styles.js';
 import { closePresentationSharePreview, initPresentationShare, preparePresentationShareImage } from './presentation-share.js';
 
@@ -172,8 +178,9 @@ function updateDisplay(): void {
   // Apply background based on presBgMode setting
   const overlay = dom.presentationOverlay;
   if (overlay) {
-    overlay.classList.remove('pres-nature', 'pres-auto', 'pres-animated', 'pres-scene');
+    overlay.classList.remove('pres-nature', 'pres-auto', 'pres-animated', 'pres-scene', 'pres-video');
     if (state.presBgMode === 'nature') {
+      removePresentationVideo(overlay);
       removeAnimatedBgLayer(overlay);
       removeSceneCanvas(overlay);
       const bg = getRandomNatureBg();
@@ -181,6 +188,7 @@ function updateDisplay(): void {
       overlay.classList.add('pres-nature');
       overlay.classList.remove('pres-light');
     } else if (state.presBgMode === 'singleNature') {
+      removePresentationVideo(overlay);
       removeAnimatedBgLayer(overlay);
       removeSceneCanvas(overlay);
       const bg = getNatureBgByMood(state.presBgNature) || getRandomNatureBg();
@@ -188,6 +196,7 @@ function updateDisplay(): void {
       overlay.classList.add('pres-nature');
       overlay.classList.remove('pres-light');
     } else if (state.presBgMode === 'auto') {
+      removePresentationVideo(overlay);
       removeAnimatedBgLayer(overlay);
       removeSceneCanvas(overlay);
       const bg = getAutoBackground();
@@ -195,6 +204,7 @@ function updateDisplay(): void {
       overlay.classList.add('pres-auto');
       overlay.classList.remove('pres-light');
     } else if (state.presBgMode === 'animated') {
+      removePresentationVideo(overlay);
       removeSceneCanvas(overlay);
       overlay.style.backgroundImage = 'none';
       const bg = getRandomNatureBg();
@@ -202,6 +212,7 @@ function updateDisplay(): void {
       overlay.classList.add('pres-animated');
       overlay.classList.remove('pres-light');
     } else if (state.presBgMode === 'scene') {
+      removePresentationVideo(overlay);
       removeAnimatedBgLayer(overlay);
       overlay.style.backgroundImage = 'none';
       // Only recreate canvas if scene changed or not running
@@ -212,7 +223,13 @@ function updateDisplay(): void {
       }
       overlay.classList.add('pres-scene');
       overlay.classList.remove('pres-light');
+    } else if (state.presBgMode === 'video') {
+      removeAnimatedBgLayer(overlay);
+      removeSceneCanvas(overlay);
+      applyPresentationVideo(overlay);
+      overlay.classList.remove('pres-light');
     } else {
+      removePresentationVideo(overlay);
       removeAnimatedBgLayer(overlay);
       removeSceneCanvas(overlay);
       overlay.style.backgroundImage = '';
@@ -440,11 +457,13 @@ export function closePresentation(): void {
       'pres-auto',
       'pres-animated',
       'pres-scene',
+      'pres-video',
       'pres-light',
     );
     dom.presentationOverlay.style.backgroundImage = '';
     removeAnimatedBgLayer(dom.presentationOverlay);
     removeSceneCanvas(dom.presentationOverlay);
+    removePresentationVideo(dom.presentationOverlay);
   }
   if (_hideControlsTimeout) {
     clearTimeout(_hideControlsTimeout);
@@ -527,6 +546,9 @@ function handleFullscreenChange(): void {
       }, 100);
     }
   }
+  if (overlay && state.presBgMode === 'video') {
+    syncPresentationVideoPlayback(overlay);
+  }
 }
 
 /** Re-fit the text on a viewport resize without rebuilding the background. */
@@ -554,6 +576,7 @@ export function initPresentation(): void {
     return;
   }
   initPresentationShare();
+  bindPresentationVideoVisibility();
   console.warn('[Presentation] Overlay element found, binding event handlers...');
 
   if (dom.presentationCloseBtn) {

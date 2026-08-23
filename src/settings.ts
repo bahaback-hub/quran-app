@@ -249,7 +249,7 @@ export function applyLineSpacing(spacing: string): void {
 /* ===================== PRESENTATION BACKGROUND ===================== */
 
 /** Apply a presentation background mode and persist it. */
-export function applyPresBgMode(mode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene'): void {
+export function applyPresBgMode(mode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video'): void {
   state.presBgMode = mode;
   storage.set('pres_bg_mode', mode);
   if (dom.presBgSelect) {
@@ -653,7 +653,7 @@ export const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = 
   night_mode_set_by_user: (v) => typeof v === 'boolean',
   surah_list: (v) => Array.isArray(v),
   pres_bg_mode: (v) =>
-    typeof v === 'string' && ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene'].includes(v),
+    typeof v === 'string' && ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene', 'video'].includes(v),
   pres_bg_scene: (v) => typeof v === 'string' && ['stars', 'waves', 'aurora', 'particles', 'rain'].includes(v),
   pres_bg_nature: (v) => typeof v === 'string' && ['dawn', 'morning', 'afternoon', 'sunset', 'night'].includes(v),
   sepia_mode: (v) => typeof v === 'boolean',
@@ -827,7 +827,8 @@ export function restoreSettings(): void {
     presBg === 'singleNature' ||
     presBg === 'auto' ||
     presBg === 'animated' ||
-    presBg === 'scene'
+    presBg === 'scene' ||
+    presBg === 'video'
   ) {
     applyPresBgMode(presBg);
   }

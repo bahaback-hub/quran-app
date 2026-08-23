@@ -128,7 +128,7 @@ export interface MushafStateSlice {
   currentPageLayout: PageLayoutData | null;
   surahOffsets: SurahOffset[] | null;
   presentationMode: boolean;
-  presBgMode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene';
+  presBgMode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video';
   presBgScene: string;
   presBgNature: string;
 }
@@ -213,7 +213,7 @@ export interface AppState {
   fontType: string;
   lineSpacing: string;
   tajweedEnabled: boolean;
-  presBgMode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene';
+  presBgMode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video';
   presBgScene: string;
   presBgNature: string;
 }
