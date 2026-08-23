@@ -319,7 +319,7 @@ export function injectStyles(): void {
       padding: 20px; box-sizing: border-box;
     }
     .presentation-header {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 12px; position: relative;
       padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
       flex-shrink: 0;
     }
@@ -380,6 +380,71 @@ export function injectStyles(): void {
     }
     .presentation-overlay .pres-tajweed-btn.pres-tajweed-off {
       opacity: 0.5 !important;
+    }
+    .presentation-overlay .pres-background-btn {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+    .presentation-background-picker {
+      position: absolute;
+      inset-inline-start: 0;
+      top: calc(100% + 10px);
+      z-index: 12;
+      width: min(344px, calc(100vw - 32px));
+      box-sizing: border-box;
+      padding: 14px;
+      border: 1px solid rgba(216, 178, 95, 0.46);
+      border-radius: 12px;
+      background: rgba(9, 18, 27, 0.92);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+      backdrop-filter: blur(12px);
+      direction: rtl;
+    }
+    .presentation-background-picker.hidden { display: none; }
+    .presentation-overlay.pres-light .presentation-background-picker {
+      background: rgba(255, 252, 244, 0.94);
+      border-color: rgba(139, 111, 90, 0.42);
+    }
+    .presentation-background-picker-title {
+      margin: 0 0 10px;
+      color: #f8e1a0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .presentation-overlay.pres-light .presentation-background-picker-title { color: #755a3d; }
+    .presentation-background-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+    .presentation-background-options button {
+      min-height: 38px;
+      padding: 7px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fffdf6;
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .presentation-overlay.pres-light .presentation-background-options button {
+      border-color: rgba(68, 50, 33, 0.16);
+      background: rgba(68, 50, 33, 0.06);
+      color: #3c3025;
+    }
+    .presentation-background-options button[aria-pressed="true"] {
+      border-color: #d8b25f;
+      background: rgba(216, 178, 95, 0.24);
+      color: #fff4cc;
+    }
+    .presentation-overlay.pres-light .presentation-background-options button[aria-pressed="true"] {
+      color: #4a351b;
+      background: rgba(216, 178, 95, 0.28);
+    }
+    .presentation-background-options button:focus-visible {
+      outline: 2px solid #f8e1a0;
+      outline-offset: 2px;
     }
 
     /* ===== FULLSCREEN: HIDE ALL UI, SHOW ONLY AYAH ===== */
@@ -479,6 +544,16 @@ export function injectStyles(): void {
       .presentation-close-btn {
         font-size: 16px; padding: 6px 10px;
       }
+      .presentation-background-picker {
+        inset-inline-start: auto;
+        inset-inline-end: 0;
+        top: calc(100% + 6px);
+        width: min(320px, calc(100vw - 24px));
+        padding: 10px;
+      }
+      .presentation-background-picker-title { margin-bottom: 8px; }
+      .presentation-background-options { gap: 6px; }
+      .presentation-background-options button { min-height: 36px; font-size: 13px; }
       .presentation-footer { padding: 6px 0; }
       .presentation-counter { font-size: 13px; }
       /* Ensure body can scroll for long ayahs */

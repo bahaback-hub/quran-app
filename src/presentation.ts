@@ -23,6 +23,7 @@ import {
 } from './pres-video.js';
 import { injectStyles, buildAyahHtml } from './pres-styles.js';
 import { closePresentationSharePreview, initPresentationShare, preparePresentationShareImage } from './presentation-share.js';
+import { applyPresBgMode, applyPresBgScene } from './settings.js';
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -38,6 +39,33 @@ let _hideControlsTimeout: ReturnType<typeof setTimeout> | null = null;
  * during that short native transition.
  */
 let _presFullscreenRequested = false;
+
+/** Whether the in-presentation background picker is open. */
+let _backgroundPickerOpen = false;
+
+function setBackgroundPickerOpen(open: boolean, restoreFocus = false): void {
+  const picker = dom.presBackgroundPicker;
+  const button = dom.presBackgroundBtn;
+  _backgroundPickerOpen = open;
+  picker?.classList.toggle('hidden', !open);
+  button?.setAttribute('aria-expanded', String(open));
+  if (!open && restoreFocus) {
+    button?.focus();
+  }
+}
+
+function syncBackgroundPickerSelection(): void {
+  const picker = dom.presBackgroundPicker;
+  if (!picker) {
+    return;
+  }
+  picker.querySelectorAll<HTMLButtonElement>('[data-pres-bg-mode]').forEach((option) => {
+    const mode = option.dataset['presBgMode'];
+    const scene = option.dataset['presBgScene'];
+    const active = mode === state.presBgMode && (!scene || scene === state.presBgScene);
+    option.setAttribute('aria-pressed', String(active));
+  });
+}
 
 /**
  * Fit the current ayah entirely inside the presentation body.
@@ -109,7 +137,7 @@ function showControls(): void {
 /** Hide presentation control buttons. */
 function hideControls(): void {
   const overlay = dom.presentationOverlay;
-  if (!overlay) {
+  if (!overlay || _backgroundPickerOpen) {
     return;
   }
   overlay.classList.remove('pres-controls-visible');
@@ -238,6 +266,7 @@ function updateDisplay(): void {
       }
     }
   }
+  syncBackgroundPickerSelection();
 
   const surahData = state.surahData as SurahDataLike | null;
   const ayah = surahData?.ayahs?.[state.currentAyahIndex];
@@ -381,6 +410,7 @@ export function openPresentation(): void {
 
   state.presentationMode = true;
   _presFullscreenRequested = false;
+  setBackgroundPickerOpen(false);
   // Sync presentation tajweed with global setting on open
   _presTajweedEnabled = state.tajweedEnabled;
   injectStyles();
@@ -435,6 +465,7 @@ export function openPresentation(): void {
 export function closePresentation(): void {
   state.presentationMode = false;
   _presFullscreenRequested = false;
+  setBackgroundPickerOpen(false);
   closePresentationSharePreview();
   // Exit fullscreen if active
   if (isFullscreen()) {
@@ -490,6 +521,11 @@ function handleKeyDown(e: KeyboardEvent): void {
   }
   // Any key press shows controls
   showControls();
+  if (e.key === 'Escape' && _backgroundPickerOpen) {
+    e.preventDefault();
+    setBackgroundPickerOpen(false, true);
+    return;
+  }
   switch (e.key) {
     case 'Escape':
       // If in fullscreen, only exit fullscreen — don't close presentation
@@ -611,6 +647,30 @@ export function initPresentation(): void {
     dom.presTajweedBtn.addEventListener('click', () => {
       togglePresTajweed();
       showControls(); // Reset auto-hide timer
+    });
+  }
+
+  if (dom.presBackgroundBtn) {
+    dom.presBackgroundBtn.addEventListener('click', () => {
+      setBackgroundPickerOpen(!_backgroundPickerOpen);
+      syncBackgroundPickerSelection();
+      showControls();
+    });
+  }
+  if (dom.presBackgroundPicker) {
+    dom.presBackgroundPicker.addEventListener('click', (event: MouseEvent) => {
+      const option = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-pres-bg-mode]');
+      const mode = option?.dataset['presBgMode'];
+      if (!mode) {
+        return;
+      }
+      const scene = option?.dataset['presBgScene'];
+      if (scene) {
+        applyPresBgScene(scene);
+      }
+      applyPresBgMode(mode as 'plain' | 'nature' | 'animated' | 'scene' | 'video');
+      setBackgroundPickerOpen(false, true);
+      showControls();
     });
   }
 

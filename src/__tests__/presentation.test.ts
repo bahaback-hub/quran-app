@@ -48,6 +48,11 @@ vi.mock('../pres-styles.js', () => ({
   buildAyahHtml: vi.fn((_text: string, _surah: number, _ayah: number, _tajweed: boolean) => '<span>mock ayah html</span>'),
 }));
 
+vi.mock('../settings.js', () => ({
+  applyPresBgMode: vi.fn(),
+  applyPresBgScene: vi.fn(),
+}));
+
 // Mock app.js for the dynamic import in openPresentation
 vi.mock('../app.js', () => ({
   renderSurah: vi.fn(),
@@ -66,10 +71,17 @@ function setupPresentationDom() {
   dom.presentationNextBtn = document.createElement('button');
   dom.presPlayPauseBtn = document.createElement('button');
   dom.presTajweedBtn = document.createElement('button');
+  dom.presBackgroundBtn = document.createElement('button');
+  dom.presBackgroundPicker = document.createElement('section');
+  dom.presBackgroundPicker.classList.add('hidden');
+  dom.presBackgroundPicker.innerHTML = `
+    <button data-pres-bg-mode="plain"></button>
+    <button data-pres-bg-mode="scene" data-pres-bg-scene="rain"></button>`;
   dom.presFullscreenBtn = document.createElement('button');
   dom.presentationBody = document.createElement('div');
   dom.pageIndicator = document.createElement('div');
   document.body.appendChild(dom.presentationOverlay);
+  dom.presentationOverlay.append(dom.presBackgroundBtn, dom.presBackgroundPicker);
 }
 
 function setupSurahData() {
@@ -305,6 +317,22 @@ describe('presentation', () => {
       const spy = vi.spyOn(dom.presTajweedBtn!, 'addEventListener');
       initPresentation();
       expect(spy).toHaveBeenCalledWith('click', expect.any(Function));
+    });
+
+    it('opens the background picker and applies a selected scene through settings helpers', async () => {
+      const { initPresentation } = await import('../presentation.js');
+      const { applyPresBgMode, applyPresBgScene } = await import('../settings.js');
+      initPresentation();
+
+      dom.presBackgroundBtn!.click();
+      expect(dom.presBackgroundPicker!.classList.contains('hidden')).toBe(false);
+      expect(dom.presBackgroundBtn!.getAttribute('aria-expanded')).toBe('true');
+
+      (dom.presBackgroundPicker!.querySelector('[data-pres-bg-scene="rain"]') as HTMLButtonElement).click();
+      expect(applyPresBgScene).toHaveBeenCalledWith('rain');
+      expect(applyPresBgMode).toHaveBeenCalledWith('scene');
+      expect(dom.presBackgroundPicker!.classList.contains('hidden')).toBe(true);
+      expect(dom.presBackgroundBtn!.getAttribute('aria-expanded')).toBe('false');
     });
 
     it('should bind click handler to fullscreen button', async () => {
