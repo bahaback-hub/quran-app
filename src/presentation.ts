@@ -16,7 +16,7 @@ import {
   startSceneAnimation,
 } from './pres-backgrounds.js';
 import { injectStyles, buildAyahHtml } from './pres-styles.js';
-import { closePresentationSharePreview, initPresentationShare } from './presentation-share.js';
+import { closePresentationSharePreview, initPresentationShare, preparePresentationShareImage } from './presentation-share.js';
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -294,6 +294,7 @@ function updateDisplay(): void {
   }
   // Update play/pause button state
   updatePresPlayPauseBtn();
+  preparePresentationShareImage();
 }
 
 function navigateAyah(delta: number): void {
