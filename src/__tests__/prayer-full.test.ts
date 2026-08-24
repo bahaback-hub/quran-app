@@ -52,6 +52,7 @@ const {
     audioPlayer: createMockAudioElement(),
     testAzanBtn: createMockElement(),
     prayerBar: createMockElement(),
+    expandBarBtn: document.createElement('button'),
   };
 
   return {
@@ -986,6 +987,7 @@ describe('prayer.ts', () => {
       expect(state.barCollapsed).toBe(false);
       expect((mockDom.prayerBar as HTMLElement).classList.contains('expanded')).toBe(true);
       expect((mockDom.prayerBar as HTMLElement).classList.contains('collapsed')).toBe(false);
+      expect((mockDom.expandBarBtn as HTMLElement).getAttribute('aria-expanded')).toBe('true');
     });
 
     it('should toggle expanded to collapsed', () => {
@@ -994,6 +996,7 @@ describe('prayer.ts', () => {
       expect(state.barCollapsed).toBe(true);
       expect((mockDom.prayerBar as HTMLElement).classList.contains('collapsed')).toBe(true);
       expect((mockDom.prayerBar as HTMLElement).classList.contains('expanded')).toBe(false);
+      expect((mockDom.expandBarBtn as HTMLElement).getAttribute('aria-expanded')).toBe('false');
     });
 
     it('should persist bar state to storage', () => {

@@ -108,69 +108,6 @@
     </div>
 
     <div class="container" role="application" aria-label="تطبيق القرآن الكريم">
-      <!-- ========== شريط مواقيت الصلاة ========== -->
-      <div class="prayer-bar collapsed" id="prayerBar" role="complementary" aria-label="مواقيت الصلاة">
-        <div class="prayer-bar-inner">
-          <div class="prayer-bar-items">
-            <div class="prayer-bar-item">
-              <svg
-                class="icon icon-xs"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-              <span id="bigClockTime">--:--</span>
-            </div>
-            <div class="prayer-bar-item">
-              <svg
-                class="icon icon-xs"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M6 22V12a6 6 0 0 1 12 0v10" />
-                <path d="M3 22h18" />
-                <path d="M9 22v-4a3 3 0 0 1 6 0v4" />
-                <path d="M12 2v4" />
-              </svg>
-              <span id="nextPrayerName">جاري التحميل...</span> <span id="nextPrayerTime">--:--</span>
-            </div>
-            <div class="prayer-bar-item">
-              <svg
-                class="icon icon-xs"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M5 22h14" />
-                <path d="M5 2h14" />
-                <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
-                <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
-              </svg>
-              <span id="countdownDisplay">--:--:--</span>
-            </div>
-          </div>
-        </div>
-        <button class="collapse-bar-btn" id="collapseBarBtn" aria-label="طي شريط المواقيت">▲</button>
-        <button class="collapse-bar-btn" id="expandBarBtn" aria-label="توسيع شريط المواقيت">▼</button>
-        <div class="collapsed-preview">
-          <span class="clock-only" id="collapsedClock">--:--</span>
-          <span><span id="prayerCountdown">---</span></span>
-        </div>
-      </div>
-
       <!-- ========== رأس الصفحة ========== -->
       <header class="header">
         <div class="header-menu-container">
@@ -192,6 +129,7 @@
                 <path d="M2 17l10 5 10-5" />
                 <path d="M2 12l10 5 10-5" />
               </svg>
+              <span class="header-action-label" data-i18n="adhkar">الأذكار</span>
               </button>
               <button class="header-action-btn" id="qiblaBtn" data-i18n-title="qibla" data-i18n-aria-label="qibla" title="اتجاه القبلة" aria-label="اتجاه القبلة">
               <svg
@@ -208,6 +146,7 @@
                 <circle cx="12" cy="12" r="10" />
                 <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
               </svg>
+              <span class="header-action-label" data-i18n="qibla">القبلة</span>
               </button>
               <button class="header-action-btn" id="favoritesOpenBtn" data-i18n-title="favorites" data-i18n-aria-label="favorites" title="المفضلة" aria-label="المفضلة">
               <svg
@@ -225,6 +164,7 @@
                   d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
                 />
               </svg>
+              <span class="header-action-label" data-i18n="favorites">المفضلة</span>
               </button>
               <button class="header-action-btn" id="settingsToggleBtn" data-i18n-title="settings" data-i18n-aria-label="settings" title="الإعدادات" aria-label="الإعدادات">
               <svg
@@ -240,9 +180,10 @@
               >
                 <circle cx="12" cy="12" r="3" />
                 <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
                 />
               </svg>
+              <span class="header-action-label" data-i18n="settings">الإعدادات</span>
               </button>
               <button class="header-action-btn" id="helpToggleBtn" data-i18n-title="help" data-i18n-aria-label="help" title="التعليمات" aria-label="التعليمات">
               <svg
@@ -260,6 +201,7 @@
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
+              <span class="header-action-label" data-i18n="help">المساعدة</span>
               </button>
             </div>
             <div class="theme-switcher" id="themeToggle" role="group" aria-label="تبديل المظهر">
@@ -313,6 +255,33 @@
             </svg>
             <span data-i18n="app_title">القرآن الكريم</span>
           </h1>
+          <section class="prayer-bar collapsed" id="prayerBar" aria-label="مواقيت الصلاة">
+            <button class="prayer-bar-toggle" id="expandBarBtn" type="button" aria-label="عرض مواقيت الصلاة" aria-controls="prayerBarDetails" aria-expanded="false">
+              <svg class="icon prayer-bar-clock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <polyline points="12 7 12 12 15.5 14" />
+              </svg>
+              <span class="prayer-bar-summary">
+                <span class="prayer-bar-summary-label" data-i18n="prayer">الصلاة القادمة</span>
+                <strong id="nextPrayerName">جاري التحميل...</strong>
+                <span class="prayer-bar-summary-time" id="nextPrayerTime">--:--</span>
+                <span class="prayer-bar-summary-countdown" id="prayerCountdown">---</span>
+              </span>
+              <svg class="icon prayer-bar-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <div class="prayer-bar-details" id="prayerBarDetails">
+              <div class="prayer-bar-details-heading">
+                <span data-i18n="prayer_times">مواقيت اليوم</span>
+                <button class="prayer-bar-close" id="collapseBarBtn" type="button" aria-label="إغلاق مواقيت الصلاة" title="إغلاق">✕</button>
+              </div>
+              <div class="prayer-bar-items" id="prayerTimesRows" role="list"></div>
+              <span class="sr-only" id="bigClockTime">--:--</span>
+              <span class="sr-only" id="countdownDisplay">--:--:--</span>
+              <span class="sr-only" id="collapsedClock">--:--</span>
+            </div>
+          </section>
         </div>
       </header>
 

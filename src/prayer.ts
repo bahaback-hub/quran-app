@@ -424,6 +424,7 @@ export function togglePrayerBar(): void {
     dom.prayerBar.classList.remove('collapsed');
     dom.prayerBar.classList.add('expanded');
   }
+  dom.expandBarBtn?.setAttribute('aria-expanded', String(!state.barCollapsed));
   storage.set('bar_collapsed', state.barCollapsed);
 }
 
