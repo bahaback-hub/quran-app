@@ -573,11 +573,12 @@
     letter-spacing: -0.15px;
   }
   .header-utility-row {
+    grid-template-columns: 34px 34px minmax(0, 1fr);
     align-self: flex-start;
-    gap: 5px;
+    gap: 4px;
   }
   .header-prayer-bar {
-    flex-basis: 136px;
+    width: 100%;
     max-width: none;
   }
   .header-prayer-bar .prayer-bar-toggle {

@@ -1,4 +1,4 @@
-/* Layout — header, prayer-bar, controls, footer, breadcrumbs, bottom-nav */
+/* Layout — رأس هادئ ومتوازن: الصلاة ثابتة تحت الأدوات، والهلال والبحث في حيزين مستقلين إلى يسارها. */
 
 /* ========== شريط مواقيت مدمج أسفل العنوان ========== */
 .prayer-bar {
@@ -200,6 +200,13 @@
   order: 2;
   z-index: 10;
 }
+@media (min-width: 601px) {
+  /* ثلاث خانات واضحة تحت أدوات الرأس: بحث، مظهر، ثم الصلاة.
+     نثبت العرض كي لا تنكمش الأيقونات فوق نص الصلاة. */
+  .header-menu-container {
+    flex: 0 0 270px;
+  }
+}
 .header-actions {
   display: flex;
   flex-direction: column;
@@ -227,18 +234,19 @@
 
 /* ========== أدوات الرأس المصغرة: المظهر والبحث ========== */
 .header-utility-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 38px 38px minmax(0, 1fr);
+  grid-template-areas: 'search theme prayer';
   align-self: flex-start;
   align-items: center;
-  justify-content: flex-start;
-  gap: 5px;
+  gap: 7px;
   width: 100%;
   max-width: 100%;
   direction: ltr;
 }
 .header-prayer-bar {
-  order: 1;
-  flex: 1 1 158px;
+  grid-area: prayer;
+  order: unset;
   width: auto;
   max-width: none;
   min-width: 0;
@@ -276,7 +284,8 @@
   z-index: 35;
 }
 .theme-menu {
-  order: 2;
+  grid-area: theme;
+  order: unset;
 }
 .theme-switcher {
   position: relative;
@@ -359,7 +368,8 @@
   position: relative;
   display: flex;
   min-height: 34px;
-  order: 3;
+  grid-area: search;
+  order: unset;
 }
 .header-search-input {
   position: absolute;
