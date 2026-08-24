@@ -543,7 +543,7 @@
     position: static;
     order: 2;
     width: auto;
-    flex: 0 1 194px;
+    flex: 0 1 242px;
   }
   .header-actions {
     flex-direction: column;
@@ -554,9 +554,9 @@
   }
   .header-primary-actions {
     display: grid;
-    grid-template-columns: repeat(4, minmax(44px, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     align-items: center;
-    width: min(100%, 194px);
+    width: min(100%, 242px);
     gap: 4px;
   }
   .header-action-btn,
@@ -569,7 +569,7 @@
     justify-self: center;
   }
   .header-action-label {
-    font-size: 8px;
+    font-size: 7px;
     letter-spacing: -0.15px;
   }
   .header-utility-row {
@@ -577,21 +577,22 @@
     align-self: flex-start;
     gap: 4px;
   }
-  .header-prayer-bar {
+  .header-prayer-tile {
     width: 100%;
-    max-width: none;
+    min-width: 0;
+    flex-basis: auto;
   }
-  .header-prayer-bar .prayer-bar-toggle {
-    min-height: 32px;
-    padding: 5px 6px;
+  .header-prayer-tile .prayer-bar-toggle {
+    min-height: 52px;
+    height: 52px;
+    padding: 4px 2px;
   }
-  .header-prayer-bar .prayer-bar-summary {
+  .header-prayer-tile .prayer-bar-summary strong {
+    max-width: 42px;
+    font-size: 8px;
+  }
+  .header-prayer-tile .prayer-bar-summary-time {
     font-size: 10px;
-  }
-  .header-prayer-bar .prayer-bar-clock,
-  .header-prayer-bar .prayer-bar-chevron {
-    width: 13px;
-    height: 13px;
   }
   /* زر الهلال وحده، والأوضاع تظهر عند الضغط. */
   .theme-btn {
