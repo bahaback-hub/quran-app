@@ -155,6 +155,13 @@ function createDomElements() {
   dom.tafsirCurtainHandle = el('button');
   dom.tafsirSelect = el('select') as HTMLSelectElement;
   dom.tafsirCurtain = el('div');
+  dom.tafsirCurtain.classList.add('open');
+  dom.tafsirCurtainBody = el('div');
+  dom.tafsirCurtainGrip = el('div');
+  dom.tafsirCurtainResizeRail = el('div');
+  dom.tafsirCurtainShrinkBtn = el('button');
+  dom.tafsirCurtainGrowBtn = el('button');
+  dom.tafsirCurtainResetBtn = el('button');
   dom.translationSelect = el('select') as HTMLSelectElement;
   dom.fontSizeSelect = el('select') as HTMLSelectElement;
   dom.fontTypeSelect = el('select') as HTMLSelectElement;
@@ -480,6 +487,32 @@ describe('app-events', () => {
       dom.tafsirSelect!.dispatchEvent(new Event('change'));
       const { loadTafsirForCurrentAyah } = await import('../tafsir.js');
       expect(loadTafsirForCurrentAyah).toHaveBeenCalled();
+    });
+
+    it('should resize the desktop tafsir curtain with visible size controls and keep it bounded', async () => {
+      vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
+      const { bindTafsirEvents } = await import('../app-events.js');
+      bindTafsirEvents();
+
+      dom.tafsirCurtainGrowBtn!.click();
+      expect(document.documentElement.style.getPropertyValue('--tafsir-curtain-width')).toBe('440px');
+      expect(storage.set).toHaveBeenCalledWith('tafsir_curtain_width', 440);
+
+      dom.tafsirCurtainShrinkBtn!.click();
+      expect(document.documentElement.style.getPropertyValue('--tafsir-curtain-width')).toBe('380px');
+      dom.tafsirCurtainResizeRail!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home' }));
+      expect(document.documentElement.style.getPropertyValue('--tafsir-curtain-width')).toBe('300px');
+    });
+
+    it('should resize the mobile tafsir sheet from its keyboard-accessible grip', async () => {
+      vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })));
+      const { bindTafsirEvents } = await import('../app-events.js');
+      bindTafsirEvents();
+
+      dom.tafsirCurtainGrip!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+      const value = Number.parseFloat(document.documentElement.style.getPropertyValue('--tafsir-sheet-height'));
+      expect(value).toBeGreaterThan(window.innerHeight * 0.6);
+      expect(value).toBeLessThanOrEqual(window.innerHeight * 0.84);
     });
 
     it('should enable translation when translationSelect has a value', async () => {

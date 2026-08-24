@@ -28,10 +28,10 @@
     width: 360px;
   }
   .tafsir-curtain {
-    width: 340px;
+    width: min(var(--tafsir-curtain-width, 380px), 58vw);
   }
   .tafsir-curtain-handle.open {
-    left: 340px;
+    left: min(var(--tafsir-curtain-width, 380px), 58vw);
   }
 }
 
@@ -98,8 +98,8 @@
     left: -100%;
   }
   .tafsir-curtain {
-    width: 92vw;
-    left: -100vw;
+    width: 100vw;
+    left: 0;
   }
   .big-clock-time {
     font-size: 32px;
@@ -359,7 +359,7 @@
     border-top: 3px solid var(--accent);
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
-    transition: bottom 0.4s ease;
+    transition: bottom 0.4s ease, height 0.2s ease;
     padding: 16px;
     z-index: 941;
   }
@@ -370,6 +370,9 @@
   .tafsir-curtain.is-resizing {
     transition: none;
     user-select: none;
+  }
+  .tafsir-curtain-resize-rail {
+    display: none;
   }
   .tafsir-curtain-grip {
     display: flex;
@@ -408,6 +411,18 @@
   .tafsir-curtain-handle.open {
     bottom: var(--tafsir-sheet-height, 60dvh);
     left: 50%;
+  }
+  .tafsir-curtain-topbar {
+    gap: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+  .tafsir-curtain-header {
+    font-size: 17px;
+  }
+  .tafsir-size-btn {
+    width: 36px;
+    height: 36px;
   }
 }
 
@@ -765,17 +780,17 @@
   }
   .tafsir-curtain {
     width: 100vw;
-    left: -100vw;
+    left: 0;
   }
   .tafsir-curtain-handle.open {
-    left: auto;
-    right: 0;
+    left: 50%;
+    right: auto;
   }
   /* ستارة التفسير كانت تتراكب مع أزرار المشغل عند فتحه من الشريط السفلي. */
   body.player-expanded .tafsir-curtain-handle:not(.open) {
     opacity: 0;
     pointer-events: none;
-    transform: translateY(12px);
+    transform: translateX(-50%) translateY(12px);
   }
 
   /* Toast اعلى المشغل */

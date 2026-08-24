@@ -31,26 +31,26 @@
   width: 42px;
 }
 .tafsir-curtain-handle.open {
-  left: 380px;
+  left: var(--tafsir-curtain-width, 380px);
 }
 @media (max-width: 768px) {
   .tafsir-curtain-handle.open {
-    left: 92vw;
+    left: min(var(--tafsir-curtain-width, 380px), 92vw);
   }
 }
 
 .tafsir-curtain {
   position: fixed;
   top: 0;
-  left: -400px;
-  width: 380px;
+  left: calc(0px - var(--tafsir-curtain-width, 380px));
+  width: var(--tafsir-curtain-width, 380px);
   max-width: 92vw;
   height: 100vh;
   background: var(--tafsir-bg);
   border-right: 3px solid var(--accent);
   box-shadow: 8px 0 32px rgba(0, 0, 0, 0.3);
   z-index: 940;
-  transition: left 0.4s ease;
+  transition: left 0.4s ease, width 0.2s ease;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -59,14 +59,83 @@
 .tafsir-curtain.open {
   left: 0;
 }
+.tafsir-curtain.is-resizing {
+  transition: none;
+  user-select: none;
+}
+.tafsir-curtain-resize-rail {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 18px;
+  height: 100%;
+  cursor: ew-resize;
+  touch-action: none;
+  z-index: 2;
+  background: linear-gradient(90deg, transparent 0%, transparent 55%, color-mix(in srgb, var(--accent) 26%, transparent) 100%);
+}
+.tafsir-curtain-resize-rail::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  width: 3px;
+  height: 52px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.65;
+  transform: translateY(-50%);
+}
+.tafsir-curtain-resize-rail:focus-visible,
+.tafsir-curtain-grip:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+.tafsir-curtain-grip {
+  display: none;
+}
+.tafsir-curtain-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  margin-bottom: 13px;
+  border-bottom: 2px solid var(--tafsir-border);
+}
 .tafsir-curtain-header {
   font-size: 19px;
   font-weight: bold;
   color: var(--primary-light);
-  text-align: center;
-  padding-bottom: 12px;
-  margin-bottom: 13px;
-  border-bottom: 2px solid var(--tafsir-border);
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+}
+.tafsir-curtain-size-controls {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  direction: ltr;
+}
+.tafsir-size-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--tafsir-border);
+  border-radius: 8px;
+  background: var(--select-bg);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tafsir-size-reset {
+  font-size: 18px;
+}
+.tafsir-size-btn:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent);
 }
 .tafsir-curtain-controls select {
   width: 100%;
