@@ -86,6 +86,11 @@ interface DomMap {
   prayerBar: HTMLElement | null;
   tafsirCurtainHandle: HTMLElement | null;
   tafsirCurtain: HTMLElement | null;
+  tafsirCurtainGrip: HTMLElement | null;
+  tafsirCurtainResizeRail: HTMLElement | null;
+  tafsirCurtainShrinkBtn: HTMLElement | null;
+  tafsirCurtainGrowBtn: HTMLElement | null;
+  tafsirCurtainResetBtn: HTMLElement | null;
   tafsirCurtainHeader: HTMLElement | null;
   tafsirCurtainBody: HTMLElement | null;
   tafsirSelect: HTMLSelectElement | null;
@@ -265,6 +270,11 @@ const DOM_IDS: (keyof DomMap)[] = [
   'prayerBar',
   'tafsirCurtainHandle',
   'tafsirCurtain',
+  'tafsirCurtainGrip',
+  'tafsirCurtainResizeRail',
+  'tafsirCurtainShrinkBtn',
+  'tafsirCurtainGrowBtn',
+  'tafsirCurtainResetBtn',
   'tafsirCurtainHeader',
   'tafsirCurtainBody',
   'tafsirSelect',
@@ -364,7 +374,6 @@ const DOM_IDS: (keyof DomMap)[] = [
   'sleepTimerBtn',
   'downloadAudioBtn',
   'autoPlayNextBtn',
-  'helpToggleBtn',
   'helpPanel',
   'helpCloseBtn',
   'networkBanner',

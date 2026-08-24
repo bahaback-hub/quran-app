@@ -248,7 +248,7 @@ export function bindAzanEvents(): void {
  */
 export function bindTafsirEvents(): void {
   dom.tafsirCurtainHandle?.addEventListener('click', () => toggleTafsir());
-  bindTafsirSheetGestures();
+  bindTafsirCurtainLayout();
   dom.translationToggle?.addEventListener('click', toggleTranslation);
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect!.value;
@@ -275,20 +275,132 @@ export function bindTafsirEvents(): void {
   });
 }
 
-/** Keep the mobile tafsir sheet resizable without allowing its scroll to move the reader behind it. */
-function bindTafsirSheetGestures(): void {
+/**
+ * Keep the tafsir curtain readable in every viewport.
+ * Desktop users resize its width from the visible edge; phone users resize the bottom sheet height.
+ * The current size is saved locally, while all movements stay bounded inside the screen.
+ */
+function bindTafsirCurtainLayout(): void {
   const curtain = dom.tafsirCurtain;
   const body = dom.tafsirCurtainBody;
-  const grip = document.getElementById('tafsirCurtainGrip');
-  if (!curtain || !body || !grip) {
+  const grip = dom.tafsirCurtainGrip;
+  const rail = dom.tafsirCurtainResizeRail;
+  const shrinkButton = dom.tafsirCurtainShrinkBtn;
+  const growButton = dom.tafsirCurtainGrowBtn;
+  const resetButton = dom.tafsirCurtainResetBtn;
+  if (!curtain || !body || !grip || !rail || !shrinkButton || !growButton || !resetButton || curtain.dataset['layoutBound'] === 'true') {
     return;
   }
+  curtain.dataset['layoutBound'] = 'true';
 
-  const isMobileSheet = () => window.matchMedia('(max-width: 600px)').matches;
-  const clampHeight = (height: number) => Math.min(window.innerHeight * 0.84, Math.max(window.innerHeight * 0.35, height));
+  const isMobileSheet = () => window.matchMedia?.('(max-width: 600px)').matches ?? false;
+  const sheetLimits = () => ({ min: window.innerHeight * 0.35, max: window.innerHeight * 0.84 });
+  const desktopLimits = () => ({
+    min: 300,
+    max: Math.min(720, Math.max(300, Math.round(window.innerWidth * (window.innerWidth <= 900 ? 0.58 : 0.62)))),
+  });
+  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+  const readCssSize = (property: string, fallback: number) => {
+    const stored = Number.parseFloat(document.documentElement.style.getPropertyValue(property));
+    return Number.isFinite(stored) ? stored : fallback;
+  };
+  const updateAria = () => {
+    const mobile = isMobileSheet();
+    const target = mobile ? grip : rail;
+    const limits = mobile ? sheetLimits() : desktopLimits();
+    const value = mobile
+      ? readCssSize('--tafsir-sheet-height', window.innerHeight * 0.6)
+      : readCssSize('--tafsir-curtain-width', 380);
+    target.setAttribute('aria-valuemin', String(Math.round(limits.min)));
+    target.setAttribute('aria-valuemax', String(Math.round(limits.max)));
+    target.setAttribute('aria-valuenow', String(Math.round(value)));
+  };
+  const applyDesktopWidth = (width: number, persist = true) => {
+    const limits = desktopLimits();
+    const nextWidth = Math.round(clamp(width, limits.min, limits.max));
+    document.documentElement.style.setProperty('--tafsir-curtain-width', `${nextWidth}px`);
+    if (persist) {
+      storage.set('tafsir_curtain_width', nextWidth);
+    }
+    updateAria();
+  };
+  const applySheetHeight = (height: number, persist = true) => {
+    const limits = sheetLimits();
+    const nextHeight = Math.round(clamp(height, limits.min, limits.max));
+    document.documentElement.style.setProperty('--tafsir-sheet-height', `${nextHeight}px`);
+    if (persist) {
+      storage.set('tafsir_sheet_height', nextHeight);
+    }
+    updateAria();
+  };
+  const syncSavedSize = () => {
+    if (isMobileSheet()) {
+      const saved = storage.get<number>('tafsir_sheet_height');
+      applySheetHeight(typeof saved === 'number' ? saved : window.innerHeight * 0.6, false);
+      return;
+    }
+    const saved = storage.get<number>('tafsir_curtain_width');
+    applyDesktopWidth(typeof saved === 'number' ? saved : 380, false);
+  };
+  const changeSize = (direction: 1 | -1) => {
+    if (isMobileSheet()) {
+      const current = readCssSize('--tafsir-sheet-height', window.innerHeight * 0.6);
+      applySheetHeight(current + direction * Math.round(window.innerHeight * 0.1));
+      return;
+    }
+    const current = readCssSize('--tafsir-curtain-width', 380);
+    applyDesktopWidth(current + direction * 60);
+  };
+  const resetSize = () => {
+    if (isMobileSheet()) {
+      storage.remove('tafsir_sheet_height');
+      applySheetHeight(window.innerHeight * 0.6, false);
+      return;
+    }
+    storage.remove('tafsir_curtain_width');
+    applyDesktopWidth(380, false);
+  };
+  const bindKeyboardResize = (target: HTMLElement) => {
+    target.addEventListener('keydown', (event: KeyboardEvent) => {
+      const mobile = isMobileSheet();
+      const increaseKey = mobile ? ['ArrowUp', 'PageUp'] : ['ArrowRight', 'PageUp'];
+      const decreaseKey = mobile ? ['ArrowDown', 'PageDown'] : ['ArrowLeft', 'PageDown'];
+      if (increaseKey.includes(event.key)) {
+        event.preventDefault();
+        changeSize(1);
+      } else if (decreaseKey.includes(event.key)) {
+        event.preventDefault();
+        changeSize(-1);
+      } else if (event.key === 'Home') {
+        event.preventDefault();
+        const limits = mobile ? sheetLimits() : desktopLimits();
+        if (mobile) {
+          applySheetHeight(limits.min);
+        } else {
+          applyDesktopWidth(limits.min);
+        }
+      } else if (event.key === 'End') {
+        event.preventDefault();
+        const limits = mobile ? sheetLimits() : desktopLimits();
+        if (mobile) {
+          applySheetHeight(limits.max);
+        } else {
+          applyDesktopWidth(limits.max);
+        }
+      }
+    });
+  };
+
+  syncSavedSize();
+  shrinkButton.addEventListener('click', () => changeSize(-1));
+  growButton.addEventListener('click', () => changeSize(1));
+  resetButton.addEventListener('click', resetSize);
+  bindKeyboardResize(grip);
+  bindKeyboardResize(rail);
+
   let startY = 0;
   let startHeight = 0;
-  let pointerId: number | null = null;
+  let mobilePointerId: number | null = null;
   let lastTouchY: number | null = null;
 
   grip.addEventListener('pointerdown', (event: PointerEvent) => {
@@ -296,7 +408,7 @@ function bindTafsirSheetGestures(): void {
       return;
     }
     event.preventDefault();
-    pointerId = event.pointerId;
+    mobilePointerId = event.pointerId;
     startY = event.clientY;
     startHeight = curtain.getBoundingClientRect().height;
     curtain.classList.add('is-resizing');
@@ -304,23 +416,56 @@ function bindTafsirSheetGestures(): void {
   });
 
   grip.addEventListener('pointermove', (event: PointerEvent) => {
-    if (pointerId !== event.pointerId) {
+    if (mobilePointerId !== event.pointerId) {
       return;
     }
-    const nextHeight = clampHeight(startHeight + startY - event.clientY);
-    document.documentElement.style.setProperty('--tafsir-sheet-height', `${Math.round(nextHeight)}px`);
+    applySheetHeight(startHeight + startY - event.clientY, false);
   });
 
   const finishResize = (event: PointerEvent) => {
-    if (pointerId !== event.pointerId) {
+    if (mobilePointerId !== event.pointerId) {
       return;
     }
     grip.releasePointerCapture?.(event.pointerId);
-    pointerId = null;
+    mobilePointerId = null;
     curtain.classList.remove('is-resizing');
+    applySheetHeight(readCssSize('--tafsir-sheet-height', window.innerHeight * 0.6));
   };
   grip.addEventListener('pointerup', finishResize);
   grip.addEventListener('pointercancel', finishResize);
+
+  let desktopPointerId: number | null = null;
+  let desktopStartX = 0;
+  let desktopStartWidth = 0;
+  rail.addEventListener('pointerdown', (event: PointerEvent) => {
+    if (isMobileSheet() || !curtain.classList.contains('open')) {
+      return;
+    }
+    event.preventDefault();
+    desktopPointerId = event.pointerId;
+    desktopStartX = event.clientX;
+    desktopStartWidth = readCssSize('--tafsir-curtain-width', 380);
+    curtain.classList.add('is-resizing');
+    rail.setPointerCapture?.(event.pointerId);
+  });
+  rail.addEventListener('pointermove', (event: PointerEvent) => {
+    if (desktopPointerId !== event.pointerId) {
+      return;
+    }
+    applyDesktopWidth(desktopStartWidth + event.clientX - desktopStartX, false);
+  });
+  const finishDesktopResize = (event: PointerEvent) => {
+    if (desktopPointerId !== event.pointerId) {
+      return;
+    }
+    rail.releasePointerCapture?.(event.pointerId);
+    desktopPointerId = null;
+    curtain.classList.remove('is-resizing');
+    applyDesktopWidth(readCssSize('--tafsir-curtain-width', 380));
+  };
+  rail.addEventListener('pointerup', finishDesktopResize);
+  rail.addEventListener('pointercancel', finishDesktopResize);
+  window.addEventListener('resize', syncSavedSize, { passive: true });
 
   body.addEventListener('wheel', (event: WheelEvent) => {
     const atTop = body.scrollTop <= 0;

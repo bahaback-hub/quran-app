@@ -444,10 +444,18 @@
       📜 التفسير
     </button>
     <aside class="tafsir-curtain" id="tafsirCurtain" role="complementary" aria-label="نافذة التفسير">
-      <div class="tafsir-curtain-grip" id="tafsirCurtainGrip" role="separator" aria-orientation="horizontal" aria-label="اسحب لتغيير ارتفاع التفسير">
+      <div class="tafsir-curtain-resize-rail" id="tafsirCurtainResizeRail" role="separator" aria-orientation="vertical" aria-label="اسحب لتغيير عرض نافذة التفسير" tabindex="0"></div>
+      <div class="tafsir-curtain-grip" id="tafsirCurtainGrip" role="separator" aria-orientation="horizontal" aria-label="اسحب لتغيير ارتفاع التفسير" tabindex="0">
         <span aria-hidden="true"></span>
       </div>
-      <div class="tafsir-curtain-header" id="tafsirCurtainHeader" data-i18n="tafsir">📜 التفسير</div>
+      <div class="tafsir-curtain-topbar">
+        <div class="tafsir-curtain-header" id="tafsirCurtainHeader" data-i18n="tafsir">📜 التفسير</div>
+        <div class="tafsir-curtain-size-controls" role="group" aria-label="حجم نافذة التفسير" data-i18n-aria-label="tafsir_window_size">
+          <button class="tafsir-size-btn" id="tafsirCurtainShrinkBtn" type="button" title="تصغير نافذة التفسير" data-i18n-title="tafsir_window_shrink" aria-label="تصغير نافذة التفسير" data-i18n-aria-label="tafsir_window_shrink">−</button>
+          <button class="tafsir-size-btn tafsir-size-reset" id="tafsirCurtainResetBtn" type="button" title="إعادة الحجم الافتراضي" data-i18n-title="tafsir_window_reset" aria-label="إعادة الحجم الافتراضي" data-i18n-aria-label="tafsir_window_reset">↺</button>
+          <button class="tafsir-size-btn" id="tafsirCurtainGrowBtn" type="button" title="تكبير نافذة التفسير" data-i18n-title="tafsir_window_grow" aria-label="تكبير نافذة التفسير" data-i18n-aria-label="tafsir_window_grow">+</button>
+        </div>
+      </div>
       <div class="tafsir-curtain-controls">
         <select id="tafsirSelect" aria-label="اختيار التفسير">
           <option value="ar-tafsir-muyassar">التفسير الميسّر</option>
