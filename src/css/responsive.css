@@ -517,7 +517,7 @@
     border-radius: 10px;
   }
 
-  /* الهاتف يحافظ على فكرة الحاسوب: العنوان والصلاة في عمود، والأدوات والهلال والبحث في العمود الآخر. */
+  /* الهاتف يحافظ على فكرة الحاسوب: العنوان في عمود، والصلاة والهلال والبحث داخل أدوات الجهة المقابلة. */
   .header {
     display: flex;
     flex-direction: row;
@@ -573,8 +573,27 @@
     letter-spacing: -0.15px;
   }
   .header-utility-row {
-    align-self: flex-end;
+    align-self: flex-start;
     gap: 5px;
+  }
+  .header-prayer-bar {
+    flex-basis: 108px;
+    max-width: none;
+  }
+  .header-prayer-bar .prayer-bar-toggle {
+    min-height: 32px;
+    padding: 5px 6px;
+  }
+  .header-prayer-bar .prayer-bar-summary {
+    font-size: 10px;
+  }
+  .header-prayer-bar .prayer-bar-clock,
+  .header-prayer-bar .prayer-bar-chevron {
+    width: 13px;
+    height: 13px;
+  }
+  .header-prayer-bar .prayer-bar-summary-countdown {
+    display: none;
   }
   /* زر الهلال وحده، والأوضاع تظهر عند الضغط. */
   .theme-btn {
@@ -597,25 +616,6 @@
     width: min(360px, calc(100vw - 20px));
   }
   /* شريط المواقيت يبقى موجزاً في الهاتف، وتظهر التفاصيل عند الضغط فقط. */
-  .prayer-bar {
-    width: min(100%, 230px);
-    margin: 0;
-  }
-  .prayer-bar-toggle {
-    min-height: 38px;
-    padding: 7px 10px;
-  }
-  .prayer-bar-summary {
-    gap: 4px;
-    font-size: 11px;
-  }
-  .prayer-bar-summary-time::before,
-  .prayer-bar-summary-countdown::before {
-    margin-inline-end: 3px;
-  }
-  .prayer-bar-summary-label {
-    display: none;
-  }
   .prayer-bar-details {
     padding: 8px 9px 10px;
   }
