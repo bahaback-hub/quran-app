@@ -536,7 +536,7 @@
   }
   .header-primary-actions {
     display: grid;
-    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    grid-template-columns: repeat(4, minmax(44px, 1fr));
     align-items: center;
     width: min(100%, 360px);
     gap: 6px;

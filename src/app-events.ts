@@ -149,6 +149,10 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
   document.getElementById('exportSettingsBtn')?.addEventListener('click', () => exportSettings());
   document.getElementById('importSettingsBtn')?.addEventListener('click', () => importSettings());
+  document.getElementById('helpFromSettingsBtn')?.addEventListener('click', () => {
+    closeSettings();
+    openHelp();
+  });
   bindMushafDataPackEvents();
   initSettingsTabs();
 }
@@ -811,7 +815,10 @@ export function bindHelpEvents(): void {
   // Close help when clicking outside
   document.addEventListener('click', (e: MouseEvent) => {
     const helpTarget = e.target as HTMLElement;
-    const isHelpTrigger = helpTarget === dom.helpToggleBtn || helpTarget.closest?.('#helpToggleBtn') !== null;
+    const isHelpTrigger =
+      helpTarget === dom.helpToggleBtn ||
+      helpTarget.closest?.('#helpToggleBtn') !== null ||
+      helpTarget.closest?.('#helpFromSettingsBtn') !== null;
     if (dom.helpPanel?.classList.contains('open') && !dom.helpPanel.contains(e.target as Node) && !isHelpTrigger) {
       closeHelp();
     }

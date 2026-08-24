@@ -200,21 +200,18 @@
   align-items: center;
   gap: 6px;
 }
-/* ترتيب ثابت في كل الشاشات: المساعدة ثم الإعدادات فالمفضلة فالقبلة ثم الأذكار. */
-#helpToggleBtn {
+/* ترتيب ثابت في كل الشاشات: الإعدادات ثم المفضلة فالقبلة ثم الأذكار. */
+#settingsToggleBtn {
   order: 1;
 }
-#settingsToggleBtn {
+#favoritesOpenBtn {
   order: 2;
 }
-#favoritesOpenBtn {
+#qiblaBtn {
   order: 3;
 }
-#qiblaBtn {
-  order: 4;
-}
 #adhkarBtn {
-  order: 5;
+  order: 4;
 }
 
 /* ========== مبدّل المظهر (نهاري / سيبيا / ليلي) ========== */
