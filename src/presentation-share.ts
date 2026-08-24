@@ -21,6 +21,7 @@ const VIDEO_EXPORT_HEIGHT = 1080;
 const VIDEO_EXPORT_FPS = 24;
 const VIDEO_EXPORT_BITRATE = 8_000_000;
 const VIDEO_EXPORT_TAIL_MS = 900;
+const VIDEO_AUDIO_END_GUARD_MS = 140;
 const VIDEO_AUDIO_STALL_MS = 12_000;
 
 let shareBlob: Blob | null = null;
@@ -306,7 +307,7 @@ function drawShareText(
 
   const lineHeight = Math.round(fontSize * 1.72);
   const contentHeight = lines.length * lineHeight;
-  const textX = isWide ? Math.round(width * 0.36) : width / 2;
+  const textX = isWide ? Math.round(width * 0.31) : width / 2;
   const startY = (isWide ? Math.round(height * 0.4) : height / 2) - contentHeight / 2 + lineHeight * 0.2;
   ctx.direction = 'rtl';
   ctx.textAlign = 'center';
@@ -539,7 +540,13 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
   }
   await document.fonts?.ready;
   const timing = await getAlafasyTiming();
-  const audioDuration = Math.max(0.25, timing.endSeconds - timing.startSeconds);
+  // Quran.com verse timestamps can overlap the first phoneme of the next ayah.
+  // Finish slightly before that boundary, then check on every rendered frame.
+  const audioEndSeconds = Math.max(
+    timing.startSeconds + 0.25,
+    timing.endSeconds - VIDEO_AUDIO_END_GUARD_MS / 1000,
+  );
+  const audioDuration = Math.max(0.25, audioEndSeconds - timing.startSeconds);
   const canvas = document.createElement('canvas');
   canvas.width = VIDEO_EXPORT_WIDTH;
   canvas.height = VIDEO_EXPORT_HEIGHT;
@@ -589,6 +596,7 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
   });
   let frameId = 0;
   let finished = false;
+  let verseAudioEnded = false;
   let tailTimer: number | null = null;
   let stallTimer: number | null = null;
   const stopRecording = (error?: Error): void => {
@@ -620,7 +628,19 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
       VIDEO_AUDIO_STALL_MS,
     );
   };
+  const finishVerseAudio = (): void => {
+    if (finished || verseAudioEnded) {
+      return;
+    }
+    verseAudioEnded = true;
+    audio.pause();
+    onProgress(100);
+    tailTimer = window.setTimeout(stopRecording, VIDEO_EXPORT_TAIL_MS);
+  };
   const paintFrame = (): void => {
+    if (audio.currentTime >= audioEndSeconds) {
+      finishVerseAudio();
+    }
     drawVideoFrame(ctx, background.source, VIDEO_EXPORT_WIDTH, VIDEO_EXPORT_HEIGHT);
     if (!finished) {
       frameId = requestAnimationFrame(paintFrame);
@@ -633,10 +653,8 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
     resetStallTimer();
     const elapsed = Math.max(0, audio.currentTime - timing.startSeconds);
     onProgress(Math.min(100, Math.round((elapsed / audioDuration) * 100)));
-    if (audio.currentTime >= timing.endSeconds) {
-      audio.pause();
-      onProgress(100);
-      tailTimer = window.setTimeout(stopRecording, VIDEO_EXPORT_TAIL_MS);
+    if (audio.currentTime >= audioEndSeconds) {
+      finishVerseAudio();
     }
   });
   audio.addEventListener('ended', () => stopRecording(), { once: true });

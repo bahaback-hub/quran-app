@@ -166,6 +166,8 @@ describe('presentation image sharing', () => {
     await openPresentationSharePreview();
 
     expect(fillText).toHaveBeenCalledWith('المصحف السليماني', expect.any(Number), expect.any(Number));
+    expect(fillText).toHaveBeenCalledWith('بِسْمِ ٱللَّهِ', 595, expect.any(Number), 800);
+    expect(fillText).toHaveBeenCalledWith('سُورَةُ ٱلْفَاتِحَةِ — ayah 1', 595, expect.any(Number), 800);
     expect(renderedCanvasSize).toEqual([1920, 1080]);
     expect(strokeRect).not.toHaveBeenCalled();
   });
