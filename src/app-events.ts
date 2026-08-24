@@ -173,10 +173,11 @@ function bindMushafDataPackEvents(): void {
   };
   const refresh = async () => {
     const pack = await getMushafDataPackStatus();
-    status.textContent = pack.installed
+    const completePack = pack.installed && pack.fontsIncluded;
+    status.textContent = completePack
       ? `${__('mushaf_data_pack_installed')} (${formatMushafDataBytes(pack.totalBytes)})`
       : __('mushaf_data_pack_not_installed');
-    verifyButton.disabled = !pack.installed;
+    verifyButton.disabled = !completePack;
     deleteButton.disabled = !pack.installed;
   };
   void refresh();

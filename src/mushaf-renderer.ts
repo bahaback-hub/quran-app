@@ -1,9 +1,8 @@
 /**
- * Mushaf page renderer using QCF4 fonts from King Fahd Complex.
+ * Mushaf page renderer using locally hosted QCF4 fonts from King Fahd Complex.
  * Renders exact Madinah Mushaf calligraphy on Canvas.
  *
  * Data source: https://github.com/MohamadHajjRabee/quran-qcf4
- * Font CDN:  https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2/
  *
  * CRITICAL for Android/Capacitor:
  * - CapacitorHttp plugin intercepts fetch() and CORRUPTS binary data (woff2 fonts).
@@ -19,6 +18,7 @@ import { getAyahAnnotations } from './tajweed-data.js';
 import type { TajweedAnnotation } from './tajweed-data.js';
 import { isCapacitorNative } from './types.js';
 import { getMushafPageLayout } from './mushaf-data-pack.js';
+import { qcf4FontUrl } from './qcf4-font-pack.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -67,16 +67,7 @@ interface LineWidths {
 /* ===================== CONSTANTS ===================== */
 
 const PAGE_BASE = 'https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/pages/';
-const FONT_BASE = 'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2/';
 const BSML_FONT = 'QCF4_QBSML';
-
-// Page 107 (Surah Al-Ma'idah) uses Hafs_08.  Android WebView may report this
-// external font as ready before its glyph table is usable on Canvas, resulting
-// in missing-glyph boxes.  Ship this official QCF4 asset with the APK so that
-// the page is rendered reliably offline and without the WebView timing race.
-const LOCAL_QCF4_FONTS: Record<string, string> = {
-  QCF4_Hafs_08: `${import.meta.env.BASE_URL}fonts/qcf4/QCF4_Hafs_08_W.woff2`,
-};
 
 // Canvas dimensions — scaled based on device capabilities to reduce memory usage
 // Full HD (1080×1540) uses 6.6MB per canvas — too much for low-end mobile
@@ -236,13 +227,7 @@ export async function loadPageData(pageNum: number): Promise<PageLayoutData | nu
  * BSML font uses a different naming convention than Hafs fonts.
  */
 function getFontUrl(fontName: string): string {
-  if (LOCAL_QCF4_FONTS[fontName]) {
-    return LOCAL_QCF4_FONTS[fontName]!;
-  }
-  if (fontName === BSML_FONT) {
-    return `${FONT_BASE}${BSML_FONT}.woff2`;
-  }
-  return `${FONT_BASE}${fontName}_W.woff2`;
+  return qcf4FontUrl(fontName);
 }
 
 /**

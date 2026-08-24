@@ -169,6 +169,7 @@ export default defineConfig({
           '**/backgrounds/**',    // Background images — not essential
           '**/*.mp3',             // Audio files — runtime cached
           '**/*.ttf',             // Fonts — runtime cached via CacheFirst
+          '**/fonts/qcf4/**',     // Downloaded together only when the user enables offline Mushaf
           '**/*.png',             // Icons/screenshots — handled separately
         ],
         offlineGoogleAnalytics: false,
@@ -190,7 +191,7 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'app-fonts-v2',
-              expiration: { maxEntries: 10, maxAgeSeconds: 86400 * 365 }
+              expiration: { maxEntries: 60, maxAgeSeconds: 86400 * 365 }
             }
           },
           // App data (Quran text, tafsir, tajweed) — StaleWhileRevalidate
