@@ -19,6 +19,9 @@ const STAGE_ID = 'hifzRoomStage';
 const PLAN_STORAGE_KEY = 'hifz_plan_v1';
 const DOWNLOAD_STORAGE_KEY = 'hifz_session_downloads_v1';
 const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5];
+const FOCUSED_CONTROLS_AUTO_HIDE_MS = 3_000;
+
+let focusedControlsHideTimer: number | null = null;
 
 type ReviewChoice = 'today' | 'tomorrow' | 'later' | 'custom';
 
@@ -481,13 +484,17 @@ function enterFocusedSession(room: HTMLElement, plan: HifzPlan): void {
   focused.stage.setAttribute('aria-hidden', 'false');
   document.body.classList.add('hifz-room-focused-active');
   updateFocusedSession(room, plan);
+  showFocusedControls(room);
   window.setTimeout(() => focused.play.focus(), 0);
 }
 
 function leaveFocusedSession(room: HTMLElement, restoreSetup = true): void {
   const focused = getFocusedControls(room);
+  clearFocusedControlsHideTimer();
   room.classList.remove('hifz-room-focused', 'hifz-room-text-hidden', 'hifz-room-show-range');
-  document.body.classList.remove('hifz-room-focused-active');
+  document.body.classList.remove('hifz-room-focused-active', 'hifz-room-tools-hidden');
+  room.setAttribute('aria-hidden', 'false');
+  room.removeAttribute('inert');
   focused?.stage.setAttribute('aria-hidden', 'true');
   if (restoreSetup) {
     const plan = readSessionPlan(room);
@@ -496,6 +503,44 @@ function leaveFocusedSession(room: HTMLElement, restoreSetup = true): void {
       refreshForm(room, plan);
     }
   }
+}
+
+function clearFocusedControlsHideTimer(): void {
+  if (focusedControlsHideTimer !== null) {
+    window.clearTimeout(focusedControlsHideTimer);
+    focusedControlsHideTimer = null;
+  }
+}
+
+function hideFocusedControls(room: HTMLElement): void {
+  if (!room.classList.contains('hifz-room-focused')) {
+    return;
+  }
+  clearFocusedControlsHideTimer();
+  document.body.classList.add('hifz-room-tools-hidden');
+  room.setAttribute('aria-hidden', 'true');
+  room.setAttribute('inert', '');
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur?.();
+  }
+}
+
+function scheduleFocusedControlsHide(room: HTMLElement): void {
+  clearFocusedControlsHideTimer();
+  if (room.classList.contains('hifz-room-focused')) {
+    focusedControlsHideTimer = window.setTimeout(() => hideFocusedControls(room), FOCUSED_CONTROLS_AUTO_HIDE_MS);
+  }
+}
+
+function showFocusedControls(room: HTMLElement): void {
+  if (!room.classList.contains('hifz-room-focused')) {
+    return;
+  }
+  document.body.classList.remove('hifz-room-tools-hidden');
+  room.setAttribute('aria-hidden', 'false');
+  room.removeAttribute('inert');
+  scheduleFocusedControlsHide(room);
 }
 
 function restartFocusedPortion(room: HTMLElement): void {
@@ -796,7 +841,13 @@ export function initHifzRoom(): void {
   refreshForm(room);
   const closeButton = room.querySelector<HTMLButtonElement>('#hifzRoomClose');
   closeButton?.setAttribute('aria-label', `${label('close')} ${label('hifz_room')}`);
-  closeButton?.addEventListener('click', () => closeHifzRoom(true));
+  closeButton?.addEventListener('click', () => {
+    if (room.classList.contains('hifz-room-focused')) {
+      hideFocusedControls(room);
+      return;
+    }
+    closeHifzRoom(true);
+  });
   room.querySelector<HTMLButtonElement>('#hifzRoomReturn')?.addEventListener('click', () => closeHifzRoom(false));
   getControls(room)?.start.addEventListener('click', () => void startHifzSession(room));
   getControls(room)?.download.addEventListener('click', () => void downloadSessionAudio(room));
@@ -885,14 +936,28 @@ export function initHifzRoom(): void {
     }
   });
   attachMouseDrag(room, toggle);
+  document.addEventListener('pointermove', () => showFocusedControls(room), { passive: true });
+  document.addEventListener('pointerdown', () => showFocusedControls(room), { passive: true });
+  document.addEventListener('focusin', () => showFocusedControls(room));
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && isHifzRoomOpen()) {
-      event.preventDefault(); event.stopImmediatePropagation(); closeHifzRoom(true); return;
+      event.preventDefault(); event.stopImmediatePropagation();
+      if (room.classList.contains('hifz-room-focused')) {
+        hideFocusedControls(room);
+      } else {
+        closeHifzRoom(true);
+      }
+      return;
     }
+    showFocusedControls(room);
     if (event.key.toLowerCase() === 'h' && !event.ctrlKey && !event.metaKey && !event.altKey && !isEditableTarget(event.target)) {
       event.preventDefault(); event.stopImmediatePropagation();
       if (isHifzRoomOpen()) {
-        closeHifzRoom(true);
+        if (room.classList.contains('hifz-room-focused')) {
+          hideFocusedControls(room);
+        } else {
+          closeHifzRoom(true);
+        }
       } else {
         openHifzRoom();
       }
