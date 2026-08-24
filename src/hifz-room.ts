@@ -642,10 +642,13 @@ function applyExistingRepeatRange(plan: HifzPlan): void {
 function activateCurrentHifzTools(plan: HifzPlan): void {
   const hifdhButton = document.getElementById('hifdhBtn') as HTMLButtonElement | null;
   const repeatButton = document.getElementById('repeatBtn') as HTMLButtonElement | null;
-  if (!hifdhButton?.classList.contains('active')) {
+  // A completed prior session can leave the visual button state stale while the
+  // actual playback modes were reset. The room must trust its selected plan,
+  // including a range ending at the final ayah, rather than that old CSS class.
+  if (!state.hifdhMode) {
     hifdhButton?.click();
   }
-  if (!repeatButton?.classList.contains('active')) {
+  if (!state.repeatMode) {
     repeatButton?.click();
   }
   applyExistingRepeatRange(plan);
