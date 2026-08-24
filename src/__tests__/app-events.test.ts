@@ -200,6 +200,9 @@ function createDomElements() {
   dom.helpToggleBtn = el('button');
   dom.helpCloseBtn = el('button');
   dom.helpPanel = el('div');
+  const helpFromSettingsBtn = el('button');
+  helpFromSettingsBtn.id = 'helpFromSettingsBtn';
+  document.body.appendChild(helpFromSettingsBtn);
   dom.pageSelect = el('select') as HTMLSelectElement;
   dom.pageSlider = el('input') as HTMLInputElement;
 }
@@ -332,6 +335,15 @@ describe('app-events', () => {
       dom.settingsCloseBtn!.click();
       const { closeSettings } = await import('../settings.js');
       expect(closeSettings).toHaveBeenCalled();
+    });
+
+    it('should open the user guide from settings and close the settings panel', async () => {
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      document.getElementById('helpFromSettingsBtn')!.click();
+      const { closeSettings } = await import('../settings.js');
+      expect(closeSettings).toHaveBeenCalled();
+      expect(dom.helpPanel!.classList.contains('open')).toBe(true);
     });
 
     it('should close settings when the open settings button is pressed again', async () => {
