@@ -249,7 +249,7 @@ async function _fetchWithRetry<T>(
 
   for (let attempt = 0; attempt <= opts.retries; attempt++) {
     try {
-      return await _singleFetch<T>(url, opts, attempt > 0);
+      return await _singleFetch<T>(url, opts, attempt < opts.retries);
     } catch (error: unknown) {
       lastError = error;
 
@@ -293,7 +293,7 @@ async function _singleFetch<T>(
     errorMsg?: string;
     expectJSON: boolean;
   },
-  isRetry: boolean = false,
+  hasRetryRemaining: boolean = false,
 ): Promise<T> {
   const { controller, timerId } = createTimeoutController(opts.timeout, opts.externalSignal);
 
@@ -308,8 +308,10 @@ async function _singleFetch<T>(
     if (!response.ok) {
       const httpError = new HTTPError(response.status, response.statusText);
 
-      // Only show toast on final attempt (not during retries)
-      if (!opts.silent && !isRetry) {
+      // Defer only errors that will really be retried. Client errors are final
+      // immediately, while the final server error must remain visible.
+      const willRetry = response.status >= 500 && hasRetryRemaining;
+      if (!opts.silent && !willRetry) {
         const msg = response.status >= 500 ? ERROR_MESSAGES['server']! : opts.errorMsg || ERROR_MESSAGES['default']!;
         showToastMsg(msg);
       }
@@ -346,7 +348,7 @@ async function _singleFetch<T>(
       throw error;
     }
 
-    if (!opts.silent && !isRetry) {
+    if (!opts.silent && !hasRetryRemaining) {
       showToastMsg(opts.errorMsg || classified);
     }
 

@@ -270,6 +270,7 @@ export default {
   search_placeholder: 'Cari dalam Al-Quran...',
   min_chars: 'Masukkan minimal 2 karakter',
   no_results: 'Tidak ada hasil',
+  load_more: 'Muat lebih banyak ({0})',
   results_count: '{0} hasil',
   search_copy: 'Salin',
   search_goto: 'Pergi',

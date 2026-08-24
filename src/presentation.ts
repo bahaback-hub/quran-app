@@ -437,6 +437,9 @@ export function openPresentation(): void {
       .catch(() => { /* noop */ });
   }
 
+  // Presentation always renders as a clean standalone surface. Remove the
+  // reader-only Mushaf class before the overlay appears to prevent CSS leakage.
+  document.body.classList.remove('mushaf-active');
   state.presentationMode = true;
   _presFullscreenRequested = false;
   setBackgroundPickerOpen(false);

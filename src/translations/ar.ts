@@ -303,6 +303,7 @@ export default {
   search_placeholder: 'ابحث في القرآن...',
   min_chars: 'أدخل حرفين على الأقل',
   no_results: 'لا توجد نتائج',
+  load_more: 'تحميل المزيد ({0})',
   results_count: '{0} نتيجة',
   search_copy: 'نسخ',
   search_goto: 'انتقال',

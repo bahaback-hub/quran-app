@@ -75,6 +75,26 @@ describe('trapFocus', () => {
     cleanup();
   });
 
+  it('should keep focusable controls inside a fixed-position dialog', () => {
+    container.style.position = 'fixed';
+    const first = document.createElement('button');
+    first.textContent = 'First';
+    const last = document.createElement('button');
+    last.textContent = 'Last';
+    container.append(first, last);
+    const cleanup = trapFocus(container);
+    last.focus();
+    const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true });
+    const preventDefault = vi.fn();
+    Object.defineProperty(tabEvent, 'preventDefault', { value: preventDefault });
+
+    container.dispatchEvent(tabEvent);
+
+    expect(preventDefault).toHaveBeenCalled();
+    expect(document.activeElement).toBe(first);
+    cleanup();
+  });
+
   it('should trap Shift+Tab from first element', () => {
     const btn1 = document.createElement('button');
     btn1.textContent = 'First';

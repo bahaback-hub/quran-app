@@ -95,6 +95,15 @@ describe('memory-manager', () => {
       expect(getMemoryStats().objectUrls).toBe(0);
     });
 
+    it('keeps tracked media URLs during periodic cleanup', () => {
+      createTrackedObjectUrl(new Blob(['audio']));
+
+      const result = cleanup(false);
+
+      expect(result.objectUrlsRevoked).toBe(0);
+      expect(getMemoryStats().objectUrls).toBe(1);
+    });
+
     it('updates lastCleanup timestamp', () => {
       cleanup();
       const stats = getMemoryStats();
