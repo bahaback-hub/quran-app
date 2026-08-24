@@ -1,100 +1,128 @@
 /* Layout — header, prayer-bar, controls, footer, breadcrumbs, bottom-nav */
 
-/* ========== شريط علوي قابل للطي ========== */
+/* ========== شريط مواقيت مدمج أسفل العنوان ========== */
 .prayer-bar {
-  background: var(--prayer-bar-bg);
-  color: #fff;
-  border-bottom: 3px solid var(--accent);
-  transition: all 0.3s ease;
-  overflow: hidden;
+  width: min(100%, 620px);
+  margin: 10px auto 0;
+  color: var(--header-text);
   position: relative;
+  text-align: right;
 }
-.prayer-bar #collapseBarBtn,
-.prayer-bar #expandBarBtn {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-}
-.prayer-bar.expanded #expandBarBtn {
-  display: none;
-}
-.prayer-bar.collapsed #collapseBarBtn {
-  display: none;
-}
-.prayer-bar.collapsed {
-  height: 48px;
-  /* CLS: Fixed min-height prevents layout shift when bar loads */
-  min-height: 48px;
-}
-.prayer-bar.expanded {
-  height: auto;
-  /* CLS: Fixed min-height for expanded state */
-  min-height: 48px;
-}
-.prayer-bar-inner {
-  padding: 12px 20px;
-}
-.prayer-bar-items {
+.prayer-bar-toggle {
+  width: 100%;
+  min-height: 40px;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
+  gap: 9px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: inherit;
+  backdrop-filter: blur(6px);
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.prayer-bar-toggle:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.62);
+}
+.prayer-bar-clock {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+.prayer-bar-summary {
+  display: inline-flex;
+  align-items: baseline;
   justify-content: flex-start;
-  gap: 16px;
-}
-.prayer-bar-item {
-  display: flex;
-  align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.12);
-  padding: 6px 14px;
-  border-radius: 24px;
-  font-size: 14px;
-  font-weight: 500;
+  min-width: 0;
+  flex: 1;
+  font-size: 13px;
   white-space: nowrap;
 }
-.collapse-bar-btn {
-  background: var(--accent);
-  color: #2c3e50;
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  font-weight: bold;
-  /* WCAG 2.5.5: لمس أدنى — ارفع للحجم الأدنى */
-  min-width: 36px;
-  min-height: 36px;
+.prayer-bar-summary-label {
+  opacity: 0.86;
 }
-.collapse-bar-btn:hover {
-  transform: scale(1.05);
-  background: var(--accent-dark);
+.prayer-bar-summary strong {
+  font-weight: 800;
 }
-.collapsed-preview {
+.prayer-bar-summary-time::before,
+.prayer-bar-summary-countdown::before {
+  content: '·';
+  margin-inline-end: 6px;
+  opacity: 0.7;
+}
+.prayer-bar-summary-countdown {
+  color: var(--accent);
+  font-weight: 700;
+}
+.prayer-bar-chevron {
+  flex: 0 0 auto;
+  transition: transform 0.18s ease;
+}
+.prayer-bar.expanded .prayer-bar-chevron {
+  transform: rotate(180deg);
+}
+.prayer-bar-details {
+  margin-top: 7px;
+  padding: 10px 14px 12px;
+  border: 1px solid var(--border-soft);
+  border-top: 3px solid var(--accent);
+  border-radius: 15px;
+  background: var(--select-bg);
+  color: var(--text-primary);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.13);
+}
+.prayer-bar.collapsed .prayer-bar-details {
+  display: none;
+}
+.prayer-bar-details-heading {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 0 20px;
-  height: 48px;
+  justify-content: space-between;
+  padding-bottom: 7px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 800;
 }
-.collapsed-preview .clock-only {
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffe066;
-  font-family: monospace;
+.prayer-bar-close {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font: inherit;
 }
-.prayer-bar.collapsed .prayer-bar-inner {
-  display: none;
+.prayer-bar-close:hover {
+  background: rgba(0, 0, 0, 0.06);
 }
-.prayer-bar.expanded .collapsed-preview {
-  display: none;
+.prayer-bar-items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+.prayer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 9px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.prayer-row.prayer-next {
+  background: rgba(217, 119, 6, 0.13);
+  color: var(--text-primary);
+  font-weight: 800;
+}
+.prayer-time {
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ========== رأس الصفحة ========== */
@@ -212,14 +240,17 @@
   background: rgba(255, 255, 255, 0.15);
   border: 2px solid var(--accent);
   color: var(--header-text);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  width: 62px;
+  height: 64px;
+  padding: 6px 4px;
+  border-radius: 14px;
   cursor: pointer;
   font-size: 20px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 3px;
   transition: all 0.3s ease;
   position: relative;
 }
@@ -233,9 +264,17 @@
 .header-menu-btn .icon {
   pointer-events: none;
 }
+.header-action-label {
+  color: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.1;
+  pointer-events: none;
+  white-space: nowrap;
+}
 .header-action-btn:hover {
   background: var(--accent);
-  transform: scale(1.1);
+  transform: translateY(-1px);
 }
 .header-menu-btn:hover {
   background: var(--accent);

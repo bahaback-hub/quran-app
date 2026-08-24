@@ -863,5 +863,6 @@ export function restoreSettings(): void {
   if (!state.barCollapsed && dom.prayerBar) {
     dom.prayerBar.classList.remove('collapsed');
     dom.prayerBar.classList.add('expanded');
+    dom.expandBarBtn?.setAttribute('aria-expanded', 'true');
   }
 }
