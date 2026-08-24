@@ -185,19 +185,13 @@
               </svg>
               <span class="header-action-label" data-i18n="settings">الإعدادات</span>
               </button>
-            </div>
-            <div class="header-utility-row">
-              <section class="prayer-bar collapsed header-prayer-bar" id="prayerBar" aria-label="مواقيت الصلاة">
+              <section class="prayer-bar collapsed header-prayer-tile" id="prayerBar" aria-label="مواقيت الصلاة">
                 <button class="prayer-bar-toggle" id="expandBarBtn" type="button" aria-label="عرض مواقيت الصلاة" aria-controls="prayerBarDetails" aria-expanded="false">
-                  <svg class="icon prayer-bar-clock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <circle cx="12" cy="12" r="9" />
-                    <polyline points="12 7 12 12 15.5 14" />
-                  </svg>
                   <span class="prayer-bar-summary">
                     <span class="prayer-bar-summary-label" data-i18n="prayer">الصلاة القادمة</span>
-                    <strong id="nextPrayerName">جاري التحميل...</strong>
+                    <strong id="nextPrayerName">الصلاة</strong>
                     <span class="prayer-bar-summary-time" id="nextPrayerTime">--:--</span>
-                    <span class="prayer-bar-summary-countdown" id="prayerCountdown">---</span>
+                    <span class="sr-only prayer-bar-summary-countdown" id="prayerCountdown">---</span>
                   </span>
                   <svg class="icon prayer-bar-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <polyline points="6 9 12 15 18 9" />
@@ -214,6 +208,8 @@
                   <span class="sr-only" id="collapsedClock">--:--</span>
                 </div>
               </section>
+            </div>
+            <div class="header-utility-row">
               <div class="theme-switcher theme-menu" id="themeToggle" role="group" aria-label="تبديل المظهر">
                 <button class="theme-menu-trigger" id="themeMenuBtn" type="button" title="أوضاع القراءة" aria-label="أوضاع القراءة" aria-haspopup="menu" aria-expanded="false">
                   <span aria-hidden="true">🌙</span><span class="theme-menu-caret" aria-hidden="true">▾</span>
@@ -245,24 +241,9 @@
           </div>
         </div>
         <div class="header-title-row">
-          <h1>
-            <svg
-              class="icon icon-quran"
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-              <path d="M8 7h8" />
-              <path d="M8 11h6" />
-            </svg>
-            <span data-i18n="app_title">القرآن الكريم</span>
+          <h1 class="header-brand-title">
+            <span class="header-brand-mark" role="img" aria-label="المصحف السليماني"></span>
+            <span class="sr-only" data-i18n="app_title">القرآن الكريم</span>
           </h1>
         </div>
       </header>

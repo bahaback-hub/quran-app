@@ -1,4 +1,4 @@
-/* Layout — رأس هادئ ومتوازن: الصلاة ثابتة تحت الأدوات، والهلال والبحث في حيزين مستقلين إلى يسارها. */
+/* Layout — هوية المصحف في الرأس، مع مربع صلاة خامس مختصر وأدوات مستقلة واضحة. */
 
 /* ========== شريط مواقيت مدمج أسفل العنوان ========== */
 .prayer-bar {
@@ -168,6 +168,23 @@
   margin: 0;
   text-align: inherit;
 }
+.header-brand-title {
+  display: block;
+  line-height: 1;
+}
+.header-brand-mark {
+  display: block;
+  width: 220px;
+  height: 76px;
+  background: url('../../public/brand/mushaf-sulaymani-day.jpeg') center / cover no-repeat;
+  border-radius: 8px;
+}
+body.sepia-mode .header-brand-mark {
+  background-image: url('../../public/brand/mushaf-sulaymani-sepia.jpeg');
+}
+body.night-mode .header-brand-mark {
+  background-image: url('../../public/brand/mushaf-sulaymani-night.jpeg');
+}
 /* سطح المكتب: العنوان والأدوات في صف واحد لتقديم مساحة أكبر للقراءة.
    تبقى الأزرار الأساسية قرب العنوان، وتبقى الصلاة والهلال والبحث في الجهة المقابلة. */
 @media (min-width: 901px) {
@@ -177,7 +194,7 @@
   }
   .header-title-row {
     flex: 0 0 auto;
-    min-width: 230px;
+    min-width: 220px;
   }
   .header .header-menu-container {
     flex: 1 1 auto;
@@ -195,8 +212,8 @@
     flex: 0 0 auto;
   }
   .header .header-utility-row {
-    flex: 0 0 270px;
-    width: 270px;
+    flex: 0 0 83px;
+    width: 83px;
   }
 }
 .breadcrumbs {
@@ -266,8 +283,8 @@
 /* ========== أدوات الرأس المصغرة: المظهر والبحث ========== */
 .header-utility-row {
   display: grid;
-  grid-template-columns: 38px 38px minmax(0, 1fr);
-  grid-template-areas: 'search theme prayer';
+  grid-template-columns: 38px 38px;
+  grid-template-areas: 'search theme';
   align-self: flex-start;
   align-items: center;
   gap: 7px;
@@ -275,40 +292,64 @@
   max-width: 100%;
   direction: ltr;
 }
-.header-prayer-bar {
-  grid-area: prayer;
-  order: unset;
-  width: auto;
-  max-width: none;
-  min-width: 0;
+.header-prayer-tile {
+  order: 5;
+  position: relative;
+  flex: 0 0 68px;
+  width: 68px;
   margin: 0;
+  transform: none !important;
+  border-bottom: 0 !important;
+  text-align: center;
 }
-.header-prayer-bar .prayer-bar-toggle {
-  min-height: 34px;
-  padding: 6px 7px;
+.header-prayer-tile .prayer-bar-toggle {
+  width: 100%;
+  min-height: 64px;
+  height: 64px;
+  padding: 6px 4px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--header-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font: inherit;
+  backdrop-filter: blur(4px);
 }
-.header-prayer-bar .prayer-bar-summary {
+.header-prayer-tile .prayer-bar-summary {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   min-width: 0;
-  gap: 3px;
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 13px;
+  line-height: 1.1;
 }
-.header-prayer-bar .prayer-bar-summary-label {
+.header-prayer-tile .prayer-bar-summary-label,
+.header-prayer-tile .prayer-bar-chevron,
+.header-prayer-tile .prayer-bar-summary-countdown {
   display: none;
 }
-.header-prayer-bar .prayer-bar-summary strong,
-.header-prayer-bar .prayer-bar-summary-time {
-  display: none;
-}
-.header-prayer-bar .prayer-bar-summary-countdown {
-  display: inline;
-  min-width: 0;
+.header-prayer-tile .prayer-bar-summary strong {
+  max-width: 58px;
   overflow: hidden;
+  color: inherit;
+  font-size: 10px;
+  font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.header-prayer-bar .prayer-bar-details {
+.header-prayer-tile .prayer-bar-summary-time {
+  direction: ltr;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.header-prayer-tile .prayer-bar-details {
   position: absolute;
   right: 0;
   width: min(340px, 92vw);
@@ -867,6 +908,9 @@ body:not(.night-mode) .controls {
 
 body:not(.night-mode) .prayer-bar {
   border-bottom: 2px solid var(--accent);
+}
+body:not(.night-mode) .header-prayer-tile {
+  border-bottom: 0;
 }
 
 body:not(.night-mode) .header-action-btn,

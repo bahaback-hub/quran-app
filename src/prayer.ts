@@ -236,7 +236,7 @@ function updateCountdowns(): void {
     dom.nextPrayerName.textContent = getPrayerName(nextKey);
   }
   if (dom.nextPrayerTime) {
-    dom.nextPrayerTime.textContent = formatTime12(time24);
+    dom.nextPrayerTime.textContent = time24;
   }
 }
 
