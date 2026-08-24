@@ -87,7 +87,6 @@ interface DomMap {
   tafsirCurtainHandle: HTMLElement | null;
   tafsirCurtain: HTMLElement | null;
   tafsirCurtainGrip: HTMLElement | null;
-  tafsirCurtainResizeRail: HTMLElement | null;
   tafsirCurtainShrinkBtn: HTMLElement | null;
   tafsirCurtainGrowBtn: HTMLElement | null;
   tafsirCurtainResetBtn: HTMLElement | null;
@@ -271,7 +270,6 @@ const DOM_IDS: (keyof DomMap)[] = [
   'tafsirCurtainHandle',
   'tafsirCurtain',
   'tafsirCurtainGrip',
-  'tafsirCurtainResizeRail',
   'tafsirCurtainShrinkBtn',
   'tafsirCurtainGrowBtn',
   'tafsirCurtainResetBtn',

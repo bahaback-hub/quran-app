@@ -19,6 +19,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* عند سحب ستارة التفسير، تُحجز مساحتها يسار القراءة بدلاً من تغطية الآيات. */
+@media (min-width: 601px) {
+  body.tafsir-curtain-active {
+    padding-left: calc(20px + var(--tafsir-curtain-reveal, var(--tafsir-curtain-width, 380px)));
+    transition: background 0.5s ease, padding-left 0.18s ease;
+  }
+}
+
 /* ========== الخلفيات الزخرفية ========== */
 body.bg-css {
   background: none !important;

@@ -24,6 +24,7 @@
   font-weight: bold;
   box-shadow: 4px 0 16px rgba(0, 0, 0, 0.25);
   transition: all 0.3s ease;
+  touch-action: none;
   writing-mode: vertical-rl;
   text-orientation: mixed;
 }
@@ -31,11 +32,17 @@
   width: 42px;
 }
 .tafsir-curtain-handle.open {
-  left: var(--tafsir-curtain-width, 380px);
+  cursor: grab;
+}
+.tafsir-curtain-handle.is-dragging {
+  cursor: grabbing;
+}
+.tafsir-curtain-handle.open {
+  left: var(--tafsir-curtain-reveal, var(--tafsir-curtain-width, 380px));
 }
 @media (max-width: 768px) {
   .tafsir-curtain-handle.open {
-    left: min(var(--tafsir-curtain-width, 380px), 92vw);
+    left: min(var(--tafsir-curtain-reveal, var(--tafsir-curtain-width, 380px)), 92vw);
   }
 }
 
@@ -50,43 +57,19 @@
   border-right: 3px solid var(--accent);
   box-shadow: 8px 0 32px rgba(0, 0, 0, 0.3);
   z-index: 940;
-  transition: left 0.4s ease, width 0.2s ease;
+  transition: left 0.2s ease;
   display: flex;
   flex-direction: column;
   padding: 20px;
   overflow: hidden;
 }
 .tafsir-curtain.open {
-  left: 0;
+  left: calc(var(--tafsir-curtain-reveal, var(--tafsir-curtain-width, 380px)) - var(--tafsir-curtain-width, 380px));
 }
 .tafsir-curtain.is-resizing {
   transition: none;
   user-select: none;
 }
-.tafsir-curtain-resize-rail {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 18px;
-  height: 100%;
-  cursor: ew-resize;
-  touch-action: none;
-  z-index: 2;
-  background: linear-gradient(90deg, transparent 0%, transparent 55%, color-mix(in srgb, var(--accent) 26%, transparent) 100%);
-}
-.tafsir-curtain-resize-rail::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 5px;
-  width: 3px;
-  height: 52px;
-  border-radius: 999px;
-  background: var(--accent);
-  opacity: 0.65;
-  transform: translateY(-50%);
-}
-.tafsir-curtain-resize-rail:focus-visible,
 .tafsir-curtain-grip:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: -3px;
@@ -156,7 +139,7 @@
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   line-height: 1.9;
-  font-size: 16px;
+  font-size: var(--tafsir-text-size, 16px);
   color: var(--tafsir-text);
   padding: 9px 0;
 }

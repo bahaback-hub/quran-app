@@ -173,6 +173,11 @@ describe('openTafsir', () => {
     expect(dom.tafsirCurtainHandle!.classList.contains('open')).toBe(true);
   });
 
+  it('should mark the page so CSS reserves reading space for the opened tafsir curtain', () => {
+    openTafsir();
+    expect(document.body.classList.contains('tafsir-curtain-active')).toBe(true);
+  });
+
   it('should not throw when tafsirCurtain is null', () => {
     dom.tafsirCurtain = null;
     expect(() => openTafsir()).not.toThrow();
@@ -190,6 +195,12 @@ describe('closeTafsir', () => {
     dom.tafsirCurtainHandle!.classList.add('open');
     closeTafsir();
     expect(dom.tafsirCurtainHandle!.classList.contains('open')).toBe(false);
+  });
+
+  it('should remove the reading-space marker when tafsir closes', () => {
+    document.body.classList.add('tafsir-curtain-active');
+    closeTafsir();
+    expect(document.body.classList.contains('tafsir-curtain-active')).toBe(false);
   });
 
   it('should not throw when tafsirCurtain is null', () => {

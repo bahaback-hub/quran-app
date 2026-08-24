@@ -31,7 +31,7 @@
     width: min(var(--tafsir-curtain-width, 380px), 58vw);
   }
   .tafsir-curtain-handle.open {
-    left: min(var(--tafsir-curtain-width, 380px), 58vw);
+    left: min(var(--tafsir-curtain-reveal, var(--tafsir-curtain-width, 380px)), 58vw);
   }
 }
 
@@ -370,9 +370,6 @@
   .tafsir-curtain.is-resizing {
     transition: none;
     user-select: none;
-  }
-  .tafsir-curtain-resize-rail {
-    display: none;
   }
   .tafsir-curtain-grip {
     display: flex;
