@@ -185,18 +185,36 @@
 }
 .header-actions {
   display: flex;
-  gap: 6px;
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
 }
 .header-primary-actions {
   display: flex;
   align-items: center;
   gap: 6px;
 }
+/* ترتيب ثابت في كل الشاشات: المساعدة ثم الإعدادات فالمفضلة فالقبلة ثم الأذكار. */
+#helpToggleBtn {
+  order: 1;
+}
+#settingsToggleBtn {
+  order: 2;
+}
+#favoritesOpenBtn {
+  order: 3;
+}
+#qiblaBtn {
+  order: 4;
+}
+#adhkarBtn {
+  order: 5;
+}
 
 /* ========== مبدّل المظهر (نهاري / سيبيا / ليلي) ========== */
 .theme-switcher {
   display: inline-flex;
+  align-self: flex-start;
   gap: 2px;
   background: rgba(255, 255, 255, 0.15);
   border-radius: 20px;
