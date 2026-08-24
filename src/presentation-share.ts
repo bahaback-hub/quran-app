@@ -3,6 +3,7 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { getAutoBackground, getNatureBgByMood } from './pres-backgrounds.js';
+import { PRESENTATION_VIDEO_SRC } from './pres-video.js';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -197,7 +198,7 @@ function loadCorsImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function waitForMediaEvent(media: HTMLMediaElement, eventName: 'loadedmetadata' | 'seeked'): Promise<void> {
+function waitForMediaEvent(media: HTMLMediaElement, eventName: 'loadedmetadata' | 'seeked' | 'canplay'): Promise<void> {
   return new Promise((resolve, reject) => {
     const onSuccess = (): void => {
       cleanup();
@@ -227,8 +228,12 @@ function getShareDimensions(): { width: number; height: number; isWide: boolean 
 
 function drawCover(ctx: CanvasRenderingContext2D, image: CanvasImageSource, width: number, height: number): void {
   const source = image as HTMLImageElement;
-  const sourceWidth = source.naturalWidth || source.width;
-  const sourceHeight = source.naturalHeight || source.height;
+  const video = image as HTMLVideoElement;
+  const sourceWidth = video.videoWidth || source.naturalWidth || source.width;
+  const sourceHeight = video.videoHeight || source.naturalHeight || source.height;
+  if (!sourceWidth || !sourceHeight) {
+    return;
+  }
   const scale = Math.max(width / sourceWidth, height / sourceHeight);
   const drawWidth = sourceWidth * scale;
   const drawHeight = sourceHeight * scale;
@@ -404,24 +409,54 @@ function drawVideoFrame(
   drawSulaimaniSignature(ctx, width, height);
 }
 
-async function resolveVideoBackground(): Promise<CanvasImageSource | null> {
+interface ExportBackground {
+  source: CanvasImageSource | null;
+  dispose: () => void;
+}
+
+function disposeExportVideo(video: HTMLVideoElement): void {
+  video.pause();
+  video.removeAttribute('src');
+  video.load();
+}
+
+async function resolveVideoBackground(): Promise<ExportBackground> {
   const overlay = dom.presentationOverlay;
   const liveVideo = overlay?.querySelector<HTMLVideoElement>('.pres-video-bg');
-  if (liveVideo && liveVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-    return liveVideo;
+  if (state.presBgMode === 'video') {
+    const exportVideo = document.createElement('video');
+    exportVideo.src = liveVideo?.currentSrc || liveVideo?.src || PRESENTATION_VIDEO_SRC;
+    exportVideo.muted = true;
+    exportVideo.defaultMuted = true;
+    exportVideo.loop = true;
+    exportVideo.playsInline = true;
+    exportVideo.preload = 'auto';
+    exportVideo.load();
+    try {
+      await waitForMediaEvent(exportVideo, 'canplay');
+      if (liveVideo && Number.isFinite(liveVideo.currentTime)) {
+        exportVideo.currentTime = liveVideo.currentTime;
+        await waitForMediaEvent(exportVideo, 'seeked');
+      }
+      await exportVideo.play();
+      return { source: exportVideo, dispose: () => disposeExportVideo(exportVideo) };
+    } catch {
+      disposeExportVideo(exportVideo);
+      return { source: null, dispose: () => {} };
+    }
   }
   const sceneCanvas = overlay?.querySelector<HTMLCanvasElement>('.pres-canvas-bg');
   if (state.presBgMode === 'scene' && sceneCanvas) {
-    return sceneCanvas;
+    return { source: sceneCanvas, dispose: () => {} };
   }
   const source = getImageSource();
   if (!source) {
-    return null;
+    return { source: null, dispose: () => {} };
   }
   try {
-    return await loadCorsImage(source);
+    return { source: await loadCorsImage(source), dispose: () => {} };
   } catch {
-    return null;
+    return { source: null, dispose: () => {} };
   }
 }
 
@@ -578,7 +613,7 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
     );
   };
   const paintFrame = (): void => {
-    drawVideoFrame(ctx, background, VIDEO_EXPORT_WIDTH, VIDEO_EXPORT_HEIGHT);
+    drawVideoFrame(ctx, background.source, VIDEO_EXPORT_WIDTH, VIDEO_EXPORT_HEIGHT);
     if (!finished) {
       frameId = requestAnimationFrame(paintFrame);
     }
@@ -598,7 +633,7 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
   });
   audio.addEventListener('ended', () => stopRecording(), { once: true });
   audio.addEventListener('error', () => stopRecording(new Error('Audio failed during video export')), { once: true });
-  drawVideoFrame(ctx, background, VIDEO_EXPORT_WIDTH, VIDEO_EXPORT_HEIGHT);
+  drawVideoFrame(ctx, background.source, VIDEO_EXPORT_WIDTH, VIDEO_EXPORT_HEIGHT);
   recorder.start(500);
   paintFrame();
   resetStallTimer();
@@ -615,6 +650,7 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
     sourceNode.disconnect();
     recordingDestination.disconnect();
     stream.getTracks().forEach((track) => track.stop());
+    background.dispose();
     void audioContext.close();
   });
 }
