@@ -3,14 +3,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mockState = {
   currentSurah: 1,
   currentAyahIndex: 0,
+  currentReciter: 'ar.alafasy',
   presBgMode: 'plain',
   presBgNature: 'dawn',
+  presBgScene: 'stars',
   surahList: [{ number: 1, englishName: 'Al-Faatiha' }],
   surahData: { name: 'سُورَةُ ٱلْفَاتِحَةِ', ayahs: [{ text: 'بِسْمِ ٱللَّهِ', numberInSurah: 1 }] },
 };
 
 const mockDom = {
   presShareBtn: document.createElement('button'),
+  presVideoShareBtn: document.createElement('button'),
   presentationOverlay: document.createElement('div'),
 };
 
@@ -35,8 +38,10 @@ function mountPreview(): void {
       <p id="presentationShareStatus"></p>
       <button id="presentationShareNativeBtn"></button>
       <button id="presentationShareDownloadBtn"></button>
+      <button id="presentationShareVideoBtn"></button>
     </div>`;
   mockDom.presShareBtn = document.createElement('button');
+  mockDom.presVideoShareBtn = document.createElement('button');
   mockDom.presentationOverlay = document.createElement('div');
 }
 
@@ -49,6 +54,7 @@ describe('presentation image sharing', () => {
     vi.resetModules();
     vi.restoreAllMocks();
     mockState.presBgMode = 'plain';
+    mockState.currentReciter = 'ar.alafasy';
     renderedCanvasSize = null;
     mountPreview();
     const NativeURL = globalThis.URL;
@@ -89,6 +95,29 @@ describe('presentation image sharing', () => {
     initPresentationShare();
     expect(mockDom.presShareBtn.getAttribute('aria-label')).toBe('presentation_share_image');
     expect(document.getElementById('presentationShareHeading')?.textContent).toBe('presentation_share_preview');
+  });
+
+  it('shows local video creation only for Mishary Alafasy when the browser supports recording', async () => {
+    class MediaRecorderMock {}
+    Object.defineProperty(MediaRecorderMock, 'isTypeSupported', { value: vi.fn(() => true) });
+    vi.stubGlobal('MediaRecorder', MediaRecorderMock);
+    vi.stubGlobal('AudioContext', class AudioContextMock {});
+    Object.defineProperty(HTMLCanvasElement.prototype, 'captureStream', {
+      configurable: true,
+      value: vi.fn(),
+    });
+    const { initPresentationShare } = await import('../presentation-share.js');
+    initPresentationShare();
+    const videoButton = document.getElementById('presentationShareVideoBtn')!;
+
+    expect(videoButton.classList.contains('hidden')).toBe(false);
+    expect(videoButton.textContent).toContain('presentation_share_video');
+    expect(mockDom.presVideoShareBtn.classList.contains('hidden')).toBe(false);
+
+    mockState.currentReciter = 'ar.husary';
+    window.dispatchEvent(new Event('app:langchange'));
+    expect(videoButton.classList.contains('hidden')).toBe(true);
+    expect(mockDom.presVideoShareBtn.classList.contains('hidden')).toBe(true);
   });
 
   it('closes the preview and clears its visible state', async () => {
