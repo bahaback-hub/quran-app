@@ -163,11 +163,6 @@
   gap: 6px;
   text-align: right;
 }
-.header-title-row .prayer-bar {
-  width: min(100%, 320px);
-  margin: 0;
-  transform: none;
-}
 .header-title-row h1 {
   width: 100%;
   margin: 0;
@@ -233,10 +228,51 @@
 /* ========== أدوات الرأس المصغرة: المظهر والبحث ========== */
 .header-utility-row {
   display: flex;
-  align-self: flex-end;
+  align-self: flex-start;
   align-items: flex-start;
   gap: 7px;
+  width: 100%;
+  max-width: 100%;
   direction: ltr;
+}
+.header-prayer-bar {
+  order: 1;
+  flex: 1 1 145px;
+  width: auto;
+  max-width: 164px;
+  min-width: 0;
+  margin: 0;
+}
+.header-prayer-bar .prayer-bar-toggle {
+  min-height: 34px;
+  padding: 6px 7px;
+}
+.header-prayer-bar .prayer-bar-summary {
+  min-width: 0;
+  gap: 3px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.header-prayer-bar .prayer-bar-summary-label {
+  display: none;
+}
+.header-prayer-bar .prayer-bar-summary strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.header-prayer-bar .prayer-bar-summary-time::before,
+.header-prayer-bar .prayer-bar-summary-countdown::before {
+  margin-inline-end: 3px;
+}
+.header-prayer-bar .prayer-bar-details {
+  position: absolute;
+  right: 0;
+  width: min(340px, 92vw);
+  z-index: 35;
+}
+.theme-menu {
+  order: 2;
 }
 .theme-switcher {
   position: relative;
@@ -319,11 +355,13 @@
   position: relative;
   display: flex;
   min-height: 34px;
+  order: 3;
 }
 .header-search-input {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
+  left: auto;
   z-index: 29;
   display: none;
   width: min(420px, calc(100vw - 40px));
