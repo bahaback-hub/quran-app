@@ -16,9 +16,10 @@ const GOLD = '#d8b25f';
 const SULAIMANI_SIGNATURE = 'المصحف السليماني';
 const ALAFASY_RECITER_ID = 'ar.alafasy';
 const ALAFASY_QURAN_COM_RECITATION_ID = 7;
-const VIDEO_EXPORT_WIDTH = 1280;
-const VIDEO_EXPORT_HEIGHT = 720;
+const VIDEO_EXPORT_WIDTH = 1920;
+const VIDEO_EXPORT_HEIGHT = 1080;
 const VIDEO_EXPORT_FPS = 24;
+const VIDEO_EXPORT_BITRATE = 8_000_000;
 const VIDEO_EXPORT_TAIL_MS = 900;
 const VIDEO_AUDIO_STALL_MS = 12_000;
 
@@ -74,7 +75,7 @@ function isAlafasyVideoShareAvailable(): boolean {
 }
 
 function shareVideoFilename(): string {
-  return `quran-${state.currentSurah}-${state.currentAyahIndex + 1}-alafasy.webm`;
+  return `quran-${state.currentSurah}-${state.currentAyahIndex + 1}-alafasy-hd.webm`;
 }
 
 function isShareCancellation(error: unknown): boolean {
@@ -122,6 +123,7 @@ function setPreviewText(): void {
   const download = document.getElementById('presentationShareDownloadBtn');
   const close = document.getElementById('presentationShareCloseBtn');
   const video = document.getElementById('presentationShareVideoBtn') as HTMLButtonElement | null;
+  const videoDownload = document.getElementById('presentationShareVideoDownloadBtn') as HTMLButtonElement | null;
   const trigger = dom.presShareBtn;
   if (heading) {
     heading.textContent = __('presentation_share_preview');
@@ -152,6 +154,12 @@ function setPreviewText(): void {
     const available = isAlafasyVideoShareAvailable();
     video.classList.toggle('hidden', !available);
     video.disabled = !available;
+  }
+  if (videoDownload) {
+    const ready = Boolean(videoBlob && videoBlobKey === getVideoBlobKey());
+    videoDownload.textContent = `↓ ${__('presentation_share_video_download_hd')}`;
+    videoDownload.classList.toggle('hidden', !ready);
+    videoDownload.disabled = !ready;
   }
 }
 
@@ -298,7 +306,7 @@ function drawShareText(
 
   const lineHeight = Math.round(fontSize * 1.72);
   const contentHeight = lines.length * lineHeight;
-  const textX = isWide ? Math.round(width * 0.28) : width / 2;
+  const textX = isWide ? Math.round(width * 0.42) : width / 2;
   const startY = (isWide ? Math.round(height * 0.4) : height / 2) - contentHeight / 2 + lineHeight * 0.2;
   ctx.direction = 'rtl';
   ctx.textAlign = 'center';
@@ -563,8 +571,8 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
   ]);
   const mimeType = pickVideoMimeType();
   const recorder = mimeType
-    ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3_800_000 })
-    : new MediaRecorder(stream, { videoBitsPerSecond: 3_800_000 });
+    ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: VIDEO_EXPORT_BITRATE, audioBitsPerSecond: 128_000 })
+    : new MediaRecorder(stream, { videoBitsPerSecond: VIDEO_EXPORT_BITRATE, audioBitsPerSecond: 128_000 });
   const chunks: BlobPart[] = [];
   let rejectOutput: ((error: Error) => void) | null = null;
   const output = new Promise<Blob>((resolve, reject) => {
@@ -935,6 +943,11 @@ export function initPresentationShare(): void {
   });
   document.getElementById('presentationShareVideoBtn')?.addEventListener('click', () => {
     void handlePresentationVideoShare();
+  });
+  document.getElementById('presentationShareVideoDownloadBtn')?.addEventListener('click', () => {
+    if (videoBlob && videoBlobKey === getVideoBlobKey()) {
+      downloadShareVideo(videoBlob);
+    }
   });
   window.addEventListener('app:langchange', setPreviewText);
 }

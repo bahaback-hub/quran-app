@@ -325,6 +325,7 @@ export default {
   presentation_share_video_ready: 'Video paylaşmaya hazır',
   presentation_share_video_failed: 'Video oluşturulamadı. Daha kısa bir ayet veya daha yeni bir tarayıcı deneyin.',
   presentation_share_video_download_hint: 'Video cihazınızdan paylaşmak için indirildi.',
+  presentation_share_video_download_hd: 'Orijinal HD kopyayı kaydet',
   pres_bg_label: 'Sunum arka planı:',
   pres_bg_plain: 'Düz',
   pres_bg_nature: 'Doğa manzaraları',

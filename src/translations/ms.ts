@@ -325,6 +325,7 @@ export default {
   presentation_share_video_ready: 'Video sedia dikongsi',
   presentation_share_video_failed: 'Video tidak dapat dicipta. Cuba ayat lebih pendek atau pelayar lebih baharu.',
   presentation_share_video_download_hint: 'Video telah dimuat turun untuk dikongsi dari peranti anda.',
+  presentation_share_video_download_hd: 'Simpan salinan HD asal',
   pres_bg_label: 'Latar persembahan:',
   pres_bg_plain: 'Ringkas',
   pres_bg_nature: 'Pemandangan alam',
