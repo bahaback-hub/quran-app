@@ -168,6 +168,37 @@
   margin: 0;
   text-align: inherit;
 }
+/* سطح المكتب: العنوان والأدوات في صف واحد لتقديم مساحة أكبر للقراءة.
+   تبقى الأزرار الأساسية قرب العنوان، وتبقى الصلاة والهلال والبحث في الجهة المقابلة. */
+@media (min-width: 901px) {
+  .header {
+    align-items: center;
+    padding-block: 20px;
+  }
+  .header-title-row {
+    flex: 0 0 auto;
+    min-width: 230px;
+  }
+  .header .header-menu-container {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 570px;
+  }
+  .header .header-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    width: 100%;
+  }
+  .header .header-primary-actions {
+    flex: 0 0 auto;
+  }
+  .header .header-utility-row {
+    flex: 0 0 270px;
+    width: 270px;
+  }
+}
 .breadcrumbs {
   display: flex;
   align-items: center;
