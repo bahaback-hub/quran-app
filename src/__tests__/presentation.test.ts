@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state, resetState } from '../state.js';
 import { dom } from '../dom.js';
 import { storage } from '../storage.js';
+import { loadSurah } from '../surah-loader.js';
 
 // Mock audio module
 vi.mock('../audio.js', () => ({
@@ -17,6 +18,7 @@ vi.mock('../audio.js', () => ({
 // Mock surah-loader
 vi.mock('../surah-loader.js', () => ({
   highlightCurrentAyah: vi.fn(),
+  loadSurah: vi.fn().mockResolvedValue(undefined),
 }));
 
 // Mock types fullscreen functions
@@ -69,6 +71,8 @@ function setupPresentationDom() {
   dom.presentationCloseBtn = document.createElement('button');
   dom.presentationPrevBtn = document.createElement('button');
   dom.presentationNextBtn = document.createElement('button');
+  dom.presentationPrevSurahBtn = document.createElement('button');
+  dom.presentationNextSurahBtn = document.createElement('button');
   dom.presPlayPauseBtn = document.createElement('button');
   dom.presTajweedBtn = document.createElement('button');
   dom.presBackgroundBtn = document.createElement('button');
@@ -299,10 +303,27 @@ describe('presentation', () => {
       const closeSpy = vi.spyOn(dom.presentationCloseBtn!, 'addEventListener');
       const prevSpy = vi.spyOn(dom.presentationPrevBtn!, 'addEventListener');
       const nextSpy = vi.spyOn(dom.presentationNextBtn!, 'addEventListener');
+      const prevSurahSpy = vi.spyOn(dom.presentationPrevSurahBtn!, 'addEventListener');
+      const nextSurahSpy = vi.spyOn(dom.presentationNextSurahBtn!, 'addEventListener');
       initPresentation();
       expect(closeSpy).toHaveBeenCalledWith('click', expect.any(Function));
       expect(prevSpy).toHaveBeenCalledWith('click', expect.any(Function));
       expect(nextSpy).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(prevSurahSpy).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(nextSurahSpy).toHaveBeenCalledWith('click', expect.any(Function));
+    });
+
+    it('loads the adjacent surah from the presentation controls', async () => {
+      state.presentationMode = true;
+      state.surahList = [
+        { number: 1, name: 'الفاتحة', numberOfAyahs: 7 },
+        { number: 2, name: 'البقرة', numberOfAyahs: 286 },
+      ];
+      const { initPresentation } = await import('../presentation.js');
+      initPresentation();
+      dom.presentationNextSurahBtn!.click();
+      await Promise.resolve();
+      expect(loadSurah).toHaveBeenCalledWith(2, { startAyah: 1, autoPlay: false });
     });
 
     it('should bind click handler to play/pause button', async () => {
@@ -383,7 +404,7 @@ describe('presentation', () => {
       state.presentationMode = true;
       const { syncPresentation } = await import('../presentation.js');
       syncPresentation();
-      expect(dom.presentationAyahNum!.textContent).toBe('1');
+      expect(dom.presentationAyahNum!.textContent).toContain('1');
       expect(dom.presentationTitle!.textContent).toContain('الفاتحة');
     });
 

@@ -318,33 +318,45 @@ export function injectStyles(): void {
     }
     .presentation-inner {
       display: flex; flex-direction: column;
-      width: 100%; height: 100%; max-width: 1200px;
+      width: 100%; height: 100%; max-width: 1320px;
       padding: 20px; box-sizing: border-box;
     }
     .presentation-header {
-      display: flex; align-items: center; gap: 12px; position: relative;
-      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; gap: 10px; position: relative;
+      min-height: 52px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
       flex-shrink: 0;
     }
     .presentation-overlay.pres-light .presentation-header {
       border-color: rgba(0,0,0,0.1);
     }
+    .presentation-nav-cluster,
+    .presentation-actions {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .presentation-current-meta {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-width: 126px; max-width: 220px; gap: 2px; text-align: center;
+    }
+    .presentation-actions {
+      position: relative; margin-inline-start: auto;
+    }
     .presentation-title {
-      font-size: 16px; color: var(--text-muted, #aaa); flex: 1;
+      max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-size: 16px; color: var(--text-muted, #aaa); font-weight: 700;
     }
     .presentation-overlay.pres-light .presentation-title {
       color: #666;
     }
     .presentation-ayah-num {
-      font-size: 18px; color: var(--accent, #ffe066); font-weight: 700;
+      font-size: 13px; color: var(--accent, #ffe066); font-weight: 700;
     }
     .presentation-overlay.pres-light .presentation-ayah-num {
       color: #8b6f5a;
     }
     .presentation-header-btn, .presentation-close-btn {
       background: rgba(255,255,255,0.1); border: none;
-      color: #fff; font-size: 22px; padding: 8px 16px;
-      border-radius: 8px; cursor: pointer; transition: background 0.2s;
+      color: #fff; font-size: 18px; width: 40px; height: 40px; padding: 0;
+      border-radius: 10px; cursor: pointer; transition: background 160ms ease-out, transform 160ms ease-out;
     }
     .presentation-overlay.pres-light .presentation-header-btn,
     .presentation-overlay.pres-light .presentation-close-btn {
@@ -353,13 +365,22 @@ export function injectStyles(): void {
     .presentation-header-btn:hover, .presentation-close-btn:hover {
       background: rgba(255,255,255,0.2);
     }
+    .presentation-header-btn:active, .presentation-close-btn:active { transform: scale(0.97); }
+    .presentation-header-btn:disabled {
+      cursor: not-allowed; opacity: 0.32;
+    }
+    .presentation-surah-btn {
+      border: 1px solid rgba(216, 178, 95, 0.28); color: #f8e1a0;
+      background: rgba(216, 178, 95, 0.1); font-size: 15px;
+    }
+    .presentation-ayah-btn {
+      width: 46px; color: #fffdf5; background: rgba(31, 91, 73, 0.7); font-size: 19px;
+    }
     .presentation-overlay.pres-light .presentation-header-btn:hover,
     .presentation-overlay.pres-light .presentation-close-btn:hover {
       background: rgba(0,0,0,0.15);
     }
-    .presentation-close-btn {
-      font-size: 18px; padding: 8px 14px;
-    }
+    .presentation-close-btn { color: #f8e1a0; }
 
     /* ===== AUTO-HIDE CONTROL BUTTONS ===== */
     .pres-control-btn {
@@ -390,7 +411,8 @@ export function injectStyles(): void {
     }
     .presentation-background-picker {
       position: absolute;
-      inset-inline-start: 0;
+      inset-inline-start: auto;
+      inset-inline-end: 0;
       top: calc(100% + 10px);
       z-index: 12;
       width: min(344px, calc(100vw - 32px));
@@ -529,24 +551,25 @@ export function injectStyles(): void {
       .presentation-ayah-text { font-size: clamp(22px, 5.5vw, 32px); }
       .presentation-body { padding: 16px 10px; overflow-y: hidden !important; }
       .presentation-translation { font-size: 16px; margin-top: 12px; }
-      /* Compact header for mobile: wrap buttons into two rows */
+      /* Mobile keeps the title, navigation and utilities in three clear rows. */
       .presentation-header {
-        flex-wrap: wrap; gap: 6px; padding: 6px 4px;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 6px 2px;
       }
-      .presentation-title {
-        font-size: 13px; width: 100%; order: -1; text-align: center;
-        margin-bottom: 2px;
+      .presentation-current-meta { grid-column: 1 / -1; grid-row: 1; max-width: none; min-width: 0; }
+      .presentation-title { font-size: 13px; }
+      .presentation-ayah-num { font-size: 12px; }
+      .presentation-surah-nav { grid-column: 1; grid-row: 2; justify-content: flex-start; }
+      .presentation-ayah-nav { grid-column: 2; grid-row: 2; justify-content: flex-end; }
+      .presentation-actions {
+        grid-column: 1 / -1; grid-row: 3; margin-inline-start: 0; justify-content: center;
+        max-width: 100%; overflow-x: auto; scrollbar-width: none;
       }
-      .presentation-ayah-num {
-        font-size: 15px;
-      }
+      .presentation-actions::-webkit-scrollbar { display: none; }
       .presentation-header-btn, .presentation-close-btn {
-        font-size: 18px; padding: 6px 10px; border-radius: 6px;
-        min-width: 36px; min-height: 36px;
+        width: 36px; height: 36px; font-size: 16px; border-radius: 8px; flex: 0 0 auto;
       }
-      .presentation-close-btn {
-        font-size: 16px; padding: 6px 10px;
-      }
+      .presentation-ayah-btn { width: 42px; font-size: 18px; }
+      .presentation-surah-btn { font-size: 14px; }
       .presentation-background-picker {
         inset-inline-start: auto;
         inset-inline-end: 0;

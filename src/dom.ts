@@ -141,6 +141,8 @@ interface DomMap {
   presentationCloseBtn: HTMLElement | null;
   presentationPrevBtn: HTMLElement | null;
   presentationNextBtn: HTMLElement | null;
+  presentationPrevSurahBtn: HTMLElement | null;
+  presentationNextSurahBtn: HTMLElement | null;
   presentationCounter: HTMLElement | null;
   presentationTranslation: HTMLElement | null;
   presPlayPauseBtn: HTMLElement | null;
@@ -316,6 +318,8 @@ const DOM_IDS: (keyof DomMap)[] = [
   'presentationCloseBtn',
   'presentationPrevBtn',
   'presentationNextBtn',
+  'presentationPrevSurahBtn',
+  'presentationNextSurahBtn',
   'presentationCounter',
   'presentationTranslation',
   'presPlayPauseBtn',
