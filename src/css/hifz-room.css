@@ -137,6 +137,7 @@ body.hifz-room-active .hifz-room-toggle {
   background: rgb(243 238 225 / 93%);
   box-shadow: 0 24px 62px rgb(24 49 41 / 26%);
   backdrop-filter: blur(10px);
+  transition: opacity 260ms cubic-bezier(0.23, 1, 0.32, 1), transform 260ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .hifz-room-header {
@@ -588,6 +589,21 @@ body.hifz-room-focused-active .hifz-room-stage {
   transform: translateX(0);
 }
 
+/* Hiding tools never leaves the focused recitation or its repeat state. */
+body.hifz-room-tools-hidden .hifz-room {
+  pointer-events: none;
+}
+
+body.hifz-room-tools-hidden .hifz-room-panel {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(1.25rem);
+}
+
+body.hifz-room-tools-hidden .hifz-room-stage {
+  right: 0;
+}
+
 .hifz-room-stage::before {
   position: absolute;
   inset: 14% 7%;
@@ -736,6 +752,10 @@ body.hifz-room-focused-active .hifz-room-stage {
   .hifz-room-toggle,
   .hifz-room-start,
   .hifz-room-stage {
+    transition: none;
+  }
+
+  .hifz-room-panel {
     transition: none;
   }
 }
