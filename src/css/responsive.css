@@ -577,7 +577,7 @@
     gap: 5px;
   }
   .header-prayer-bar {
-    flex-basis: 0;
+    flex-basis: 136px;
     max-width: none;
   }
   .header-prayer-bar .prayer-bar-toggle {

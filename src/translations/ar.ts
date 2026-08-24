@@ -150,6 +150,7 @@ export default {
   prayer_times: 'مواقيت الصلاة',
   prayer_time_come: 'حان الآن وقت الصلاة',
   prayer_countdown: '{0} بعد {1}',
+  prayer_countdown_header: 'باقي على صلاة {0}: {1}',
   prayer_dirs: 'اتجاهات القبلة',
   prayer_dirs_n: 'شمال',
   prayer_dirs_s: 'جنوب',

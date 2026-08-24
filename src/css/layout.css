@@ -230,14 +230,15 @@
   display: flex;
   align-self: flex-start;
   align-items: center;
+  justify-content: flex-start;
   gap: 5px;
   width: 100%;
   max-width: 100%;
   direction: ltr;
 }
 .header-prayer-bar {
-  order: 3;
-  flex: 1 1 auto;
+  order: 1;
+  flex: 1 1 158px;
   width: auto;
   max-width: none;
   min-width: 0;
@@ -257,17 +258,16 @@
 .header-prayer-bar .prayer-bar-summary-label {
   display: none;
 }
-.header-prayer-bar .prayer-bar-summary strong {
+.header-prayer-bar .prayer-bar-summary strong,
+.header-prayer-bar .prayer-bar-summary-time {
+  display: none;
+}
+.header-prayer-bar .prayer-bar-summary-countdown {
+  display: inline;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.header-prayer-bar .prayer-bar-summary-time::before,
-.header-prayer-bar .prayer-bar-summary-countdown::before {
-  margin-inline-end: 3px;
-}
-.header-prayer-bar .prayer-bar-summary-countdown {
-  display: none;
+  white-space: nowrap;
 }
 .header-prayer-bar .prayer-bar-details {
   position: absolute;
@@ -276,7 +276,7 @@
   z-index: 35;
 }
 .theme-menu {
-  order: 1;
+  order: 2;
 }
 .theme-switcher {
   position: relative;
@@ -359,7 +359,7 @@
   position: relative;
   display: flex;
   min-height: 34px;
-  order: 2;
+  order: 3;
 }
 .header-search-input {
   position: absolute;

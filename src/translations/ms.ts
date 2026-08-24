@@ -117,6 +117,7 @@ export default {
   prayer_times: 'Waktu Solat',
   prayer_time_come: 'Telah tiba waktu solat',
   prayer_countdown: '{0} dalam {1}',
+  prayer_countdown_header: '{0} dalam: {1}',
   prayer_dirs: 'Arah Kiblat',
   prayer_dirs_n: 'Utara',
   prayer_dirs_s: 'Selatan',

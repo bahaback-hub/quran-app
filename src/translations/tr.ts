@@ -117,6 +117,7 @@ export default {
   prayer_times: 'Namaz Vakitleri',
   prayer_time_come: 'Namaz vakti geldi',
   prayer_countdown: '{0} vakitine {1}',
+  prayer_countdown_header: '{0} vaktine kalan: {1}',
   prayer_dirs: 'Kıble Yönleri',
   prayer_dirs_n: 'Kuzey',
   prayer_dirs_s: 'Güney',
