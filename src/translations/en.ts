@@ -358,6 +358,7 @@ export default {
   presentation_share_video_ready: 'Video ready to share',
   presentation_share_video_failed: 'Could not create the video. Try a shorter ayah or a newer browser.',
   presentation_share_video_download_hint: 'The video was downloaded for sharing from your device.',
+  presentation_share_video_download_hd: 'Save original HD copy',
   pres_bg_label: 'Presentation background:',
   pres_bg_plain: 'Plain',
   pres_bg_nature: 'Nature scenes',

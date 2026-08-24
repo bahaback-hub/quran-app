@@ -358,6 +358,7 @@ export default {
   presentation_share_video_ready: 'الفيديو جاهز للمشاركة',
   presentation_share_video_failed: 'تعذر إنشاء الفيديو. حاول بآية أقصر أو متصفح أحدث.',
   presentation_share_video_download_hint: 'تم تنزيل الفيديو لمشاركته من جهازك.',
+  presentation_share_video_download_hd: 'حفظ نسخة HD الأصلية',
   pres_bg_label: 'خلفية وضع العرض:',
   pres_bg_plain: 'صامتة',
   pres_bg_nature: 'مناظر طبيعية',

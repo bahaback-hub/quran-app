@@ -123,6 +123,7 @@ const presentationSharePreviewHTML = `
       <button class="presentation-share-primary" id="presentationShareNativeBtn" type="button" disabled>↗ مشاركة الآن</button>
       <button class="presentation-share-secondary" id="presentationShareDownloadBtn" type="button" disabled>↓ تنزيل PNG</button>
       <button class="presentation-share-video hidden" id="presentationShareVideoBtn" type="button">🎞 إنشاء فيديو العفاسي</button>
+      <button class="presentation-share-video-download hidden" id="presentationShareVideoDownloadBtn" type="button">↓ حفظ نسخة HD</button>
     </div>
   </div>
 </div>
