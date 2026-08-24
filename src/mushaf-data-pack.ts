@@ -1,10 +1,11 @@
 /**
  * Verified Mushaf Layout Data Pack.
  *
- * Design rule: this module downloads only QCF4 page-layout JSON and indexes
- * licensed under MIT. It never downloads, packages, or redistributes QCF4 font
- * binaries; those require separate permission from their rights holders.
+ * This module installs the complete offline Mushaf experience: verified page
+ * layout data, indexes, and the locally hosted QCF4 font collection.
  */
+
+import { QCF4_FONT_CACHE_NAME, QCF4_FONT_NAMES, QCF4_FONT_TOTAL_BYTES, qcf4FontUrl } from './qcf4-font-pack.js';
 
 export interface MushafPackFile {
   path: string;
@@ -41,7 +42,7 @@ export interface MushafDataPackStatus {
   fileCount: number;
   totalBytes: number;
   installedAt: string | null;
-  fontsIncluded: false;
+  fontsIncluded: boolean;
 }
 
 export interface MushafDataPackProgress {
@@ -255,6 +256,111 @@ async function downloadAndStoreFile(
   });
 }
 
+function fullPackFileCount(manifest: MushafDataManifest): number {
+  return manifest.files.length + QCF4_FONT_NAMES.length;
+}
+
+function fullPackTotalBytes(manifest: MushafDataManifest): number {
+  return manifest.totalBytes + QCF4_FONT_TOTAL_BYTES;
+}
+
+async function cacheQcf4Fonts(
+  onProgress: ((progress: MushafDataPackProgress) => void) | undefined,
+  completedBeforeFonts: number,
+  bytesBeforeFonts: number,
+  totalFiles: number,
+  totalBytes: number,
+): Promise<{ completed: number; bytesDownloaded: number }> {
+  if (!globalThis.caches) {
+    throw new Error('Cache storage is unavailable; cannot save Mushaf fonts offline.');
+  }
+
+  const cache = await globalThis.caches.open(QCF4_FONT_CACHE_NAME);
+  let cursor = 0;
+  let completed = completedBeforeFonts;
+  let bytesDownloaded = bytesBeforeFonts;
+  let failure: Error | null = null;
+
+  await Promise.all(
+    Array.from({ length: 3 }, async () => {
+      while (failure === null) {
+        const index = cursor++;
+        if (index >= QCF4_FONT_NAMES.length) {
+          return;
+        }
+        const fontName = QCF4_FONT_NAMES[index]!;
+        const url = qcf4FontUrl(fontName);
+        try {
+          const response = await fetch(url, { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error(`Could not download Mushaf font ${fontName}: HTTP ${response.status}`);
+          }
+          const fontBytes = await response.arrayBuffer();
+          if (fontBytes.byteLength < 10_000) {
+            throw new Error(`Downloaded Mushaf font ${fontName} is unexpectedly small.`);
+          }
+          await cache.put(url, new Response(fontBytes, { headers: { 'Content-Type': 'font/woff2' } }));
+          completed++;
+          bytesDownloaded += fontBytes.byteLength;
+          onProgress?.({
+            completed,
+            total: totalFiles,
+            bytesDownloaded,
+            totalBytes,
+            currentPath: `fonts/${fontName}.woff2`,
+          });
+        } catch (error) {
+          failure = error instanceof Error ? error : new Error('Mushaf font download failed.');
+          return;
+        }
+      }
+    }),
+  );
+
+  if (failure) {
+    throw failure;
+  }
+
+  return { completed, bytesDownloaded };
+}
+
+async function verifyQcf4Fonts(
+  onProgress: ((progress: MushafDataPackProgress) => void) | undefined,
+  completedBeforeFonts: number,
+  bytesBeforeFonts: number,
+  totalFiles: number,
+  totalBytes: number,
+): Promise<boolean> {
+  if (!globalThis.caches) {
+    return false;
+  }
+  const cache = await globalThis.caches.open(QCF4_FONT_CACHE_NAME);
+  let completed = completedBeforeFonts;
+  let bytesDownloaded = bytesBeforeFonts;
+
+  for (const fontName of QCF4_FONT_NAMES) {
+    const response = await cache.match(qcf4FontUrl(fontName));
+    if (!response) {
+      return false;
+    }
+    const fontBytes = await response.arrayBuffer();
+    if (fontBytes.byteLength < 10_000) {
+      return false;
+    }
+    completed++;
+    bytesDownloaded += fontBytes.byteLength;
+    onProgress?.({
+      completed,
+      total: totalFiles,
+      bytesDownloaded,
+      totalBytes,
+      currentPath: `fonts/${fontName}.woff2`,
+    });
+  }
+
+  return true;
+}
+
 export async function getMushafDataPackStatus(): Promise<MushafDataPackStatus> {
   try {
     return (await getRecord<ActivePackMeta>(META_STORE, ACTIVE_PACK_KEY))?.status ?? defaultStatus();
@@ -263,11 +369,13 @@ export async function getMushafDataPackStatus(): Promise<MushafDataPackStatus> {
   }
 }
 
-/** Download data only; QCF4 font files are intentionally excluded by license. */
+/** Download the full offline Mushaf package in one user action. */
 export async function downloadMushafDataPack(
   onProgress?: (progress: MushafDataPackProgress) => void,
 ): Promise<MushafDataPackStatus> {
   const manifest = await getVerifiedManifest();
+  const totalFiles = fullPackFileCount(manifest);
+  const totalBytes = fullPackTotalBytes(manifest);
   let cursor = 0;
   let completed = 0;
   let bytesDownloaded = 0;
@@ -275,9 +383,9 @@ export async function downloadMushafDataPack(
 
   onProgress?.({
     completed,
-    total: manifest.files.length,
+    total: totalFiles,
     bytesDownloaded,
-    totalBytes: manifest.totalBytes,
+    totalBytes,
     currentPath: '',
   });
 
@@ -295,9 +403,9 @@ export async function downloadMushafDataPack(
           bytesDownloaded += file.bytes;
           onProgress?.({
             completed,
-            total: manifest.files.length,
+            total: totalFiles,
             bytesDownloaded,
-            totalBytes: manifest.totalBytes,
+            totalBytes,
             currentPath: file.path,
           });
         } catch (error) {
@@ -312,16 +420,24 @@ export async function downloadMushafDataPack(
     throw failure;
   }
 
+  await cacheQcf4Fonts(
+    onProgress,
+    completed,
+    bytesDownloaded,
+    totalFiles,
+    totalBytes,
+  );
+
   const status: MushafDataPackStatus = {
     installed: true,
     packId: manifest.packId,
     version: manifest.version,
     sourceCommit: manifest.source.commit,
     pageCount: manifest.edition.pageCount,
-    fileCount: manifest.files.length,
-    totalBytes: manifest.totalBytes,
+    fileCount: totalFiles,
+    totalBytes,
     installedAt: new Date().toISOString(),
-    fontsIncluded: false,
+    fontsIncluded: true,
   };
   await putRecord(META_STORE, { key: ACTIVE_PACK_KEY, status, files: manifest.files });
   return status;
@@ -334,6 +450,8 @@ export async function verifyMushafDataPack(
   if (!active?.status.installed || !active.status.packId) {
     return false;
   }
+  const totalFiles = active.files.length + QCF4_FONT_NAMES.length;
+  const totalBytes = active.status.totalBytes;
   let bytesVerified = 0;
   for (const [index, file] of active.files.entries()) {
     const stored = await getRecord<StoredFile>(FILE_STORE, fileKey(active.status.packId, file.path));
@@ -347,13 +465,13 @@ export async function verifyMushafDataPack(
     bytesVerified += file.bytes;
     onProgress?.({
       completed: index + 1,
-      total: active.files.length,
+      total: totalFiles,
       bytesDownloaded: bytesVerified,
-      totalBytes: active.status.totalBytes,
+      totalBytes,
       currentPath: file.path,
     });
   }
-  return true;
+  return verifyQcf4Fonts(onProgress, active.files.length, bytesVerified, totalFiles, totalBytes);
 }
 
 export async function getMushafPageLayout(pageNum: number): Promise<unknown | null> {
@@ -392,6 +510,11 @@ export async function deleteMushafDataPack(): Promise<void> {
     await transactionDone(transaction);
   } finally {
     db.close();
+  }
+
+  if (globalThis.caches) {
+    const cache = await globalThis.caches.open(QCF4_FONT_CACHE_NAME);
+    await Promise.all(QCF4_FONT_NAMES.map((fontName) => cache.delete(qcf4FontUrl(fontName))));
   }
 }
 

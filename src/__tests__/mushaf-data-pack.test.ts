@@ -13,6 +13,7 @@ const SOURCE_COMMIT = 'test-fixed-commit';
 const PACK_ID = 'qcf4-hafs-layout-v1';
 const JSON_CONTENT = '{"lines":[]}';
 const JSON_DIGEST = createHash('sha256').update(JSON_CONTENT).digest('hex');
+const FONT_CONTENT = new Uint8Array(10_240);
 
 function sha256(text: string): string {
   return createHash('sha256').update(text).digest('hex');
@@ -63,10 +64,12 @@ async function resetDatabase(): Promise<void> {
 
 describe('mushaf-data-pack', () => {
   let manifestText: string;
+  let cachedFonts: Map<string, Response>;
 
   beforeEach(async () => {
     await resetDatabase();
     manifestText = makeManifest();
+    cachedFonts = new Map();
     (globalThis as { __QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__?: Record<string, string> }).__QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__ = {
       manifestUrl: 'https://example.test/manifest.json',
       manifestSha256: sha256(manifestText),
@@ -77,9 +80,19 @@ describe('mushaf-data-pack', () => {
       'fetch',
       vi.fn((input: string | URL | Request) => {
         const url = String(input);
+        if (url.endsWith('.woff2')) {
+          return Promise.resolve(new Response(FONT_CONTENT));
+        }
         return Promise.resolve(new Response(url.includes('manifest.json') ? manifestText : JSON_CONTENT));
       }),
     );
+    vi.stubGlobal('caches', {
+      open: vi.fn().mockResolvedValue({
+        put: vi.fn(async (url: string, response: Response) => cachedFonts.set(url, response.clone())),
+        match: vi.fn(async (url: string) => cachedFonts.get(url)?.clone()),
+        delete: vi.fn(async (url: string) => cachedFonts.delete(url)),
+      }),
+    });
   });
 
   afterEach(() => {
@@ -88,14 +101,15 @@ describe('mushaf-data-pack', () => {
       .__QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__;
   });
 
-  it('downloads and activates only verified JSON data, then serves a page offline', async () => {
+  it('downloads and activates verified page data and QCF4 fonts, then serves a page offline', async () => {
     const progress = vi.fn();
     const status = await downloadMushafDataPack(progress);
 
     expect(status.installed).toBe(true);
-    expect(status.fileCount).toBe(608);
-    expect(status.fontsIncluded).toBe(false);
-    expect(progress).toHaveBeenLastCalledWith(expect.objectContaining({ completed: 608, total: 608 }));
+    expect(status.fileCount).toBe(656);
+    expect(status.fontsIncluded).toBe(true);
+    expect(cachedFonts.size).toBe(48);
+    expect(progress).toHaveBeenLastCalledWith(expect.objectContaining({ completed: 656, total: 656 }));
     await expect(getMushafPageLayout(1)).resolves.toEqual({ lines: [] });
     await expect(verifyMushafDataPack()).resolves.toBe(true);
   }, 30000);
@@ -129,5 +143,6 @@ describe('mushaf-data-pack', () => {
     await expect(getMushafDataPackStatus()).resolves.toMatchObject({ installed: false });
     await expect(getMushafPageLayout(1)).resolves.toBeNull();
     await expect(verifyMushafDataPack()).resolves.toBe(false);
+    expect(cachedFonts.size).toBe(0);
   }, 30000);
 });
