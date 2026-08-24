@@ -149,6 +149,7 @@ interface DomMap {
   presBackgroundPicker: HTMLElement | null;
   presFullscreenBtn: HTMLElement | null;
   presShareBtn: HTMLElement | null;
+  presVideoShareBtn: HTMLElement | null;
   viewSurahBtn: HTMLElement | null;
   viewMushafBtn: HTMLElement | null;
   viewPresBtn: HTMLElement | null;
@@ -323,6 +324,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'presBackgroundPicker',
   'presFullscreenBtn',
   'presShareBtn',
+  'presVideoShareBtn',
   'viewSurahBtn',
   'viewMushafBtn',
   'viewPresBtn',

@@ -80,6 +80,7 @@ const presentationOverlayHTML = `
       <button class="presentation-header-btn pres-control-btn pres-background-btn" id="presBackgroundBtn" type="button" aria-label="اختيار الخلفية" aria-expanded="false" aria-controls="presBackgroundPicker" title="اختيار الخلفية">🖼️</button>
       <button class="presentation-header-btn pres-control-btn" id="presFullscreenBtn" aria-label="ملء الشاشة">⛶</button>
       <button class="presentation-header-btn pres-control-btn" id="presShareBtn" aria-label="مشاركة صورة الآية" title="مشاركة صورة الآية">↗</button>
+      <button class="presentation-header-btn pres-control-btn hidden" id="presVideoShareBtn" type="button" aria-label="مشاركة فيديو العفاسي" title="مشاركة فيديو العفاسي">🎞</button>
       <button class="presentation-header-btn" id="presentationNextBtn" aria-label="الآية التالية">⏭</button>
       <button class="presentation-close-btn" id="presentationCloseBtn" aria-label="خروج">✖</button>
       <section class="presentation-background-picker hidden" id="presBackgroundPicker" aria-label="اختيار خلفية وضع العرض">
@@ -121,6 +122,7 @@ const presentationSharePreviewHTML = `
     <div class="presentation-share-actions">
       <button class="presentation-share-primary" id="presentationShareNativeBtn" type="button" disabled>↗ مشاركة الآن</button>
       <button class="presentation-share-secondary" id="presentationShareDownloadBtn" type="button" disabled>↓ تنزيل PNG</button>
+      <button class="presentation-share-video hidden" id="presentationShareVideoBtn" type="button">🎞 إنشاء فيديو العفاسي</button>
     </div>
   </div>
 </div>
