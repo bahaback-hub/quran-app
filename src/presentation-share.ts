@@ -306,7 +306,7 @@ function drawShareText(
 
   const lineHeight = Math.round(fontSize * 1.72);
   const contentHeight = lines.length * lineHeight;
-  const textX = isWide ? Math.round(width * 0.42) : width / 2;
+  const textX = isWide ? Math.round(width * 0.36) : width / 2;
   const startY = (isWide ? Math.round(height * 0.4) : height / 2) - contentHeight / 2 + lineHeight * 0.2;
   ctx.direction = 'rtl';
   ctx.textAlign = 'center';
