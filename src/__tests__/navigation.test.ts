@@ -110,11 +110,14 @@ describe('initNavigation', () => {
     btn.dataset.tab = 'search';
     bottomNav.appendChild(btn);
     document.body.appendChild(bottomNav);
+    const headerSearch = document.createElement('div');
+    headerSearch.id = 'headerSearch';
+    document.body.appendChild(headerSearch);
 
     const { initNavigation } = await import('../navigation.js');
     initNavigation();
     btn.click();
-    expect(dom.controls!.classList.contains('mobile-show')).toBe(true);
+    expect(headerSearch.classList.contains('is-expanded')).toBe(true);
   });
 
   it('should handle speed select change', async () => {

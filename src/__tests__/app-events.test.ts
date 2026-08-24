@@ -402,6 +402,8 @@ describe('app-events', () => {
     });
 
     it('should apply theme when clicking a theme-btn inside themeToggle', async () => {
+      dom.themeToggle!.id = 'themeToggle';
+      document.body.appendChild(dom.themeToggle!);
       const themeBtn = document.createElement('button');
       themeBtn.className = 'theme-btn';
       themeBtn.dataset.theme = 'night';
@@ -411,6 +413,22 @@ describe('app-events', () => {
       themeBtn.click();
       const { applyTheme } = await import('../settings.js');
       expect(applyTheme).toHaveBeenCalledWith('night');
+      expect(dom.themeToggle!.classList.contains('open')).toBe(false);
+    });
+
+    it('should open and close the compact theme menu from its moon trigger', async () => {
+      dom.themeToggle!.id = 'themeToggle';
+      document.body.appendChild(dom.themeToggle!);
+      const themeMenuButton = document.createElement('button');
+      themeMenuButton.id = 'themeMenuBtn';
+      document.body.appendChild(themeMenuButton);
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      themeMenuButton.click();
+      expect(dom.themeToggle!.classList.contains('open')).toBe(true);
+      expect(themeMenuButton.getAttribute('aria-expanded')).toBe('true');
+      themeMenuButton.click();
+      expect(dom.themeToggle!.classList.contains('open')).toBe(false);
     });
 
     it('should toggle night mode on Enter/Space without a theme-btn', async () => {
@@ -854,22 +872,39 @@ describe('app-events', () => {
   /* ==================== bindMiscEvents ==================== */
 
   describe('bindMiscEvents', () => {
-    it('should start a populated search from the search shortcut', async () => {
+    it('should expand the header search instead of running a populated search immediately', async () => {
       dom.searchInput!.value = 'الله';
       const searchSpy = vi.spyOn(dom.searchBtn!, 'click');
+      const focusSpy = vi.spyOn(dom.searchInput!, 'focus');
       const { bindMiscEvents } = await import('../app-events.js');
       bindMiscEvents();
       dom.searchToggleBtn!.click();
-      expect(searchSpy).toHaveBeenCalled();
+      expect(searchSpy).not.toHaveBeenCalled();
+      expect(focusSpy).toHaveBeenCalled();
     });
 
-    it('should focus the always-visible search field when the shortcut has no query', async () => {
+    it('should focus the expanded search field when the shortcut has no query', async () => {
       dom.searchInput!.value = '';
       const focusSpy = vi.spyOn(dom.searchInput!, 'focus');
       const { bindMiscEvents } = await import('../app-events.js');
       bindMiscEvents();
       dom.searchToggleBtn!.click();
       expect(focusSpy).toHaveBeenCalled();
+    });
+
+    it('should expand and close the header search without leaving the keyboard open', async () => {
+      const headerSearch = document.createElement('div');
+      headerSearch.id = 'headerSearch';
+      const closeButton = document.createElement('button');
+      closeButton.id = 'headerSearchCloseBtn';
+      document.body.append(headerSearch, closeButton);
+      const { bindMiscEvents } = await import('../app-events.js');
+      bindMiscEvents();
+      dom.searchToggleBtn!.click();
+      expect(headerSearch.classList.contains('is-expanded')).toBe(true);
+      closeButton.click();
+      expect(headerSearch.classList.contains('is-expanded')).toBe(false);
+      expect(dom.searchToggleBtn!.getAttribute('aria-expanded')).toBe('false');
     });
 
     it('should call wireAdhkarEvents', async () => {

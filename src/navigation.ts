@@ -179,16 +179,10 @@ export function initNavigation(): void {
         dom.controls?.classList.toggle('mobile-show');
         break;
       case 'search':
-        if (dom.searchInputGroup?.classList.contains('hidden')) {
-          dom.searchInputGroup.classList.remove('hidden');
-          dom.searchToggleBtn?.classList.add('active');
-        }
+        document.getElementById('headerSearch')?.classList.add('is-expanded');
+        dom.searchToggleBtn?.setAttribute('aria-expanded', 'true');
         dom.searchInput?.focus();
         dom.searchInput?.select();
-        if (dom.controls) {
-          dom.controls.style.display = '';
-          dom.controls.classList.add('mobile-show');
-        }
         break;
       case 'more':
         // Open adhkar panel (was opening settings, but adhkar had no button)

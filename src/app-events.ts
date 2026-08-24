@@ -121,6 +121,8 @@ export function bindHeaderAndSettingsEvents(): void {
     if (btn?.dataset['theme']) {
       e.preventDefault();
       applyTheme(btn.dataset['theme'] as 'light' | 'sepia' | 'night');
+      document.getElementById('themeToggle')?.classList.remove('open');
+      document.getElementById('themeMenuBtn')?.setAttribute('aria-expanded', 'false');
     }
   });
   dom.themeToggle?.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -133,6 +135,11 @@ export function bindHeaderAndSettingsEvents(): void {
         toggleNightMode();
       }
     }
+  });
+  const themeMenuButton = document.getElementById('themeMenuBtn');
+  themeMenuButton?.addEventListener('click', () => {
+    const expanded = dom.themeToggle?.classList.toggle('open') ?? false;
+    themeMenuButton.setAttribute('aria-expanded', String(expanded));
   });
   dom.settingsToggleBtn?.addEventListener('click', () => {
     if (dom.settingsPanel?.classList.contains('open')) {
@@ -798,6 +805,10 @@ export function bindGlobalClickHandler(): void {
       dom.shareMenu?.classList.remove('show');
     }
     const settingsTarget = e.target as HTMLElement;
+    if (!dom.themeToggle?.contains(settingsTarget)) {
+      dom.themeToggle?.classList.remove('open');
+      document.getElementById('themeMenuBtn')?.setAttribute('aria-expanded', 'false');
+    }
     const isSettingsTrigger =
       settingsTarget === dom.settingsToggleBtn ||
       settingsTarget.closest?.('#settingsToggleBtn') !== null ||
@@ -840,12 +851,22 @@ export function bindHeaderMenuEvents(): void {
  */
 export function bindMiscEvents(): void {
   dom.searchToggleBtn?.addEventListener('click', () => {
-    const query = dom.searchInput?.value.trim() ?? '';
-    if (query) {
-      dom.searchBtn?.click();
-    } else {
-      dom.searchInput?.focus();
+    const headerSearch = document.getElementById('headerSearch');
+    headerSearch?.classList.add('is-expanded');
+    dom.searchToggleBtn?.setAttribute('aria-expanded', 'true');
+    dom.searchInputGroup?.classList.remove('hidden');
+    dom.searchInput?.focus();
+    dom.searchInput?.select();
+    if (window.innerWidth > 600 && !document.getElementById('arabicKeyboard')?.classList.contains('open')) {
+      dom.kbdToggleBtn?.click();
     }
+  });
+  document.getElementById('headerSearchCloseBtn')?.addEventListener('click', () => {
+    document.getElementById('headerSearch')?.classList.remove('is-expanded');
+    dom.searchToggleBtn?.setAttribute('aria-expanded', 'false');
+    dom.searchInput?.blur?.();
+    document.getElementById('arabicKeyboard')?.classList.remove('open');
+    dom.kbdToggleBtn?.classList.remove('active');
   });
 
   dom.mushafSurahOverlayClose?.addEventListener('click', () => {
