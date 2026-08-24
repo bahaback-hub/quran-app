@@ -505,8 +505,7 @@
     border-radius: 10px;
   }
 
-  /* الهاتف: العنوان في صف مستقل، ثم صف ثابت للإجراءات الأساسية
-     يليه صف مستقل للمظهر. هذا يمنع التفاف التعليمات أو مزاحمة المظهر. */
+  /* الهاتف يطابق ترتيب الحاسوب: أدوات التطبيق أولاً، ثم صف المظهر، ثم شريط الصلاة تحت العنوان. */
   .header {
     display: flex;
     flex-direction: column;
@@ -531,7 +530,7 @@
   .header-actions {
     flex-direction: column;
     flex-wrap: nowrap;
-    align-items: center;
+    align-items: flex-start;
     width: 100%;
     gap: 10px;
   }
@@ -562,6 +561,7 @@
     font-size: 16px;
   }
   .theme-switcher {
+    align-self: flex-start;
     gap: 2px;
     padding: 2px;
   }
