@@ -174,16 +174,9 @@
 }
 .header-brand-mark {
   display: block;
-  width: 220px;
-  height: 76px;
-  background: url('../../public/brand/mushaf-sulaymani-day.jpeg') center / cover no-repeat;
-  border-radius: 8px;
-}
-body.sepia-mode .header-brand-mark {
-  background-image: url('../../public/brand/mushaf-sulaymani-sepia.jpeg');
-}
-body.night-mode .header-brand-mark {
-  background-image: url('../../public/brand/mushaf-sulaymani-night.jpeg');
+  width: 126px;
+  height: 84px;
+  background: url('../../public/brand/mushaf-sulaymani-transparent-final.png') center / contain no-repeat;
 }
 /* سطح المكتب: العنوان والأدوات في صف واحد لتقديم مساحة أكبر للقراءة.
    تبقى الأزرار الأساسية قرب العنوان، وتبقى الصلاة والهلال والبحث في الجهة المقابلة. */
@@ -194,7 +187,7 @@ body.night-mode .header-brand-mark {
   }
   .header-title-row {
     flex: 0 0 auto;
-    min-width: 220px;
+    min-width: 126px;
   }
   .header .header-menu-container {
     flex: 1 1 auto;
