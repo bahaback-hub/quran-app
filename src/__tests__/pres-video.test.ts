@@ -46,6 +46,18 @@ describe('presentation video background', () => {
     expect(play).toHaveBeenCalledTimes(1);
   });
 
+  it('switches the local source and poster when a different approved video is selected', () => {
+    const overlay = document.createElement('div');
+    document.body.append(overlay);
+
+    applyPresentationVideo(overlay, 'alps');
+
+    const video = overlay.querySelector<HTMLVideoElement>('.pres-video-bg');
+    expect(overlay.style.backgroundImage).toContain('alps-sunrise-fog-poster.jpg');
+    expect(video?.src).toContain('alps-sunrise-fog.mp4');
+    expect(video?.dataset['presentationVideo']).toBe('alps');
+  });
+
   it('keeps the poster but skips playback for users who reduce motion', () => {
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,

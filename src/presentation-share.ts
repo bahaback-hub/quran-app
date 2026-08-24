@@ -3,7 +3,7 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { getAutoBackground, getNatureBgByMood } from './pres-backgrounds.js';
-import { PRESENTATION_VIDEO_SRC } from './pres-video.js';
+import { PRESENTATION_VIDEO_SRC, getPresentationVideo } from './pres-video.js';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -64,6 +64,7 @@ function getVideoBlobKey(): string {
     state.presBgMode,
     state.presBgNature,
     state.presBgScene,
+    state.presBgVideo,
     document.body.classList.contains('night-mode') ? 'night' : 'light',
   ].join(':');
 }
@@ -434,7 +435,7 @@ async function resolveVideoBackground(): Promise<ExportBackground> {
   const liveVideo = overlay?.querySelector<HTMLVideoElement>('.pres-video-bg');
   if (state.presBgMode === 'video') {
     const exportVideo = document.createElement('video');
-    exportVideo.src = liveVideo?.currentSrc || liveVideo?.src || PRESENTATION_VIDEO_SRC;
+    exportVideo.src = liveVideo?.currentSrc || liveVideo?.src || getPresentationVideo(state.presBgVideo).src || PRESENTATION_VIDEO_SRC;
     exportVideo.muted = true;
     exportVideo.defaultMuted = true;
     exportVideo.loop = true;

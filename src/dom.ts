@@ -180,6 +180,8 @@ interface DomMap {
   presBgSceneRow: HTMLElement | null;
   presBgNatureSelect: HTMLSelectElement | null;
   presBgNatureRow: HTMLElement | null;
+  presBgVideoSelect: HTMLSelectElement | null;
+  presBgVideoRow: HTMLElement | null;
   installBtn: HTMLElement | null;
   sleepTimerBtn: HTMLElement | null;
   downloadAudioBtn: HTMLElement | null;
@@ -356,6 +358,8 @@ const DOM_IDS: (keyof DomMap)[] = [
   'presBgSceneRow',
   'presBgNatureSelect',
   'presBgNatureRow',
+  'presBgVideoSelect',
+  'presBgVideoRow',
   'installBtn',
   'sleepTimerBtn',
   'downloadAudioBtn',

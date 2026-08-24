@@ -131,6 +131,7 @@ export interface MushafStateSlice {
   presBgMode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video';
   presBgScene: string;
   presBgNature: string;
+  presBgVideo: string;
 }
 
 export interface SearchStateSlice {
@@ -216,6 +217,7 @@ export interface AppState {
   presBgMode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video';
   presBgScene: string;
   presBgNature: string;
+  presBgVideo: string;
 }
 
 /* ===================== DEFAULT STATE FACTORY ===================== */
@@ -283,6 +285,7 @@ export function createDefaultState(): AppState {
     presBgMode: 'plain',
     presBgScene: 'stars',
     presBgNature: 'dawn',
+    presBgVideo: 'eva',
   };
 }
 

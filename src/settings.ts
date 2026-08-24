@@ -262,6 +262,9 @@ export function applyPresBgMode(mode: 'plain' | 'nature' | 'singleNature' | 'aut
   if (dom.presBgNatureRow) {
     dom.presBgNatureRow.classList.toggle('hidden', mode !== 'singleNature');
   }
+  if (dom.presBgVideoRow) {
+    dom.presBgVideoRow.classList.toggle('hidden', mode !== 'video');
+  }
   // Update presentation display if active
   if (state.presentationMode) {
     import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
@@ -290,6 +293,19 @@ export function applyPresBgNature(nature: string): void {
   }
   // Update presentation display if currently in singleNature mode
   if (state.presentationMode && state.presBgMode === 'singleNature') {
+    import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+  }
+}
+
+/** Apply one of the locally bundled presentation videos and persist it. */
+export function applyPresBgVideo(video: string): void {
+  const validVideos = ['eva', 'alps', 'sunset', 'wave'];
+  state.presBgVideo = validVideos.includes(video) ? video : 'eva';
+  storage.set('pres_bg_video', state.presBgVideo);
+  if (dom.presBgVideoSelect) {
+    dom.presBgVideoSelect.value = state.presBgVideo;
+  }
+  if (state.presentationMode && state.presBgMode === 'video') {
     import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
   }
 }
@@ -839,6 +855,10 @@ export function restoreSettings(): void {
   const presBgNature = storage.get<string>('pres_bg_nature');
   if (presBgNature && ['dawn', 'morning', 'afternoon', 'sunset', 'night'].includes(presBgNature)) {
     applyPresBgNature(presBgNature);
+  }
+  const presBgVideo = storage.get<string>('pres_bg_video');
+  if (presBgVideo && ['eva', 'alps', 'sunset', 'wave'].includes(presBgVideo)) {
+    applyPresBgVideo(presBgVideo);
   }
   if (!state.barCollapsed && dom.prayerBar) {
     dom.prayerBar.classList.remove('collapsed');
