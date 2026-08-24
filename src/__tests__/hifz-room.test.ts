@@ -25,6 +25,8 @@ const { mockState, mockStorage, mockLoadSurah, mockLoadAudioUrlsForSession, mock
     currentAyahIndex: 0,
     currentReciter: 'ar.alafasy',
     repeatCounter: 0,
+    hifdhMode: false,
+    repeatMode: false,
     isPlaying: false,
     ayahsAudios: [] as string[],
     surahData: null as { name: string; ayahs: { numberInSurah: number; text: string }[] } | null,
@@ -77,7 +79,7 @@ function addPlayerControls(): { hifdhClick: ReturnType<typeof vi.fn>; repeatClic
 
 beforeEach(() => {
   document.body.innerHTML = ''; document.body.className = ''; document.documentElement.className = ''; document.documentElement.dir = 'rtl';
-  mockState.currentSurah = 1; mockState.currentAyahIndex = 1; mockState.currentReciter = 'ar.alafasy'; mockState.repeatCounter = 0; mockState.isPlaying = false;
+  mockState.currentSurah = 1; mockState.currentAyahIndex = 1; mockState.currentReciter = 'ar.alafasy'; mockState.repeatCounter = 0; mockState.hifdhMode = false; mockState.repeatMode = false; mockState.isPlaying = false;
   mockState.ayahsAudios = [];
   mockState.surahData = { name: 'الفاتحة', ayahs: Array.from({ length: 7 }, (_, index) => ({ numberInSurah: index + 1, text: `آية ${index + 1}` })) };
   mockState.surahList = [
@@ -169,6 +171,28 @@ describe('Hifz Room', () => {
     expect(mockLoadSurah).toHaveBeenCalledWith(1, { startAyah: 2 }); expect(hifdhClick).toHaveBeenCalledTimes(1); expect(repeatClick).toHaveBeenCalledTimes(1);
     expect((document.getElementById('repeatFrom') as HTMLSelectElement).value).toBe('2'); expect((document.getElementById('repeatTo') as HTMLSelectElement).value).toBe('5'); expect((document.getElementById('repeatTimes') as HTMLSelectElement).value).toBe('15');
     expect(room.querySelector('#hifzRoomStatus')!.textContent).toContain('فُعّل الحفظ والتكرار.');
+  });
+
+  it('reactivates a full-surah range when a previous session left only stale active button styles', async () => {
+    const { hifdhClick, repeatClick } = addPlayerControls();
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    const hifdh = document.getElementById('hifdhBtn')!;
+    const repeat = document.getElementById('repeatBtn')!;
+    hifdh.classList.add('active');
+    repeat.classList.add('active');
+    room.querySelector<HTMLSelectElement>('#hifzRoomFrom')!.value = '1';
+    room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.value = '7';
+    room.querySelector<HTMLButtonElement>('[data-hifz-repeat="3"]')!.click();
+
+    room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(hifdhClick).toHaveBeenCalledTimes(1);
+    expect(repeatClick).toHaveBeenCalledTimes(1);
+    expect((document.getElementById('repeatFrom') as HTMLSelectElement).value).toBe('1');
+    expect((document.getElementById('repeatTo') as HTMLSelectElement).value).toBe('7');
   });
 
   it('downloads only the selected session range and marks it ready for offline listening', async () => {
