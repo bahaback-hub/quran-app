@@ -72,30 +72,40 @@ const presentationOverlayHTML = `
 <div class="presentation-overlay hidden" id="presentationOverlay" role="dialog" aria-label="وضع العرض" aria-modal="true">
   <div class="presentation-inner">
     <div class="presentation-header">
-      <button class="presentation-header-btn" id="presentationPrevBtn" aria-label="الآية السابقة">⏮</button>
-      <span class="presentation-title" id="presentationTitle">—</span>
-      <span class="presentation-ayah-num" id="presentationAyahNum">—</span>
-      <button class="presentation-header-btn pres-control-btn" id="presPlayPauseBtn" aria-label="تشغيل / إيقاف">▶</button>
-      <button class="presentation-header-btn pres-control-btn pres-tajweed-btn" id="presTajweedBtn" aria-label="ألوان التجويد" title="تشغيل/إيقاف ألوان التجويد">🎨</button>
-      <button class="presentation-header-btn pres-control-btn pres-background-btn" id="presBackgroundBtn" type="button" aria-label="اختيار الخلفية" aria-expanded="false" aria-controls="presBackgroundPicker" title="اختيار الخلفية">🖼️</button>
-      <button class="presentation-header-btn pres-control-btn" id="presFullscreenBtn" aria-label="ملء الشاشة">⛶</button>
-      <button class="presentation-header-btn pres-control-btn" id="presShareBtn" aria-label="مشاركة صورة الآية" title="مشاركة صورة الآية">↗</button>
-      <button class="presentation-header-btn pres-control-btn hidden" id="presVideoShareBtn" type="button" aria-label="مشاركة فيديو العفاسي" title="مشاركة فيديو العفاسي">🎞</button>
-      <button class="presentation-header-btn" id="presentationNextBtn" aria-label="الآية التالية">⏭</button>
-      <button class="presentation-close-btn" id="presentationCloseBtn" aria-label="خروج">✖</button>
-      <section class="presentation-background-picker hidden" id="presBackgroundPicker" aria-label="اختيار خلفية وضع العرض">
-        <p class="presentation-background-picker-title">اختر الخلفية</p>
-        <div class="presentation-background-options" role="group" aria-label="خيارات الخلفية">
-          <button type="button" data-pres-bg-mode="plain">هدوء</button>
-          <button type="button" data-pres-bg-mode="nature">طبيعية</button>
-          <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="stars">سماء ونجوم</button>
-          <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="waves">أمواج</button>
-          <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="aurora">شفق</button>
-          <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="rain">مطر</button>
-          <button type="button" data-pres-bg-mode="animated">منظر متحرك</button>
-          <button type="button" data-pres-bg-mode="video">فيديو هادئ</button>
-        </div>
-      </section>
+      <div class="presentation-nav-cluster presentation-surah-nav" aria-label="التنقل بين السور">
+        <button class="presentation-header-btn presentation-surah-btn" id="presentationPrevSurahBtn" aria-label="السورة السابقة" title="السورة السابقة">❯</button>
+        <button class="presentation-header-btn presentation-surah-btn" id="presentationNextSurahBtn" aria-label="السورة التالية" title="السورة التالية">❮</button>
+      </div>
+      <div class="presentation-current-meta" aria-live="polite">
+        <span class="presentation-title" id="presentationTitle">—</span>
+        <span class="presentation-ayah-num" id="presentationAyahNum">—</span>
+      </div>
+      <div class="presentation-nav-cluster presentation-ayah-nav" aria-label="التنقل بين الآيات">
+        <button class="presentation-header-btn presentation-ayah-btn" id="presentationPrevBtn" aria-label="الآية السابقة" title="الآية السابقة">⏮</button>
+        <button class="presentation-header-btn presentation-ayah-btn" id="presentationNextBtn" aria-label="الآية التالية" title="الآية التالية">⏭</button>
+      </div>
+      <div class="presentation-actions" aria-label="أدوات وضع العرض">
+        <button class="presentation-header-btn pres-control-btn" id="presPlayPauseBtn" aria-label="تشغيل / إيقاف">▶</button>
+        <button class="presentation-header-btn pres-control-btn pres-tajweed-btn" id="presTajweedBtn" aria-label="ألوان التجويد" title="تشغيل/إيقاف ألوان التجويد">🎨</button>
+        <button class="presentation-header-btn pres-control-btn pres-background-btn" id="presBackgroundBtn" type="button" aria-label="اختيار الخلفية" aria-expanded="false" aria-controls="presBackgroundPicker" title="اختيار الخلفية">🖼️</button>
+        <button class="presentation-header-btn pres-control-btn" id="presFullscreenBtn" aria-label="ملء الشاشة">⛶</button>
+        <button class="presentation-header-btn pres-control-btn" id="presShareBtn" aria-label="مشاركة صورة الآية" title="مشاركة صورة الآية">↗</button>
+        <button class="presentation-header-btn pres-control-btn hidden" id="presVideoShareBtn" type="button" aria-label="مشاركة فيديو العفاسي" title="مشاركة فيديو العفاسي">🎞</button>
+        <button class="presentation-close-btn" id="presentationCloseBtn" aria-label="خروج">✖</button>
+        <section class="presentation-background-picker hidden" id="presBackgroundPicker" aria-label="اختيار خلفية وضع العرض">
+          <p class="presentation-background-picker-title">اختر الخلفية</p>
+          <div class="presentation-background-options" role="group" aria-label="خيارات الخلفية">
+            <button type="button" data-pres-bg-mode="plain">هدوء</button>
+            <button type="button" data-pres-bg-mode="nature">طبيعية</button>
+            <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="stars">سماء ونجوم</button>
+            <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="waves">أمواج</button>
+            <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="aurora">شفق</button>
+            <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="rain">مطر</button>
+            <button type="button" data-pres-bg-mode="animated">منظر متحرك</button>
+            <button type="button" data-pres-bg-mode="video">فيديو هادئ</button>
+          </div>
+        </section>
+      </div>
     </div>
     <div class="presentation-body" id="presentationBody">
       <div class="presentation-ayah-text" id="presentationAyahText"></div>

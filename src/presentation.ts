@@ -3,7 +3,7 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { togglePlayPause, updatePlayPauseBtn, playCurrentAyah } from './audio.js';
-import { highlightCurrentAyah } from './surah-loader.js';
+import { highlightCurrentAyah, loadSurah } from './surah-loader.js';
 import { getFullscreenElement, requestFullscreen, exitFullscreen, isFullscreen } from './types.js';
 import type { SurahDataLike, TranslationDataLike } from './types.js';
 import {
@@ -270,6 +270,7 @@ function updateDisplay(): void {
 
   const surahData = state.surahData as SurahDataLike | null;
   const ayah = surahData?.ayahs?.[state.currentAyahIndex];
+  updateSurahNavigationButtons();
   if (!ayah) {
     if (dom.presentationAyahText) {
       dom.presentationAyahText.textContent = '—';
@@ -302,11 +303,11 @@ function updateDisplay(): void {
   }
 
   if (dom.presentationAyahNum) {
-    dom.presentationAyahNum.textContent = String(ayah.numberInSurah);
+    dom.presentationAyahNum.textContent = `${__('ayah')} ${ayah.numberInSurah}`;
   }
   const surahName = surahData?.name || '';
   if (dom.presentationTitle) {
-    dom.presentationTitle.textContent = `${surahName} — ${__('ayah')} ${ayah.numberInSurah}`;
+    dom.presentationTitle.textContent = surahName;
   }
   const total = surahData?.ayahs?.length || 0;
   if (dom.presentationCounter) {
@@ -343,6 +344,18 @@ function updateDisplay(): void {
   preparePresentationShareImage();
 }
 
+function updateSurahNavigationButtons(): void {
+  const applyState = (button: HTMLElement | null, disabled: boolean): void => {
+    if (!button) {
+      return;
+    }
+    button.toggleAttribute('disabled', disabled);
+    button.setAttribute('aria-disabled', String(disabled));
+  };
+  applyState(dom.presentationPrevSurahBtn, state.currentSurah <= 1);
+  applyState(dom.presentationNextSurahBtn, state.currentSurah >= 114);
+}
+
 function navigateAyah(delta: number): void {
   const surahData = state.surahData as SurahDataLike | null;
   if (!surahData?.ayahs) {
@@ -365,6 +378,21 @@ function navigateAyah(delta: number): void {
     if (pBody) {
       pBody.scrollTop = 0;
     }
+  }
+}
+
+async function navigateSurah(delta: number): Promise<void> {
+  const targetSurah = state.currentSurah + delta;
+  if (targetSurah < 1 || targetSurah > 114 || targetSurah === state.currentSurah) {
+    return;
+  }
+  const wasPlaying = state.isPlaying;
+  const targetInfo = state.surahList.find((surah) => surah.number === targetSurah);
+  const startAyah = delta < 0 ? targetInfo?.numberOfAyahs || 1 : 1;
+  await loadSurah(targetSurah, { startAyah, autoPlay: wasPlaying });
+  if (state.presentationMode) {
+    updateDisplay();
+    showControls();
   }
 }
 
@@ -623,6 +651,12 @@ export function initPresentation(): void {
   }
   if (dom.presentationNextBtn) {
     dom.presentationNextBtn.addEventListener('click', () => navigateAyah(1));
+  }
+  if (dom.presentationPrevSurahBtn) {
+    dom.presentationPrevSurahBtn.addEventListener('click', () => void navigateSurah(-1));
+  }
+  if (dom.presentationNextSurahBtn) {
+    dom.presentationNextSurahBtn.addEventListener('click', () => void navigateSurah(1));
   }
   dom.presentationOverlay?.addEventListener('click', (e: MouseEvent) => {
     // Don't close on background click when in fullscreen
