@@ -577,7 +577,7 @@
     gap: 5px;
   }
   .header-prayer-bar {
-    flex-basis: 108px;
+    flex-basis: 0;
     max-width: none;
   }
   .header-prayer-bar .prayer-bar-toggle {
@@ -591,9 +591,6 @@
   .header-prayer-bar .prayer-bar-chevron {
     width: 13px;
     height: 13px;
-  }
-  .header-prayer-bar .prayer-bar-summary-countdown {
-    display: none;
   }
   /* زر الهلال وحده، والأوضاع تظهر عند الضغط. */
   .theme-btn {
