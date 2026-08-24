@@ -179,7 +179,7 @@
   background: url('../../public/brand/mushaf-sulaymani-transparent-final.png') center / contain no-repeat;
 }
 /* سطح المكتب: العنوان والأدوات في صف واحد لتقديم مساحة أكبر للقراءة.
-   تبقى الأزرار الأساسية قرب العنوان، وتبقى الصلاة والهلال والبحث في الجهة المقابلة. */
+   تتجمع الأدوات كلها إلى اليسار، بينما يتراص البحث والمظهر عموديًا في الطرف نفسه. */
 @media (min-width: 901px) {
   .header {
     align-items: center;
@@ -190,14 +190,14 @@
     min-width: 126px;
   }
   .header .header-menu-container {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: 0;
-    max-width: 570px;
+    max-width: none;
   }
   .header .header-actions {
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     gap: 14px;
     width: 100%;
   }
@@ -205,8 +205,8 @@
     flex: 0 0 auto;
   }
   .header .header-utility-row {
-    flex: 0 0 83px;
-    width: 83px;
+    flex: 0 0 38px;
+    width: 38px;
   }
 }
 .breadcrumbs {
@@ -276,13 +276,15 @@
 /* ========== أدوات الرأس المصغرة: المظهر والبحث ========== */
 .header-utility-row {
   display: grid;
-  grid-template-columns: 38px 38px;
-  grid-template-areas: 'search theme';
+  grid-template-columns: 38px;
+  grid-template-areas:
+    'theme'
+    'search';
   align-self: flex-start;
   align-items: center;
   gap: 7px;
-  width: 100%;
-  max-width: 100%;
+  width: 38px;
+  max-width: 38px;
   direction: ltr;
 }
 .header-prayer-tile {
@@ -439,8 +441,8 @@
 .header-search-input {
   position: absolute;
   top: 0;
-  right: 0;
-  left: auto;
+  right: auto;
+  left: 0;
   z-index: 29;
   display: none;
   width: min(420px, calc(100vw - 40px));
