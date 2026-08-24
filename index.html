@@ -186,34 +186,34 @@
               <span class="header-action-label" data-i18n="settings">الإعدادات</span>
               </button>
             </div>
-            <div class="theme-switcher" id="themeToggle" role="group" aria-label="تبديل المظهر">
-              <button
-                class="theme-btn active"
-                data-theme="light"
-                title="الوضع النهاري"
-                aria-label="الوضع النهاري"
-                aria-pressed="true"
-              >
-                ☀️
-              </button>
-              <button
-                class="theme-btn"
-                data-theme="sepia"
-                title="وضع السيبيا"
-                aria-label="وضع السيبيا"
-                aria-pressed="false"
-              >
-                📜
-              </button>
-              <button
-                class="theme-btn"
-                data-theme="night"
-                title="الوضع الليلي"
-                aria-label="الوضع الليلي"
-                aria-pressed="false"
-              >
-                🌙
-              </button>
+            <div class="header-utility-row">
+              <div class="theme-switcher theme-menu" id="themeToggle" role="group" aria-label="تبديل المظهر">
+                <button class="theme-menu-trigger" id="themeMenuBtn" type="button" title="أوضاع القراءة" aria-label="أوضاع القراءة" aria-haspopup="menu" aria-expanded="false">
+                  <span aria-hidden="true">🌙</span><span class="theme-menu-caret" aria-hidden="true">▾</span>
+                </button>
+                <div class="theme-dropdown-menu" id="themeDropdownMenu" role="menu" aria-label="أوضاع القراءة">
+                  <button class="theme-btn active" data-theme="light" title="الوضع النهاري" aria-label="الوضع النهاري" aria-pressed="true" role="menuitem">☀️</button>
+                  <button class="theme-btn" data-theme="sepia" title="وضع السيبيا" aria-label="وضع السيبيا" aria-pressed="false" role="menuitem">📜</button>
+                  <button class="theme-btn" data-theme="night" title="الوضع الليلي" aria-label="الوضع الليلي" aria-pressed="false" role="menuitem">🌙</button>
+                </div>
+              </div>
+              <div class="header-utility-search" id="headerSearch">
+                <button class="header-search-trigger" id="searchToggleBtn" type="button" title="بحث" data-i18n-title="search" aria-label="بحث" data-i18n-aria-label="search" aria-expanded="false" aria-controls="searchInputGroup">
+                  <span aria-hidden="true">🔍</span>
+                </button>
+                <div class="control-group search-input-group header-search-input" id="searchInputGroup">
+                  <div class="search-input-wrapper">
+                    <input id="searchInput" type="text" data-i18n-placeholder="search_placeholder" data-i18n-aria-label="search" placeholder="ابحث في القرآن..." aria-label="البحث في القرآن" autocomplete="off" />
+                    <div class="search-autocomplete hidden" id="searchAutocomplete"></div>
+                    <button class="header-search-submit" id="searchBtn" type="button" title="بدء البحث" aria-label="بدء البحث">⌕</button>
+                    <button class="kbd-toggle-btn" id="kbdToggleBtn" type="button" aria-label="إظهار لوحة المفاتيح" title="لوحة المفاتيح">⌨</button>
+                    <button class="voice-search-btn" id="voiceSearchBtn" type="button" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
+                    <button class="header-search-close" id="headerSearchCloseBtn" type="button" aria-label="إغلاق البحث" title="إغلاق البحث">✕</button>
+                  </div>
+                  <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
+                  <div id="arabicKeyboardMount"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -270,56 +270,8 @@
       <!-- ========== أدوات التحكم ========== -->
       <section class="controls" id="controls" aria-label="أدوات التحكم">
         <div class="controls-row">
-          <div class="control-card reader-command-bar control-card-persistent" aria-label="البحث وأنماط العرض">
-            <div class="reader-command-section reader-command-search">
-              <span class="sr-only" data-i18n="search">بحث</span>
-              <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
-              <div class="control-group search-input-group reader-search-input" id="searchInputGroup">
-                <div class="search-input-wrapper">
-                  <input
-                    id="searchInput"
-                    type="text"
-                    data-i18n-placeholder="search_placeholder"
-                    data-i18n-aria-label="search"
-                    placeholder="ابحث في القرآن..."
-                    aria-label="البحث في القرآن"
-                    autocomplete="off"
-                  />
-                  <div class="search-autocomplete hidden" id="searchAutocomplete"></div>
-                  <button
-                    class="search-toggle-btn active"
-                    id="searchToggleBtn"
-                    type="button"
-                    title="بدء البحث"
-                    aria-label="بدء البحث"
-                    aria-controls="searchInputGroup"
-                  >
-                    <svg
-                      class="icon icon-sm"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                  </button>
-                  <button class="kbd-toggle-btn" id="kbdToggleBtn" aria-label="إظهار لوحة المفاتيح" title="لوحة المفاتيح">
-                    ⌨
-                  </button>
-                  <button class="voice-search-btn" id="voiceSearchBtn" aria-label="بحث صوتي" title="بحث صوتي">🎤</button>
-                </div>
-                <!-- Arabic keyboard injected by overlays.ts via arabicKeyboardHTML() -->
-                <div id="arabicKeyboardMount"></div>
-              </div>
-              <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">📲</button>
-              <button class="sr-only" id="searchBtn" data-i18n="search" aria-label="بدء البحث">بحث</button>
-            </div>
-
-            <span class="reader-command-divider" aria-hidden="true"></span>
+          <div class="control-card reader-command-bar control-card-persistent" aria-label="أنماط العرض">
+            <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">📲</button>
 
             <div class="reader-command-section reader-command-display">
               <div class="reader-mode-label" data-i18n="reading_mode_label">طريقة القراءة</div>

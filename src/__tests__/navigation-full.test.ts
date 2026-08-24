@@ -427,15 +427,16 @@ describe('navigation-full', () => {
       btn.dataset.tab = 'search';
       bottomNav.appendChild(btn);
       document.body.appendChild(bottomNav);
+      const headerSearch = document.createElement('div');
+      headerSearch.id = 'headerSearch';
+      document.body.appendChild(headerSearch);
 
       const { initNavigation } = await import('../navigation.js');
       initNavigation();
-      // Show search first
       dom.searchInputGroup!.classList.add('hidden');
       btn.click();
-      expect(dom.searchInputGroup!.classList.contains('hidden')).toBe(false);
-      expect(dom.searchToggleBtn!.classList.contains('active')).toBe(true);
-      expect(dom.controls!.classList.contains('mobile-show')).toBe(true);
+      expect(headerSearch.classList.contains('is-expanded')).toBe(true);
+      expect(dom.searchToggleBtn!.getAttribute('aria-expanded')).toBe('true');
     });
 
     it('should handle more tab click (opens adhkar panel)', async () => {
