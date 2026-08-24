@@ -220,11 +220,16 @@ function updateCountdowns(): void {
   const m = Math.floor((diffSec % 3600) / 60);
   const s = diffSec % 60;
   const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+  const headerCountdownText = `${pad2(h)}:${pad2(m)}`;
   if (dom.countdownDisplay) {
     dom.countdownDisplay.textContent = countdownText;
   }
   if (dom.prayerCountdown) {
-    dom.prayerCountdown.textContent = `${__('prayer_countdown', getPrayerName(nextKey), countdownText)}`;
+    dom.prayerCountdown.textContent = __(
+      'prayer_countdown_header',
+      getPrayerName(nextKey),
+      headerCountdownText,
+    );
   }
   const time24 = (state.prayerTimes[nextKey] || '').split(' ')[0]!;
   if (dom.nextPrayerName) {

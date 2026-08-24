@@ -102,6 +102,7 @@ vi.mock('../i18n.js', () => ({
   __: vi.fn((key: string, ...args: string[]) => {
     if (key === 'qibla_direction' && args.length >= 2) return `${key}:${args[0]}:${args[1]}`;
     if (key === 'prayer_countdown' && args.length >= 2) return `${key}:${args[0]}:${args[1]}`;
+    if (key === 'prayer_countdown_header' && args.length >= 2) return `${key}:${args[0]}:${args[1]}`;
     return key;
   }),
   getPrayerName: mockGetPrayerName,
@@ -1284,6 +1285,14 @@ describe('prayer.ts', () => {
       vi.advanceTimersByTime(1000);
       const text = mockDom.countdownDisplay!.textContent!;
       expect(text).toMatch(/^\d{2}:\d{2}:\d{2}$/);
+    });
+
+    it('shows the header countdown with hours and minutes only', () => {
+      state.prayerTimes = { ...SAMPLE_PRAYER_TIMES };
+      setNowToTime(10, 0);
+      startClock();
+      vi.advanceTimersByTime(1000);
+      expect(mockDom.prayerCountdown!.textContent).toMatch(/^prayer_countdown_header:.+:\d{2}:\d{2}$/);
     });
   });
 

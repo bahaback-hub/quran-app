@@ -150,6 +150,7 @@ export default {
   prayer_times: 'Prayer Times',
   prayer_time_come: 'It is time for prayer',
   prayer_countdown: '{0} in {1}',
+  prayer_countdown_header: 'Until {0}: {1}',
   prayer_dirs: 'Qibla Directions',
   prayer_dirs_n: 'North',
   prayer_dirs_s: 'South',
