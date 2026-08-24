@@ -833,7 +833,9 @@ async function sharePresentationVideo(blob: Blob): Promise<VideoShareResult> {
   const reference = currentReference();
   const filename = shareVideoFilename();
   const file = new File([blob], filename, { type: 'video/webm' });
-  const shareData = { title: reference, text: reference, files: [file] };
+  // Android apps such as WhatsApp can prioritise EXTRA_TEXT over EXTRA_STREAM.
+  // A video share must therefore carry the file alone rather than a caption.
+  const shareData = { title: reference, files: [file] };
   try {
     if (Capacitor.isNativePlatform()) {
       const { value: canShare } = await Share.canShare();
@@ -847,8 +849,6 @@ async function sharePresentationVideo(blob: Blob): Promise<VideoShareResult> {
         recursive: true,
       });
       await Share.share({
-        title: reference,
-        text: reference,
         files: [saved.uri],
         dialogTitle: __('presentation_share_video'),
       });
