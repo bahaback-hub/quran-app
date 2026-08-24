@@ -158,7 +158,7 @@ export function settingsPanelHTML(): string {
               <option value="singleNature" data-i18n="pres_bg_single_nature">منظر طبيعي واحد</option>
               <option value="animated" data-i18n="pres_bg_animated">مناظر متحركة</option>
               <option value="scene" data-i18n="pres_bg_scene">منظر واحد متحرك</option>
-              <option value="video" data-i18n="pres_bg_video">فيديو هادئ — منزل وماء</option>
+              <option value="video" data-i18n="pres_bg_video">فيديو محلي متحرك</option>
               <option value="auto" data-i18n="pres_bg_auto">تلقائي (حسب الوقت)</option>
             </select>
           </div>
@@ -180,6 +180,15 @@ export function settingsPanelHTML(): string {
               <option value="aurora">شفق قطبي 🌌</option>
               <option value="particles">جسيمات ذهبية ✦</option>
               <option value="rain">مطر 🌧️</option>
+            </select>
+          </div>
+          <div class="settings-row hidden" id="presBgVideoRow">
+            <label for="presBgVideoSelect">اختر الفيديو المحلي:</label>
+            <select id="presBgVideoSelect" aria-label="اختر فيديو خلفية وضع العرض">
+              <option value="eva">منزل إيفا والماء</option>
+              <option value="alps">جبال الألب والضباب</option>
+              <option value="sunset">غروب البحر</option>
+              <option value="wave">الموج المتكسر</option>
             </select>
           </div>
           <div class="settings-row">

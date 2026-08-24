@@ -102,7 +102,10 @@ const presentationOverlayHTML = `
             <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="aurora">شفق</button>
             <button type="button" data-pres-bg-mode="scene" data-pres-bg-scene="rain">مطر</button>
             <button type="button" data-pres-bg-mode="animated">منظر متحرك</button>
-            <button type="button" data-pres-bg-mode="video">فيديو هادئ</button>
+            <button type="button" data-pres-bg-mode="video" data-pres-bg-video="eva">إيفا والماء</button>
+            <button type="button" data-pres-bg-mode="video" data-pres-bg-video="alps">جبال الألب والضباب</button>
+            <button type="button" data-pres-bg-mode="video" data-pres-bg-video="sunset">غروب البحر</button>
+            <button type="button" data-pres-bg-mode="video" data-pres-bg-video="wave">الموج المتكسر</button>
           </div>
         </section>
       </div>

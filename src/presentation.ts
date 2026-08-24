@@ -23,7 +23,7 @@ import {
 } from './pres-video.js';
 import { injectStyles, buildAyahHtml } from './pres-styles.js';
 import { closePresentationSharePreview, initPresentationShare, preparePresentationShareImage } from './presentation-share.js';
-import { applyPresBgMode, applyPresBgScene } from './settings.js';
+import { applyPresBgMode, applyPresBgScene, applyPresBgVideo } from './settings.js';
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -62,7 +62,8 @@ function syncBackgroundPickerSelection(): void {
   picker.querySelectorAll<HTMLButtonElement>('[data-pres-bg-mode]').forEach((option) => {
     const mode = option.dataset['presBgMode'];
     const scene = option.dataset['presBgScene'];
-    const active = mode === state.presBgMode && (!scene || scene === state.presBgScene);
+    const video = option.dataset['presBgVideo'];
+    const active = mode === state.presBgMode && (!scene || scene === state.presBgScene) && (!video || video === state.presBgVideo);
     option.setAttribute('aria-pressed', String(active));
   });
 }
@@ -254,7 +255,7 @@ function updateDisplay(): void {
     } else if (state.presBgMode === 'video') {
       removeAnimatedBgLayer(overlay);
       removeSceneCanvas(overlay);
-      applyPresentationVideo(overlay);
+      applyPresentationVideo(overlay, state.presBgVideo);
       overlay.classList.remove('pres-light');
     } else {
       removePresentationVideo(overlay);
@@ -699,8 +700,12 @@ export function initPresentation(): void {
         return;
       }
       const scene = option?.dataset['presBgScene'];
+      const video = option?.dataset['presBgVideo'];
       if (scene) {
         applyPresBgScene(scene);
+      }
+      if (video) {
+        applyPresBgVideo(video);
       }
       applyPresBgMode(mode as 'plain' | 'nature' | 'animated' | 'scene' | 'video');
       setBackgroundPickerOpen(false, true);

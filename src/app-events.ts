@@ -21,6 +21,7 @@ import {
   applyPresBgMode,
   applyPresBgScene,
   applyPresBgNature,
+  applyPresBgVideo,
   openSettings,
   closeSettings,
   saveLocationSettings,
@@ -370,6 +371,9 @@ export function bindDisplaySettingsEvents(): void {
   );
   dom.presBgNatureSelect?.addEventListener('change', (e: Event) =>
     applyPresBgNature((e.target as HTMLSelectElement).value),
+  );
+  dom.presBgVideoSelect?.addEventListener('change', (e: Event) =>
+    applyPresBgVideo((e.target as HTMLSelectElement).value),
   );
   dom.tajweedToggle?.addEventListener('click', () => {
     state.tajweedEnabled = dom.tajweedToggle!.classList.toggle('on');

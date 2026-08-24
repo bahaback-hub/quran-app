@@ -6,6 +6,15 @@
 export const PRESENTATION_VIDEO_SRC = 'backgrounds/eva-calm-house.mp4';
 export const PRESENTATION_VIDEO_POSTER = 'backgrounds/eva-calm-house-poster.jpg';
 
+export const PRESENTATION_VIDEOS = {
+  eva: { src: PRESENTATION_VIDEO_SRC, poster: PRESENTATION_VIDEO_POSTER },
+  alps: { src: 'backgrounds/alps-sunrise-fog.mp4', poster: 'backgrounds/alps-sunrise-fog-poster.jpg' },
+  sunset: { src: 'backgrounds/sea-sunset.mp4', poster: 'backgrounds/sea-sunset-poster.jpg' },
+  wave: { src: 'backgrounds/wave-breaking.mp4', poster: 'backgrounds/wave-breaking-poster.jpg' },
+} as const;
+
+export type PresentationVideoId = keyof typeof PRESENTATION_VIDEOS;
+
 const VIDEO_SELECTOR = '.pres-video-bg';
 
 interface NetworkInformationLike {
@@ -62,10 +71,15 @@ export function removePresentationVideo(overlay: HTMLElement): void {
   overlay.classList.remove('pres-video');
 }
 
+export function getPresentationVideo(videoId: string): (typeof PRESENTATION_VIDEOS)[PresentationVideoId] {
+  return PRESENTATION_VIDEOS[videoId as PresentationVideoId] || PRESENTATION_VIDEOS.eva;
+}
+
 /** Apply the selected video background, or its still poster when motion/data saving is preferred. */
-export function applyPresentationVideo(overlay: HTMLElement): void {
+export function applyPresentationVideo(overlay: HTMLElement, videoId = 'eva'): void {
+  const selectedVideo = getPresentationVideo(videoId);
   overlay.classList.add('pres-video');
-  overlay.style.backgroundImage = `url('${PRESENTATION_VIDEO_POSTER}')`;
+  overlay.style.backgroundImage = `url('${selectedVideo.poster}')`;
 
   if (prefersStaticPresentationBackground()) {
     removePresentationVideo(overlay);
@@ -77,8 +91,6 @@ export function applyPresentationVideo(overlay: HTMLElement): void {
   if (!video) {
     video = document.createElement('video');
     video.className = 'pres-video-bg';
-    video.src = PRESENTATION_VIDEO_SRC;
-    video.poster = PRESENTATION_VIDEO_POSTER;
     video.muted = true;
     video.defaultMuted = true;
     video.loop = true;
@@ -87,6 +99,13 @@ export function applyPresentationVideo(overlay: HTMLElement): void {
     video.setAttribute('aria-hidden', 'true');
     video.setAttribute('tabindex', '-1');
     overlay.insertBefore(video, overlay.firstChild);
+  }
+  if (video.dataset['presentationVideo'] !== videoId) {
+    video.pause();
+    video.src = selectedVideo.src;
+    video.poster = selectedVideo.poster;
+    video.dataset['presentationVideo'] = videoId;
+    video.load();
   }
   syncPresentationVideoPlayback(overlay);
 }
