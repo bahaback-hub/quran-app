@@ -451,11 +451,11 @@ export function circularQiblaDifference(first: number, second: number): number {
  * orientation. Android's raw alpha runs counter to conventional compass
  * heading, hence the 360 - alpha conversion used by mature web compasses.
  */
-export function getWebQiblaHeading(event: DeviceOrientationEventiOS): number | null {
+export function getWebQiblaHeading(event: DeviceOrientationEventiOS, isAbsoluteEvent: boolean = false): number | null {
   if (typeof event.webkitCompassHeading === 'number' && Number.isFinite(event.webkitCompassHeading)) {
     return normalizeQiblaAngle(event.webkitCompassHeading);
   }
-  if (event.absolute === true && typeof event.alpha === 'number' && Number.isFinite(event.alpha)) {
+  if ((event.absolute === true || isAbsoluteEvent) && typeof event.alpha === 'number' && Number.isFinite(event.alpha)) {
     const screenAngle = window.screen?.orientation?.angle ?? 0;
     return normalizeQiblaAngle(360 - event.alpha + screenAngle);
   }
@@ -549,7 +549,7 @@ export function showQiblaCompass(): void {
     removeQiblaSources();
 
     const handleOrientation = (e: DeviceOrientationEventiOS): void => {
-      const heading = getWebQiblaHeading(e);
+      const heading = getWebQiblaHeading(e, e.type === 'deviceorientationabsolute');
       if (heading === null) {
         showStaticBearing(__('qibla_static_mode'));
         return;

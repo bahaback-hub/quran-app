@@ -51,6 +51,26 @@ const FOCUSABLE_SELECTOR =
   'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),' +
   'select:not([disabled]),[tabindex]:not([tabindex="-1"]),[contenteditable="true"]';
 
+/** Fixed-position dialogs have no offsetParent, so inspect the element and its ancestors instead. */
+function isVisibleFocusable(element: Element, container: HTMLElement): element is HTMLElement {
+  if (!(element instanceof HTMLElement) || element.hasAttribute('disabled')) {
+    return false;
+  }
+  for (let current: HTMLElement | null = element; current; current = current.parentElement) {
+    if (current.hidden || current.getAttribute('aria-hidden') === 'true') {
+      return false;
+    }
+    const style = window.getComputedStyle(current);
+    if (style.display === 'none' || style.visibility === 'hidden') {
+      return false;
+    }
+    if (current === container) {
+      break;
+    }
+  }
+  return true;
+}
+
 /**
  * Trap keyboard focus inside `container` (for modals, drawers, panels).
  * @returns Cleanup function.
@@ -64,9 +84,9 @@ export function trapFocus(container: HTMLElement): () => void {
     if (e.key !== 'Tab') {
       return;
     }
-    const focusable = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter(
-      (el: Element) => (el as HTMLElement).offsetParent !== null && !el.hasAttribute('disabled'),
-    ) as HTMLElement[];
+    const focusable = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter((el: Element) =>
+      isVisibleFocusable(el, container),
+    );
     if (focusable.length === 0) {
       return;
     }

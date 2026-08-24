@@ -270,6 +270,7 @@ export default {
   search_placeholder: "Kur'an'da ara...",
   min_chars: 'En az 2 karakter girin',
   no_results: 'Sonuç yok',
+  load_more: 'Daha fazlasını yükle ({0})',
   results_count: '{0} sonuç',
   search_copy: 'Kopyala',
   search_goto: 'Git',

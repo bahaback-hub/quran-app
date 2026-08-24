@@ -165,18 +165,21 @@ export function removeTrackedEventListener(
  * - Removes stale event listeners (dev mode)
  * - Reports memory usage
  */
-export function cleanup(): CleanupResult {
+export function cleanup(revokeObjectUrls: boolean = true): CleanupResult {
   const startTime = Date.now();
   let objectUrlsRevoked = 0;
   const staleEntriesRemoved = 0;
   let listenersRemoved = 0;
 
-  // Revoke all tracked object URLs
-  for (const [url] of _objectUrls) {
-    URL.revokeObjectURL(url);
-    objectUrlsRevoked++;
+  // Object URLs can still back media after a tab is hidden. Periodic cleanup
+  // therefore keeps them alive; only explicit cleanup or page unload revokes.
+  if (revokeObjectUrls) {
+    for (const [url] of _objectUrls) {
+      URL.revokeObjectURL(url);
+      objectUrlsRevoked++;
+    }
+    _objectUrls.clear();
   }
-  _objectUrls.clear();
 
   // Remove stale event listeners (dev mode)
   if (import.meta.env?.DEV) {
@@ -235,7 +238,7 @@ export function initMemoryManager(): void {
 
   // Periodic cleanup
   _cleanupInterval = setInterval(() => {
-    const result = cleanup();
+    const result = cleanup(false);
     if (import.meta.env?.DEV && (result.objectUrlsRevoked > 0 || result.listenersRemoved > 0)) {
       console.warn(`[Memory] Cleanup: ${result.objectUrlsRevoked} URLs revoked, ${result.listenersRemoved} listeners removed in ${result.elapsedMs}ms`);
     }
@@ -249,18 +252,6 @@ export function initMemoryManager(): void {
     });
   }
 
-  // Cleanup on visibility change (tab hidden)
-  if (typeof document !== 'undefined') {
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        // Light cleanup when tab is hidden
-        for (const [url] of _objectUrls) {
-          URL.revokeObjectURL(url);
-        }
-        _objectUrls.clear();
-      }
-    });
-  }
 }
 
 /**

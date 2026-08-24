@@ -1469,7 +1469,6 @@ describe('prayer.ts', () => {
         ((event: DeviceOrientationEvent) => void) | undefined;
       const bearingBeforeCompass = needle.style.transform;
       const event = new Event('deviceorientationabsolute') as DeviceOrientationEvent;
-      Object.defineProperty(event, 'absolute', { value: true, configurable: true });
       Object.defineProperty(event, 'alpha', { value: 90, configurable: true });
       handler?.(event);
 

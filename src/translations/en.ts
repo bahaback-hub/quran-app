@@ -303,6 +303,7 @@ export default {
   search_placeholder: 'Search the Quran...',
   min_chars: 'Enter at least 2 characters',
   no_results: 'No results',
+  load_more: 'Load more ({0})',
   results_count: '{0} results',
   search_copy: 'Copy',
   search_goto: 'Go to',
