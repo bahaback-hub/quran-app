@@ -99,6 +99,7 @@ vi.mock('../share.js', () => ({
 // Mock tafsir module
 vi.mock('../tafsir.js', () => ({
   toggleTafsir: vi.fn(),
+  openTafsir: vi.fn(),
   loadTafsirForCurrentAyah: vi.fn(),
 }));
 
@@ -158,7 +159,6 @@ function createDomElements() {
   dom.tafsirCurtain.classList.add('open');
   dom.tafsirCurtainBody = el('div');
   dom.tafsirCurtainGrip = el('div');
-  dom.tafsirCurtainResizeRail = el('div');
   dom.tafsirCurtainShrinkBtn = el('button');
   dom.tafsirCurtainGrowBtn = el('button');
   dom.tafsirCurtainResetBtn = el('button');
@@ -489,30 +489,35 @@ describe('app-events', () => {
       expect(loadTafsirForCurrentAyah).toHaveBeenCalled();
     });
 
-    it('should resize the desktop tafsir curtain with visible size controls and keep it bounded', async () => {
+    it('should change tafsir text size with visible controls and preserve the reading curtain width', async () => {
       vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
       const { bindTafsirEvents } = await import('../app-events.js');
       bindTafsirEvents();
 
       dom.tafsirCurtainGrowBtn!.click();
-      expect(document.documentElement.style.getPropertyValue('--tafsir-curtain-width')).toBe('440px');
-      expect(storage.set).toHaveBeenCalledWith('tafsir_curtain_width', 440);
+      expect(document.documentElement.style.getPropertyValue('--tafsir-text-size')).toBe('17px');
+      expect(storage.set).toHaveBeenCalledWith('tafsir_text_size', 17);
 
       dom.tafsirCurtainShrinkBtn!.click();
-      expect(document.documentElement.style.getPropertyValue('--tafsir-curtain-width')).toBe('380px');
-      dom.tafsirCurtainResizeRail!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home' }));
-      expect(document.documentElement.style.getPropertyValue('--tafsir-curtain-width')).toBe('300px');
+      expect(document.documentElement.style.getPropertyValue('--tafsir-text-size')).toBe('16px');
+      expect(document.documentElement.style.getPropertyValue('--tafsir-curtain-width')).toBe('');
     });
 
-    it('should resize the mobile tafsir sheet from its keyboard-accessible grip', async () => {
-      vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })));
+    it('should move the opened desktop curtain by dragging its own handle', async () => {
+      vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
       const { bindTafsirEvents } = await import('../app-events.js');
       bindTafsirEvents();
+      dom.tafsirCurtain!.classList.remove('open');
+      document.documentElement.style.removeProperty('--tafsir-curtain-reveal');
 
-      dom.tafsirCurtainGrip!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
-      const value = Number.parseFloat(document.documentElement.style.getPropertyValue('--tafsir-sheet-height'));
-      expect(value).toBeGreaterThan(window.innerHeight * 0.6);
-      expect(value).toBeLessThanOrEqual(window.innerHeight * 0.84);
+      dom.tafsirCurtainHandle!.dispatchEvent(new MouseEvent('pointerdown', { clientX: 24 }));
+      dom.tafsirCurtainHandle!.dispatchEvent(new MouseEvent('pointermove', { clientX: 144 }));
+      dom.tafsirCurtainHandle!.dispatchEvent(new MouseEvent('pointerup', { clientX: 144 }));
+
+      expect(document.documentElement.style.getPropertyValue('--tafsir-curtain-reveal')).toBe('120px');
+      expect(storage.set).toHaveBeenCalledWith('tafsir_curtain_reveal', 120);
+      const { openTafsir } = await import('../tafsir.js');
+      expect(openTafsir).toHaveBeenCalled();
     });
 
     it('should enable translation when translationSelect has a value', async () => {

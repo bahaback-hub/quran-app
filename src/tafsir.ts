@@ -279,6 +279,8 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
   }
   showTafsirLoading();
   dom.tafsirCurtain?.classList.add('open');
+  dom.tafsirCurtainHandle?.classList.add('open');
+  document.body.classList.add('tafsir-curtain-active', 'tafsir-only-open');
   const text = await fetchTafsirFromAPI(edition, surahNum, ayahNum);
   if (text) {
     renderTafsirContent(text, ayahText, surahName, ayahNum);
@@ -294,6 +296,7 @@ export function openTafsir(): void {
   }
   dom.tafsirCurtain.classList.add('open');
   dom.tafsirCurtainHandle?.classList.add('open');
+  document.body.classList.add('tafsir-curtain-active', 'tafsir-only-open');
   loadTafsirForCurrentAyah();
 }
 
@@ -301,6 +304,7 @@ export function openTafsir(): void {
 export function closeTafsir(): void {
   dom.tafsirCurtain?.classList.remove('open');
   dom.tafsirCurtainHandle?.classList.remove('open');
+  document.body.classList.remove('tafsir-curtain-active', 'tafsir-only-open');
 }
 
 /** Toggle the tafsir curtain open/closed. */
