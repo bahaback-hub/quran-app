@@ -13,8 +13,8 @@ body.night-mode::before {
 
 /* ========== الوضع الليلي القاتم: خلفية مريحة جدًا ومساحة قراءة وسطية صافية ========== */
 body.night-mode.deep-night-mode {
-  background: url('/backgrounds/night-deep-framed-preview.png') center center / cover no-repeat fixed;
-  background-color: #020307;
+  background: url('/backgrounds/night-deep-pure-black-preview.png') center center / cover no-repeat fixed;
+  background-color: #000000;
 }
 body.night-mode.deep-night-mode .container {
   background: rgba(2, 4, 9, 0.72);
