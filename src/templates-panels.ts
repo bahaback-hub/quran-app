@@ -52,7 +52,7 @@ export function settingsPanelHTML(): string {
 
       <div class="settings-tab-content active" data-tab="prayer">
         <div class="settings-section">
-          <div class="prayer-times-list" id="prayerTimesRows">
+          <div class="prayer-times-list" id="settingsPrayerTimesRows" aria-live="polite">
             <p class="centered-muted">⏳ جاري تحميل المواقيت...</p>
           </div>
         </div>

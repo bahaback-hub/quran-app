@@ -159,7 +159,26 @@ export async function loadPrayerTimes(): Promise<void> {
       }
     }
     showToast(__('failed_prayer'), 'error');
+    renderPrayerLoadFailure();
   }
+}
+
+/** Replace the temporary loading message in every prayer-times view after all sources fail. */
+function getPrayerTimesContainers(): HTMLElement[] {
+  const containers = Array.from(document.querySelectorAll<HTMLElement>('#prayerTimesRows, #settingsPrayerTimesRows'));
+  if (dom.prayerTimesRows && !containers.includes(dom.prayerTimesRows)) {
+    containers.unshift(dom.prayerTimesRows);
+  }
+  return containers;
+}
+
+function renderPrayerLoadFailure(): void {
+  getPrayerTimesContainers().forEach((container) => {
+    const message = document.createElement('p');
+    message.className = 'centered-muted prayer-times-error';
+    message.textContent = `⚠️ ${__('failed_prayer')}`;
+    container.replaceChildren(message);
+  });
 }
 
 /** Get the next prayer key based on current time (includes Sunrise for countdown). */
@@ -193,9 +212,9 @@ function renderPrayerTimes(): void {
     const time24 = raw.split(' ')[0]!;
     return { name: getPrayerName(key), time: formatTime12(time24), isNext: key === next };
   });
-  if (dom.prayerTimesRows) {
-    dom.prayerTimesRows.innerHTML = prayerTimesRows(times);
-  }
+  getPrayerTimesContainers().forEach((container) => {
+    container.innerHTML = prayerTimesRows(times);
+  });
   updateCountdowns();
 }
 
