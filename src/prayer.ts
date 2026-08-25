@@ -100,28 +100,7 @@ export async function loadPrayerTimes(): Promise<void> {
   const country = dom.countryInput?.value.trim() || state.country;
   const method = dom.methodSelect?.value || state.method;
 
-  // ── Strategy 1: Local calculation (offline-capable, no API needed) ──
-  try {
-    const localTimes = await calculatePrayerTimesLocally(method);
-    if (localTimes) {
-      state.prayerTimes = localTimes;
-      storage.set('cached_prayer_times', {
-        date: new Date().toISOString(),
-        timings: localTimes,
-        city,
-        country,
-        method,
-      });
-      renderPrayerTimes();
-      checkAzanTime();
-      scheduleNextAzanCheck();
-      return;
-    }
-  } catch (e) {
-    console.warn('[Prayer] Local calculation failed, falling back to API:', e);
-  }
-
-  // ── Strategy 2: Remote API (requires internet) ──
+  // ── Strategy 1: Selected-city source (the user's explicit setting is authoritative) ──
   const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
   try {
     const data: import('./types.js').AladhanTimingsResponse = await prayerFetch(query, {
@@ -144,7 +123,7 @@ export async function loadPrayerTimes(): Promise<void> {
     }
     throw new Error('Invalid response');
   } catch {
-    // ── Strategy 3: LocalStorage cache (offline fallback) ──
+    // ── Strategy 2: LocalStorage cache for the same city and method ──
     const cached = storage.get<CachedPrayerTimes>('cached_prayer_times');
     if (cached && cached.city === city && cached.country === country && cached.method === method) {
       // Accept cache from today or up to 3 days ago (prayer times shift ~1 min/day)
@@ -158,6 +137,21 @@ export async function loadPrayerTimes(): Promise<void> {
         return;
       }
     }
+
+    // ── Strategy 3: Device-location calculation (last resort when the selected city is unavailable) ──
+    try {
+      const localTimes = await calculatePrayerTimesLocally(method);
+      if (localTimes) {
+        state.prayerTimes = localTimes;
+        renderPrayerTimes();
+        checkAzanTime();
+        scheduleNextAzanCheck();
+        return;
+      }
+    } catch (e) {
+      console.warn('[Prayer] Device-location fallback failed:', e);
+    }
+
     showToast(__('failed_prayer'), 'error');
     renderPrayerLoadFailure();
   }
