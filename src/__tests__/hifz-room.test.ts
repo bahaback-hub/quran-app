@@ -133,6 +133,8 @@ describe('Hifz Room', () => {
     toggle.setPointerCapture = vi.fn(); vi.spyOn(document.getElementById('hifzRoom')!, 'getBoundingClientRect').mockReturnValue({ width: 420 } as DOMRect);
     dispatchPointer(toggle, 'pointerdown', 900); dispatchPointer(toggle, 'pointermove', 720); dispatchPointer(toggle, 'pointerup', 720);
     expect(toggle.setPointerCapture).toHaveBeenCalledWith(1); expect(isHifzRoomOpen()).toBe(true);
+    expect(mockStorage.set).toHaveBeenCalledWith('hifz_curtain_reveal', 180);
+    expect(document.documentElement.style.getPropertyValue('--hifz-curtain-reveal')).toBe('180px');
   });
 
   it('updates the live summary and keeps the review choice locally', () => {

@@ -973,3 +973,175 @@ body.night-mode .hifz-room-download-status[data-state='ready'] {
     padding: 0.95rem;
   }
 }
+
+/* ستارة الحفظ المتكيفة: اللون والاتساع يتبعان وضع العرض، والسحب يحدد الجزء الظاهر منها. */
+:root {
+  --hifz-curtain-bg: #fffaf0;
+  --hifz-curtain-surface: #fffdf8;
+  --hifz-curtain-text: #26352d;
+  --hifz-curtain-muted: rgb(38 53 45 / 72%);
+  --hifz-curtain-accent: #21634f;
+  --hifz-curtain-accent-strong: #174638;
+  --hifz-curtain-accent-text: #fff;
+  --hifz-curtain-border: rgb(33 99 79 / 36%);
+  --hifz-curtain-handle-bg: #21634f;
+  --hifz-curtain-handle-hover: #174638;
+}
+
+body.sepia-mode {
+  --hifz-curtain-bg: #f4e6c8;
+  --hifz-curtain-surface: #fbf2df;
+  --hifz-curtain-text: #523c20;
+  --hifz-curtain-muted: rgb(82 60 32 / 74%);
+  --hifz-curtain-accent: #966f32;
+  --hifz-curtain-accent-strong: #704d1c;
+  --hifz-curtain-accent-text: #fffaf0;
+  --hifz-curtain-border: rgb(150 111 50 / 40%);
+  --hifz-curtain-handle-bg: #8a642b;
+  --hifz-curtain-handle-hover: #68491d;
+}
+
+body.night-mode {
+  --hifz-curtain-bg: #101824;
+  --hifz-curtain-surface: #141f2e;
+  --hifz-curtain-text: #f2f6fb;
+  --hifz-curtain-muted: rgb(230 237 247 / 76%);
+  --hifz-curtain-accent: #8fb8d7;
+  --hifz-curtain-accent-strong: #5f90b7;
+  --hifz-curtain-accent-text: #08121d;
+  --hifz-curtain-border: rgb(143 184 215 / 42%);
+  --hifz-curtain-handle-bg: #1d4a68;
+  --hifz-curtain-handle-hover: #14364f;
+}
+
+body.night-mode.deep-night-mode {
+  --hifz-curtain-bg: #090a09;
+  --hifz-curtain-surface: #121310;
+  --hifz-curtain-text: #fff8e8;
+  --hifz-curtain-muted: rgb(247 243 232 / 78%);
+  --hifz-curtain-accent: #d7bb81;
+  --hifz-curtain-accent-strong: #f5dfab;
+  --hifz-curtain-accent-text: #090a09;
+  --hifz-curtain-border: rgb(215 187 129 / 42%);
+  --hifz-curtain-handle-bg: #11120f;
+  --hifz-curtain-handle-hover: #20221d;
+}
+
+.hifz-room-toggle,
+.hifz-curtain-handle {
+  border-color: var(--hifz-curtain-accent);
+  color: var(--hifz-curtain-accent-text);
+  background: var(--hifz-curtain-handle-bg);
+  cursor: grab;
+  touch-action: none;
+}
+
+.hifz-room-toggle:hover,
+.hifz-room-toggle:focus-visible,
+.hifz-room-toggle--rtl:hover,
+.hifz-room-toggle--rtl:focus-visible {
+  background: var(--hifz-curtain-handle-hover);
+}
+
+.hifz-room-toggle.is-dragging {
+  cursor: grabbing;
+}
+
+body.hifz-room-active .hifz-room-toggle {
+  right: var(--hifz-curtain-reveal, min(360px, 88vw));
+}
+
+.hifz-room,
+.hifz-room--rtl {
+  color: var(--hifz-curtain-text);
+  background: var(--hifz-curtain-bg);
+  border-color: var(--hifz-curtain-border);
+}
+
+body.hifz-room-active .hifz-room.is-open {
+  transform: translateX(calc(100% - var(--hifz-curtain-reveal, min(360px, 88vw))));
+}
+
+.hifz-room-panel {
+  color: var(--hifz-curtain-text);
+  background: var(--hifz-curtain-surface);
+}
+
+.hifz-room-eyebrow,
+.hifz-room-card-label,
+.hifz-room-review p,
+.hifz-room-field,
+.hifz-room-custom-repeat,
+.hifz-room-review-time {
+  color: var(--hifz-curtain-accent);
+}
+
+.hifz-room h2,
+.hifz-room-summary,
+.hifz-room-close {
+  color: var(--hifz-curtain-text);
+}
+
+.hifz-room-lede,
+.hifz-room-status,
+.hifz-room-download-status,
+.hifz-room-return,
+.hifz-room-review strong,
+.hifz-room-card-meta,
+.hifz-room-footnote,
+.hifz-room-choice-row button,
+.hifz-room-repeat-options button {
+  color: var(--hifz-curtain-muted);
+}
+
+.hifz-room-close {
+  background: color-mix(in srgb, var(--hifz-curtain-accent) 12%, transparent);
+}
+
+.hifz-room-close:hover,
+.hifz-room-close:focus-visible,
+.hifz-room-choice-row button.is-selected,
+.hifz-room-repeat-options button.is-selected,
+.hifz-room-start,
+.hifz-room-focus-actions button {
+  border-color: var(--hifz-curtain-accent);
+  color: var(--hifz-curtain-accent-text);
+  background: var(--hifz-curtain-accent);
+}
+
+.hifz-room-session,
+.hifz-room-repeat,
+.hifz-room-review,
+.hifz-room-audio-grid {
+  border-color: color-mix(in srgb, var(--hifz-curtain-accent) 20%, transparent);
+}
+
+.hifz-room-field select,
+.hifz-room-custom-repeat input,
+.hifz-room-review-time input,
+.hifz-room-choice-row button,
+.hifz-room-repeat-options button,
+.hifz-room-download,
+.hifz-room-focus-actions-secondary button {
+  border-color: color-mix(in srgb, var(--hifz-curtain-accent) 34%, transparent);
+  color: var(--hifz-curtain-text);
+  background: color-mix(in srgb, var(--hifz-curtain-bg) 78%, var(--hifz-curtain-surface));
+}
+
+.hifz-room-field select:focus-visible,
+.hifz-room-choice-row button:focus-visible,
+.hifz-room-return:focus-visible,
+.hifz-room-download:focus-visible,
+.hifz-room-focus-actions button:focus-visible {
+  outline-color: var(--hifz-curtain-accent);
+}
+
+.hifz-room-start:hover,
+.hifz-room-start:focus-visible,
+.hifz-room-download:hover,
+.hifz-room-download:focus-visible,
+.hifz-room-focus-actions button:hover,
+.hifz-room-focus-actions button:focus-visible {
+  color: var(--hifz-curtain-accent-text);
+  background: var(--hifz-curtain-accent-strong);
+}
