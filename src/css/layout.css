@@ -596,6 +596,23 @@
   align-items: flex-end;
   justify-content: space-between;
 }
+/* شريط القراءة يثبت فقط عندما يختاره المستخدم بزر القفل، ويبقى فوق الآيات دون إخفائها. */
+.reader-toolbar-shell {
+  position: relative;
+  z-index: 20;
+}
+body.reader-toolbar-pinned .container {
+  overflow: visible;
+}
+.reader-toolbar-shell.is-pinned {
+  position: sticky;
+  top: 0;
+  z-index: 950;
+  box-shadow: 0 12px 20px rgba(25, 20, 12, 0.18);
+}
+.reader-toolbar-shell.is-pinned .controls {
+  border-bottom-color: var(--accent);
+}
 .control-group {
   display: flex;
   flex-direction: column;
@@ -788,11 +805,11 @@ body.night-mode .control-group label {
 .reader-command-display {
   grid-area: display;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   grid-template-areas:
-    'label spacer zoom'
-    'modes modes modes'
-    'page page page';
+    'label pin spacer zoom'
+    'modes modes modes modes'
+    'page page page page';
   justify-content: flex-start;
   align-items: stretch;
   gap: 5px;
@@ -804,6 +821,28 @@ body.night-mode .control-group label {
   font-weight: 800;
   align-self: center;
   padding-inline: 2px;
+}
+.reader-toolbar-pin {
+  grid-area: pin;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--select-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.reader-toolbar-pin:hover,
+.reader-toolbar-pin.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--select-bg) 85%, var(--accent) 15%);
+  color: var(--accent-dark);
+}
+.reader-toolbar-pin:active {
+  transform: scale(0.96);
 }
 .reader-command-display .view-mode-group {
   grid-area: modes;

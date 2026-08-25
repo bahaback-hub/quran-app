@@ -69,6 +69,38 @@ interface AyahPageResponse {
   };
 }
 
+const READER_TOOLBAR_PIN_KEY = 'reader_toolbar_pinned';
+
+/** Keep the reading toolbar visible while a long surah is being read when the user requests it. */
+function applyReaderToolbarPin(pinned: boolean): void {
+  const shell = document.getElementById('readerToolbarShell');
+  const button = dom.readerToolbarPinBtn;
+  if (!shell || !button) {
+    return;
+  }
+  const label = pinned ? 'إلغاء تثبيت أدوات القراءة' : 'تثبيت أدوات القراءة';
+  shell.classList.toggle('is-pinned', pinned);
+  document.body.classList.toggle('reader-toolbar-pinned', pinned);
+  button.classList.toggle('is-active', pinned);
+  button.setAttribute('aria-pressed', String(pinned));
+  button.setAttribute('aria-label', label);
+  button.setAttribute('title', label);
+  const icon = button.querySelector('[aria-hidden="true"]');
+  if (icon) {
+    icon.textContent = pinned ? '🔒' : '🔓';
+  }
+}
+
+function initReaderToolbarPin(): void {
+  const pinned = storage.get<boolean>(READER_TOOLBAR_PIN_KEY, false) === true;
+  applyReaderToolbarPin(pinned);
+  dom.readerToolbarPinBtn?.addEventListener('click', () => {
+    const nextPinned = !document.getElementById('readerToolbarShell')?.classList.contains('is-pinned');
+    storage.set(READER_TOOLBAR_PIN_KEY, nextPinned);
+    applyReaderToolbarPin(nextPinned);
+  });
+}
+
 /**
  * Bind surah/reciter selection and navigation controls.
  */
@@ -111,6 +143,7 @@ export function bindNavigationEvents(): void {
  * Bind bookmark, favorite, theme, and settings buttons.
  */
 export function bindHeaderAndSettingsEvents(): void {
+  initReaderToolbarPin();
   dom.bookmarkBtn?.addEventListener('click', setBookmark);
   dom.bookmarkBtn?.addEventListener('dblclick', gotoBookmark);
   dom.favoriteBtn?.addEventListener('click', toggleFavorite);

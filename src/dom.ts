@@ -162,6 +162,7 @@ interface DomMap {
   readerZoomOutBtn: HTMLElement | null;
   readerZoomInBtn: HTMLElement | null;
   readerZoomValue: HTMLOutputElement | null;
+  readerToolbarPinBtn: HTMLElement | null;
   qiblaOverlay: HTMLElement | null;
   qiblaCompass: HTMLElement | null;
   qiblaAngle: HTMLElement | null;
@@ -345,6 +346,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'readerZoomOutBtn',
   'readerZoomInBtn',
   'readerZoomValue',
+  'readerToolbarPinBtn',
   'qiblaOverlay',
   'qiblaCompass',
   'qiblaAngle',
