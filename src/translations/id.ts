@@ -27,6 +27,7 @@ export default {
   hifz_room_step_repeat: 'Atur pengulangan',
   hifz_room_step_start: 'Mulai',
   hifz_room_surah: 'Surah',
+  hifz_room_surah_search_placeholder: 'Ketik nama surah untuk mencari',
   hifz_room_from_ayah: 'Dari ayat',
   hifz_room_to_ayah: 'Sampai ayat',
   hifz_room_repeat: 'Jumlah pengulangan',

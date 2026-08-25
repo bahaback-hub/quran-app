@@ -27,6 +27,7 @@ export default {
   hifz_room_step_repeat: 'Définir la répétition',
   hifz_room_step_start: 'Démarrer',
   hifz_room_surah: 'Sourate',
+  hifz_room_surah_search_placeholder: 'Saisissez le nom d’une sourate',
   hifz_room_from_ayah: 'Depuis ayah',
   hifz_room_to_ayah: 'Jusqu\'à ayah',
   hifz_room_repeat: 'Nombre de répétitions',

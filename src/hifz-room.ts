@@ -40,6 +40,7 @@ interface HifzPlan {
 
 interface HifzRoomControls {
   surah: HTMLSelectElement;
+  surahSearch: HTMLInputElement;
   from: HTMLSelectElement;
   to: HTMLSelectElement;
   repeat: HTMLInputElement;
@@ -162,6 +163,7 @@ function savePlan(plan: HifzPlan): void {
 
 function getControls(room: HTMLElement): HifzRoomControls | null {
   const surah = room.querySelector<HTMLSelectElement>('#hifzRoomSurah');
+  const surahSearch = room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch');
   const from = room.querySelector<HTMLSelectElement>('#hifzRoomFrom');
   const to = room.querySelector<HTMLSelectElement>('#hifzRoomTo');
   const repeat = room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat');
@@ -171,12 +173,17 @@ function getControls(room: HTMLElement): HifzRoomControls | null {
   const start = room.querySelector<HTMLButtonElement>('#hifzRoomStart');
   const download = room.querySelector<HTMLButtonElement>('#hifzRoomDownload');
   const downloadStatus = room.querySelector<HTMLElement>('#hifzRoomDownloadStatus');
-  return surah && from && to && repeat && reviewAt && summary && status && start && download && downloadStatus
-    ? { surah, from, to, repeat, reviewAt, summary, status, start, download, downloadStatus }
+  return surah && surahSearch && from && to && repeat && reviewAt && summary && status && start && download && downloadStatus
+    ? { surah, surahSearch, from, to, repeat, reviewAt, summary, status, start, download, downloadStatus }
     : null;
 }
 
-function fillSurahOptions(select: HTMLSelectElement, selected: number): void {
+interface SurahEntry {
+  value: number;
+  label: string;
+}
+
+function getSurahEntries(selected: number): SurahEntry[] {
   const entries = state.surahList.map((item) => ({ value: item.number, label: getSurahName(item.number) }));
   if (!entries.length) {
     const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
@@ -187,6 +194,11 @@ function fillSurahOptions(select: HTMLSelectElement, selected: number): void {
   if (!entries.some((entry) => entry.value === selected)) {
     entries.push({ value: selected, label: getSurahName(selected) });
   }
+  return entries;
+}
+
+function fillSurahOptions(select: HTMLSelectElement, selected: number): void {
+  const entries = getSurahEntries(selected);
   select.replaceChildren(...entries.map((entry) => {
     const option = document.createElement('option');
     option.value = String(entry.value);
@@ -194,6 +206,55 @@ function fillSurahOptions(select: HTMLSelectElement, selected: number): void {
     return option;
   }));
   select.value = String(selected);
+}
+
+function normalizeSurahSearch(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/[أإآٱ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ة/g, 'ه')
+    .trim()
+    .toLocaleLowerCase();
+}
+
+function syncSurahSearch(room: HTMLElement, selected: number): void {
+  const controls = getControls(room);
+  const list = room.querySelector<HTMLDataListElement>('#hifzRoomSurahOptions');
+  if (!controls || !list) {
+    return;
+  }
+  const entries = getSurahEntries(selected);
+  list.replaceChildren(...entries.map((entry) => {
+    const option = document.createElement('option');
+    option.value = entry.label;
+    option.label = `${entry.value}. ${entry.label}`;
+    return option;
+  }));
+  controls.surahSearch.value = entries.find((entry) => entry.value === selected)?.label || getSurahName(selected);
+}
+
+function selectSurahFromSearch(room: HTMLElement): void {
+  const controls = getControls(room);
+  if (!controls) {
+    return;
+  }
+  const query = normalizeSurahSearch(controls.surahSearch.value);
+  if (!query) {
+    return;
+  }
+  const matches = getSurahEntries(parseInt(controls.surah.value, 10)).filter((entry) => {
+    const normalizedName = normalizeSurahSearch(entry.label);
+    return normalizedName === query || normalizedName.startsWith(query) || String(entry.value) === query;
+  });
+  const exact = matches.find((entry) => normalizeSurahSearch(entry.label) === query || String(entry.value) === query);
+  const selected = exact || (matches.length === 1 ? matches[0] : null);
+  if (!selected || controls.surah.value === String(selected.value)) {
+    return;
+  }
+  controls.surah.value = String(selected.value);
+  controls.surah.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 function fillAyahOptions(select: HTMLSelectElement, count: number, selected: number): void {
@@ -589,6 +650,7 @@ function refreshForm(room: HTMLElement, plan = getDefaultPlan()): void {
   }
   const normalized = normalizePlan(plan);
   fillSurahOptions(controls.surah, normalized.surah);
+  syncSurahSearch(room, normalized.surah);
   fillAyahOptions(controls.from, getAyahCount(normalized.surah), normalized.from);
   fillAyahOptions(controls.to, getAyahCount(normalized.surah), normalized.to);
   controls.repeat.value = String(normalized.times);
@@ -619,6 +681,10 @@ function renderRoomText(room: HTMLElement): void {
     }
   });
   room.setAttribute('aria-label', label('hifz_room'));
+  const surahSearch = room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch');
+  if (surahSearch) {
+    surahSearch.placeholder = label('hifz_room_surah_search_placeholder');
+  }
 }
 
 function updateDirection(room: HTMLElement, toggle: HTMLButtonElement): void {
@@ -845,7 +911,7 @@ export function initHifzRoom(): void {
       <div class="hifz-room-setup-only">
         <p class="hifz-room-lede" data-hifz-key="hifz_room_tagline"></p>
         <ol class="hifz-room-steps" data-hifz-aria-key="hifz_room_steps_label"><li data-hifz-key="hifz_room_step_portion"></li><li data-hifz-key="hifz_room_step_repeat"></li><li data-hifz-key="hifz_room_step_start"></li></ol>
-        <section class="hifz-room-session"><label class="hifz-room-field hifz-room-field-full"><span data-hifz-key="hifz_room_surah"></span><select id="hifzRoomSurah"></select></label><div class="hifz-room-range"><label class="hifz-room-field"><span data-hifz-key="hifz_room_from_ayah"></span><select id="hifzRoomFrom"></select></label><label class="hifz-room-field"><span data-hifz-key="hifz_room_to_ayah"></span><select id="hifzRoomTo"></select></label></div></section>
+        <section class="hifz-room-session"><label class="hifz-room-field hifz-room-field-full"><span data-hifz-key="hifz_room_surah"></span><input id="hifzRoomSurahSearch" class="hifz-room-surah-search" type="search" list="hifzRoomSurahOptions" autocomplete="off" spellcheck="false"><datalist id="hifzRoomSurahOptions"></datalist><select id="hifzRoomSurah" class="hifz-room-surah-native" tabindex="-1" aria-hidden="true"></select></label><div class="hifz-room-range"><label class="hifz-room-field"><span data-hifz-key="hifz_room_from_ayah"></span><select id="hifzRoomFrom"></select></label><label class="hifz-room-field"><span data-hifz-key="hifz_room_to_ayah"></span><select id="hifzRoomTo"></select></label></div></section>
         <section class="hifz-room-repeat" aria-labelledby="hifzRoomRepeatTitle"><p id="hifzRoomRepeatTitle" class="hifz-room-card-label" data-hifz-key="hifz_room_repeat"></p><div class="hifz-room-repeat-options" role="group"><button type="button" data-hifz-repeat="3">3×</button><label class="hifz-room-custom-repeat"><span data-hifz-key="hifz_room_custom_repeat"></span><input id="hifzRoomCustomRepeat" type="number" min="1" max="100" step="1" inputmode="numeric"></label><button type="button" data-hifz-repeat="15">15×</button></div></section>
         <p class="hifz-room-summary" id="hifzRoomSummary"></p><button class="hifz-room-start" id="hifzRoomStart" type="button" data-hifz-key="hifz_room_start"></button><button class="hifz-room-download" id="hifzRoomDownload" type="button" data-hifz-key="hifz_room_download"></button><p class="hifz-room-download-status" id="hifzRoomDownloadStatus" aria-live="polite"></p><button class="hifz-room-return" id="hifzRoomReturn" type="button" data-hifz-key="hifz_room_return_reader"></button><p class="hifz-room-status" id="hifzRoomStatus" aria-live="polite"></p>
         <section class="hifz-room-review" aria-labelledby="hifzRoomReviewTitle"><span class="hifz-room-review-mark" aria-hidden="true"></span><div><p id="hifzRoomReviewTitle" data-hifz-key="hifz_room_review"></p><div class="hifz-room-choice-row hifz-room-review-choices" role="group"><button type="button" data-hifz-review="today" data-hifz-key="hifz_room_review_today"></button><button type="button" data-hifz-review="tomorrow" data-hifz-key="hifz_room_review_tomorrow"></button><button type="button" data-hifz-review="later" data-hifz-key="hifz_room_review_later"></button></div><label class="hifz-room-review-time"><span data-hifz-key="hifz_room_review_custom"></span><input id="hifzRoomReviewAt" type="datetime-local"></label></div></section>
@@ -937,9 +1003,12 @@ export function initHifzRoom(): void {
     const count = getAyahCount(plan.surah);
     fillAyahOptions(controls.from, count, Math.min(plan.from, count));
     fillAyahOptions(controls.to, count, Math.min(Math.max(plan.from, plan.to), count));
+    syncSurahSearch(room, plan.surah);
     updateSummary(room);
     void refreshSessionDownloadStatus(room);
   });
+  room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch')?.addEventListener('input', () => selectSurahFromSearch(room));
+  room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch')?.addEventListener('change', () => selectSurahFromSearch(room));
   room.querySelectorAll<HTMLSelectElement>('#hifzRoomFrom, #hifzRoomTo').forEach((select) => select.addEventListener('change', () => {
     updateSummary(room);
     void refreshSessionDownloadStatus(room);

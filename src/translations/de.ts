@@ -27,6 +27,7 @@ export default {
   hifz_room_step_repeat: 'Wiederholung einstellen',
   hifz_room_step_start: 'Starten',
   hifz_room_surah: 'Sure',
+  hifz_room_surah_search_placeholder: 'Sura zum Suchen eingeben',
   hifz_room_from_ayah: 'Ab Ayah',
   hifz_room_to_ayah: 'Bis Ayah',
   hifz_room_repeat: 'Wiederholungsanzahl',
