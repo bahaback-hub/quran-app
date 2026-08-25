@@ -41,6 +41,15 @@ body.night-mode.deep-night-mode .surah-content {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
+body.night-mode.deep-night-mode .mushaf-container {
+  background: transparent;
+  box-shadow: none;
+  border-color: rgba(194, 158, 82, 0.2);
+}
+body.night-mode.deep-night-mode .mushaf-image-wrapper,
+body.night-mode.deep-night-mode .mushaf-page-canvas {
+  background: transparent;
+}
 body.night-mode.deep-night-mode .control-card,
 body.night-mode.deep-night-mode .player,
 body.night-mode.deep-night-mode .bottom-nav,
