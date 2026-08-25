@@ -13,7 +13,7 @@ body.night-mode::before {
 
 /* ========== الوضع الليلي القاتم: خلفية مريحة جدًا ومساحة قراءة وسطية صافية ========== */
 body.night-mode.deep-night-mode {
-  background: url('/backgrounds/night-deep-pure-black-preview.png') center center / cover no-repeat fixed;
+  background: url('/backgrounds/night-deep-pure-black-no-text-preview.png') center center / cover no-repeat fixed;
   background-color: #000000;
   --controls-bg: transparent;
   --player-bg: transparent;
