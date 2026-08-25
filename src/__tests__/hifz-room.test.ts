@@ -109,6 +109,8 @@ describe('Hifz Room', () => {
     expect(room.querySelector('#hifzRoomToday')).toBeNull();
     expect(room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat')!.max).toBe('100');
     expect(room.querySelector<HTMLInputElement>('#hifzRoomReviewAt')).not.toBeNull();
+    expect(document.getElementById('hifzRoomToggle')!.textContent).toBe('غرفة الحفظ');
+    expect(document.getElementById('hifzRoomToggle')!.textContent).not.toContain('📖');
   });
 
   it('does not inject inside the Capacitor-native container', () => {

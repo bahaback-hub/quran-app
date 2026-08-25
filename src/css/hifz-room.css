@@ -779,6 +779,9 @@ body.hifz-room-active .hifz-room-toggle {
   top: 50%;
   right: 0;
   left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 120px;
   gap: 6px;
@@ -788,10 +791,12 @@ body.hifz-room-active .hifz-room-toggle {
   border-radius: 12px 0 0 12px;
   color: #fff;
   background: var(--curtain-handle-bg, #11120f);
-  box-shadow: -4px 0 16px rgb(0 0 0 / 36%);
+  box-shadow: -4px 0 16px rgb(0 0 0 / 25%);
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
+  transform: translateY(-50%);
+  transition: all 0.3s ease;
   writing-mode: vertical-rl;
   text-orientation: mixed;
 }
@@ -807,7 +812,8 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-toggle:focus-visible,
 .hifz-room-toggle--rtl:hover,
 .hifz-room-toggle--rtl:focus-visible {
-  background: #20221d;
+  width: 42px;
+  background: var(--curtain-handle-bg, #11120f);
   transform: translateY(-50%);
   outline: 3px solid rgb(215 187 129 / 58%);
   outline-offset: -3px;
@@ -1034,13 +1040,6 @@ body.night-mode.deep-night-mode {
   background: var(--curtain-handle-bg, #11120f);
   cursor: grab;
   touch-action: none;
-}
-
-.hifz-room-toggle:hover,
-.hifz-room-toggle:focus-visible,
-.hifz-room-toggle--rtl:hover,
-.hifz-room-toggle--rtl:focus-visible {
-  background: var(--curtain-handle-bg, #11120f);
 }
 
 .hifz-room-toggle.is-dragging {

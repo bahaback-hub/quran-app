@@ -943,7 +943,7 @@ export function initHifzRoom(): void {
   toggle.setAttribute('aria-expanded', 'false');
   toggle.setAttribute('title', label('hifz_room'));
   toggle.setAttribute('aria-label', label('hifz_room'));
-  toggle.innerHTML = '<span aria-hidden="true">📖</span><span data-hifz-toggle-label></span>';
+  toggle.innerHTML = '<span data-hifz-toggle-label></span>';
   document.body.append(backdrop, stage, room, toggle);
   renderRoomText(room);
   const toggleLabel = toggle.querySelector<HTMLElement>('[data-hifz-toggle-label]');
