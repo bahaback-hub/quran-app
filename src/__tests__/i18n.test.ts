@@ -42,8 +42,8 @@ import {
 } from '../i18n.js';
 
 describe('AVAILABLE_LANGUAGES', () => {
-  it('should contain 5 languages', () => {
-    expect(AVAILABLE_LANGUAGES).toHaveLength(5);
+  it('should contain 8 languages', () => {
+    expect(AVAILABLE_LANGUAGES).toHaveLength(8);
   });
 
   it('should include Arabic with RTL direction', () => {
@@ -71,6 +71,18 @@ describe('AVAILABLE_LANGUAGES', () => {
     const id = AVAILABLE_LANGUAGES.find((l) => l.code === 'id');
     expect(ms).toBeDefined();
     expect(id).toBeDefined();
+  });
+
+  it('should include French, German, and Russian with LTR direction', () => {
+    const fr = AVAILABLE_LANGUAGES.find((l) => l.code === 'fr');
+    const de = AVAILABLE_LANGUAGES.find((l) => l.code === 'de');
+    const ru = AVAILABLE_LANGUAGES.find((l) => l.code === 'ru');
+    expect(fr?.nativeName).toBe('Français');
+    expect(de?.nativeName).toBe('Deutsch');
+    expect(ru?.nativeName).toBe('Русский');
+    expect(fr?.dir).toBe('ltr');
+    expect(de?.dir).toBe('ltr');
+    expect(ru?.dir).toBe('ltr');
   });
 
   it('each language should have code, nativeName, englishName, dir', () => {
@@ -699,12 +711,12 @@ describe('initI18n', () => {
     expect(getLang()).toBe('tr');
   });
 
-  it('should default to Arabic for non-English browser without stored preference', async () => {
+  it('should initialize with French when browser language starts with "fr"', async () => {
     const originalLang = navigator.language;
     Object.defineProperty(navigator, 'language', { value: 'fr-FR', configurable: true });
 
     await initI18n();
-    expect(getLang()).toBe('ar');
+    expect(getLang()).toBe('fr');
 
     Object.defineProperty(navigator, 'language', { value: originalLang, configurable: true });
   });

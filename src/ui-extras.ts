@@ -87,7 +87,7 @@ export function showContinueWidget(info: ContinueInfo): void {
 
   const text = document.createElement('span');
   text.className = 'continue-widget-text';
-  const locale = ({ ar: 'ar-SA', en: 'en', tr: 'tr', ms: 'ms', id: 'id' } as const)[lang];
+  const locale = ({ ar: 'ar-SA', en: 'en', tr: 'tr', ms: 'ms', id: 'id', fr: 'fr', de: 'de', ru: 'ru' } as const)[lang];
   const dateStr = info.timestamp ? new Date(info.timestamp).toLocaleDateString(locale) : '';
   const strong = document.createElement('strong');
   const visibleSurahName = lang === 'ar' || !info.englishSurahName ? info.surahName : info.englishSurahName;

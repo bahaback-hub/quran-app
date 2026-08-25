@@ -2,7 +2,7 @@
  * Internationalization (i18n) Module for Quran App.
  *
  * Provides a lightweight, lazy-loading translation system supporting 5 languages
- * (Arabic, English, Turkish, Malay, Indonesian). Key design decisions:
+ * (Arabic, English, Turkish, Malay, Indonesian, French, German, Russian). Key design decisions:
  *
  *   - Arabic is always loaded as the fallback language
  *   - Only the active language bundle is kept in memory
@@ -30,7 +30,7 @@ export interface TranslationBundle {
 }
 
 /** Supported language codes. */
-export type LangCode = 'ar' | 'en' | 'tr' | 'ms' | 'id';
+export type LangCode = 'ar' | 'en' | 'tr' | 'ms' | 'id' | 'fr' | 'de' | 'ru';
 
 /** Language metadata for the language selector UI. */
 export interface LanguageInfo {
@@ -47,6 +47,9 @@ export const AVAILABLE_LANGUAGES: LanguageInfo[] = [
   { code: 'tr', nativeName: 'Türkçe', englishName: 'Turkish', dir: 'ltr' },
   { code: 'ms', nativeName: 'Bahasa Melayu', englishName: 'Malay', dir: 'ltr' },
   { code: 'id', nativeName: 'Bahasa Indonesia', englishName: 'Indonesian', dir: 'ltr' },
+  { code: 'fr', nativeName: 'Français', englishName: 'French', dir: 'ltr' },
+  { code: 'de', nativeName: 'Deutsch', englishName: 'German', dir: 'ltr' },
+  { code: 'ru', nativeName: 'Русский', englishName: 'Russian', dir: 'ltr' },
 ];
 
 const STORAGE_KEY = 'lang';
@@ -90,6 +93,9 @@ async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
     tr: () => import('./translations/tr'),
     ms: () => import('./translations/ms'),
     id: () => import('./translations/id'),
+    fr: () => import('./translations/fr'),
+    de: () => import('./translations/de'),
+    ru: () => import('./translations/ru'),
   };
 
   const loader = moduleMap[lang];
@@ -166,7 +172,9 @@ export function getLoadedLangs(): LangCode[] {
 /** Initialize i18n system from saved language or browser preference. */
 export async function initI18n(): Promise<void> {
   const saved = storage.get<string>(STORAGE_KEY) as LangCode | null;
-  const targetLang: LangCode = saved || ((navigator.language || '').startsWith('en') ? 'en' : 'ar');
+  const browserLang = (navigator.language || '').slice(0, 2) as LangCode;
+  const detectedLang = AVAILABLE_LANGUAGES.find((language) => language.code === browserLang)?.code;
+  const targetLang: LangCode = saved || detectedLang || 'ar';
 
   // Load Arabic and target language in parallel if they're different
   // This cuts init time in half for non-Arabic users
