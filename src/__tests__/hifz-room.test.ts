@@ -190,6 +190,24 @@ describe('Hifz Room', () => {
     expect(room.querySelector('#hifzRoomStatus')!.textContent).toContain('فُعّل الحفظ والتكرار.');
   });
 
+  it('does not persist player preferences when loading the hifz session fails', async () => {
+    addPlayerControls();
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    room.querySelector<HTMLSelectElement>('#hifzRoomReciter')!.value = 'ar.husary';
+    room.querySelector<HTMLSelectElement>('#hifzRoomSpeed')!.value = '1.25';
+    mockStorage.set.mockClear();
+    mockLoadSurah.mockRejectedValueOnce(new Error('offline'));
+
+    room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(mockStorage.set).not.toHaveBeenCalledWith('reciter', 'ar.husary');
+    expect(mockStorage.set).not.toHaveBeenCalledWith('playback_speed', '1.25');
+    expect(room.querySelector('#hifzRoomStatus')!.textContent).toContain('تعذر تجهيز الورد');
+  });
+
   it('reactivates a full-surah range when a previous session left only stale active button styles', async () => {
     const { hifdhClick, repeatClick } = addPlayerControls();
     initHifzRoom();

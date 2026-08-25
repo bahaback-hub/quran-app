@@ -811,13 +811,13 @@ async function startHifzSession(room: HTMLElement): Promise<void> {
   controls.start.disabled = true;
   controls.status.textContent = label('hifz_room_loading');
   try {
-    applySessionAudioPreferences(plan);
     await loadSurah(plan.surah, { startAyah: plan.from });
     await hydrateDownloadedSessionAudio(plan);
     const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
     if (mainSelect) {
       mainSelect.value = String(plan.surah);
     }
+    applySessionAudioPreferences(plan);
     activateCurrentHifzTools(plan);
     controls.status.textContent = label('hifz_room_session_active');
     room.classList.add('hifz-room-session-active');

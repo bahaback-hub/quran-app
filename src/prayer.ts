@@ -24,6 +24,17 @@ interface CachedPrayerTimes {
   method: string;
 }
 
+/** Device-derived times are deliberately kept separate from an explicitly selected city. */
+interface CachedLocalPrayerTimes {
+  date: string;
+  timings: import('./types.js').PrayerTimes;
+  method: string;
+  source: 'device-location';
+}
+
+const LOCAL_PRAYER_CACHE_KEY = 'cached_local_prayer_times';
+const PRAYER_CACHE_MAX_AGE_DAYS = 3;
+
 /** DeviceOrientationEvent with iOS-specific webkitCompassHeading. */
 interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
   webkitCompassHeading?: number;
@@ -128,7 +139,7 @@ export async function loadPrayerTimes(): Promise<void> {
     if (cached && cached.city === city && cached.country === country && cached.method === method) {
       // Accept cache from today or up to 3 days ago (prayer times shift ~1 min/day)
       const cacheAge = (Date.now() - new Date(cached.date).getTime()) / (1000 * 60 * 60 * 24);
-      if (cacheAge <= 3) {
+      if (cacheAge <= PRAYER_CACHE_MAX_AGE_DAYS) {
         state.prayerTimes = cached.timings;
         renderPrayerTimes();
         checkAzanTime();
@@ -138,11 +149,32 @@ export async function loadPrayerTimes(): Promise<void> {
       }
     }
 
-    // ── Strategy 3: Device-location calculation (last resort when the selected city is unavailable) ──
+    // ── Strategy 3: Device-location cache ──
+    // Never reuse this for the selected city: it represents the phone's physical location.
+    const cachedLocal = storage.get<CachedLocalPrayerTimes>(LOCAL_PRAYER_CACHE_KEY);
+    if (cachedLocal && cachedLocal.source === 'device-location' && cachedLocal.method === method) {
+      const cacheAge = (Date.now() - new Date(cachedLocal.date).getTime()) / (1000 * 60 * 60 * 24);
+      if (cacheAge <= PRAYER_CACHE_MAX_AGE_DAYS) {
+        state.prayerTimes = cachedLocal.timings;
+        renderPrayerTimes();
+        checkAzanTime();
+        scheduleNextAzanCheck();
+        showToast(cacheAge < 0.5 ? __('cached_prayer') : __('cached_prayer_stale'), 'info');
+        return;
+      }
+    }
+
+    // ── Strategy 4: Device-location calculation (last resort when the selected city is unavailable) ──
     try {
       const localTimes = await calculatePrayerTimesLocally(method);
       if (localTimes) {
         state.prayerTimes = localTimes;
+        storage.set(LOCAL_PRAYER_CACHE_KEY, {
+          date: new Date().toISOString(),
+          timings: localTimes,
+          method,
+          source: 'device-location',
+        } satisfies CachedLocalPrayerTimes);
         renderPrayerTimes();
         checkAzanTime();
         scheduleNextAzanCheck();
