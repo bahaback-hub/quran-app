@@ -345,6 +345,7 @@ export default {
   bg_afternoon: 'Öğle',
   bg_sunset: 'Batım',
   bg_night: 'Gece',
+  theme_deep_night: 'Koyu gece modu',
 
   // === Mushaf ===
   mushaf_loading_title: 'Mushaf yükleniyor',

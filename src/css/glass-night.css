@@ -11,6 +11,43 @@ body.night-mode::before {
   display: none;
 }
 
+/* ========== الوضع الليلي القاتم: خلفية مريحة جدًا ومساحة قراءة وسطية صافية ========== */
+body.night-mode.deep-night-mode {
+  background: url('/backgrounds/night-deep-framed-preview.png') center center / cover no-repeat fixed;
+  background-color: #020307;
+}
+body.night-mode.deep-night-mode .container {
+  background: rgba(2, 4, 9, 0.72);
+  border-color: rgba(194, 158, 82, 0.16);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.62);
+}
+body.night-mode.deep-night-mode .header {
+  background: rgba(3, 5, 10, 0.9);
+  border-bottom-color: rgba(194, 158, 82, 0.3);
+}
+body.night-mode.deep-night-mode .controls,
+body.night-mode.deep-night-mode .reader-toolbar-shell.is-pinned .controls {
+  background: rgba(3, 5, 10, 0.88);
+  border-bottom-color: rgba(194, 158, 82, 0.24);
+}
+body.night-mode.deep-night-mode .surah-content {
+  background: rgba(1, 3, 8, 0.76);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+body.night-mode.deep-night-mode .control-card,
+body.night-mode.deep-night-mode .player,
+body.night-mode.deep-night-mode .bottom-nav {
+  background: rgba(6, 8, 15, 0.82);
+  border-color: rgba(194, 158, 82, 0.2);
+}
+body.night-mode.deep-night-mode .settings-panel,
+body.night-mode.deep-night-mode .favorites-panel,
+body.night-mode.deep-night-mode .adhkar-panel,
+body.night-mode.deep-night-mode .tafsir-curtain {
+  background: rgba(2, 4, 10, 0.94);
+}
+
 /* ========== عناصر زجاجية داكنة — Dark Glass Morphism ========== */
 /* طبقة زجاجية أساسية — شفافة أكثر لإظهار الخلفية */
 body.night-mode .container {

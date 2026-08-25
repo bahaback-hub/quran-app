@@ -153,7 +153,7 @@ export function bindHeaderAndSettingsEvents(): void {
     const btn = target.closest('.theme-btn') as HTMLElement | null;
     if (btn?.dataset['theme']) {
       e.preventDefault();
-      applyTheme(btn.dataset['theme'] as 'light' | 'sepia' | 'night');
+      applyTheme(btn.dataset['theme'] as 'light' | 'sepia' | 'night' | 'deep-night');
       document.getElementById('themeToggle')?.classList.remove('open');
       document.getElementById('themeMenuBtn')?.setAttribute('aria-expanded', 'false');
     }
@@ -163,7 +163,7 @@ export function bindHeaderAndSettingsEvents(): void {
       e.preventDefault();
       const btn = (e.target as HTMLElement).closest('.theme-btn') as HTMLElement | null;
       if (btn?.dataset['theme']) {
-        applyTheme(btn.dataset['theme'] as 'light' | 'sepia' | 'night');
+        applyTheme(btn.dataset['theme'] as 'light' | 'sepia' | 'night' | 'deep-night');
       } else {
         toggleNightMode();
       }
