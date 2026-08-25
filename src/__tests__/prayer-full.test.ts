@@ -317,6 +317,32 @@ describe('prayer.ts', () => {
 
       expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
       expect(mockCalculatePrayerTimesLocally).toHaveBeenCalledWith('4');
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_local_prayer_times',
+        expect.objectContaining({ timings: SAMPLE_PRAYER_TIMES, method: '4', source: 'device-location' }),
+      );
+    });
+
+    it('should reuse the separate device-location cache without replacing the selected-city cache', async () => {
+      const localTimes = { ...SAMPLE_PRAYER_TIMES, Fajr: '04:42' };
+      mockPrayerFetch.mockRejectedValue(new Error('Network error'));
+      mockStorageGet.mockImplementation((key: string) => {
+        if (key === 'cached_local_prayer_times') {
+          return {
+            date: new Date().toISOString(),
+            timings: localTimes,
+            method: '4',
+            source: 'device-location',
+          };
+        }
+        return null;
+      });
+
+      await loadPrayerTimes();
+
+      expect(state.prayerTimes).toEqual(localTimes);
+      expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
+      expect(mockStorageSet).not.toHaveBeenCalledWith('cached_prayer_times', expect.anything());
     });
 
     it('should use the selected-city source without asking for device location', async () => {
