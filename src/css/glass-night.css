@@ -94,6 +94,10 @@ body.night-mode.deep-night-mode .surah-reciter-group select option {
   background: #000000;
   color: #f7f3e8;
 }
+body.night-mode.deep-night-mode .settings-row select option {
+  background: #000000;
+  color: #f7f3e8;
+}
 body.night-mode.deep-night-mode .settings-panel,
 body.night-mode.deep-night-mode .favorites-panel,
 body.night-mode.deep-night-mode .adhkar-panel,

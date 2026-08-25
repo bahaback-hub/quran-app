@@ -345,9 +345,12 @@
   font-variant-numeric: tabular-nums;
 }
 .header-prayer-tile .prayer-bar-details {
-  position: absolute;
-  right: 0;
-  width: min(340px, 92vw);
+  position: fixed;
+  top: max(76px, calc(env(safe-area-inset-top, 0px) + 12px));
+  right: clamp(8px, 2vw, 24px);
+  width: min(340px, calc(100vw - 16px));
+  max-height: calc(100vh - 92px);
+  overflow-y: auto;
   z-index: 35;
 }
 .theme-menu {

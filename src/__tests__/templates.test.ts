@@ -824,7 +824,7 @@ describe('settingsPanelHTML', () => {
 
   it('should contain prayer time settings', () => {
     const result = settingsPanelHTML();
-    expect(result).toContain('prayerTimesRows');
+    expect(result).toContain('settingsPrayerTimesRows');
     expect(result).toContain('cityInput');
     expect(result).toContain('countryInput');
     expect(result).toContain('methodSelect');

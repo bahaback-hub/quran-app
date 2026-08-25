@@ -9,6 +9,7 @@ import { storage } from './storage.js';
 import { state } from './state.js';
 import { showToast } from './ui.js';
 import { __, AVAILABLE_LANGUAGES, getLang, setLang } from './i18n.js';
+import type { LangCode } from './i18n.js';
 import { helpPanelHTML } from './templates.js';
 import {
   applyFontSize,
@@ -621,7 +622,7 @@ export function bindDisplaySettingsEvents(): void {
   dom.langSelect?.addEventListener('change', () => {
     const newLang = dom.langSelect!.value;
     if (newLang !== getLang()) {
-      setLang(newLang as 'ar' | 'en' | 'tr' | 'ms' | 'id').then(() => {
+      setLang(newLang as LangCode).then(() => {
         showToast(
           __('language') + ': ' + (AVAILABLE_LANGUAGES.find((l) => l.code === newLang)?.nativeName || newLang),
           'success',
