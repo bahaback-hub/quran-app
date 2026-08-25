@@ -781,11 +781,11 @@ body.mushaf-active.reader-toolbar-pinned .container {
   overflow: visible;
 }
 
-/* ===== نافذة القراءة داخل الإطار — الوضع الليلي القاتم على سطح المكتب =====
-   نُبقي عرض الهاتف كاملاً، لكن نُدخل الحاوية في نافذة الوسط عندما تكون الزخرفة
-   الجانبية ظاهرة، فتبدأ القراءة وتنتهي عند الحافة الداخلية للبرواز. */
+/* ===== نافذة قراءة المصحف الموحدة على سطح المكتب =====
+   نُبقي عرض الهاتف كاملاً، ونستخدم نافذة وسطية ثابتة في كل أوضاع المظهر حتى
+   تتطابق أبعاد المصحف مع المقاس المعتمد في الوضع الليلي القاتم. */
 @media (min-width: 1100px) {
-  body.night-mode.deep-night-mode.mushaf-active .container {
+  body.mushaf-active .container {
     width: min(1440px, calc(100% - clamp(280px, 22vw, 420px)));
     max-width: min(1440px, calc(100% - clamp(280px, 22vw, 420px)));
     margin-inline: auto;
