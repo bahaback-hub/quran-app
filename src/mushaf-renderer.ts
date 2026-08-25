@@ -544,11 +544,29 @@ function isNightMode(): boolean {
   return document.body.classList.contains('night-mode');
 }
 
+function isDeepNightMode(): boolean {
+  return document.body.classList.contains('night-mode') && document.body.classList.contains('deep-night-mode');
+}
+
 function getColors(): PageColors {
+  if (isDeepNightMode()) {
+    return { bg: 'transparent', txt: '#f7f3e8', frame: 'rgba(194, 158, 82, 0.22)', frameInner: 'rgba(194, 158, 82, 0.12)' };
+  }
   if (isNightMode()) {
     return { bg: '#1a1e2b', txt: '#d4c4a8', frame: '#4a4e5e', frameInner: '#3a3e4e' };
   }
   return { bg: '#f5f0e8', txt: '#1a1a1a', frame: '#c4a87c', frameInner: '#b8956a' };
+}
+
+function paintPageBackground(ctx: CanvasRenderingContext2D, colors: PageColors): void {
+  // Canvas is reset by width/height assignment before normal renders. The guard
+  // keeps lightweight test canvas mocks compatible while real canvases are
+  // cleared for Capacitor's delayed re-render.
+  ctx.clearRect?.(0, 0, CANVAS_W, CANVAS_H);
+  if (colors.bg !== 'transparent') {
+    ctx.fillStyle = colors.bg;
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+  }
 }
 
 /* ===================== RENDERING ===================== */
@@ -614,8 +632,7 @@ async function _renderPageWithCurrentFonts(
     }
 
     const colors = getColors();
-    ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    paintPageBackground(ctx, colors);
     renderPageContent(ctx, data, pageFont, colors, pageNum);
     drawPageFrame(ctx, colors);
     drawPageNumber(ctx, pageNum, colors);
@@ -698,8 +715,7 @@ async function _renderPageInternal(
 
   const colors = getColors();
 
-  ctx!.fillStyle = colors.bg;
-  ctx!.fillRect(0, 0, CANVAS_W, CANVAS_H);
+  paintPageBackground(ctx!, colors);
 
   renderPageContent(ctx!, data, pageFont, colors, pageNum);
 
@@ -721,8 +737,7 @@ async function _renderPageInternal(
         if (c && c.width === CANVAS_W && c.dataset['renderToken'] === renderToken) {
           const ctx2 = c.getContext('2d');
           if (ctx2) {
-            ctx2.fillStyle = renderData.colors.bg;
-            ctx2.fillRect(0, 0, CANVAS_W, CANVAS_H);
+            paintPageBackground(ctx2, renderData.colors);
             renderPageContent(ctx2, renderData.data, renderData.pageFont, renderData.colors, renderData.pageNum);
             drawPageFrame(ctx2, renderData.colors);
             drawPageNumber(ctx2, renderData.pageNum, renderData.colors);
