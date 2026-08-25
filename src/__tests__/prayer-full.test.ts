@@ -291,48 +291,42 @@ describe('prayer.ts', () => {
   /* ===================== LOAD PRAYER TIMES ===================== */
 
   describe('loadPrayerTimes', () => {
-    it('should use local calculation when available (Strategy 1)', async () => {
+    it('should use the selected-city source before device location (Strategy 1)', async () => {
+      mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
+
+      await loadPrayerTimes();
+
+      expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
+      expect(mockStorageSet).toHaveBeenCalledWith(
+        'cached_prayer_times',
+        expect.objectContaining({
+          timings: SAMPLE_PRAYER_TIMES,
+        }),
+      );
+      expect(mockPrayerFetch).toHaveBeenCalledWith('?city=%D9%85%D9%83%D8%A9%20%D8%A7%D9%84%D9%85%D9%83%D8%B1%D9%85%D8%A9&country=SA&method=4', {
+        errorMsg: 'failed_prayer',
+      });
+      expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to device calculation when the selected-city source fails', async () => {
+      mockPrayerFetch.mockRejectedValue(new Error('Network error'));
       mockCalculatePrayerTimesLocally.mockResolvedValue({ ...SAMPLE_PRAYER_TIMES });
 
       await loadPrayerTimes();
 
       expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
-      expect(mockStorageSet).toHaveBeenCalledWith(
-        'cached_prayer_times',
-        expect.objectContaining({
-          timings: SAMPLE_PRAYER_TIMES,
-        }),
-      );
-      expect(mockPrayerFetch).not.toHaveBeenCalled();
+      expect(mockCalculatePrayerTimesLocally).toHaveBeenCalledWith('4');
     });
 
-    it('should fall back to API when local calculation returns null', async () => {
-      mockCalculatePrayerTimesLocally.mockResolvedValue(null);
-      mockPrayerFetch.mockResolvedValue({
-        data: { timings: { ...SAMPLE_PRAYER_TIMES } },
-      });
-
-      await loadPrayerTimes();
-
-      expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
-      expect(mockStorageSet).toHaveBeenCalledWith(
-        'cached_prayer_times',
-        expect.objectContaining({
-          timings: SAMPLE_PRAYER_TIMES,
-        }),
-      );
-    });
-
-    it('should fall back to API when local calculation throws', async () => {
-      mockCalculatePrayerTimesLocally.mockRejectedValue(new Error('GPS denied'));
-      mockPrayerFetch.mockResolvedValue({
-        data: { timings: { ...SAMPLE_PRAYER_TIMES } },
-      });
+    it('should use the selected-city source without asking for device location', async () => {
+      mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
 
       await loadPrayerTimes();
 
       expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
       expect(mockPrayerFetch).toHaveBeenCalled();
+      expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
     });
 
     it('should use localStorage cache when API also fails (Strategy 3)', async () => {
@@ -433,7 +427,7 @@ describe('prayer.ts', () => {
     });
 
     it('should use DOM inputs for city/country/method when available', async () => {
-      mockCalculatePrayerTimesLocally.mockResolvedValue({ ...SAMPLE_PRAYER_TIMES });
+      mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
       (mockDom.cityInput as HTMLInputElement).value = 'الرياض';
       (mockDom.countryInput as HTMLInputElement).value = 'SA';
       (mockDom.methodSelect as HTMLSelectElement).value = '1';
@@ -454,8 +448,24 @@ describe('prayer.ts', () => {
       (mockDom.methodSelect as HTMLSelectElement).value = '4';
     });
 
+    it('should request Madinah times when Madinah is the selected city', async () => {
+      mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
+      (mockDom.cityInput as HTMLInputElement).value = 'المدينة';
+      (mockDom.countryInput as HTMLInputElement).value = 'SA';
+      (mockDom.methodSelect as HTMLSelectElement).value = '4';
+
+      await loadPrayerTimes();
+
+      expect(mockPrayerFetch).toHaveBeenCalledWith('?city=%D8%A7%D9%84%D9%85%D8%AF%D9%8A%D9%86%D8%A9&country=SA&method=4', {
+        errorMsg: 'failed_prayer',
+      });
+      expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
+
+      (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
+    });
+
     it('should use state defaults when DOM inputs are null', async () => {
-      mockCalculatePrayerTimesLocally.mockResolvedValue({ ...SAMPLE_PRAYER_TIMES });
+      mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
       const savedCity = mockDom.cityInput;
       mockDom.cityInput = null;
       const savedCountry = mockDom.countryInput;
@@ -1631,7 +1641,7 @@ describe('prayer.ts', () => {
     });
 
     it('renderPrayerTimes should call prayerTimesRows template', async () => {
-      mockCalculatePrayerTimesLocally.mockResolvedValue({ ...SAMPLE_PRAYER_TIMES });
+      mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
 
       await loadPrayerTimes();
 
