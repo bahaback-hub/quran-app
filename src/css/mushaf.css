@@ -51,6 +51,7 @@
   width: 100%;
 }
 .view-mode-btn {
+  display: grid;
   min-height: 62px;
   width: 100%;
   grid-template-columns: 76px minmax(0, 1fr);
@@ -88,87 +89,25 @@
   justify-content: center;
   padding: 4px 8px;
 }
-/* معاينات القراءة: الآية الموحدة واضحة فوق لقطة حقيقية من الوضع نفسه. */
+/* شعارات طرق القراءة: ذهبية وشفافة، فتتلاءم مع كل أوضاع المظهر. */
 .reading-mode-preview {
-  display: block;
+  display: grid;
+  place-items: center;
   min-height: 48px;
   height: 48px;
   border-radius: 4px;
-  background-size: cover;
-  background-position: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 .reading-mode-preview::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(255, 253, 247, 0.54), rgba(255, 253, 247, 0.7));
-  z-index: 0;
+  content: none;
 }
-.reading-mode-preview-verse {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  min-height: 100%;
-  padding: 2px 6px;
-  color: #4b351f;
-  font-family: 'Scheherazade New', 'Traditional Arabic', 'Amiri', serif;
-  font-size: clamp(9px, 1.1vw, 16px);
-  font-weight: 700;
-  line-height: 1.35;
-  text-align: center;
-  text-shadow: 0 1px 1px rgba(255, 253, 247, 0.92);
-}
-.reading-mode-preview-surah {
-  background-image: linear-gradient(90deg, rgba(12, 18, 44, 0.08), rgba(12, 18, 44, 0.3)), url('../../public/screenshots/reading-mode.webp');
-  background-position: 50% 55%;
-}
-.reading-mode-preview-mushaf {
-  background-image: linear-gradient(90deg, rgba(12, 18, 44, 0.04), rgba(12, 18, 44, 0.24)), url('../../public/screenshots/mushaf-mode.webp');
-  background-position: 50% 58%;
-}
-.reading-mode-preview-featured {
-  display: grid;
-  place-items: center;
-  background-image: linear-gradient(90deg, rgba(92, 52, 49, 0.06), rgba(92, 52, 49, 0.24)), url('../../public/backgrounds/dawn.jpg');
-}
-/* Theme-synced real previews: each preview uses a capture from the same reading mode. */
-body:not(.night-mode):not(.sepia-mode) .reading-mode-preview-surah {
-  background-image: linear-gradient(90deg, rgba(255, 253, 247, 0.03), rgba(122, 92, 58, 0.12)), url('../../public/screenshots/reading-mode-day.webp');
-}
-body:not(.night-mode):not(.sepia-mode) .reading-mode-preview-mushaf {
-  background-image: linear-gradient(90deg, rgba(255, 253, 247, 0.02), rgba(122, 92, 58, 0.1)), url('../../public/screenshots/mushaf-mode-day.webp');
-}
-body:not(.night-mode):not(.sepia-mode) .reading-mode-preview-featured {
-  background-image: linear-gradient(90deg, rgba(92, 52, 49, 0.06), rgba(92, 52, 49, 0.24)), url('../../public/backgrounds/dawn.jpg');
-}
-body.sepia-mode .reading-mode-preview-surah {
-  background-image: linear-gradient(90deg, rgba(74, 53, 32, 0.08), rgba(74, 53, 32, 0.28)), url('../../public/screenshots/reading-mode-sepia.webp');
-}
-body.sepia-mode .reading-mode-preview-mushaf {
-  background-image: linear-gradient(90deg, rgba(74, 53, 32, 0.06), rgba(74, 53, 32, 0.24)), url('../../public/screenshots/mushaf-mode-sepia.webp');
-}
-body.sepia-mode .reading-mode-preview-featured {
-  background-image: linear-gradient(90deg, rgba(74, 53, 32, 0.12), rgba(74, 53, 32, 0.32)), url('../../public/backgrounds/sunset.jpg');
-  text-shadow: 0 1px 5px #442b20;
-}
-body.night-mode .reading-mode-preview-surah {
-  background-image: linear-gradient(90deg, rgba(12, 18, 44, 0.08), rgba(12, 18, 44, 0.3)), url('../../public/screenshots/reading-mode.webp');
-}
-body.night-mode .reading-mode-preview-mushaf {
-  background-image: linear-gradient(90deg, rgba(12, 18, 44, 0.04), rgba(12, 18, 44, 0.24)), url('../../public/screenshots/mushaf-mode.webp');
-}
-body.night-mode .reading-mode-preview-featured {
-  background-image: linear-gradient(90deg, rgba(3, 9, 22, 0.18), rgba(3, 9, 22, 0.48)), url('../../public/backgrounds/nightsky.jpg');
-}
-body.night-mode .reading-mode-preview::before {
-  background: linear-gradient(90deg, rgba(6, 12, 27, 0.46), rgba(6, 12, 27, 0.62));
-}
-body.night-mode .reading-mode-preview-verse {
-  color: #fff8e7;
-  text-shadow: 0 1px 3px #060b1b;
+.reading-mode-preview-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
 }
 .reading-mode-copy {
   min-width: 0;
