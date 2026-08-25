@@ -12,7 +12,6 @@ import { highlightCurrentAyah, loadAudioUrlsForSession, loadSurah } from './sura
 import { state } from './state.js';
 import { storage } from './storage.js';
 
-const BACKGROUND_URL = 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663901108942/aQJlASvxkRWbBYrT.png';
 const ROOM_ID = 'hifzRoom';
 const TOGGLE_ID = 'hifzRoomToggle';
 const STAGE_ID = 'hifzRoomStage';
@@ -786,11 +785,10 @@ export function initHifzRoom(): void {
   }
   const room = document.createElement('aside');
   room.id = ROOM_ID;
-  room.className = 'hifz-room hifz-room--rtl';
+  room.className = 'hifz-room hifz-curtain hifz-room--rtl';
   room.dir = 'rtl';
   room.setAttribute('aria-hidden', 'true');
   room.setAttribute('inert', '');
-  room.style.setProperty('--hifz-room-background', `url("${BACKGROUND_URL}")`);
   room.innerHTML = `
     <div class="hifz-room-scene" aria-hidden="true"></div>
     <section class="hifz-room-panel" aria-labelledby="hifzRoomTitle">
@@ -818,19 +816,19 @@ export function initHifzRoom(): void {
   backdrop.id = 'hifzRoomBackdrop';
   backdrop.className = 'hifz-room-backdrop';
   backdrop.setAttribute('aria-hidden', 'true');
-  backdrop.style.setProperty('--hifz-room-background', `url("${BACKGROUND_URL}")`);
   const stage = document.createElement('section');
   stage.id = STAGE_ID;
   stage.className = 'hifz-room-stage';
   stage.setAttribute('aria-hidden', 'true');
   stage.innerHTML = '<p id="hifzRoomStageMeta" class="hifz-room-stage-meta"></p><p id="hifzRoomStageText" class="hifz-room-stage-text" aria-live="polite"></p>';
   toggle.id = TOGGLE_ID;
-  toggle.className = 'hifz-room-toggle hifz-room-toggle--rtl';
+  toggle.className = 'hifz-room-toggle hifz-curtain-handle hifz-room-toggle--rtl';
   toggle.type = 'button';
   toggle.setAttribute('aria-controls', ROOM_ID);
   toggle.setAttribute('aria-expanded', 'false');
-  toggle.setAttribute('title', 'H');
-  toggle.innerHTML = '<span aria-hidden="true">۞</span><span data-hifz-toggle-label></span>';
+  toggle.setAttribute('title', label('hifz_room'));
+  toggle.setAttribute('aria-label', label('hifz_room'));
+  toggle.innerHTML = '<span aria-hidden="true">📖</span><span data-hifz-toggle-label></span>';
   document.body.append(backdrop, stage, room, toggle);
   renderRoomText(room);
   const toggleLabel = toggle.querySelector<HTMLElement>('[data-hifz-toggle-label]');
@@ -969,6 +967,8 @@ export function initHifzRoom(): void {
     if (toggleLabel) {
       toggleLabel.textContent = label('hifz_room');
     }
+    toggle.setAttribute('title', label('hifz_room'));
+    toggle.setAttribute('aria-label', label('hifz_room'));
     closeButton?.setAttribute('aria-label', `${label('close')} ${label('hifz_room')}`);
     updateDirection(room, toggle);
     refreshForm(room, plan);

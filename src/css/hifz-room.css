@@ -759,3 +759,217 @@ body.hifz-room-tools-hidden .hifz-room-stage {
     transition: none;
   }
 }
+
+/* غرفة الحفظ كستارة قراءة: تبقى داخل حافة الصفحة ولا تضع طبقة فوق الآيات. */
+.hifz-room-backdrop,
+body.hifz-room-active .hifz-room-backdrop,
+.hifz-room-scene,
+.hifz-room-stage {
+  display: none;
+}
+
+body.hifz-room-active .hifz-room-toggle {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.hifz-room-toggle,
+.hifz-curtain-handle {
+  z-index: 950;
+  top: 50%;
+  right: 0;
+  left: auto;
+  width: 36px;
+  height: 120px;
+  gap: 6px;
+  padding: 0;
+  border: 2px solid var(--accent);
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  color: #fff;
+  background: var(--curtain-handle-bg, #11120f);
+  box-shadow: -4px 0 16px rgb(0 0 0 / 36%);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.hifz-room-toggle--rtl {
+  right: 0;
+  left: auto;
+  padding: 0;
+  border-radius: 12px 0 0 12px;
+}
+
+.hifz-room-toggle:hover,
+.hifz-room-toggle:focus-visible,
+.hifz-room-toggle--rtl:hover,
+.hifz-room-toggle--rtl:focus-visible {
+  background: #20221d;
+  transform: translateY(-50%);
+  outline: 3px solid rgb(215 187 129 / 58%);
+  outline-offset: -3px;
+}
+
+body.hifz-room-active .hifz-room-toggle {
+  right: min(360px, 88vw);
+}
+
+.hifz-room,
+.hifz-room--rtl {
+  z-index: 940;
+  top: 1rem;
+  right: 0;
+  bottom: 1rem;
+  left: auto;
+  box-sizing: border-box;
+  width: min(360px, 88vw);
+  min-width: 0;
+  height: auto;
+  color: #f7f3e8;
+  background: #090a09;
+  border: 1px solid rgb(215 187 129 / 42%);
+  border-right: 0;
+  border-radius: 18px 0 0 18px;
+  box-shadow: -12px 0 34px rgb(0 0 0 / 42%);
+  transform: translateX(calc(100% + 1rem));
+}
+
+.hifz-room.is-open {
+  transform: translateX(0);
+}
+
+.hifz-room-panel {
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 1.05rem;
+  border: 0;
+  border-radius: 18px 0 0 18px;
+  color: #f7f3e8;
+  background: #090a09;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.hifz-room-eyebrow,
+.hifz-room-card-label,
+.hifz-room-review p,
+.hifz-room-field,
+.hifz-room-custom-repeat,
+.hifz-room-review-time {
+  color: #d7bb81;
+}
+
+.hifz-room h2,
+.hifz-room-summary {
+  color: #fff8e8;
+}
+
+.hifz-room-lede,
+.hifz-room-status,
+.hifz-room-download-status,
+.hifz-room-return,
+.hifz-room-review strong,
+.hifz-room-card-meta,
+.hifz-room-footnote,
+.hifz-room-choice-row button,
+.hifz-room-repeat-options button {
+  color: rgb(247 243 232 / 78%);
+}
+
+.hifz-room-close {
+  color: #f7f3e8;
+  background: rgb(215 187 129 / 12%);
+}
+
+.hifz-room-close:hover,
+.hifz-room-close:focus-visible {
+  color: #090a09;
+  background: #d7bb81;
+}
+
+.hifz-room-session,
+.hifz-room-repeat,
+.hifz-room-review,
+.hifz-room-audio-grid {
+  border-color: rgb(215 187 129 / 18%);
+}
+
+.hifz-room-field select,
+.hifz-room-custom-repeat input,
+.hifz-room-review-time input,
+.hifz-room-choice-row button,
+.hifz-room-repeat-options button,
+.hifz-room-download,
+.hifz-room-focus-actions-secondary button {
+  border-color: rgb(215 187 129 / 30%);
+  color: #f7f3e8;
+  background: #151714;
+}
+
+.hifz-room-field select:focus-visible,
+.hifz-room-choice-row button:focus-visible,
+.hifz-room-return:focus-visible,
+.hifz-room-download:focus-visible,
+.hifz-room-focus-actions button:focus-visible {
+  outline-color: rgb(215 187 129 / 78%);
+}
+
+.hifz-room-choice-row button.is-selected,
+.hifz-room-repeat-options button.is-selected,
+.hifz-room-start,
+.hifz-room-focus-actions button {
+  border-color: #d7bb81;
+  color: #090a09;
+  background: #d7bb81;
+  box-shadow: none;
+}
+
+.hifz-room-start:hover,
+.hifz-room-start:focus-visible,
+.hifz-room-download:hover,
+.hifz-room-download:focus-visible,
+.hifz-room-focus-actions button:hover,
+.hifz-room-focus-actions button:focus-visible {
+  color: #090a09;
+  background: #f5dfab;
+}
+
+.hifz-room-download-status[data-state='ready'],
+body.night-mode .hifz-room-download-status[data-state='ready'] {
+  border-color: rgb(215 187 129 / 34%);
+  color: #f5dfab;
+  background: rgb(215 187 129 / 10%);
+}
+
+.hifz-room-focused .hifz-room-focus-controls {
+  justify-content: flex-start;
+  padding-top: 1rem;
+}
+
+/* نحجز ممرًا بين الستارة والقارئ على سطح المكتب، فلا تصل أدوات الحفظ إلى النص. */
+@media (min-width: 1100px) {
+  body.hifz-room-active #surahContent {
+    margin-right: 380px;
+  }
+}
+
+@media (max-width: 760px) {
+  .hifz-room,
+  .hifz-room--rtl {
+    top: 0.75rem;
+    bottom: 0.75rem;
+    width: min(330px, 88vw);
+  }
+
+  body.hifz-room-active .hifz-room-toggle {
+    right: min(330px, 88vw);
+  }
+
+  .hifz-room-panel {
+    padding: 0.95rem;
+  }
+}
