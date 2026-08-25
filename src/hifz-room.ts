@@ -16,6 +16,7 @@ const ROOM_ID = 'hifzRoom';
 const TOGGLE_ID = 'hifzRoomToggle';
 const STAGE_ID = 'hifzRoomStage';
 const PLAN_STORAGE_KEY = 'hifz_plan_v1';
+const CURTAIN_REVEAL_STORAGE_KEY = 'hifz_curtain_reveal';
 const DOWNLOAD_STORAGE_KEY = 'hifz_session_downloads_v1';
 const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5];
 const FOCUSED_CONTROLS_AUTO_HIDE_MS = 3_000;
@@ -648,12 +649,46 @@ export function closeHifzRoom(returnFocus = false): void {
   }
 }
 
-export function openHifzRoom(): void {
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function readHifzCurtainReveal(defaultValue: number): number {
+  const parsed = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hifz-curtain-reveal'));
+  return Number.isFinite(parsed) ? parsed : defaultValue;
+}
+
+function getHifzCurtainWidth(room: HTMLElement): number {
+  const renderedWidth = room.getBoundingClientRect().width;
+  return renderedWidth > 0 ? renderedWidth : Math.min(360, Math.round(window.innerWidth * 0.88));
+}
+
+function getHifzCurtainRevealLimit(room: HTMLElement): number {
+  return Math.min(getHifzCurtainWidth(room), Math.max(220, Math.round(window.innerWidth * 0.45)));
+}
+
+function applyHifzCurtainReveal(room: HTMLElement, reveal: number, persist = true): void {
+  const nextReveal = Math.round(clamp(reveal, 0, getHifzCurtainRevealLimit(room)));
+  document.documentElement.style.setProperty('--hifz-curtain-reveal', `${nextReveal}px`);
+  if (persist) {
+    storage.set(CURTAIN_REVEAL_STORAGE_KEY, nextReveal);
+  }
+}
+
+function syncHifzCurtainReveal(room: HTMLElement): void {
+  const savedReveal = storage.get<number>(CURTAIN_REVEAL_STORAGE_KEY);
+  applyHifzCurtainReveal(room, typeof savedReveal === 'number' ? savedReveal : getHifzCurtainWidth(room), false);
+}
+
+export function openHifzRoom(restoreReveal = true): void {
   const room = document.getElementById(ROOM_ID);
   const closeButton = document.getElementById('hifzRoomClose') as HTMLButtonElement | null;
   const toggle = document.getElementById(TOGGLE_ID) as HTMLButtonElement | null;
   if (!room) {
     return;
+  }
+  if (restoreReveal) {
+    syncHifzCurtainReveal(room);
   }
   refreshForm(room);
   room.classList.add('is-open');
@@ -728,52 +763,66 @@ async function startHifzSession(room: HTMLElement): Promise<void> {
   }
 }
 
-function attachMouseDrag(room: HTMLElement, handle: HTMLButtonElement): void {
-  let startX: number | null = null;
+function attachCurtainDrag(room: HTMLElement, handle: HTMLButtonElement): void {
+  let pointerId: number | null = null;
+  let startX = 0;
+  let startReveal = 0;
   let dragged = false;
+  let suppressClick = false;
   handle.addEventListener('pointerdown', (event) => {
-    if (event.pointerType !== 'mouse') {
-      return;
-    }
+    event.preventDefault();
+    pointerId = event.pointerId;
     startX = event.clientX;
+    startReveal = isHifzRoomOpen() ? readHifzCurtainReveal(getHifzCurtainWidth(room)) : 0;
     dragged = false;
     handle.setPointerCapture(event.pointerId);
     room.classList.add('is-dragging');
   });
   handle.addEventListener('pointermove', (event) => {
-    if (startX === null || event.pointerType !== 'mouse') {
+    if (pointerId !== event.pointerId) {
       return;
     }
-    const delta = event.clientX - startX;
-    if (Math.abs(delta) > 5) {
+    const distance = startX - event.clientX;
+    if (Math.abs(distance) > 5) {
       dragged = true;
     }
-    room.style.transform = `translateX(${Math.max(0, room.getBoundingClientRect().width + delta)}px)`;
+    if (dragged && !isHifzRoomOpen()) {
+      applyHifzCurtainReveal(room, 0, false);
+      openHifzRoom(false);
+    }
+    applyHifzCurtainReveal(room, startReveal + distance, false);
   });
   const finishDrag = (event: PointerEvent) => {
-    if (startX === null || event.pointerType !== 'mouse') {
+    if (pointerId !== event.pointerId) {
       return;
     }
-    const shouldOpen = event.clientX - startX < -64;
-    startX = null;
+    handle.releasePointerCapture?.(event.pointerId);
+    pointerId = null;
     room.classList.remove('is-dragging');
-    room.style.removeProperty('transform');
-    if (shouldOpen) {
-      openHifzRoom();
-    } else {
-      closeHifzRoom(false);
+    if (!dragged) {
+      return;
     }
-    window.setTimeout(() => { dragged = false; }, 0);
+    suppressClick = true;
+    const reveal = readHifzCurtainReveal(getHifzCurtainWidth(room));
+    if (reveal < 48) {
+      storage.remove(CURTAIN_REVEAL_STORAGE_KEY);
+      document.documentElement.style.removeProperty('--hifz-curtain-reveal');
+      closeHifzRoom(false);
+      return;
+    }
+    applyHifzCurtainReveal(room, reveal);
   };
   handle.addEventListener('pointerup', finishDrag);
   handle.addEventListener('pointercancel', finishDrag);
   handle.addEventListener('click', () => {
-    if (!dragged) {
-      if (isHifzRoomOpen()) {
-        closeHifzRoom(true);
-      } else {
-        openHifzRoom();
-      }
+    if (suppressClick) {
+      suppressClick = false;
+      return;
+    }
+    if (isHifzRoomOpen()) {
+      closeHifzRoom(true);
+    } else {
+      openHifzRoom();
     }
   });
 }
@@ -933,7 +982,9 @@ export function initHifzRoom(): void {
       savePlan(plan);
     }
   });
-  attachMouseDrag(room, toggle);
+  syncHifzCurtainReveal(room);
+  attachCurtainDrag(room, toggle);
+  window.addEventListener('resize', () => syncHifzCurtainReveal(room), { passive: true });
   document.addEventListener('pointermove', () => showFocusedControls(room), { passive: true });
   document.addEventListener('pointerdown', () => showFocusedControls(room), { passive: true });
   document.addEventListener('focusin', () => showFocusedControls(room));
