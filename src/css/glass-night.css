@@ -41,6 +41,28 @@ body.night-mode.deep-night-mode .bottom-nav {
   background: rgba(0, 0, 0, 0.9);
   border-color: rgba(194, 158, 82, 0.2);
 }
+body.night-mode.deep-night-mode .view-mode-btn {
+  background: #000000;
+  color: #f7f3e8;
+  border-color: rgba(194, 158, 82, 0.28);
+}
+body.night-mode.deep-night-mode .view-mode-btn:hover {
+  background: #070707;
+  border-color: rgba(214, 178, 96, 0.58);
+}
+body.night-mode.deep-night-mode .view-mode-btn.active {
+  background: rgba(194, 158, 82, 0.08);
+  border-color: #c29e52;
+}
+body.night-mode.deep-night-mode .reading-mode-preview {
+  background: transparent;
+}
+body.night-mode.deep-night-mode .reading-mode-title {
+  color: #f7f3e8;
+}
+body.night-mode.deep-night-mode .reading-mode-desc {
+  color: rgba(247, 243, 232, 0.72);
+}
 body.night-mode.deep-night-mode .control-group select,
 body.night-mode.deep-night-mode .control-group input,
 body.night-mode.deep-night-mode .surah-reciter-group select,
