@@ -1,5 +1,6 @@
 /* Style: calm editorial Quran reader; real reading previews that follow the active theme, warm paper tones, and clear text hierarchy. */
 /* Mushaf mode — page navigation, mushaf fonts, page images */
+/* هوية الوضع الليلي القاتم: نافذة القراءة تتوقف عند الحافة الداخلية للإطارين، لا عند حافة الشاشة. */
 
 /* ========== وضع المصحف ========== */
 /* ===== مجموعة السورة + القارئ ===== */
@@ -772,6 +773,17 @@ body.mushaf-active .mushaf-page-canvas {
   width: var(--mushaf-page-width, 100%) !important;
   max-width: none !important;
   height: auto !important;
+}
+
+/* ===== نافذة القراءة داخل الإطار — الوضع الليلي القاتم على سطح المكتب =====
+   نُبقي عرض الهاتف كاملاً، لكن نُدخل الحاوية في نافذة الوسط عندما تكون الزخرفة
+   الجانبية ظاهرة، فتبدأ القراءة وتنتهي عند الحافة الداخلية للبرواز. */
+@media (min-width: 1100px) {
+  body.night-mode.deep-night-mode.mushaf-active .container {
+    width: min(1440px, calc(100% - clamp(280px, 22vw, 420px)));
+    max-width: min(1440px, calc(100% - clamp(280px, 22vw, 420px)));
+    margin-inline: auto;
+  }
 }
 
 /* ===== منع التوسع على الجوال بشكل خاص ===== */
