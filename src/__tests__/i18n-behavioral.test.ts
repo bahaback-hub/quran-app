@@ -13,15 +13,15 @@ import 'fake-indexeddb/auto';
 vi.unmock('../i18n.js');
 
 describe('i18n — AVAILABLE_LANGUAGES', () => {
-  it('contains 5 supported languages', async () => {
+  it('contains 8 supported languages', async () => {
     const { AVAILABLE_LANGUAGES } = await import('../i18n.js');
-    expect(AVAILABLE_LANGUAGES.length).toBe(5);
+    expect(AVAILABLE_LANGUAGES.length).toBe(8);
   });
 
-  it('includes Arabic, English, Turkish, Malay, Indonesian', async () => {
+  it('includes Arabic, English, Turkish, Malay, Indonesian, French, German, and Russian', async () => {
     const { AVAILABLE_LANGUAGES } = await import('../i18n.js');
     const codes = AVAILABLE_LANGUAGES.map((l) => l.code);
-    expect(codes).toEqual(expect.arrayContaining(['ar', 'en', 'tr', 'ms', 'id']));
+    expect(codes).toEqual(expect.arrayContaining(['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru']));
   });
 
   it('each language has code (and optionally name)', async () => {

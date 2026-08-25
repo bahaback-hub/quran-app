@@ -253,6 +253,9 @@ export function settingsPanelHTML(): string {
               <option value="tr">Türkçe</option>
               <option value="ms">Bahasa Melayu</option>
               <option value="id">Bahasa Indonesia</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
+              <option value="ru">Русский</option>
             </select>
           </div>
         </div>
