@@ -614,6 +614,14 @@
     left: auto;
     width: min(360px, calc(100vw - 20px));
   }
+  .reader-toolbar-shell.is-pinned {
+    max-height: 72dvh;
+    overflow-y: auto;
+  }
+  .reader-toolbar-pin {
+    width: 34px;
+    height: 34px;
+  }
   /* شريط المواقيت يبقى موجزاً في الهاتف، وتظهر التفاصيل عند الضغط فقط. */
   .prayer-bar-details {
     padding: 8px 9px 10px;
