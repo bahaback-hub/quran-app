@@ -27,6 +27,7 @@ export default {
   hifz_room_step_repeat: 'اضبط التكرار بشكل صحيح',
   hifz_room_step_start: 'ابدأ',
   hifz_room_surah: 'السورة',
+  hifz_room_surah_search_placeholder: 'اكتب اسم السورة للبحث',
   hifz_room_from_ayah: 'من آية',
   hifz_room_to_ayah: 'إلى آية',
   hifz_room_repeat: 'عدد التكرارات',

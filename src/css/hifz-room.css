@@ -1029,9 +1029,9 @@ body.night-mode.deep-night-mode {
 
 .hifz-room-toggle,
 .hifz-curtain-handle {
-  border-color: var(--hifz-curtain-accent);
-  color: var(--hifz-curtain-accent-text);
-  background: var(--hifz-curtain-handle-bg);
+  border-color: var(--accent);
+  color: #fff;
+  background: var(--curtain-handle-bg, #11120f);
   cursor: grab;
   touch-action: none;
 }
@@ -1040,7 +1040,7 @@ body.night-mode.deep-night-mode {
 .hifz-room-toggle:focus-visible,
 .hifz-room-toggle--rtl:hover,
 .hifz-room-toggle--rtl:focus-visible {
-  background: var(--hifz-curtain-handle-hover);
+  background: var(--curtain-handle-bg, #11120f);
 }
 
 .hifz-room-toggle.is-dragging {
@@ -1117,6 +1117,7 @@ body.hifz-room-active .hifz-room.is-open {
 }
 
 .hifz-room-field select,
+.hifz-room-field .hifz-room-surah-search,
 .hifz-room-custom-repeat input,
 .hifz-room-review-time input,
 .hifz-room-choice-row button,
@@ -1129,6 +1130,7 @@ body.hifz-room-active .hifz-room.is-open {
 }
 
 .hifz-room-field select:focus-visible,
+.hifz-room-field .hifz-room-surah-search:focus-visible,
 .hifz-room-choice-row button:focus-visible,
 .hifz-room-return:focus-visible,
 .hifz-room-download:focus-visible,
@@ -1144,4 +1146,26 @@ body.hifz-room-active .hifz-room.is-open {
 .hifz-room-focus-actions button:focus-visible {
   color: var(--hifz-curtain-accent-text);
   background: var(--hifz-curtain-accent-strong);
+}
+
+.hifz-room-surah-native {
+  display: none;
+}
+
+.hifz-room-field .hifz-room-surah-search {
+  width: 100%;
+  min-height: 2.2rem;
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--hifz-curtain-accent) 34%, transparent);
+  border-radius: 8px;
+  padding: 0 0.62rem;
+  color: var(--hifz-curtain-text);
+  background: color-mix(in srgb, var(--hifz-curtain-bg) 78%, var(--hifz-curtain-surface));
+  font: inherit;
+  font-size: 0.84rem;
+}
+
+.hifz-room-field .hifz-room-surah-search::placeholder {
+  color: var(--hifz-curtain-muted);
+  opacity: 1;
 }

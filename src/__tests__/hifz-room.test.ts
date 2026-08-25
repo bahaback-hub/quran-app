@@ -5,7 +5,7 @@ const translations: Record<string, string> = {
   hifz_room_today: '', hifz_room_session_hint: 'استخدم أدوات المشغل.', hifz_room_start: 'ابدأ جلسة الحفظ',
   hifz_room_review: 'المراجعة التالية', hifz_room_session_active: 'فُعّل الحفظ والتكرار.', hifz_room_footnote: 'مساحة هادئة للحفظ.',
   hifz_room_step_portion: 'اختر السورة', hifz_room_step_repeat: 'اضبط التكرار بشكل صحيح', hifz_room_step_start: 'ابدأ',
-  hifz_room_surah: 'السورة', hifz_room_from_ayah: 'من آية', hifz_room_to_ayah: 'إلى آية', hifz_room_repeat: 'عدد التكرارات', hifz_room_custom_repeat: 'عدد مخصص (1–100)',
+  hifz_room_surah: 'السورة', hifz_room_surah_search_placeholder: 'اكتب اسم السورة للبحث', hifz_room_from_ayah: 'من آية', hifz_room_to_ayah: 'إلى آية', hifz_room_repeat: 'عدد التكرارات', hifz_room_custom_repeat: 'عدد مخصص (1–100)',
   hifz_room_summary: '{0} — الآيات {1}–{2} — {3} مرات', hifz_room_return_reader: 'العودة إلى القراءة',
   hifz_room_review_today: 'مساء اليوم', hifz_room_review_tomorrow: 'غداً', hifz_room_review_later: 'لاحقاً', hifz_room_review_custom: 'حدد التاريخ والوقت',
   hifz_room_loading: 'جارٍ تجهيز الورد في القارئ…', hifz_room_load_failed: 'تعذر تجهيز الورد. حاول مرة أخرى.',
@@ -103,6 +103,7 @@ describe('Hifz Room', () => {
     expect(room.getAttribute('aria-hidden')).toBe('true'); expect(room.hasAttribute('inert')).toBe(true);
     expect(room.querySelectorAll('.hifz-room-steps li')).toHaveLength(3);
     expect(room.querySelector<HTMLSelectElement>('#hifzRoomSurah')!.value).toBe('1');
+    expect(room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch')!.value).toBe('الفاتحة');
     expect(room.querySelector<HTMLSelectElement>('#hifzRoomFrom')!.value).toBe('2');
     expect(room.querySelector('#hifzRoomSummary')!.textContent).toContain('الفاتحة');
     expect(room.querySelector('#hifzRoomToday')).toBeNull();
@@ -145,6 +146,17 @@ describe('Hifz Room', () => {
     expect(room.querySelector('#hifzRoomSummary')!.textContent).toContain('2–5');
     expect(room.querySelector('#hifzRoomSummary')!.textContent).toContain('15 مرات');
     expect(mockStorage.set).toHaveBeenCalledWith('hifz_plan_v1', expect.objectContaining({ review: 'tomorrow' }));
+  });
+
+  it('finds a surah by typing its name in the hifz room', () => {
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    const search = room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch')!;
+    search.value = 'المل';
+    search.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(room.querySelector<HTMLSelectElement>('#hifzRoomSurah')!.value).toBe('67');
+    expect(search.value).toBe('الملك');
+    expect(room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.options).toHaveLength(30);
   });
 
   it('uses a custom repeat count up to 100 and supplies it to the existing repeat control', async () => {

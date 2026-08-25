@@ -27,6 +27,7 @@ export default {
   hifz_room_step_repeat: 'Установите повторение',
   hifz_room_step_start: 'Начать',
   hifz_room_surah: 'Сура',
+  hifz_room_surah_search_placeholder: 'Введите название суры для поиска',
   hifz_room_from_ayah: 'От аята',
   hifz_room_to_ayah: 'До аята',
   hifz_room_repeat: 'Количество повторов',

@@ -27,6 +27,7 @@ export default {
   hifz_room_step_repeat: 'Tekrarı ayarlayın',
   hifz_room_step_start: 'Başlatın',
   hifz_room_surah: 'Sure',
+  hifz_room_surah_search_placeholder: 'Aramak için sure adını yazın',
   hifz_room_from_ayah: 'Başlangıç ayeti',
   hifz_room_to_ayah: 'Bitiş ayeti',
   hifz_room_repeat: 'Tekrar sayısı',
