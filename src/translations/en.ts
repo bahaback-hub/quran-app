@@ -378,6 +378,7 @@ export default {
   bg_afternoon: 'Afternoon',
   bg_sunset: 'Sunset',
   bg_night: 'Night',
+  theme_deep_night: 'Deep night mode',
 
   // === Mushaf ===
   mushaf_loading_title: 'Loading Mushaf',

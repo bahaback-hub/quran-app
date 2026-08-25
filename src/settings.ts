@@ -87,11 +87,14 @@ export function applyNightMode(enabled: boolean): void {
   if (enabled) {
     document.body.classList.add('night-mode');
     document.body.classList.remove('sepia-mode');
+    document.body.classList.remove('deep-night-mode');
     state.sepiaMode = false;
   } else {
     document.body.classList.remove('night-mode');
+    document.body.classList.remove('deep-night-mode');
   }
   storage.set('night_mode', enabled);
+  storage.set('deep_night_mode', false);
   if (enabled) {
     storage.set('sepia_mode', false);
   }
@@ -116,6 +119,7 @@ export function applySepiaMode(enabled: boolean): void {
   if (enabled) {
     document.body.classList.add('sepia-mode');
     document.body.classList.remove('night-mode');
+    document.body.classList.remove('deep-night-mode');
     state.nightMode = false;
   } else {
     document.body.classList.remove('sepia-mode');
@@ -123,6 +127,7 @@ export function applySepiaMode(enabled: boolean): void {
   storage.set('sepia_mode', enabled);
   if (enabled) {
     storage.set('night_mode', false);
+    storage.set('deep_night_mode', false);
   }
   updateThemeButtons();
   if (state.mushafMode && state.currentPage) {
@@ -133,10 +138,36 @@ export function applySepiaMode(enabled: boolean): void {
   }
 }
 
-/** Apply a specific theme by name: 'light', 'sepia', or 'night' */
-export function applyTheme(theme: 'light' | 'sepia' | 'night'): void {
+/** Enable or disable the darkest reading theme while keeping night-mode compatibility. */
+export function applyDeepNightMode(enabled: boolean): void {
+  state.nightMode = enabled;
+  if (enabled) {
+    document.body.classList.add('night-mode', 'deep-night-mode');
+    document.body.classList.remove('sepia-mode');
+    state.sepiaMode = false;
+  } else {
+    document.body.classList.remove('deep-night-mode');
+  }
+  storage.set('deep_night_mode', enabled);
+  storage.set('night_mode', enabled);
+  if (enabled) {
+    storage.set('sepia_mode', false);
+  }
+  updateThemeButtons();
+  if (state.mushafMode && state.currentPage) {
+    import('./mushaf.js').then(
+      (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
+        m.loadPage(state.currentPage, true, true),
+    );
+  }
+}
+
+/** Apply a specific theme by name: 'light', 'sepia', 'night', or 'deep-night'. */
+export function applyTheme(theme: 'light' | 'sepia' | 'night' | 'deep-night'): void {
   if (theme === 'night') {
     applyNightMode(true);
+  } else if (theme === 'deep-night') {
+    applyDeepNightMode(true);
   } else if (theme === 'sepia') {
     applySepiaMode(true);
   } else {
@@ -157,7 +188,10 @@ function updateThemeButtons(): void {
     if (btnTheme === 'sepia' && state.sepiaMode) {
       isActive = true;
     }
-    if (btnTheme === 'night' && state.nightMode) {
+    if (btnTheme === 'night' && state.nightMode && !document.body.classList.contains('deep-night-mode')) {
+      isActive = true;
+    }
+    if (btnTheme === 'deep-night' && document.body.classList.contains('deep-night-mode')) {
       isActive = true;
     }
     btn.classList.toggle('active', isActive);
@@ -731,6 +765,10 @@ export function restoreSettings(): void {
   const sm = storage.get<boolean>('sepia_mode');
   if (sm === true) {
     applySepiaMode(true);
+  }
+  const dm = storage.get<boolean>('deep_night_mode');
+  if (dm === true) {
+    applyDeepNightMode(true);
   }
   const city = storage.get<string>('city');
   if (city) {

@@ -378,6 +378,7 @@ export default {
   bg_afternoon: 'ظهر',
   bg_sunset: 'غروب',
   bg_night: 'ليل',
+  theme_deep_night: 'الوضع الليلي القاتم',
 
   // === المصحف ===
   mushaf_loading_title: 'جاري تحميل المصحف',

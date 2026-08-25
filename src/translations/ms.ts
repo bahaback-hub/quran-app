@@ -345,6 +345,7 @@ export default {
   bg_afternoon: 'Petang',
   bg_sunset: 'Senja',
   bg_night: 'Malam',
+  theme_deep_night: 'Mod malam gelap',
 
   // === Mushaf ===
   mushaf_loading_title: 'Memuatkan Mushaf',
