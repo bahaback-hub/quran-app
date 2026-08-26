@@ -900,45 +900,44 @@ body.night-mode .adhkar-no-personal {
 
 /* ========== Tajweed Coloring (CSS classes) ========== */
 .tajweed-hamzat-wasl { color: #a5a5a5; }
-.tajweed-lam-shamsiyyah { color: #2fadff; }
+.tajweed-lam-shamsiyyah { color: #a5a5a5; }
 .tajweed-madd-2 { color: #ce9e00; }
 .tajweed-madd-246 { color: #ff7b00; }
 .tajweed-madd-6 { color: #b50000; }
-.tajweed-madd-munfasil { color: #ff7b00; }
+.tajweed-madd-munfasil { color: #f40000; }
 .tajweed-madd-muttasil { color: #f40000; }
 .tajweed-ghunnah { color: #09b000; }
 .tajweed-ikhfa { color: #09b000; }
 .tajweed-ikhfa-shafawi { color: #09b000; }
 .tajweed-iqlab { color: #09b000; }
-.tajweed-idghaam-ghunnah { color: #a5a5a5; }
+.tajweed-idghaam-ghunnah { color: #09b000; }
 .tajweed-idghaam-no-ghunnah { color: #a5a5a5; }
 .tajweed-idghaam-mutajanisayn { color: #a5a5a5; }
 .tajweed-idghaam-mutaqaribayn { color: #a5a5a5; }
-.tajweed-idghaam-shafawi { color: #a5a5a5; }
+.tajweed-idghaam-shafawi { color: #09b000; }
 .tajweed-qalqalah { color: #2fadff; }
-.tajweed-silent { color: #8e44ad; }
+.tajweed-silent { color: #a5a5a5; }
 
-body.night-mode .tajweed-hamzat-wasl { color: #999999; }
-body.night-mode .tajweed-lam-shamsiyyah { color: #00deff; }
-body.night-mode .tajweed-madd-2 { color: #ffc1e0; }
-body.night-mode .tajweed-madd-246 { color: #ff8e3b; }
-body.night-mode .tajweed-madd-6 { color: #e30000; }
-body.night-mode .tajweed-madd-munfasil { color: #ff8e3b; }
-body.night-mode .tajweed-madd-muttasil { color: #ff5e8e; }
-body.night-mode .tajweed-ghunnah { color: #26b55d; }
-body.night-mode .tajweed-ikhfa { color: #26b55d; }
-body.night-mode .tajweed-ikhfa-shafawi { color: #26b55d; }
-body.night-mode .tajweed-iqlab { color: #26b55d; }
-body.night-mode .tajweed-idghaam-ghunnah { color: #999999; }
-body.night-mode .tajweed-idghaam-no-ghunnah { color: #999999; }
-body.night-mode .tajweed-idghaam-mutajanisayn { color: #999999; }
-body.night-mode .tajweed-idghaam-mutaqaribayn { color: #999999; }
-body.night-mode .tajweed-idghaam-shafawi { color: #999999; }
-body.night-mode .tajweed-qalqalah { color: #00deff; }
-body.night-mode .tajweed-silent { color: #af7ac5; }
+body.night-mode .tajweed-hamzat-wasl { color: #b7b7b7; }
+body.night-mode .tajweed-lam-shamsiyyah { color: #b7b7b7; }
+body.night-mode .tajweed-madd-2 { color: #f0c24a; }
+body.night-mode .tajweed-madd-246 { color: #ff9a4d; }
+body.night-mode .tajweed-madd-6 { color: #ff6868; }
+body.night-mode .tajweed-madd-munfasil { color: #ff7c7c; }
+body.night-mode .tajweed-madd-muttasil { color: #ff7c7c; }
+body.night-mode .tajweed-ghunnah { color: #5fd488; }
+body.night-mode .tajweed-ikhfa { color: #5fd488; }
+body.night-mode .tajweed-ikhfa-shafawi { color: #5fd488; }
+body.night-mode .tajweed-iqlab { color: #5fd488; }
+body.night-mode .tajweed-idghaam-ghunnah { color: #5fd488; }
+body.night-mode .tajweed-idghaam-no-ghunnah { color: #b7b7b7; }
+body.night-mode .tajweed-idghaam-mutajanisayn { color: #b7b7b7; }
+body.night-mode .tajweed-idghaam-mutaqaribayn { color: #b7b7b7; }
+body.night-mode .tajweed-idghaam-shafawi { color: #5fd488; }
+body.night-mode .tajweed-qalqalah { color: #83d5ff; }
+body.night-mode .tajweed-silent { color: #b7b7b7; }
 
 /* ========== Ayahs Container ========== */
 .ayahs-container {
   font-size: var(--ayah-font-size, 28px);
 }
-
