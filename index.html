@@ -114,24 +114,6 @@
         <div class="header-menu-container">
           <div class="header-actions">
             <div class="header-primary-actions" aria-label="إجراءات التطبيق">
-              <button class="header-action-btn" id="favoritesOpenBtn" data-i18n-title="favorites" data-i18n-aria-label="favorites" title="المفضلة" aria-label="المفضلة">
-              <svg
-                class="icon icon-favorites"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                />
-              </svg>
-              <span class="header-action-label" data-i18n="favorites">المفضلة</span>
-              </button>
               <button class="header-action-btn" id="settingsToggleBtn" data-i18n-title="settings" data-i18n-aria-label="settings" title="الإعدادات" aria-label="الإعدادات">
               <svg
                 class="icon icon-settings"
@@ -315,7 +297,7 @@
       <!-- ========== شريط أدوات القراءة ========== -->
       <aside class="reader-side-tools" id="readerSideTools" aria-label="أدوات القراءة">
         <button class="reader-side-tool tafsir-curtain-handle" id="tafsirCurtainHandle" type="button" data-i18n-title="tafsir" data-i18n-aria-label="tafsir" title="التفسير" aria-label="فتح/إغلاق التفسير">
-          <span class="reader-side-tool-icon" aria-hidden="true">📜</span>
+          <svg class="icon reader-side-tool-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 8h7M8 12h7M8 16h5"/></svg>
           <span class="reader-side-tool-label" data-i18n="tafsir">التفسير</span>
         </button>
         <button class="reader-side-tool" id="adhkarBtn" type="button" data-i18n-title="adhkar" data-i18n-aria-label="adhkar" title="الأذكار" aria-label="الأذكار">
@@ -328,7 +310,7 @@
         </button>
         <section class="reader-side-tool reader-side-prayer prayer-bar collapsed" id="prayerBar" aria-label="مواقيت الصلاة">
           <button class="prayer-bar-toggle" id="expandBarBtn" type="button" aria-label="عرض مواقيت الصلاة" aria-controls="prayerBarDetails" aria-expanded="false">
-            <span class="reader-side-tool-icon" aria-hidden="true">🕌</span>
+            <svg class="icon reader-side-tool-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M6 20v-7h12v7M8 13V9a4 4 0 0 1 8 0v4M12 5V2M18 6h2M4 6h2"/><circle cx="18" cy="7" r="3"/><path d="M18 5.5V7l1 1"/></svg>
             <span class="prayer-bar-summary">
               <span class="reader-side-tool-label" data-i18n="prayer_times">المواقيت</span>
               <strong id="nextPrayerName">الصلاة</strong>
@@ -354,6 +336,10 @@
             <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
           </svg>
           <span class="reader-side-tool-label" data-i18n="qibla">القبلة</span>
+        </button>
+        <button class="reader-side-tool" id="favoritesOpenBtn" type="button" data-i18n-title="favorites" data-i18n-aria-label="favorites" title="المفضلة" aria-label="المفضلة">
+          <svg class="icon icon-favorites" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="reader-side-tool-label" data-i18n="favorites">المفضلة</span>
         </button>
       </aside>
 

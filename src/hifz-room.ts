@@ -933,7 +933,7 @@ function attachCurtainDrag(room: HTMLElement, handle: HTMLButtonElement): void {
     if (pointerId !== event.pointerId) {
       return;
     }
-    const distance = startX - event.clientX;
+    const distance = event.clientX - startX;
     if (Math.abs(distance) > 5) {
       dragged = true;
     }

@@ -72,7 +72,7 @@ const {
     surahData: null as { name: string; ayahs: { numberInSurah: number; text: string }[] } | null,
     surahList: [] as { number: number; name: string; numberOfAyahs: number }[],
   },
-  mockStorage: { get: vi.fn(), set: vi.fn() },
+  mockStorage: { get: vi.fn(), set: vi.fn(), remove: vi.fn() },
   mockLoadSurah: vi.fn(),
   mockLoadAudioUrlsForSession: vi.fn(),
   mockHighlightCurrentAyah: vi.fn(),
@@ -244,14 +244,14 @@ describe('Hifz Room', () => {
     expect(isHifzRoomOpen()).toBe(false);
   });
 
-  it('opens from a drag on the right-edge handle', () => {
+  it('opens from a drag on the left-edge handle', () => {
     initHifzRoom();
     const toggle = document.getElementById('hifzRoomToggle') as HTMLButtonElement;
     toggle.setPointerCapture = vi.fn();
     vi.spyOn(document.getElementById('hifzRoom')!, 'getBoundingClientRect').mockReturnValue({ width: 420 } as DOMRect);
-    dispatchPointer(toggle, 'pointerdown', 900);
-    dispatchPointer(toggle, 'pointermove', 720);
-    dispatchPointer(toggle, 'pointerup', 720);
+    dispatchPointer(toggle, 'pointerdown', 24);
+    dispatchPointer(toggle, 'pointermove', 204);
+    dispatchPointer(toggle, 'pointerup', 204);
     expect(toggle.setPointerCapture).toHaveBeenCalledWith(1);
     expect(isHifzRoomOpen()).toBe(true);
     expect(mockStorage.set).toHaveBeenCalledWith('hifz_curtain_reveal', 180);
