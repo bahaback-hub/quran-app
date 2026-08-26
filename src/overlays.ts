@@ -118,6 +118,7 @@ const presentationOverlayHTML = `
       <span class="presentation-counter" id="presentationCounter">٠ / ٠</span>
     </div>
   </div>
+  <button class="presentation-video-retry hidden" id="presVideoRetryBtn" type="button" data-i18n="pres_video_retry" aria-hidden="true">▶ تحريك الخلفية</button>
 </div>
 `;
 

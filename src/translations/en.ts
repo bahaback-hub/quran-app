@@ -137,6 +137,7 @@ export default {
   contemplation_not_ready: 'Reflection questions for this verse are being added gradually.',
   pause: 'Pause',
   play: 'Play',
+  pres_video_retry: '▶ Animate background',
   minutes: 'minutes',
   invalid_data: 'Invalid data',
   go_to: 'Go to',

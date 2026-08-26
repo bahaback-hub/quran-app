@@ -156,6 +156,7 @@ export default {
   tafsir_text_reset: 'Varsayılan metin boyutunu geri yükle',
   pause: 'Duraklat',
   play: 'Oynat',
+  pres_video_retry: '▶ Arka planı hareketlendir',
   minutes: 'dakika',
   invalid_data: 'Geçersiz veri',
   go_to: 'Git',

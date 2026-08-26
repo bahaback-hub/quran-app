@@ -156,6 +156,7 @@ export default {
   tafsir_text_reset: 'Pulihkan saiz teks lalai',
   pause: 'Jeda',
   play: 'Main',
+  pres_video_retry: '▶ Gerakkan latar',
   minutes: 'minit',
   invalid_data: 'Data tidak sah',
   go_to: 'Pergi ke',

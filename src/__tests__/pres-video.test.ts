@@ -4,6 +4,7 @@ import {
   PRESENTATION_VIDEO_SRC,
   applyPresentationVideo,
   removePresentationVideo,
+  retryPresentationVideoPlayback,
   syncPresentationVideoPlayback,
 } from '../pres-video.js';
 
@@ -18,6 +19,7 @@ describe('presentation video background', () => {
     pause.mockClear();
     vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(play);
     vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(pause);
+    vi.spyOn(HTMLMediaElement.prototype, 'load').mockImplementation(() => undefined);
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
@@ -71,7 +73,49 @@ describe('presentation video background', () => {
     expect(overlay.classList.contains('pres-video')).toBe(true);
     expect(overlay.style.backgroundImage).toContain(PRESENTATION_VIDEO_POSTER);
     expect(overlay.querySelector('.pres-video-bg')).toBeNull();
+    expect(overlay.classList.contains('pres-video-needs-play')).toBe(true);
     expect(play).not.toHaveBeenCalled();
+  });
+
+  it('shows a retry state after autoplay is denied and clears it after an explicit retry', async () => {
+    const overlay = document.createElement('div');
+    const retryButton = document.createElement('button');
+    retryButton.id = 'presVideoRetryBtn';
+    retryButton.classList.add('hidden');
+    document.body.append(overlay, retryButton);
+    play.mockImplementationOnce(() => Promise.reject(new Error('Autoplay blocked'))).mockImplementation(() => Promise.resolve());
+
+    applyPresentationVideo(overlay, 'wave');
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(overlay.classList.contains('pres-video-needs-play')).toBe(true);
+    expect(retryButton.classList.contains('hidden')).toBe(false);
+
+    retryPresentationVideoPlayback(overlay);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(overlay.dataset['presentationVideoForce']).toBe('true');
+    expect(overlay.classList.contains('pres-video-needs-play')).toBe(false);
+    expect(retryButton.classList.contains('hidden')).toBe(true);
+    expect(play).toHaveBeenCalledTimes(2);
+  });
+
+  it('lets a user explicitly enable motion after a reduced-motion preference kept the poster', () => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: vi.fn().mockReturnValue({ matches: true }),
+    });
+    const overlay = document.createElement('div');
+    document.body.append(overlay);
+
+    applyPresentationVideo(overlay, 'wave');
+    retryPresentationVideoPlayback(overlay);
+
+    expect(overlay.querySelector<HTMLVideoElement>('.pres-video-bg')?.autoplay).toBe(true);
+    expect(overlay.dataset['presentationVideoForce']).toBe('true');
+    expect(play).toHaveBeenCalledTimes(1);
   });
 
   it('pauses while the page is hidden and releases resources on removal', () => {

@@ -161,6 +161,7 @@ interface DomMap {
   presFullscreenBtn: HTMLElement | null;
   presShareBtn: HTMLElement | null;
   presVideoShareBtn: HTMLElement | null;
+  presVideoRetryBtn: HTMLElement | null;
   viewSurahBtn: HTMLElement | null;
   viewMushafBtn: HTMLElement | null;
   viewPresBtn: HTMLElement | null;
@@ -350,6 +351,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'presFullscreenBtn',
   'presShareBtn',
   'presVideoShareBtn',
+  'presVideoRetryBtn',
   'viewSurahBtn',
   'viewMushafBtn',
   'viewPresBtn',
