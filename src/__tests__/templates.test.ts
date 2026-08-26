@@ -487,7 +487,8 @@ describe('Error templates', () => {
   it('errorOverlay should contain reload and home buttons', () => {
     const result = errorOverlay('Test');
     expect(result).toContain('location.reload()');
-    expect(result).toContain("location.href='/'");
+    expect(result).toContain(`location.href=${JSON.stringify(import.meta.env.BASE_URL)}`);
+    expect(result).not.toContain("location.href='/'");
     expect(result).toContain('errorCopyBtn');
   });
 
@@ -501,6 +502,8 @@ describe('Error templates', () => {
     const result = errorRecoveryOverlay('Test error', 'Stack trace here');
     expect(result).toContain('Test error');
     expect(result).toContain('location.reload()');
+    expect(result).toContain(`location.href=${JSON.stringify(import.meta.env.BASE_URL)}`);
+    expect(result).not.toContain("location.href='/'");
     expect(result).toContain('errorCopyBtn');
     expect(result).toContain('Stack trace here');
   });
