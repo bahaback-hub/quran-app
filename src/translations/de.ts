@@ -382,6 +382,10 @@ export default {
   bg_sunset: 'Sonnenuntergang',
   bg_night: 'Nacht',
   theme_deep_night: 'Tiefer Nachtmodus',
+  theme_light_short: 'Tag',
+  theme_sepia_short: 'Sepia',
+  theme_night_short: 'Nacht',
+  theme_deep_night_short: 'Tiefe Nacht',
 
   // === Mushaf ===
   mushaf_loading_title: 'Mushaf wird geladen',

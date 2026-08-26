@@ -399,6 +399,10 @@ export default {
   bg_sunset: 'Batım',
   bg_night: 'Gece',
   theme_deep_night: 'Koyu gece modu',
+  theme_light_short: 'Gündüz',
+  theme_sepia_short: 'Sepya',
+  theme_night_short: 'Gece',
+  theme_deep_night_short: 'Koyu gece',
 
   // === Mushaf ===
   mushaf_loading_title: 'Mushaf yükleniyor',

@@ -380,6 +380,10 @@ export default {
   bg_sunset: 'Закат',
   bg_night: 'Ночь',
   theme_deep_night: 'Режим глубокой ночи',
+  theme_light_short: 'День',
+  theme_sepia_short: 'Сепия',
+  theme_night_short: 'Ночь',
+  theme_deep_night_short: 'Глубокая ночь',
 
   // === Mushaf ===
   mushaf_loading_title: 'Загрузка Мушафа',

@@ -381,6 +381,10 @@ export default {
   bg_sunset: 'Coucher du soleil',
   bg_night: 'Nuit',
   theme_deep_night: 'Mode nuit profonde',
+  theme_light_short: 'Jour',
+  theme_sepia_short: 'Sépia',
+  theme_night_short: 'Nuit',
+  theme_deep_night_short: 'Nuit profonde',
 
   // === Mushaf ===
   mushaf_loading_title: 'Chargement du Mushaf',
