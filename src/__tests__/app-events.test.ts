@@ -11,6 +11,7 @@ import { storage } from '../storage.js';
 // Mock settings module
 vi.mock('../settings.js', () => ({
   applyFontSize: vi.fn(),
+  applyReaderSurfaceTransparency: vi.fn(),
   changeReaderZoom: vi.fn(),
   updateReaderZoomControl: vi.fn(),
   toggleNightMode: vi.fn(),
@@ -146,6 +147,14 @@ function createDomElements() {
   dom.shareMenu = el('div');
   dom.themeToggle = el('div');
   dom.settingsToggleBtn = el('button');
+  dom.readerSurfaceControl = el('div');
+  dom.readerSurfaceToggle = el('button');
+  dom.readerSurfacePopover = el('div');
+  dom.readerSurfacePopover.classList.add('hidden');
+  dom.readerSurfaceSlider = el('input') as HTMLInputElement;
+  dom.readerSurfaceValue = el('output') as HTMLOutputElement;
+  dom.readerSurfaceControl.append(dom.readerSurfaceToggle, dom.readerSurfacePopover);
+  document.body.appendChild(dom.readerSurfaceControl);
   dom.settingsCloseBtn = el('button');
   dom.saveLocationBtn = el('button');
   dom.testAzanBtn = el('button');
@@ -334,6 +343,19 @@ describe('app-events', () => {
       dom.settingsToggleBtn!.click();
       const { openSettings } = await import('../settings.js');
       expect(openSettings).toHaveBeenCalled();
+    });
+
+    it('should open the reader surface control and apply its slider value', async () => {
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      dom.readerSurfaceToggle!.click();
+      expect(dom.readerSurfacePopover!.classList.contains('hidden')).toBe(false);
+      expect(dom.readerSurfaceToggle!.getAttribute('aria-expanded')).toBe('true');
+
+      dom.readerSurfaceSlider!.value = '85';
+      dom.readerSurfaceSlider!.dispatchEvent(new Event('input'));
+      const { applyReaderSurfaceTransparency } = await import('../settings.js');
+      expect(applyReaderSurfaceTransparency).toHaveBeenCalledWith(85);
     });
 
     it('should bind settingsCloseBtn click to closeSettings', async () => {

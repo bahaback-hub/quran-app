@@ -467,6 +467,10 @@ export default {
   reader_zoom: 'Lese-Zoom',
   reader_zoom_in: 'Lesegröße vergrößern',
   reader_zoom_out: 'Lesegröße verkleinern',
+  reader_surface_transparency: 'Transparenz des Vershintergrunds',
+  reader_surface_short: 'Klarheit',
+  reader_surface_solid: 'Klarer lesen',
+  reader_surface_transparent: 'Hintergrund zeigen',
 
   // === Select Mode ===
   select_mode_none: 'Keine Ayahs ausgewählt',

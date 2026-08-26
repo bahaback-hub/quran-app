@@ -463,6 +463,10 @@ export default {
   reader_zoom: 'تكبير القراءة',
   reader_zoom_in: 'تكبير القراءة',
   reader_zoom_out: 'تصغير القراءة',
+  reader_surface_transparency: 'شفافية خلفية الآيات',
+  reader_surface_short: 'وضوح',
+  reader_surface_solid: 'قراءة أوضح',
+  reader_surface_transparent: 'خلفية ظاهرة',
 
   // === وضع التحديد ===
   select_mode_none: 'لم يتم تحديد آيات',

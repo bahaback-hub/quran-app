@@ -143,6 +143,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
+  /* Allows the reader-clarity popover to sit above the controls immediately below the header. */
+  z-index: 30;
 }
 .header h1 {
   font-size: 30px;
@@ -263,14 +265,71 @@
 #settingsToggleBtn {
   order: 1;
 }
-#favoritesOpenBtn {
+.reader-surface-control {
   order: 2;
+  position: relative;
 }
-#qiblaBtn {
+#favoritesOpenBtn {
   order: 3;
 }
-#adhkarBtn {
+#qiblaBtn {
   order: 4;
+}
+#adhkarBtn {
+  order: 5;
+}
+.reader-surface-popover {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 0;
+  z-index: 60;
+  width: min(290px, calc(100vw - 28px));
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 58%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--container-bg) 96%, transparent);
+  box-shadow: 0 12px 30px rgba(50, 35, 20, 0.2);
+  color: var(--text-primary);
+  direction: rtl;
+}
+.reader-surface-popover.hidden { display: none; }
+.reader-surface-popover-head,
+.reader-surface-range-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.reader-surface-popover-head {
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.reader-surface-popover output {
+  direction: ltr;
+  color: var(--accent-dark);
+  font-variant-numeric: tabular-nums;
+}
+.reader-surface-range-row input {
+  flex: 1;
+  min-width: 86px;
+  accent-color: var(--accent);
+}
+.reader-surface-range-end {
+  max-width: 66px;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.25;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .reader-surface-popover {
+    position: fixed;
+    top: max(76px, calc(env(safe-area-inset-top, 0px) + 10px));
+    left: auto;
+    right: 8px;
+    width: min(290px, calc(100vw - 16px));
+  }
 }
 
 /* ========== أدوات الرأس المصغرة: المظهر والبحث ========== */

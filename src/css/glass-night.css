@@ -152,6 +152,15 @@ body.night-mode .surah-content {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
+/* Reader clarity control keeps a safe opaque layer over the night mosque background. */
+body.night-mode:not(.deep-night-mode):not(.mushaf-active) .surah-content {
+  background: rgb(10 14 26 / var(--reader-surface-alpha));
+}
+body.night-mode.deep-night-mode:not(.mushaf-active) .surah-content {
+  background: rgb(0 0 0 / var(--reader-surface-alpha));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
 
 /* بطاقات التحكم */
 body.night-mode .control-card {

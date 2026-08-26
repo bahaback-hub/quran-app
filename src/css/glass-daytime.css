@@ -46,6 +46,10 @@ body:not(.night-mode):not(.sepia-mode) .surah-content {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
+/* Reader clarity control: reveal more of the mosque background without losing a readable surface. */
+body:not(.night-mode):not(.sepia-mode):not(.mushaf-active) .surah-content {
+  background: rgb(255 255 255 / var(--reader-surface-alpha));
+}
 
 /* بطاقات التحكم */
 body:not(.night-mode):not(.sepia-mode) .control-card {

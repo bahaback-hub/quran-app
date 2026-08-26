@@ -81,6 +81,8 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
+  /* Reader surface opacity is set from the saved clarity slider (0.42–0.94). */
+  --reader-surface-alpha: 0.60;
 }
 
 body.night-mode {
