@@ -1030,7 +1030,9 @@ export function initHifzRoom(): void {
   toggle.setAttribute('title', label('hifz_room'));
   toggle.setAttribute('aria-label', label('hifz_room'));
   toggle.innerHTML = '<span data-hifz-toggle-label></span>';
-  document.body.append(backdrop, stage, room, toggle);
+  document.body.append(backdrop, stage, room);
+  const sideTools = document.getElementById('readerSideTools');
+  (sideTools || document.body).append(toggle);
   renderRoomText(room);
   const toggleLabel = toggle.querySelector<HTMLElement>('[data-hifz-toggle-label]');
   if (toggleLabel) {
