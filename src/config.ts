@@ -36,7 +36,7 @@ export const CONFIG: AppConfig = {
   API_BASE: env('VITE_API_BASE', 'https://api.alquran.cloud/v1'),
   TAFSIR_API: env('VITE_TAFSIR_API', 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir'),
   PRAYER_API: env('VITE_PRAYER_API', 'https://api.aladhan.com/v1/timingsByCity'),
-  AZAN_FILE: '/azan.mp3',
+  AZAN_FILE: `${import.meta.env.BASE_URL}azan.mp3`,
   SURAH_COUNT: 114,
   STORAGE_PREFIX: 'quran_app_',
   DEFAULT_RECITER: 'ar.alafasy',

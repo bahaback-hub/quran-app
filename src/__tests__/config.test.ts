@@ -57,6 +57,7 @@ describe('CONFIG', () => {
 
   it('should have AZAN_FILE property', () => {
     expect(CONFIG.AZAN_FILE).toContain('azan.mp3');
+    expect(CONFIG.AZAN_FILE).toBe(`${import.meta.env.BASE_URL}azan.mp3`);
   });
 
   it('should have SURAH_COUNT of 114', () => {

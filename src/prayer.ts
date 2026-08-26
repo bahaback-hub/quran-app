@@ -311,7 +311,7 @@ export function stopAzan(): void {
 
 function getAzanSource(): string {
   const supportsOpus = dom.azanPlayer?.canPlayType('audio/ogg; codecs="opus"');
-  return supportsOpus ? '/azan.opus' : CONFIG.AZAN_FILE;
+  return supportsOpus ? `${import.meta.env.BASE_URL}azan.opus` : CONFIG.AZAN_FILE;
 }
 
 export function testAzan(): void {
