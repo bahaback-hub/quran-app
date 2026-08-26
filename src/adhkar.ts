@@ -112,6 +112,7 @@ function saveAdhkarSettings(): void {
 export function toggleAdhkarPanel(): void {
   state.adhkarPanelOpen = !state.adhkarPanelOpen;
   dom.adhkarPanel?.classList.toggle('open', state.adhkarPanelOpen);
+  document.body.classList.toggle('adhkar-curtain-active', state.adhkarPanelOpen);
   if (state.adhkarPanelOpen) {
     renderAdhkarTabs();
     if (!state.adhkarActiveTab) {
@@ -125,6 +126,7 @@ export function toggleAdhkarPanel(): void {
 export function closeAdhkarPanel(): void {
   state.adhkarPanelOpen = false;
   dom.adhkarPanel?.classList.remove('open');
+  document.body.classList.remove('adhkar-curtain-active');
 }
 
 function renderAdhkarTabs(): void {

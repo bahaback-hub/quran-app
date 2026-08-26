@@ -466,9 +466,11 @@ export function togglePrayerBar(): void {
   if (state.barCollapsed) {
     dom.prayerBar.classList.add('collapsed');
     dom.prayerBar.classList.remove('expanded');
+    document.body.classList.remove('prayer-curtain-active');
   } else {
     dom.prayerBar.classList.remove('collapsed');
     dom.prayerBar.classList.add('expanded');
+    document.body.classList.add('prayer-curtain-active');
   }
   dom.expandBarBtn?.setAttribute('aria-expanded', String(!state.barCollapsed));
   storage.set('bar_collapsed', state.barCollapsed);

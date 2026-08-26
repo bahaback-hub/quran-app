@@ -19,11 +19,29 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* عند سحب ستارة التفسير، تُحجز مساحتها يسار القراءة بدلاً من تغطية الآيات. */
+/* تُحجز مساحة الستائر اليسرى فيدفع القارئ نحو اليمين بدلاً من تغطية الآيات. */
 @media (min-width: 601px) {
+  body.tafsir-curtain-active,
+  body.adhkar-curtain-active,
+  body.prayer-curtain-active,
+  body.hifz-room-active {
+    transition: background 0.5s ease, padding-left 0.18s ease;
+  }
+
   body.tafsir-curtain-active {
     padding-left: calc(20px + var(--tafsir-curtain-reveal, var(--tafsir-curtain-width, 380px)));
-    transition: background 0.5s ease, padding-left 0.18s ease;
+  }
+
+  body.adhkar-curtain-active {
+    padding-left: min(420px, 36vw);
+  }
+
+  body.prayer-curtain-active {
+    padding-left: min(380px, 34vw);
+  }
+
+  body.hifz-room-active {
+    padding-left: calc(20px + min(360px, 34vw));
   }
 }
 

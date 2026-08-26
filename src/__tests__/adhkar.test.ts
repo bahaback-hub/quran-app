@@ -149,6 +149,7 @@ describe('checkAdhkarNotifications', () => {
 describe('toggleAdhkarPanel', () => {
   beforeEach(() => {
     state.adhkarPanelOpen = false;
+    document.body.classList.remove('adhkar-curtain-active');
     dom.adhkarPanel = document.createElement('div');
     dom.adhkarTabs = document.createElement('div');
     dom.adhkarContent = document.createElement('div');
@@ -158,6 +159,7 @@ describe('toggleAdhkarPanel', () => {
     toggleAdhkarPanel();
     expect(state.adhkarPanelOpen).toBe(true);
     expect(dom.adhkarPanel!.classList.contains('open')).toBe(true);
+    expect(document.body.classList.contains('adhkar-curtain-active')).toBe(true);
   });
 
   it('should close the panel', () => {
@@ -165,5 +167,6 @@ describe('toggleAdhkarPanel', () => {
     toggleAdhkarPanel();
     expect(state.adhkarPanelOpen).toBe(false);
     expect(dom.adhkarPanel!.classList.contains('open')).toBe(false);
+    expect(document.body.classList.contains('adhkar-curtain-active')).toBe(false);
   });
 });
