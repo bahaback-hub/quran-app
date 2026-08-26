@@ -137,6 +137,7 @@ export default {
   contemplation_not_ready: 'Les questions de réflexion pour ce verset sont ajoutées progressivement.',
   pause: 'Pause',
   play: 'Lire',
+  pres_video_retry: '▶ Animer l’arrière-plan',
   minutes: 'minutes',
   invalid_data: 'Données invalides',
   go_to: 'Aller à',

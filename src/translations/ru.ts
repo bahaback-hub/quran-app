@@ -137,6 +137,7 @@ export default {
   contemplation_not_ready: 'Вопросы для размышления по этому аяту добавляются постепенно.',
   pause: 'Пауза',
   play: 'Воспроизвести',
+  pres_video_retry: '▶ Включить движение фона',
   minutes: 'минут',
   invalid_data: 'Неверные данные',
   go_to: 'Перейти к',

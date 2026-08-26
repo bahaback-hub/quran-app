@@ -137,6 +137,7 @@ export default {
   contemplation_not_ready: 'تُضاف أسئلة التأمل لهذه الآية تدريجياً.',
   pause: 'إيقاف مؤقت',
   play: 'تشغيل',
+  pres_video_retry: '▶ تحريك الخلفية',
   minutes: 'دقيقة',
   invalid_data: 'بيانات غير صالحة',
   go_to: 'انتقال إلى',

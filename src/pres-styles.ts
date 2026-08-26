@@ -23,6 +23,9 @@ export function injectStyles(): void {
       background-repeat: no-repeat;
       overflow: hidden;
     }
+    /* The shared .hidden helper uses display:none !important. This class must
+       override it in every browser, not only in the Capacitor WebView rules. */
+    .presentation-overlay.presentation-visible { display: flex !important; visibility: visible !important; }
     .presentation-overlay.pres-nature,
     .presentation-overlay.pres-auto {
       background-size: cover;
@@ -198,6 +201,24 @@ export function injectStyles(): void {
     .presentation-overlay.pres-video .presentation-close-btn { color: #fffdf5; background: rgba(8,18,18,0.46); }
     .presentation-overlay.pres-video .presentation-header-btn:hover,
     .presentation-overlay.pres-video .presentation-close-btn:hover { background: rgba(8,18,18,0.72); }
+    .presentation-video-retry {
+      position: absolute;
+      z-index: 3;
+      left: 50%;
+      bottom: max(24px, env(safe-area-inset-bottom, 0px));
+      transform: translateX(-50%);
+      min-height: 44px;
+      padding: 9px 16px;
+      border: 1px solid rgba(243, 207, 114, 0.82);
+      border-radius: 999px;
+      background: rgba(7, 18, 19, 0.82);
+      color: #fffdf5;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.36);
+      font: 700 15px/1.2 system-ui, sans-serif;
+      cursor: pointer;
+    }
+    .presentation-video-retry.hidden { display: none; }
+    .presentation-video-retry:focus-visible { outline: 3px solid #f3cf72; outline-offset: 3px; }
 
     /* Animated mode text colors (same as nature) */
     .presentation-overlay.pres-animated .presentation-ayah-text {

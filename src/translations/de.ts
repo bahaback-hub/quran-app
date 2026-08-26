@@ -138,6 +138,7 @@ export default {
   contemplation_not_ready: 'Reflexionsfragen zu diesem Vers werden nach und nach hinzugefügt.',
   pause: 'Pause',
   play: 'Abspielen',
+  pres_video_retry: '▶ Hintergrund bewegen',
   minutes: 'Minuten',
   invalid_data: 'Ungültige Daten',
   go_to: 'Gehe zu',

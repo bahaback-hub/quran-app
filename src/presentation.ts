@@ -19,6 +19,7 @@ import {
   applyPresentationVideo,
   bindPresentationVideoVisibility,
   removePresentationVideo,
+  retryPresentationVideoPlayback,
   syncPresentationVideoPlayback,
 } from './pres-video.js';
 import { injectStyles, buildAyahHtml } from './pres-styles.js';
@@ -722,6 +723,16 @@ export function initPresentation(): void {
       }
       applyPresBgMode(mode as 'plain' | 'nature' | 'animated' | 'scene' | 'video');
       setBackgroundPickerOpen(false, true);
+      showControls();
+    });
+  }
+
+  if (dom.presVideoRetryBtn) {
+    dom.presVideoRetryBtn.addEventListener('click', (event: MouseEvent) => {
+      event.stopPropagation();
+      if (dom.presentationOverlay?.classList.contains('pres-video')) {
+        retryPresentationVideoPlayback(dom.presentationOverlay);
+      }
       showControls();
     });
   }

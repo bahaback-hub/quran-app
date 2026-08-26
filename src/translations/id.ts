@@ -156,6 +156,7 @@ export default {
   tafsir_text_reset: 'Pulihkan ukuran teks bawaan',
   pause: 'Jeda',
   play: 'Putar',
+  pres_video_retry: '▶ Gerakkan latar',
   minutes: 'menit',
   invalid_data: 'Data tidak valid',
   go_to: 'Pergi ke',
