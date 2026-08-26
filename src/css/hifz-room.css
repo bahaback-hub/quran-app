@@ -1296,3 +1296,253 @@ body.hifz-room-active .hifz-room.is-open {
   #readerSideTools #qiblaBtn { order: 4; }
   #readerSideTools #hifzRoomToggle { order: 5; }
 }
+
+/* الشريط المعتمد: ستارة واحدة شفافة وملتصقة بالحافة اليسرى، لا بطاقات منفصلة. */
+#readerSideTools {
+  position: fixed;
+  z-index: 1100;
+  top: 50%;
+  left: 0;
+  width: 78px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  transform: translateY(-50%);
+  direction: rtl;
+  border: 1px solid color-mix(in srgb, var(--accent) 66%, transparent);
+  border-left: 0;
+  border-radius: 0 16px 16px 0;
+  background: rgb(81 62 40 / 78%);
+  box-shadow: 9px 12px 28px rgb(20 15 9 / 24%);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+#readerSideTools .reader-side-tool,
+#readerSideTools .hifz-room-toggle,
+#readerSideTools .tafsir-curtain-handle {
+  box-sizing: border-box;
+  flex: 0 0 72px;
+  width: 78px;
+  min-width: 78px;
+  min-height: 72px;
+  height: 72px;
+  margin: 0;
+  padding: 8px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  color: var(--header-text);
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.12;
+  text-align: center;
+  text-orientation: mixed;
+  writing-mode: horizontal-tb;
+  transform: none;
+  transition: background 160ms var(--ease-out, ease-out), color 160ms var(--ease-out, ease-out);
+}
+
+#readerSideTools > :last-child {
+  border-bottom: 0;
+}
+
+#readerSideTools .reader-side-tool:hover,
+#readerSideTools .reader-side-tool:focus-visible,
+#readerSideTools .hifz-room-toggle:hover,
+#readerSideTools .hifz-room-toggle:focus-visible,
+#readerSideTools .tafsir-curtain-handle:hover,
+#readerSideTools .tafsir-curtain-handle:focus-visible {
+  width: 78px;
+  outline: none;
+  color: #fff;
+  background: color-mix(in srgb, var(--accent) 38%, transparent);
+  transform: none;
+}
+
+#readerSideTools .reader-side-tool:active,
+#readerSideTools .hifz-room-toggle:active,
+#readerSideTools .tafsir-curtain-handle:active {
+  transform: scale(0.97);
+}
+
+#readerSideTools .reader-side-tool-icon,
+#readerSideTools .reader-side-tool svg {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+  pointer-events: none;
+}
+
+#readerSideTools .reader-side-tool-label,
+#readerSideTools .hifz-room-toggle [data-hifz-toggle-label] {
+  color: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.12;
+  pointer-events: none;
+  white-space: normal;
+}
+
+#readerSideTools .reader-side-prayer {
+  position: static;
+  padding: 0;
+}
+
+#readerSideTools #tafsirCurtainHandle { order: 1; }
+#readerSideTools #adhkarBtn { order: 2; }
+#readerSideTools #prayerBar { order: 3; }
+#readerSideTools #hifzRoomToggle { order: 4; }
+#readerSideTools #qiblaBtn { order: 5; }
+#readerSideTools #favoritesOpenBtn { order: 6; }
+
+#readerSideTools .reader-side-prayer .prayer-bar-toggle {
+  width: 100%;
+  min-height: 72px;
+  padding: 7px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+
+#readerSideTools .reader-side-prayer .prayer-bar-details {
+  left: 90px;
+}
+
+#readerSideTools .reader-side-prayer .prayer-bar-summary {
+  gap: 1px;
+  font-size: 10px;
+}
+
+#readerSideTools .reader-side-prayer .prayer-bar-summary strong,
+#readerSideTools .reader-side-prayer .prayer-bar-summary-time {
+  display: none;
+}
+
+body.sepia-mode #readerSideTools {
+  background: rgb(107 79 42 / 78%);
+}
+
+body.night-mode #readerSideTools {
+  background: rgb(18 27 40 / 82%);
+}
+
+body.night-mode.deep-night-mode #readerSideTools {
+  background: rgb(0 0 0 / 84%);
+}
+
+/* غرفة الحفظ تتبع بقية ستائر الشريط: تخرج من الحافة اليسرى وتُسحب نحو الداخل. */
+.hifz-room,
+.hifz-room--rtl {
+  top: 1rem;
+  right: auto;
+  bottom: 1rem;
+  left: 0;
+  border-right: 1px solid rgb(215 187 129 / 42%);
+  border-left: 0;
+  border-radius: 0 18px 18px 0;
+  box-shadow: 12px 0 34px rgb(0 0 0 / 42%);
+  transform: translateX(calc(-100% - 1rem));
+}
+
+.hifz-room-panel {
+  border-radius: 0 18px 18px 0;
+}
+
+body.hifz-room-active .hifz-room.is-open {
+  transform: translateX(calc(-100% + var(--hifz-curtain-reveal, min(360px, 88vw))));
+}
+
+@media (max-width: 760px) {
+  .hifz-room,
+  .hifz-room--rtl {
+    top: 0;
+    bottom: 0;
+    width: min(92vw, 540px);
+    border-radius: 0 16px 16px 0;
+    transform: translateX(-100%);
+  }
+
+  .hifz-room-panel {
+    border-radius: 0 16px 16px 0;
+  }
+
+  body.hifz-room-active .hifz-room.is-open {
+    transform: translateX(calc(-100% + var(--hifz-curtain-reveal, min(92vw, 540px))));
+  }
+}
+
+body.hifz-room-active #readerSideTools .hifz-room-toggle {
+  right: auto;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 760px) {
+  #readerSideTools {
+    top: max(164px, calc(env(safe-area-inset-top, 0px) + 108px));
+    width: 64px;
+    max-height: calc(100dvh - 245px);
+    overflow-y: auto;
+    transform: none;
+    border-radius: 0 13px 13px 0;
+  }
+
+  #readerSideTools .reader-side-tool,
+  #readerSideTools .hifz-room-toggle,
+  #readerSideTools .tafsir-curtain-handle {
+    flex-basis: 60px;
+    width: 64px;
+    min-width: 64px;
+    min-height: 60px;
+    height: 60px;
+    padding: 5px 3px;
+    gap: 2px;
+  }
+
+  #readerSideTools .reader-side-tool-icon,
+  #readerSideTools .reader-side-tool svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  #readerSideTools .reader-side-tool-label,
+  #readerSideTools .hifz-room-toggle [data-hifz-toggle-label] {
+    font-size: 8px;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+
+  #readerSideTools .reader-side-prayer .prayer-bar-toggle {
+    min-height: 60px;
+    padding: 4px 2px;
+  }
+
+  #readerSideTools .reader-side-prayer .prayer-bar-details {
+    left: 72px;
+    width: min(310px, calc(100vw - 82px));
+  }
+
+  #readerSideTools .reader-side-prayer .prayer-bar-summary strong,
+  #readerSideTools .reader-side-prayer .prayer-bar-summary-time {
+    font-size: 8px;
+  }
+
+  body.tafsir-curtain-active #readerSideTools {
+    left: 0;
+  }
+}
