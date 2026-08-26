@@ -353,29 +353,47 @@ describe('RULE_COLORS and NIGHT_COLORS', () => {
 
   it('should return correct day colors for specific rules', () => {
     expect(getTajweedColor('hamzat_wasl')).toBe('#a5a5a5');
-    expect(getTajweedColor('lam_shamsiyyah')).toBe('#2fadff');
+    expect(getTajweedColor('lam_shamsiyyah')).toBe('#a5a5a5');
     expect(getTajweedColor('madd_2')).toBe('#ce9e00');
     expect(getTajweedColor('madd_246')).toBe('#ff7b00');
     expect(getTajweedColor('madd_6')).toBe('#b50000');
-    expect(getTajweedColor('madd_munfasil')).toBe('#ff7b00');
+    expect(getTajweedColor('madd_munfasil')).toBe('#f40000');
     expect(getTajweedColor('madd_muttasil')).toBe('#f40000');
     expect(getTajweedColor('ghunnah')).toBe('#09b000');
     expect(getTajweedColor('ikhfa')).toBe('#09b000');
     expect(getTajweedColor('ikhfa_shafawi')).toBe('#09b000');
     expect(getTajweedColor('iqlab')).toBe('#09b000');
-    expect(getTajweedColor('idghaam_ghunnah')).toBe('#a5a5a5');
+    expect(getTajweedColor('idghaam_ghunnah')).toBe('#09b000');
     expect(getTajweedColor('qalqalah')).toBe('#2fadff');
-    expect(getTajweedColor('silent')).toBe('#8e44ad');
+    expect(getTajweedColor('silent')).toBe('#a5a5a5');
   });
 
   it('should return correct night colors when night-mode is active', () => {
     document.body.classList.add('night-mode');
-    expect(getTajweedColor('hamzat_wasl')).toBe('#999999');
-    expect(getTajweedColor('lam_shamsiyyah')).toBe('#00deff');
-    expect(getTajweedColor('madd_2')).toBe('#ffc1e0');
-    expect(getTajweedColor('madd_6')).toBe('#e30000');
-    expect(getTajweedColor('ghunnah')).toBe('#26b55d');
-    expect(getTajweedColor('qalqalah')).toBe('#00deff');
-    expect(getTajweedColor('silent')).toBe('#af7ac5');
+    expect(getTajweedColor('hamzat_wasl')).toBe('#b7b7b7');
+    expect(getTajweedColor('lam_shamsiyyah')).toBe('#b7b7b7');
+    expect(getTajweedColor('madd_2')).toBe('#f0c24a');
+    expect(getTajweedColor('madd_6')).toBe('#ff6868');
+    expect(getTajweedColor('madd_munfasil')).toBe('#ff7c7c');
+    expect(getTajweedColor('idghaam_ghunnah')).toBe('#5fd488');
+    expect(getTajweedColor('idghaam_shafawi')).toBe('#5fd488');
+    expect(getTajweedColor('ghunnah')).toBe('#5fd488');
+    expect(getTajweedColor('qalqalah')).toBe('#83d5ff');
+    expect(getTajweedColor('silent')).toBe('#b7b7b7');
+  });
+
+  it('should preserve the same tajweed meaning across day and night surfaces', () => {
+    expect(getTajweedColor('lam_shamsiyyah')).toBe(getTajweedColor('hamzat_wasl'));
+    expect(getTajweedColor('silent')).toBe(getTajweedColor('hamzat_wasl'));
+    expect(getTajweedColor('madd_munfasil')).toBe(getTajweedColor('madd_muttasil'));
+    expect(getTajweedColor('idghaam_ghunnah')).toBe(getTajweedColor('ghunnah'));
+    expect(getTajweedColor('idghaam_shafawi')).toBe(getTajweedColor('ghunnah'));
+
+    document.body.classList.add('night-mode');
+    expect(getTajweedColor('lam_shamsiyyah')).toBe(getTajweedColor('hamzat_wasl'));
+    expect(getTajweedColor('silent')).toBe(getTajweedColor('hamzat_wasl'));
+    expect(getTajweedColor('madd_munfasil')).toBe(getTajweedColor('madd_muttasil'));
+    expect(getTajweedColor('idghaam_ghunnah')).toBe(getTajweedColor('ghunnah'));
+    expect(getTajweedColor('idghaam_shafawi')).toBe(getTajweedColor('ghunnah'));
   });
 });
