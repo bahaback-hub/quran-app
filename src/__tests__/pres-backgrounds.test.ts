@@ -29,9 +29,15 @@ class MockIntersectionObserver {
     });
   }
 
-  disconnect(): void { /* noop */ }
-  unobserve(): void { /* noop */ }
-  takeRecords(): [] { return []; }
+  disconnect(): void {
+    /* noop */
+  }
+  unobserve(): void {
+    /* noop */
+  }
+  takeRecords(): [] {
+    return [];
+  }
 }
 
 // Install mock before importing the module

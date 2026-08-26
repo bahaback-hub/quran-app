@@ -222,9 +222,7 @@ describe('loadPageData', () => {
     );
     vi.stubGlobal('fetch', mockFetch);
     await loadPageData(994);
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('994.json'),
-    );
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('994.json'));
     vi.restoreAllMocks();
   });
 });

@@ -78,11 +78,17 @@ function label(key: string, ...args: string[]): string {
 }
 
 function isNativeContainer(): boolean {
-  return document.documentElement.classList.contains('capacitor-native') || document.body.classList.contains('capacitor-native');
+  return (
+    document.documentElement.classList.contains('capacitor-native') ||
+    document.body.classList.contains('capacitor-native')
+  );
 }
 
 function isEditableTarget(target: EventTarget | null): boolean {
-  return target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName));
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName))
+  );
 }
 
 function getAyahCount(surah: number): number {
@@ -106,7 +112,9 @@ function getSurahName(surah: number): string {
   if (state.currentSurah === surah && state.surahData?.name) {
     return state.surahData.name;
   }
-  const mainOption = (document.getElementById('surahSelect') as HTMLSelectElement | null)?.querySelector(`option[value="${surah}"]`);
+  const mainOption = (document.getElementById('surahSelect') as HTMLSelectElement | null)?.querySelector(
+    `option[value="${surah}"]`,
+  );
   return mainOption?.textContent?.replace(/^\d+\.\s*/, '') || String(surah);
 }
 
@@ -118,7 +126,10 @@ function normalizeReviewAt(value?: string): string | undefined {
   return value && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value) ? value : undefined;
 }
 
-function normalizePlan(candidate: Omit<HifzPlan, 'updatedAt' | 'reciter' | 'speed'> & Partial<Pick<HifzPlan, 'updatedAt' | 'reciter' | 'speed'>>): HifzPlan {
+function normalizePlan(
+  candidate: Omit<HifzPlan, 'updatedAt' | 'reciter' | 'speed'> &
+    Partial<Pick<HifzPlan, 'updatedAt' | 'reciter' | 'speed'>>,
+): HifzPlan {
   const surah = Math.min(Math.max(1, candidate.surah), 114);
   const count = getAyahCount(surah);
   const from = Math.min(Math.max(1, candidate.from), count);
@@ -130,7 +141,11 @@ function normalizePlan(candidate: Omit<HifzPlan, 'updatedAt' | 'reciter' | 'spee
     from,
     to,
     times: normalizeRepeatCount(candidate.times),
-    review: reviewAt ? 'custom' : (candidate.review === 'tomorrow' || candidate.review === 'later' ? candidate.review : 'today'),
+    review: reviewAt
+      ? 'custom'
+      : candidate.review === 'tomorrow' || candidate.review === 'later'
+        ? candidate.review
+        : 'today',
     reviewAt,
     reciter: RECITERS.some((reciter) => reciter.id === candidate.reciter) ? candidate.reciter! : state.currentReciter,
     speed: PLAYBACK_SPEEDS.includes(candidate.speed || 1) ? candidate.speed || 1 : 1,
@@ -140,7 +155,12 @@ function normalizePlan(candidate: Omit<HifzPlan, 'updatedAt' | 'reciter' | 'spee
 
 function getDefaultPlan(): HifzPlan {
   const stored = storage.get<HifzPlan>(PLAN_STORAGE_KEY);
-  if (stored?.version === 1 && Number.isInteger(stored.surah) && Number.isInteger(stored.from) && Number.isInteger(stored.to)) {
+  if (
+    stored?.version === 1 &&
+    Number.isInteger(stored.surah) &&
+    Number.isInteger(stored.from) &&
+    Number.isInteger(stored.to)
+  ) {
     return normalizePlan(stored);
   }
   const from = getCurrentAyah();
@@ -173,7 +193,17 @@ function getControls(room: HTMLElement): HifzRoomControls | null {
   const start = room.querySelector<HTMLButtonElement>('#hifzRoomStart');
   const download = room.querySelector<HTMLButtonElement>('#hifzRoomDownload');
   const downloadStatus = room.querySelector<HTMLElement>('#hifzRoomDownloadStatus');
-  return surah && surahSearch && from && to && repeat && reviewAt && summary && status && start && download && downloadStatus
+  return surah &&
+    surahSearch &&
+    from &&
+    to &&
+    repeat &&
+    reviewAt &&
+    summary &&
+    status &&
+    start &&
+    download &&
+    downloadStatus
     ? { surah, surahSearch, from, to, repeat, reviewAt, summary, status, start, download, downloadStatus }
     : null;
 }
@@ -187,9 +217,13 @@ function getSurahEntries(selected: number): SurahEntry[] {
   const entries = state.surahList.map((item) => ({ value: item.number, label: getSurahName(item.number) }));
   if (!entries.length) {
     const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
-    entries.push(...(mainSelect ? Array.from(mainSelect.options)
-      .map((option) => ({ value: parseInt(option.value, 10), label: option.textContent || option.value }))
-      .filter((option) => Number.isInteger(option.value) && option.value > 0) : [{ value: selected, label: getSurahName(selected) }]));
+    entries.push(
+      ...(mainSelect
+        ? Array.from(mainSelect.options)
+            .map((option) => ({ value: parseInt(option.value, 10), label: option.textContent || option.value }))
+            .filter((option) => Number.isInteger(option.value) && option.value > 0)
+        : [{ value: selected, label: getSurahName(selected) }]),
+    );
   }
   if (!entries.some((entry) => entry.value === selected)) {
     entries.push({ value: selected, label: getSurahName(selected) });
@@ -199,12 +233,14 @@ function getSurahEntries(selected: number): SurahEntry[] {
 
 function fillSurahOptions(select: HTMLSelectElement, selected: number): void {
   const entries = getSurahEntries(selected);
-  select.replaceChildren(...entries.map((entry) => {
-    const option = document.createElement('option');
-    option.value = String(entry.value);
-    option.textContent = entry.label;
-    return option;
-  }));
+  select.replaceChildren(
+    ...entries.map((entry) => {
+      const option = document.createElement('option');
+      option.value = String(entry.value);
+      option.textContent = entry.label;
+      return option;
+    }),
+  );
   select.value = String(selected);
 }
 
@@ -226,12 +262,14 @@ function syncSurahSearch(room: HTMLElement, selected: number): void {
     return;
   }
   const entries = getSurahEntries(selected);
-  list.replaceChildren(...entries.map((entry) => {
-    const option = document.createElement('option');
-    option.value = entry.label;
-    option.label = `${entry.value}. ${entry.label}`;
-    return option;
-  }));
+  list.replaceChildren(
+    ...entries.map((entry) => {
+      const option = document.createElement('option');
+      option.value = entry.label;
+      option.label = `${entry.value}. ${entry.label}`;
+      return option;
+    }),
+  );
   controls.surahSearch.value = entries.find((entry) => entry.value === selected)?.label || getSurahName(selected);
 }
 
@@ -258,32 +296,38 @@ function selectSurahFromSearch(room: HTMLElement): void {
 }
 
 function fillAyahOptions(select: HTMLSelectElement, count: number, selected: number): void {
-  select.replaceChildren(...Array.from({ length: count }, (_, index) => {
-    const option = document.createElement('option');
-    option.value = String(index + 1);
-    option.textContent = String(index + 1);
-    return option;
-  }));
+  select.replaceChildren(
+    ...Array.from({ length: count }, (_, index) => {
+      const option = document.createElement('option');
+      option.value = String(index + 1);
+      option.textContent = String(index + 1);
+      return option;
+    }),
+  );
   select.value = String(Math.min(Math.max(1, selected), count));
 }
 
 function fillReciterOptions(select: HTMLSelectElement, selected: string): void {
-  select.replaceChildren(...RECITERS.map((reciter) => {
-    const option = document.createElement('option');
-    option.value = reciter.id;
-    option.textContent = getReciterDisplayName(reciter);
-    return option;
-  }));
+  select.replaceChildren(
+    ...RECITERS.map((reciter) => {
+      const option = document.createElement('option');
+      option.value = reciter.id;
+      option.textContent = getReciterDisplayName(reciter);
+      return option;
+    }),
+  );
   select.value = RECITERS.some((reciter) => reciter.id === selected) ? selected : RECITERS[0]!.id;
 }
 
 function fillSpeedOptions(select: HTMLSelectElement, selected: number): void {
-  select.replaceChildren(...PLAYBACK_SPEEDS.map((speed) => {
-    const option = document.createElement('option');
-    option.value = String(speed);
-    option.textContent = `${speed}×`;
-    return option;
-  }));
+  select.replaceChildren(
+    ...PLAYBACK_SPEEDS.map((speed) => {
+      const option = document.createElement('option');
+      option.value = String(speed);
+      option.textContent = `${speed}×`;
+      return option;
+    }),
+  );
   select.value = String(PLAYBACK_SPEEDS.includes(selected) ? selected : 1);
 }
 
@@ -301,8 +345,34 @@ function getFocusedControls(room: HTMLElement): FocusedSessionControls | null {
   const download = room.querySelector<HTMLButtonElement>('#hifzRoomFocusDownload');
   const downloadStatus = room.querySelector<HTMLElement>('#hifzRoomFocusDownloadStatus');
   const end = room.querySelector<HTMLButtonElement>('#hifzRoomEnd');
-  return stage && stageMeta && stageText && reciter && speed && play && restart && repeat && hideText && toggleRange && download && downloadStatus && end
-    ? { stage, stageMeta, stageText, reciter, speed, play, restart, repeat, hideText, toggleRange, download, downloadStatus, end }
+  return stage &&
+    stageMeta &&
+    stageText &&
+    reciter &&
+    speed &&
+    play &&
+    restart &&
+    repeat &&
+    hideText &&
+    toggleRange &&
+    download &&
+    downloadStatus &&
+    end
+    ? {
+        stage,
+        stageMeta,
+        stageText,
+        reciter,
+        speed,
+        play,
+        restart,
+        repeat,
+        hideText,
+        toggleRange,
+        download,
+        downloadStatus,
+        end,
+      }
     : null;
 }
 
@@ -320,7 +390,7 @@ function readPlan(room: HTMLElement): HifzPlan | null {
     from: parseInt(controls.from.value, 10),
     to: parseInt(controls.to.value, 10),
     times: parseInt(controls.repeat.value || repeat?.dataset['hifzRepeat'] || '5', 10),
-    review: reviewAt ? 'custom' : ((review?.dataset['hifzReview'] as ReviewChoice | undefined) || 'today'),
+    review: reviewAt ? 'custom' : (review?.dataset['hifzReview'] as ReviewChoice | undefined) || 'today',
     reviewAt,
   });
 }
@@ -337,7 +407,13 @@ function updateSummary(room: HTMLElement): void {
   const plan = readPlan(room);
   const controls = getControls(room);
   if (plan && controls) {
-    controls.summary.textContent = label('hifz_room_summary', getSurahName(plan.surah), String(plan.from), String(plan.to), String(plan.times));
+    controls.summary.textContent = label(
+      'hifz_room_summary',
+      getSurahName(plan.surah),
+      String(plan.from),
+      String(plan.to),
+      String(plan.times),
+    );
   }
 }
 
@@ -386,12 +462,7 @@ function setSessionDownloadStatus(room: HTMLElement, key: string, stateName = 'i
 
 function setSessionReadyStatus(room: HTMLElement, plan: HifzPlan, alreadySaved = false): void {
   const primary = label(alreadySaved ? 'hifz_room_download_cached' : 'hifz_room_download_ready');
-  const detail = label(
-    'hifz_room_download_ready_detail',
-    getSurahName(plan.surah),
-    String(plan.from),
-    String(plan.to),
-  );
+  const detail = label('hifz_room_download_ready_detail', getSurahName(plan.surah), String(plan.from), String(plan.to));
   setSessionDownloadStatus(room, `${primary} ${detail}`, 'ready');
 }
 
@@ -404,7 +475,11 @@ function setSessionDownloadBusy(room: HTMLElement, busy: boolean): void {
 
 async function resolveSessionAudioUrls(plan: HifzPlan): Promise<string[]> {
   const expectedCount = plan.to - plan.from + 1;
-  if (state.currentSurah === plan.surah && state.currentReciter === plan.reciter && state.ayahsAudios.length >= plan.to) {
+  if (
+    state.currentSurah === plan.surah &&
+    state.currentReciter === plan.reciter &&
+    state.ayahsAudios.length >= plan.to
+  ) {
     const currentUrls = state.ayahsAudios.slice(plan.from - 1, plan.to).filter((url): url is string => Boolean(url));
     if (currentUrls.length === expectedCount) {
       return currentUrls;
@@ -500,7 +575,9 @@ function updateFocusedSession(room: HTMLElement, plan: HifzPlan): void {
   const textHidden = room.classList.contains('hifz-room-text-hidden');
   const showRange = room.classList.contains('hifz-room-show-range');
   const ayahs = getPlanAyahs(plan);
-  const visibleAyahs = showRange ? ayahs : [currentPlanAyah(plan)].filter((ayah): ayah is { numberInSurah: number; text: string } => ayah !== null);
+  const visibleAyahs = showRange
+    ? ayahs
+    : [currentPlanAyah(plan)].filter((ayah): ayah is { numberInSurah: number; text: string } => ayah !== null);
   controls.stageMeta.textContent = `${getSurahName(plan.surah)} — ${label('hifz_room_ayahs', String(plan.from), String(plan.to))}`;
   controls.stageText.textContent = textHidden
     ? '۞'
@@ -509,7 +586,11 @@ function updateFocusedSession(room: HTMLElement, plan: HifzPlan): void {
   controls.stage.classList.toggle('is-range-view', showRange);
   controls.play.textContent = label(state.isPlaying ? 'pause' : 'play');
   controls.restart.textContent = label('hifz_room_restart');
-  controls.repeat.textContent = label('hifz_room_repeat_progress', String(Math.min(state.repeatCounter + 1, plan.times)), String(plan.times));
+  controls.repeat.textContent = label(
+    'hifz_room_repeat_progress',
+    String(Math.min(state.repeatCounter + 1, plan.times)),
+    String(plan.times),
+  );
   controls.hideText.textContent = label(textHidden ? 'hifz_room_show_text' : 'hifz_room_hide_text');
   controls.toggleRange.textContent = label(showRange ? 'hifz_room_show_one' : 'hifz_room_show_range');
   controls.end.textContent = label('hifz_room_end');
@@ -688,9 +769,10 @@ function renderRoomText(room: HTMLElement): void {
 }
 
 function updateDirection(room: HTMLElement, toggle: HTMLButtonElement): void {
-  room.dir = document.documentElement.dir !== 'ltr' ? 'rtl' : 'ltr';
-  room.classList.add('hifz-room--rtl');
-  toggle.classList.add('hifz-room-toggle--rtl');
+  const isRtl = document.documentElement.dir !== 'ltr';
+  room.dir = isRtl ? 'rtl' : 'ltr';
+  room.classList.toggle('hifz-room--rtl', isRtl);
+  toggle.classList.toggle('hifz-room-toggle--rtl', isRtl);
 }
 
 export function isHifzRoomOpen(): boolean {
@@ -836,6 +918,9 @@ function attachCurtainDrag(room: HTMLElement, handle: HTMLButtonElement): void {
   let dragged = false;
   let suppressClick = false;
   handle.addEventListener('pointerdown', (event) => {
+    if (event.button !== 0 && event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+      return;
+    }
     event.preventDefault();
     pointerId = event.pointerId;
     startX = event.clientX;
@@ -935,7 +1020,8 @@ export function initHifzRoom(): void {
   stage.id = STAGE_ID;
   stage.className = 'hifz-room-stage';
   stage.setAttribute('aria-hidden', 'true');
-  stage.innerHTML = '<p id="hifzRoomStageMeta" class="hifz-room-stage-meta"></p><p id="hifzRoomStageText" class="hifz-room-stage-text" aria-live="polite"></p>';
+  stage.innerHTML =
+    '<p id="hifzRoomStageMeta" class="hifz-room-stage-meta"></p><p id="hifzRoomStageText" class="hifz-room-stage-text" aria-live="polite"></p>';
   toggle.id = TOGGLE_ID;
   toggle.className = 'hifz-room-toggle hifz-curtain-handle hifz-room-toggle--rtl';
   toggle.type = 'button';
@@ -1007,21 +1093,29 @@ export function initHifzRoom(): void {
     updateSummary(room);
     void refreshSessionDownloadStatus(room);
   });
-  room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch')?.addEventListener('input', () => selectSurahFromSearch(room));
-  room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch')?.addEventListener('change', () => selectSurahFromSearch(room));
-  room.querySelectorAll<HTMLSelectElement>('#hifzRoomFrom, #hifzRoomTo').forEach((select) => select.addEventListener('change', () => {
-    updateSummary(room);
-    void refreshSessionDownloadStatus(room);
-  }));
-  room.querySelectorAll<HTMLButtonElement>('[data-hifz-repeat]').forEach((button) => button.addEventListener('click', () => {
-    const times = normalizeRepeatCount(parseInt(button.dataset['hifzRepeat'] || '5', 10));
-    const controls = getControls(room);
-    if (controls) {
-      controls.repeat.value = String(times);
-    }
-    setChoice(room, '[data-hifz-repeat]', String(times));
-    updateSummary(room);
-  }));
+  room
+    .querySelector<HTMLInputElement>('#hifzRoomSurahSearch')
+    ?.addEventListener('input', () => selectSurahFromSearch(room));
+  room
+    .querySelector<HTMLInputElement>('#hifzRoomSurahSearch')
+    ?.addEventListener('change', () => selectSurahFromSearch(room));
+  room.querySelectorAll<HTMLSelectElement>('#hifzRoomFrom, #hifzRoomTo').forEach((select) =>
+    select.addEventListener('change', () => {
+      updateSummary(room);
+      void refreshSessionDownloadStatus(room);
+    }),
+  );
+  room.querySelectorAll<HTMLButtonElement>('[data-hifz-repeat]').forEach((button) =>
+    button.addEventListener('click', () => {
+      const times = normalizeRepeatCount(parseInt(button.dataset['hifzRepeat'] || '5', 10));
+      const controls = getControls(room);
+      if (controls) {
+        controls.repeat.value = String(times);
+      }
+      setChoice(room, '[data-hifz-repeat]', String(times));
+      updateSummary(room);
+    }),
+  );
   room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat')?.addEventListener('change', (event) => {
     const input = event.currentTarget as HTMLInputElement;
     const times = normalizeRepeatCount(parseInt(input.value, 10));
@@ -1029,17 +1123,19 @@ export function initHifzRoom(): void {
     setChoice(room, '[data-hifz-repeat]', String(times));
     updateSummary(room);
   });
-  room.querySelectorAll<HTMLButtonElement>('[data-hifz-review]').forEach((button) => button.addEventListener('click', () => {
-    setChoice(room, '[data-hifz-review]', button.dataset['hifzReview'] || 'today');
-    const controls = getControls(room);
-    if (controls) {
-      controls.reviewAt.value = '';
-    }
-    const plan = readPlan(room);
-    if (plan) {
-      savePlan(plan);
-    }
-  }));
+  room.querySelectorAll<HTMLButtonElement>('[data-hifz-review]').forEach((button) =>
+    button.addEventListener('click', () => {
+      setChoice(room, '[data-hifz-review]', button.dataset['hifzReview'] || 'today');
+      const controls = getControls(room);
+      if (controls) {
+        controls.reviewAt.value = '';
+      }
+      const plan = readPlan(room);
+      if (plan) {
+        savePlan(plan);
+      }
+    }),
+  );
   room.querySelector<HTMLInputElement>('#hifzRoomReviewAt')?.addEventListener('change', () => {
     const controls = getControls(room);
     if (!controls) {
@@ -1057,30 +1153,42 @@ export function initHifzRoom(): void {
   document.addEventListener('pointermove', () => showFocusedControls(room), { passive: true });
   document.addEventListener('pointerdown', () => showFocusedControls(room), { passive: true });
   document.addEventListener('focusin', () => showFocusedControls(room));
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && isHifzRoomOpen()) {
-      event.preventDefault(); event.stopImmediatePropagation();
-      if (room.classList.contains('hifz-room-focused')) {
-        hideFocusedControls(room);
-      } else {
-        closeHifzRoom(true);
-      }
-      return;
-    }
-    showFocusedControls(room);
-    if (event.key.toLowerCase() === 'h' && !event.ctrlKey && !event.metaKey && !event.altKey && !isEditableTarget(event.target)) {
-      event.preventDefault(); event.stopImmediatePropagation();
-      if (isHifzRoomOpen()) {
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key === 'Escape' && isHifzRoomOpen()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
         if (room.classList.contains('hifz-room-focused')) {
           hideFocusedControls(room);
         } else {
           closeHifzRoom(true);
         }
-      } else {
-        openHifzRoom();
+        return;
       }
-    }
-  }, true);
+      showFocusedControls(room);
+      if (
+        event.key.toLowerCase() === 'h' &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey &&
+        !isEditableTarget(event.target)
+      ) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (isHifzRoomOpen()) {
+          if (room.classList.contains('hifz-room-focused')) {
+            hideFocusedControls(room);
+          } else {
+            closeHifzRoom(true);
+          }
+        } else {
+          openHifzRoom();
+        }
+      }
+    },
+    true,
+  );
   window.addEventListener('app:langchange', () => {
     const plan = readSessionPlan(room) || getDefaultPlan();
     renderRoomText(room);

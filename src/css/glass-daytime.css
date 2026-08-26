@@ -2,7 +2,7 @@
 
 /* ========== خلفية المسجد النبوي للوضع النهاري ========== */
 body:not(.night-mode):not(.sepia-mode) {
-  background: url('../backgrounds/mosque.jpg') center center / cover no-repeat fixed;
+  background: url('/backgrounds/mosque.jpg') center center / cover no-repeat fixed;
   position: relative;
 }
 

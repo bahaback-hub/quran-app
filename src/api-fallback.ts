@@ -150,9 +150,7 @@ export async function loadLocalSurahList(): Promise<SurahInfo[] | null> {
  * @param surahNum Surah number (1..114)
  * @returns A map of ayahNum → tafsir text, or null if not found locally
  */
-export async function loadLocalTafsirMuyassar(
-  surahNum: number,
-): Promise<Record<number, string> | null> {
+export async function loadLocalTafsirMuyassar(surahNum: number): Promise<Record<number, string> | null> {
   try {
     const data = (await jsonFetch('data/muyassar-tafsir.json', {
       silent: true,

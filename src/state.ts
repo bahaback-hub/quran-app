@@ -45,16 +45,6 @@ export {
   clearSubscribers,
 } from './state/subscriptions.js';
 
-export {
-  state,
-  setState,
-  batch,
-  resetState,
-} from './state/proxy.js';
+export { state, setState, batch, resetState } from './state/proxy.js';
 
-export {
-  installStateDevTools,
-  getStateHistory,
-  clearStateHistory,
-  isDevToolsInstalled,
-} from './state/devtools.js';
+export { installStateDevTools, getStateHistory, clearStateHistory, isDevToolsInstalled } from './state/devtools.js';

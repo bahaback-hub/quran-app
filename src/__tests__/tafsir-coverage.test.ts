@@ -66,9 +66,15 @@ beforeEach(() => {
   Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]);
   globalThis.localStorage = {
     getItem: (key: string) => (localStorageStore[key] === undefined ? null : localStorageStore[key]),
-    setItem: (key: string, val: string) => { localStorageStore[key] = String(val); },
-    removeItem: (key: string) => { delete localStorageStore[key]; },
-    clear: () => { Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]); },
+    setItem: (key: string, val: string) => {
+      localStorageStore[key] = String(val);
+    },
+    removeItem: (key: string) => {
+      delete localStorageStore[key];
+    },
+    clear: () => {
+      Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]);
+    },
   } as Storage;
 });
 
@@ -368,9 +374,10 @@ describe('tafsir coverage', () => {
         if (url.includes('muyassar-tafsir')) {
           return Promise.resolve({
             ok: true,
-            json: () => Promise.resolve({
-              1: { ayahs: [{ ayah: 1, text: 'مویسّر تفسیر' }] },
-            }),
+            json: () =>
+              Promise.resolve({
+                1: { ayahs: [{ ayah: 1, text: 'مویسّر تفسیر' }] },
+              }),
           } as Response);
         }
         return Promise.resolve({
@@ -430,9 +437,10 @@ describe('tafsir coverage', () => {
         if (urlStr.includes('muyassar-tafsir')) {
           return Promise.resolve({
             ok: true,
-            json: () => Promise.resolve({
-              3: [{ ayah: 1, text: 'Array format tafsir' }],
-            }),
+            json: () =>
+              Promise.resolve({
+                3: [{ ayah: 1, text: 'Array format tafsir' }],
+              }),
           } as Response);
         }
         return Promise.resolve({
@@ -453,9 +461,10 @@ describe('tafsir coverage', () => {
         if (url.includes('muyassar-tafsir')) {
           return Promise.resolve({
             ok: true,
-            json: () => Promise.resolve({
-              2: [{ ayah: 1, text: 'Surah 2 tafsir' }],
-            }),
+            json: () =>
+              Promise.resolve({
+                2: [{ ayah: 1, text: 'Surah 2 tafsir' }],
+              }),
           } as Response);
         }
         return Promise.resolve({

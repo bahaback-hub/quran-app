@@ -38,9 +38,7 @@ describe('surah-cache', () => {
           number: 1,
           name: 'الفاتحة',
           englishName: 'Al-Fatiha',
-          ayahs: [
-            { numberInSurah: 1, text: 'بسم الله الرحمن الرحيم', number: 1 },
-          ],
+          ayahs: [{ numberInSurah: 1, text: 'بسم الله الرحمن الرحيم', number: 1 }],
         },
         audios: ['https://example.com/audio/1.mp3'],
         timings: [5000],
@@ -488,10 +486,7 @@ describe('surah-cache', () => {
       };
 
       // Write both simultaneously
-      await Promise.all([
-        cacheSurahToIDB('1_ar.alafasy', entry1),
-        cacheSurahToIDB('2_ar.alafasy', entry2),
-      ]);
+      await Promise.all([cacheSurahToIDB('1_ar.alafasy', entry1), cacheSurahToIDB('2_ar.alafasy', entry2)]);
 
       const cached1 = await getCachedSurahFromIDB('1_ar.alafasy');
       const cached2 = await getCachedSurahFromIDB('2_ar.alafasy');

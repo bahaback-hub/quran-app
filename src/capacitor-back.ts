@@ -46,7 +46,11 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
     app.addListener?.('backButton', () => {
       // Close presentation overlay first — use proper close function
       if (state.presentationMode) {
-        import('./presentation.js').then((m) => m.closePresentation()).catch(() => { /* noop */ });
+        import('./presentation.js')
+          .then((m) => m.closePresentation())
+          .catch(() => {
+            /* noop */
+          });
         return;
       }
 
@@ -79,7 +83,11 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
       }
 
       const readingStatsPanel = document.getElementById('readingStatsPanel');
-      if (readingStatsPanel && !readingStatsPanel.classList.contains('hidden') && readingStatsPanel.style.display !== 'none') {
+      if (
+        readingStatsPanel &&
+        !readingStatsPanel.classList.contains('hidden') &&
+        readingStatsPanel.style.display !== 'none'
+      ) {
         document.getElementById('readingStatsCloseBtn')?.click();
         return;
       }
@@ -139,7 +147,6 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
       if (window.confirm(__('exit_app_confirm'))) {
         app.exitApp?.();
       }
-
     });
   } catch (e: unknown) {
     console.warn('Capacitor back button init failed:', e);

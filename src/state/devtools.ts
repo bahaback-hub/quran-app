@@ -52,12 +52,7 @@ export function installStateDevTools(): void {
         console.warn('[State DevTools] History (last 50 changes):');
         for (const snap of _snapshots) {
           const time = new Date(snap.timestamp).toLocaleTimeString();
-          console.warn(
-            `[State DevTools] ${time} ${snap.key}:`,
-            snap.oldValue,
-            '→',
-            snap.newValue,
-          );
+          console.warn(`[State DevTools] ${time} ${snap.key}:`, snap.oldValue, '→', snap.newValue);
         }
         return [..._snapshots];
       },

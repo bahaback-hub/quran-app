@@ -140,10 +140,7 @@ describe('safeLoad — retry mechanism', () => {
   });
 
   it('should reset failure count on success', async () => {
-    const loader = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('Once'))
-      .mockResolvedValueOnce({ init: vi.fn() });
+    const loader = vi.fn().mockRejectedValueOnce(new Error('Once')).mockResolvedValueOnce({ init: vi.fn() });
 
     // First call: 1 failure + 1 success = success after retry
     const result1 = await safeLoad(loader, {
@@ -168,10 +165,7 @@ describe('safeLoad — retry mechanism', () => {
 
   it('should call showToast on retry when showToast=true', async () => {
     const { showToast } = await import('../ui.js');
-    const loader = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('Once'))
-      .mockResolvedValueOnce({});
+    const loader = vi.fn().mockRejectedValueOnce(new Error('Once')).mockResolvedValueOnce({});
 
     await safeLoad(loader, {
       label: 'toast-test',
@@ -219,10 +213,7 @@ describe('safeAsync — wrap with retry', () => {
   });
 
   it('should retry on failure', async () => {
-    const fn = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('Retry me'))
-      .mockResolvedValueOnce('success');
+    const fn = vi.fn().mockRejectedValueOnce(new Error('Retry me')).mockResolvedValueOnce('success');
 
     const result = await safeAsync(fn, {
       fallback: 'fallback',

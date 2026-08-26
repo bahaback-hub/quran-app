@@ -55,7 +55,11 @@ test.describe('Quran App — Core Smoke Tests', () => {
     await expect(ayahsContainer).toBeVisible();
   });
 
-  test('should show the search button', async ({ page }) => {
+  test('should reveal the search controls from the visible search trigger', async ({ page }) => {
+    const searchTrigger = page.locator('#searchToggleBtn');
+    await expect(searchTrigger).toBeVisible();
+    await searchTrigger.click();
+
     const searchBtn = page.locator('#searchBtn');
     await expect(searchBtn).toBeVisible();
   });

@@ -52,7 +52,9 @@ vi.mock('../pres-backgrounds.js', () => ({
 // Mock pres-styles
 vi.mock('../pres-styles.js', () => ({
   injectStyles: vi.fn(),
-  buildAyahHtml: vi.fn((_text: string, _surah: number, _ayah: number, _tajweed: boolean) => '<span>mock ayah html</span>'),
+  buildAyahHtml: vi.fn(
+    (_text: string, _surah: number, _ayah: number, _tajweed: boolean) => '<span>mock ayah html</span>',
+  ),
 }));
 
 // Mock app.js for the dynamic import in openPresentation
@@ -225,24 +227,14 @@ describe('presentation coverage', () => {
 
       initPresentation();
       openPresentation();
-      expect(buildAyahHtml).toHaveBeenLastCalledWith(
-        'بسم الله الرحمن الرحيم',
-        1,
-        1,
-        true,
-      );
+      expect(buildAyahHtml).toHaveBeenLastCalledWith('بسم الله الرحمن الرحيم', 1, 1, true);
 
       // The mock keeps isFullscreen() false to model Android WebView before it
       // reports document.fullscreenElement. The local request state must still
       // remove tajweed spans immediately so Arabic letters keep their shaping.
       dom.presFullscreenBtn!.click();
       expect(requestFullscreen).toHaveBeenCalledWith(dom.presentationOverlay);
-      expect(buildAyahHtml).toHaveBeenLastCalledWith(
-        'بسم الله الرحمن الرحيم',
-        1,
-        1,
-        false,
-      );
+      expect(buildAyahHtml).toHaveBeenLastCalledWith('بسم الله الرحمن الرحيم', 1, 1, false);
     });
   });
 

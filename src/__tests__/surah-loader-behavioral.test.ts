@@ -156,7 +156,8 @@ describe('surah-loader — toggleTranslation', () => {
   beforeEach(() => {
     resetState();
     // Create a translation select with a default value
-    document.body.innerHTML = '<select id="translationSelect"><option value="">— none —</option><option value="en.sahih">Sahih</option></select>';
+    document.body.innerHTML =
+      '<select id="translationSelect"><option value="">— none —</option><option value="en.sahih">Sahih</option></select>';
     const sel = document.getElementById('translationSelect') as HTMLSelectElement;
     (dom as { translationSelect: HTMLSelectElement | null }).translationSelect = sel;
   });
@@ -301,7 +302,9 @@ describe('surah-loader — populateSurahSelect', () => {
   beforeEach(() => {
     resetState();
     document.body.innerHTML = '<select id="surahSelect"></select>';
-    (dom as { surahSelect: HTMLSelectElement | null }).surahSelect = document.getElementById('surahSelect') as HTMLSelectElement;
+    (dom as { surahSelect: HTMLSelectElement | null }).surahSelect = document.getElementById(
+      'surahSelect',
+    ) as HTMLSelectElement;
   });
 
   it('SURAH_SECRETS has 114 entries (one per surah)', async () => {

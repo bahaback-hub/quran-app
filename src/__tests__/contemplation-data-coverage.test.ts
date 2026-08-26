@@ -30,9 +30,11 @@ const projectRoot = resolve(import.meta.dirname, '../..');
 const contemplationDirectory = resolve(projectRoot, 'public/data/contemplation');
 
 function hasThreeQuestions(value: unknown): value is [string, string, string] {
-  return Array.isArray(value)
-    && value.length === 3
-    && value.every((question) => typeof question === 'string' && question.trim().length > 0);
+  return (
+    Array.isArray(value) &&
+    value.length === 3 &&
+    value.every((question) => typeof question === 'string' && question.trim().length > 0)
+  );
 }
 
 describe('contemplation data coverage', () => {
@@ -45,14 +47,13 @@ describe('contemplation data coverage', () => {
     ) as ContemplationManifest;
 
     const expectedIds = new Set(
-      quran.data.surahs.flatMap((surah) =>
-        surah.ayahs.map((ayah) => `${surah.number}:${ayah.numberInSurah}`),
-      ),
+      quran.data.surahs.flatMap((surah) => surah.ayahs.map((ayah) => `${surah.number}:${ayah.numberInSurah}`)),
     );
     const entries = (
       await Promise.all(
-        manifest.surahs.map(async ({ file }) =>
-          JSON.parse(await readFile(resolve(contemplationDirectory, file), 'utf8')) as ContemplationEntry[],
+        manifest.surahs.map(
+          async ({ file }) =>
+            JSON.parse(await readFile(resolve(contemplationDirectory, file), 'utf8')) as ContemplationEntry[],
         ),
       )
     ).flat();

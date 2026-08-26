@@ -77,7 +77,13 @@ vi.mock('../utils.js', () => ({
 vi.mock('../templates.js', () => ({
   searchEmptyResults: () => '<div class="search-empty">No results</div>',
   searchResultsHeader: (total: number) => `<div class="search-header">${total} results</div>`,
-  searchResultCard: (data: { surah: number; ayah: number; surahName: string; fulltextIndex: number; highlighted: string }) =>
+  searchResultCard: (data: {
+    surah: number;
+    ayah: number;
+    surahName: string;
+    fulltextIndex: number;
+    highlighted: string;
+  }) =>
     `<div class="search-result-item" data-surah="${data.surah}" data-ayah="${data.ayah}" data-fulltext-index="${data.fulltextIndex}" data-surahname="${data.surahName}">${data.highlighted}</div>`,
   searchLoadMoreButton: (remaining: number) => `<button id="loadMoreSearchBtn">Load more (${remaining})</button>`,
   searchHistoryItem: (text: string, idx: number) =>
@@ -223,8 +229,20 @@ describe('performExactSearch via barrel', () => {
     vi.clearAllMocks();
     (state as Record<string, unknown>).fullQuranLoaded = true;
     (state as Record<string, unknown>).fullQuranText = [
-      { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', normalized: 'بسم الله الرحمن الرحيم' },
-      { surah: 1, surahName: 'الفاتحة', ayah: 2, text: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', normalized: 'الحمد لله رب العلمين' },
+      {
+        surah: 1,
+        surahName: 'الفاتحة',
+        ayah: 1,
+        text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+        normalized: 'بسم الله الرحمن الرحيم',
+      },
+      {
+        surah: 1,
+        surahName: 'الفاتحة',
+        ayah: 2,
+        text: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',
+        normalized: 'الحمد لله رب العلمين',
+      },
     ];
   });
 

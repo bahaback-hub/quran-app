@@ -60,7 +60,8 @@ export default {
   hifz_room_download_cached: 'Diese Sitzung ist bereits für Offline-Hören gespeichert.',
   hifz_room_download_ready_detail: '● Offline bereit — {0}, Ayahs {1}–{2}',
   hifz_room_steps_label: 'Schritte der Memorisierungssitzung',
-  hifz_room_download_failed: 'Die Sitzung konnte nicht heruntergeladen werden. Überprüfe deine Verbindung und versuche es erneut.',
+  hifz_room_download_failed:
+    'Die Sitzung konnte nicht heruntergeladen werden. Überprüfe deine Verbindung und versuche es erneut.',
   exit_app_confirm: 'Möchtest du die App wirklich beenden?',
   makkah: 'Mekka',
   close: 'Schließen',
@@ -363,7 +364,8 @@ export default {
   presentation_share_video_now: 'Video jetzt teilen',
   presentation_share_video_prepare: 'Video wird auf deinem Gerät erstellt…',
   presentation_share_video_ready: 'Video zum Teilen bereit',
-  presentation_share_video_failed: 'Das Video konnte nicht erstellt werden. Versuche eine kürzere Ayah oder einen neueren Browser.',
+  presentation_share_video_failed:
+    'Das Video konnte nicht erstellt werden. Versuche eine kürzere Ayah oder einen neueren Browser.',
   presentation_share_video_download_hint: 'Das Video wurde zum Teilen auf deinem Gerät heruntergeladen.',
   presentation_share_video_download_hd: 'Original-HD-Kopie speichern',
   pres_bg_label: 'Präsentationshintergrund:',
@@ -400,7 +402,8 @@ export default {
   qibla_compass_active: 'Live-Kompass aktiv — geografisch Norden',
   qibla_calibration_required: 'Bewege das Telefon in einer 8‑Form fern von Metall, um den Kompass zu kalibrieren.',
   qibla_static_mode: 'Qibla-Bearing vom geografischen Norden. Ein Live-Kompass ist auf diesem Gerät nicht verfügbar.',
-  qibla_compass_unavailable: 'Live-Kompass konnte nicht gestartet werden. Zeige den Qibla-Bearing vom geografischen Norden an.',
+  qibla_compass_unavailable:
+    'Live-Kompass konnte nicht gestartet werden. Zeige den Qibla-Bearing vom geografischen Norden an.',
 
   // === Sleep Timer ===
   sleep_timer_title: 'Schlaf-Timer',
@@ -453,7 +456,8 @@ export default {
   voice_search_not_recognized: 'Sprache nicht erkannt',
   voice_search_unsupported: 'Sprachsuche nicht unterstützt',
   voice_search_prompt: 'Sprich, um im Quran zu suchen',
-  voice_search_permission_denied: 'Mikrofonzugriff wurde verweigert. Aktiviere ihn in den App-Einstellungen und versuche es erneut.',
+  voice_search_permission_denied:
+    'Mikrofonzugriff wurde verweigert. Aktiviere ihn in den App-Einstellungen und versuche es erneut.',
   voice_search_service_unavailable: 'Spracherkennung ist auf diesem Gerät nicht verfügbar',
   voice_search_error: 'Sprachsuche konnte nicht gestartet werden. Bitte versuche es erneut.',
   reader_zoom: 'Lese-Zoom',
@@ -511,7 +515,8 @@ export default {
 
   // === Help Guide ===
   help_guide: 'Benutzerhandbuch',
-  help_intro: 'Beginne mit dem, was du jetzt brauchst: lesen, hören, memorisieren oder mit einem Vers zur Reflexion pausieren.',
+  help_intro:
+    'Beginne mit dem, was du jetzt brauchst: lesen, hören, memorisieren oder mit einem Vers zur Reflexion pausieren.',
   help_playback: 'Wiedergabe & Hören',
   help_play_pause: 'Abspielen / Pause',
   help_play_pause_desc:
@@ -573,7 +578,8 @@ export default {
   help_mushaf_mode_desc:
     'Tippe auf 📖 in der Ansichtsleiste oben. Zeigt Quran-Seiten so an, wie sie im gedruckten Mushaf erscheinen, mit Seitennavigation.',
   help_qibla: 'Qibla-Kompass',
-  help_qibla_desc: "Tippe auf 🧭 in der Ansichtsleiste oben. Zeigt die Qibla-Richtung mit dem Kompass deines Geräts an.",
+  help_qibla_desc:
+    'Tippe auf 🧭 in der Ansichtsleiste oben. Zeigt die Qibla-Richtung mit dem Kompass deines Geräts an.',
   help_adhkar: 'Morgens- & Abends-Adhkar',
   help_adhkar_desc:
     'Tippe auf 🤲 in der Ansichtsleiste oben. Zeigt die Adhkar-Liste mit einem Zähler an. Du kannst automatische Erinnerungen in den Einstellungen aktivieren.',
@@ -595,4 +601,92 @@ export default {
   a11y_offline_notice: 'Offline-Hinweis',
   a11y_reading_progress: 'Lese-Fortschritt',
   reduced_motion_enabled: 'Reduzierte Bewegung aktiviert',
+  ayah_count: {
+    zero: 'Keine Ayat',
+    one: '1 Ayah',
+    two: '2 Ayat',
+    few: '{count} Ayat',
+    many: '{count} Ayat',
+    other: '{count} Ayat',
+  },
+  favorite_count: {
+    zero: 'Keine Favoriten',
+    one: '1 Favorit',
+    two: '2 Favoriten',
+    few: '{count} Favoriten',
+    many: '{count} Favoriten',
+    other: '{count} Favoriten',
+  },
+  search_results_count: {
+    zero: 'Keine Ergebnisse',
+    one: '1 Ergebnis',
+    two: '2 Ergebnisse',
+    few: '{count} Ergebnisse',
+    many: '{count} Ergebnisse',
+    other: '{count} Ergebnisse',
+  },
+  bookmark_count: {
+    zero: 'Keine Lesezeichen',
+    one: '1 Lesezeichen',
+    two: '2 Lesezeichen',
+    few: '{count} Lesezeichen',
+    many: '{count} Lesezeichen',
+    other: '{count} Lesezeichen',
+  },
+  minutes_remaining: {
+    zero: 'Zeit abgelaufen',
+    one: '1 Minute verbleibend',
+    two: '2 Minuten verbleibend',
+    few: '{count} Minuten verbleibend',
+    many: '{count} Minuten verbleibend',
+    other: '{count} Minuten verbleibend',
+  },
+  pages_count: {
+    zero: 'Keine Seiten',
+    one: '1 Seite',
+    two: '2 Seiten',
+    few: '{count} Seiten',
+    many: '{count} Seiten',
+    other: '{count} Seiten',
+  },
+  surah_count: {
+    zero: 'Keine Suren',
+    one: '1 Sure',
+    two: '2 Suren',
+    few: '{count} Suren',
+    many: '{count} Suren',
+    other: '{count} Suren',
+  },
+  reciter_count: {
+    zero: 'Keine Rezitatoren',
+    one: '1 Rezitator',
+    two: '2 Rezitatoren',
+    few: '{count} Rezitatoren',
+    many: '{count} Rezitatoren',
+    other: '{count} Rezitatoren',
+  },
+  listening_minutes: {
+    zero: 'Noch nicht gehört',
+    one: '1 Hörminute',
+    two: '2 Hörminuten',
+    few: '{count} Hörminuten',
+    many: '{count} Hörminuten',
+    other: '{count} Hörminuten',
+  },
+  reading_sessions: {
+    zero: 'Keine Lesesitzungen',
+    one: '1 Lesesitzung',
+    two: '2 Lesesitzungen',
+    few: '{count} Lesesitzungen',
+    many: '{count} Lesesitzungen',
+    other: '{count} Lesesitzungen',
+  },
+  day_streak: {
+    zero: 'Heute beginnen!',
+    one: '1 Tag in Folge',
+    two: '2 Tage in Folge',
+    few: '{count} Tage in Folge',
+    many: '{count} Tage in Folge',
+    other: '{count} Tage in Folge',
+  },
 };

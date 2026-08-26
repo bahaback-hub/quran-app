@@ -88,14 +88,14 @@ vi.mock('../internal-state.js', async (importOriginal) => {
 vi.mock('../templates.js', () => ({
   adhkarTab: (id: string, name: string, active: boolean) =>
     `<button class="adhkar-tab${active ? ' active' : ''}" data-tab="${id}">${name}</button>`,
-  adhkarCategoryTitle: (name: string, icon: string) =>
-    `<div class="adhkar-category-title">${icon} ${name}</div>`,
-  escapeHtml: (str: string | null | undefined) => String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;'),
+  adhkarCategoryTitle: (name: string, icon: string) => `<div class="adhkar-category-title">${icon} ${name}</div>`,
+  escapeHtml: (str: string | null | undefined) =>
+    String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;'),
 }));
 
 // Mock adhkar-notifications
@@ -176,7 +176,8 @@ function resetAll() {
   state.adhkarSettings = null;
   state.adhkarPanelOpen = false;
   state.adhkarActiveTab = null;
-  state.firedAdhkarToday = new Set(); state.firedAdhkarDate = null;
+  state.firedAdhkarToday = new Set();
+  state.firedAdhkarDate = null;
   // Clean up document body (e.g. delete modals from previous tests)
   document.body.innerHTML = '';
   setupDOM();
@@ -252,17 +253,13 @@ describe('loadAdhkarSettings', () => {
   });
 
   it('should sync adhkarEnabledToggle class with loaded state', () => {
-    (storage.get as ReturnType<typeof vi.fn>).mockReturnValue(
-      createTestSettings({ adhkar_enabled: true }),
-    );
+    (storage.get as ReturnType<typeof vi.fn>).mockReturnValue(createTestSettings({ adhkar_enabled: true }));
     loadAdhkarSettings();
     expect(dom.adhkarEnabledToggle!.classList.contains('on')).toBe(true);
   });
 
   it('should sync adhkarSoundToggle class with loaded state', () => {
-    (storage.get as ReturnType<typeof vi.fn>).mockReturnValue(
-      createTestSettings({ adhkar_sound: true }),
-    );
+    (storage.get as ReturnType<typeof vi.fn>).mockReturnValue(createTestSettings({ adhkar_sound: true }));
     loadAdhkarSettings();
     expect(dom.adhkarSoundToggle!.classList.contains('on')).toBe(true);
   });
@@ -691,7 +688,9 @@ describe('handleAdhkarCounter (via DOM click)', () => {
   it('should increment counter when increment button is clicked', () => {
     state.adhkarSettings = createTestSettings({ item_m1: 0 });
     toggleAdhkarPanel();
-    const incrementBtn = dom.adhkarContent!.querySelector('[data-action="increment"][data-item-id="m1"]') as HTMLElement;
+    const incrementBtn = dom.adhkarContent!.querySelector(
+      '[data-action="increment"][data-item-id="m1"]',
+    ) as HTMLElement;
     expect(incrementBtn).toBeTruthy();
     incrementBtn.click();
     expect(state.adhkarSettings!.item_m1).toBe(1);
@@ -700,7 +699,9 @@ describe('handleAdhkarCounter (via DOM click)', () => {
   it('should reset counter to 0 when count exceeds target', () => {
     state.adhkarSettings = createTestSettings({ item_m1: 33 }); // count is 33, target is 33
     toggleAdhkarPanel();
-    const incrementBtn = dom.adhkarContent!.querySelector('[data-action="increment"][data-item-id="m1"]') as HTMLElement;
+    const incrementBtn = dom.adhkarContent!.querySelector(
+      '[data-action="increment"][data-item-id="m1"]',
+    ) as HTMLElement;
     incrementBtn.click();
     // Should reset to 0 since current >= item.count (33 >= 33)
     expect(state.adhkarSettings!.item_m1).toBe(0);
@@ -709,7 +710,9 @@ describe('handleAdhkarCounter (via DOM click)', () => {
   it('should save settings after incrementing', () => {
     state.adhkarSettings = createTestSettings({ item_m1: 0 });
     toggleAdhkarPanel();
-    const incrementBtn = dom.adhkarContent!.querySelector('[data-action="increment"][data-item-id="m1"]') as HTMLElement;
+    const incrementBtn = dom.adhkarContent!.querySelector(
+      '[data-action="increment"][data-item-id="m1"]',
+    ) as HTMLElement;
     incrementBtn.click();
     expect(storage.set).toHaveBeenCalled();
   });
@@ -717,7 +720,9 @@ describe('handleAdhkarCounter (via DOM click)', () => {
   it('should update DOM after incrementing (progress bar, counter text)', () => {
     state.adhkarSettings = createTestSettings({ item_m1: 32 }); // count is 33, increment to 33
     toggleAdhkarPanel();
-    const incrementBtn = dom.adhkarContent!.querySelector('[data-action="increment"][data-item-id="m1"]') as HTMLElement;
+    const incrementBtn = dom.adhkarContent!.querySelector(
+      '[data-action="increment"][data-item-id="m1"]',
+    ) as HTMLElement;
     incrementBtn.click();
     // m1 count is 33, counter is now 33 => completed
     const itemEl = dom.adhkarContent!.querySelector('.adhkar-item[data-item-id="m1"]') as HTMLElement;
@@ -813,7 +818,9 @@ describe('renderAdhkarCategory (via toggleAdhkarPanel)', () => {
   it('should update category duration when duration input changes', () => {
     state.adhkarSettings = createTestSettings();
     toggleAdhkarPanel();
-    const durInput = dom.adhkarContent!.querySelector('.adhkar-cat-duration[data-category="morning"]') as HTMLInputElement;
+    const durInput = dom.adhkarContent!.querySelector(
+      '.adhkar-cat-duration[data-category="morning"]',
+    ) as HTMLInputElement;
     durInput.value = '15';
     durInput.dispatchEvent(new Event('change', { bubbles: true }));
     const morningSettings = state.adhkarSettings!.morning as { duration: number };
@@ -847,9 +854,7 @@ describe('renderPersonalAdhkar (via switchAdhkarTab "personal")', () => {
 
   it('should render personal adhkar items when they exist', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'My dhikr', count: 10, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'My dhikr', count: 10, time: null, duration: 1 }],
       item_personal_pa_1: 3,
     });
     toggleAdhkarPanel();
@@ -862,9 +867,7 @@ describe('renderPersonalAdhkar (via switchAdhkarTab "personal")', () => {
 
   it('should render completed class for personal items where counter >= count', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'My dhikr', count: 5, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'My dhikr', count: 5, time: null, duration: 1 }],
       item_personal_pa_1: 5, // counter >= count
     });
     toggleAdhkarPanel();
@@ -877,9 +880,7 @@ describe('renderPersonalAdhkar (via switchAdhkarTab "personal")', () => {
 
   it('should render edit and delete buttons for personal items', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'Test', count: 3, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'Test', count: 3, time: null, duration: 1 }],
       item_personal_pa_1: 0,
     });
     toggleAdhkarPanel();
@@ -892,9 +893,7 @@ describe('renderPersonalAdhkar (via switchAdhkarTab "personal")', () => {
 
   it('should render time display for personal items with time', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'Test', count: 3, time: '08:00', duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'Test', count: 3, time: '08:00', duration: 1 }],
       item_personal_pa_1: 0,
     });
     toggleAdhkarPanel();
@@ -906,9 +905,7 @@ describe('renderPersonalAdhkar (via switchAdhkarTab "personal")', () => {
 
   it('should escape HTML in the personal adhkar time display', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_safe', text: 'Test', count: 3, time: '<img src=x onerror=alert(1)>', duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_safe', text: 'Test', count: 3, time: '<img src=x onerror=alert(1)>', duration: 1 }],
       item_personal_pa_safe: 0,
     });
     toggleAdhkarPanel();
@@ -1001,9 +998,7 @@ describe('savePersonalAdhkar (via DOM)', () => {
 
   it('should update existing personal adhkar entry when editId is set', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'Old text', count: 5, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'Old text', count: 5, time: null, duration: 1 }],
     });
     wireAdhkarEvents();
     dom.adhkarAddText!.value = 'Updated text';
@@ -1038,9 +1033,7 @@ describe('savePersonalAdhkar (via DOM)', () => {
 
   it('should show edited toast after editing', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'Old', count: 5, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'Old', count: 5, time: null, duration: 1 }],
     });
     wireAdhkarEvents();
     dom.adhkarAddText!.value = 'Updated';
@@ -1126,9 +1119,7 @@ describe('editPersonalAdhkar (via DOM)', () => {
 
   it('should open dialog with pre-filled form for editing', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'My dhikr', count: 10, time: '08:00', duration: 5 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'My dhikr', count: 10, time: '08:00', duration: 5 }],
     });
     toggleAdhkarPanel();
     // Switch to personal tab
@@ -1165,16 +1156,16 @@ describe('deletePersonalAdhkar (via DOM)', () => {
 
   it('should create a delete confirmation modal', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 }],
     });
     toggleAdhkarPanel();
     state.adhkarActiveTab = 'personal';
     const personalTab = dom.adhkarTabs!.querySelector('[data-tab="personal"]') as HTMLElement;
     if (personalTab) personalTab.click();
 
-    const deleteBtn = dom.adhkarContent!.querySelector('[data-action="delete-personal"][data-id="pa_1"]') as HTMLElement;
+    const deleteBtn = dom.adhkarContent!.querySelector(
+      '[data-action="delete-personal"][data-id="pa_1"]',
+    ) as HTMLElement;
     if (deleteBtn) {
       deleteBtn.click();
       const modal = document.getElementById('adhkarDeleteModal');
@@ -1189,16 +1180,16 @@ describe('deletePersonalAdhkar (via DOM)', () => {
     document.body.appendChild(existingModal);
 
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 }],
     });
     toggleAdhkarPanel();
     state.adhkarActiveTab = 'personal';
     const personalTab = dom.adhkarTabs!.querySelector('[data-tab="personal"]') as HTMLElement;
     if (personalTab) personalTab.click();
 
-    const deleteBtn = dom.adhkarContent!.querySelector('[data-action="delete-personal"][data-id="pa_1"]') as HTMLElement;
+    const deleteBtn = dom.adhkarContent!.querySelector(
+      '[data-action="delete-personal"][data-id="pa_1"]',
+    ) as HTMLElement;
     if (deleteBtn) {
       deleteBtn.click();
       // Only one modal should exist
@@ -1209,9 +1200,7 @@ describe('deletePersonalAdhkar (via DOM)', () => {
 
   it('should delete personal adhkar when confirm button is clicked', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 }],
       item_personal_pa_1: 2,
     });
     toggleAdhkarPanel();
@@ -1219,7 +1208,9 @@ describe('deletePersonalAdhkar (via DOM)', () => {
     const personalTab = dom.adhkarTabs!.querySelector('[data-tab="personal"]') as HTMLElement;
     if (personalTab) personalTab.click();
 
-    const deleteBtn = dom.adhkarContent!.querySelector('[data-action="delete-personal"][data-id="pa_1"]') as HTMLElement;
+    const deleteBtn = dom.adhkarContent!.querySelector(
+      '[data-action="delete-personal"][data-id="pa_1"]',
+    ) as HTMLElement;
     if (deleteBtn) {
       deleteBtn.click();
       // Find confirm button in the modal (it's the one with red background)
@@ -1237,16 +1228,16 @@ describe('deletePersonalAdhkar (via DOM)', () => {
 
   it('should close modal when cancel button is clicked', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 }],
     });
     toggleAdhkarPanel();
     state.adhkarActiveTab = 'personal';
     const personalTab = dom.adhkarTabs!.querySelector('[data-tab="personal"]') as HTMLElement;
     if (personalTab) personalTab.click();
 
-    const deleteBtn = dom.adhkarContent!.querySelector('[data-action="delete-personal"][data-id="pa_1"]') as HTMLElement;
+    const deleteBtn = dom.adhkarContent!.querySelector(
+      '[data-action="delete-personal"][data-id="pa_1"]',
+    ) as HTMLElement;
     if (deleteBtn) {
       deleteBtn.click();
       const allBtns = document.querySelectorAll('#adhkarDeleteModal button');
@@ -1259,16 +1250,16 @@ describe('deletePersonalAdhkar (via DOM)', () => {
 
   it('should close modal when clicking overlay backdrop', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'To delete', count: 3, time: null, duration: 1 }],
     });
     toggleAdhkarPanel();
     state.adhkarActiveTab = 'personal';
     const personalTab = dom.adhkarTabs!.querySelector('[data-tab="personal"]') as HTMLElement;
     if (personalTab) personalTab.click();
 
-    const deleteBtn = dom.adhkarContent!.querySelector('[data-action="delete-personal"][data-id="pa_1"]') as HTMLElement;
+    const deleteBtn = dom.adhkarContent!.querySelector(
+      '[data-action="delete-personal"][data-id="pa_1"]',
+    ) as HTMLElement;
     if (deleteBtn) {
       deleteBtn.click();
       const overlay = document.getElementById('adhkarDeleteModal') as HTMLElement;
@@ -1289,9 +1280,7 @@ describe('personal adhkar counter increment (via DOM)', () => {
 
   it('should increment personal counter when increment-personal button is clicked', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'Test', count: 10, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'Test', count: 10, time: null, duration: 1 }],
       item_personal_pa_1: 0,
     });
     toggleAdhkarPanel();
@@ -1299,7 +1288,9 @@ describe('personal adhkar counter increment (via DOM)', () => {
     const personalTab = dom.adhkarTabs!.querySelector('[data-tab="personal"]') as HTMLElement;
     if (personalTab) personalTab.click();
 
-    const incBtn = dom.adhkarContent!.querySelector('[data-action="increment-personal"][data-id="pa_1"]') as HTMLElement;
+    const incBtn = dom.adhkarContent!.querySelector(
+      '[data-action="increment-personal"][data-id="pa_1"]',
+    ) as HTMLElement;
     if (incBtn) {
       incBtn.click();
       expect(state.adhkarSettings!.item_personal_pa_1).toBe(1);
@@ -1308,9 +1299,7 @@ describe('personal adhkar counter increment (via DOM)', () => {
 
   it('should reset personal counter to 0 when it reaches the target count', () => {
     state.adhkarSettings = createTestSettings({
-      personal_adhkar: [
-        { id: 'pa_1', text: 'Test', count: 3, time: null, duration: 1 },
-      ],
+      personal_adhkar: [{ id: 'pa_1', text: 'Test', count: 3, time: null, duration: 1 }],
       item_personal_pa_1: 3, // Already at count
     });
     toggleAdhkarPanel();
@@ -1318,7 +1307,9 @@ describe('personal adhkar counter increment (via DOM)', () => {
     const personalTab = dom.adhkarTabs!.querySelector('[data-tab="personal"]') as HTMLElement;
     if (personalTab) personalTab.click();
 
-    const incBtn = dom.adhkarContent!.querySelector('[data-action="increment-personal"][data-id="pa_1"]') as HTMLElement;
+    const incBtn = dom.adhkarContent!.querySelector(
+      '[data-action="increment-personal"][data-id="pa_1"]',
+    ) as HTMLElement;
     if (incBtn) {
       incBtn.click();
       expect(state.adhkarSettings!.item_personal_pa_1).toBe(0);
@@ -1535,7 +1526,9 @@ describe('edge cases', () => {
     state.adhkarSettings = createTestSettings();
     delete (state.adhkarSettings as Record<string, unknown>)['morning'];
     toggleAdhkarPanel();
-    const durInput = dom.adhkarContent!.querySelector('.adhkar-cat-duration[data-category="morning"]') as HTMLInputElement;
+    const durInput = dom.adhkarContent!.querySelector(
+      '.adhkar-cat-duration[data-category="morning"]',
+    ) as HTMLInputElement;
     if (durInput) {
       durInput.value = '15';
       durInput.dispatchEvent(new Event('change', { bubbles: true }));

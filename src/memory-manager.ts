@@ -51,7 +51,10 @@ const _objectUrls = new Map<string, string>();
 const _abortControllers = new Set<AbortController>();
 
 /** Tracked event listeners (dev mode only). */
-const _eventListeners = new Map<string, { target: EventTarget; type: string; listener: EventListenerOrEventListenerObject }>();
+const _eventListeners = new Map<
+  string,
+  { target: EventTarget; type: string; listener: EventListenerOrEventListenerObject }
+>();
 
 /** Timestamp of last cleanup. */
 let _lastCleanup: string | null = null;
@@ -240,7 +243,9 @@ export function initMemoryManager(): void {
   _cleanupInterval = setInterval(() => {
     const result = cleanup(false);
     if (import.meta.env?.DEV && (result.objectUrlsRevoked > 0 || result.listenersRemoved > 0)) {
-      console.warn(`[Memory] Cleanup: ${result.objectUrlsRevoked} URLs revoked, ${result.listenersRemoved} listeners removed in ${result.elapsedMs}ms`);
+      console.warn(
+        `[Memory] Cleanup: ${result.objectUrlsRevoked} URLs revoked, ${result.listenersRemoved} listeners removed in ${result.elapsedMs}ms`,
+      );
     }
   }, CLEANUP_INTERVAL_MS);
 
@@ -251,7 +256,6 @@ export function initMemoryManager(): void {
       cleanup();
     });
   }
-
 }
 
 /**

@@ -41,13 +41,13 @@ async function fetchCachedJson<T>(url: string): Promise<T> {
     if (response.ok === false) {
       throw new Error(`HTTP ${response.status}`);
     }
-    return await response.json() as T;
+    return (await response.json()) as T;
   } catch (networkError) {
     if ('caches' in globalThis) {
       try {
         const cached = await caches.match(url);
         if (cached) {
-          return await cached.json() as T;
+          return (await cached.json()) as T;
         }
       } catch {
         // Preserve the original network error if Cache Storage is unavailable.

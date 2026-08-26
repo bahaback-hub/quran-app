@@ -55,9 +55,7 @@ describe('web-vitals — additional coverage', () => {
   describe('LCP observation', () => {
     it('records LCP metric when entries are dispatched', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { startTime: 2500, entryType: 'largest-contentful-paint' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ startTime: 2500, entryType: 'largest-contentful-paint' }]);
       const lcp = getWebVital('LCP');
       expect(lcp).toBeDefined();
       expect(lcp?.value).toBe(2500);
@@ -66,18 +64,14 @@ describe('web-vitals — additional coverage', () => {
 
     it('rates LCP as needs-improvement when between 2500-4000ms', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { startTime: 3000, entryType: 'largest-contentful-paint' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ startTime: 3000, entryType: 'largest-contentful-paint' }]);
       const lcp = getWebVital('LCP');
       expect(lcp?.rating).toBe('needs-improvement');
     });
 
     it('rates LCP as poor when above 4000ms', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { startTime: 5000, entryType: 'largest-contentful-paint' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ startTime: 5000, entryType: 'largest-contentful-paint' }]);
       const lcp = getWebVital('LCP');
       expect(lcp?.rating).toBe('poor');
     });
@@ -97,27 +91,21 @@ describe('web-vitals — additional coverage', () => {
 
     it('ignores entries with hadRecentInput=true', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { hadRecentInput: true, value: 0.5, entryType: 'layout-shift' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ hadRecentInput: true, value: 0.5, entryType: 'layout-shift' }]);
       const cls = getWebVital('CLS');
       expect(cls?.value).toBe(0);
     });
 
     it('rates CLS as poor when above 0.25', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { hadRecentInput: false, value: 0.3, entryType: 'layout-shift' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ hadRecentInput: false, value: 0.3, entryType: 'layout-shift' }]);
       const cls = getWebVital('CLS');
       expect(cls?.rating).toBe('poor');
     });
 
     it('rates CLS as needs-improvement when between 0.1-0.25', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { hadRecentInput: false, value: 0.15, entryType: 'layout-shift' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ hadRecentInput: false, value: 0.15, entryType: 'layout-shift' }]);
       const cls = getWebVital('CLS');
       expect(cls?.rating).toBe('needs-improvement');
     });
@@ -126,9 +114,7 @@ describe('web-vitals — additional coverage', () => {
   describe('FID and INP observation', () => {
     it('records FID on first-input entries', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { startTime: 100, processingStart: 250, entryType: 'first-input' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ startTime: 100, processingStart: 250, entryType: 'first-input' }]);
       const fid = getWebVital('FID');
       expect(fid).toBeDefined();
       expect(fid?.value).toBe(150);
@@ -136,9 +122,7 @@ describe('web-vitals — additional coverage', () => {
 
     it('records INP on event entries', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { startTime: 100, processingStart: 350, entryType: 'event' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ startTime: 100, processingStart: 350, entryType: 'event' }]);
       const inp = getWebVital('INP');
       expect(inp).toBeDefined();
       expect(inp?.value).toBe(250);
@@ -146,12 +130,8 @@ describe('web-vitals — additional coverage', () => {
 
     it('keeps the highest INP value across multiple events', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { startTime: 100, processingStart: 200, entryType: 'event' },
-      ]);
-      MockPerformanceObserver.triggerEntries([
-        { startTime: 100, processingStart: 500, entryType: 'event' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ startTime: 100, processingStart: 200, entryType: 'event' }]);
+      MockPerformanceObserver.triggerEntries([{ startTime: 100, processingStart: 500, entryType: 'event' }]);
       const inp = getWebVital('INP');
       expect(inp?.value).toBe(400);
     });
@@ -160,9 +140,7 @@ describe('web-vitals — additional coverage', () => {
   describe('FCP and TTFB', () => {
     it('records FCP from paint entries', () => {
       initWebVitalsMonitoring();
-      MockPerformanceObserver.triggerEntries([
-        { name: 'first-contentful-paint', startTime: 1800, entryType: 'paint' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ name: 'first-contentful-paint', startTime: 1800, entryType: 'paint' }]);
       const fcp = getWebVital('FCP');
       expect(fcp).toBeDefined();
       expect(fcp?.value).toBe(1800);
@@ -194,13 +172,9 @@ describe('web-vitals — additional coverage', () => {
     it('counts metrics by rating correctly', () => {
       initWebVitalsMonitoring();
       // Add a good CLS (below 0.1)
-      MockPerformanceObserver.triggerEntries([
-        { hadRecentInput: false, value: 0.05, entryType: 'layout-shift' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ hadRecentInput: false, value: 0.05, entryType: 'layout-shift' }]);
       // Add a poor CLS (above 0.25)
-      MockPerformanceObserver.triggerEntries([
-        { hadRecentInput: false, value: 0.3, entryType: 'layout-shift' },
-      ]);
+      MockPerformanceObserver.triggerEntries([{ hadRecentInput: false, value: 0.3, entryType: 'layout-shift' }]);
 
       const summary = getWebVitalsSummary();
       expect(summary.total).toBeGreaterThanOrEqual(1);

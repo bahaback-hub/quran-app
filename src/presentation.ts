@@ -22,7 +22,11 @@ import {
   syncPresentationVideoPlayback,
 } from './pres-video.js';
 import { injectStyles, buildAyahHtml } from './pres-styles.js';
-import { closePresentationSharePreview, initPresentationShare, preparePresentationShareImage } from './presentation-share.js';
+import {
+  closePresentationSharePreview,
+  initPresentationShare,
+  preparePresentationShareImage,
+} from './presentation-share.js';
 import { applyPresBgMode, applyPresBgScene, applyPresBgVideo } from './settings.js';
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -63,7 +67,8 @@ function syncBackgroundPickerSelection(): void {
     const mode = option.dataset['presBgMode'];
     const scene = option.dataset['presBgScene'];
     const video = option.dataset['presBgVideo'];
-    const active = mode === state.presBgMode && (!scene || scene === state.presBgScene) && (!video || video === state.presBgVideo);
+    const active =
+      mode === state.presBgMode && (!scene || scene === state.presBgScene) && (!video || video === state.presBgVideo);
     option.setAttribute('aria-pressed', String(active));
   });
 }
@@ -89,9 +94,11 @@ function fitPresentationAyahText(): void {
 
   const translation = dom.presentationTranslation;
   const translationVisible = Boolean(translation && translation.style.display !== 'none');
-  const translationHeight = translationVisible && translation
-    ? translation.getBoundingClientRect().height + Number.parseFloat(window.getComputedStyle(translation).marginTop || '0')
-    : 0;
+  const translationHeight =
+    translationVisible && translation
+      ? translation.getBoundingClientRect().height +
+        Number.parseFloat(window.getComputedStyle(translation).marginTop || '0')
+      : 0;
   const availableHeight = body.clientHeight - translationHeight - 8;
   if (availableHeight <= 0 || ayahText.scrollHeight <= availableHeight) {
     return;
@@ -99,11 +106,8 @@ function fitPresentationAyahText(): void {
 
   const computed = window.getComputedStyle(ayahText);
   const measuredSize = Number.parseFloat(computed.fontSize);
-  const initialSize = Number.isFinite(measuredSize) && measuredSize > 0
-    ? measuredSize
-    : window.innerWidth <= 600
-      ? 32
-      : 60;
+  const initialSize =
+    Number.isFinite(measuredSize) && measuredSize > 0 ? measuredSize : window.innerWidth <= 600 ? 32 : 60;
 
   const minimumSize = window.innerWidth <= 600 ? 19 : 26;
   let size = initialSize;
@@ -434,7 +438,9 @@ export function openPresentation(): void {
           renderSurah(surahData);
         }
       })
-      .catch(() => { /* noop */ });
+      .catch(() => {
+        /* noop */
+      });
   }
 
   // Presentation always renders as a clean standalone surface. Remove the
@@ -501,7 +507,9 @@ export function closePresentation(): void {
   closePresentationSharePreview();
   // Exit fullscreen if active
   if (isFullscreen()) {
-    exitFullscreen().catch(() => { /* noop */ });
+    exitFullscreen().catch(() => {
+      /* noop */
+    });
   }
   if (dom.presentationOverlay) {
     // Remove the presentation-visible class FIRST (it has display: flex !important)
@@ -563,7 +571,9 @@ function handleKeyDown(e: KeyboardEvent): void {
       // If in fullscreen, only exit fullscreen — don't close presentation
       if (isFullscreen()) {
         e.preventDefault();
-        exitFullscreen().catch(() => { /* noop */ });
+        exitFullscreen().catch(() => {
+          /* noop */
+        });
       } else {
         closePresentation();
       }

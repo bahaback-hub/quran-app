@@ -228,10 +228,7 @@ async function getVerifiedManifest(): Promise<MushafDataManifest> {
   return manifest;
 }
 
-async function downloadAndStoreFile(
-  manifest: MushafDataManifest,
-  file: MushafPackFile,
-): Promise<void> {
+async function downloadAndStoreFile(manifest: MushafDataManifest, file: MushafPackFile): Promise<void> {
   const response = await fetch(`${manifest.source.rawBaseUrl}/${file.path}`, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`Could not download ${file.path}: HTTP ${response.status}`);
@@ -420,13 +417,7 @@ export async function downloadMushafDataPack(
     throw failure;
   }
 
-  await cacheQcf4Fonts(
-    onProgress,
-    completed,
-    bytesDownloaded,
-    totalFiles,
-    totalBytes,
-  );
+  await cacheQcf4Fonts(onProgress, completed, bytesDownloaded, totalFiles, totalBytes);
 
   const status: MushafDataPackStatus = {
     installed: true,
@@ -443,9 +434,7 @@ export async function downloadMushafDataPack(
   return status;
 }
 
-export async function verifyMushafDataPack(
-  onProgress?: (progress: MushafDataPackProgress) => void,
-): Promise<boolean> {
+export async function verifyMushafDataPack(onProgress?: (progress: MushafDataPackProgress) => void): Promise<boolean> {
   const active = await getRecord<ActivePackMeta>(META_STORE, ACTIVE_PACK_KEY);
   if (!active?.status.installed || !active.status.packId) {
     return false;

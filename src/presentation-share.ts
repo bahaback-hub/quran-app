@@ -70,10 +70,12 @@ function getVideoBlobKey(): string {
 }
 
 function isAlafasyVideoShareAvailable(): boolean {
-  return state.currentReciter === ALAFASY_RECITER_ID
-    && typeof window.MediaRecorder !== 'undefined'
-    && typeof HTMLCanvasElement.prototype.captureStream === 'function'
-    && typeof window.AudioContext !== 'undefined';
+  return (
+    state.currentReciter === ALAFASY_RECITER_ID &&
+    typeof window.MediaRecorder !== 'undefined' &&
+    typeof HTMLCanvasElement.prototype.captureStream === 'function' &&
+    typeof window.AudioContext !== 'undefined'
+  );
 }
 
 function shareVideoFilename(): string {
@@ -150,9 +152,7 @@ function setPreviewText(): void {
   syncPresentationVideoShareTrigger();
   if (video) {
     const ready = Boolean(videoBlob && videoBlobKey === getVideoBlobKey());
-    video.textContent = ready
-      ? `↗ ${__('presentation_share_video_now')}`
-      : `🎞 ${__('presentation_share_video')}`;
+    video.textContent = ready ? `↗ ${__('presentation_share_video_now')}` : `🎞 ${__('presentation_share_video')}`;
     const available = isAlafasyVideoShareAvailable();
     video.classList.toggle('hidden', !available);
     video.disabled = !available;
@@ -368,7 +368,7 @@ async function getAlafasyTiming(): Promise<AlafasyTiming> {
   if (!response.ok) {
     throw new Error('Alafasy timing service unavailable');
   }
-  const payload = await response.json() as {
+  const payload = (await response.json()) as {
     audio_file?: {
       audio_url?: string;
       timestamps?: Array<{ verse_key?: string; timestamp_from?: number; timestamp_to?: number }>;
@@ -388,11 +388,7 @@ async function getAlafasyTiming(): Promise<AlafasyTiming> {
 }
 
 function pickVideoMimeType(): string {
-  const candidates = [
-    'video/webm;codecs=vp9,opus',
-    'video/webm;codecs=vp8,opus',
-    'video/webm',
-  ];
+  const candidates = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
   return candidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
 }
 
@@ -424,6 +420,10 @@ interface ExportBackground {
   dispose: () => void;
 }
 
+function noOpDispose(): void {
+  return;
+}
+
 function disposeExportVideo(video: HTMLVideoElement): void {
   video.pause();
   video.removeAttribute('src');
@@ -435,7 +435,8 @@ async function resolveVideoBackground(): Promise<ExportBackground> {
   const liveVideo = overlay?.querySelector<HTMLVideoElement>('.pres-video-bg');
   if (state.presBgMode === 'video') {
     const exportVideo = document.createElement('video');
-    exportVideo.src = liveVideo?.currentSrc || liveVideo?.src || getPresentationVideo(state.presBgVideo).src || PRESENTATION_VIDEO_SRC;
+    exportVideo.src =
+      liveVideo?.currentSrc || liveVideo?.src || getPresentationVideo(state.presBgVideo).src || PRESENTATION_VIDEO_SRC;
     exportVideo.muted = true;
     exportVideo.defaultMuted = true;
     exportVideo.loop = true;
@@ -452,21 +453,21 @@ async function resolveVideoBackground(): Promise<ExportBackground> {
       return { source: exportVideo, dispose: () => disposeExportVideo(exportVideo) };
     } catch {
       disposeExportVideo(exportVideo);
-      return { source: null, dispose: () => {} };
+      return { source: null, dispose: noOpDispose };
     }
   }
   const sceneCanvas = overlay?.querySelector<HTMLCanvasElement>('.pres-canvas-bg');
   if (state.presBgMode === 'scene' && sceneCanvas) {
-    return { source: sceneCanvas, dispose: () => {} };
+    return { source: sceneCanvas, dispose: noOpDispose };
   }
   const source = getImageSource();
   if (!source) {
-    return { source: null, dispose: () => {} };
+    return { source: null, dispose: noOpDispose };
   }
   try {
-    return { source: await loadCorsImage(source), dispose: () => {} };
+    return { source: await loadCorsImage(source), dispose: noOpDispose };
   } catch {
-    return { source: null, dispose: () => {} };
+    return { source: null, dispose: noOpDispose };
   }
 }
 
@@ -543,10 +544,7 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
   const timing = await getAlafasyTiming();
   // Quran.com verse timestamps can overlap the first phoneme of the next ayah.
   // Finish slightly before that boundary, then check on every rendered frame.
-  const audioEndSeconds = Math.max(
-    timing.startSeconds + 0.25,
-    timing.endSeconds - VIDEO_AUDIO_END_GUARD_MS / 1000,
-  );
+  const audioEndSeconds = Math.max(timing.startSeconds + 0.25, timing.endSeconds - VIDEO_AUDIO_END_GUARD_MS / 1000);
   const audioDuration = Math.max(0.25, audioEndSeconds - timing.startSeconds);
   const canvas = document.createElement('canvas');
   canvas.width = VIDEO_EXPORT_WIDTH;
@@ -573,10 +571,7 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
   await audioContext.resume();
 
   const canvasStream = canvas.captureStream(VIDEO_EXPORT_FPS);
-  const stream = new MediaStream([
-    ...canvasStream.getVideoTracks(),
-    ...recordingDestination.stream.getAudioTracks(),
-  ]);
+  const stream = new MediaStream([...canvasStream.getVideoTracks(), ...recordingDestination.stream.getAudioTracks()]);
   const mimeType = pickVideoMimeType();
   const recorder = mimeType
     ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: VIDEO_EXPORT_BITRATE, audioBitsPerSecond: 128_000 })
@@ -591,9 +586,13 @@ async function renderShareVideo(onProgress: (percent: number) => void): Promise<
       }
     });
     recorder.addEventListener('error', () => reject(new Error('Video recording failed')), { once: true });
-    recorder.addEventListener('stop', () => {
-      resolve(new Blob(chunks, { type: mimeType || 'video/webm' }));
-    }, { once: true });
+    recorder.addEventListener(
+      'stop',
+      () => {
+        resolve(new Blob(chunks, { type: mimeType || 'video/webm' }));
+      },
+      { once: true },
+    );
   });
   let frameId = 0;
   let finished = false;

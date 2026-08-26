@@ -47,10 +47,7 @@ describe('audio-cache — empty cache behavior', () => {
 
   it('isSurahCached returns false when no audio URLs are cached', async () => {
     const { isSurahCached } = await import('../audio-cache.js');
-    const result = await isSurahCached([
-      'https://example.com/001.mp3',
-      'https://example.com/002.mp3',
-    ]);
+    const result = await isSurahCached(['https://example.com/001.mp3', 'https://example.com/002.mp3']);
     expect(result).toBe(false);
   });
 
@@ -120,12 +117,7 @@ describe('audio-cache — cacheSurahAudio with mocked fetch', () => {
 
     const progressCb = vi.fn();
     try {
-      const result = await cacheSurahAudio(
-        ['https://example.com/001.mp3'],
-        1,
-        'ar.alafasy',
-        progressCb,
-      );
+      const result = await cacheSurahAudio(['https://example.com/001.mp3'], 1, 'ar.alafasy', progressCb);
       // If it doesn't throw, result should be false (failure)
       expect(result).toBe(false);
     } catch (e) {

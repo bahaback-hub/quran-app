@@ -199,23 +199,35 @@ describe('SETTING_TYPE_VALIDATORS', () => {
 
   it('should validate structurally safe adhkar_settings', () => {
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ morning: true })).toBe(false);
-    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
-      morning: { enabled: true, time: '07:30', duration: 15 },
-      item_morning_1: 3,
-    })).toBe(true);
-    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
-      personal_adhkar: [{ id: 'custom_1', text: 'ذكر محفوظ', count: 3, time: '07:00', duration: 5 }],
-    })).toBe(true);
-    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
-      personal_adhkar: [{ id: 'custom_1', text: 'ذكر', count: 3, time: '<img src=x>', duration: 5 }],
-    })).toBe(true);
-    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
-      personal_adhkar: [{ id: '" onmouseover="alert(1)', text: 'ذكر', count: 3, time: null, duration: 5 }],
-    })).toBe(false);
-    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({
-      morning: { enabled: true, time: 'x"><img src=x onerror=alert(1)>', duration: 5 },
-    })).toBe(false);
-    expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ morning: { enabled: true, time: '07:30', duration: 0 } })).toBe(false);
+    expect(
+      SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+        morning: { enabled: true, time: '07:30', duration: 15 },
+        item_morning_1: 3,
+      }),
+    ).toBe(true);
+    expect(
+      SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+        personal_adhkar: [{ id: 'custom_1', text: 'ذكر محفوظ', count: 3, time: '07:00', duration: 5 }],
+      }),
+    ).toBe(true);
+    expect(
+      SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+        personal_adhkar: [{ id: 'custom_1', text: 'ذكر', count: 3, time: '<img src=x>', duration: 5 }],
+      }),
+    ).toBe(true);
+    expect(
+      SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+        personal_adhkar: [{ id: '" onmouseover="alert(1)', text: 'ذكر', count: 3, time: null, duration: 5 }],
+      }),
+    ).toBe(false);
+    expect(
+      SETTING_TYPE_VALIDATORS['adhkar_settings']!({
+        morning: { enabled: true, time: 'x"><img src=x onerror=alert(1)>', duration: 5 },
+      }),
+    ).toBe(false);
+    expect(
+      SETTING_TYPE_VALIDATORS['adhkar_settings']!({ morning: { enabled: true, time: '07:30', duration: 0 } }),
+    ).toBe(false);
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ item_morning_1: -1 })).toBe(false);
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!({ personal_adhkar: 'not-an-array' })).toBe(false);
     expect(SETTING_TYPE_VALIDATORS['adhkar_settings']!(null)).toBe(false);
@@ -243,9 +255,17 @@ describe('SETTING_TYPE_VALIDATORS', () => {
 
   it('should validate all boolean fields correctly', () => {
     const boolKeys = [
-      'night_mode', 'azan_enabled', 'azan_fajr_enabled', 'auto_save',
-      'bar_collapsed', 'player_collapsed', 'translation_enabled',
-      'tajweed_enabled', 'night_mode_set_by_user', 'mushaf_mode', 'sepia_mode',
+      'night_mode',
+      'azan_enabled',
+      'azan_fajr_enabled',
+      'auto_save',
+      'bar_collapsed',
+      'player_collapsed',
+      'translation_enabled',
+      'tajweed_enabled',
+      'night_mode_set_by_user',
+      'mushaf_mode',
+      'sepia_mode',
     ];
     for (const key of boolKeys) {
       const validator = SETTING_TYPE_VALIDATORS[key];
@@ -259,8 +279,16 @@ describe('SETTING_TYPE_VALIDATORS', () => {
 
   it('should validate all string fields correctly', () => {
     const stringKeys = [
-      'city', 'country', 'method', 'reciter', 'tafsir_edition',
-      'playback_speed', 'lang', 'translation_edition', 'font_type', 'line_spacing',
+      'city',
+      'country',
+      'method',
+      'reciter',
+      'tafsir_edition',
+      'playback_speed',
+      'lang',
+      'translation_edition',
+      'font_type',
+      'line_spacing',
     ];
     for (const key of stringKeys) {
       const validator = SETTING_TYPE_VALIDATORS[key];

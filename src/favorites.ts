@@ -18,7 +18,6 @@ import { shareText } from './share.js';
 
 /* ===================== INTERFACES ===================== */
 
-
 /* ===================== FAVORITES ===================== */
 
 /** Load favorites from localStorage into state. */

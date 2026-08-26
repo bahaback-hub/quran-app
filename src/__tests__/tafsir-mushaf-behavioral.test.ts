@@ -7,6 +7,7 @@ import 'fake-indexeddb/auto';
 
 vi.unmock('../tafsir.js');
 vi.unmock('../mushaf.js');
+vi.unmock('../config.js');
 
 import { state, resetState } from '../state.js';
 
@@ -30,19 +31,16 @@ describe('tafsir — state defaults', () => {
 
 describe('tafsir — tafsir editions', () => {
   it('DEFAULT_TAFSIR is ar-tafsir-muyassar', async () => {
-    vi.unmock('../config.js');
     const { CONFIG } = await import('../config.js');
     expect(CONFIG.DEFAULT_TAFSIR).toBe('ar-tafsir-muyassar');
   });
 
   it('TAFSIR_API points to jsDelivr tafsir_api', async () => {
-    vi.unmock('../config.js');
     const { CONFIG } = await import('../config.js');
     expect(CONFIG.TAFSIR_API).toMatch(/cdn\.jsdelivr\.net.*tafsir_api/);
   });
 
   it('TAFSIR_API uses HTTPS', async () => {
-    vi.unmock('../config.js');
     const { CONFIG } = await import('../config.js');
     expect(CONFIG.TAFSIR_API).toMatch(/^https:\/\//);
   });
@@ -149,7 +147,6 @@ describe('mushaf — page boundaries', () => {
   });
 
   it('JUZ_PAGES has 30 entries mapping to page numbers', async () => {
-    vi.unmock('../config.js');
     const { JUZ_PAGES } = await import('../config.js');
     expect(JUZ_PAGES.length).toBe(30);
     expect(JUZ_PAGES[0]).toBe(1);
@@ -175,7 +172,7 @@ describe('mushaf — sajda ayahs', () => {
     }
   });
 
-  it('sajda at 7:206 is obligatory (Surah Al-A\'raf)', async () => {
+  it("sajda at 7:206 is obligatory (Surah Al-A'raf)", async () => {
     const { SAJDA_AYAHS } = await import('../quran-meta.js');
     expect(SAJDA_AYAHS['7:206']).toBe('obligatory');
   });

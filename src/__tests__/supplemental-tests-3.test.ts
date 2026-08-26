@@ -28,12 +28,14 @@ describe('surah-loader.ts — renderSurah branches', () => {
 
   it('renderSurah should early-return when dom.surahContent is null', async () => {
     const mod = await import('../surah-loader.js');
-    expect(() => mod.renderSurah({
-      number: 1,
-      name: 'الفاتحة',
-      englishName: 'Al-Fatiha',
-      ayahs: [],
-    } as never)).not.toThrow();
+    expect(() =>
+      mod.renderSurah({
+        number: 1,
+        name: 'الفاتحة',
+        englishName: 'Al-Fatiha',
+        ayahs: [],
+      } as never),
+    ).not.toThrow();
   });
 
   it('renderSurah should render title, bismillah, and ayahs-container', async () => {
@@ -48,7 +50,19 @@ describe('surah-loader.ts — renderSurah branches', () => {
       name: 'الفاتحة',
       englishName: 'Al-Fatiha',
       ayahs: [
-        { number: 1, text: 'بسم الله الرحمن الرحيم', numberInSurah: 1, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false, audio: '', audioSecondary: [] },
+        {
+          number: 1,
+          text: 'بسم الله الرحمن الرحيم',
+          numberInSurah: 1,
+          juz: 1,
+          manzil: 1,
+          page: 1,
+          ruku: 1,
+          hizbQuarter: 1,
+          sajda: false,
+          audio: '',
+          audioSecondary: [],
+        },
       ],
     } as never);
     expect(surahContent.querySelector('.surah-title')).not.toBeNull();
@@ -70,7 +84,19 @@ describe('surah-loader.ts — renderSurah branches', () => {
       name: 'البقرة',
       englishName: 'Al-Baqara',
       ayahs: [
-        { number: 8, text: 'الم', numberInSurah: 1, juz: 1, manzil: 1, page: 2, ruku: 1, hizbQuarter: 1, sajda: false, audio: '', audioSecondary: [] },
+        {
+          number: 8,
+          text: 'الم',
+          numberInSurah: 1,
+          juz: 1,
+          manzil: 1,
+          page: 2,
+          ruku: 1,
+          hizbQuarter: 1,
+          sajda: false,
+          audio: '',
+          audioSecondary: [],
+        },
       ],
     } as never);
     expect(surahContent.querySelector('.bismillah-wrapper')).not.toBeNull();
@@ -89,7 +115,19 @@ describe('surah-loader.ts — renderSurah branches', () => {
       name: 'التوبة',
       englishName: 'At-Tawba',
       ayahs: [
-        { number: 1234, text: 'براءة من الله', numberInSurah: 1, juz: 10, manzil: 3, page: 187, ruku: 1, hizbQuarter: 1, sajda: false, audio: '', audioSecondary: [] },
+        {
+          number: 1234,
+          text: 'براءة من الله',
+          numberInSurah: 1,
+          juz: 10,
+          manzil: 3,
+          page: 187,
+          ruku: 1,
+          hizbQuarter: 1,
+          sajda: false,
+          audio: '',
+          audioSecondary: [],
+        },
       ],
     } as never);
     expect(surahContent.querySelector('.bismillah-wrapper')).toBeNull();
@@ -108,7 +146,19 @@ describe('surah-loader.ts — renderSurah branches', () => {
       name: 'البقرة',
       englishName: 'Al-Baqara',
       ayahs: [
-        { number: 8, text: 'الم', numberInSurah: 1, juz: 1, manzil: 1, page: 2, ruku: 1, hizbQuarter: 1, sajda: false, audio: '', audioSecondary: [] },
+        {
+          number: 8,
+          text: 'الم',
+          numberInSurah: 1,
+          juz: 1,
+          manzil: 1,
+          page: 2,
+          ruku: 1,
+          hizbQuarter: 1,
+          sajda: false,
+          audio: '',
+          audioSecondary: [],
+        },
       ],
     } as never);
     expect(surahContent.querySelector('.surah-secret-title-btn')).not.toBeNull();
@@ -149,8 +199,14 @@ describe('surah-loader.ts — renderSurah branches', () => {
       number: i + 1,
       text: `آية ${i + 1}`,
       numberInSurah: i + 1,
-      juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false,
-      audio: '', audioSecondary: [],
+      juz: 1,
+      manzil: 1,
+      page: 1,
+      ruku: 1,
+      hizbQuarter: 1,
+      sajda: false,
+      audio: '',
+      audioSecondary: [],
     }));
     mod.renderSurah({
       number: 36,
@@ -186,9 +242,27 @@ describe('surah-loader.ts — highlightCurrentAyah with state', () => {
     (dom as { surahContent: HTMLElement | null }).surahContent = surahContent;
     const { state } = await import('../state.js');
     state.surahData = {
-      number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha',
-      englishNameTranslation: '', revelationType: 'meccan', numberOfAyahs: 1,
-      ayahs: [{ number: 1, text: 'test', numberInSurah: 1, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false, audio: '', audioSecondary: [] }],
+      number: 1,
+      name: 'الفاتحة',
+      englishName: 'Al-Fatiha',
+      englishNameTranslation: '',
+      revelationType: 'meccan',
+      numberOfAyahs: 1,
+      ayahs: [
+        {
+          number: 1,
+          text: 'test',
+          numberInSurah: 1,
+          juz: 1,
+          manzil: 1,
+          page: 1,
+          ruku: 1,
+          hizbQuarter: 1,
+          sajda: false,
+          audio: '',
+          audioSecondary: [],
+        },
+      ],
     };
     state.currentAyahIndex = 0;
     state.hifdhMode = false;
@@ -209,12 +283,52 @@ describe('surah-loader.ts — highlightCurrentAyah with state', () => {
     (dom as { surahContent: HTMLElement | null }).surahContent = surahContent;
     const { state } = await import('../state.js');
     state.surahData = {
-      number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha',
-      englishNameTranslation: '', revelationType: 'meccan', numberOfAyahs: 3,
+      number: 1,
+      name: 'الفاتحة',
+      englishName: 'Al-Fatiha',
+      englishNameTranslation: '',
+      revelationType: 'meccan',
+      numberOfAyahs: 3,
       ayahs: [
-        { number: 1, text: 'a', numberInSurah: 1, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false, audio: '', audioSecondary: [] },
-        { number: 2, text: 'b', numberInSurah: 2, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false, audio: '', audioSecondary: [] },
-        { number: 3, text: 'c', numberInSurah: 3, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false, audio: '', audioSecondary: [] },
+        {
+          number: 1,
+          text: 'a',
+          numberInSurah: 1,
+          juz: 1,
+          manzil: 1,
+          page: 1,
+          ruku: 1,
+          hizbQuarter: 1,
+          sajda: false,
+          audio: '',
+          audioSecondary: [],
+        },
+        {
+          number: 2,
+          text: 'b',
+          numberInSurah: 2,
+          juz: 1,
+          manzil: 1,
+          page: 1,
+          ruku: 1,
+          hizbQuarter: 1,
+          sajda: false,
+          audio: '',
+          audioSecondary: [],
+        },
+        {
+          number: 3,
+          text: 'c',
+          numberInSurah: 3,
+          juz: 1,
+          manzil: 1,
+          page: 1,
+          ruku: 1,
+          hizbQuarter: 1,
+          sajda: false,
+          audio: '',
+          audioSecondary: [],
+        },
       ],
     };
     state.currentAyahIndex = 1;

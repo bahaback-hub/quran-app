@@ -87,9 +87,11 @@ vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
 });
 
 // Mock FontFace
-const mockFontFace = vi.fn().mockImplementation((_family: string, _source: string | ArrayBuffer, _opts?: { display?: string }) => ({
-  load: vi.fn().mockResolvedValue({}),
-}));
+const mockFontFace = vi
+  .fn()
+  .mockImplementation((_family: string, _source: string | ArrayBuffer, _opts?: { display?: string }) => ({
+    load: vi.fn().mockResolvedValue({}),
+  }));
 vi.stubGlobal('FontFace', mockFontFace);
 
 // Mock document.fonts
@@ -103,12 +105,7 @@ Object.defineProperty(document, 'fonts', {
   configurable: true,
 });
 
-import {
-  renderPage,
-  loadPageData,
-  CANVAS_W,
-  CANVAS_H,
-} from '../mushaf-renderer.js';
+import { renderPage, loadPageData, CANVAS_W, CANVAS_H } from '../mushaf-renderer.js';
 import type { PageLayoutData } from '../mushaf-renderer.js';
 
 function setupFetchMock(data: PageLayoutData) {
@@ -140,9 +137,7 @@ describe('mushaf-renderer deep2 — renderPage with full font mocking', () => {
   it('should render a simple page with one word line', async () => {
     setupFetchMock({
       font: 'QCF4_Hafs_01',
-      lines: [
-        { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', text: 'بسم' }] },
-      ],
+      lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', text: 'بسم' }] }],
     });
 
     const result = await renderPage(40, canvas);
@@ -155,9 +150,7 @@ describe('mushaf-renderer deep2 — renderPage with full font mocking', () => {
   it('should render a page with bismillah line type', async () => {
     setupFetchMock({
       font: 'QCF4_Hafs_01',
-      lines: [
-        { words: [{ char: 'ب', font: 'QCF4_QBSML', type: 'bismillah' }] },
-      ],
+      lines: [{ words: [{ char: 'ب', font: 'QCF4_QBSML', type: 'bismillah' }] }],
     });
 
     const result = await renderPage(41, canvas);
@@ -168,9 +161,7 @@ describe('mushaf-renderer deep2 — renderPage with full font mocking', () => {
   it('should render a page with surah_header line type', async () => {
     setupFetchMock({
       font: 'QCF4_Hafs_01',
-      lines: [
-        { words: [{ char: 'ا', font: 'QCF4_Hafs_01', type: 'surah_header' }] },
-      ],
+      lines: [{ words: [{ char: 'ا', font: 'QCF4_Hafs_01', type: 'surah_header' }] }],
     });
 
     const result = await renderPage(42, canvas);
@@ -181,10 +172,7 @@ describe('mushaf-renderer deep2 — renderPage with full font mocking', () => {
   it('should render a page with empty words array', async () => {
     setupFetchMock({
       font: 'QCF4_Hafs_01',
-      lines: [
-        { words: [] },
-        { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] },
-      ],
+      lines: [{ words: [] }, { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] }],
     });
 
     const result = await renderPage(43, canvas);
@@ -193,9 +181,7 @@ describe('mushaf-renderer deep2 — renderPage with full font mocking', () => {
 
   it('should render a page without explicit font property', async () => {
     setupFetchMock({
-      lines: [
-        { words: [{ char: 'ا', type: 'word' }] },
-      ],
+      lines: [{ words: [{ char: 'ا', type: 'word' }] }],
     });
 
     const result = await renderPage(44, canvas);
@@ -215,9 +201,7 @@ describe('mushaf-renderer deep2 — renderPage with full font mocking', () => {
   it('should render a page without providing a canvas (creates one)', async () => {
     setupFetchMock({
       font: 'QCF4_Hafs_01',
-      lines: [
-        { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] },
-      ],
+      lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] }],
     });
 
     const result = await renderPage(46);
@@ -246,9 +230,7 @@ describe('mushaf-renderer deep2 — renderPage with full font mocking', () => {
     document.body.classList.add('night-mode');
     setupFetchMock({
       font: 'QCF4_Hafs_01',
-      lines: [
-        { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', text: 'بسم' }] },
-      ],
+      lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', text: 'بسم' }] }],
     });
 
     const result = await renderPage(49, canvas);
@@ -278,9 +260,7 @@ describe('mushaf-renderer deep2 — tajweed rendering', () => {
     const { getAyahAnnotations } = await import('../tajweed-data.js');
     const { buildColorMap } = await import('../tajweed.js');
 
-    vi.mocked(getAyahAnnotations).mockReturnValue([
-      { rule: 'ghunnah', start: 0, end: 2 } as any,
-    ]);
+    vi.mocked(getAyahAnnotations).mockReturnValue([{ rule: 'ghunnah', start: 0, end: 2 } as any]);
     const colorMap = new Map();
     colorMap.set(0, 'ghunnah');
     colorMap.set(1, 'ghunnah');
@@ -310,16 +290,12 @@ describe('mushaf-renderer deep2 — tajweed rendering', () => {
     const { getAyahAnnotations } = await import('../tajweed-data.js');
     const { buildColorMap } = await import('../tajweed.js');
 
-    vi.mocked(getAyahAnnotations).mockReturnValue([
-      { rule: 'ghunnah', start: 0, end: 2 } as any,
-    ]);
+    vi.mocked(getAyahAnnotations).mockReturnValue([{ rule: 'ghunnah', start: 0, end: 2 } as any]);
     vi.mocked(buildColorMap).mockReturnValue(new Map());
 
     setupFetchMock({
       font: 'QCF4_Hafs_01',
-      lines: [
-        { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', text: 'بسم' }] },
-      ],
+      lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', text: 'بسم' }] }],
     });
 
     const result = await renderPage(51, canvas);
@@ -336,9 +312,7 @@ describe('mushaf-renderer deep2 — tajweed rendering', () => {
 
     setupFetchMock({
       font: 'QCF4_Hafs_01',
-      lines: [
-        { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', text: 'بسم' }] },
-      ],
+      lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', text: 'بسم' }] }],
     });
 
     const result = await renderPage(52, canvas);
@@ -372,9 +346,7 @@ describe('mushaf-renderer deep2 — Capacitor renderPage path', () => {
   it('should use Promise.race with timeout in Capacitor mode', async () => {
     setupFetchMock({
       font: 'QCF4_Hafs_01',
-      lines: [
-        { words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] },
-      ],
+      lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word' }] }],
     });
 
     const result = await renderPage(53, canvas);

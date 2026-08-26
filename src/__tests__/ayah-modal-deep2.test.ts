@@ -19,7 +19,14 @@ const mockState = vi.hoisted(() => ({
     { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله الرحمن الرحيم' },
     { surah: 1, surahName: 'الفاتحة', ayah: 2, text: 'الحمد لله رب العالمين' },
   ],
-  favorites: [] as Array<{ key: string; surah: number; surahName: string; ayah: number; text: string; timestamp: number }>,
+  favorites: [] as Array<{
+    key: string;
+    surah: number;
+    surahName: string;
+    ayah: number;
+    text: string;
+    timestamp: number;
+  }>,
   surahData: null as unknown,
   currentSurah: 0,
   ayahsAudios: [] as string[],
@@ -29,8 +36,12 @@ const mockState = vi.hoisted(() => ({
 
 vi.mock('../state.js', () => ({
   state: mockState,
-  immutablePush: vi.fn((state: any, key: string, val: any) => { state[key].push(val); }),
-  immutableSplice: vi.fn((state: any, key: string, idx: number, count: number) => { state[key].splice(idx, count); }),
+  immutablePush: vi.fn((state: any, key: string, val: any) => {
+    state[key].push(val);
+  }),
+  immutableSplice: vi.fn((state: any, key: string, idx: number, count: number) => {
+    state[key].splice(idx, count);
+  }),
 }));
 
 vi.mock('../ui.js', () => ({
@@ -76,7 +87,12 @@ vi.mock('../reciters.js', () => ({
   getReciterById: vi.fn((id: string) => {
     const map: Record<string, any> = {
       'ar.alafasy': { id: 'ar.alafasy', name: 'Mishary Alafasy', source: 'api' },
-      'ar.abdulbasit': { id: 'ar.abdulbasit', name: 'Abdul Basit', source: 'mp3quran', server: 'https://server.mp3quran.net/abdulbasit/' },
+      'ar.abdulbasit': {
+        id: 'ar.abdulbasit',
+        name: 'Abdul Basit',
+        source: 'mp3quran',
+        server: 'https://server.mp3quran.net/abdulbasit/',
+      },
     };
     return map[id] || null;
   }),
@@ -110,12 +126,27 @@ import { apiFetch } from '../api-client.js';
 /** Create all required modal DOM elements */
 function createModalDOM(): void {
   const ids = [
-    'ayahModal', 'ayahModalCloseBtn', 'ayahModalTitle', 'ayahModalBookmarkBtn',
-    'ayahModalFavBtn', 'ayahModalNav', 'ayahModalNextBtn', 'ayahModalText',
-    'ayahModalPage', 'ayahModalJuz', 'ayahModalSurahAyah', 'ayahModalTafsirBtn',
-    'ayahModalShareBtn', 'ayahModalCopyBtn', 'ayahModalCopySimpleBtn',
-    'ayahModalCopyTafsirBtn', 'ayahModalPlayBtn', 'ayahModalAudioCurrent',
-    'ayahModalAudioDuration', 'ayahModalDownloadBtn', 'ayahModalTafsirTabs',
+    'ayahModal',
+    'ayahModalCloseBtn',
+    'ayahModalTitle',
+    'ayahModalBookmarkBtn',
+    'ayahModalFavBtn',
+    'ayahModalNav',
+    'ayahModalNextBtn',
+    'ayahModalText',
+    'ayahModalPage',
+    'ayahModalJuz',
+    'ayahModalSurahAyah',
+    'ayahModalTafsirBtn',
+    'ayahModalShareBtn',
+    'ayahModalCopyBtn',
+    'ayahModalCopySimpleBtn',
+    'ayahModalCopyTafsirBtn',
+    'ayahModalPlayBtn',
+    'ayahModalAudioCurrent',
+    'ayahModalAudioDuration',
+    'ayahModalDownloadBtn',
+    'ayahModalTafsirTabs',
     'ayahModalTafsirBody',
   ];
   for (const id of ids) {
@@ -159,7 +190,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
     it('should set slider max and duration text on loadedmetadata', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;
@@ -179,7 +214,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
     it('should set audioPlayer.currentTime when slider changes', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;
@@ -189,7 +228,9 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
       let setCurrentTime = -1;
       Object.defineProperty(audioPlayer, 'currentTime', {
         get: () => setCurrentTime,
-        set: (v: number) => { setCurrentTime = v; },
+        set: (v: number) => {
+          setCurrentTime = v;
+        },
         configurable: true,
       });
 
@@ -204,7 +245,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
     it('should update current time display and slider position', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;
@@ -226,7 +271,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
     it('should replay audio when repeat checkbox is checked', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;
@@ -250,7 +299,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
     it('should not replay when repeat checkbox is unchecked', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;
@@ -282,7 +335,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
 
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;
@@ -307,7 +364,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
       qariSelect.value = 'ar.abdulbasit';
 
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;
@@ -333,7 +394,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
       qariSelect.value = 'ar.alafasy';
 
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;
@@ -354,7 +419,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
     it('should trigger download when audio has src', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;
@@ -384,7 +453,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
 
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       // Wait for the initial tafsir load to complete (which will throw)
@@ -400,7 +473,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
 
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       await new Promise((r) => setTimeout(r, 50));
@@ -417,7 +494,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
 
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const shareBtn = document.getElementById('ayahModalShareBtn')!;
@@ -434,7 +515,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
     it('should toggle active class on tafsir tabs when switching', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const tafsirTabs = document.getElementById('ayahModalTafsirTabs')!;
@@ -464,7 +549,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
 
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       await new Promise((r) => setTimeout(r, 50));
@@ -480,7 +569,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
     it('should load tafsir for current active tab when navigating', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       // Add an active tafsir tab
@@ -503,7 +596,11 @@ describe('ayah-modal deep2 coverage — audio handlers', () => {
     it('should pause playing audio', async () => {
       initAyahModal();
       openAyahModal({
-        surah: 1, ayah: 1, text: 'بسم الله', surahName: 'الفاتحة', index: 0,
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله',
+        surahName: 'الفاتحة',
+        index: 0,
       });
 
       const audioPlayer = document.getElementById('ayahModalAudioPlayer') as HTMLAudioElement;

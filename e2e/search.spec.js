@@ -4,17 +4,9 @@ test.describe('البحث', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForSelector('.surah-content', { timeout: 15000 });
-    // Reveal the search input group. The `.hidden` class uses
-    // `display: none !important`, so we must remove the class — setting
-    // `style.display` alone is overridden by !important.
-    await page.evaluate(() => {
-      const group = document.getElementById('searchInputGroup');
-      if (group) {
-        group.classList.remove('hidden');
-        group.style.display = 'flex';
-      }
-    });
+    await page.waitForSelector('.ayah[data-surah="1"]', { timeout: 30000 });
+    await page.locator('#searchToggleBtn').click();
+    await expect(page.locator('#searchInputGroup')).toBeVisible();
   });
 
   test('حقل البحث موجود وقابل للكتابة', async ({ page }) => {

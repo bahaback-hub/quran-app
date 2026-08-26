@@ -77,7 +77,9 @@ function isVisibleFocusable(element: Element, container: HTMLElement): element i
  */
 export function trapFocus(container: HTMLElement): () => void {
   if (!container) {
-    return () => { /* noop */ };
+    return () => {
+      /* noop */
+    };
   }
 
   function onKeyDown(e: KeyboardEvent): void {
@@ -203,7 +205,9 @@ export function restoreFocusOnPanelClose(triggerEl?: HTMLElement | null, panelEl
  */
 export function addKeyboardDismiss(element: HTMLElement, callback: () => void): () => void {
   if (!element || typeof callback !== 'function') {
-    return () => { /* noop */ };
+    return () => {
+      /* noop */
+    };
   }
   function onKeyDown(e: KeyboardEvent): void {
     if (e.key === 'Escape') {
@@ -319,12 +323,11 @@ export function initReducedMotionDetection(): void {
  * @param closeCallback Function to call when dialog should close
  * @returns Cleanup function to remove event listeners
  */
-export function initDialogAccessibility(
-  dialogEl: HTMLElement,
-  closeCallback: () => void,
-): () => void {
+export function initDialogAccessibility(dialogEl: HTMLElement, closeCallback: () => void): () => void {
   if (!dialogEl) {
-    return () => { /* noop */ };
+    return () => {
+      /* noop */
+    };
   }
 
   // Set aria-modal for screen reader context

@@ -4,21 +4,15 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const {
-  mockIsNativePlatform,
-  mockCanShare,
-  mockNativeShare,
-  mockWebShare,
-  mockCopyToClipboard,
-  mockShowToast,
-} = vi.hoisted(() => ({
-  mockIsNativePlatform: vi.fn(() => false),
-  mockCanShare: vi.fn(() => Promise.resolve({ value: true })),
-  mockNativeShare: vi.fn(() => Promise.resolve({ activityType: '' })),
-  mockWebShare: vi.fn(() => Promise.resolve()),
-  mockCopyToClipboard: vi.fn(),
-  mockShowToast: vi.fn(),
-}));
+const { mockIsNativePlatform, mockCanShare, mockNativeShare, mockWebShare, mockCopyToClipboard, mockShowToast } =
+  vi.hoisted(() => ({
+    mockIsNativePlatform: vi.fn(() => false),
+    mockCanShare: vi.fn(() => Promise.resolve({ value: true })),
+    mockNativeShare: vi.fn(() => Promise.resolve({ activityType: '' })),
+    mockWebShare: vi.fn(() => Promise.resolve()),
+    mockCopyToClipboard: vi.fn(),
+    mockShowToast: vi.fn(),
+  }));
 
 vi.mock('@capacitor/core', () => ({
   Capacitor: { isNativePlatform: () => mockIsNativePlatform() },

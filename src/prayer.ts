@@ -270,11 +270,7 @@ function updateCountdowns(): void {
     dom.countdownDisplay.textContent = countdownText;
   }
   if (dom.prayerCountdown) {
-    dom.prayerCountdown.textContent = __(
-      'prayer_countdown_header',
-      getPrayerName(nextKey),
-      headerCountdownText,
-    );
+    dom.prayerCountdown.textContent = __('prayer_countdown_header', getPrayerName(nextKey), headerCountdownText);
   }
   const time24 = (state.prayerTimes[nextKey] || '').split(' ')[0]!;
   if (dom.nextPrayerName) {
@@ -521,7 +517,9 @@ function removeQiblaSources(): void {
     _qiblaOrientationHandler = null;
   }
   if (_stopNativeQiblaCompass) {
-    void _stopNativeQiblaCompass().catch((error: unknown) => console.warn('[Qibla] Native compass stop failed:', error));
+    void _stopNativeQiblaCompass().catch((error: unknown) =>
+      console.warn('[Qibla] Native compass stop failed:', error),
+    );
     _stopNativeQiblaCompass = null;
   }
 }

@@ -55,9 +55,7 @@ export function applyMushafZoom(level: number): void {
 export function changeReaderZoom(direction: 1 | -1): void {
   const levels = state.mushafMode ? MUSHAF_ZOOM_LEVELS : SURAH_FONT_SIZES;
   const current = state.mushafMode ? state.mushafZoom : state.fontSize;
-  const closest = levels.reduce((best, level) =>
-    Math.abs(level - current) < Math.abs(best - current) ? level : best,
-  );
+  const closest = levels.reduce((best, level) => (Math.abs(level - current) < Math.abs(best - current) ? level : best));
   const target = levels[Math.min(levels.length - 1, Math.max(0, levels.indexOf(closest) + direction))]!;
   if (state.mushafMode) {
     applyMushafZoom(target);
@@ -283,7 +281,9 @@ export function applyLineSpacing(spacing: string): void {
 /* ===================== PRESENTATION BACKGROUND ===================== */
 
 /** Apply a presentation background mode and persist it. */
-export function applyPresBgMode(mode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video'): void {
+export function applyPresBgMode(
+  mode: 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video',
+): void {
   state.presBgMode = mode;
   storage.set('pres_bg_mode', mode);
   if (dom.presBgSelect) {
@@ -615,11 +615,20 @@ function isValidPersonalAdhkar(value: unknown): boolean {
   const time = value['time'];
   const duration = value['duration'];
   return (
-    typeof id === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(id) &&
-    typeof text === 'string' && text.trim().length > 0 && text.length <= 2000 &&
-    typeof count === 'number' && Number.isInteger(count) && count >= 1 && count <= 1000 &&
+    typeof id === 'string' &&
+    /^[A-Za-z0-9_-]{1,64}$/.test(id) &&
+    typeof text === 'string' &&
+    text.trim().length > 0 &&
+    text.length <= 2000 &&
+    typeof count === 'number' &&
+    Number.isInteger(count) &&
+    count >= 1 &&
+    count <= 1000 &&
     (time === null || (typeof time === 'string' && time.length <= 120)) &&
-    typeof duration === 'number' && Number.isFinite(duration) && duration >= 0 && duration <= 1440
+    typeof duration === 'number' &&
+    Number.isFinite(duration) &&
+    duration >= 0 &&
+    duration <= 1440
   );
 }
 
@@ -632,8 +641,12 @@ function isValidAdhkarCategory(value: unknown): boolean {
   const duration = value['duration'];
   return (
     typeof enabled === 'boolean' &&
-    typeof time === 'string' && /^$|^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time) &&
-    typeof duration === 'number' && Number.isInteger(duration) && duration >= 1 && duration <= 60
+    typeof time === 'string' &&
+    /^$|^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time) &&
+    typeof duration === 'number' &&
+    Number.isInteger(duration) &&
+    duration >= 1 &&
+    duration <= 60
   );
 }
 
@@ -651,7 +664,10 @@ function isValidAdhkarSettings(value: unknown): boolean {
     return false;
   }
   const personal = value['personal_adhkar'];
-  if (personal !== undefined && (!Array.isArray(personal) || personal.length > 100 || !personal.every(isValidPersonalAdhkar))) {
+  if (
+    personal !== undefined &&
+    (!Array.isArray(personal) || personal.length > 100 || !personal.every(isValidPersonalAdhkar))
+  ) {
     return false;
   }
   for (const [key, entry] of Object.entries(value)) {

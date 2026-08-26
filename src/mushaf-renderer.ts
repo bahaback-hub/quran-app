@@ -550,7 +550,12 @@ function isDeepNightMode(): boolean {
 
 function getColors(): PageColors {
   if (isDeepNightMode()) {
-    return { bg: 'transparent', txt: '#f7f3e8', frame: 'rgba(194, 158, 82, 0.22)', frameInner: 'rgba(194, 158, 82, 0.12)' };
+    return {
+      bg: 'transparent',
+      txt: '#f7f3e8',
+      frame: 'rgba(194, 158, 82, 0.22)',
+      frameInner: 'rgba(194, 158, 82, 0.12)',
+    };
   }
   if (isNightMode()) {
     return { bg: '#1a1e2b', txt: '#d4c4a8', frame: '#4a4e5e', frameInner: '#3a3e4e' };

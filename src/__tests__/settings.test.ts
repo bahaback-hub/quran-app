@@ -272,7 +272,8 @@ describe('settings', () => {
         city: (v) => typeof v === 'string',
         favorites: (v) => Array.isArray(v),
         pres_bg_mode: (v) =>
-          typeof v === 'string' && ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene', 'video'].includes(v),
+          typeof v === 'string' &&
+          ['plain', 'nature', 'singleNature', 'auto', 'animated', 'scene', 'video'].includes(v),
       };
 
       expect(validators.font_size(28)).toBe(true);

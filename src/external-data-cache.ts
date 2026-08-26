@@ -101,7 +101,7 @@ async function getExactCachedExternalData<T>(url: string): Promise<T | null> {
   }
   return new Promise((resolve) => {
     const request = db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).get(url);
-    request.onsuccess = () => resolve((request.result as ExternalCacheEntry | undefined)?.payload as T ?? null);
+    request.onsuccess = () => resolve(((request.result as ExternalCacheEntry | undefined)?.payload as T) ?? null);
     request.onerror = () => resolve(null);
   });
 }
@@ -138,9 +138,11 @@ function getSurahFromFullPayload(payload: unknown, surahNumber: number): unknown
   if (!Array.isArray(surahs)) {
     return null;
   }
-  return surahs.find((surah) =>
-    typeof surah === 'object' && surah !== null && (surah as { number?: unknown }).number === surahNumber,
-  ) ?? null;
+  return (
+    surahs.find(
+      (surah) => typeof surah === 'object' && surah !== null && (surah as { number?: unknown }).number === surahNumber,
+    ) ?? null
+  );
 }
 
 /**
@@ -173,9 +175,7 @@ export async function cacheExternalData(url: string, payload: unknown): Promise<
 
 async function pruneCache(): Promise<void> {
   const entries = await getAllEntries();
-  const expired = entries
-    .sort((a, b) => b.updatedAt - a.updatedAt)
-    .slice(MAX_ENTRIES);
+  const expired = entries.sort((a, b) => b.updatedAt - a.updatedAt).slice(MAX_ENTRIES);
   if (!expired.length) {
     return;
   }
@@ -239,9 +239,7 @@ export async function refreshRecentExternalData(): Promise<void> {
   if (!isOnline()) {
     return;
   }
-  const entries = (await getAllEntries())
-    .sort((a, b) => b.updatedAt - a.updatedAt)
-    .slice(0, REFRESH_LIMIT);
+  const entries = (await getAllEntries()).sort((a, b) => b.updatedAt - a.updatedAt).slice(0, REFRESH_LIMIT);
 
   await Promise.all(
     entries.map(async (entry) => {

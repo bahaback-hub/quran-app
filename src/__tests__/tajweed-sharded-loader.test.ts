@@ -28,14 +28,26 @@ describe('lazy per-surah tajweed loader', () => {
   it('loads and decodes only the requested compact surah chunk', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       if (input === 'data/tajweed/manifest.json') {
-        return Promise.resolve(jsonResponse({
-          version: 1,
-          rules: ['ghunnah', 'madd_2'],
-          files: ['001.json', '002.json'],
-        }));
+        return Promise.resolve(
+          jsonResponse({
+            version: 1,
+            rules: ['ghunnah', 'madd_2'],
+            files: ['001.json', '002.json'],
+          }),
+        );
       }
       if (input === 'data/tajweed/002.json') {
-        return Promise.resolve(jsonResponse([[1, [[0, 2, 5], [1, 8, 10]]]]));
+        return Promise.resolve(
+          jsonResponse([
+            [
+              1,
+              [
+                [0, 2, 5],
+                [1, 8, 10],
+              ],
+            ],
+          ]),
+        );
       }
       return Promise.reject(new Error(`Unexpected request: ${String(input)}`));
     });
@@ -55,9 +67,10 @@ describe('lazy per-surah tajweed loader', () => {
 
   it('caches a compact surah map after its first request', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
-      const data = input === 'data/tajweed/manifest.json'
-        ? { version: 1, rules: ['qalqalah'], files: ['036.json'] }
-        : [[1, [[0, 1, 3]]]];
+      const data =
+        input === 'data/tajweed/manifest.json'
+          ? { version: 1, rules: ['qalqalah'], files: ['036.json'] }
+          : [[1, [[0, 1, 3]]]];
       return Promise.resolve(jsonResponse(data));
     });
 
@@ -70,11 +83,13 @@ describe('lazy per-surah tajweed loader', () => {
   });
 
   it('returns an empty map when the manifest contains no matching chunk', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({
-      version: 1,
-      rules: [],
-      files: ['001.json'],
-    }));
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      jsonResponse({
+        version: 1,
+        rules: [],
+        files: ['001.json'],
+      }),
+    );
 
     const { loadTajweedAnnotationsForSurah } = await import('../tajweed-data.js');
     const result = await loadTajweedAnnotationsForSurah(2);
@@ -84,10 +99,12 @@ describe('lazy per-surah tajweed loader', () => {
   });
 
   it('supports the legacy full-data manifest shape for a selected surah', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse([
-      { surah: 1, ayah: 1, annotations: [{ rule: 'ghunnah', start: 0, end: 1 }] },
-      { surah: 2, ayah: 1, annotations: [{ rule: 'qalqalah', start: 3, end: 4 }] },
-    ]));
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      jsonResponse([
+        { surah: 1, ayah: 1, annotations: [{ rule: 'ghunnah', start: 0, end: 1 }] },
+        { surah: 2, ayah: 1, annotations: [{ rule: 'qalqalah', start: 3, end: 4 }] },
+      ]),
+    );
 
     const { loadTajweedAnnotationsForSurah } = await import('../tajweed-data.js');
     const result = await loadTajweedAnnotationsForSurah(2);
@@ -98,13 +115,15 @@ describe('lazy per-surah tajweed loader', () => {
 
   it('derives a selected surah map from a previously loaded offline corpus', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
-      const data = input === 'data/tajweed/manifest.json'
-        ? { version: 1, rules: ['ghunnah'], files: ['001.json', '002.json'] }
-        : [[1, [[0, 0, 2]]]];
+      const data =
+        input === 'data/tajweed/manifest.json'
+          ? { version: 1, rules: ['ghunnah'], files: ['001.json', '002.json'] }
+          : [[1, [[0, 0, 2]]]];
       return Promise.resolve(jsonResponse(data));
     });
 
-    const { getAyahAnnotations, loadTajweedAnnotations, loadTajweedAnnotationsForSurah } = await import('../tajweed-data.js');
+    const { getAyahAnnotations, loadTajweedAnnotations, loadTajweedAnnotationsForSurah } =
+      await import('../tajweed-data.js');
     await loadTajweedAnnotations();
     const surahMap = await loadTajweedAnnotationsForSurah(2);
 
@@ -130,9 +149,10 @@ describe('lazy per-surah tajweed loader', () => {
   it('preloads only the active reader surah when tajweed is enabled', async () => {
     mockState.currentSurah = 36;
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
-      const data = input === 'data/tajweed/manifest.json'
-        ? { version: 1, rules: ['ghunnah'], files: ['036.json'] }
-        : [[1, [[0, 0, 1]]]];
+      const data =
+        input === 'data/tajweed/manifest.json'
+          ? { version: 1, rules: ['ghunnah'], files: ['036.json'] }
+          : [[1, [[0, 0, 1]]]];
       return Promise.resolve(jsonResponse(data));
     });
 

@@ -86,7 +86,11 @@ function createMockIDB() {
       return {
         objectStore: vi.fn(() => ({
           get: vi.fn((key: string) => {
-            const req: { result: unknown; onsuccess: ((ev: { target: { result: unknown } }) => void) | null; onerror: (() => void) | null } = {
+            const req: {
+              result: unknown;
+              onsuccess: ((ev: { target: { result: unknown } }) => void) | null;
+              onerror: (() => void) | null;
+            } = {
               result: null,
               onsuccess: null,
               onerror: null,
@@ -161,9 +165,7 @@ import { showToast } from '../ui.js';
 
 describe('loadFullQuranText — deep paths', () => {
   it('should load from IndexedDB cache when available', async () => {
-    const cached = [
-      { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' },
-    ];
+    const cached = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
     mockIDBData['fullQuran'] = { data: cached };
 
     await loadFullQuranText();
@@ -173,9 +175,7 @@ describe('loadFullQuranText — deep paths', () => {
   });
 
   it('should re-normalize cached data when it contains old normalizations', async () => {
-    const cached = [
-      { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'الصلاة', normalized: 'الصلوه' },
-    ];
+    const cached = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'الصلاة', normalized: 'الصلوه' }];
     mockIDBData['fullQuran'] = { data: cached };
 
     await loadFullQuranText();
@@ -224,9 +224,7 @@ describe('loadFullQuranText — deep paths', () => {
           {
             number: 1,
             name: 'الفاتحة',
-            ayahs: [
-              { text: 'بسم الله', numberInSurah: 1 },
-            ],
+            ayahs: [{ text: 'بسم الله', numberInSurah: 1 }],
           },
         ],
       },
@@ -292,7 +290,7 @@ describe('loadFullQuranText — deep paths', () => {
 
     await loadFullQuranText();
 
-    const text = (mockState.fullQuranText as any[]);
+    const text = mockState.fullQuranText as any[];
     // Both ayahs should be loaded
     expect(text.length).toBe(2);
     expect(text[0].text).toBe('الم');
@@ -308,9 +306,7 @@ describe('loadFullQuranText — deep paths', () => {
           {
             number: 9,
             name: 'التوبة',
-            ayahs: [
-              { text: 'بَرَاءَةٌ مِّنَ اللَّهِ', numberInSurah: 1 },
-            ],
+            ayahs: [{ text: 'بَرَاءَةٌ مِّنَ اللَّهِ', numberInSurah: 1 }],
           },
         ],
       },
@@ -325,14 +321,12 @@ describe('loadFullQuranText — deep paths', () => {
 
     // Surah 9 ayah 1 — basmala stripping is for surah != 1 && surah != 9 && ayah == 1
     // So surah 9 ayah 1 should NOT be stripped
-    const text = (mockState.fullQuranText as any[]);
+    const text = mockState.fullQuranText as any[];
     expect(text[0].text).toBe('بَرَاءَةٌ مِّنَ اللَّهِ');
   });
 
   it('should use setTimeout fallback when requestIdleCallback is not available', async () => {
-    const cached = [
-      { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' },
-    ];
+    const cached = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
     mockIDBData['fullQuran'] = cached;
 
     // Remove requestIdleCallback
@@ -358,9 +352,7 @@ describe('loadFullQuranText — deep paths', () => {
           {
             number: 1,
             name: 'الفاتحة',
-            ayahs: [
-              { text: 'بسم الله', numberInSurah: 1 },
-            ],
+            ayahs: [{ text: 'بسم الله', numberInSurah: 1 }],
           },
         ],
       },
@@ -434,17 +426,13 @@ describe('performSearch — Arabic variant generation', () => {
 
   it('should not generate variant for short ال prefix (length <= 3)', () => {
     // ال alone is only 2 chars, so "ال".length = 2, > 3 is false
-    mockState.fullQuranText = [
-      { surah: 1, surahName: 'T', ayah: 1, text: 'الله', normalized: 'الله' },
-    ];
+    mockState.fullQuranText = [{ surah: 1, surahName: 'T', ayah: 1, text: 'الله', normalized: 'الله' }];
     const result = performSearch('الله');
     expect(result.length).toBeGreaterThanOrEqual(1);
   });
 
   it('should fall back to relaxed search when exact yields nothing', () => {
-    mockState.fullQuranText = [
-      { surah: 1, surahName: 'T', ayah: 1, text: 'الكتاب', normalized: 'الكتاب' },
-    ];
+    mockState.fullQuranText = [{ surah: 1, surahName: 'T', ayah: 1, text: 'الكتاب', normalized: 'الكتاب' }];
     // Search for something that only relaxed normalization would match
     // Note: with our mock normalizers, relaxed normalizes ة→ه
     const result = performSearch('الكتيب'); // Won't match even relaxed
@@ -459,17 +447,13 @@ describe('buildSearchWords — edge cases', () => {
   });
 
   it('should handle text with only single-char words', () => {
-    mockState.fullQuranText = [
-      { surah: 1, surahName: 'T', ayah: 1, text: 'ا ب ت ث', normalized: 'ا ب ت ث' },
-    ];
+    mockState.fullQuranText = [{ surah: 1, surahName: 'T', ayah: 1, text: 'ا ب ت ث', normalized: 'ا ب ت ث' }];
     buildSearchWords();
     expect(mockState.searchWords).toEqual([]);
   });
 
   it('should handle empty text entries', () => {
-    mockState.fullQuranText = [
-      { surah: 1, surahName: 'T', ayah: 1, text: '', normalized: '' },
-    ];
+    mockState.fullQuranText = [{ surah: 1, surahName: 'T', ayah: 1, text: '', normalized: '' }];
     buildSearchWords();
     expect(mockState.searchWords).toEqual([]);
   });
@@ -486,9 +470,7 @@ describe('buildSearchWords — edge cases', () => {
   });
 
   it('should not build prefixes longer than 5 chars', () => {
-    mockState.fullQuranText = [
-      { surah: 1, surahName: 'T', ayah: 1, text: 'abcdefghij', normalized: 'abcdefghij' },
-    ];
+    mockState.fullQuranText = [{ surah: 1, surahName: 'T', ayah: 1, text: 'abcdefghij', normalized: 'abcdefghij' }];
     buildSearchWords();
     const prefixMap = mockState.searchPrefixMap as Map<string, any[]>;
     expect(prefixMap.has('abcde')).toBe(true);

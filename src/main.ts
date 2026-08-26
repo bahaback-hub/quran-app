@@ -14,10 +14,14 @@ function loadNonCriticalModules(): void {
   const load = (): void => {
     import('./web-vitals.js')
       .then(({ initWebVitalsMonitoring }) => initWebVitalsMonitoring())
-      .catch(() => { /* non-critical */ });
+      .catch(() => {
+        /* non-critical */
+      });
     import('./memory-manager.js')
       .then(({ initMemoryManager }) => initMemoryManager())
-      .catch(() => { /* non-critical */ });
+      .catch(() => {
+        /* non-critical */
+      });
   };
 
   if ('requestIdleCallback' in window) {
@@ -227,7 +231,9 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
           console.warn('[Capacitor] Unregistered service worker to prevent conflicts');
         }
       })
-      .catch(() => { /* noop */ });
+      .catch(() => {
+        /* noop */
+      });
   }
 }
 

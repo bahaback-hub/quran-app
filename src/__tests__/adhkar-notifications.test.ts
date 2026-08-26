@@ -9,7 +9,8 @@ import type { AdhkarCategorySettings, PersonalAdhkarEntry } from '../types.js';
 vi.mock('../state.js', () => ({
   state: {
     adhkarSettings: null as any,
-    firedAdhkarToday: new Set(), firedAdhkarDate: null,
+    firedAdhkarToday: new Set(),
+    firedAdhkarDate: null,
   },
 }));
 
@@ -56,9 +57,7 @@ vi.mock('../adhkar-data.js', () => ({
         name: 'أذكار المساء',
         defaultTime: '17:00',
         defaultDuration: 1,
-        items: [
-          { id: 'e1', text: 'أعوذ بكلمات الله', count: 3, reference: 'البخاري' },
-        ],
+        items: [{ id: 'e1', text: 'أعوذ بكلمات الله', count: 3, reference: 'البخاري' }],
       },
     ],
   },
@@ -70,11 +69,17 @@ vi.mock('../internal-state.js', () => {
   let _audioCtx: AudioContext | null = null;
   return {
     getAdhkarNotificationTimer: vi.fn(() => _timer),
-    setAdhkarNotificationTimer: vi.fn((val) => { _timer = val; }),
+    setAdhkarNotificationTimer: vi.fn((val) => {
+      _timer = val;
+    }),
     getAdhkarIntervalId: vi.fn(() => _interval),
-    setAdhkarIntervalId: vi.fn((val) => { _interval = val; }),
+    setAdhkarIntervalId: vi.fn((val) => {
+      _interval = val;
+    }),
     getAdhkarAudioCtx: vi.fn(() => _audioCtx),
-    setAdhkarAudioCtx: vi.fn((val) => { _audioCtx = val; }),
+    setAdhkarAudioCtx: vi.fn((val) => {
+      _audioCtx = val;
+    }),
   };
 });
 
@@ -109,7 +114,8 @@ describe('adhkar-notifications', () => {
     vi.useFakeTimers();
     // Reset state
     state.adhkarSettings = null;
-    state.firedAdhkarToday = new Set(); state.firedAdhkarDate = null;
+    state.firedAdhkarToday = new Set();
+    state.firedAdhkarDate = null;
     // Reset dom mocks
     (dom as any).adhkarNotification = null;
     (dom as any).adhkarNotifIcon = null;
@@ -225,9 +231,7 @@ describe('adhkar-notifications', () => {
         adhkar_enabled: true,
         morning: { enabled: false },
         evening: { enabled: false },
-        personal_adhkar: [
-          { id: 'p1', text: 'My adhkar', time: '07:30', duration: 1, count: 1 },
-        ],
+        personal_adhkar: [{ id: 'p1', text: 'My adhkar', time: '07:30', duration: 1, count: 1 }],
         adhkar_sound: false,
       } as any;
 
@@ -254,9 +258,7 @@ describe('adhkar-notifications', () => {
         adhkar_enabled: true,
         morning: { enabled: false },
         evening: { enabled: false },
-        personal_adhkar: [
-          { id: 'p1', text: 'My adhkar', time: null, duration: 1, count: 1 },
-        ],
+        personal_adhkar: [{ id: 'p1', text: 'My adhkar', time: null, duration: 1, count: 1 }],
       } as any;
 
       checkAdhkarNotifications();
@@ -605,8 +607,8 @@ describe('adhkar-notifications', () => {
     it('should render category items with incomplete counts', () => {
       // Item counters at top level of adhkarSettings
       state.adhkarSettings = {
-        item_m1: 0,  // 0 < 1 → incomplete
-        item_m2: 0,  // 0 < 3 → incomplete
+        item_m1: 0, // 0 < 1 → incomplete
+        item_m2: 0, // 0 < 3 → incomplete
       } as any;
 
       const textEl = { textContent: '' };
@@ -627,8 +629,8 @@ describe('adhkar-notifications', () => {
     it('should show adhkar_done when all items complete', () => {
       // Item counters are stored at the top level of adhkarSettings
       state.adhkarSettings = {
-        item_m1: 1,  // m1 count is 1, so 1 >= 1 → complete
-        item_m2: 3,  // m2 count is 3, so 3 >= 3 → complete
+        item_m1: 1, // m1 count is 1, so 1 >= 1 → complete
+        item_m2: 3, // m2 count is 3, so 3 >= 3 → complete
       } as any;
 
       const textEl = { textContent: '' };

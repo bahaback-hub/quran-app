@@ -173,16 +173,8 @@ describe('audio-cache — full coverage', () => {
 
     it('should return correct stats for populated cache', async () => {
       mockFetch.mockResolvedValue(mockResponse(true, 200, 1024));
-      await cacheSurahAudio(
-        ['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'],
-        1,
-        'ar.alafasy',
-      );
-      await cacheSurahAudio(
-        ['https://example.com/2/1.mp3'],
-        2,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'], 1, 'ar.alafasy');
+      await cacheSurahAudio(['https://example.com/2/1.mp3'], 2, 'ar.alafasy');
 
       const stats = await getCacheStats();
       expect(stats.fileCount).toBe(3);
@@ -217,16 +209,8 @@ describe('audio-cache — full coverage', () => {
 
     it('should delete matching entries and return count', async () => {
       mockFetch.mockResolvedValue(mockResponse(true, 200, 1024));
-      await cacheSurahAudio(
-        ['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'],
-        1,
-        'ar.alafasy',
-      );
-      await cacheSurahAudio(
-        ['https://example.com/2/1.mp3'],
-        2,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://example.com/1/1.mp3', 'https://example.com/1/2.mp3'], 1, 'ar.alafasy');
+      await cacheSurahAudio(['https://example.com/2/1.mp3'], 2, 'ar.alafasy');
 
       const count = await deleteSurahCache(1, 'ar.alafasy');
       expect(count).toBe(2);
@@ -238,16 +222,8 @@ describe('audio-cache — full coverage', () => {
 
     it('should only delete entries matching both surah and reciter', async () => {
       mockFetch.mockResolvedValue(mockResponse(true, 200, 1024));
-      await cacheSurahAudio(
-        ['https://example.com/1/1.mp3'],
-        1,
-        'ar.alafasy',
-      );
-      await cacheSurahAudio(
-        ['https://example.com/1/1b.mp3'],
-        1,
-        'ar.minshawi',
-      );
+      await cacheSurahAudio(['https://example.com/1/1.mp3'], 1, 'ar.alafasy');
+      await cacheSurahAudio(['https://example.com/1/1b.mp3'], 1, 'ar.minshawi');
 
       const count = await deleteSurahCache(1, 'ar.alafasy');
       expect(count).toBe(1);
@@ -262,11 +238,7 @@ describe('audio-cache — full coverage', () => {
   describe('clearAudioCache', () => {
     it('should clear all entries and return true', async () => {
       mockFetch.mockResolvedValue(mockResponse(true, 200, 1024));
-      await cacheSurahAudio(
-        ['https://example.com/1/1.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://example.com/1/1.mp3'], 1, 'ar.alafasy');
 
       const result = await clearAudioCache();
       expect(result).toBe(true);
@@ -316,19 +288,11 @@ describe('audio-cache — full coverage', () => {
     it('should skip already-cached URLs and update access time', async () => {
       // Pre-cache one URL
       mockFetch.mockResolvedValue(mockResponse(true, 200, 5000));
-      await cacheSurahAudio(
-        ['https://cdn.example.com/1/1.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://cdn.example.com/1/1.mp3'], 1, 'ar.alafasy');
 
       // Now cache both - should skip the already-cached one
       mockFetch.mockClear();
-      await cacheSurahAudio(
-        ['https://cdn.example.com/1/1.mp3', 'https://cdn.example.com/1/2.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://cdn.example.com/1/1.mp3', 'https://cdn.example.com/1/2.mp3'], 1, 'ar.alafasy');
 
       // Should only fetch the non-cached URL
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -338,11 +302,7 @@ describe('audio-cache — full coverage', () => {
     it('should handle fetch failures gracefully (non-ok response)', async () => {
       mockFetch.mockResolvedValue(mockResponse(false, 404, 0));
 
-      const result = await cacheSurahAudio(
-        ['https://cdn.example.com/1/1.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      const result = await cacheSurahAudio(['https://cdn.example.com/1/1.mp3'], 1, 'ar.alafasy');
 
       // Should not throw
       expect(result).toBeUndefined();
@@ -351,11 +311,7 @@ describe('audio-cache — full coverage', () => {
     it('should handle network errors gracefully', async () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
 
-      const result = await cacheSurahAudio(
-        ['https://cdn.example.com/1/1.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      const result = await cacheSurahAudio(['https://cdn.example.com/1/1.mp3'], 1, 'ar.alafasy');
 
       expect(result).toBeUndefined();
     });
@@ -370,16 +326,8 @@ describe('audio-cache — full coverage', () => {
       });
 
       // Start two concurrent cache requests for the same surah+reciter
-      const promise1 = cacheSurahAudio(
-        ['https://cdn.example.com/1/1.mp3'],
-        1,
-        'ar.alafasy',
-      );
-      const promise2 = cacheSurahAudio(
-        ['https://cdn.example.com/1/1.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      const promise1 = cacheSurahAudio(['https://cdn.example.com/1/1.mp3'], 1, 'ar.alafasy');
+      const promise2 = cacheSurahAudio(['https://cdn.example.com/1/1.mp3'], 1, 'ar.alafasy');
 
       await Promise.all([promise1, promise2]);
 
@@ -455,11 +403,7 @@ describe('audio-cache — full coverage', () => {
       // after caching by testing that it doesn't break normal operations.
       mockFetch.mockResolvedValue(mockResponse(true, 200, 1024));
 
-      await cacheSurahAudio(
-        ['https://cdn.example.com/1/1.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://cdn.example.com/1/1.mp3'], 1, 'ar.alafasy');
 
       // Verify caching still works after eviction check
       expect(await isAudioCached('https://cdn.example.com/1/1.mp3')).toBe(true);
@@ -491,11 +435,7 @@ describe('audio-cache — full coverage', () => {
 
     it('getCacheStats should calculate usagePercent correctly', async () => {
       mockFetch.mockResolvedValue(mockResponse(true, 200, 1024));
-      await cacheSurahAudio(
-        ['https://example.com/1/1.mp3'],
-        1,
-        'ar.alafasy',
-      );
+      await cacheSurahAudio(['https://example.com/1/1.mp3'], 1, 'ar.alafasy');
 
       const stats = await getCacheStats();
       expect(stats.usagePercent).toBeGreaterThanOrEqual(0);

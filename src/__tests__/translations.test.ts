@@ -220,7 +220,7 @@ describe('Indonesian translation bundle', () => {
 });
 
 describe('Translation bundle consistency', () => {
-it('all bundles should have the same top-level string keys', async () => {
+  it('all bundles should have the same top-level string keys', async () => {
     const [ar, en, tr, ms, id, fr, de, ru] = await Promise.all([
       import('../translations/ar'),
       import('../translations/en'),

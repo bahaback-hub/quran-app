@@ -22,13 +22,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ─── Hoisted mock values ───────────────────────────────────────────
 
-const {
-  mockState,
-  mockDom,
-  mockShowToast,
-  mockCopyToClipboard,
-  mockStripTashkeel,
-} = vi.hoisted(() => ({
+const { mockState, mockDom, mockShowToast, mockCopyToClipboard, mockStripTashkeel } = vi.hoisted(() => ({
   mockState: {
     surahData: null as unknown,
     currentAyahIndex: 0,
@@ -262,9 +256,7 @@ describe('share.ts — full coverage', () => {
 
       shareCopy();
 
-      expect(mockCopyToClipboard).toHaveBeenCalledWith(
-        expect.stringContaining('بِسْمِ'),
-      );
+      expect(mockCopyToClipboard).toHaveBeenCalledWith(expect.stringContaining('بِسْمِ'));
       expect(mockShowToast).toHaveBeenCalledWith('copied', 'success');
     });
 
@@ -362,10 +354,7 @@ describe('share.ts — full coverage', () => {
 
       shareWhatsApp();
 
-      expect(windowOpenSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        '_blank',
-      );
+      expect(windowOpenSpy).toHaveBeenCalledWith(expect.any(String), '_blank');
     });
   });
 
@@ -409,10 +398,7 @@ describe('share.ts — full coverage', () => {
 
       shareTelegram();
 
-      expect(windowOpenSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        '_blank',
-      );
+      expect(windowOpenSpy).toHaveBeenCalledWith(expect.any(String), '_blank');
     });
 
     it('should include current page URL in share link', () => {

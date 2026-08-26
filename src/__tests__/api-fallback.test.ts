@@ -57,9 +57,7 @@ const QURAN_FIXTURE = {
         englishNameTranslation: 'Mankind',
         revelationType: 'Meccan',
         numberOfAyahs: 6,
-        ayahs: [
-          { number: 6231, text: 'قل أعوذ برب الناس', numberInSurah: 1, juz: 30, page: 604, sajda: false },
-        ],
+        ayahs: [{ number: 6231, text: 'قل أعوذ برب الناس', numberInSurah: 1, juz: 30, page: 604, sajda: false }],
       },
     ],
   },

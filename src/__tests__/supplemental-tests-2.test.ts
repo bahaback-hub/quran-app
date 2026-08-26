@@ -72,8 +72,22 @@ describe('surah-loader.ts — non-network functions', () => {
     const { state } = await import('../state.js');
     state.surahOffsets = null;
     state.surahList = [
-      { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', englishNameTranslation: 'The Opening', numberOfAyahs: 7, revelationType: 'meccan' },
-      { number: 2, name: 'البقرة', englishName: 'Al-Baqara', englishNameTranslation: 'The Cow', numberOfAyahs: 286, revelationType: 'medinan' },
+      {
+        number: 1,
+        name: 'الفاتحة',
+        englishName: 'Al-Fatiha',
+        englishNameTranslation: 'The Opening',
+        numberOfAyahs: 7,
+        revelationType: 'meccan',
+      },
+      {
+        number: 2,
+        name: 'البقرة',
+        englishName: 'Al-Baqara',
+        englishNameTranslation: 'The Cow',
+        numberOfAyahs: 286,
+        revelationType: 'medinan',
+      },
     ];
     const mod = await import('../surah-loader.js');
     mod.buildSurahOffsets();
@@ -111,7 +125,19 @@ describe('surah-loader.ts — non-network functions', () => {
       revelationType: 'meccan',
       numberOfAyahs: 7,
       ayahs: [
-        { number: 1, text: 'بسم الله الرحمن الرحيم', numberInSurah: 1, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false, audio: 'https://example.com/001.mp3', audioSecondary: [] },
+        {
+          number: 1,
+          text: 'بسم الله الرحمن الرحيم',
+          numberInSurah: 1,
+          juz: 1,
+          manzil: 1,
+          page: 1,
+          ruku: 1,
+          hizbQuarter: 1,
+          sajda: false,
+          audio: 'https://example.com/001.mp3',
+          audioSecondary: [],
+        },
       ],
     };
     state.currentAyahIndex = 0;
@@ -146,15 +172,13 @@ describe('surah-loader.ts — non-network functions', () => {
 /*  mushaf-renderer.ts — defensive branches                          */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  presentation.ts — defensive branches                             */
 /* ------------------------------------------------------------------ */
 
 describe('presentation.ts — defensive branches', () => {
-
   it('exported functions should not throw with empty state', async () => {
-    const mod = await import('../presentation.js') as Record<string, unknown>;
+    const mod = (await import('../presentation.js')) as Record<string, unknown>;
     for (const [name, fn] of Object.entries(mod)) {
       if (typeof fn === 'function') {
         try {
@@ -172,15 +196,13 @@ describe('presentation.ts — defensive branches', () => {
 /*  prayer.ts — defensive branches                                   */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  settings.ts — defensive branches                                 */
 /* ------------------------------------------------------------------ */
 
 describe('settings.ts — defensive branches', () => {
-
   it('exported functions should not throw when DOM is missing', async () => {
-    const mod = await import('../settings.js') as Record<string, unknown>;
+    const mod = (await import('../settings.js')) as Record<string, unknown>;
     for (const [name, fn] of Object.entries(mod)) {
       if (typeof fn === 'function' && !name.startsWith('_')) {
         try {
@@ -198,7 +220,6 @@ describe('settings.ts — defensive branches', () => {
 /* ------------------------------------------------------------------ */
 
 describe('api-client.ts — defensive branches', () => {
-
   it('apiFetch should propagate network errors', async () => {
     const originalFetch = global.fetch;
     global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
@@ -221,118 +242,95 @@ describe('api-client.ts — defensive branches', () => {
 /*  app-events.ts — defensive branches                               */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  i18n.ts — additional branches                                    */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  error-boundary.ts — defensive branches                          */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  templates.ts — defensive branches                                */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  navigation.ts — defensive branches                              */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  tafsir.ts — defensive branches                                  */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  reading-stats.ts — defensive branches                           */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  utils.ts — defensive branches                                   */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  overlays.ts — defensive branches                                */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  keyboard.ts — defensive branches                                */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  onboarding.ts — defensive branches                             */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  capacitor-back.ts — defensive branches                         */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  select-mode.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  ayah-click.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  ayah-modal.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  sleep-timer-modal.ts — defensive branches                     */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  audio-visualizer.ts — defensive branches                     */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  adhkar-notifications.ts — defensive branches                 */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  favorites.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  pres-backgrounds.ts — defensive branches                    */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  pres-styles.ts — defensive branches                         */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  reciters.ts — defensive branches                            */
 /* ------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------ */
 /*  surah-cache.ts — defensive branches                         */
 /* ------------------------------------------------------------------ */
 
 describe('surah-cache.ts — defensive branches', () => {
-
   it('getCachedSurahFromIDB should return null when DB fails', async () => {
     const original = indexedDB.open;
     indexedDB.open = vi.fn(() => {
@@ -351,7 +349,15 @@ describe('surah-cache.ts — defensive branches', () => {
     }) as unknown as typeof indexedDB.open;
     const mod = await import('../surah-cache.js');
     await expect(
-      mod.cacheSurahToIDB(1, { number: 1, name: 'test', englishName: 'test', englishNameTranslation: 'test', revelationType: 'meccan', numberOfAyahs: 7, ayahs: [] }),
+      mod.cacheSurahToIDB(1, {
+        number: 1,
+        name: 'test',
+        englishName: 'test',
+        englishNameTranslation: 'test',
+        revelationType: 'meccan',
+        numberOfAyahs: 7,
+        ayahs: [],
+      }),
     ).resolves.not.toThrow();
     indexedDB.open = original;
   });
@@ -361,8 +367,6 @@ describe('surah-cache.ts — defensive branches', () => {
 /*  ui-extras.ts — defensive branches                           */
 /* ------------------------------------------------------------------ */
 
-
 /* ------------------------------------------------------------------ */
 /*  app.ts — defensive branches                                */
 /* ------------------------------------------------------------------ */
-

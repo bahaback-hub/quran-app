@@ -65,7 +65,9 @@ vi.mock('../config.js', () => ({
 }));
 
 vi.mock('../dom.js', () => ({
-  get dom() { return mockDom; },
+  get dom() {
+    return mockDom;
+  },
 }));
 
 vi.mock('../storage.js', () => ({
@@ -104,8 +106,10 @@ vi.mock('../templates.js', () => ({
   mushafHeaderRow: vi.fn((juzLabel: string) => `<div class="mushaf-header-row">${juzLabel}</div>`),
   mushafErrorFallback: vi.fn(() => '<div class="mushaf-error">Error</div>'),
   mushafSurahNameSpan: vi.fn((name: string) => `<span class="mushaf-surah-name">${name}</span>`),
-  surahSecretsBody: vi.fn((secret: string, authKeys?: string[]) =>
-    `<div class="secrets-body">${secret}${authKeys ? ' ' + authKeys.join(',') : ''}</div>`),
+  surahSecretsBody: vi.fn(
+    (secret: string, authKeys?: string[]) =>
+      `<div class="secrets-body">${secret}${authKeys ? ' ' + authKeys.join(',') : ''}</div>`,
+  ),
 }));
 
 vi.mock('../surahs-data.js', () => ({
@@ -318,12 +322,15 @@ describe('mushaf.ts', () => {
       mockState.mushafMode = false;
       vi.mocked(renderPage).mockResolvedValue({ canvas: document.createElement('canvas'), layout: { lines: [] } });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
-      vi.stubGlobal('fetch', vi.fn(() =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ data: { page: 1 } }),
-        }),
-      ));
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() =>
+          Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ data: { page: 1 } }),
+          }),
+        ),
+      );
 
       await toggleMushafMode();
       expect(document.body.classList.contains('mushaf-active')).toBe(true);
@@ -343,9 +350,10 @@ describe('mushaf.ts', () => {
       mockState.mushafMode = false;
       vi.mocked(renderPage).mockResolvedValue({ canvas: document.createElement('canvas'), layout: { lines: [] } });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
-      vi.stubGlobal('fetch', vi.fn(() =>
-        Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) }),
-      ));
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) })),
+      );
 
       (mockDom.settingsPanel as HTMLElement).classList.add('open');
       (mockDom.favoritesPanel as HTMLElement).classList.add('open');
@@ -363,9 +371,10 @@ describe('mushaf.ts', () => {
       mockState.mushafMode = false;
       vi.mocked(renderPage).mockResolvedValue({ canvas: document.createElement('canvas'), layout: { lines: [] } });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
-      vi.stubGlobal('fetch', vi.fn(() =>
-        Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) }),
-      ));
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) })),
+      );
 
       await toggleMushafMode();
       expect(mockDom.surahContent!.innerHTML).toBeTruthy();
@@ -385,9 +394,10 @@ describe('mushaf.ts', () => {
       mockState.mushafMode = false;
       vi.mocked(renderPage).mockResolvedValue({ canvas: document.createElement('canvas'), layout: { lines: [] } });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
-      vi.stubGlobal('fetch', vi.fn(() =>
-        Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) }),
-      ));
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) })),
+      );
 
       await toggleMushafMode();
       expect((mockDom.pageIndicator as HTMLElement).style.display).toBe('inline');
@@ -408,7 +418,12 @@ describe('mushaf.ts', () => {
 
     it('should call renderSurah when leaving mushaf mode and surahData matches', async () => {
       mockState.mushafMode = true;
-      const surahData = { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'test' }] };
+      const surahData = {
+        number: 1,
+        name: 'الفاتحة',
+        englishName: 'Al-Fatiha',
+        ayahs: [{ numberInSurah: 1, text: 'test' }],
+      };
       mockState.surahData = surahData;
       mockState.currentSurah = 1;
 
@@ -423,9 +438,10 @@ describe('mushaf.ts', () => {
       mockState.mushafMode = false;
       vi.mocked(renderPage).mockResolvedValue({ canvas: document.createElement('canvas'), layout: { lines: [] } });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
-      vi.stubGlobal('fetch', vi.fn(() =>
-        Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) }),
-      ));
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) })),
+      );
 
       const mockAudio = document.createElement('audio') as HTMLAudioElement;
       mockAudio.play = vi.fn(() => Promise.resolve());
@@ -444,7 +460,10 @@ describe('mushaf.ts', () => {
       mockState.currentAyahIndex = 0;
       vi.mocked(renderPage).mockResolvedValue({ canvas: document.createElement('canvas'), layout: { lines: [] } });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
-      vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('Network error'))));
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() => Promise.reject(new Error('Network error'))),
+      );
 
       await toggleMushafMode();
       expect(mockState.mushafMode).toBe(true);
@@ -456,9 +475,10 @@ describe('mushaf.ts', () => {
       mockState.mushafMode = false;
       vi.mocked(renderPage).mockResolvedValue({ canvas: document.createElement('canvas'), layout: { lines: [] } });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
-      vi.stubGlobal('fetch', vi.fn(() =>
-        Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) }),
-      ));
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ data: { page: 1 } }) })),
+      );
 
       await toggleMushafMode();
       expect(mockState.mushafMode).toBe(true);
@@ -522,7 +542,15 @@ describe('mushaf.ts', () => {
     });
 
     it('should call renderPage and handle success', async () => {
-      const layout = { lines: [{ words: [{ char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', location: '1:1:1', text: 'بسم' }] }] };
+      const layout = {
+        lines: [
+          {
+            words: [
+              { char: 'ب', font: 'QCF4_Hafs_01', type: 'word', verse_key: '1:1', location: '1:1:1', text: 'بسم' },
+            ],
+          },
+        ],
+      };
       const canvasEl = document.createElement('canvas');
       vi.mocked(renderPage).mockResolvedValue({ canvas: canvasEl, layout });
       vi.mocked(loadPageData).mockResolvedValue(layout);
@@ -600,9 +628,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should add secret button for surahs with secrets', () => {
-      mockState.surahList = [
-        { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 },
-      ];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
 
       populateSurahOverlay();
 
@@ -611,9 +637,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should not add secret button for surahs without secrets', () => {
-      mockState.surahList = [
-        { number: 3, name: 'آل عمران', englishName: 'Aal-Imran', numberOfAyahs: 200 },
-      ];
+      mockState.surahList = [{ number: 3, name: 'آل عمران', englishName: 'Aal-Imran', numberOfAyahs: 200 }];
 
       populateSurahOverlay();
 
@@ -622,9 +646,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should set surah data attributes on buttons', () => {
-      mockState.surahList = [
-        { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 },
-      ];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
 
       populateSurahOverlay();
 
@@ -634,9 +656,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should handle click on surah overlay button', async () => {
-      mockState.surahList = [
-        { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 },
-      ];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
       vi.mocked(renderPage).mockResolvedValue({ canvas: null, layout: null });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
 
@@ -663,9 +683,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should handle click on secret button', () => {
-      mockState.surahList = [
-        { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 },
-      ];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
 
       populateSurahOverlay();
 
@@ -678,9 +696,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should only bind delegation once (_delegationBound)', () => {
-      mockState.surahList = [
-        { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 },
-      ];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
 
       populateSurahOverlay();
       populateSurahOverlay();
@@ -821,15 +837,27 @@ describe('mushaf.ts', () => {
       mockDom.surahContent!.appendChild(wrapper);
 
       canvas.getBoundingClientRect = vi.fn(() => ({
-        left: 0, top: 0, width: 500, height: 700, right: 500, bottom: 700, x: 0, y: 0,
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 700,
+        right: 500,
+        bottom: 700,
+        x: 0,
+        y: 0,
       }));
       wrapper.getBoundingClientRect = vi.fn(() => ({
-        left: 0, top: 0, width: 500, height: 700, right: 500, bottom: 700, x: 0, y: 0,
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 700,
+        right: 500,
+        bottom: 700,
+        x: 0,
+        y: 0,
       }));
 
-      vi.mocked(getAyahHighlightRects).mockResolvedValue([
-        { left: 10, top: 20, width: 100, height: 30 },
-      ]);
+      vi.mocked(getAyahHighlightRects).mockResolvedValue([{ left: 10, top: 20, width: 100, height: 30 }]);
 
       await highlightMushafAyah(true);
 
@@ -862,7 +890,14 @@ describe('mushaf.ts', () => {
       mockDom.surahContent!.appendChild(wrapper);
 
       canvas.getBoundingClientRect = vi.fn(() => ({
-        left: 0, top: 0, width: 500, height: 700, right: 500, bottom: 700, x: 0, y: 0,
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 700,
+        right: 500,
+        bottom: 700,
+        x: 0,
+        y: 0,
       }));
 
       vi.mocked(getAyahHighlightRects).mockResolvedValue([]);
@@ -884,9 +919,7 @@ describe('mushaf.ts', () => {
         ayahs: [{ numberInSurah: 1, text: 'بسم الله' }],
       };
       mockState.currentPageLayout = {
-        lines: [
-          { words: [{ verse_key: '2:1', location: '2:1:1' }] },
-        ],
+        lines: [{ words: [{ verse_key: '2:1', location: '2:1:1' }] }],
       };
 
       const wrapper = createMockElement('div');
@@ -900,7 +933,14 @@ describe('mushaf.ts', () => {
       mockDom.surahContent!.appendChild(wrapper);
 
       canvas.getBoundingClientRect = vi.fn(() => ({
-        left: 0, top: 0, width: 500, height: 700, right: 500, bottom: 700, x: 0, y: 0,
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 700,
+        right: 500,
+        bottom: 700,
+        x: 0,
+        y: 0,
       }));
 
       vi.mocked(renderPage).mockResolvedValue({ canvas: null, layout: null });
@@ -948,15 +988,27 @@ describe('mushaf.ts', () => {
       mockDom.surahContent!.appendChild(wrapper);
 
       canvas.getBoundingClientRect = vi.fn(() => ({
-        left: 0, top: 0, width: 500, height: 700, right: 500, bottom: 700, x: 0, y: 0,
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 700,
+        right: 500,
+        bottom: 700,
+        x: 0,
+        y: 0,
       }));
       wrapper.getBoundingClientRect = vi.fn(() => ({
-        left: 0, top: 0, width: 500, height: 700, right: 500, bottom: 700, x: 0, y: 0,
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 700,
+        right: 500,
+        bottom: 700,
+        x: 0,
+        y: 0,
       }));
 
-      vi.mocked(getAyahHighlightRects).mockResolvedValue([
-        { left: 50, top: 60, width: 200, height: 40 },
-      ]);
+      vi.mocked(getAyahHighlightRects).mockResolvedValue([{ left: 50, top: 60, width: 200, height: 40 }]);
 
       await highlightMushafAyah(true);
 
@@ -990,10 +1042,24 @@ describe('mushaf.ts', () => {
       mockDom.surahContent!.appendChild(wrapper);
 
       canvas.getBoundingClientRect = vi.fn(() => ({
-        left: 0, top: 0, width: 500, height: 700, right: 500, bottom: 700, x: 0, y: 0,
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 700,
+        right: 500,
+        bottom: 700,
+        x: 0,
+        y: 0,
       }));
       wrapper.getBoundingClientRect = vi.fn(() => ({
-        left: 0, top: 0, width: 500, height: 700, right: 500, bottom: 700, x: 0, y: 0,
+        left: 0,
+        top: 0,
+        width: 500,
+        height: 700,
+        right: 500,
+        bottom: 700,
+        x: 0,
+        y: 0,
       }));
 
       vi.mocked(getAyahHighlightRects).mockResolvedValue([
