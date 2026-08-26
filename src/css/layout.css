@@ -299,6 +299,7 @@
   align-items: center;
   gap: 9px;
 }
+.reader-surface-range-row { direction: ltr; }
 .reader-surface-popover-head {
   justify-content: space-between;
   font-size: 13px;
@@ -321,6 +322,7 @@
   font-size: 10px;
   line-height: 1.25;
   text-align: center;
+  direction: rtl;
 }
 @media (max-width: 600px) {
   .reader-surface-popover {
