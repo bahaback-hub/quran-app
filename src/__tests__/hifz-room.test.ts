@@ -199,6 +199,16 @@ describe('Hifz Room', () => {
     expect(document.getElementById('hifzRoomToggle')!.textContent).not.toContain('📖');
   });
 
+  it('places the memorization trigger inside the reader tools rail when available', () => {
+    const rail = document.createElement('aside');
+    rail.id = 'readerSideTools';
+    document.body.append(rail);
+
+    initHifzRoom();
+
+    expect(rail.querySelector('#hifzRoomToggle')).not.toBeNull();
+  });
+
   it('does not inject inside the Capacitor-native container', () => {
     document.body.classList.add('capacitor-native');
     initHifzRoom();

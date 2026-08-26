@@ -622,6 +622,137 @@
   background: var(--accent);
   transform: translateY(-1px);
 }
+.reader-side-tools {
+  position: fixed;
+  z-index: 920;
+  top: 50%;
+  left: clamp(8px, 1.4vw, 22px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 84px;
+  transform: translateY(-50%);
+  direction: rtl;
+}
+.reader-side-tool {
+  box-sizing: border-box;
+  width: 84px;
+  min-height: 72px;
+  padding: 7px 5px;
+  border: 1px solid color-mix(in srgb, var(--accent) 68%, transparent);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--header-bg) 84%, transparent);
+  box-shadow: 0 7px 18px rgb(0 0 0 / 18%);
+  color: var(--header-text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font: inherit;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.reader-side-tool:hover,
+.reader-side-tool:focus-visible {
+  background: var(--accent);
+  outline: none;
+}
+.reader-side-tool svg,
+.reader-side-tool .icon,
+.reader-side-tool-icon,
+.reader-side-tool-label { pointer-events: none; }
+.reader-side-tool-icon { font-size: 22px; line-height: 1; }
+.reader-side-tool-label {
+  color: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.12;
+  white-space: nowrap;
+}
+.reader-side-prayer { position: relative; padding: 0; }
+.reader-side-prayer .prayer-bar-toggle {
+  width: 100%;
+  min-height: 72px;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+}
+.reader-side-prayer .prayer-bar-summary {
+  min-width: 0;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  font-size: 10px;
+  line-height: 1.1;
+}
+.reader-side-prayer .prayer-bar-summary strong {
+  max-width: 72px;
+  overflow: hidden;
+  color: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reader-side-prayer .prayer-bar-summary-time {
+  direction: ltr;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.reader-side-prayer .prayer-bar-chevron,
+.reader-side-prayer .prayer-bar-summary-countdown { display: none; }
+.reader-side-prayer .prayer-bar-details {
+  position: fixed;
+  top: max(76px, calc(env(safe-area-inset-top, 0px) + 12px));
+  left: clamp(8px, 2vw, 24px);
+  width: min(340px, calc(100vw - 16px));
+  max-height: calc(100vh - 92px);
+  overflow-y: auto;
+  z-index: 930;
+}
+body.tafsir-curtain-active .reader-side-tools {
+  left: calc(var(--tafsir-curtain-reveal, var(--tafsir-curtain-width, 380px)) + 12px);
+}
+@media (max-width: 760px) {
+  .reader-side-tools {
+    position: static;
+    width: 100%;
+    margin: 8px 0 4px;
+    padding: 0 2px 4px;
+    flex-direction: row;
+    justify-content: flex-start;
+    overflow-x: auto;
+    transform: none;
+    scrollbar-width: thin;
+  }
+  .reader-side-tool {
+    flex: 0 0 74px;
+    width: 74px;
+    min-height: 66px;
+    border-radius: 13px;
+  }
+  .reader-side-prayer .prayer-bar-toggle { min-height: 66px; }
+  .reader-side-prayer .prayer-bar-details {
+    top: max(68px, calc(env(safe-area-inset-top, 0px) + 8px));
+    left: 8px;
+  }
+  body.tafsir-curtain-active .reader-side-tools { left: auto; }
+}
 .header-menu-btn:hover {
   background: var(--accent);
   transform: rotate(90deg) scale(1.1);
