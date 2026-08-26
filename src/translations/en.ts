@@ -463,6 +463,10 @@ export default {
   reader_zoom: 'Reading zoom',
   reader_zoom_in: 'Increase reading size',
   reader_zoom_out: 'Decrease reading size',
+  reader_surface_transparency: 'Verse background transparency',
+  reader_surface_short: 'Clarity',
+  reader_surface_solid: 'Clearer reading',
+  reader_surface_transparent: 'Show background',
 
   // === Select Mode ===
   select_mode_none: 'No ayahs selected',

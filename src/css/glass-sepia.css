@@ -42,9 +42,13 @@ body.sepia-mode .controls {
 
 /* محتوى السورة */
 body.sepia-mode .surah-content {
-  background: rgba(248, 240, 224, 0.6);
+  background: rgba(248, 240, 224, 0.62);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+/* Reader clarity control preserves the warm sepia surface while adjusting opacity. */
+body.sepia-mode:not(.mushaf-active) .surah-content {
+  background: rgb(248 240 224 / var(--reader-surface-alpha));
 }
 
 /* بطاقات التحكم */

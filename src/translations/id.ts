@@ -482,6 +482,10 @@ export default {
   reader_zoom: 'Perbesar bacaan',
   reader_zoom_in: 'Perbesar bacaan',
   reader_zoom_out: 'Perkecil bacaan',
+  reader_surface_transparency: 'Transparansi latar ayat',
+  reader_surface_short: 'Kejelasan',
+  reader_surface_solid: 'Bacaan lebih jelas',
+  reader_surface_transparent: 'Tampilkan latar',
 
   // === Mode Pemilihan ===
   select_mode_none: 'Tidak ada ayat dipilih',

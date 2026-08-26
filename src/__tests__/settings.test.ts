@@ -241,6 +241,24 @@ describe('settings', () => {
     });
   });
 
+  describe('applyReaderSurfaceTransparency', () => {
+    it('should persist the reader surface transparency and set the matching CSS alpha', async () => {
+      const { applyReaderSurfaceTransparency } = await import('../settings.js');
+      const storageSet = vi.spyOn(storage, 'set');
+      applyReaderSurfaceTransparency(65);
+      expect(document.documentElement.style.getPropertyValue('--reader-surface-alpha')).toBe('0.60');
+      expect(storageSet).toHaveBeenCalledWith('reader_surface_transparency', 65);
+    });
+
+    it('should clamp extreme values to the readable range', async () => {
+      const { applyReaderSurfaceTransparency } = await import('../settings.js');
+      applyReaderSurfaceTransparency(999);
+      expect(document.documentElement.style.getPropertyValue('--reader-surface-alpha')).toBe('0.42');
+      applyReaderSurfaceTransparency(-20);
+      expect(document.documentElement.style.getPropertyValue('--reader-surface-alpha')).toBe('0.94');
+    });
+  });
+
   describe('applyPresBgMode', () => {
     it('should update state.presBgMode', async () => {
       const { applyPresBgMode } = await import('../settings.js');
@@ -286,6 +304,13 @@ describe('settings', () => {
       expect(validators.favorites('not array')).toBe(false);
       expect(validators.pres_bg_mode('scene')).toBe(true);
       expect(validators.pres_bg_mode('invalid')).toBe(false);
+    });
+
+    it('should keep imported reader surface transparency within the safe range', async () => {
+      const { SETTING_TYPE_VALIDATORS } = await import('../settings.js');
+      expect(SETTING_TYPE_VALIDATORS['reader_surface_transparency']!(65)).toBe(true);
+      expect(SETTING_TYPE_VALIDATORS['reader_surface_transparency']!(101)).toBe(false);
+      expect(SETTING_TYPE_VALIDATORS['reader_surface_transparency']!(-1)).toBe(false);
     });
   });
 

@@ -13,6 +13,7 @@ import type { LangCode } from './i18n.js';
 import { helpPanelHTML } from './templates.js';
 import {
   applyFontSize,
+  applyReaderSurfaceTransparency,
   changeReaderZoom,
   updateReaderZoomControl,
   toggleNightMode,
@@ -102,6 +103,39 @@ function initReaderToolbarPin(): void {
   });
 }
 
+/** Bind the compact reader-surface popover beside Settings. */
+function initReaderSurfaceControl(): void {
+  const control = dom.readerSurfaceControl;
+  const trigger = dom.readerSurfaceToggle;
+  const popover = dom.readerSurfacePopover;
+  if (!control || !trigger || !popover) {
+    return;
+  }
+  const close = () => {
+    popover.classList.add('hidden');
+    trigger.setAttribute('aria-expanded', 'false');
+  };
+  trigger.addEventListener('click', (event: MouseEvent) => {
+    event.stopPropagation();
+    const wasHidden = popover.classList.toggle('hidden');
+    trigger.setAttribute('aria-expanded', String(!wasHidden));
+  });
+  dom.readerSurfaceSlider?.addEventListener('input', () => {
+    applyReaderSurfaceTransparency(Number(dom.readerSurfaceSlider!.value));
+  });
+  document.addEventListener('click', (event: MouseEvent) => {
+    if (!control.contains(event.target as Node)) {
+      close();
+    }
+  });
+  document.addEventListener('keydown', (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      close();
+      trigger.focus();
+    }
+  });
+}
+
 /**
  * Bind surah/reciter selection and navigation controls.
  */
@@ -145,6 +179,7 @@ export function bindNavigationEvents(): void {
  */
 export function bindHeaderAndSettingsEvents(): void {
   initReaderToolbarPin();
+  initReaderSurfaceControl();
   dom.bookmarkBtn?.addEventListener('click', setBookmark);
   dom.bookmarkBtn?.addEventListener('dblclick', gotoBookmark);
   dom.favoriteBtn?.addEventListener('click', toggleFavorite);

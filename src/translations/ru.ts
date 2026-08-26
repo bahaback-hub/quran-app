@@ -465,6 +465,10 @@ export default {
   reader_zoom: 'Масштаб чтения',
   reader_zoom_in: 'Увеличить размер чтения',
   reader_zoom_out: 'Уменьшить размер чтения',
+  reader_surface_transparency: 'Прозрачность фона аятов',
+  reader_surface_short: 'Ясность',
+  reader_surface_solid: 'Чётче читать',
+  reader_surface_transparent: 'Показать фон',
 
   // === Select Mode ===
   select_mode_none: 'Аяты не выбраны',

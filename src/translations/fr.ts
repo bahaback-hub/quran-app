@@ -467,6 +467,10 @@ export default {
   reader_zoom: 'Zoom de lecture',
   reader_zoom_in: 'Augmenter la taille de lecture',
   reader_zoom_out: 'Diminuer la taille de lecture',
+  reader_surface_transparency: 'Transparence du fond des versets',
+  reader_surface_short: 'Clarté',
+  reader_surface_solid: 'Lecture plus nette',
+  reader_surface_transparent: 'Voir le fond',
 
   // === Select Mode ===
   select_mode_none: 'Aucune ayah sélectionnée',

@@ -483,6 +483,10 @@ export default {
   reader_zoom: 'Zum bacaan',
   reader_zoom_in: 'Besarkan bacaan',
   reader_zoom_out: 'Kecilkan bacaan',
+  reader_surface_transparency: 'Ketelusan latar ayat',
+  reader_surface_short: 'Jelas',
+  reader_surface_solid: 'Bacaan lebih jelas',
+  reader_surface_transparent: 'Tunjuk latar',
 
   // === Mod Pemilihan ===
   select_mode_none: 'Tiada ayat dipilih',

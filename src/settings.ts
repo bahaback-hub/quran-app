@@ -26,6 +26,29 @@ import { __ } from './i18n.js';
 
 const SURAH_FONT_SIZES = [20, 24, 28, 32, 36, 40, 44];
 const MUSHAF_ZOOM_LEVELS = [100, 125, 150, 175, 200];
+export const DEFAULT_READER_SURFACE_TRANSPARENCY = 65;
+const MIN_READER_SURFACE_TRANSPARENCY = 0;
+const MAX_READER_SURFACE_TRANSPARENCY = 100;
+
+/** Apply a safe reader-surface transparency preference without ever exposing unreadable text. */
+export function applyReaderSurfaceTransparency(value: number, persist = true): void {
+  const requested = Number.isFinite(value) ? value : DEFAULT_READER_SURFACE_TRANSPARENCY;
+  const transparency = Math.min(MAX_READER_SURFACE_TRANSPARENCY, Math.max(MIN_READER_SURFACE_TRANSPARENCY, requested));
+  // Keep at least 42% of the reading surface opaque even at the most transparent end.
+  const alpha = 0.94 - transparency * 0.0052;
+  document.documentElement.style.setProperty('--reader-surface-alpha', alpha.toFixed(2));
+  if (dom.readerSurfaceSlider) {
+    dom.readerSurfaceSlider.value = String(transparency);
+    dom.readerSurfaceSlider.setAttribute('aria-valuenow', String(transparency));
+  }
+  if (dom.readerSurfaceValue) {
+    dom.readerSurfaceValue.value = `${transparency}%`;
+    dom.readerSurfaceValue.textContent = dom.readerSurfaceValue.value;
+  }
+  if (persist) {
+    storage.set('reader_surface_transparency', transparency);
+  }
+}
 
 /** Apply a specific font size to the ayahs container and persist it. */
 export function applyFontSize(size: number): void {
@@ -484,6 +507,7 @@ export function resetSettings(): void {
       'adhkar_settings',
       'font_type',
       'line_spacing',
+      'reader_surface_transparency',
       'tajweed_enabled',
       'pres_bg_mode',
       'pres_bg_scene',
@@ -543,6 +567,7 @@ export function exportSettings(): void {
     'search_history',
     'font_type',
     'line_spacing',
+    'reader_surface_transparency',
     'tajweed_enabled',
     'pres_bg_mode',
     'pres_bg_scene',
@@ -591,6 +616,7 @@ export const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
   'search_history',
   'font_type',
   'line_spacing',
+  'reader_surface_transparency',
   'tajweed_enabled',
   'night_mode_set_by_user',
   'surah_list',
@@ -715,6 +741,11 @@ export const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = 
   search_history: (v) => Array.isArray(v),
   font_type: (v) => typeof v === 'string',
   line_spacing: (v) => typeof v === 'string',
+  reader_surface_transparency: (v) =>
+    typeof v === 'number' &&
+    Number.isFinite(v) &&
+    v >= MIN_READER_SURFACE_TRANSPARENCY &&
+    v <= MAX_READER_SURFACE_TRANSPARENCY,
   tajweed_enabled: (v) => typeof v === 'boolean',
   night_mode_set_by_user: (v) => typeof v === 'boolean',
   surah_list: (v) => Array.isArray(v),
@@ -874,6 +905,8 @@ export function restoreSettings(): void {
   if (ls) {
     applyLineSpacing(ls);
   }
+  const readerSurfaceTransparency = storage.get<number>('reader_surface_transparency');
+  applyReaderSurfaceTransparency(readerSurfaceTransparency ?? DEFAULT_READER_SURFACE_TRANSPARENCY, false);
   const speed = storage.get<string>('playback_speed');
   if (speed && dom.speedSelect && dom.audioPlayer) {
     dom.speedSelect.value = speed;

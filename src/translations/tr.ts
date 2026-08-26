@@ -482,6 +482,10 @@ export default {
   reader_zoom: 'Okuma yakınlaştırması',
   reader_zoom_in: 'Okuma boyutunu büyüt',
   reader_zoom_out: 'Okuma boyutunu küçült',
+  reader_surface_transparency: 'Ayet arka planı saydamlığı',
+  reader_surface_short: 'Netlik',
+  reader_surface_solid: 'Daha net okuma',
+  reader_surface_transparent: 'Arka planı göster',
 
   // === Seçim Modu ===
   select_mode_none: 'Ayet seçilmedi',

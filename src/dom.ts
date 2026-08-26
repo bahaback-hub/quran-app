@@ -31,6 +31,11 @@ interface DomMap {
   settingsCloseBtn: HTMLElement | null;
   settingsToggleBtn: HTMLElement | null;
   themeToggle: HTMLElement | null;
+  readerSurfaceControl: HTMLElement | null;
+  readerSurfaceToggle: HTMLElement | null;
+  readerSurfacePopover: HTMLElement | null;
+  readerSurfaceSlider: HTMLInputElement | null;
+  readerSurfaceValue: HTMLOutputElement | null;
   surahSelect: HTMLSelectElement | null;
   reciterSelect: HTMLSelectElement | null;
   searchInput: HTMLInputElement | null;
@@ -216,6 +221,11 @@ const DOM_IDS: (keyof DomMap)[] = [
   'settingsCloseBtn',
   'settingsToggleBtn',
   'themeToggle',
+  'readerSurfaceControl',
+  'readerSurfaceToggle',
+  'readerSurfacePopover',
+  'readerSurfaceSlider',
+  'readerSurfaceValue',
   'surahSelect',
   'reciterSelect',
   'searchInput',
