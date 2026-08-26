@@ -12,7 +12,14 @@ import { showToast } from './ui.js';
 import { copyToClipboard } from './utils.js';
 import { ADHKAR_DATA } from './adhkar-data.js';
 import { __ } from './i18n.js';
-import { getAdhkarNotificationTimer, setAdhkarNotificationTimer, getAdhkarAudioCtx, setAdhkarAudioCtx, getAdhkarIntervalId, setAdhkarIntervalId } from './internal-state.js';
+import {
+  getAdhkarNotificationTimer,
+  setAdhkarNotificationTimer,
+  getAdhkarAudioCtx,
+  setAdhkarAudioCtx,
+  getAdhkarIntervalId,
+  setAdhkarIntervalId,
+} from './internal-state.js';
 import type { AdhkarCategorySettings } from './types.js';
 
 /* ===================== INTERFACES ===================== */

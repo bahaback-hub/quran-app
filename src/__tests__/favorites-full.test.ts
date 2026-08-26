@@ -105,7 +105,10 @@ describe('favorites-full', () => {
     (dom as any).surahSelect = null;
     // Mock CSS.escape for jsdom (used in favorites.ts remove handler)
     if (typeof CSS === 'undefined' || !CSS.escape) {
-      (globalThis as any).CSS = { ...(globalThis as any).CSS, escape: (str: string) => str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/g, '\\$&') };
+      (globalThis as any).CSS = {
+        ...(globalThis as any).CSS,
+        escape: (str: string) => str.replace(/[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/g, '\\$&'),
+      };
     }
   });
 
@@ -165,9 +168,7 @@ describe('favorites-full', () => {
     });
 
     it('should remove a favorite when already favorited', () => {
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
       toggleFavorite();
       expect(immutableSplice).toHaveBeenCalled();
       expect(showToast).toHaveBeenCalledWith('removed_from_favorites', '');
@@ -189,9 +190,7 @@ describe('favorites-full', () => {
     });
 
     it('should remove active class from favoriteBtn when removing', () => {
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
       const btn = document.createElement('button');
       const removeSpy = vi.spyOn(btn.classList, 'remove');
       (dom as any).favoriteBtn = btn;
@@ -232,9 +231,7 @@ describe('favorites-full', () => {
     it('should render favorite items when favorites exist', () => {
       const listEl = document.createElement('div');
       (dom as any).favoritesList = listEl;
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
       renderFavorites();
       expect(favoriteMeta).toHaveBeenCalledWith('الفاتحة', 1);
       expect(listEl.children.length).toBeGreaterThan(0);
@@ -258,9 +255,7 @@ describe('favorites-full', () => {
     it('should create go, copy, share, and remove buttons for each favorite', () => {
       const listEl = document.createElement('div');
       (dom as any).favoritesList = listEl;
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
       renderFavorites();
       const actions = listEl.querySelector('.favorite-actions');
       expect(actions).toBeTruthy();
@@ -273,9 +268,7 @@ describe('favorites-full', () => {
     it('should set correct dataset attributes on go button', () => {
       const listEl = document.createElement('div');
       (dom as any).favoritesList = listEl;
-      state.favorites = [
-        { key: '1:5', surah: 1, surahName: 'الفاتحة', ayah: 5, text: 'نص', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:5', surah: 1, surahName: 'الفاتحة', ayah: 5, text: 'نص', timestamp: 1000 }];
       renderFavorites();
       const goBtn = listEl.querySelector('.fav-go') as HTMLElement;
       expect(goBtn.dataset['surah']).toBe('1');
@@ -285,9 +278,7 @@ describe('favorites-full', () => {
     it('should set correct dataset attributes on share button including surahName', () => {
       const listEl = document.createElement('div');
       (dom as any).favoritesList = listEl;
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'نص', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'نص', timestamp: 1000 }];
       renderFavorites();
       const shareBtn = listEl.querySelector('.fav-share') as HTMLElement;
       // Key fix: dataset['surahName'] (not dataset['surahname'])
@@ -299,9 +290,7 @@ describe('favorites-full', () => {
     it('should set dataset attributes on copy button', () => {
       const listEl = document.createElement('div');
       (dom as any).favoritesList = listEl;
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
       renderFavorites();
       const copyBtn = listEl.querySelector('.fav-copy') as HTMLElement;
       expect(copyBtn.dataset['text']).toBe('بسم الله');
@@ -310,9 +299,7 @@ describe('favorites-full', () => {
     it('should handle favorite with missing fields gracefully', () => {
       const listEl = document.createElement('div');
       (dom as any).favoritesList = listEl;
-      state.favorites = [
-        { key: '', surah: 0, surahName: '', ayah: 0, text: '', timestamp: 0 },
-      ];
+      state.favorites = [{ key: '', surah: 0, surahName: '', ayah: 0, text: '', timestamp: 0 }];
       renderFavorites();
       const items = listEl.querySelectorAll('.favorite-item');
       expect(items.length).toBe(1);
@@ -321,9 +308,7 @@ describe('favorites-full', () => {
     it('should only bind click delegation once (_delegationBound)', () => {
       const listEl = document.createElement('div') as HTMLElement & { _delegationBound?: boolean };
       (dom as any).favoritesList = listEl;
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم', timestamp: 1000 }];
       renderFavorites();
       expect(listEl._delegationBound).toBe(true);
       // Second render should not re-bind
@@ -341,9 +326,7 @@ describe('favorites-full', () => {
       listEl = document.createElement('div') as HTMLElement & { _delegationBound?: boolean };
       (dom as any).favoritesList = listEl;
       (dom as any).surahSelect = document.createElement('select');
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
       renderFavorites();
     });
 
@@ -370,9 +353,7 @@ describe('favorites-full', () => {
     });
 
     it('should not copy if text is empty', () => {
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: '', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: '', timestamp: 1000 }];
       // Need a fresh render since state changed
       const freshListEl = document.createElement('div') as HTMLElement & { _delegationBound?: boolean };
       (dom as any).favoritesList = freshListEl;
@@ -623,9 +604,7 @@ describe('favorites-full', () => {
 
       wireFavoritesExport();
 
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
 
       // Mock URL.createObjectURL and Blob
       const origCreateObjectURL = URL.createObjectURL;
@@ -661,9 +640,7 @@ describe('favorites-full', () => {
 
       wireFavoritesExport();
 
-      state.favorites = [
-        { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 },
-      ];
+      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
 
       const origCreateObjectURL = URL.createObjectURL;
       const origRevokeObjectURL = URL.revokeObjectURL;

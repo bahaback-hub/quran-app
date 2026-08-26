@@ -10,6 +10,7 @@
  */
 
 import { CONFIG } from './config.js';
+import { cacheSurahAudio, isSurahCached } from './audio-cache.js';
 import { cacheExternalData } from './external-data-cache.js';
 import { buildAudioUrl, getReciterById } from './reciters.js';
 
@@ -52,13 +53,7 @@ export interface OfflinePackStatus {
 const OFFLINE_PACK_KEY = 'offline_pack_status';
 const OFFLINE_AUDIO_URLS_KEY = 'offline_pack_audio_urls';
 
-const DEFAULT_TRANSLATIONS = [
-  'en.sahih',
-  'en.pickthall',
-  'en.yusufali',
-  'fr.hamidullah',
-  'ur.jalandhry',
-];
+const DEFAULT_TRANSLATIONS = ['en.sahih', 'en.pickthall', 'en.yusufali', 'fr.hamidullah', 'ur.jalandhry'];
 
 const FETCH_TIMEOUT_MS = 30_000;
 const TAJWEED_CACHE_NAME = 'app-data-v2';
@@ -150,10 +145,7 @@ async function cacheLocalJson(url: string, data: unknown): Promise<void> {
     throw new Error('Cache Storage is unavailable');
   }
   const cache = await caches.open(TAJWEED_CACHE_NAME);
-  await cache.put(
-    url,
-    new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } }),
-  );
+  await cache.put(url, new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } }));
   if (!(await cache.match(url))) {
     throw new Error(`Failed to persist ${url}`);
   }
@@ -171,10 +163,11 @@ async function getSurahAudioUrls(reciterId: string, surahNum: number): Promise<s
   if (!response.ok) {
     throw new Error(`Audio surah ${surahNum}: HTTP ${response.status}`);
   }
-  const data = await response.json() as AudioEditionResponse;
-  const urls = data.data?.ayahs
-    ?.map((ayah) => ayah.audio)
-    .filter((url): url is string => typeof url === 'string' && url.length > 0) || [];
+  const data = (await response.json()) as AudioEditionResponse;
+  const urls =
+    data.data?.ayahs
+      ?.map((ayah) => ayah.audio)
+      .filter((url): url is string => typeof url === 'string' && url.length > 0) || [];
   if (!urls.length) {
     throw new Error(`Audio surah ${surahNum}: no playable URLs`);
   }
@@ -183,16 +176,9 @@ async function getSurahAudioUrls(reciterId: string, surahNum: number): Promise<s
 
 /* ===================== DOWNLOAD ORCHESTRATION ===================== */
 
-export async function downloadOfflinePack(
-  options: DownloadOfflinePackOptions = {},
-): Promise<OfflinePackResult> {
+export async function downloadOfflinePack(options: DownloadOfflinePackOptions = {}): Promise<OfflinePackResult> {
   const startTime = Date.now();
-  const {
-    onProgress,
-    reciterId,
-    audioSurahCount = 0,
-    translationEditions = DEFAULT_TRANSLATIONS,
-  } = options;
+  const { onProgress, reciterId, audioSurahCount = 0, translationEditions = DEFAULT_TRANSLATIONS } = options;
 
   const errors: string[] = [];
   let succeeded = 0;
@@ -275,7 +261,7 @@ export async function downloadOfflinePack(
   try {
     const manifestResponse = await fetchWithTimeout('/data/tajweed/manifest.json');
     if (manifestResponse.ok) {
-      const manifest = await manifestResponse.json() as { files?: string[] };
+      const manifest = (await manifestResponse.json()) as { files?: string[] };
       await cacheLocalJson('/data/tajweed/manifest.json', manifest);
       const files = manifest.files || [];
       for (const [index, file] of files.entries()) {
@@ -320,8 +306,6 @@ export async function downloadOfflinePack(
       completed: 0,
       total: audioSurahCount,
     });
-
-    const { cacheSurahAudio, isSurahCached } = await import('./audio-cache.js');
 
     for (let surahNum = 1; surahNum <= audioSurahCount; surahNum++) {
       onProgress?.({
@@ -387,10 +371,7 @@ export function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
 
-export function estimateOfflinePackSize(
-  includeAudio: boolean = false,
-  audioSurahCount: number = 0,
-): number {
+export function estimateOfflinePackSize(includeAudio: boolean = false, audioSurahCount: number = 0): number {
   const quranTextBytes = 1_700_000;
   const translationsBytes = 3_000_000;
   const tajweedBytes = 500_000;

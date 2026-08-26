@@ -82,10 +82,7 @@ class MockDatabase {
     return store;
   }
 
-  transaction(
-    storeNames: string[] | string,
-    _mode?: 'readonly' | 'readwrite',
-  ): MockTransaction {
+  transaction(storeNames: string[] | string, _mode?: 'readonly' | 'readwrite'): MockTransaction {
     const names = Array.isArray(storeNames) ? storeNames : [storeNames];
     return new MockTransaction(names, this.stores);
   }

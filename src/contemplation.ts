@@ -61,11 +61,11 @@ function isValidEntry(entry: unknown): entry is ContemplationEntry {
   const candidate = entry as Partial<ContemplationEntry> | null;
   return Boolean(
     candidate &&
-      typeof candidate.surah === 'number' &&
-      typeof candidate.ayah === 'number' &&
-      Array.isArray(candidate.questions) &&
-      candidate.questions.length === 3 &&
-      candidate.questions.every((question) => typeof question === 'string' && question.trim().length > 0),
+    typeof candidate.surah === 'number' &&
+    typeof candidate.ayah === 'number' &&
+    Array.isArray(candidate.questions) &&
+    candidate.questions.length === 3 &&
+    candidate.questions.every((question) => typeof question === 'string' && question.trim().length > 0),
   );
 }
 

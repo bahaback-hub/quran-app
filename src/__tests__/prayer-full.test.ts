@@ -303,9 +303,12 @@ describe('prayer.ts', () => {
           timings: SAMPLE_PRAYER_TIMES,
         }),
       );
-      expect(mockPrayerFetch).toHaveBeenCalledWith('?city=%D9%85%D9%83%D8%A9%20%D8%A7%D9%84%D9%85%D9%83%D8%B1%D9%85%D8%A9&country=SA&method=4', {
-        errorMsg: 'failed_prayer',
-      });
+      expect(mockPrayerFetch).toHaveBeenCalledWith(
+        '?city=%D9%85%D9%83%D8%A9%20%D8%A7%D9%84%D9%85%D9%83%D8%B1%D9%85%D8%A9&country=SA&method=4',
+        {
+          errorMsg: 'failed_prayer',
+        },
+      );
       expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
     });
 
@@ -482,9 +485,12 @@ describe('prayer.ts', () => {
 
       await loadPrayerTimes();
 
-      expect(mockPrayerFetch).toHaveBeenCalledWith('?city=%D8%A7%D9%84%D9%85%D8%AF%D9%8A%D9%86%D8%A9&country=SA&method=4', {
-        errorMsg: 'failed_prayer',
-      });
+      expect(mockPrayerFetch).toHaveBeenCalledWith(
+        '?city=%D8%A7%D9%84%D9%85%D8%AF%D9%8A%D9%86%D8%A9&country=SA&method=4',
+        {
+          errorMsg: 'failed_prayer',
+        },
+      );
       expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
 
       (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';

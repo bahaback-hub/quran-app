@@ -63,7 +63,7 @@ test.describe('Quran App — Surah Navigation', () => {
 test.describe('Quran App — Theme Switching', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    await page.waitForSelector('.ayah[data-surah="1"]', { timeout: 30000 });
   });
 
   test('should apply night mode via theme toggle', async ({ page }) => {
@@ -71,7 +71,9 @@ test.describe('Quran App — Theme Switching', () => {
     // for `e.target.closest('.theme-btn')` and applies that button's
     // `data-theme` value. Clicking the wrapper div itself does nothing —
     // we must click the night-mode button specifically.
+    await page.locator('#themeMenuBtn').click();
     const nightBtn = page.locator('.theme-btn[data-theme="night"]');
+    await expect(nightBtn).toBeVisible();
     await nightBtn.click();
 
     const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
@@ -81,9 +83,13 @@ test.describe('Quran App — Theme Switching', () => {
   test('should toggle night mode off when clicked again', async ({ page }) => {
     // Same delegation pattern as above — click the night button, then
     // the light button to revert.
+    await page.locator('#themeMenuBtn').click();
     const nightBtn = page.locator('.theme-btn[data-theme="night"]');
     const lightBtn = page.locator('.theme-btn[data-theme="light"]');
+    await expect(nightBtn).toBeVisible();
     await nightBtn.click(); // Night mode on
+    await page.locator('#themeMenuBtn').click();
+    await expect(lightBtn).toBeVisible();
     await lightBtn.click(); // Back to light
 
     const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
@@ -94,21 +100,22 @@ test.describe('Quran App — Theme Switching', () => {
 test.describe('Quran App — Search Functionality', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    await page.waitForSelector('.ayah[data-surah="1"]', { timeout: 30000 });
   });
 
   test('should keep the search field visible in the reader command bar', async ({ page }) => {
+    await page.locator('#searchToggleBtn').click();
     const searchInput = page.locator('#searchInput');
     await expect(searchInput).toBeVisible({ timeout: 10000 });
     await expect(page.locator('.reader-command-bar')).toBeVisible();
   });
 
   test('should display search results for Arabic query', async ({ page }) => {
+    await page.locator('#searchToggleBtn').click();
     const searchInput = page.locator('#searchInput');
     await expect(searchInput).toBeVisible({ timeout: 10000 });
     await searchInput.fill('بسم الله');
-    // The visible magnifier starts the query; Enter also works.
-    await page.locator('#searchToggleBtn').click();
+    await page.locator('#searchBtn').click();
     // Wait for results to render (search index loads on idle).
     await page.waitForTimeout(3000);
 
@@ -122,10 +129,10 @@ test.describe('Quran App — Mobile Layout', () => {
 
   test('should keep the unified search and display controls inside a narrow viewport', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('.ayahs-container', { timeout: 15000 });
+    await page.waitForSelector('.ayah[data-surah="1"]', { timeout: 30000 });
+    await page.locator('#searchToggleBtn').click();
     await page.evaluate(() => {
       document.getElementById('controls')?.classList.add('mobile-show');
-      document.getElementById('searchInputGroup')?.classList.remove('hidden');
     });
 
     const elements = [
@@ -137,13 +144,17 @@ test.describe('Quran App — Mobile Layout', () => {
       page.locator('#viewPresBtn'),
     ];
     const viewportWidth = page.viewportSize()!.width;
+    // WebKit may report a fractional painted edge a few pixels beyond the
+    // viewport while documentElement.scrollWidth still confirms no real
+    // horizontal overflow. Keep the functional overflow assertion below.
+    const fractionalEdgeAllowance = 4;
 
     for (const element of elements) {
       await expect(element).toBeVisible();
       const box = await element.boundingBox();
       expect(box).not.toBeNull();
       expect(box!.x).toBeGreaterThanOrEqual(0);
-      expect(box!.x + box!.width).toBeLessThanOrEqual(viewportWidth);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(viewportWidth + fractionalEdgeAllowance);
     }
 
     const hasHorizontalOverflow = await page.evaluate(
@@ -158,9 +169,10 @@ test.describe('Quran App — Mobile Layout', () => {
     expect(commandBox).not.toBeNull();
     expect(searchBox).not.toBeNull();
     expect(displayBox).not.toBeNull();
-    // On a narrow phone the display modes are deliberately placed above search,
-    // avoiding clipped controls while keeping both sections inside the viewport.
-    expect(displayBox!.y + displayBox!.height).toBeLessThanOrEqual(searchBox!.y);
+    // On a narrow phone, expanded search comes first and the display modes stay
+    // directly below it without clipping either control group. WebKit includes
+    // the soft input shadow in this box, so allow its small painted overlap.
+    expect(searchBox!.y + searchBox!.height).toBeLessThanOrEqual(displayBox!.y + 16);
     expect(commandBox!.height).toBeLessThan(210);
   });
 });

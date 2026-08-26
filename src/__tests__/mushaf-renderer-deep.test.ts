@@ -46,16 +46,15 @@ describe('mushaf-renderer deep coverage', () => {
   beforeEach(() => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        font: 'QCF4Page1',
-        lines: [
-          {
-            words: [
-              { char: 'ب', font: 'QCF4Word1', type: 'word', verse_key: '1:1', location: '1:1:1' },
-            ],
-          },
-        ],
-      }),
+      json: () =>
+        Promise.resolve({
+          font: 'QCF4Page1',
+          lines: [
+            {
+              words: [{ char: 'ب', font: 'QCF4Word1', type: 'word', verse_key: '1:1', location: '1:1:1' }],
+            },
+          ],
+        }),
     } as Response);
   });
 
@@ -95,14 +94,15 @@ describe('mushaf-renderer deep coverage', () => {
     it('should handle page data with multiple lines', async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({
-          font: 'QCF4Page2',
-          lines: [
-            { words: [{ char: 'ا', font: 'QCF4Word1', type: 'word', verse_key: '2:1', location: '2:1:1' }] },
-            { words: [{ char: 'ل', font: 'QCF4Word2', type: 'word', verse_key: '2:1', location: '2:1:2' }] },
-            { words: [{ char: 'م', font: 'QCF4Word3', type: 'end', verse_key: '2:1', location: '2:1:3' }] },
-          ],
-        }),
+        json: () =>
+          Promise.resolve({
+            font: 'QCF4Page2',
+            lines: [
+              { words: [{ char: 'ا', font: 'QCF4Word1', type: 'word', verse_key: '2:1', location: '2:1:1' }] },
+              { words: [{ char: 'ل', font: 'QCF4Word2', type: 'word', verse_key: '2:1', location: '2:1:2' }] },
+              { words: [{ char: 'م', font: 'QCF4Word3', type: 'end', verse_key: '2:1', location: '2:1:3' }] },
+            ],
+          }),
       } as Response);
 
       const data = await loadPageData(2);

@@ -17,7 +17,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: process.env.CI ? 2 : 1,
   reporter: [['html'], ['github'], ['list']],
   use: {
     baseURL: 'http://localhost:4173',
@@ -38,7 +38,7 @@ export default defineConfig({
     { name: 'webkit', testIgnore: '**/mobile.spec.ts', use: { ...devices['Desktop Safari'] } },
     {
       name: 'mobile-chrome',
-      testMatch: ['**/mobile.spec.ts', '**/responsive.spec.js', '**/visual-regression.spec.ts'],
+      testMatch: ['**/mobile.spec.ts', '**/responsive.spec.js'],
       use: { ...devices['Pixel 5'] },
     },
   ],

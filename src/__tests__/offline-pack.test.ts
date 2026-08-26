@@ -2,12 +2,7 @@
  * Tests for offline-pack module.
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  getOfflinePackStatus,
-  clearOfflinePackStatus,
-  formatBytes,
-  estimateOfflinePackSize,
-} from '../offline-pack.js';
+import { getOfflinePackStatus, clearOfflinePackStatus, formatBytes, estimateOfflinePackSize } from '../offline-pack.js';
 
 describe('offline-pack', () => {
   beforeEach(() => {

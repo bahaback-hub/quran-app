@@ -85,7 +85,7 @@ export function applyAnimatedBg(overlay: HTMLElement, bgSrc: string): void {
         }
       }
     },
-    { rootMargin: '100px' }
+    { rootMargin: '100px' },
   );
   observer.observe(layer);
   overlay.insertBefore(layer, overlay.firstChild);

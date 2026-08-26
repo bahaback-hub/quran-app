@@ -71,26 +71,29 @@ describe('offline-pack — additional coverage', () => {
     });
 
     it('persists Quran text, translations, and tajweed files for offline readers', async () => {
-      mockFetch.mockImplementation((url: string) => Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(
-          url.includes('manifest')
-            ? { files: ['001.json'] }
-            : url.includes('tajweed')
-              ? [[1, []]]
-              : { data: `stored-${url}` },
-        ),
-      }));
+      mockFetch.mockImplementation((url: string) =>
+        Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve(
+              url.includes('manifest')
+                ? { files: ['001.json'] }
+                : url.includes('tajweed')
+                  ? [[1, []]]
+                  : { data: `stored-${url}` },
+            ),
+        }),
+      );
 
       const result = await downloadOfflinePack({ translationEditions: ['en.sahih'] });
 
       expect(result.success).toBe(true);
-      await expect(
-        getCachedExternalData('https://api.alquran.cloud/v1/quran/quran-uthmani'),
-      ).resolves.toEqual({ data: 'stored-https://api.alquran.cloud/v1/quran/quran-uthmani' });
-      await expect(
-        getCachedExternalData('https://api.alquran.cloud/v1/quran/en.sahih'),
-      ).resolves.toEqual({ data: 'stored-https://api.alquran.cloud/v1/quran/en.sahih' });
+      await expect(getCachedExternalData('https://api.alquran.cloud/v1/quran/quran-uthmani')).resolves.toEqual({
+        data: 'stored-https://api.alquran.cloud/v1/quran/quran-uthmani',
+      });
+      await expect(getCachedExternalData('https://api.alquran.cloud/v1/quran/en.sahih')).resolves.toEqual({
+        data: 'stored-https://api.alquran.cloud/v1/quran/en.sahih',
+      });
       const tajweedCache = await cacheStorage.open('app-data-v2');
       await expect(tajweedCache.match('/data/tajweed/manifest.json')).resolves.toBeInstanceOf(Response);
       await expect(tajweedCache.match('/data/tajweed/001.json')).resolves.toBeInstanceOf(Response);
@@ -98,24 +101,34 @@ describe('offline-pack — additional coverage', () => {
 
     it('persists full-Quran downloads under the per-surah keys consumed by the reader', async () => {
       const quranSurah = { number: 50, name: 'ق', englishName: 'Qaf', ayahs: [{ numberInSurah: 1, text: 'ق' }] };
-      const translationSurah = { number: 50, name: 'Qaf', englishName: 'Qaf', ayahs: [{ numberInSurah: 1, text: 'Qaf' }] };
-      mockFetch.mockImplementation((url: string) => Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(
-          url.includes('manifest') ? { files: [] }
-            : url.includes('en.sahih') ? { data: { surahs: [translationSurah] } }
-              : { data: { surahs: [quranSurah] } },
-        ),
-      }));
+      const translationSurah = {
+        number: 50,
+        name: 'Qaf',
+        englishName: 'Qaf',
+        ayahs: [{ numberInSurah: 1, text: 'Qaf' }],
+      };
+      mockFetch.mockImplementation((url: string) =>
+        Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve(
+              url.includes('manifest')
+                ? { files: [] }
+                : url.includes('en.sahih')
+                  ? { data: { surahs: [translationSurah] } }
+                  : { data: { surahs: [quranSurah] } },
+            ),
+        }),
+      );
 
       await downloadOfflinePack({ translationEditions: ['en.sahih'] });
 
-      await expect(
-        getCachedExternalData('https://api.alquran.cloud/v1/surah/50/quran-uthmani'),
-      ).resolves.toEqual({ data: quranSurah });
-      await expect(
-        getCachedExternalData('https://api.alquran.cloud/v1/surah/50/en.sahih'),
-      ).resolves.toEqual({ data: translationSurah });
+      await expect(getCachedExternalData('https://api.alquran.cloud/v1/surah/50/quran-uthmani')).resolves.toEqual({
+        data: quranSurah,
+      });
+      await expect(getCachedExternalData('https://api.alquran.cloud/v1/surah/50/en.sahih')).resolves.toEqual({
+        data: translationSurah,
+      });
     });
 
     it('records errors when fetch fails', async () => {

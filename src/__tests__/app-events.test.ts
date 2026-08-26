@@ -508,7 +508,10 @@ describe('app-events', () => {
     });
 
     it('should change tafsir text size with visible controls and preserve the reading curtain width', async () => {
-      vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn(() => ({ matches: false })),
+      );
       const { bindTafsirEvents } = await import('../app-events.js');
       bindTafsirEvents();
 
@@ -522,7 +525,10 @@ describe('app-events', () => {
     });
 
     it('should move the opened desktop curtain by dragging its own handle', async () => {
-      vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn(() => ({ matches: false })),
+      );
       const { bindTafsirEvents } = await import('../app-events.js');
       bindTafsirEvents();
       dom.tafsirCurtain!.classList.remove('open');
@@ -536,6 +542,25 @@ describe('app-events', () => {
       expect(storage.set).toHaveBeenCalledWith('tafsir_curtain_reveal', 120);
       const { openTafsir } = await import('../tafsir.js');
       expect(openTafsir).toHaveBeenCalled();
+    });
+
+    it('should ignore a secondary mouse press on the tafsir curtain handle', async () => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn(() => ({ matches: false })),
+      );
+      const { bindTafsirEvents } = await import('../app-events.js');
+      bindTafsirEvents();
+      dom.tafsirCurtain!.classList.remove('open');
+      document.documentElement.style.removeProperty('--tafsir-curtain-reveal');
+
+      dom.tafsirCurtainHandle!.dispatchEvent(new MouseEvent('pointerdown', { clientX: 24, button: 2 }));
+      dom.tafsirCurtainHandle!.dispatchEvent(new MouseEvent('pointermove', { clientX: 144, button: 2 }));
+      dom.tafsirCurtainHandle!.dispatchEvent(new MouseEvent('pointerup', { clientX: 144, button: 2 }));
+
+      expect(document.documentElement.style.getPropertyValue('--tafsir-curtain-reveal')).toBe('');
+      const { openTafsir } = await import('../tafsir.js');
+      expect(openTafsir).not.toHaveBeenCalled();
     });
 
     it('should enable translation when translationSelect has a value', async () => {

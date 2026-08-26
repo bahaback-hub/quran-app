@@ -70,7 +70,9 @@ describe('mushaf-data-pack', () => {
     await resetDatabase();
     manifestText = makeManifest();
     cachedFonts = new Map();
-    (globalThis as { __QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__?: Record<string, string> }).__QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__ = {
+    (
+      globalThis as { __QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__?: Record<string, string> }
+    ).__QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__ = {
       manifestUrl: 'https://example.test/manifest.json',
       manifestSha256: sha256(manifestText),
       sourceCommit: SOURCE_COMMIT,
@@ -115,8 +117,9 @@ describe('mushaf-data-pack', () => {
   }, 30000);
 
   it('rejects a manifest whose compiled integrity digest does not match', async () => {
-    (globalThis as { __QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__?: Record<string, string> }).__QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__!.manifestSha256 =
-      '0'.repeat(64);
+    (
+      globalThis as { __QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__?: Record<string, string> }
+    ).__QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__!.manifestSha256 = '0'.repeat(64);
 
     await expect(downloadMushafDataPack()).rejects.toThrow('integrity check failed');
     await expect(getMushafDataPackStatus()).resolves.toMatchObject({ installed: false });
@@ -127,7 +130,11 @@ describe('mushaf-data-pack', () => {
       'fetch',
       vi.fn((input: string | URL | Request) => {
         const url = String(input);
-        const content = url.includes('manifest.json') ? manifestText : url.endsWith('pages/010.json') ? '{"lines":["changed"]}' : JSON_CONTENT;
+        const content = url.includes('manifest.json')
+          ? manifestText
+          : url.endsWith('pages/010.json')
+            ? '{"lines":["changed"]}'
+            : JSON_CONTENT;
         return Promise.resolve(new Response(content));
       }),
     );

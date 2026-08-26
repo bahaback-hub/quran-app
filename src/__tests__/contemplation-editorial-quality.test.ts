@@ -10,7 +10,9 @@ interface ContemplationEntry {
 
 const projectRoot = resolve(import.meta.dirname, '../..');
 const dataDirectory = resolve(projectRoot, 'public/data/contemplation');
-const reviewedSurahs = [93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114];
+const reviewedSurahs = [
+  93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114,
+];
 const genericPatterns = [
   'ما المحور الذي تضيفه الآية',
   'كيف يخدم موضع الآية',

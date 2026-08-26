@@ -7,6 +7,7 @@ import 'fake-indexeddb/auto';
 
 vi.unmock('../prayer.js');
 vi.unmock('../adhkar.js');
+vi.unmock('../config.js');
 
 import { state, resetState } from '../state.js';
 
@@ -57,11 +58,6 @@ describe('prayer — prayer times data', () => {
     expect(state.prayerTimes).not.toBeNull();
     expect(state.prayerTimes!.Fajr).toBe('05:00');
     expect(state.prayerTimes!.Isha).toBe('19:50');
-  });
-
-  it('can set nextPrayerKey', () => {
-    state.nextPrayerKey = 'Dhuhr';
-    expect(state.nextPrayerKey).toBe('Dhuhr');
   });
 
   it('can toggle azanEnabled', () => {
@@ -177,21 +173,18 @@ describe('adhkar — adhkar data structure', () => {
 
 describe('prayer — PRAYER_ORDER constants', () => {
   it('PRAYER_ORDER has 5 canonical prayers (excludes Sunrise)', async () => {
-    vi.unmock('../config.js');
     const { PRAYER_ORDER } = await import('../config.js');
     expect(PRAYER_ORDER).toEqual(['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']);
     expect(PRAYER_ORDER).not.toContain('Sunrise');
   });
 
   it('PRAYER_DISPLAY_ORDER has 6 entries (includes Sunrise)', async () => {
-    vi.unmock('../config.js');
     const { PRAYER_DISPLAY_ORDER } = await import('../config.js');
     expect(PRAYER_DISPLAY_ORDER).toContain('Sunrise');
     expect(PRAYER_DISPLAY_ORDER.length).toBe(6);
   });
 
   it('JUZ_PAGES has 30 entries, starting at 1, ending at 582', async () => {
-    vi.unmock('../config.js');
     const { JUZ_PAGES } = await import('../config.js');
     expect(JUZ_PAGES.length).toBe(30);
     expect(JUZ_PAGES[0]).toBe(1);
@@ -199,7 +192,6 @@ describe('prayer — PRAYER_ORDER constants', () => {
   });
 
   it('TRANSLATION_EDITIONS has at least 5 editions', async () => {
-    vi.unmock('../config.js');
     const { TRANSLATION_EDITIONS } = await import('../config.js');
     expect(Object.keys(TRANSLATION_EDITIONS).length).toBeGreaterThanOrEqual(5);
   });

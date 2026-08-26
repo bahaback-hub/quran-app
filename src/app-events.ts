@@ -328,7 +328,16 @@ function bindTafsirCurtainLayout(): void {
   const shrinkButton = dom.tafsirCurtainShrinkBtn;
   const growButton = dom.tafsirCurtainGrowBtn;
   const resetButton = dom.tafsirCurtainResetBtn;
-  if (!curtain || !body || !handle || !grip || !shrinkButton || !growButton || !resetButton || curtain.dataset['layoutBound'] === 'true') {
+  if (
+    !curtain ||
+    !body ||
+    !handle ||
+    !grip ||
+    !shrinkButton ||
+    !growButton ||
+    !resetButton ||
+    curtain.dataset['layoutBound'] === 'true'
+  ) {
     return;
   }
   curtain.dataset['layoutBound'] = 'true';
@@ -393,10 +402,14 @@ function bindTafsirCurtainLayout(): void {
     const limits = sheetLimits();
     if (event.key === 'ArrowUp' || event.key === 'PageUp') {
       event.preventDefault();
-      applySheetHeight(readCssSize('--tafsir-sheet-height', window.innerHeight * 0.6) + Math.round(window.innerHeight * 0.1));
+      applySheetHeight(
+        readCssSize('--tafsir-sheet-height', window.innerHeight * 0.6) + Math.round(window.innerHeight * 0.1),
+      );
     } else if (event.key === 'ArrowDown' || event.key === 'PageDown') {
       event.preventDefault();
-      applySheetHeight(readCssSize('--tafsir-sheet-height', window.innerHeight * 0.6) - Math.round(window.innerHeight * 0.1));
+      applySheetHeight(
+        readCssSize('--tafsir-sheet-height', window.innerHeight * 0.6) - Math.round(window.innerHeight * 0.1),
+      );
     } else if (event.key === 'Home') {
       event.preventDefault();
       applySheetHeight(limits.min);
@@ -412,6 +425,9 @@ function bindTafsirCurtainLayout(): void {
   let lastTouchY: number | null = null;
 
   grip.addEventListener('pointerdown', (event: PointerEvent) => {
+    if (event.button !== 0 && event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+      return;
+    }
     if (!isMobileSheet() || !curtain.classList.contains('open')) {
       return;
     }
@@ -476,6 +492,9 @@ function bindTafsirCurtainLayout(): void {
     toggleTafsir();
   });
   handle.addEventListener('pointerdown', (event: PointerEvent) => {
+    if (event.button !== 0 && event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+      return;
+    }
     if (isMobileSheet()) {
       return;
     }
@@ -527,40 +546,60 @@ function bindTafsirCurtainLayout(): void {
   handle.addEventListener('pointerup', finishHandleDrag);
   handle.addEventListener('pointercancel', finishHandleDrag);
   syncSavedReveal();
-  window.addEventListener('resize', () => {
-    syncSavedSheetHeight();
-    syncSavedReveal();
-    updateSheetAria();
-  }, { passive: true });
+  window.addEventListener(
+    'resize',
+    () => {
+      syncSavedSheetHeight();
+      syncSavedReveal();
+      updateSheetAria();
+    },
+    { passive: true },
+  );
 
-  body.addEventListener('wheel', (event: WheelEvent) => {
-    const atTop = body.scrollTop <= 0;
-    const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
-    if ((event.deltaY < 0 && atTop) || (event.deltaY > 0 && atBottom)) {
-      event.preventDefault();
-    }
-  }, { passive: false });
+  body.addEventListener(
+    'wheel',
+    (event: WheelEvent) => {
+      const atTop = body.scrollTop <= 0;
+      const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
+      if ((event.deltaY < 0 && atTop) || (event.deltaY > 0 && atBottom)) {
+        event.preventDefault();
+      }
+    },
+    { passive: false },
+  );
 
-  body.addEventListener('touchstart', (event: TouchEvent) => {
-    lastTouchY = event.touches[0]?.clientY ?? null;
-  }, { passive: true });
-  body.addEventListener('touchmove', (event: TouchEvent) => {
-    const currentY = event.touches[0]?.clientY;
-    if (currentY === undefined || lastTouchY === null) {
-      return;
-    }
-    const atTop = body.scrollTop <= 0;
-    const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
-    const movingDown = currentY > lastTouchY;
-    const movingUp = currentY < lastTouchY;
-    if ((movingDown && atTop) || (movingUp && atBottom)) {
-      event.preventDefault();
-    }
-    lastTouchY = currentY;
-  }, { passive: false });
-  body.addEventListener('touchend', () => {
-    lastTouchY = null;
-  }, { passive: true });
+  body.addEventListener(
+    'touchstart',
+    (event: TouchEvent) => {
+      lastTouchY = event.touches[0]?.clientY ?? null;
+    },
+    { passive: true },
+  );
+  body.addEventListener(
+    'touchmove',
+    (event: TouchEvent) => {
+      const currentY = event.touches[0]?.clientY;
+      if (currentY === undefined || lastTouchY === null) {
+        return;
+      }
+      const atTop = body.scrollTop <= 0;
+      const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
+      const movingDown = currentY > lastTouchY;
+      const movingUp = currentY < lastTouchY;
+      if ((movingDown && atTop) || (movingUp && atBottom)) {
+        event.preventDefault();
+      }
+      lastTouchY = currentY;
+    },
+    { passive: false },
+  );
+  body.addEventListener(
+    'touchend',
+    () => {
+      lastTouchY = null;
+    },
+    { passive: true },
+  );
 }
 
 /**
@@ -579,7 +618,8 @@ export function bindDisplaySettingsEvents(): void {
   );
   dom.presBgSelect?.addEventListener('change', (e: Event) =>
     applyPresBgMode(
-      (e.target as HTMLSelectElement).value as 'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video',
+      (e.target as HTMLSelectElement).value as
+        'plain' | 'nature' | 'singleNature' | 'auto' | 'animated' | 'scene' | 'video',
     ),
   );
   dom.presBgSceneSelect?.addEventListener('change', (e: Event) =>

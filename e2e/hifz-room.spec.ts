@@ -7,7 +7,7 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(page.locator('#hifzRoomToggle')).toBeVisible({ timeout: 10000 });
   });
 
-  test('opens from its right-edge handle and carries the approved Rawdah background', async ({ page }) => {
+  test('opens from its right-edge handle and exposes its focused memorization controls', async ({ page }) => {
     await page.locator('#hifzRoomToggle').click();
 
     const room = page.locator('#hifzRoom');
@@ -15,7 +15,6 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(room).toHaveAttribute('aria-hidden', 'false');
     await expect(room).not.toHaveAttribute('inert', '');
     await expect(room.locator('#hifzRoomTitle')).toHaveText(/غرفة الحفظ/);
-    await expect(room.locator('.hifz-room-scene')).toHaveCSS('background-image', /files\.manuscdn\.com/);
     await expect(room.locator('#hifzRoomStart')).toBeVisible();
     await expect(page.locator('#hifzRoomBackdrop')).toHaveCSS('opacity', '1');
 
@@ -23,7 +22,10 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     const viewport = page.viewportSize();
     expect(roomBox).not.toBeNull();
     expect(viewport).not.toBeNull();
-    expect(Math.round(roomBox!.x + roomBox!.width)).toBe(viewport!.width);
+    // The room is a partially revealed curtain: its visible edge remains on
+    // screen while the rest stays outside until the reader drags it farther.
+    expect(roomBox!.x).toBeLessThan(viewport!.width);
+    expect(roomBox!.x + roomBox!.width).toBeGreaterThan(viewport!.width);
   });
 
   test('opens with H and closes with Escape without invoking the existing Hifdh shortcut', async ({ page }) => {

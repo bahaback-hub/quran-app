@@ -26,7 +26,9 @@ describe('startNativeQiblaCompass', () => {
   it('registers heading and accuracy listeners before starting the true-north stream', async () => {
     const removeHeading = vi.fn().mockResolvedValue(undefined);
     const removeAccuracy = vi.fn().mockResolvedValue(undefined);
-    plugin.addListener.mockResolvedValueOnce({ remove: removeHeading }).mockResolvedValueOnce({ remove: removeAccuracy });
+    plugin.addListener
+      .mockResolvedValueOnce({ remove: removeHeading })
+      .mockResolvedValueOnce({ remove: removeAccuracy });
     const onHeading = vi.fn();
     const onAccuracy = vi.fn();
 
@@ -46,7 +48,9 @@ describe('startNativeQiblaCompass', () => {
     const removeHeading = vi.fn().mockResolvedValue(undefined);
     const removeAccuracy = vi.fn().mockResolvedValue(undefined);
     const startupFailure = new Error('Native compass unavailable');
-    plugin.addListener.mockResolvedValueOnce({ remove: removeHeading }).mockResolvedValueOnce({ remove: removeAccuracy });
+    plugin.addListener
+      .mockResolvedValueOnce({ remove: removeHeading })
+      .mockResolvedValueOnce({ remove: removeAccuracy });
     plugin.start.mockRejectedValueOnce(startupFailure);
 
     await expect(
@@ -64,7 +68,9 @@ describe('startNativeQiblaCompass', () => {
   it('completes cleanup even if one native cleanup operation rejects', async () => {
     const removeHeading = vi.fn().mockRejectedValue(new Error('listener already removed'));
     const removeAccuracy = vi.fn().mockResolvedValue(undefined);
-    plugin.addListener.mockResolvedValueOnce({ remove: removeHeading }).mockResolvedValueOnce({ remove: removeAccuracy });
+    plugin.addListener
+      .mockResolvedValueOnce({ remove: removeHeading })
+      .mockResolvedValueOnce({ remove: removeAccuracy });
 
     const cleanup = await startNativeQiblaCompass(options, {
       onHeading: vi.fn(),

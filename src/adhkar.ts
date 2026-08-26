@@ -166,9 +166,10 @@ function renderAdhkarCategory(categoryId: string): void {
   const catSettings = (settings[cat.id] as Partial<AdhkarCategorySettings>) || {};
   const enabled = !!catSettings.enabled;
   const notifTime = typeof catSettings.time === 'string' ? catSettings.time : cat.defaultTime || '';
-  const notifDur = typeof catSettings.duration === 'number' && Number.isFinite(catSettings.duration)
-    ? catSettings.duration
-    : cat.defaultDuration ?? 1;
+  const notifDur =
+    typeof catSettings.duration === 'number' && Number.isFinite(catSettings.duration)
+      ? catSettings.duration
+      : (cat.defaultDuration ?? 1);
   let html =
     adhkarCategoryTitle(cat.name, cat.icon) +
     `
@@ -694,9 +695,8 @@ export function renderAdhkarSettingsList(): void {
   for (const cat of ADHKAR_DATA.categories) {
     const s = (settings[cat.id] as Partial<AdhkarCategorySettings>) || {};
     const time = typeof s.time === 'string' ? s.time : '';
-    const duration = typeof s.duration === 'number' && Number.isFinite(s.duration)
-      ? s.duration
-      : cat.defaultDuration ?? 1;
+    const duration =
+      typeof s.duration === 'number' && Number.isFinite(s.duration) ? s.duration : (cat.defaultDuration ?? 1);
     html += `<div class="adhkar-setting-row">
       <div class="adhkar-setting-header">
         <span class="adhkar-setting-label">${cat.icon} ${cat.name}</span>
@@ -787,7 +787,8 @@ function openItemDialog(opts: {
 
   const titleEl = document.createElement('h3');
   titleEl.textContent = opts.title;
-  titleEl.style.cssText = 'margin:0 0 20px;color:var(--text-primary,#000);font-size:18px;font-weight:bold;text-align:center;';
+  titleEl.style.cssText =
+    'margin:0 0 20px;color:var(--text-primary,#000);font-size:18px;font-weight:bold;text-align:center;';
 
   const textLabel = document.createElement('label');
   textLabel.textContent = __('adhkar_enter_text');

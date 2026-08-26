@@ -152,15 +152,19 @@ export function detectErrorPatterns(): Map<string, number> {
  */
 export function exportErrorLog(): string {
   const allErrors = [...getPersistedErrorLog(), ...errorLog];
-  return JSON.stringify({
-    exportedAt: new Date().toISOString(),
-    userAgent: navigator.userAgent,
-    url: location.href,
-    online: navigator.onLine,
-    errorCount: allErrors.length,
-    patterns: Object.fromEntries(detectErrorPatterns()),
-    errors: allErrors,
-  }, null, 2);
+  return JSON.stringify(
+    {
+      exportedAt: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: location.href,
+      online: navigator.onLine,
+      errorCount: allErrors.length,
+      patterns: Object.fromEntries(detectErrorPatterns()),
+      errors: allErrors,
+    },
+    null,
+    2,
+  );
 }
 
 /* ===================== USER NOTIFICATIONS ===================== */
@@ -224,7 +228,9 @@ function showRecoveryOverlay(errorMsg: string): void {
         .then(() => {
           copyBtn.textContent = __('error_copied');
         })
-        .catch(() => { /* noop */ });
+        .catch(() => {
+          /* noop */
+        });
     });
   }
 }
@@ -434,16 +440,8 @@ const failedModules = new Set<string>();
  *   - Cache failures to avoid infinite retries in same session
  *   - Returns structured result (no throw)
  */
-export async function safeLoad<T>(
-  loader: () => Promise<T>,
-  options: SafeLoadOptions = {},
-): Promise<SafeLoadResult<T>> {
-  const {
-    maxRetries = 2,
-    baseDelay = 1000,
-    showToast = true,
-    label = 'module',
-  } = options;
+export async function safeLoad<T>(loader: () => Promise<T>, options: SafeLoadOptions = {}): Promise<SafeLoadResult<T>> {
+  const { maxRetries = 2, baseDelay = 1000, showToast = true, label = 'module' } = options;
 
   // Check if this module already exhausted all retries in this session
   if (failedModules.has(label)) {
@@ -471,10 +469,7 @@ export async function safeLoad<T>(
         // Exponential backoff: 1s, 2s, 4s, ...
         const delay = baseDelay * Math.pow(2, attempt);
         if (showToast) {
-          displayToast(
-            `فشل تحميل ${label}. إعادة المحاولة خلال ${Math.round(delay / 1000)} ثانية...`,
-            'warning',
-          );
+          displayToast(`فشل تحميل ${label}. إعادة المحاولة خلال ${Math.round(delay / 1000)} ثانية...`, 'warning');
         }
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
@@ -486,10 +481,7 @@ export async function safeLoad<T>(
   console.error(`[ErrorBoundary] safeLoad "${label}" exhausted ${attempts} attempts.`, lastError);
 
   if (showToast) {
-    displayToast(
-      `تعذّر تحميل ${label}. يرجى تحديث الصفحة أو التحقق من اتصالك بالإنترنت.`,
-      'error',
-    );
+    displayToast(`تعذّر تحميل ${label}. يرجى تحديث الصفحة أو التحقق من اتصالك بالإنترنت.`, 'error');
   }
 
   return { success: false, attempts, error: lastError };
@@ -520,10 +512,7 @@ export async function safeAsync<T>(
       if (attempt < maxRetries) {
         const delay = baseDelay * Math.pow(2, attempt);
         if (showToast) {
-          displayToast(
-            `فشلت عملية "${label}". إعادة المحاولة...`,
-            'warning',
-          );
+          displayToast(`فشلت عملية "${label}". إعادة المحاولة...`, 'warning');
         }
         await new Promise((resolve) => setTimeout(resolve, delay));
       }

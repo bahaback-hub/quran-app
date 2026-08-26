@@ -192,7 +192,9 @@ export async function initApp(): Promise<void> {
   // Web-only visual extension. Defer it until the browser is idle so the
   // existing reader remains the only work on the critical path. Capacitor
   // retains its current UI because the module is never imported there.
-  const isCapNative = document.documentElement.classList.contains('capacitor-native') || document.body.classList.contains('capacitor-native');
+  const isCapNative =
+    document.documentElement.classList.contains('capacitor-native') ||
+    document.body.classList.contains('capacitor-native');
   if (!isCapNative) {
     scheduleIdle(() => {
       void import('./hifz-room.js')

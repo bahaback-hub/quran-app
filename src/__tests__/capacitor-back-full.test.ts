@@ -104,7 +104,9 @@ describe('capacitor-back-full', () => {
     const globalAddListener = vi.fn();
     const pluginAddListener = vi.fn();
     (globalThis as Record<string, unknown>).Capacitor = { Plugins: { App: { addListener: globalAddListener } } };
-    (getCapacitor as ReturnType<typeof vi.fn>).mockReturnValue({ Plugins: { App: { addListener: globalAddListener } } });
+    (getCapacitor as ReturnType<typeof vi.fn>).mockReturnValue({
+      Plugins: { App: { addListener: globalAddListener } },
+    });
     initCapacitorBackButton({ App: { addListener: pluginAddListener } });
     expect(pluginAddListener).toHaveBeenCalled();
     expect(globalAddListener).not.toHaveBeenCalled();
@@ -113,7 +115,9 @@ describe('capacitor-back-full', () => {
   it('should use global Capacitor when plugins.App is not provided', () => {
     const globalAddListener = vi.fn();
     (globalThis as Record<string, unknown>).Capacitor = { Plugins: { App: { addListener: globalAddListener } } };
-    (getCapacitor as ReturnType<typeof vi.fn>).mockReturnValue({ Plugins: { App: { addListener: globalAddListener } } });
+    (getCapacitor as ReturnType<typeof vi.fn>).mockReturnValue({
+      Plugins: { App: { addListener: globalAddListener } },
+    });
     initCapacitorBackButton({});
     expect(globalAddListener).toHaveBeenCalledWith('backButton', expect.any(Function));
   });

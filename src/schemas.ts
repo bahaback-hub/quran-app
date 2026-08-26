@@ -27,9 +27,7 @@
 
 /** Error thrown when schema validation fails. */
 export class SchemaError extends Error {
-  constructor(
-    public readonly issues: ReadonlyArray<{ path: string; message: string }>,
-  ) {
+  constructor(public readonly issues: ReadonlyArray<{ path: string; message: string }>) {
     const formatted = issues.map((i) => `  • ${i.path || '(root)'}: ${i.message}`).join('\n');
     super(`Schema validation failed:\n${formatted}`);
     this.name = 'SchemaError';
@@ -37,9 +35,7 @@ export class SchemaError extends Error {
 }
 
 /** Result type for safe parsing (no throw). */
-export type SafeParseResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: SchemaError };
+export type SafeParseResult<T> = { success: true; data: T } | { success: false; error: SchemaError };
 
 /** Base schema interface — all schemas implement this. */
 export interface Schema<T> {
@@ -60,8 +56,12 @@ function makeError(path: string, message: string): { path: string; message: stri
 }
 
 function getTypeName(value: unknown): string {
-  if (value === null) {return 'null';}
-  if (Array.isArray(value)) {return 'array';}
+  if (value === null) {
+    return 'null';
+  }
+  if (Array.isArray(value)) {
+    return 'array';
+  }
   return typeof value;
 }
 
@@ -128,7 +128,9 @@ class OptionalSchema<T> implements Schema<T | undefined> {
   readonly _type!: T | undefined;
   constructor(private readonly inner: Schema<T>) {}
   parse(data: unknown): T | undefined {
-    if (data === undefined || data === null) {return undefined;}
+    if (data === undefined || data === null) {
+      return undefined;
+    }
     return this.inner.parse(data);
   }
   safeParse(data: unknown): SafeParseResult<T | undefined> {
@@ -144,7 +146,9 @@ class NullableSchema<T> implements Schema<T | null> {
   readonly _type!: T | null;
   constructor(private readonly inner: Schema<T>) {}
   parse(data: unknown): T | null {
-    if (data === null) {return null;}
+    if (data === null) {
+      return null;
+    }
     return this.inner.parse(data);
   }
   safeParse(data: unknown): SafeParseResult<T | null> {

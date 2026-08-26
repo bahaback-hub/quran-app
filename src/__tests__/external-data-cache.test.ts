@@ -21,9 +21,9 @@ describe('external data resilience cache', () => {
   });
 
   it('serves the last reliable API response while offline without another network request', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ data: { name: 'الفاتحة' } }), { status: 200 }),
-    );
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response(JSON.stringify({ data: { name: 'الفاتحة' } }), { status: 200 }));
     const { apiFetch } = await import('../api-client.js');
 
     const fresh = await apiFetch<{ data: { name: string } }>('/surah/1', { silent: true, retries: 0 });
@@ -36,9 +36,9 @@ describe('external data resilience cache', () => {
   });
 
   it('uses the last reliable response when an online request fails', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-      new Response(JSON.stringify({ data: { edition: 'موثوق' } }), { status: 200 }),
-    );
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { edition: 'موثوق' } }), { status: 200 }));
     const { tafsirFetch } = await import('../api-client.js');
     await tafsirFetch<{ data: { edition: string } }>('/edition/1/1.json', { silent: true, retries: 0 });
 
@@ -53,11 +53,10 @@ describe('external data resilience cache', () => {
 
   it('refreshes recently used data when connectivity returns', async () => {
     const url = 'https://example.org/public-data.json';
-    const { cacheExternalData, getCachedExternalData, refreshRecentExternalData } = await import('../external-data-cache.js');
+    const { cacheExternalData, getCachedExternalData, refreshRecentExternalData } =
+      await import('../external-data-cache.js');
     await cacheExternalData(url, { revision: 'old' });
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ revision: 'new' }), { status: 200 }),
-    );
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ revision: 'new' }), { status: 200 }));
 
     await refreshRecentExternalData();
 
@@ -73,8 +72,6 @@ describe('external data resilience cache', () => {
     controller.abort();
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new DOMException('Aborted', 'AbortError'));
 
-    await expect(
-      apiFetch('/surah/2', { signal: controller.signal, silent: true, retries: 0 }),
-    ).rejects.toThrow();
+    await expect(apiFetch('/surah/2', { signal: controller.signal, silent: true, retries: 0 })).rejects.toThrow();
   });
 });

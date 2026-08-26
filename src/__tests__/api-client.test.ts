@@ -61,7 +61,10 @@ describe('apiFetch', () => {
 
   it('should construct URL with API_BASE prefix', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ data: 'test' }), { status: 200, headers: { 'Content-Type': 'application/json' } }),
+      new Response(JSON.stringify({ data: 'test' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
     );
 
     try {
@@ -83,7 +86,10 @@ describe('prayerFetch', () => {
 
   it('should construct URL with PRAYER_API prefix', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ data: 'test' }), { status: 200, headers: { 'Content-Type': 'application/json' } }),
+      new Response(JSON.stringify({ data: 'test' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
     );
 
     try {
@@ -105,7 +111,10 @@ describe('tafsirFetch', () => {
 
   it('should construct URL with TAFSIR_API prefix', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ data: 'test' }), { status: 200, headers: { 'Content-Type': 'application/json' } }),
+      new Response(JSON.stringify({ data: 'test' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
     );
 
     try {
@@ -127,7 +136,10 @@ describe('jsonFetch', () => {
 
   it('should call safeFetch with expectJSON: true', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ data: 'test' }), { status: 200, headers: { 'Content-Type': 'application/json' } }),
+      new Response(JSON.stringify({ data: 'test' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
     );
 
     try {

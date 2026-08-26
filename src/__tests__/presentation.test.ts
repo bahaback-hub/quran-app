@@ -47,7 +47,9 @@ vi.mock('../pres-backgrounds.js', () => ({
 // Mock pres-styles
 vi.mock('../pres-styles.js', () => ({
   injectStyles: vi.fn(),
-  buildAyahHtml: vi.fn((_text: string, _surah: number, _ayah: number, _tajweed: boolean) => '<span>mock ayah html</span>'),
+  buildAyahHtml: vi.fn(
+    (_text: string, _surah: number, _ayah: number, _tajweed: boolean) => '<span>mock ayah html</span>',
+  ),
 }));
 
 vi.mock('../settings.js', () => ({

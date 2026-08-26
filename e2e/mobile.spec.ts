@@ -161,12 +161,12 @@ test.describe('Quran App — Mobile Controls', () => {
 
   test('should keep primary header actions in one row and keep theme controls separate', async ({ page }) => {
     const primaryActions = page.locator('.header-primary-actions .header-action-btn');
-    await expect(primaryActions).toHaveCount(5);
-    await expect(page.locator('#helpToggleBtn')).toBeVisible();
+    await expect(primaryActions).toHaveCount(4);
+    await expect(page.locator('#settingsToggleBtn')).toBeVisible();
     await expect(page.locator('#breadcrumbs')).toHaveCount(0);
 
     const firstAction = await primaryActions.nth(0).boundingBox();
-    const lastAction = await primaryActions.nth(4).boundingBox();
+    const lastAction = await primaryActions.nth(3).boundingBox();
     const theme = await page.locator('#themeToggle').boundingBox();
     expect(firstAction).not.toBeNull();
     expect(lastAction).not.toBeNull();

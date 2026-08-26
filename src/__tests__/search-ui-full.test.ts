@@ -65,7 +65,13 @@ vi.mock('../utils.js', () => ({
 vi.mock('../templates.js', () => ({
   searchEmptyResults: () => '<div class="search-empty">No results</div>',
   searchResultsHeader: (total: number) => `<div class="search-header">${total} results</div>`,
-  searchResultCard: (data: { surah: number; ayah: number; surahName: string; fulltextIndex: number; highlighted: string }) =>
+  searchResultCard: (data: {
+    surah: number;
+    ayah: number;
+    surahName: string;
+    fulltextIndex: number;
+    highlighted: string;
+  }) =>
     `<div class="search-result-item" data-surah="${data.surah}" data-ayah="${data.ayah}" data-fulltext-index="${data.fulltextIndex}" data-surahname="${data.surahName}">${data.highlighted}</div>`,
   searchLoadMoreButton: (remaining: number) => `<button id="loadMoreSearchBtn">Load more (${remaining})</button>`,
   searchHistoryItem: (text: string, idx: number) =>
@@ -122,7 +128,13 @@ vi.mock('../internal-state.js', () => ({
 
 // ─── Import after mocks ────────────────────────────────────────
 
-import { performExactSearch, initSearchAutocomplete, startVoiceSearch, initKeyboard, _resetKeyboardForTests } from '../search-ui.js';
+import {
+  performExactSearch,
+  initSearchAutocomplete,
+  startVoiceSearch,
+  initKeyboard,
+  _resetKeyboardForTests,
+} from '../search-ui.js';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { showToast } from '../ui.js';
@@ -233,9 +245,7 @@ describe('performExactSearch', () => {
   it('should render match cards when results found', () => {
     const el = document.createElement('div');
     (dom as Record<string, unknown>).searchResults = el;
-    const matches = [
-      { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' },
-    ];
+    const matches = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
     (state as Record<string, unknown>).fullQuranText = matches;
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);
@@ -334,9 +344,7 @@ describe('initSearchAutocomplete', () => {
       { word: 'الله', count: 100 },
       { word: 'الرحمن', count: 50 },
     ];
-    (state as Record<string, unknown>).searchPrefixMap = new Map([
-      ['ال', [{ word: 'الله', count: 100 }]],
-    ]);
+    (state as Record<string, unknown>).searchPrefixMap = new Map([['ال', [{ word: 'الله', count: 100 }]]]);
     initSearchAutocomplete();
     input.value = 'ال';
     input.dispatchEvent(new Event('input'));
@@ -449,9 +457,7 @@ describe('initSearchAutocomplete', () => {
 
   it('should fall back to linear scan for prefixes longer than 5', () => {
     vi.useFakeTimers();
-    (state as Record<string, unknown>).searchWords = [
-      { word: 'abcdefghij', count: 5 },
-    ];
+    (state as Record<string, unknown>).searchWords = [{ word: 'abcdefghij', count: 5 }];
     (state as Record<string, unknown>).searchPrefixMap = new Map();
     initSearchAutocomplete();
     input.value = 'abcdef';
@@ -464,9 +470,7 @@ describe('initSearchAutocomplete', () => {
 
   it('should hide dropdown when no suggestions match for long prefix', () => {
     vi.useFakeTimers();
-    (state as Record<string, unknown>).searchWords = [
-      { word: 'xyz', count: 5 },
-    ];
+    (state as Record<string, unknown>).searchWords = [{ word: 'xyz', count: 5 }];
     (state as Record<string, unknown>).searchPrefixMap = new Map();
     initSearchAutocomplete();
     input.value = 'abcdef';
@@ -511,9 +515,14 @@ describe('startVoiceSearch', () => {
   it('should not start recognition if already listening', () => {
     const mockStart = vi.fn();
     function MockSpeechRecognition(this: {
-      lang: string; interimResults: boolean; maxAlternatives: number;
-      onresult: unknown; onerror: unknown; onend: unknown;
-      start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>;
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onresult: unknown;
+      onerror: unknown;
+      onend: unknown;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
     }) {
       this.lang = '';
       this.interimResults = false;
@@ -533,9 +542,14 @@ describe('startVoiceSearch', () => {
   it('should start recognition when SpeechRecognition is available and not listening', () => {
     const mockStart = vi.fn();
     function MockSpeechRecognition(this: {
-      lang: string; interimResults: boolean; maxAlternatives: number;
-      onresult: unknown; onerror: unknown; onend: unknown;
-      start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>;
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onresult: unknown;
+      onerror: unknown;
+      onend: unknown;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
     }) {
       this.lang = '';
       this.interimResults = false;
@@ -555,9 +569,14 @@ describe('startVoiceSearch', () => {
 
   it('should add listening class to voice button', () => {
     function MockSpeechRecognition(this: {
-      lang: string; interimResults: boolean; maxAlternatives: number;
-      onresult: unknown; onerror: unknown; onend: unknown;
-      start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>;
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onresult: unknown;
+      onerror: unknown;
+      onend: unknown;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
     }) {
       this.lang = '';
       this.interimResults = false;
@@ -577,9 +596,14 @@ describe('startVoiceSearch', () => {
   it('should use webkitSpeechRecognition as fallback', () => {
     const mockStart = vi.fn();
     function MockWebkitSpeechRecognition(this: {
-      lang: string; interimResults: boolean; maxAlternatives: number;
-      onresult: unknown; onerror: unknown; onend: unknown;
-      start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>;
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onresult: unknown;
+      onerror: unknown;
+      onend: unknown;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
     }) {
       this.lang = '';
       this.interimResults = false;
@@ -599,9 +623,14 @@ describe('startVoiceSearch', () => {
   it('should set recognition lang to ar-SA', () => {
     let capturedLang = '';
     function MockSpeechRecognition(this: {
-      lang: string; interimResults: boolean; maxAlternatives: number;
-      onresult: unknown; onerror: unknown; onend: unknown;
-      start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>;
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onresult: unknown;
+      onerror: unknown;
+      onend: unknown;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
     }) {
       this.lang = '';
       this.interimResults = false;
@@ -612,7 +641,9 @@ describe('startVoiceSearch', () => {
       this.start = vi.fn();
       this.stop = vi.fn();
       // Capture the lang after it's set
-      setTimeout(() => { capturedLang = this.lang; }, 0);
+      setTimeout(() => {
+        capturedLang = this.lang;
+      }, 0);
     }
     (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
     vi.mocked(getVoiceListening).mockReturnValue(false);
@@ -624,10 +655,14 @@ describe('startVoiceSearch', () => {
   it('should handle onresult callback — fill search input and click search', () => {
     let onresultHandler: ((e: { results: { 0: { 0: { transcript: string } } } }) => void) | null = null;
     function MockSpeechRecognition(this: {
-      lang: string; interimResults: boolean; maxAlternatives: number;
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
       onresult: ((e: { results: { 0: { 0: { transcript: string } } } }) => void) | null;
-      onerror: unknown; onend: unknown;
-      start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>;
+      onerror: unknown;
+      onend: unknown;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
     }) {
       this.lang = '';
       this.interimResults = false;
@@ -638,7 +673,9 @@ describe('startVoiceSearch', () => {
       this.start = vi.fn();
       this.stop = vi.fn();
       // Capture the handler after construction
-      setTimeout(() => { onresultHandler = this.onresult; }, 0);
+      setTimeout(() => {
+        onresultHandler = this.onresult;
+      }, 0);
     }
     (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
 
@@ -672,11 +709,14 @@ describe('startVoiceSearch', () => {
   it('should handle onerror callback — show error toast', () => {
     let onerrorHandler: ((e: Event) => void) | null = null;
     function MockSpeechRecognition(this: {
-      lang: string; interimResults: boolean; maxAlternatives: number;
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
       onresult: unknown;
       onerror: ((e: Event) => void) | null;
       onend: unknown;
-      start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
     }) {
       this.lang = '';
       this.interimResults = false;
@@ -703,10 +743,14 @@ describe('startVoiceSearch', () => {
 
   it('should handle onend callback — stop voice search', () => {
     function MockSpeechRecognition(this: {
-      lang: string; interimResults: boolean; maxAlternatives: number;
-      onresult: unknown; onerror: unknown;
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onresult: unknown;
+      onerror: unknown;
       onend: (() => void) | null;
-      start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>;
+      start: ReturnType<typeof vi.fn>;
+      stop: ReturnType<typeof vi.fn>;
     }) {
       this.lang = '';
       this.interimResults = false;
@@ -1328,13 +1372,15 @@ describe('search highlight caching', () => {
   });
 
   it('should handle Arabic diacritics in highlighted text', () => {
-    const matches = [{
-      surah: 1,
-      surahName: 'الفاتحة',
-      ayah: 1,
-      text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ',
-      normalized: 'بسم الله الرحمن الرحيم',
-    }];
+    const matches = [
+      {
+        surah: 1,
+        surahName: 'الفاتحة',
+        ayah: 1,
+        text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ',
+        normalized: 'بسم الله الرحمن الرحيم',
+      },
+    ];
     (state as Record<string, unknown>).fullQuranText = matches;
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);

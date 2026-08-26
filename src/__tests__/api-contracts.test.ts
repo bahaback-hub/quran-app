@@ -23,6 +23,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import 'fake-indexeddb/auto';
 
+vi.unmock('../api-client.js');
+vi.unmock('../config.js');
+
 // Sample fixtures — captured from real API responses (2026-06-17).
 // These are the minimum fields the app actually reads; full responses are larger.
 
@@ -37,8 +40,28 @@ const ALQURAN_SURAH_RESPONSE = {
     revelationType: 'Meccan',
     numberOfAyahs: 7,
     ayahs: [
-      { number: 1, text: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', numberInSurah: 1, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false },
-      { number: 2, text: 'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ', numberInSurah: 2, juz: 1, manzil: 1, page: 1, ruku: 1, hizbQuarter: 1, sajda: false },
+      {
+        number: 1,
+        text: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+        numberInSurah: 1,
+        juz: 1,
+        manzil: 1,
+        page: 1,
+        ruku: 1,
+        hizbQuarter: 1,
+        sajda: false,
+      },
+      {
+        number: 2,
+        text: 'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ',
+        numberInSurah: 2,
+        juz: 1,
+        manzil: 1,
+        page: 1,
+        ruku: 1,
+        hizbQuarter: 1,
+        sajda: false,
+      },
     ],
     edition: { identifier: 'quran-uthmani', language: 'ar', name: 'Uthmani', type: 'quran', format: 'text' },
   },
@@ -80,7 +103,12 @@ const ALADHAN_TIMINGS_RESPONSE = {
         year: '2026',
       },
     },
-    meta: { latitude: 21.4225, longitude: 39.8262, timezone: 'Asia/Riyadh', method: { id: 4, name: 'Umm Al-Qura University, Makkah' } },
+    meta: {
+      latitude: 21.4225,
+      longitude: 39.8262,
+      timezone: 'Asia/Riyadh',
+      method: { id: 4, name: 'Umm Al-Qura University, Makkah' },
+    },
   },
 };
 
@@ -93,8 +121,20 @@ const TAFSIR_RESPONSE = {
 
 const MP3QURAN_RECITERS_RESPONSE = {
   reciters: [
-    { id: '1', name: 'مشاري راشد العفاسي', Server: 'https://server10.mp3quran.net/afasy', rewaya: 'حفص عن عاصم', Count: '114' },
-    { id: '2', name: 'عبد الباسط عبد الصمد', Server: 'https://server7.mp3quran.net/basit', rewaya: 'حفص عن عاصم', Count: '114' },
+    {
+      id: '1',
+      name: 'مشاري راشد العفاسي',
+      Server: 'https://server10.mp3quran.net/afasy',
+      rewaya: 'حفص عن عاصم',
+      Count: '114',
+    },
+    {
+      id: '2',
+      name: 'عبد الباسط عبد الصمد',
+      Server: 'https://server7.mp3quran.net/basit',
+      rewaya: 'حفص عن عاصم',
+      Count: '114',
+    },
   ],
 };
 
@@ -199,7 +239,6 @@ describe('Graceful degradation — API unreachable', () => {
   });
 
   it('safeFetch throws a typed HTTPError on network failure', async () => {
-    vi.unmock('../api-client.js');
     const { safeFetch, HTTPError } = await import('../api-client.js');
     // Mock global fetch to reject
     const fetchMock = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
@@ -218,7 +257,6 @@ describe('Graceful degradation — API unreachable', () => {
   });
 
   it('safeFetch throws HTTPError on 5xx response', async () => {
-    vi.unmock('../api-client.js');
     const { safeFetch, HTTPError } = await import('../api-client.js');
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
@@ -233,7 +271,6 @@ describe('Graceful degradation — API unreachable', () => {
   });
 
   it('safeFetch returns parsed JSON on 2xx response', async () => {
-    vi.unmock('../api-client.js');
     const { safeFetch } = await import('../api-client.js');
     const sampleData = { hello: 'world' };
     const fetchMock = vi.fn().mockResolvedValue({
@@ -252,7 +289,6 @@ describe('Graceful degradation — API unreachable', () => {
 
 describe('Graceful degradation — malformed JSON', () => {
   it('safeFetch throws on invalid JSON', async () => {
-    vi.unmock('../api-client.js');
     const { safeFetch } = await import('../api-client.js');
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -270,11 +306,6 @@ describe('Graceful degradation — malformed JSON', () => {
 });
 
 describe('Config — API endpoints are production-ready', () => {
-  // The setup-i18n.ts mock replaces ../config.js — unmock to test the real one.
-  beforeEach(() => {
-    vi.unmock('../config.js');
-  });
-
   it('all API endpoints use HTTPS', async () => {
     const { CONFIG } = await import('../config.js');
     expect(CONFIG.API_BASE).toMatch(/^https:\/\//);
@@ -317,13 +348,6 @@ describe('Config — API endpoints are production-ready', () => {
 });
 
 describe('Fallback constants — prayer names and order', () => {
-  // The setup-i18n.ts mock replaces ../config.js with a partial mock that
-  // only includes CONFIG (not PRAYER_ORDER, JUZ_PAGES, etc.). We unmock
-  // here so we can test the real constants.
-  beforeEach(() => {
-    vi.unmock('../config.js');
-  });
-
   it('PRAYER_ORDER excludes Sunrise (not a canonical prayer)', async () => {
     const { PRAYER_ORDER } = await import('../config.js');
     expect(PRAYER_ORDER).toEqual(['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']);
@@ -350,13 +374,7 @@ describe('Fallback constants — prayer names and order', () => {
   it('TRANSLATION_EDITIONS contains at least the 5 documented translations', async () => {
     const { TRANSLATION_EDITIONS } = await import('../config.js');
     expect(Object.keys(TRANSLATION_EDITIONS)).toEqual(
-      expect.arrayContaining([
-        'en.sahih',
-        'en.pickthall',
-        'en.yusufali',
-        'fr.hamidullah',
-        'ur.jalandhry',
-      ]),
+      expect.arrayContaining(['en.sahih', 'en.pickthall', 'en.yusufali', 'fr.hamidullah', 'ur.jalandhry']),
     );
     for (const key of Object.keys(TRANSLATION_EDITIONS)) {
       const edition = TRANSLATION_EDITIONS[key as keyof typeof TRANSLATION_EDITIONS];

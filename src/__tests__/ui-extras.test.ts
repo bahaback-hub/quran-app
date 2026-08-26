@@ -3,7 +3,12 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { updateNetworkBanner, updateReadingProgress, handleVisibilityChange, showContinueWidget } from '../ui-extras.js';
+import {
+  updateNetworkBanner,
+  updateReadingProgress,
+  handleVisibilityChange,
+  showContinueWidget,
+} from '../ui-extras.js';
 
 // Mock dom module
 vi.mock('../dom.js', () => ({
@@ -301,4 +306,4 @@ describe('showContinueWidget', () => {
     expect(document.getElementById('continueWidget')).toBeNull();
     vi.useRealTimers();
   });
-});;
+});

@@ -46,7 +46,6 @@ import { CONFIG } from './config.js';
 import { __ } from './i18n.js';
 import { shareText } from './share.js';
 
-
 /** Data shape for opening the ayah modal. */
 interface ModalAyahData {
   surah: number;
