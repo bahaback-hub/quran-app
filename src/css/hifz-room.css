@@ -959,7 +959,7 @@ body.night-mode .hifz-room-download-status[data-state='ready'] {
 /* نحجز ممرًا بين الستارة والقارئ على سطح المكتب، فلا تصل أدوات الحفظ إلى النص. */
 @media (min-width: 1100px) {
   body.hifz-room-active #surahContent {
-    margin-right: 380px;
+    margin-right: 0;
   }
 }
 
@@ -1309,7 +1309,7 @@ body.hifz-room-active .hifz-room.is-open {
   display: flex;
   flex-direction: column;
   gap: 0;
-  overflow: hidden;
+  overflow: visible;
   transform: translateY(-50%);
   direction: rtl;
   border: 1px solid color-mix(in srgb, var(--accent) 66%, transparent);
@@ -1496,8 +1496,7 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
   #readerSideTools {
     top: max(164px, calc(env(safe-area-inset-top, 0px) + 108px));
     width: 64px;
-    max-height: calc(100dvh - 245px);
-    overflow-y: auto;
+    overflow: visible;
     transform: none;
     border-radius: 0 13px 13px 0;
   }
