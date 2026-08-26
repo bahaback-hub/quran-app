@@ -22,6 +22,8 @@
 import type { SurahInfo, FavoriteEntry } from './state.js';
 import { __, __n, toArabicDigits } from './i18n.js';
 
+const APP_BASE_URL = import.meta.env.BASE_URL;
+
 /* ===================== ESCAPE UTILITY ===================== */
 
 /**
@@ -232,7 +234,7 @@ export function errorOverlay(errorMessage: string): string {
     `<p class="error-message">${escapeHtml(errorMessage)}</p>` +
     `<div class="error-actions">` +
     `<button class="btn btn-gold" onclick="location.reload()">${__('reload') || 'إعادة تحميل'}</button>` +
-    `<button class="btn" onclick="location.href='/'">${__('home') || 'الرئيسية'}</button>` +
+    `<button class="btn" onclick="location.href=${JSON.stringify(APP_BASE_URL)}">${__('home') || 'الرئيسية'}</button>` +
     `<button class="btn btn-sm" id="errorCopyBtn">${__('copy_error') || 'نسخ الخطأ'}</button>` +
     `</div></div></div>`
   );
@@ -679,7 +681,7 @@ export function errorRecoveryOverlay(errorMessage: string, errorDetails: string)
     `<p class="error-overlay-desc">${escapeHtml(errorMessage)}</p>` +
     `<div class="error-overlay-actions">` +
     `<button class="btn btn-gold" onclick="location.reload()">${__('reload') || 'إعادة تحميل'}</button>` +
-    `<button class="btn" onclick="location.href='/'">${__('home') || 'الرئيسية'}</button>` +
+    `<button class="btn" onclick="location.href=${JSON.stringify(APP_BASE_URL)}">${__('home') || 'الرئيسية'}</button>` +
     `<button class="btn btn-sm" id="errorCopyBtn">${__('copy_error') || 'نسخ الخطأ'}</button>` +
     `</div>` +
     `<details class="error-details"><summary>${__('error_details') || 'تفاصيل'}</summary>` +

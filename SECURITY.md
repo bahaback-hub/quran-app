@@ -4,7 +4,8 @@
 
 | Version | Supported          | Notes                                      |
 | ------- | ------------------ | ------------------------------------------ |
-| 3.x     | :white_check_mark: | Current — full support                     |
+| 3.1.x   | :white_check_mark: | Current — full support                     |
+| 3.0.x   | :white_check_mark: | Security fixes only                        |
 | 2.x     | :white_check_mark: | Security fixes only                        |
 | 1.x     | :warning:          | Critical security fixes only               |
 | < 1.0   | :x:                | End of life                                |
