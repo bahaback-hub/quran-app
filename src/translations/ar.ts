@@ -380,6 +380,10 @@ export default {
   bg_sunset: 'غروب',
   bg_night: 'ليل',
   theme_deep_night: 'الوضع الليلي القاتم',
+  theme_light_short: 'نهاري',
+  theme_sepia_short: 'سيبيا',
+  theme_night_short: 'ليلي',
+  theme_deep_night_short: 'ليلي قاتم',
 
   // === المصحف ===
   mushaf_loading_title: 'جاري تحميل المصحف',

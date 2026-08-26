@@ -399,6 +399,10 @@ export default {
   bg_sunset: 'Senja',
   bg_night: 'Malam',
   theme_deep_night: 'Mode malam pekat',
+  theme_light_short: 'Siang',
+  theme_sepia_short: 'Sepia',
+  theme_night_short: 'Malam',
+  theme_deep_night_short: 'Malam pekat',
 
   // === Mushaf ===
   mushaf_loading_title: 'Memuat Mushaf',
