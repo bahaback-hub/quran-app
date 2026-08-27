@@ -101,6 +101,7 @@ vi.mock('../share.js', () => ({
 vi.mock('../tafsir.js', () => ({
   toggleTafsir: vi.fn(),
   openTafsir: vi.fn(),
+  closeTafsir: vi.fn(),
   loadTafsirForCurrentAyah: vi.fn(),
 }));
 
@@ -168,6 +169,7 @@ function createDomElements() {
   dom.tafsirCurtain.classList.add('open');
   dom.tafsirCurtainBody = el('div');
   dom.tafsirCurtainGrip = el('div');
+  dom.tafsirCurtainCloseBtn = el('button');
   dom.tafsirCurtainShrinkBtn = el('button');
   dom.tafsirCurtainGrowBtn = el('button');
   dom.tafsirCurtainResetBtn = el('button');
@@ -505,6 +507,14 @@ describe('app-events', () => {
       dom.tafsirCurtainHandle!.click();
       const { toggleTafsir } = await import('../tafsir.js');
       expect(toggleTafsir).toHaveBeenCalled();
+    });
+
+    it('should close tafsir from its dedicated close button', async () => {
+      const { bindTafsirEvents } = await import('../app-events.js');
+      bindTafsirEvents();
+      dom.tafsirCurtainCloseBtn!.click();
+      const { closeTafsir } = await import('../tafsir.js');
+      expect(closeTafsir).toHaveBeenCalled();
     });
 
     it('should update tafsir edition on tafsirSelect change', async () => {

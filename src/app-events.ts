@@ -61,7 +61,7 @@ import {
 import { showSleepTimerModal } from './sleep-timer-modal.js';
 import { loadTajweedAnnotationsForSurah } from './tajweed-data.js';
 import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
-import { toggleTafsir, openTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
+import { toggleTafsir, openTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import * as audioModule from './audio.js';
 
 /** API response shape for ayah page lookup. */
@@ -324,6 +324,7 @@ export function bindAzanEvents(): void {
  */
 export function bindTafsirEvents(): void {
   bindTafsirCurtainLayout();
+  dom.tafsirCurtainCloseBtn?.addEventListener('click', closeTafsir);
   dom.translationToggle?.addEventListener('click', toggleTranslation);
   dom.tafsirSelect?.addEventListener('change', () => {
     state.currentTafsirEdition = dom.tafsirSelect!.value;

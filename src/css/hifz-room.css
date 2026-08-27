@@ -141,10 +141,12 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-header {
+  position: relative;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+  padding-left: 3rem;
 }
 
 .hifz-room-eyebrow,
@@ -167,6 +169,9 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-close {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 2.45rem;
   height: 2.45rem;
   border: 0;
@@ -1466,19 +1471,22 @@ body.hifz-room-active .hifz-room.is-open {
 #readerSideTools .reader-side-prayer .prayer-bar-close {
   position: absolute;
   top: 0;
-  right: 14px;
+  right: auto;
+  left: 14px;
   z-index: 1;
 }
 
 /* زر إغلاق الأذكار يبقى داخل الحافة الداخلية للستارة وواضحًا في جميع المظاهر. */
 #adhkarPanel .adhkar-header {
   position: relative;
-  padding-inline-end: 56px;
+  padding-inline-end: 0;
+  padding-left: 56px;
 }
 
 #adhkarPanel .adhkar-close {
   position: absolute;
-  inset-inline-end: 14px;
+  right: auto;
+  left: 14px;
   top: 0;
   z-index: 2;
   display: inline-flex;
@@ -1545,6 +1553,18 @@ body.hifz-room-active .hifz-room.is-open {
 #readerSideTools .reader-side-prayer .prayer-bar-summary strong,
 #readerSideTools .reader-side-prayer .prayer-bar-summary-time {
   display: none;
+}
+
+/* عند فتح أي ستارة قراءة، يختفي الشريط نفسه حتى يقرأ المستخدم المحتوى بلا تداخل أو تشتيت. */
+body.tafsir-curtain-active #readerSideTools,
+body.adhkar-curtain-active #readerSideTools,
+body.prayer-curtain-active #readerSideTools,
+body.hifz-room-active #readerSideTools,
+body.qibla-curtain-active #readerSideTools,
+body.favorites-curtain-active #readerSideTools {
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
 }
 
 body.sepia-mode #readerSideTools {
@@ -1657,5 +1677,15 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
 
   body.tafsir-curtain-active #readerSideTools {
     left: 0;
+  }
+
+  body.tafsir-curtain-active #readerSideTools,
+  body.adhkar-curtain-active #readerSideTools,
+  body.prayer-curtain-active #readerSideTools,
+  body.hifz-room-active #readerSideTools,
+  body.qibla-curtain-active #readerSideTools,
+  body.favorites-curtain-active #readerSideTools {
+    visibility: hidden;
+    opacity: 0;
   }
 }

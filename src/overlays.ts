@@ -262,7 +262,8 @@ const contemplationSheetHTML = `
 const qiblaOverlayHTML = `
 <div class="qibla-overlay hidden" id="qiblaOverlay" role="dialog" data-i18n-aria-label="qibla" aria-label="اتجاه القبلة" aria-modal="true">
   <div class="qibla-panel">
-    <h2>🧭 <span data-i18n="qibla">اتجاه القبلة</span></h2>
+    <h2 class="qibla-title">🧭 <span data-i18n="qibla">اتجاه القبلة</span></h2>
+    <button class="qibla-close" id="qiblaCloseBtn" type="button" aria-label="إغلاق اتجاه القبلة" data-i18n-aria-label="close" title="إغلاق" data-i18n-title="close">✖</button>
     <div class="qibla-compass" id="qiblaCompass">
       <div class="qibla-needle"></div>
       <div class="qibla-center"></div>
@@ -274,7 +275,6 @@ const qiblaOverlayHTML = `
     <div class="qibla-angle" id="qiblaAngle">---</div>
     <div class="qibla-direction" id="qiblaDirection">جاري تحديد الموقع...</div>
     <div class="qibla-status" id="qiblaStatus" aria-live="polite">جاري تفعيل البوصلة...</div>
-    <button class="qibla-close" id="qiblaCloseBtn">✖ <span data-i18n="close">إغلاق</span></button>
   </div>
 </div>
 `;

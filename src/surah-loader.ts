@@ -1016,13 +1016,16 @@ function initAyahDelegation(): void {
       return;
     }
 
-    // If the user clicked on the ayah NUMBER (not the text), play from this ayah.
-    // playCurrentAyah is statically imported at the top of this module —
-    // no need for dynamic import (which produced INEFFECTIVE_DYNAMIC_IMPORT
-    // because audio.ts is already in the main chunk via other importers).
-    if (target.closest('.ayah-number')) {
+    const tafsirIsOpen = dom.tafsirCurtain?.classList.contains('open') === true;
+
+    // When tafsir is visible, selecting any part of an ayah changes the active
+    // ayah immediately so the curtain follows the reader's choice. Otherwise,
+    // preserve the normal behavior: numbers play, while ayah text opens details.
+    if (target.closest('.ayah-number') || tafsirIsOpen) {
       state.currentAyahIndex = idx;
-      playCurrentAyah();
+      if (target.closest('.ayah-number')) {
+        playCurrentAyah();
+      }
       highlightCurrentAyah();
       updatePlayerInfo();
       return;
