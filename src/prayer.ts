@@ -565,6 +565,7 @@ export function showQiblaCompass(): void {
   }
   overlay.classList.remove('hidden');
   overlay.style.display = 'flex';
+  document.body.classList.add('qibla-curtain-active');
 
   const compass = document.getElementById('qiblaCompass');
   const needle = compass?.querySelector<HTMLElement>('.qibla-needle') || null;
@@ -730,5 +731,6 @@ export function hideQiblaCompass(): void {
     overlay.classList.add('hidden');
     overlay.style.display = 'none';
   }
+  document.body.classList.remove('qibla-curtain-active');
   removeQiblaSources();
 }

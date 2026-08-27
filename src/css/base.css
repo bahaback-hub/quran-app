@@ -24,7 +24,9 @@ body {
   body.tafsir-curtain-active,
   body.adhkar-curtain-active,
   body.prayer-curtain-active,
-  body.hifz-room-active {
+  body.hifz-room-active,
+  body.qibla-curtain-active,
+  body.favorites-curtain-active {
     transition: background 0.5s ease, padding-left 0.18s ease;
   }
 
@@ -42,6 +44,11 @@ body {
 
   body.hifz-room-active {
     padding-left: calc(20px + min(360px, 34vw));
+  }
+
+  body.qibla-curtain-active,
+  body.favorites-curtain-active {
+    padding-left: min(420px, 36vw);
   }
 }
 

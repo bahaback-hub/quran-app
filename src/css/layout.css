@@ -414,8 +414,8 @@
   overflow-y: auto;
   z-index: 35;
 }
+/* تنظيم هادئ: البحث يتبع قفل القراءة، والأوضاع الأربعة ظاهرة بعد «وضوح». */
 .theme-menu {
-  grid-area: theme;
   order: unset;
 }
 .theme-switcher {
@@ -463,6 +463,32 @@
 }
 .theme-menu.open .theme-dropdown-menu {
   display: grid;
+}
+.theme-visible-grid .theme-dropdown-menu {
+  position: static;
+  display: grid;
+  width: 82px;
+  min-width: 82px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  direction: rtl;
+}
+.theme-visible-grid .theme-btn {
+  width: 40px;
+  height: 30px;
+  min-height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  font-size: 12px;
+  gap: 0;
+}
+.theme-visible-grid .theme-label {
+  font-size: 7px;
 }
 .theme-btn {
   width: auto;
@@ -1009,11 +1035,11 @@ body.night-mode .control-group label {
 .reader-command-display {
   grid-area: display;
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto auto minmax(0, 1fr) auto;
   grid-template-areas:
-    'label pin spacer zoom'
-    'modes modes modes modes'
-    'page page page page';
+    'label pin search spacer zoom'
+    'modes modes modes modes modes'
+    'page page page page page';
   justify-content: flex-start;
   align-items: stretch;
   gap: 5px;
@@ -1047,6 +1073,29 @@ body.night-mode .control-group label {
 }
 .reader-toolbar-pin:active {
   transform: scale(0.96);
+}
+.reader-command-search {
+  grid-area: search;
+  position: relative;
+  z-index: 40;
+  width: 36px;
+  min-height: 32px;
+}
+.reader-command-search.is-expanded {
+  z-index: 60;
+}
+.reader-command-search .header-search-trigger {
+  width: 32px;
+  height: 32px;
+}
+#headerSearch.reader-command-search .header-search-input {
+  position: absolute;
+  top: 0;
+  right: auto;
+  left: 0;
+  z-index: 61;
+  width: 420px;
+  max-width: calc(100vw - 40px);
 }
 .reader-command-display .view-mode-group {
   grid-area: modes;

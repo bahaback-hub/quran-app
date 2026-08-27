@@ -174,10 +174,12 @@ export function openFavorites(): void {
   renderFavorites();
   wireFavoritesExport();
   dom.favoritesPanel?.classList.add('open');
+  document.body.classList.add('favorites-curtain-active');
 }
 /** Close the favorites panel. */
 export function closeFavorites(): void {
   dom.favoritesPanel?.classList.remove('open');
+  document.body.classList.remove('favorites-curtain-active');
 }
 
 /* ===================== EXPORT ===================== */
