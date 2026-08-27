@@ -78,31 +78,36 @@
   display: none;
 }
 .tafsir-curtain-topbar {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  padding-left: 40px;
   padding-bottom: 12px;
   margin-bottom: 13px;
   border-bottom: 2px solid var(--tafsir-border);
 }
 .tafsir-curtain-header {
-  font-size: 19px;
+  overflow: hidden;
+  font-size: 17px;
   font-weight: bold;
   color: var(--primary-light);
   flex: 1;
   min-width: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   text-align: right;
 }
 .tafsir-curtain-size-controls {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   direction: ltr;
 }
 .tafsir-size-btn {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 1px solid var(--tafsir-border);
   border-radius: 8px;
@@ -115,6 +120,32 @@
 }
 .tafsir-size-reset {
   font-size: 18px;
+}
+.tafsir-curtain-close {
+  position: absolute;
+  top: 0;
+  right: auto;
+  left: 0;
+  z-index: 2;
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--tafsir-border);
+  border-radius: 50%;
+  background: var(--select-bg);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tafsir-curtain-close:hover,
+.tafsir-curtain-close:focus-visible {
+  border-color: var(--accent);
+  background: var(--hover-bg);
 }
 .tafsir-size-btn:hover {
   background: var(--hover-bg);
@@ -222,9 +253,11 @@
   left: 0;
 }
 .favorites-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-left: 56px;
   border-bottom: 2px solid var(--accent);
   padding-bottom: 12px;
   margin-bottom: 14px;
@@ -237,6 +270,9 @@ body.night-mode .favorites-header h2 {
   color: var(--accent);
 }
 .favorites-close {
+  position: absolute;
+  top: 0;
+  left: 0;
   background: var(--error-bg);
   color: var(--error-text);
   border: none;
@@ -590,9 +626,11 @@ body.night-mode .settings-section-title {
   left: 0;
 }
 .adhkar-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-left: 56px;
   border-bottom: 2px solid var(--accent);
   padding-bottom: 12px;
   margin-bottom: 14px;
@@ -606,6 +644,9 @@ body.night-mode .adhkar-header h2 {
   color: var(--accent);
 }
 .adhkar-close {
+  position: absolute;
+  top: 0;
+  left: 0;
   background: var(--error-bg);
   color: var(--error-text);
   border: none;
