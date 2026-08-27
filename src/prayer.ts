@@ -5,7 +5,7 @@ import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
 import { prayerFetch } from './api-client.js';
-import { __, getPrayerName } from './i18n.js';
+import { __, getCityName, getPrayerName } from './i18n.js';
 import { prayerTimesRows } from './templates.js';
 import { updatePlayPauseBtn } from './audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
@@ -50,6 +50,7 @@ interface QiblaCoordinates {
 /* ===================== CLOCK ===================== */
 
 let countdownInterval: ReturnType<typeof setInterval> | null = null;
+let prayerTimesLastUpdatedAt: Date | null = null;
 
 export function startClock(): void {
   updateDates();
@@ -98,9 +99,42 @@ function updateDates(): void {
   if (dom.bigClockTime2) {
     dom.bigClockTime2.textContent = timeStr;
   }
+  updatePrayerCurtainContext(now);
   const collapsedClock = document.getElementById('collapsedClock');
   if (collapsedClock) {
     collapsedClock.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+  }
+}
+
+/** Keep the prayer curtain context in sync without coupling it to the settings panel. */
+function updatePrayerCurtainContext(now: Date): void {
+  const location = document.getElementById('prayerBarLocation');
+  if (location) {
+    const city = dom.cityInput?.value.trim() || state.city;
+    const country = dom.countryInput?.value.trim() || state.country;
+    const cityLabel = getCityName(city.toLowerCase());
+    const countryLabel = country === 'SA' ? 'المملكة العربية السعودية' : country;
+    location.textContent = ['📍', cityLabel, countryLabel].filter(Boolean).join(' ');
+  }
+
+  const hijri = document.getElementById('prayerBarHijri');
+  if (hijri) {
+    try {
+      hijri.textContent = `📅 ${_hijriFormatter.format(now)}`;
+    } catch {
+      hijri.textContent = '';
+    }
+  }
+
+  const gregorian = document.getElementById('prayerBarDate');
+  if (gregorian) {
+    gregorian.textContent = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  const updated = document.getElementById('prayerBarUpdated');
+  if (updated) {
+    const stamp = prayerTimesLastUpdatedAt || now;
+    updated.textContent = `◷ تم التحديث ${pad2(stamp.getHours())}:${pad2(stamp.getMinutes())}`;
   }
 }
 
@@ -231,6 +265,7 @@ function renderPrayerTimes(): void {
   if (!state.prayerTimes) {
     return;
   }
+  prayerTimesLastUpdatedAt = new Date();
   const order: string[] = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
   const next = getNextPrayerKey();
   const times = order.map((key) => {
@@ -241,6 +276,7 @@ function renderPrayerTimes(): void {
   getPrayerTimesContainers().forEach((container) => {
     container.innerHTML = prayerTimesRows(times);
   });
+  updatePrayerCurtainContext(prayerTimesLastUpdatedAt);
   updateCountdowns();
 }
 
