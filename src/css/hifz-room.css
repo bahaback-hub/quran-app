@@ -1420,17 +1420,19 @@ body.hifz-room-active .hifz-room.is-open {
 }
 
 #readerSideTools .reader-side-prayer .prayer-bar-details {
-  top: 0;
+  /* يبقى موضع الستارة ثابتًا مع نافذة المتصفح، لا مع شريط الأدوات المتمركز. */
+  transform: translateX(-100%);
+  top: calc(50% - 50vh - 7px);
   left: 0;
-  z-index: 940;
+  z-index: 1250;
   display: block;
   box-sizing: border-box;
-  width: min(400px, 92vw);
+  width: min(var(--tafsir-curtain-width, 380px), 92vw);
   height: 100dvh;
   max-height: none;
   padding: 24px 22px;
   border-right: 1px solid color-mix(in srgb, var(--accent) 56%, transparent);
-  border-radius: 0 18px 18px 0;
+  border-radius: 0;
   background: var(--container-bg);
   box-shadow: 12px 0 38px rgb(0 0 0 / 25%);
   opacity: 0;
@@ -1445,6 +1447,27 @@ body.hifz-room-active .hifz-room.is-open {
   visibility: visible;
   pointer-events: auto;
   transform: translateX(0);
+}
+
+/* لا نحرّك الحاوية الأم أثناء ضغط زر الإغلاق، وإلا انتقلت الستارة من تحت المؤشر. */
+#readerSideTools .reader-side-prayer.expanded:hover,
+#readerSideTools .reader-side-prayer.expanded:active {
+  width: 64px;
+  transform: none;
+}
+
+#readerSideTools .reader-side-prayer .prayer-bar-details-heading {
+  position: relative;
+  justify-content: center;
+  min-height: 32px;
+  padding-inline: 48px;
+}
+
+#readerSideTools .reader-side-prayer .prayer-bar-close {
+  position: absolute;
+  top: 0;
+  right: 14px;
+  z-index: 1;
 }
 
 #readerSideTools .reader-side-prayer .prayer-bar-summary {
