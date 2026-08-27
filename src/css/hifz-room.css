@@ -1470,6 +1470,73 @@ body.hifz-room-active .hifz-room.is-open {
   z-index: 1;
 }
 
+/* زر إغلاق الأذكار يبقى داخل الحافة الداخلية للستارة وواضحًا في جميع المظاهر. */
+#adhkarPanel .adhkar-header {
+  position: relative;
+  padding-inline-end: 56px;
+}
+
+#adhkarPanel .adhkar-close {
+  position: absolute;
+  inset-inline-end: 14px;
+  top: 0;
+  z-index: 2;
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  background: var(--container-bg);
+  color: var(--text-primary);
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* محتوى المواقيت فقط: موقع وتاريخ، ثم الصلوات من الفجر إلى العشاء، ثم وقت التحديث. */
+#readerSideTools .reader-side-prayer .prayer-bar-context {
+  margin: 6px 0 14px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+#readerSideTools .reader-side-prayer .prayer-bar-context p,
+#readerSideTools .reader-side-prayer .prayer-bar-updated {
+  margin: 0;
+}
+
+#readerSideTools .reader-side-prayer .prayer-bar-location {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+#readerSideTools .reader-side-prayer .prayer-bar-items {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+#readerSideTools .reader-side-prayer .prayer-row {
+  min-height: 42px;
+  padding: 9px 2px;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: 0;
+  font-size: 14px;
+}
+
+#readerSideTools .reader-side-prayer .prayer-bar-updated {
+  margin-top: 12px;
+  color: var(--text-muted, var(--text-secondary));
+  font-size: 11px;
+  text-align: center;
+}
+
 #readerSideTools .reader-side-prayer .prayer-bar-summary {
   gap: 1px;
   font-size: 10px;

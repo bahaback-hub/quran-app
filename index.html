@@ -319,7 +319,13 @@
               <span data-i18n="prayer_times">مواقيت اليوم</span>
               <button class="prayer-bar-close" id="collapseBarBtn" type="button" aria-label="إغلاق مواقيت الصلاة" title="إغلاق">✕</button>
             </div>
+            <div class="prayer-bar-context" aria-live="polite">
+              <p class="prayer-bar-location" id="prayerBarLocation">📍</p>
+              <p class="prayer-bar-date prayer-bar-hijri" id="prayerBarHijri">📅</p>
+              <p class="prayer-bar-date" id="prayerBarDate"></p>
+            </div>
             <div class="prayer-bar-items" id="prayerTimesRows" role="list"></div>
+            <p class="prayer-bar-updated" id="prayerBarUpdated">◷</p>
             <span class="sr-only" id="bigClockTime">--:--</span>
             <span class="sr-only" id="countdownDisplay">--:--:--</span>
             <span class="sr-only" id="collapsedClock">--:--</span>

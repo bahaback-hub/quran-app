@@ -105,6 +105,7 @@ vi.mock('../i18n.js', () => ({
     if (key === 'prayer_countdown_header' && args.length >= 2) return `${key}:${args[0]}:${args[1]}`;
     return key;
   }),
+  getCityName: (key: string) => key,
   getPrayerName: mockGetPrayerName,
   getWeekday: mockGetWeekday,
   setLocale: vi.fn(),
