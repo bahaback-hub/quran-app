@@ -1555,16 +1555,40 @@ body.hifz-room-active .hifz-room.is-open {
   display: none;
 }
 
-/* عند فتح أي ستارة قراءة، يختفي الشريط نفسه حتى يقرأ المستخدم المحتوى بلا تداخل أو تشتيت. */
+/* عند فتح ستارة قراءة، تختفي أزرار الشريط فقط. ستارة المواقيت تبقى ظاهرة وقابلة للإغلاق. */
 body.tafsir-curtain-active #readerSideTools,
 body.adhkar-curtain-active #readerSideTools,
-body.prayer-curtain-active #readerSideTools,
 body.hifz-room-active #readerSideTools,
 body.qibla-curtain-active #readerSideTools,
 body.favorites-curtain-active #readerSideTools {
   pointer-events: none;
+}
+
+body.tafsir-curtain-active #readerSideTools > *,
+body.adhkar-curtain-active #readerSideTools > *,
+body.hifz-room-active #readerSideTools > *,
+body.qibla-curtain-active #readerSideTools > *,
+body.favorites-curtain-active #readerSideTools > * {
   visibility: hidden;
   opacity: 0;
+  pointer-events: none;
+}
+
+body.prayer-curtain-active #readerSideTools {
+  pointer-events: none;
+}
+
+body.prayer-curtain-active #readerSideTools > :not(.reader-side-prayer),
+body.prayer-curtain-active #readerSideTools .reader-side-prayer .prayer-bar-toggle {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.prayer-curtain-active #readerSideTools .reader-side-prayer .prayer-bar-details {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 body.sepia-mode #readerSideTools {
@@ -1681,11 +1705,9 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
 
   body.tafsir-curtain-active #readerSideTools,
   body.adhkar-curtain-active #readerSideTools,
-  body.prayer-curtain-active #readerSideTools,
   body.hifz-room-active #readerSideTools,
   body.qibla-curtain-active #readerSideTools,
   body.favorites-curtain-active #readerSideTools {
-    visibility: hidden;
-    opacity: 0;
+    pointer-events: none;
   }
 }
