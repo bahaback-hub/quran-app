@@ -1773,3 +1773,8 @@ body.favorites-curtain-active #readerSideTools {
     outline-offset: 2px;
   }
 }
+
+/* The focused session stage is the visible target for the in-room display controls. */
+body.hifz-room-focused-active .hifz-room-stage {
+  display: flex;
+}
