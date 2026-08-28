@@ -1728,3 +1728,10 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
   color: var(--hifz-curtain-accent-text) !important;
   background: var(--hifz-curtain-handle-hover) !important;
 }
+
+/* The Hifz drawer owns the screen while open; hide the entire reader rail so it cannot overlay the drawer. */
+body.hifz-room-active #readerSideTools {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
