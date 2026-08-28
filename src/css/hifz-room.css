@@ -1745,3 +1745,31 @@ body.favorites-curtain-active #readerSideTools {
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* Touch and TV-friendly surah selection: use the native list control instead of datalist. */
+@media (max-width: 760px), (hover: none) {
+  .hifz-room-field-full .hifz-room-surah-search {
+    display: none;
+  }
+
+  .hifz-room-field-full .hifz-room-surah-native {
+    display: block;
+    width: 100%;
+    min-height: 3.25rem;
+    box-sizing: border-box;
+    padding: 0 0.8rem;
+    border: 2px solid color-mix(in srgb, var(--hifz-curtain-accent) 48%, transparent);
+    border-radius: 10px;
+    color: var(--hifz-curtain-text);
+    background: color-mix(in srgb, var(--hifz-curtain-bg) 78%, var(--hifz-curtain-surface));
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .hifz-room-field-full .hifz-room-surah-native:focus-visible {
+    outline: 3px solid var(--hifz-curtain-accent);
+    outline-offset: 2px;
+  }
+}
