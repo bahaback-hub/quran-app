@@ -120,6 +120,10 @@ function syncPresentationVideoShareTrigger(): void {
   trigger.setAttribute('title', __('presentation_share_video'));
 }
 
+export function getPresentationShareActionKind(videoReady: boolean): 'image' | 'video' {
+  return videoReady ? 'video' : 'image';
+}
+
 function setPreviewText(): void {
   const heading = document.getElementById('presentationShareHeading');
   const status = document.getElementById('presentationShareStatus');
@@ -135,8 +139,11 @@ function setPreviewText(): void {
   if (status && !status.dataset['state']) {
     status.textContent = __('presentation_share_prepare');
   }
+  const readyVideo = Boolean(videoBlob && videoBlobKey === getVideoBlobKey());
+  const shareActionKind = getPresentationShareActionKind(readyVideo);
   if (share) {
-    share.textContent = `↗ ${__('presentation_share_now')}`;
+    share.textContent = `↗ ${shareActionKind === 'video' ? __('presentation_share_video_now') : __('presentation_share_now')}`;
+    share.setAttribute('aria-label', shareActionKind === 'video' ? __('presentation_share_video_now') : __('presentation_share_now'));
   }
   if (download) {
     download.textContent = `↓ ${__('presentation_share_download')}`;
@@ -154,8 +161,8 @@ function setPreviewText(): void {
     const ready = Boolean(videoBlob && videoBlobKey === getVideoBlobKey());
     video.textContent = ready ? `↗ ${__('presentation_share_video_now')}` : `🎞 ${__('presentation_share_video')}`;
     const available = isAlafasyVideoShareAvailable();
-    video.classList.toggle('hidden', !available);
-    video.disabled = !available;
+    video.classList.toggle('hidden', !available || ready);
+    video.disabled = !available || ready;
   }
   if (videoDownload) {
     const ready = Boolean(videoBlob && videoBlobKey === getVideoBlobKey());
@@ -920,6 +927,22 @@ async function handlePresentationVideoShare(): Promise<void> {
   }
 }
 
+async function handlePresentationShareNow(): Promise<void> {
+  const currentKey = getVideoBlobKey();
+  if (getPresentationShareActionKind(Boolean(videoBlob && videoBlobKey === currentKey)) === 'video') {
+    const result = await sharePresentationVideo(videoBlob!);
+    if (result === 'unavailable') {
+      downloadShareVideo(videoBlob!);
+      updatePreviewStatus(__('presentation_share_video_download_hint'), 'video-download');
+    }
+    return;
+  }
+  const result = await sharePresentationImage();
+  if (result === 'unavailable') {
+    updatePreviewStatus(__('presentation_share_download_hint'), 'download');
+  }
+}
+
 async function shareFromPresentationTrigger(): Promise<void> {
   try {
     const result = await sharePresentationImage();
@@ -953,10 +976,9 @@ export function initPresentationShare(): void {
   document.getElementById('presentationShareCloseBtn')?.addEventListener('click', closePresentationSharePreview);
   document.getElementById('presentationShareDownloadBtn')?.addEventListener('click', downloadShareImage);
   document.getElementById('presentationShareNativeBtn')?.addEventListener('click', () => {
-    void sharePresentationImage().then((result) => {
-      if (result === 'unavailable') {
-        updatePreviewStatus(__('presentation_share_download_hint'), 'download');
-      }
+    void handlePresentationShareNow().catch((error) => {
+      console.warn('[PresentationShare] Share action failed', error);
+      updatePreviewStatus(__('presentation_share_failed'), 'failed');
     });
   });
   document.getElementById('presentationShareVideoBtn')?.addEventListener('click', () => {
