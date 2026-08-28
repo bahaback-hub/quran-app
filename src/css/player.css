@@ -364,3 +364,11 @@ body.night-mode .collapsed-content {
 body.night-mode .expanded-content {
   background: #1a1f2e;
 }
+
+/* Keep the expanded player clear of the fixed reader-side rail and its lower actions. */
+@media (min-width: 761px) {
+  .player:not(.collapsed) {
+    left: 132px;
+    right: 0;
+  }
+}
