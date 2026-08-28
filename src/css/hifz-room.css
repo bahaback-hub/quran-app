@@ -1735,3 +1735,13 @@ body.hifz-room-active #readerSideTools {
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+/* Reading-side drawers own the screen while open; hide the shared rail to prevent overlap. */
+body.tafsir-curtain-active #readerSideTools,
+body.adhkar-curtain-active #readerSideTools,
+body.qibla-curtain-active #readerSideTools,
+body.favorites-curtain-active #readerSideTools {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
