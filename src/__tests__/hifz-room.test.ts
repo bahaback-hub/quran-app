@@ -59,6 +59,12 @@ const {
   mockIsSurahCached,
   mockPlayCurrentAyah,
   mockTogglePlayPause,
+  mockCloseTafsir,
+  mockCloseAdhkarPanel,
+  mockCloseFavorites,
+  mockCloseSettings,
+  mockHideQiblaCompass,
+  mockTogglePrayerBar,
 } = vi.hoisted(() => ({
   mockState: {
     currentSurah: 1,
@@ -80,6 +86,12 @@ const {
   mockIsSurahCached: vi.fn(),
   mockPlayCurrentAyah: vi.fn().mockResolvedValue(undefined),
   mockTogglePlayPause: vi.fn(),
+  mockCloseTafsir: vi.fn(),
+  mockCloseAdhkarPanel: vi.fn(),
+  mockCloseFavorites: vi.fn(),
+  mockCloseSettings: vi.fn(),
+  mockHideQiblaCompass: vi.fn(),
+  mockTogglePrayerBar: vi.fn(),
 }));
 
 vi.mock('../i18n.js', () => ({
@@ -95,6 +107,11 @@ vi.mock('../surah-loader.js', () => ({
 }));
 vi.mock('../audio.js', () => ({ playCurrentAyah: mockPlayCurrentAyah, togglePlayPause: mockTogglePlayPause }));
 vi.mock('../audio-cache.js', () => ({ cacheSurahAudio: mockCacheSurahAudio, isSurahCached: mockIsSurahCached }));
+vi.mock('../tafsir.js', () => ({ closeTafsir: mockCloseTafsir }));
+vi.mock('../adhkar.js', () => ({ closeAdhkarPanel: mockCloseAdhkarPanel }));
+vi.mock('../favorites.js', () => ({ closeFavorites: mockCloseFavorites }));
+vi.mock('../settings.js', () => ({ closeSettings: mockCloseSettings }));
+vi.mock('../prayer.js', () => ({ hideQiblaCompass: mockHideQiblaCompass, togglePrayerBar: mockTogglePrayerBar }));
 vi.mock('../reciters.js', () => ({
   RECITERS: [{ id: 'ar.alafasy' }, { id: 'ar.husary' }],
   getReciterDisplayName: (reciter: { id: string }) => (reciter.id === 'ar.husary' ? 'الحصري' : 'العفاسي'),
@@ -230,6 +247,21 @@ describe('Hifz Room', () => {
     expect(room.getAttribute('aria-hidden')).toBe('true');
     expect(room.hasAttribute('inert')).toBe(true);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('closes competing side surfaces before opening the Hifz Room', () => {
+    document.body.classList.add('prayer-curtain-active');
+    initHifzRoom();
+
+    openHifzRoom();
+
+    expect(mockCloseTafsir).toHaveBeenCalledTimes(1);
+    expect(mockCloseAdhkarPanel).toHaveBeenCalledTimes(1);
+    expect(mockCloseFavorites).toHaveBeenCalledTimes(1);
+    expect(mockCloseSettings).toHaveBeenCalledTimes(1);
+    expect(mockHideQiblaCompass).toHaveBeenCalledTimes(1);
+    expect(mockTogglePrayerBar).toHaveBeenCalledTimes(1);
+    expect(isHifzRoomOpen()).toBe(true);
   });
 
   it('uses H and Escape without capturing editable field input', () => {

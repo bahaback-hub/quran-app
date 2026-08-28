@@ -11,6 +11,11 @@ import { getReciterDisplayName, RECITERS } from './reciters.js';
 import { highlightCurrentAyah, loadAudioUrlsForSession, loadSurah } from './surah-loader.js';
 import { state } from './state.js';
 import { storage } from './storage.js';
+import { closeTafsir } from './tafsir.js';
+import { closeAdhkarPanel } from './adhkar.js';
+import { closeFavorites } from './favorites.js';
+import { closeSettings } from './settings.js';
+import { hideQiblaCompass, togglePrayerBar } from './prayer.js';
 
 const ROOM_ID = 'hifzRoom';
 const TOGGLE_ID = 'hifzRoomToggle';
@@ -828,6 +833,21 @@ function syncHifzCurtainReveal(room: HTMLElement): void {
   applyHifzCurtainReveal(room, typeof savedReveal === 'number' ? savedReveal : getHifzCurtainWidth(room), false);
 }
 
+/**
+ * Close side panels and overlays that would otherwise cover the Hifz Room.
+ * Each feature keeps its own cleanup in its exported close helper.
+ */
+function closeCompetingSideSurfaces(): void {
+  closeTafsir();
+  closeAdhkarPanel();
+  closeFavorites();
+  closeSettings();
+  hideQiblaCompass();
+  if (document.body.classList.contains('prayer-curtain-active')) {
+    togglePrayerBar();
+  }
+}
+
 export function openHifzRoom(restoreReveal = true): void {
   const room = document.getElementById(ROOM_ID);
   const closeButton = document.getElementById('hifzRoomClose') as HTMLButtonElement | null;
@@ -835,6 +855,7 @@ export function openHifzRoom(restoreReveal = true): void {
   if (!room) {
     return;
   }
+  closeCompetingSideSurfaces();
   if (restoreReveal) {
     syncHifzCurtainReveal(room);
   }
