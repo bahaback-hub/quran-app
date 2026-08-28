@@ -589,6 +589,7 @@ function updateFocusedSession(room: HTMLElement, plan: HifzPlan): void {
     : visibleAyahs.map((ayah) => `${ayah.text} ﴿${ayah.numberInSurah}﴾`).join('   ');
   controls.stage.classList.toggle('is-text-hidden', textHidden);
   controls.stage.classList.toggle('is-range-view', showRange);
+  applyReaderAyahDisplay(room);
   controls.play.textContent = label(state.isPlaying ? 'pause' : 'play');
   controls.restart.textContent = label('hifz_room_restart');
   controls.repeat.textContent = label(
@@ -601,6 +602,24 @@ function updateFocusedSession(room: HTMLElement, plan: HifzPlan): void {
   controls.end.textContent = label('hifz_room_end');
   fillReciterOptions(controls.reciter, plan.reciter);
   fillSpeedOptions(controls.speed, plan.speed);
+}
+
+function applyReaderAyahDisplay(room: HTMLElement): void {
+  if (!room.classList.contains('hifz-room-focused')) {
+    return;
+  }
+  const textHidden = room.classList.contains('hifz-room-text-hidden');
+  const showRange = room.classList.contains('hifz-room-show-range');
+  const ayahs = Array.from(document.querySelectorAll<HTMLElement>('#surahContent .ayah'));
+  ayahs.forEach((ayah) => {
+    const shouldHide = textHidden || !showRange;
+    ayah.classList.toggle('hifdh-mode', shouldHide);
+    ayah.classList.remove('revealed');
+  });
+  if (!textHidden && !showRange) {
+    const current = ayahs[state.currentAyahIndex] || ayahs.find((ayah) => ayah.classList.contains('current'));
+    current?.classList.add('revealed');
+  }
 }
 
 function applySessionAudioPreferences(plan: HifzPlan): void {
