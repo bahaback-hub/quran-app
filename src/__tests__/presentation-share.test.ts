@@ -46,6 +46,12 @@ function mountPreview(): void {
 }
 
 describe('presentation image sharing', () => {
+  it('switches the primary share action to video after video generation completes', async () => {
+    const { getPresentationShareActionKind } = await import('../presentation-share.js');
+    expect(getPresentationShareActionKind(false)).toBe('image');
+    expect(getPresentationShareActionKind(true)).toBe('video');
+  });
+
   let fillText: ReturnType<typeof vi.fn>;
   let strokeRect: ReturnType<typeof vi.fn>;
   let renderedCanvasSize: [number, number] | null;
