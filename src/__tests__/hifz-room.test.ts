@@ -483,13 +483,13 @@ describe('Hifz Room', () => {
     room.querySelector<HTMLButtonElement>('#hifzRoomPlay')!.click();
     expect(mockTogglePlayPause).toHaveBeenCalledTimes(1);
     room.querySelector<HTMLButtonElement>('#hifzRoomRestart')!.click();
-    expect(mockPlayCurrentAyah).toHaveBeenCalledTimes(1);
+    expect(mockPlayCurrentAyah).toHaveBeenCalledTimes(2);
     room.querySelector<HTMLButtonElement>('#hifzRoomEnd')!.click();
     expect(room.classList.contains('hifz-room-focused')).toBe(false);
     expect(stage.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('keeps the focused session running when X hides its controls, then restores them on interaction', async () => {
+  it('keeps the focused session controls recoverable and closes on X', async () => {
     addPlayerControls();
     initHifzRoom();
     openHifzRoom();
@@ -504,10 +504,10 @@ describe('Hifz Room', () => {
     expect(document.body.classList.contains('hifz-room-tools-hidden')).toBe(false);
     room.querySelector<HTMLButtonElement>('#hifzRoomClose')!.click();
 
-    expect(room.classList.contains('is-open')).toBe(true);
-    expect(room.classList.contains('hifz-room-focused')).toBe(true);
-    expect(document.body.classList.contains('hifz-room-focused-active')).toBe(true);
-    expect(document.body.classList.contains('hifz-room-tools-hidden')).toBe(true);
+    expect(room.classList.contains('is-open')).toBe(false);
+    expect(room.classList.contains('hifz-room-focused')).toBe(false);
+    expect(document.body.classList.contains('hifz-room-focused-active')).toBe(false);
+    expect(document.body.classList.contains('hifz-room-tools-hidden')).toBe(false);
   });
 
   it('retains the room on the physical right edge when the language changes', () => {

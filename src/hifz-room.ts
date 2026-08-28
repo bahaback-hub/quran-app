@@ -925,6 +925,8 @@ async function startHifzSession(room: HTMLElement): Promise<void> {
     controls.status.textContent = label('hifz_room_session_active');
     room.classList.add('hifz-room-session-active');
     enterFocusedSession(room, plan);
+    // The Start button is a user gesture; begin the selected portion immediately.
+    await playCurrentAyah();
   } catch {
     controls.status.textContent = label('hifz_room_load_failed');
   } finally {
@@ -1063,13 +1065,7 @@ export function initHifzRoom(): void {
   refreshForm(room);
   const closeButton = room.querySelector<HTMLButtonElement>('#hifzRoomClose');
   closeButton?.setAttribute('aria-label', `${label('close')} ${label('hifz_room')}`);
-  closeButton?.addEventListener('click', () => {
-    if (room.classList.contains('hifz-room-focused')) {
-      hideFocusedControls(room);
-      return;
-    }
-    closeHifzRoom(true);
-  });
+  closeButton?.addEventListener('click', () => closeHifzRoom(true));
   room.querySelector<HTMLButtonElement>('#hifzRoomReturn')?.addEventListener('click', () => closeHifzRoom(false));
   getControls(room)?.start.addEventListener('click', () => void startHifzSession(room));
   getControls(room)?.download.addEventListener('click', () => void downloadSessionAudio(room));
@@ -1182,11 +1178,7 @@ export function initHifzRoom(): void {
       if (event.key === 'Escape' && isHifzRoomOpen()) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        if (room.classList.contains('hifz-room-focused')) {
-          hideFocusedControls(room);
-        } else {
-          closeHifzRoom(true);
-        }
+        closeHifzRoom(true);
         return;
       }
       showFocusedControls(room);
@@ -1200,11 +1192,7 @@ export function initHifzRoom(): void {
         event.preventDefault();
         event.stopImmediatePropagation();
         if (isHifzRoomOpen()) {
-          if (room.classList.contains('hifz-room-focused')) {
-            hideFocusedControls(room);
-          } else {
-            closeHifzRoom(true);
-          }
+          closeHifzRoom(true);
         } else {
           openHifzRoom();
         }
