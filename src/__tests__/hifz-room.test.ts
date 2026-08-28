@@ -489,7 +489,7 @@ describe('Hifz Room', () => {
     expect(stage.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('keeps the focused session controls recoverable and closes on X', async () => {
+  it('keeps the focused session controls visible and closes on X', async () => {
     addPlayerControls();
     initHifzRoom();
     openHifzRoom();
@@ -498,7 +498,8 @@ describe('Hifz Room', () => {
     await Promise.resolve();
     await Promise.resolve();
     vi.advanceTimersByTime(3_000);
-    expect(document.body.classList.contains('hifz-room-tools-hidden')).toBe(true);
+    expect(document.body.classList.contains('hifz-room-tools-hidden')).toBe(false);
+    expect(document.getElementById('player')?.classList.contains('collapsed')).toBe(true);
 
     document.dispatchEvent(new Event('pointermove'));
     expect(document.body.classList.contains('hifz-room-tools-hidden')).toBe(false);

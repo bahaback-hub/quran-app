@@ -663,21 +663,16 @@ function hideFocusedControls(room: HTMLElement): void {
   if (!room.classList.contains('hifz-room-focused')) {
     return;
   }
+  // Session controls must remain visible and interactive; only cancel any legacy timer.
   clearFocusedControlsHideTimer();
-  document.body.classList.add('hifz-room-tools-hidden');
-  room.setAttribute('aria-hidden', 'true');
-  room.setAttribute('inert', '');
-  const activeElement = document.activeElement;
-  if (activeElement instanceof HTMLElement) {
-    activeElement.blur?.();
-  }
+  document.body.classList.remove('hifz-room-tools-hidden');
+  room.setAttribute('aria-hidden', 'false');
+  room.removeAttribute('inert');
 }
 
 function scheduleFocusedControlsHide(room: HTMLElement): void {
+  // Do not auto-hide the session panel; its controls must stay available.
   clearFocusedControlsHideTimer();
-  if (room.classList.contains('hifz-room-focused')) {
-    focusedControlsHideTimer = window.setTimeout(() => hideFocusedControls(room), FOCUSED_CONTROLS_AUTO_HIDE_MS);
-  }
 }
 
 function showFocusedControls(room: HTMLElement): void {
@@ -900,8 +895,9 @@ function activateCurrentHifzTools(plan: HifzPlan): void {
     repeatButton?.click();
   }
   applyExistingRepeatRange(plan);
-  document.getElementById('player')?.classList.remove('collapsed');
-  document.body.classList.add('player-expanded');
+  // Keep the site-wide player in its normal compact state while Hifz is active.
+  document.getElementById('player')?.classList.add('collapsed');
+  document.body.classList.remove('player-expanded');
 }
 
 async function startHifzSession(room: HTMLElement): Promise<void> {
