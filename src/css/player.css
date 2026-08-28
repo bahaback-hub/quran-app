@@ -365,10 +365,17 @@ body.night-mode .expanded-content {
   background: #1a1f2e;
 }
 
-/* Keep the expanded player clear of the fixed reader-side rail and its lower actions. */
+/* Keep both player states aligned with the reading container, not the viewport. */
 @media (min-width: 761px) {
-  .player:not(.collapsed) {
-    left: 132px;
-    right: 0;
+  .player {
+    left: max(21px, calc((100vw - 1200px) / 2 + 1px));
+    right: max(21px, calc((100vw - 1200px) / 2 + 1px));
+  }
+}
+
+@media (max-width: 760px) {
+  .player {
+    left: 8px;
+    right: 8px;
   }
 }
