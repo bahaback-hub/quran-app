@@ -1040,9 +1040,9 @@ body.night-mode.deep-night-mode {
 
 .hifz-room-toggle,
 .hifz-curtain-handle {
-  border-color: var(--accent);
-  color: #fff;
-  background: var(--curtain-handle-bg, #11120f);
+  border-color: var(--hifz-curtain-accent);
+  color: var(--hifz-curtain-accent-text);
+  background: var(--hifz-curtain-handle-bg);
   cursor: grab;
   touch-action: none;
 }
@@ -1068,10 +1068,10 @@ body.hifz-room-active .hifz-room-toggle {
   height: 72px;
   min-height: 72px;
   padding: 7px 5px;
-  border: 1px solid color-mix(in srgb, var(--accent) 68%, transparent);
+  border: 1px solid var(--hifz-curtain-accent);
   border-radius: 15px;
-  color: var(--header-text);
-  background: color-mix(in srgb, var(--header-bg) 84%, transparent);
+  color: var(--hifz-curtain-accent-text);
+  background: var(--hifz-curtain-handle-bg);
   box-shadow: 0 7px 18px rgb(0 0 0 / 18%);
   font: inherit;
   font-size: 11px;
@@ -1087,7 +1087,8 @@ body.hifz-room-active .hifz-room-toggle {
 #readerSideTools .hifz-curtain-handle:hover,
 #readerSideTools .hifz-curtain-handle:focus-visible {
   width: 84px;
-  background: var(--accent);
+  color: var(--hifz-curtain-accent-text);
+  background: var(--hifz-curtain-handle-hover);
   transform: none;
   outline: 3px solid rgb(215 187 129 / 58%);
   outline-offset: -3px;
@@ -1710,4 +1711,20 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
   body.favorites-curtain-active #readerSideTools {
     pointer-events: none;
   }
+}
+
+/* Keep the Hifz trigger themed after the shared reader-rail rules. */
+#readerSideTools .hifz-room-toggle,
+#readerSideTools .hifz-curtain-handle {
+  border-color: var(--hifz-curtain-accent) !important;
+  color: var(--hifz-curtain-accent-text) !important;
+  background: var(--hifz-curtain-handle-bg) !important;
+}
+
+#readerSideTools .hifz-room-toggle:hover,
+#readerSideTools .hifz-room-toggle:focus-visible,
+#readerSideTools .hifz-curtain-handle:hover,
+#readerSideTools .hifz-curtain-handle:focus-visible {
+  color: var(--hifz-curtain-accent-text) !important;
+  background: var(--hifz-curtain-handle-hover) !important;
 }
