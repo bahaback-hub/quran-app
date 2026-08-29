@@ -1063,36 +1063,31 @@ body.hifz-room-active .hifz-room-toggle {
 
 /* The reader tools rail owns the visible Hifz trigger; the drawer itself and
    its drag behavior remain unchanged. */
-#readerSideTools .hifz-room-toggle,
-#readerSideTools .hifz-curtain-handle {
+/* Higher-specificity selector so the .reader-side-tool skin (shared with the
+   prayer-times rail tool) wins over the global .hifz-room-toggle rule. */
+#readerSideTools .hifz-room-toggle.reader-side-tool,
+#readerSideTools .hifz-curtain-handle.reader-side-tool {
   position: static;
   z-index: auto;
   top: auto;
   right: auto;
   left: auto;
   width: 84px;
-  height: 72px;
   min-height: 72px;
   padding: 7px 5px;
-  /* Surface, border, blur, and text color are inherited from .control-card
-     (shared by the prayer-times rail tool) so the trigger matches it exactly. */
-  color: var(--accent-dark);
   border-radius: 15px;
   font: inherit;
   font-size: 11px;
   font-weight: 800;
   line-height: 1.12;
-  writing-mode: horizontal-tb;
-  text-orientation: mixed;
   transform: none;
 }
 
-#readerSideTools .hifz-room-toggle:hover,
-#readerSideTools .hifz-curtain-handle:hover,
-#readerSideTools .hifz-room-toggle:focus-visible,
-#readerSideTools .hifz-curtain-handle:focus-visible {
+#readerSideTools .hifz-room-toggle.reader-side-tool:hover,
+#readerSideTools .hifz-curtain-handle.reader-side-tool:hover,
+#readerSideTools .hifz-room-toggle.reader-side-tool:focus-visible,
+#readerSideTools .hifz-curtain-handle.reader-side-tool:focus-visible {
   width: 84px;
-  color: var(--accent-dark);
   transform: none;
   outline: 3px solid rgb(215 187 129 / 58%);
   outline-offset: -3px;
