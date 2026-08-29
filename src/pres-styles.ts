@@ -535,7 +535,7 @@ export function injectStyles(): void {
       font-size: 60px; line-height: 2.15; text-align: center;
       color: #fff; width: min(100%, 1100px); max-width: 1100px;
       padding-inline: 14px; box-sizing: border-box;
-      font-family: 'Amiri', 'Traditional Arabic', serif;
+      font-family: 'KFGQPC HAFS Uthmanic Script', 'Amiri', 'Traditional Arabic', serif;
       word-spacing: 6px;
       /* Quranic ayahs wrap at spaces only; never split an Arabic word. */
       font-size: clamp(24px, 6vw, 60px);
