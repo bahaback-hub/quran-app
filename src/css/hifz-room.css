@@ -45,8 +45,8 @@ body.hifz-room-active .hifz-room-toggle {
   border: 1px solid rgb(243 238 225 / 48%);
   border-radius: 0 999px 999px 0;
   padding: 0.74rem 0.82rem 0.74rem 0.64rem;
-  color: #f3eee1;
-  background: #1f5b49;
+  color: var(--hifz-curtain-accent-text);
+  background: var(--hifz-curtain-handle-bg);
   box-shadow: 0 12px 30px rgb(16 47 39 / 28%);
   font: inherit;
   font-weight: 700;
@@ -63,7 +63,7 @@ body.hifz-room-active .hifz-room-toggle {
 
 .hifz-room-toggle:hover,
 .hifz-room-toggle:focus-visible {
-  background: #173f34;
+  background: var(--hifz-curtain-handle-hover);
   transform: translateX(-2px);
   outline: 3px solid rgb(165 132 82 / 55%);
   outline-offset: -3px;
@@ -83,8 +83,8 @@ body.hifz-room-active .hifz-room-toggle {
   width: min(38vw, 540px);
   min-width: 380px;
   overflow: hidden;
-  color: #26352d;
-  background: #e7e1d2;
+  color: var(--hifz-curtain-text);
+  background: var(--hifz-room-background);
   box-shadow: 18px 0 56px rgb(20 35 29 / 34%);
   transform: translateX(-110%);
   transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1);
@@ -134,7 +134,7 @@ body.hifz-room-active .hifz-room-toggle {
   padding: clamp(0.9rem, 2vw, 1.5rem);
   border: 1px solid rgb(255 255 255 / 64%);
   border-radius: 24px;
-  background: rgb(243 238 225 / 93%);
+  background: color-mix(in srgb, var(--hifz-curtain-surface) 93%, transparent);
   box-shadow: 0 24px 62px rgb(24 49 41 / 26%);
   backdrop-filter: blur(10px);
   transition: opacity 260ms cubic-bezier(0.23, 1, 0.32, 1), transform 260ms cubic-bezier(0.23, 1, 0.32, 1);
@@ -153,7 +153,7 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-card-label,
 .hifz-room-review p {
   margin: 0;
-  color: #1f5b49;
+  color: var(--hifz-curtain-accent);
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -161,7 +161,7 @@ body.hifz-room-active .hifz-room-toggle {
 
 .hifz-room h2 {
   margin: 0.22rem 0 0;
-  color: #173f34;
+  color: var(--hifz-curtain-accent-strong);
   font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
   font-size: clamp(1.75rem, 3.3vw, 2.25rem);
   font-weight: 500;
@@ -176,7 +176,7 @@ body.hifz-room-active .hifz-room-toggle {
   height: 2.45rem;
   border: 0;
   border-radius: 50%;
-  color: #26352d;
+  color: var(--hifz-curtain-text);
   background: rgb(31 91 73 / 10%);
   font: inherit;
   cursor: pointer;
@@ -185,14 +185,14 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-close:hover,
 .hifz-room-close:focus-visible {
   color: #fff;
-  background: #1f5b49;
+  background: var(--hifz-curtain-handle-bg);
   outline: none;
 }
 
 .hifz-room-lede {
   max-width: none;
   margin: 0.6rem 0 0.7rem;
-  color: #506158;
+  color: var(--hifz-curtain-muted);
   font-size: clamp(0.72rem, 1.45vw, 0.84rem);
   line-height: 1.45;
   white-space: nowrap;
@@ -207,7 +207,7 @@ body.hifz-room-active .hifz-room-toggle {
 
 .hifz-room-card-title {
   margin: 0.75rem 0 0.42rem;
-  color: #173f34;
+  color: var(--hifz-curtain-accent-strong);
   font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
   font-size: 1.55rem;
   line-height: 1.55;
@@ -216,7 +216,7 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-card-meta,
 .hifz-room-footnote {
   margin: 0;
-  color: #66746b;
+  color: var(--hifz-curtain-muted);
   font-size: 0.84rem;
   line-height: 1.65;
 }
@@ -228,7 +228,7 @@ body.hifz-room-active .hifz-room-toggle {
   border-radius: 12px;
   padding: 0.86rem 1rem;
   color: #f8f3e9;
-  background: #1f5b49;
+  background: var(--hifz-curtain-handle-bg);
   box-shadow: 0 8px 18px rgb(31 91 73 / 20%);
   font: inherit;
   font-weight: 800;
@@ -238,7 +238,7 @@ body.hifz-room-active .hifz-room-toggle {
 
 .hifz-room-start:hover,
 .hifz-room-start:focus-visible {
-  background: #173f34;
+  background: var(--hifz-curtain-handle-hover);
   outline: 3px solid rgb(165 132 82 / 54%);
   outline-offset: 3px;
 }
@@ -261,13 +261,13 @@ body.hifz-room-active .hifz-room-toggle {
   height: 0.62rem;
   margin-top: 0.36rem;
   border-radius: 50%;
-  background: #a58452;
+  background: var(--hifz-curtain-accent);
 }
 
 .hifz-room-review strong {
   display: block;
   margin-top: 0.28rem;
-  color: #40554a;
+  color: var(--hifz-curtain-muted);
   font-size: 0.88rem;
   line-height: 1.55;
 }
@@ -310,7 +310,7 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-steps li::before {
   content: counter(hifz-step) ' — ';
   counter-increment: hifz-step;
-  color: #a58452;
+  color: var(--hifz-curtain-accent);
 }
 
 .hifz-room-session,
@@ -322,7 +322,7 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-field {
   display: grid;
   gap: 0.34rem;
-  color: #1f5b49;
+  color: var(--hifz-curtain-accent);
   font-size: 0.72rem;
   font-weight: 800;
 }
@@ -337,7 +337,7 @@ body.hifz-room-active .hifz-room-toggle {
   border: 1px solid rgb(31 91 73 / 22%);
   border-radius: 8px;
   padding: 0 0.62rem;
-  color: #26352d;
+  color: var(--hifz-curtain-text);
   background: rgb(255 255 255 / 76%);
   font: inherit;
   font-size: 0.84rem;
@@ -378,9 +378,9 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-choice-row button.is-selected {
-  border-color: #1f5b49;
-  color: #f3eee1;
-  background: #1f5b49;
+  border-color: var(--hifz-curtain-handle-bg);
+  color: var(--hifz-curtain-accent-text);
+  background: var(--hifz-curtain-handle-bg);
 }
 
 .hifz-room-summary {
@@ -389,7 +389,7 @@ body.hifz-room-active .hifz-room-toggle {
   padding: 0.45rem 0.6rem;
   border-top: 1px solid rgb(165 132 82 / 60%);
   border-bottom: 1px solid rgb(165 132 82 / 60%);
-  color: #173f34;
+  color: var(--hifz-curtain-accent-strong);
   font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
   font-size: 1.02rem;
   line-height: 1.35;
@@ -411,7 +411,7 @@ body.hifz-room-active .hifz-room-toggle {
   margin-top: 0.35rem;
   border: 1px solid rgb(31 91 73 / 30%);
   border-radius: 10px;
-  color: #1f5b49;
+  color: var(--hifz-curtain-accent);
   background: rgb(255 255 255 / 62%);
   font: inherit;
   font-size: 0.82rem;
@@ -423,7 +423,7 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-download:hover,
 .hifz-room-download:focus-visible {
   color: #f8f3e9;
-  background: #1f5b49;
+  background: var(--hifz-curtain-handle-bg);
   outline: 3px solid rgb(165 132 82 / 55%);
   outline-offset: 2px;
 }
@@ -440,7 +440,7 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-download-status {
   min-height: 1rem;
   margin: 0.2rem 0 0;
-  color: #66746b;
+  color: var(--hifz-curtain-muted);
   font-size: 0.73rem;
   line-height: 1.55;
   text-align: center;
@@ -454,7 +454,7 @@ body.hifz-room-active .hifz-room-toggle {
   padding: 0.38rem 0.65rem;
   border: 1px solid rgb(31 91 73 / 24%);
   border-radius: 0.65rem;
-  color: #1f5b49;
+  color: var(--hifz-curtain-accent);
   background: rgb(232 245 237 / 72%);
   font-weight: 800;
 }
@@ -486,13 +486,13 @@ body.night-mode .hifz-room-download-status[data-state='ready'] {
 .hifz-room-status {
   min-height: 1rem;
   margin: 0;
-  color: #66746b;
+  color: var(--hifz-curtain-muted);
   font-size: 0.75rem;
   line-height: 1.65;
 }
 
 .hifz-room-session-active .hifz-room-status {
-  color: #1f5b49;
+  color: var(--hifz-curtain-accent);
   font-weight: 800;
 }
 
@@ -531,16 +531,16 @@ body.night-mode .hifz-room-download-status[data-state='ready'] {
 }
 
 .hifz-room-repeat-options button.is-selected {
-  border-color: #1f5b49;
-  color: #f3eee1;
-  background: #1f5b49;
+  border-color: var(--hifz-curtain-handle-bg);
+  color: var(--hifz-curtain-accent-text);
+  background: var(--hifz-curtain-handle-bg);
 }
 
 .hifz-room-custom-repeat,
 .hifz-room-review-time {
   display: grid;
   gap: 0.22rem;
-  color: #1f5b49;
+  color: var(--hifz-curtain-accent);
   font-size: 0.66rem;
   font-weight: 800;
 }
@@ -553,7 +553,7 @@ body.night-mode .hifz-room-download-status[data-state='ready'] {
   border: 1px solid rgb(31 91 73 / 22%);
   border-radius: 7px;
   padding: 0 0.45rem;
-  color: #26352d;
+  color: var(--hifz-curtain-text);
   background: rgb(255 255 255 / 76%);
   font: inherit;
   font-size: 0.78rem;
@@ -682,7 +682,7 @@ body.hifz-room-tools-hidden .hifz-room-stage {
 
 .hifz-room-repeat-progress {
   margin: 0;
-  color: #a58452;
+  color: var(--hifz-curtain-accent);
   font-size: 0.8rem;
   font-weight: 800;
   text-align: center;
@@ -699,7 +699,7 @@ body.hifz-room-tools-hidden .hifz-room-stage {
   border: 1px solid rgb(31 91 73 / 26%);
   border-radius: 8px;
   color: #f8f3e9;
-  background: #1f5b49;
+  background: var(--hifz-curtain-handle-bg);
   font: inherit;
   font-size: 0.8rem;
   font-weight: 800;
@@ -707,7 +707,7 @@ body.hifz-room-tools-hidden .hifz-room-stage {
 }
 
 .hifz-room-focus-actions-secondary button {
-  color: #40554a;
+  color: var(--hifz-curtain-muted);
   background: rgb(255 255 255 / 56%);
 }
 
@@ -997,6 +997,9 @@ body.night-mode .hifz-room-download-status[data-state='ready'] {
   --hifz-curtain-border: rgb(33 99 79 / 36%);
   --hifz-curtain-handle-bg: #21634f;
   --hifz-curtain-handle-hover: #174638;
+  /* Shared backdrop/scene base image for the Hifz Room; defaults to the curtain
+     surface so the room stays consistent with the reader theme. */
+  --hifz-room-background: var(--hifz-curtain-bg);
 }
 
 body.sepia-mode {
@@ -1010,6 +1013,7 @@ body.sepia-mode {
   --hifz-curtain-border: rgb(150 111 50 / 40%);
   --hifz-curtain-handle-bg: #8a642b;
   --hifz-curtain-handle-hover: #68491d;
+  --hifz-room-background: var(--hifz-curtain-bg);
 }
 
 body.night-mode {
@@ -1023,6 +1027,7 @@ body.night-mode {
   --hifz-curtain-border: rgb(143 184 215 / 42%);
   --hifz-curtain-handle-bg: #1d4a68;
   --hifz-curtain-handle-hover: #14364f;
+  --hifz-room-background: var(--hifz-curtain-bg);
 }
 
 body.night-mode.deep-night-mode {
@@ -1036,6 +1041,7 @@ body.night-mode.deep-night-mode {
   --hifz-curtain-border: rgb(215 187 129 / 42%);
   --hifz-curtain-handle-bg: #11120f;
   --hifz-curtain-handle-hover: #20221d;
+  --hifz-room-background: var(--hifz-curtain-bg);
 }
 
 .hifz-room-toggle,
