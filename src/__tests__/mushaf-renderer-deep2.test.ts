@@ -25,6 +25,10 @@ vi.mock('../state.js', () => ({
 vi.mock('../tajweed.js', () => ({
   buildColorMap: vi.fn(() => new Map()),
   getTajweedColor: vi.fn(() => '#FF0000'),
+  pickTajweedRule: vi.fn((rules: Iterable<string>) => {
+    for (const r of rules) return r as never;
+    return undefined;
+  }),
 }));
 
 vi.mock('../tajweed-data.js', () => ({
