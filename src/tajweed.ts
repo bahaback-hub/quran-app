@@ -128,21 +128,42 @@ export function tajweedColorWord(word: string, wordOffset: number, colorMap: Map
     return word;
   }
 
+  // Keep each Arabic base letter together with all following combining marks.
+  // Splitting a grapheme between separate spans can make marks drift over the
+  // neighbouring word in browsers, especially with large presentation text.
+  const graphemes = word.match(/\P{M}\p{M}*|\p{M}+/gu) ?? [];
   let result = '';
-  let i = 0;
-  while (i < word.length) {
-    const absPos = wordOffset + i;
-    const rule = colorMap.get(absPos);
-    if (rule) {
-      const start = i;
-      while (i < word.length && colorMap.get(wordOffset + i) === rule) {
-        i++;
-      }
-      result += `<span class="${ruleToClassName(rule)}">${escapeHtml(word.substring(start, i))}</span>`;
-    } else {
-      result += escapeHtml(word[i]);
-      i++;
+  let offset = 0;
+  let activeRule: TajweedRule | undefined;
+  let activeText = '';
+
+  const flush = (): void => {
+    if (!activeText) {
+      return;
     }
+    result += activeRule
+      ? `<span class="${ruleToClassName(activeRule)}">${escapeHtml(activeText)}</span>`
+      : escapeHtml(activeText);
+    activeText = '';
+    activeRule = undefined;
+  };
+
+  for (const grapheme of graphemes) {
+    let rule: TajweedRule | undefined;
+    for (let i = 0; i < grapheme.length; i++) {
+      const candidate = colorMap.get(wordOffset + offset + i);
+      if (candidate) {
+        rule = candidate;
+        break;
+      }
+    }
+    if (rule !== activeRule) {
+      flush();
+      activeRule = rule;
+    }
+    activeText += grapheme;
+    offset += grapheme.length;
   }
+  flush();
   return result;
 }
