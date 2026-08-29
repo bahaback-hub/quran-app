@@ -271,7 +271,15 @@ function preloadNextAyah(): void {
 /* ===================== WORD-BY-WORD TRACKING ===================== */
 
 let wordTrackingActive = false;
-const _wordWeightsCache = new Map<number, WordWeightsResult>();
+const _wordWeightsCache = new Map<string, WordWeightsResult>();
+
+function wordWeightsKey(ayahIndex: number): string {
+  // The reciter and playback speed change the audio duration, so timings are
+  // only valid for that exact combination. Keying on all three avoids stale
+  // sync after a reciter/speed change without clearing the whole cache.
+  const speed = dom.audioPlayer?.playbackRate ?? 1;
+  return `${ayahIndex}|${state.currentReciter}|${speed}`;
+}
 
 function startWordTracking(): void {
   wordTrackingActive = true;
@@ -283,7 +291,7 @@ function stopWordTracking(): void {
 }
 
 function getCachedWordWeights(ayahIndex: number): WordWeightsResult | null {
-  const cached = _wordWeightsCache.get(ayahIndex);
+  const cached = _wordWeightsCache.get(wordWeightsKey(ayahIndex));
   if (cached) {
     return cached;
   }
@@ -313,11 +321,11 @@ function getCachedWordWeights(ayahIndex: number): WordWeightsResult | null {
     cumTime += (weights[i]! / totalWeight) * speechRatio + pauseRatio;
   }
   const result: WordWeightsResult = { wordCount: words.length, startTimes };
-  _wordWeightsCache.set(ayahIndex, result);
+  _wordWeightsCache.set(wordWeightsKey(ayahIndex), result);
   return result;
 }
 
-function clearWordWeightsCache(): void {
+export function clearWordWeightsCache(): void {
   _wordWeightsCache.clear();
 }
 

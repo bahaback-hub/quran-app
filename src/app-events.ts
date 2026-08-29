@@ -168,6 +168,9 @@ export function bindNavigationEvents(): void {
   dom.reciterSelect?.addEventListener('change', () => {
     state.currentReciter = dom.reciterSelect!.value;
     storage.set('reciter', state.currentReciter);
+    // The new reciter has a different audio duration, so the per-word sync
+    // timings cached for the previous reciter are no longer valid.
+    audioModule.clearWordWeightsCache();
     if (state.currentSurah) {
       loadSurah(state.currentSurah);
     }

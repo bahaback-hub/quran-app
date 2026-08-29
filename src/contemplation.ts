@@ -111,6 +111,11 @@ async function getSurahIndex(surah: number): Promise<Map<string, ContemplationEn
       }
       const response = await fetch(`data/contemplation/${descriptor.file}`);
       if (!response.ok) {
+        // The manifest may be stale (a new build changed file names). Drop the
+        // cached manifest so the next call re-fetches it instead of reusing a
+        // descriptor that no longer exists.
+        manifest = null;
+        manifestLoading = null;
         throw new Error('Contemplation surah data unavailable');
       }
       const entries = (await response.json()) as unknown[];
