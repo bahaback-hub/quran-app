@@ -98,6 +98,11 @@ export async function loadLocalSurahText(surahNum: number): Promise<SurahData | 
   if (!surah) {
     return null;
   }
+  // Guard against a partially-corrupt local bundle: a surah without a valid
+  // ayahs array cannot be adapted and would break the offline reader.
+  if (!Array.isArray(surah.ayahs) || surah.ayahs.length === 0) {
+    return null;
+  }
   // Adapt the local shape to match the SurahData interface expected by the app
   const ayahs: AyahEntry[] = surah.ayahs.map((a) => ({
     number: a.number,

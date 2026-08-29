@@ -33,6 +33,9 @@ let manifest: ContemplationManifest | null = null;
 let manifestLoading: Promise<ContemplationManifest> | null = null;
 const surahIndexes = new Map<number, Map<string, ContemplationEntry>>();
 const surahLoads = new Map<number, Promise<Map<string, ContemplationEntry>>>();
+// Keep at most the 20 most recently opened surahs' indexes in memory so the
+// cache cannot grow without bound during long reading sessions.
+const SURAH_INDEX_CACHE_MAX = 20;
 let sheet: HTMLElement | null = null;
 let reference: HTMLElement | null = null;
 let questionsList: HTMLOListElement | null = null;
@@ -126,6 +129,13 @@ async function getSurahIndex(surah: number): Promise<Map<string, ContemplationEn
         }
       }
       surahIndexes.set(surah, index);
+      // Evict the oldest entry if the cache grew past its limit.
+      if (surahIndexes.size > SURAH_INDEX_CACHE_MAX) {
+        const oldest = surahIndexes.keys().next().value;
+        if (oldest !== undefined) {
+          surahIndexes.delete(oldest);
+        }
+      }
       return index;
     })
     .catch((error) => {
