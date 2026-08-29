@@ -4,9 +4,18 @@ import { dom } from '../dom.js';
 Element.prototype.scrollIntoView = vi.fn();
 
 function setupDOM() {
+  document.body.innerHTML = `
+    <button id="collapsedPrevSurahBtn"></button>
+    <button id="collapsedPrevAyahBtn"></button>
+    <button id="collapsedPlayBtn"></button>
+    <button id="collapsedNextAyahBtn"></button>
+    <button id="collapsedNextSurahBtn"></button>
+    <div id="collapsedContent"></div>
+    <div id="player"></div>
+  `;
   const el = (tag: string) => document.createElement(tag);
   dom.surahContent = el('div');
-  dom.player = el('div');
+  dom.player = document.getElementById('player');
   dom.controls = el('div');
   dom.searchInput = el('input') as HTMLInputElement;
   dom.prevAyahBtn = el('button');
@@ -16,9 +25,9 @@ function setupDOM() {
   dom.hifdhBtn = el('button');
   dom.repeatBtn = el('button');
   dom.collapsePlayerBtn = el('button');
-  dom.collapsedContent = el('div');
+  dom.collapsedContent = document.getElementById('collapsedContent');
   dom.playPauseBtn = el('button');
-  dom.collapsedPlayBtn = el('button');
+  dom.collapsedPlayBtn = document.getElementById('collapsedPlayBtn');
   dom.playerMoreBtn = el('button');
   dom.playerMoreRow = el('div');
   dom.speedSelect = el('select') as HTMLSelectElement;
@@ -129,5 +138,24 @@ describe('initNavigation', () => {
     dom.speedSelect!.value = '1.5';
     dom.speedSelect!.dispatchEvent(new Event('change'));
     expect(dom.audioPlayer!.playbackRate).toBe(1.5);
+  });
+
+  it('binds collapsed-mode nav buttons without expanding the player', async () => {
+    const { initNavigation } = await import('../navigation.js');
+    initNavigation();
+    const ids = [
+      'collapsedPrevSurahBtn',
+      'collapsedPrevAyahBtn',
+      'collapsedNextAyahBtn',
+      'collapsedNextSurahBtn',
+    ];
+    for (const id of ids) {
+      const btn = document.getElementById(id);
+      expect(btn).not.toBeNull();
+      // Clicking a collapsed nav button must NOT add the expanded class to body.
+      document.body.classList.remove('player-expanded');
+      btn!.dispatchEvent(new Event('click', { bubbles: true }));
+      expect(document.body.classList.contains('player-expanded')).toBe(false);
+    }
   });
 });

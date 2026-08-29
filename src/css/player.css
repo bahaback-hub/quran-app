@@ -37,24 +37,53 @@
 
 .collapsed-content {
   display: none;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: center;
+  gap: 4px;
   height: 100%;
-  padding: 0 10px;
+  padding: 4px 10px;
 }
 .player.collapsed .collapsed-content {
   display: flex;
 }
 
-.floating-info {
+/* Collapsed control bar: prev-surah | prev-ayah | play | next-ayah | next-surah */
+.collapsed-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.collapsed-nav-btn {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
   font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  transition: background 0.15s;
+}
+.collapsed-nav-btn:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+body.night-mode .collapsed-nav-btn {
+  color: #e8e8e8;
+}
+
+.floating-info {
+  font-size: 13px;
   font-weight: bold;
   color: var(--text-primary);
   background: rgba(0, 0, 0, 0.05);
-  padding: 4px 12px;
+  padding: 2px 12px;
   border-radius: 20px;
-  flex: 1;
+  max-width: 90%;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
