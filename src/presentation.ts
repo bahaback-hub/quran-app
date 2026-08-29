@@ -115,7 +115,7 @@ function fitPresentationAyahText(): void {
 
   // First preserve the font size and recover vertical room by using a still
   // comfortable Quranic line height. This is enough for many medium ayahs.
-  ayahText.style.lineHeight = '1.48';
+  ayahText.style.lineHeight = '1.9';
 
   while (ayahText.scrollHeight > availableHeight && size > minimumSize) {
     size = Math.max(minimumSize, size - 2);

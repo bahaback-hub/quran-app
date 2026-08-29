@@ -429,7 +429,7 @@ describe('presentation', () => {
       const { syncPresentation } = await import('../presentation.js');
       syncPresentation();
       expect(Number.parseFloat(dom.presentationAyahText!.style.fontSize)).toBeLessThanOrEqual(42);
-      expect(dom.presentationAyahText!.style.lineHeight).toBe('1.48');
+      expect(dom.presentationAyahText!.style.lineHeight).toBe('1.9');
       expect(dom.presentationBody!.scrollTop).toBe(0);
     });
 

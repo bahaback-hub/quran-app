@@ -511,9 +511,10 @@ export function injectStyles(): void {
     }
     .presentation-overlay:fullscreen .presentation-ayah-text {
       font-size: 80px;
-      /* Keep Quranic Arabic words intact in Android WebView fullscreen. */
+      line-height: 1.9;
+      /* Keep Quranic Arabic words intact while allowing safe line wrapping. */
       word-break: normal;
-      overflow-wrap: normal;
+      overflow-wrap: break-word;
       hyphens: none;
     }
     @media (max-width: 600px) {
