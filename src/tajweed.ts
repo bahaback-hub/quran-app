@@ -98,6 +98,46 @@ export function buildColorMap(annotations: TajweedAnnotation[]): Map<number, Taj
   return map;
 }
 
+/** Priority for choosing a single representative rule per word (higher = more salient).
+ * The mushaf canvas paints a word as one glyph, so only one color is possible;
+ * prefer the rule the reader most needs to notice (long madd, ghunnah family,
+ * qalqalah) over the muted, written-but-unpronounced cues. */
+const TAJWEED_PRIORITY: Record<TajweedRule, number> = {
+  madd_6: 100,
+  madd_246: 95,
+  madd_munfasil: 92,
+  madd_muttasil: 92,
+  madd_2: 90,
+  qalqalah: 80,
+  ghunnah: 70,
+  ikhfa: 68,
+  ikhfa_shafawi: 68,
+  iqlab: 66,
+  idghaam_ghunnah: 64,
+  idghaam_shafawi: 64,
+  idghaam_no_ghunnah: 30,
+  idghaam_mutajanisayn: 30,
+  idghaam_mutaqaribayn: 30,
+  hamzat_wasl: 10,
+  lam_shamsiyyah: 10,
+  silent: 10,
+};
+
+/** Pick the most salient tajweed rule from a set of candidates.
+ * Used by the mushaf canvas renderer, which can paint only one color per word. */
+export function pickTajweedRule(rules: Iterable<string>): TajweedRule | undefined {
+  let best: TajweedRule | undefined;
+  let bestScore = -1;
+  for (const rule of rules) {
+    const score = TAJWEED_PRIORITY[rule as TajweedRule] ?? 0;
+    if (score > bestScore) {
+      bestScore = score;
+      best = rule as TajweedRule;
+    }
+  }
+  return best;
+}
+
 /**
  * Get the CSS color for a tajweed rule based on current theme.
  * Used by the mushaf canvas renderer which cannot use CSS classes.

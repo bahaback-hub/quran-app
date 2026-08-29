@@ -13,7 +13,7 @@
  *   font processing delays.
  */
 import { state } from './state.js';
-import { buildColorMap, getTajweedColor } from './tajweed.js';
+import { buildColorMap, getTajweedColor, pickTajweedRule } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
 import type { TajweedAnnotation } from './tajweed-data.js';
 import { isCapacitorNative } from './types.js';
@@ -831,14 +831,19 @@ function computePageTajweed(data: PageLayoutData): { wordIdx: number; lineIdx: n
     let outputPos = 0;
     for (let wi = 0; wi < words.length; wi++) {
       const wordText = words[wi]!.text;
-      let wordColor: string | null = null;
+      const wordRules: Set<string> = new Set();
       for (let ci = 0; ci < wordText.length; ci++) {
         const rule = colorMap.get(outputPos + ci);
         if (rule) {
-          wordColor = getTajweedColor(rule);
-          break;
+          wordRules.add(rule);
         }
       }
+      // The mushaf canvas paints a word as a single glyph, so only one color is
+      // possible. Choose the most salient rule present (long madd, ghunnah family,
+      // qalqalah…) rather than the first one, which better matches the per-letter
+      // coloring shown in the surah reading view.
+      const chosen = pickTajweedRule(wordRules);
+      const wordColor = chosen ? getTajweedColor(chosen) : null;
       result.push({ wordIdx: words[wi]!.wordIdx, lineIdx: words[wi]!.lineIdx, color: wordColor });
       outputPos += wordText.length + 1;
     }
