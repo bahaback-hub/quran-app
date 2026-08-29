@@ -59,6 +59,12 @@ export function initNavigation(): void {
     updatePlayPauseBtn();
   });
 
+  // Collapsed-mode quick navigation: these act without expanding the player.
+  bindCollapsedNav('collapsedPrevSurahBtn', () => prevSurah());
+  bindCollapsedNav('collapsedPrevAyahBtn', () => prevAyah());
+  bindCollapsedNav('collapsedNextAyahBtn', () => nextAyah(false));
+  bindCollapsedNav('collapsedNextSurahBtn', () => nextSurah());
+
   dom.playerMoreBtn?.addEventListener('click', () => {
     if (dom.playerMoreRow) {
       const isHidden = dom.playerMoreRow.classList.toggle('hidden');
@@ -203,4 +209,19 @@ export function initNavigation(): void {
   if (savedMushaf) {
     import('./mushaf.js').then((m) => m.toggleMushafMode());
   }
+}
+
+/**
+ * Bind a collapsed-mode navigation button so it performs its action without
+ * expanding the player (the collapsed-content click handler otherwise opens it).
+ */
+function bindCollapsedNav(id: string, action: () => void): void {
+  const btn = document.getElementById(id);
+  if (!btn) {
+    return;
+  }
+  btn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    action();
+  });
 }
