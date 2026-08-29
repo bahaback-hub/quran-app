@@ -1061,7 +1061,7 @@ export function initHifzRoom(): void {
   stage.innerHTML =
     '<p id="hifzRoomStageMeta" class="hifz-room-stage-meta"></p><p id="hifzRoomStageText" class="hifz-room-stage-text" aria-live="polite"></p>';
   toggle.id = TOGGLE_ID;
-  toggle.className = 'hifz-room-toggle hifz-curtain-handle hifz-room-toggle--rtl';
+  toggle.className = 'hifz-room-toggle hifz-curtain-handle hifz-room-toggle--rtl control-card';
   toggle.type = 'button';
   toggle.setAttribute('aria-controls', ROOM_ID);
   toggle.setAttribute('aria-expanded', 'false');
