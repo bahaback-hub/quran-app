@@ -1074,15 +1074,10 @@ body.hifz-room-active .hifz-room-toggle {
   height: 72px;
   min-height: 72px;
   padding: 7px 5px;
-  /* Gold accent to match the other reader-rail tools (prayer times, etc.). */
-  border: 1px solid var(--accent);
-  border-radius: 15px;
+  /* Surface, border, blur, and text color are inherited from .control-card
+     (shared by the prayer-times rail tool) so the trigger matches it exactly. */
   color: var(--accent-dark);
-  /* Frosted-glass surface to match the other reader-rail tools. */
-  background: color-mix(in srgb, var(--accent) 78%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 7px 18px rgb(0 0 0 / 18%);
+  border-radius: 15px;
   font: inherit;
   font-size: 11px;
   font-weight: 800;
@@ -1098,9 +1093,6 @@ body.hifz-room-active .hifz-room-toggle {
 #readerSideTools .hifz-curtain-handle:focus-visible {
   width: 84px;
   color: var(--accent-dark);
-  background: color-mix(in srgb, var(--accent) 88%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   transform: none;
   outline: 3px solid rgb(215 187 129 / 58%);
   outline-offset: -3px;
