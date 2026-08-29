@@ -527,19 +527,22 @@ export function injectStyles(): void {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       min-height: 0;
-      padding: 40px 20px; overflow-y: hidden;
+      padding: 40px 20px; overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
     .presentation-ayah-text {
-      font-size: 60px; line-height: 1.8; text-align: center;
-      color: #fff; max-width: 900px;
+      font-size: 60px; line-height: 2.15; text-align: center;
+      color: #fff; width: min(100%, 1100px); max-width: 1100px;
+      padding-inline: 14px; box-sizing: border-box;
+      font-family: 'Amiri', 'Traditional Arabic', serif;
       word-spacing: 6px;
       /* Quranic ayahs wrap at spaces only; never split an Arabic word. */
       font-size: clamp(24px, 6vw, 60px);
       white-space: normal;
-      overflow-wrap: normal;
+      overflow-wrap: break-word;
       word-break: normal;
       hyphens: none;
+      text-rendering: optimizeLegibility;
     }
     .presentation-translation {
       font-size: 24px; line-height: 1.6; text-align: center;
@@ -569,8 +572,8 @@ export function injectStyles(): void {
       to { opacity: 1; transform: scale(1); }
     }
     @media (max-width: 600px) {
-      .presentation-ayah-text { font-size: clamp(22px, 5.5vw, 32px); }
-      .presentation-body { padding: 16px 10px; overflow-y: hidden !important; }
+      .presentation-ayah-text { font-size: clamp(22px, 5.5vw, 32px); line-height: 2.05; padding-inline: 8px; }
+      .presentation-body { padding: 16px 10px; overflow-y: auto !important; }
       .presentation-translation { font-size: 16px; margin-top: 12px; }
       /* Mobile keeps the title, navigation and utilities in three clear rows. */
       .presentation-header {
