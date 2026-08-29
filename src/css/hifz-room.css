@@ -989,7 +989,7 @@ body.night-mode .hifz-room-download-status[data-state='ready'] {
 /* الألوان تتطابق مع لوحة اتجاه القبلة للتناسق البصري */
 :root {
   --hifz-curtain-bg: rgb(255 253 248 / 94%);
-  --hifz-curtain-surface: #fffdf8;
+  --hifz-curtain-surface: rgb(255 253 248 / 94%);
   --hifz-curtain-text: #26352d;
   --hifz-curtain-muted: rgb(38 53 45 / 72%);
   --hifz-curtain-accent: #21634f;
@@ -1005,7 +1005,7 @@ body.night-mode .hifz-room-download-status[data-state='ready'] {
 
 body.sepia-mode {
   --hifz-curtain-bg: #f4e6c8;
-  --hifz-curtain-surface: #fbf2df;
+  --hifz-curtain-surface: #f4e6c8;
   --hifz-curtain-text: #523c20;
   --hifz-curtain-muted: rgb(82 60 32 / 74%);
   --hifz-curtain-accent: #966f32;
@@ -1019,9 +1019,9 @@ body.sepia-mode {
 
 body.night-mode {
   --hifz-curtain-bg: rgb(12 16 28 / 94%);
-  --hifz-curtain-surface: #141f2e;
-  --hifz-curtain-text: #f2f6fb;
-  --hifz-curtain-muted: rgb(230 237 247 / 76%);
+  --hifz-curtain-surface: rgb(12 16 28 / 94%);
+  --hifz-curtain-text: #fff8e8;
+  --hifz-curtain-muted: rgb(255 248 232 / 76%);
   --hifz-curtain-accent: #8fb8d7;
   --hifz-curtain-accent-strong: #5f90b7;
   --hifz-curtain-accent-text: #08121d;
@@ -1033,7 +1033,7 @@ body.night-mode {
 
 body.night-mode.deep-night-mode {
   --hifz-curtain-bg: rgb(0 0 0 / 95%);
-  --hifz-curtain-surface: #121310;
+  --hifz-curtain-surface: rgb(0 0 0 / 95%);
   --hifz-curtain-text: #fff8e8;
   --hifz-curtain-muted: rgb(247 243 232 / 78%);
   --hifz-curtain-accent: #d7bb81;
