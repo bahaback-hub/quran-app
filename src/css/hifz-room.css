@@ -986,8 +986,9 @@ body.night-mode .hifz-room-download-status[data-state='ready'] {
 }
 
 /* ستارة الحفظ المتكيفة: اللون والاتساع يتبعان وضع العرض، والسحب يحدد الجزء الظاهر منها. */
+/* الألوان تتطابق مع لوحة اتجاه القبلة للتناسق البصري */
 :root {
-  --hifz-curtain-bg: #fffaf0;
+  --hifz-curtain-bg: rgb(255 253 248 / 94%);
   --hifz-curtain-surface: #fffdf8;
   --hifz-curtain-text: #26352d;
   --hifz-curtain-muted: rgb(38 53 45 / 72%);
@@ -1017,7 +1018,7 @@ body.sepia-mode {
 }
 
 body.night-mode {
-  --hifz-curtain-bg: #101824;
+  --hifz-curtain-bg: rgb(12 16 28 / 94%);
   --hifz-curtain-surface: #141f2e;
   --hifz-curtain-text: #f2f6fb;
   --hifz-curtain-muted: rgb(230 237 247 / 76%);
@@ -1031,7 +1032,7 @@ body.night-mode {
 }
 
 body.night-mode.deep-night-mode {
-  --hifz-curtain-bg: #090a09;
+  --hifz-curtain-bg: rgb(0 0 0 / 95%);
   --hifz-curtain-surface: #121310;
   --hifz-curtain-text: #fff8e8;
   --hifz-curtain-muted: rgb(247 243 232 / 78%);
