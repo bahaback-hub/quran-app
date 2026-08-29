@@ -117,6 +117,7 @@ vi.mock('../audio.js', () => ({
   toggleHifdh: vi.fn(),
   toggleRepeat: vi.fn(),
   expandPlayer: vi.fn(),
+  clearWordWeightsCache: vi.fn(),
 }));
 
 // Mock a11y

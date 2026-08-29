@@ -167,7 +167,7 @@ export function applyDeepNightMode(enabled: boolean): void {
     document.body.classList.remove('sepia-mode');
     state.sepiaMode = false;
   } else {
-    document.body.classList.remove('deep-night-mode');
+    document.body.classList.remove('night-mode', 'deep-night-mode');
   }
   storage.set('deep_night_mode', enabled);
   storage.set('night_mode', enabled);

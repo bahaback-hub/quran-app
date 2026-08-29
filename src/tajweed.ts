@@ -71,12 +71,39 @@ const NIGHT_COLORS: Record<TajweedRule, string> = {
   silent: '#b7b7b7',
 };
 
+// Brighter still for the pure-black deep-night surface, where the night-mode
+// palette can lose contrast. Tuned for WCAG AA against #000.
+const DEEP_NIGHT_COLORS: Record<TajweedRule, string> = {
+  hamzat_wasl: '#cfcfcf',
+  lam_shamsiyyah: '#cfcfcf',
+  madd_2: '#ffd966',
+  madd_246: '#ffb066',
+  madd_6: '#ff8585',
+  madd_munfasil: '#ff9999',
+  madd_muttasil: '#ff9999',
+  ghunnah: '#7ce8a3',
+  ikhfa: '#7ce8a3',
+  ikhfa_shafawi: '#7ce8a3',
+  iqlab: '#7ce8a3',
+  idghaam_ghunnah: '#7ce8a3',
+  idghaam_no_ghunnah: '#cfcfcf',
+  idghaam_mutajanisayn: '#cfcfcf',
+  idghaam_mutaqaribayn: '#cfcfcf',
+  idghaam_shafawi: '#7ce8a3',
+  qalqalah: '#a6e4ff',
+  silent: '#cfcfcf',
+};
+
 /**
  * Get the color for a tajweed rule based on current theme.
  */
 function getColor(rule: string): string {
   const body = document.body;
   if (body && body.classList.contains('night-mode')) {
+    // Deep-night uses a pure-black surface; pick the higher-contrast palette.
+    if (body.classList.contains('deep-night-mode')) {
+      return (DEEP_NIGHT_COLORS as Record<string, string>)[rule] || (NIGHT_COLORS as Record<string, string>)[rule] || '#000';
+    }
     return (NIGHT_COLORS as Record<string, string>)[rule] || (RULE_COLORS as Record<string, string>)[rule] || '#000';
   }
   return (RULE_COLORS as Record<string, string>)[rule] || '#000';

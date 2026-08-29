@@ -104,6 +104,29 @@ describe('settings', () => {
     });
   });
 
+  describe('applyDeepNightMode', () => {
+    it('should add both night-mode and deep-night-mode when enabled', async () => {
+      const { applyDeepNightMode } = await import('../settings.js');
+      applyDeepNightMode(true);
+      expect(document.body.classList.contains('night-mode')).toBe(true);
+      expect(document.body.classList.contains('deep-night-mode')).toBe(true);
+    });
+
+    it('should remove BOTH night-mode and deep-night-mode when disabled', async () => {
+      const { applyDeepNightMode } = await import('../settings.js');
+      document.body.classList.add('night-mode', 'deep-night-mode');
+      applyDeepNightMode(false);
+      expect(document.body.classList.contains('night-mode')).toBe(false);
+      expect(document.body.classList.contains('deep-night-mode')).toBe(false);
+    });
+
+    it('should update state.nightMode when enabled', async () => {
+      const { applyDeepNightMode } = await import('../settings.js');
+      applyDeepNightMode(true);
+      expect(state.nightMode).toBe(true);
+    });
+  });
+
   describe('applyNightMode', () => {
     it('should add night-mode class when enabled', async () => {
       const { applyNightMode } = await import('../settings.js');
