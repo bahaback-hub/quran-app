@@ -1090,13 +1090,6 @@ body.hifz-room-active .hifz-room-toggle {
   min-height: 72px;
   margin: 0;
   padding: 7px 5px;
-  border: 1px solid rgba(196, 122, 18, 0.5);
-  border-radius: 15px;
-  background: rgba(92, 68, 48, 0.85);
-  color: var(--header-text);
-  box-shadow: 0 7px 18px rgb(0 0 0 / 18%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   transform: none;
   cursor: pointer;
   text-align: center;
@@ -1104,22 +1097,6 @@ body.hifz-room-active .hifz-room-toggle {
   font-size: 11px;
   font-weight: 800;
   line-height: 1.12;
-}
-
-/* Sepia theme — mirror .prayer-bar in glass-sepia.css. */
-body.sepia-mode #readerSideTools .hifz-room-toggle.reader-side-tool,
-body.sepia-mode #readerSideTools .hifz-curtain-handle.reader-side-tool,
-body.sepia-mode #readerSideTools .hifz-room-toggle--rtl.reader-side-tool {
-  background: rgba(74, 53, 32, 0.85);
-  border-color: rgba(138, 104, 64, 0.4);
-}
-
-/* Night theme — mirror .prayer-bar in glass-night.css. */
-body.night-mode #readerSideTools .hifz-room-toggle.reader-side-tool,
-body.night-mode #readerSideTools .hifz-curtain-handle.reader-side-tool,
-body.night-mode #readerSideTools .hifz-room-toggle--rtl.reader-side-tool {
-  background: rgba(10, 14, 26, 0.82);
-  border-color: rgba(196, 122, 18, 0.5);
 }
 
 #readerSideTools .hifz-room-toggle.reader-side-tool:hover,
@@ -1752,22 +1729,6 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
   body.favorites-curtain-active #readerSideTools {
     pointer-events: none;
   }
-}
-
-/* Keep the Hifz trigger themed after the shared reader-rail rules. */
-#readerSideTools .hifz-room-toggle,
-#readerSideTools .hifz-curtain-handle {
-  border-color: var(--hifz-curtain-accent) !important;
-  color: var(--hifz-curtain-accent-text) !important;
-  background: var(--hifz-curtain-handle-bg) !important;
-}
-
-#readerSideTools .hifz-room-toggle:hover,
-#readerSideTools .hifz-room-toggle:focus-visible,
-#readerSideTools .hifz-curtain-handle:hover,
-#readerSideTools .hifz-curtain-handle:focus-visible {
-  color: var(--hifz-curtain-accent-text) !important;
-  background: var(--hifz-curtain-handle-hover) !important;
 }
 
 /* The Hifz drawer owns the screen while open; hide the entire reader rail so it cannot overlay the drawer. */
