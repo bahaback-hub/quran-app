@@ -1066,6 +1066,17 @@ body.hifz-room-active .hifz-room-toggle {
    its drag behavior remain unchanged. */
 /* Higher-specificity selector so the .reader-side-tool skin (shared with the
    prayer-times rail tool) wins over the global .hifz-room-toggle rule. */
+/* Match the Hifz trigger skin to the other reader-side tools (prayer times,
+   qibla, tafsir, favorites) so the rail reads as one consistent column. The
+   shared .reader-side-tool variables (--header-bg / --accent / --header-text)
+   already adapt to every theme, so we inherit them here instead of the dark
+   curtain-handle background. */
+/* Match the Hifz trigger skin to the other reader-side tools (prayer times,
+   qibla, tafsir, favorites) so the rail reads as one consistent column. The
+   toggle is injected with the .hifz-room-toggle class, whose global rule paints
+   it with the dark Rawdah curtain-handle background (#11120f); we override that
+   here to reuse the same frosted-brown surface as the prayer-times rail tool in
+   every theme, with a readable --header-text label. */
 #readerSideTools .hifz-room-toggle.reader-side-tool,
 #readerSideTools .hifz-curtain-handle.reader-side-tool {
   position: static;
@@ -1075,13 +1086,34 @@ body.hifz-room-active .hifz-room-toggle {
   left: auto;
   width: 84px;
   min-height: 72px;
+  margin: 0;
   padding: 7px 5px;
+  border: 1px solid rgba(196, 122, 18, 0.5);
   border-radius: 15px;
+  background: rgba(92, 68, 48, 0.85);
+  color: var(--header-text);
+  box-shadow: 0 7px 18px rgb(0 0 0 / 18%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transform: none;
   font: inherit;
   font-size: 11px;
   font-weight: 800;
   line-height: 1.12;
-  transform: none;
+}
+
+/* Sepia theme — mirror .prayer-bar in glass-sepia.css. */
+body.sepia-mode #readerSideTools .hifz-room-toggle.reader-side-tool,
+body.sepia-mode #readerSideTools .hifz-curtain-handle.reader-side-tool {
+  background: rgba(74, 53, 32, 0.85);
+  border-color: rgba(138, 104, 64, 0.4);
+}
+
+/* Night theme — mirror .prayer-bar in glass-night.css. */
+body.night-mode #readerSideTools .hifz-room-toggle.reader-side-tool,
+body.night-mode #readerSideTools .hifz-curtain-handle.reader-side-tool {
+  background: rgba(10, 14, 26, 0.82);
+  border-color: rgba(196, 122, 18, 0.5);
 }
 
 #readerSideTools .hifz-room-toggle.reader-side-tool:hover,
@@ -1090,8 +1122,8 @@ body.hifz-room-active .hifz-room-toggle {
 #readerSideTools .hifz-curtain-handle.reader-side-tool:focus-visible {
   width: 84px;
   transform: none;
-  outline: 3px solid rgb(215 187 129 / 58%);
-  outline-offset: -3px;
+  background: var(--accent);
+  outline: none;
 }
 
 body.hifz-room-active #readerSideTools .hifz-room-toggle {

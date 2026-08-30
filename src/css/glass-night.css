@@ -138,6 +138,12 @@ body.night-mode .prayer-bar {
   border-bottom: 1px solid rgba(212, 175, 55, 0.35);
 }
 
+/* أزرار القضيب الجانبي — نفس السطح الكحلي لشريط الصلاة */
+body.night-mode .reader-side-tool {
+  background: rgba(10, 14, 26, 0.82);
+  border-color: rgba(212, 175, 55, 0.35);
+}
+
 /* أدوات التحكم */
 body.night-mode .controls {
   background: rgba(16, 22, 38, 0.68);

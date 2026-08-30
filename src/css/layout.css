@@ -665,9 +665,12 @@
   width: 84px;
   min-height: 72px;
   padding: 7px 5px;
-  border: 1px solid color-mix(in srgb, var(--accent) 68%, transparent);
+  border: 1px solid rgba(196, 122, 18, 0.5);
   border-radius: 15px;
-  background: color-mix(in srgb, var(--header-bg) 84%, transparent);
+  /* Frosted brown surface, shared with the prayer-times rail tool. The previous
+     color-mix(in srgb, var(--header-bg) 84%, transparent) was invalid because
+     --header-bg is a gradient, so the rail tools rendered transparent. */
+  background: rgba(92, 68, 48, 0.85);
   box-shadow: 0 7px 18px rgb(0 0 0 / 18%);
   color: var(--header-text);
   cursor: pointer;

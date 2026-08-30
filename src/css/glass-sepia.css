@@ -32,6 +32,12 @@ body.sepia-mode .prayer-bar {
   border-bottom: 1px solid rgba(138, 104, 64, 0.4);
 }
 
+/* أزرار القضيب الجانبي — نفس السطح البني لشريط الصلاة */
+body.sepia-mode .reader-side-tool {
+  background: rgba(74, 53, 32, 0.85);
+  border-color: rgba(138, 104, 64, 0.4);
+}
+
 /* أدوات التحكم */
 body.sepia-mode .controls {
   background: rgba(239, 229, 208, 0.7);
