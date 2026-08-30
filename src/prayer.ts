@@ -140,10 +140,62 @@ function updatePrayerCurtainContext(now: Date): void {
 
 /* ===================== PRAYER TIMES ===================== */
 
+/* Official Umm Al-Qura (رئاسة الحرمين) times for major Saudi cities.
+ * Loaded once from public/data/prayer-times-underwritten.json and used as the
+ * HIGHEST-priority source so the app matches ummulqura.org.sa exactly, instead
+ * of the approximate astronomical calculation returned by Aladhan. */
+let underwrittenTable: Record<string, Record<string, string>> | null = null;
+let underwrittenLoaded = false;
+
+export async function loadUnderwrittenPrayerTable(): Promise<void> {
+  if (underwrittenLoaded) return;
+  underwrittenLoaded = true;
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL}data/prayer-times-underwritten.json`);
+    if (res.ok) {
+      const json = (await res.json()) as Record<string, Record<string, string>>;
+      delete (json as Record<string, unknown>)['_comment'];
+      underwrittenTable = json;
+    }
+  } catch {
+    underwrittenTable = null;
+  }
+}
+
+function getUnderwrittenPrayerTimes(city: string): Record<string, string> | null {
+  if (!underwrittenTable) return null;
+  const norm = (s: string): string => s.trim().toLowerCase().replace(/\s+/g, '');
+  const c = norm(city);
+  for (const [key, val] of Object.entries(underwrittenTable)) {
+    if (norm(key) === c) return val;
+    const label = val['label'];
+    if (label && norm(label) === c) return val;
+  }
+  return null;
+}
+
 export async function loadPrayerTimes(): Promise<void> {
   const city = dom.cityInput?.value.trim() || state.city;
   const country = dom.countryInput?.value.trim() || state.country;
   const method = dom.methodSelect?.value || state.method;
+
+  // ── Strategy 0: Official underwritten table (رئاسة الحرمين) for major Saudi cities ──
+  // Highest priority: matches ummulqura.org.sa exactly, no network round-trip.
+  const underwritten = getUnderwrittenPrayerTimes(city);
+  if (underwritten) {
+    state.prayerTimes = underwritten as import('./types.js').PrayerTimes;
+    storage.set('cached_prayer_times', {
+      date: new Date().toISOString(),
+      timings: state.prayerTimes,
+      city,
+      country,
+      method,
+    });
+    renderPrayerTimes();
+    checkAzanTime();
+    scheduleNextAzanCheck();
+    return;
+  }
 
   // ── Strategy 1: Selected-city source (the user's explicit setting is authoritative) ──
   const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
