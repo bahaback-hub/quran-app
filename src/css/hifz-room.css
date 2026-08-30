@@ -1068,22 +1068,24 @@ body.hifz-room-active .hifz-room-toggle {
    prayer-times rail tool) wins over the global .hifz-room-toggle rule. */
 /* Match the Hifz trigger skin to the other reader-side tools (prayer times,
    qibla, tafsir, favorites) so the rail reads as one consistent column. The
-   shared .reader-side-tool variables (--header-bg / --accent / --header-text)
-   already adapt to every theme, so we inherit them here instead of the dark
-   curtain-handle background. */
-/* Match the Hifz trigger skin to the other reader-side tools (prayer times,
-   qibla, tafsir, favorites) so the rail reads as one consistent column. The
-   toggle is injected with the .hifz-room-toggle class, whose global rule paints
-   it with the dark Rawdah curtain-handle background (#11120f); we override that
-   here to reuse the same frosted-brown surface as the prayer-times rail tool in
-   every theme, with a readable --header-text label. */
+   global .hifz-room-toggle / .hifz-room-toggle--rtl rules paint it as a draggable
+   Rawdah curtain handle (pill radius, grab cursor, offset outline on hover),
+   which clashes with the flat rail buttons — we override every one of those
+   here so the trigger is visually identical to the other .reader-side-tool
+   buttons in every theme. */
 #readerSideTools .hifz-room-toggle.reader-side-tool,
-#readerSideTools .hifz-curtain-handle.reader-side-tool {
+#readerSideTools .hifz-curtain-handle.reader-side-tool,
+#readerSideTools .hifz-room-toggle--rtl.reader-side-tool {
   position: static;
   z-index: auto;
   top: auto;
   right: auto;
   left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
   width: 84px;
   min-height: 72px;
   margin: 0;
@@ -1096,6 +1098,8 @@ body.hifz-room-active .hifz-room-toggle {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transform: none;
+  cursor: pointer;
+  text-align: center;
   font: inherit;
   font-size: 11px;
   font-weight: 800;
@@ -1104,14 +1108,16 @@ body.hifz-room-active .hifz-room-toggle {
 
 /* Sepia theme — mirror .prayer-bar in glass-sepia.css. */
 body.sepia-mode #readerSideTools .hifz-room-toggle.reader-side-tool,
-body.sepia-mode #readerSideTools .hifz-curtain-handle.reader-side-tool {
+body.sepia-mode #readerSideTools .hifz-curtain-handle.reader-side-tool,
+body.sepia-mode #readerSideTools .hifz-room-toggle--rtl.reader-side-tool {
   background: rgba(74, 53, 32, 0.85);
   border-color: rgba(138, 104, 64, 0.4);
 }
 
 /* Night theme — mirror .prayer-bar in glass-night.css. */
 body.night-mode #readerSideTools .hifz-room-toggle.reader-side-tool,
-body.night-mode #readerSideTools .hifz-curtain-handle.reader-side-tool {
+body.night-mode #readerSideTools .hifz-curtain-handle.reader-side-tool,
+body.night-mode #readerSideTools .hifz-room-toggle--rtl.reader-side-tool {
   background: rgba(10, 14, 26, 0.82);
   border-color: rgba(196, 122, 18, 0.5);
 }
@@ -1119,11 +1125,14 @@ body.night-mode #readerSideTools .hifz-curtain-handle.reader-side-tool {
 #readerSideTools .hifz-room-toggle.reader-side-tool:hover,
 #readerSideTools .hifz-curtain-handle.reader-side-tool:hover,
 #readerSideTools .hifz-room-toggle.reader-side-tool:focus-visible,
-#readerSideTools .hifz-curtain-handle.reader-side-tool:focus-visible {
+#readerSideTools .hifz-curtain-handle.reader-side-tool:focus-visible,
+#readerSideTools .hifz-room-toggle--rtl.reader-side-tool:hover,
+#readerSideTools .hifz-room-toggle--rtl.reader-side-tool:focus-visible {
   width: 84px;
   transform: none;
   background: var(--accent);
   outline: none;
+  cursor: pointer;
 }
 
 body.hifz-room-active #readerSideTools .hifz-room-toggle {
