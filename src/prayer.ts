@@ -13,6 +13,116 @@ import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { startNativeQiblaCompass } from './qibla-compass.js';
 
+/* ===================== LOCAL OFFLINE PRAYER TIMES (1448 H) ===================== */
+
+/** Map English/Arabic city names to the keys in prayer-times-1448.json */
+const LOCAL_CITY_MAP: Record<string, string> = {
+  'makkah': 'مكة المكرمة', 'mecca': 'مكة المكرمة', 'مكة': 'مكة المكرمة', 'مكة المكرمة': 'مكة المكرمة',
+  'madinah': 'المدينة المنورة', 'medina': 'المدينة المنورة', 'المدينة': 'المدينة المنورة', 'المدينة المنورة': 'المدينة المنورة',
+  'riyadh': 'الرياض', 'الرياض': 'الرياض',
+  'jeddah': 'جدة', 'جدة': 'جدة',
+  'dammam': 'الدمام', 'الدمام': 'الدمام',
+  'abha': 'أبها', 'أبها': 'أبها',
+  'tabuk': 'تبوك', 'تبوك': 'تبوك',
+  'buraydah': 'بريدة', 'buraidah': 'بريدة', 'بريدة': 'بريدة',
+  'hail': 'حائل', 'حائل': 'حائل',
+  'taif': 'الطائف', 'الطائف': 'الطائف',
+};
+
+/** Get today's Hijri date in YYYY-MM-DD format (Umm Al-Qura calendar) */
+function getTodayHijriISO(): string {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+    let day = '', month = '', year = '';
+    for (const p of parts) {
+      if (p.type === 'day') {
+        day = p.value;
+      } else if (p.type === 'month') {
+        month = p.value;
+      } else if (p.type === 'year') {
+        year = p.value;
+      }
+    }
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  } catch {
+    return '';
+  }
+}
+
+/** Local prayer times JSON cache (loaded once per session) */
+let _localPrayerJSON: Record<string, unknown> | null = null;
+
+/**
+ * Load prayer times from the local offline JSON file (prayer-times-1448.json).
+ * Returns PrayerTimes if the city is found and today's date matches.
+ * This is instant (no network) and works fully offline.
+ */
+async function loadPrayerTimesFromLocalJSON(city: string): Promise<Record<string, string> | null> {
+  try {
+    // Normalize city name to match JSON keys
+    const norm = city.trim().toLowerCase();
+    const jsonCity = LOCAL_CITY_MAP[norm] || LOCAL_CITY_MAP[city.trim()];
+    if (!jsonCity) {
+      return null;
+    }
+
+    // Load JSON file (cached after first load)
+    if (!_localPrayerJSON) {
+      const url = `${import.meta.env.BASE_URL}data/prayer-times-1448.json`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        return null;
+      }
+      _localPrayerJSON = await response.json() as Record<string, unknown>;
+    }
+
+    const cities = (_localPrayerJSON as Record<string, unknown>)['cities'] as Record<string, { days: Array<Record<string, string>> }>;
+    if (!cities || !cities[jsonCity]) {
+      return null;
+    }
+
+    // Get today's Hijri date
+    const todayHijri = getTodayHijriISO();
+    if (!todayHijri) {
+      return null;
+    }
+
+    // Find today's entry by matching the Hijri date
+    const days = cities[jsonCity].days;
+    // The `date` field is in Hijri YYYY-MM-DD format
+    let todayData = days.find((d: Record<string, string>) => d['date'] === todayHijri);
+
+    // If exact match fails, try by month-day (in case year format differs slightly)
+    if (!todayData) {
+      const monthDay = todayHijri.substring(5); // "MM-DD"
+      todayData = days.find((d: Record<string, string>) => {
+        const dDate = d['date'];
+        return typeof dDate === 'string' && dDate.endsWith(monthDay);
+      });
+    }
+
+    if (!todayData) {
+      return null;
+    }
+
+    // Return in the same format as Aladhan API timings
+    return {
+      Fajr: todayData['Fajr'] || '00:00',
+      Sunrise: todayData['Sunrise'] || '00:00',
+      Dhuhr: todayData['Dhuhr'] || '00:00',
+      Asr: todayData['Asr'] || '00:00',
+      Maghrib: todayData['Maghrib'] || '00:00',
+      Isha: todayData['Isha'] || '00:00',
+    };
+  } catch {
+    return null;
+  }
+}
+
 /* ===================== INTERFACES ===================== */
 
 /** Shape of cached prayer times stored in localStorage. */
@@ -148,7 +258,9 @@ let underwrittenTable: Record<string, Record<string, string>> | null = null;
 let underwrittenLoaded = false;
 
 export async function loadUnderwrittenPrayerTable(): Promise<void> {
-  if (underwrittenLoaded) return;
+  if (underwrittenLoaded) {
+    return;
+  }
   underwrittenLoaded = true;
   try {
     const res = await fetch(`${import.meta.env.BASE_URL}data/prayer-times-underwritten.json`);
@@ -163,13 +275,19 @@ export async function loadUnderwrittenPrayerTable(): Promise<void> {
 }
 
 function getUnderwrittenPrayerTimes(city: string): Record<string, string> | null {
-  if (!underwrittenTable) return null;
+  if (!underwrittenTable) {
+    return null;
+  }
   const norm = (s: string): string => s.trim().toLowerCase().replace(/\s+/g, '');
   const c = norm(city);
   for (const [key, val] of Object.entries(underwrittenTable)) {
-    if (norm(key) === c) return val;
+    if (norm(key) === c) {
+      return val;
+    }
     const label = val['label'];
-    if (label && norm(label) === c) return val;
+    if (label && norm(label) === c) {
+      return val;
+    }
   }
   return null;
 }
@@ -184,6 +302,24 @@ export async function loadPrayerTimes(): Promise<void> {
   const underwritten = getUnderwrittenPrayerTimes(city);
   if (underwritten) {
     state.prayerTimes = underwritten as import('./types.js').PrayerTimes;
+    storage.set('cached_prayer_times', {
+      date: new Date().toISOString(),
+      timings: state.prayerTimes,
+      city,
+      country,
+      method,
+    });
+    renderPrayerTimes();
+    checkAzanTime();
+    scheduleNextAzanCheck();
+    return;
+  }
+
+  // ── Strategy 0.5: Local offline JSON (prayer-times-1448.json) for 10 Saudi cities ──
+  // Instant (no network), works fully offline, uses Umm Al-Qura calendar (method=4).
+  const localTimes = await loadPrayerTimesFromLocalJSON(city);
+  if (localTimes) {
+    state.prayerTimes = localTimes as import('./types.js').PrayerTimes;
     storage.set('cached_prayer_times', {
       date: new Date().toISOString(),
       timings: state.prayerTimes,
