@@ -1067,7 +1067,9 @@ export function initHifzRoom(): void {
   toggle.setAttribute('aria-expanded', 'false');
   toggle.setAttribute('title', label('hifz_room'));
   toggle.setAttribute('aria-label', label('hifz_room'));
-  toggle.innerHTML = '<span data-hifz-toggle-label></span>';
+  toggle.innerHTML =
+    '<svg class="icon reader-side-tool-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7c0-1.7-3.1-3-7-3V18c3.9 0 7 1.3 7 3 0-1.7 3.1-3 7-3V4c-3.9 0-7 1.3-7 3z"/><path d="M12 7v14"/></svg>' +
+    '<span data-hifz-toggle-label></span>';
   document.body.append(backdrop, stage, room);
   const sideTools = document.getElementById('readerSideTools');
   (sideTools || document.body).append(toggle);
