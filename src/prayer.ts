@@ -85,20 +85,31 @@ async function loadPrayerTimesFromLocalJSON(city: string): Promise<Record<string
       return null;
     }
 
-    // Get today's Hijri date
-    const todayHijri = getTodayHijriISO();
-    if (!todayHijri) {
-      return null;
+    // Get today's GREGORIAN date in YYYY-MM-DD format
+    // The JSON `date` field is Gregorian (e.g., "2026-08-30"), NOT Hijri
+    const today = new Date();
+    const todayGreg = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    // Also get today's Hijri date in DD-MM-YYYY format to match the `hijri` field
+    const todayHijri = getTodayHijriISO(); // Returns YYYY-MM-DD
+    let todayHijriDDMMYYYY = '';
+    if (todayHijri) {
+      const parts = todayHijri.split('-');
+      todayHijriDDMMYYYY = `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
 
-    // Find today's entry by matching the Hijri date
+    // Find today's entry — match by GREGORIAN date (primary) or Hijri date (fallback)
     const days = cities[jsonCity].days;
-    // The `date` field is in Hijri YYYY-MM-DD format
-    let todayData = days.find((d: Record<string, string>) => d['date'] === todayHijri);
+    let todayData = days.find((d: Record<string, string>) => d['date'] === todayGreg);
 
-    // If exact match fails, try by month-day (in case year format differs slightly)
+    // Fallback: match by Hijri date field (DD-MM-YYYY)
+    if (!todayData && todayHijriDDMMYYYY) {
+      todayData = days.find((d: Record<string, string>) => d['hijri'] === todayHijriDDMMYYYY);
+    }
+
+    // Last fallback: match by month-day of Gregorian date
     if (!todayData) {
-      const monthDay = todayHijri.substring(5); // "MM-DD"
+      const monthDay = todayGreg.substring(5); // "MM-DD"
       todayData = days.find((d: Record<string, string>) => {
         const dDate = d['date'];
         return typeof dDate === 'string' && dDate.endsWith(monthDay);
