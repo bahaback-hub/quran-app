@@ -111,6 +111,18 @@ export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEnt
           resolve(null);
           return;
         }
+        // Shape-guard: reject structurally-corrupt cache entries instead of
+        // letting downstream code crash on `cached.text.ayahs`. IndexedDB stores
+        // whatever was written, so a failed migration or partial write could
+        // yield a record without a valid `text.ayahs` array.
+        const text = result.text;
+        if (!text || typeof text !== 'object' || !Array.isArray(text.ayahs) || text.ayahs.length === 0) {
+          if (import.meta.env.DEV) {
+            console.warn(`[SurahCache] Dropping corrupt cache entry for ${result.key}`);
+          }
+          resolve(null);
+          return;
+        }
         // Extract the CachedSurahEntry fields (exclude the 'key' property)
         const { key: _k, ...entry } = result;
         resolve(entry as CachedSurahEntry);

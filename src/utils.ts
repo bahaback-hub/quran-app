@@ -1,27 +1,14 @@
 /**
  * Utility functions for Quran App.
  *
- * Provides HTML escaping, Arabic text normalization, clipboard operations,
+ * Provides Arabic text normalization, clipboard operations,
  * number formatting, and time conversion helpers used across modules.
+ * HTML escaping is re-exported from templates/escape.js (single source of truth).
  */
 
-const _escapeDiv: HTMLDivElement = document.createElement('div');
-
-/**
- * Escape HTML special characters using DOM-based escaping (safe against XSS).
- * Uses textContent/innerHTML round-trip for robust escaping.
- *
- * @param str The string to escape (null/undefined treated as empty string)
- * @returns Escaped HTML string safe for innerHTML assignment
- *
- * @example
- *   escapeHtml('<script>alert("xss")</script>')
- *   // → '&lt;script&gt;alert("xss")&lt;/script&gt;'
- */
-export function escapeHtml(str: string | null | undefined): string {
-  _escapeDiv.textContent = str == null ? '' : String(str);
-  return _escapeDiv.innerHTML;
-}
+// Re-export the canonical XSS-safe escapeHtml so `./utils.js` importers keep
+// working without a third duplicate implementation.
+export { escapeHtml } from './templates/escape.js';
 
 /**
  * Escape special characters in a string for use in a RegExp.
