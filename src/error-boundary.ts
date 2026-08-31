@@ -286,17 +286,21 @@ function handleOnError(
   colno?: number,
   error?: Error,
 ): boolean {
+  // تحسين تسجيل الأخطاء لتحديد السبب الحقيقي
+  const msg = message instanceof Event ? `[object Event: ${message.type}]` : String(message);
+  const stack = error?.stack || (message instanceof Error ? message.stack : undefined);
+  
   logError({
     type: 'sync',
-    message: String(message),
+    message: msg,
     source: source || undefined,
     line: lineno || undefined,
     col: colno || undefined,
-    stack: error?.stack || undefined,
+    stack,
   });
 
-  if (isCriticalError(String(message), source)) {
-    showRecoveryOverlay(error?.stack || String(message));
+  if (isCriticalError(msg, source)) {
+    showRecoveryOverlay(stack || msg);
   } else {
     showDebouncedToast(__('error_title'));
   }
