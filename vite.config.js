@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 const isCapacitorBuild = process.env.BUILD_TARGET === 'capacitor';
 
 export default defineConfig({
-  base: './',
+  base: '/quran-app/',
   root: '.',
   publicDir: 'public',
   build: {
