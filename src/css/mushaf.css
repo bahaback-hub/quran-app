@@ -353,6 +353,9 @@ body.night-mode .mushaf-surah-overlay-inner {
   overflow: auto;
   /* تكبير صفحة المصحف يحافظ على خط QCF4 ويتيح السحب لقراءة التفاصيل. */
   box-sizing: border-box;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .mushaf-page-img {
@@ -362,6 +365,9 @@ body.night-mode .mushaf-surah-overlay-inner {
   height: auto;
   object-fit: contain;
   border-radius: 2px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .mushaf-page-img.loaded {
   opacity: 1;
@@ -379,6 +385,10 @@ body.night-mode .mushaf-page-img {
   background: #f5f0e8;
   /* منع التوسع الأفقي */
   box-sizing: border-box;
+  /* مؤشر النقر فوق canvas المصحف (يمنع ظهور مؤشر النص الموروث) */
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* ===== تظليل الآية الحالية ===== */
