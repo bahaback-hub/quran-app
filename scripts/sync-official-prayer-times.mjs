@@ -2,19 +2,15 @@
 /**
  * ⚠️ DEPRECATED — do NOT use to regenerate the published file.
  *
- * This script pulls from the Aladhan API (method=4), which diverges from the
- * official ummulqura.org.sa calendar by ~1-2 minutes (see comments below).
+ * The official Umm Al-Qura (KACST) calendar is now sourced directly from the
+ * KACST API that powers ummulqura.org.sa, guaranteeing a 100% match:
  *
- * Use `scripts/regenerate-prayer-times-adhan.mjs` instead — it generates the
- * same file with the adhan library's UmmAlQura method, which matches the
- * official Saudi calendar within ±1 minute.
+ *   scripts/regenerate-prayer-times-official.mjs
  *
- * Legacy note (kept for reference only):
- * Uses Aladhan API (method=4) which closely matches ummulqura.org.sa
- * with an inherent ±1 minute variance due to different calculation
- * parameters. The official site uses exact astronomical algorithms
- * from Umm Al-Qura University that are not fully replicated by any
- * public API.
+ * (It calls https://umqserv.kacst.gov.sa/api/v1/Prayer/GetPrayerHijriMonth.)
+ *
+ * This legacy Aladhan-based script is kept only as a fallback reference and
+ * must not overwrite the official data.
  */
 
 import https from 'node:https';
