@@ -38,11 +38,13 @@
 /* ========== التجاوب مع الموبايل ========== */
 @media (max-width: 600px) {
   body {
-    padding: 10px;
+    padding: 0;
     padding-bottom: 120px;
   }
   .container {
-    border-radius: 12px;
+    border-radius: 0;
+    width: 100%;
+    max-width: 100%;
   }
   .header {
     padding: 22px 15px;
@@ -98,7 +100,8 @@
     left: -100%;
   }
   .tafsir-curtain {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     left: 0;
   }
   .big-clock-time {

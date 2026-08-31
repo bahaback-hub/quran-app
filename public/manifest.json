@@ -1,0 +1,28 @@
+{
+  "background_color": "#f5f0e8",
+  "categories": ["books", "education", "lifestyle"],
+  "description": "تطبيق القرآن الكريم — تلاوة، بحث، تفسير، ومواقيت الصلاة",
+  "dir": "rtl",
+  "display": "standalone",
+  "icons": [
+    {
+      "purpose": "any maskable",
+      "sizes": "192x192",
+      "src": "./icon-192.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any maskable",
+      "sizes": "512x512",
+      "src": "./icon-512.png",
+      "type": "image/png"
+    }
+  ],
+  "lang": "ar",
+  "name": "القرآن الكريم - عائلة السليماني",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "short_name": "القرآن الكريم",
+  "start_url": "./",
+  "theme_color": "#5c2e2e"
+}
