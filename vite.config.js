@@ -162,7 +162,7 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 2 * 1024 * 1024, // 2MB limit per file (was 10MB)
         // Only precache small essential files — large data files are runtime-cached
-        globPatterns: ['**/*.{js,css,html,woff2}'],
+        globPatterns: ['**/*.{js,css,html,woff2,png}'],
         // Exclude large data files from precache — they're runtime-cached on demand
         globIgnores: [
           '**/data/*.json',      // Quran text, tafsir, tajweed chunks — loaded on demand
@@ -190,7 +190,7 @@ export default defineConfig({
             urlPattern: /\/fonts\/.*\.(ttf|woff2|css)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'app-fonts-v2',
+              cacheName: 'app-fonts-v3',
               expiration: { maxEntries: 60, maxAgeSeconds: 86400 * 365 }
             }
           },
@@ -200,7 +200,7 @@ export default defineConfig({
             urlPattern: /\/data\/.*\.json$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'app-data-v2',
+              cacheName: 'app-data-v3',
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 86400 * 30, // 30 days
@@ -213,7 +213,7 @@ export default defineConfig({
             urlPattern: /\/backgrounds\/.*\.(jpg|png|webp)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'app-backgrounds',
+              cacheName: 'app-backgrounds-v3',
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 86400 * 30,
@@ -226,7 +226,7 @@ export default defineConfig({
             urlPattern: /\/azan\.mp3$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'app-audio-azan',
+              cacheName: 'app-audio-azan-v3',
               expiration: { maxEntries: 1, maxAgeSeconds: 86400 * 365 }
             }
           },
@@ -234,7 +234,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/quran\/quran-uthmani/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'quran-full-text',
+              cacheName: 'quran-full-text-v3',
               expiration: { maxEntries: 2, maxAgeSeconds: 86400 * 365 }
             }
           },
@@ -242,7 +242,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/api\.alquran\.cloud\/.*/i,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'quran-api',
+              cacheName: 'quran-api-v3',
               expiration: { maxEntries: 100, maxAgeSeconds: 86400 * 30 }
             }
           },
@@ -250,7 +250,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/api\.aladhan\.com\/.*/i,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'prayer-api',
+              cacheName: 'prayer-api-v3',
               expiration: { maxEntries: 10, maxAgeSeconds: 3600 }
             }
           },
@@ -258,7 +258,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/spa5k\/tafsir_api/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'tafsir-api',
+              cacheName: 'tafsir-api-v3',
               expiration: { maxEntries: 200, maxAgeSeconds: 86400 * 365 }
             }
           },
@@ -266,7 +266,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/server\d+\.mp3quran\.net\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'quran-audio',
+              cacheName: 'quran-audio-v3',
               expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 }
             }
           },
@@ -274,7 +274,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/cdn\.islamic\.network\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'islamic-cdn',
+              cacheName: 'islamic-cdn-v3',
               expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 }
             }
           },
@@ -282,7 +282,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/raw\.githubusercontent\.com\/.*quran-qcf4\/.*\/pages\/.*\.json/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'mushaf-layout',
+              cacheName: 'mushaf-layout-v3',
               expiration: { maxEntries: 700, maxAgeSeconds: 86400 * 365 }
             }
           },
@@ -290,7 +290,7 @@ export default defineConfig({
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/MohamadHajjRabee\/quran-qcf4.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'mushaf-fonts',
+              cacheName: 'mushaf-fonts-v3',
               expiration: { maxEntries: 50, maxAgeSeconds: 86400 * 365 }
             }
           }
