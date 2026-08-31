@@ -109,8 +109,8 @@ export const BOTTOM_OFFSET = 50;
 const MAX_POOL_SIZE = isMobileDevice() ? 1 : 3;
 const canvasPool: HTMLCanvasElement[] = [];
 
-/** Get a canvas from pool or create new one */
-function getCanvas(): HTMLCanvasElement {
+/** Get a canvas from pool or create new one (sized to CANVAS_W × CANVAS_H). */
+export function getCanvas(): HTMLCanvasElement {
   const cached = canvasPool.pop();
   if (cached) {
     return cached;

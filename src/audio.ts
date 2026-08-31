@@ -262,8 +262,22 @@ function preloadNextAyah(): void {
         document.body.appendChild(a2);
         dom.audioPlayer2 = a2;
       }
-      dom.audioPlayer2.src = nextUrl;
-      dom.audioPlayer2.load();
+      // Prefer the offline-cached blob URL when the file is already stored
+      // locally — this avoids a redundant network fetch for audio we already
+      // have. resolveAudioUrl() falls back to the original network URL.
+      void resolveAudioUrl(nextUrl).then((resolved) => {
+        if (!dom.audioPlayer2) {
+          return;
+        }
+        // Revoke the previously-preloaded blob URL (if any) before replacing
+        // it, so we never accumulate leaked object URLs while browsing.
+        const oldSrc = dom.audioPlayer2.src;
+        if (oldSrc && oldSrc.startsWith('blob:') && oldSrc !== resolved) {
+          URL.revokeObjectURL(oldSrc);
+        }
+        dom.audioPlayer2!.src = resolved;
+        dom.audioPlayer2!.load();
+      });
     }
   }
 }

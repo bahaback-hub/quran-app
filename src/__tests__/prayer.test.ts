@@ -90,3 +90,20 @@ describe('getNextPrayerKey', () => {
     expect(['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']).toContain(result);
   });
 });
+
+describe('loadPrayerTimesFromLocalJSON — offline table guard', () => {
+  it('should NOT fetch the ~975KB prayer JSON for an unsupported city', async () => {
+    const fetchSpy = vi.fn(() => Promise.resolve(new Response('{}', { status: 200 })));
+    vi.stubGlobal('fetch', fetchSpy);
+
+    const { loadPrayerTimesFromLocalJSON } = await import('../prayer.js');
+    const result = await loadPrayerTimesFromLocalJSON('Cairo');
+
+    expect(result).toBeNull();
+    // The whole point of the guard: never pay the ~975KB parse cost for cities
+    // not covered by prayer-times-1448.json.
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+  });
+});

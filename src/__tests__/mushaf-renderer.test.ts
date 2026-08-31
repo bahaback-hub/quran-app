@@ -52,6 +52,9 @@ import {
   loadPageData,
   renderPage,
   getLineY,
+  getCanvas,
+  releaseCanvas,
+  clearCanvasPool,
 } from '../mushaf-renderer.js';
 import type { PageLayoutData } from '../mushaf-renderer.js';
 
@@ -276,5 +279,40 @@ describe('renderPage', () => {
     expect(result).toHaveProperty('canvas');
     expect(result).toHaveProperty('layout');
     vi.restoreAllMocks();
+  });
+});
+
+describe('Canvas Pool (getCanvas / releaseCanvas)', () => {
+  beforeEach(() => {
+    clearCanvasPool();
+  });
+
+  it('should reuse a released canvas instead of allocating a new one', () => {
+    const first = getCanvas();
+    expect(first).toBeInstanceOf(HTMLCanvasElement);
+    expect(first.width).toBe(CANVAS_W);
+    expect(first.height).toBe(CANVAS_H);
+
+    // Return it to the pool (this is what mushaf.ts does when navigating away)
+    releaseCanvas(first);
+
+    // Next acquisition should hand back the SAME instance (no new allocation)
+    const second = getCanvas();
+    expect(second).toBe(first);
+  });
+
+  it('should not grow the pool beyond MAX_POOL_SIZE (desktop = 3)', () => {
+    const canvases = [getCanvas(), getCanvas(), getCanvas(), getCanvas(), getCanvas()];
+    canvases.forEach((c) => releaseCanvas(c));
+
+    // Only up to 3 should be retained; the rest are left for GC.
+    // Acquiring 3 returns distinct pooled instances, the 4th is a fresh alloc.
+    const a = getCanvas();
+    const b = getCanvas();
+    const c = getCanvas();
+    const d = getCanvas();
+    expect(new Set([a, b, c]).size).toBe(3);
+    // d is a fresh allocation not among the first three
+    expect([a, b, c]).not.toContain(d);
   });
 });

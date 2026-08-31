@@ -16,7 +16,7 @@ import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from './app.js';
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from './audio.js';
 import { handlePageClick, getAyahHighlightRects } from './ayah-click.js';
-import { renderPage, loadPageData, releaseCanvas } from './mushaf-renderer.js';
+import { renderPage, loadPageData, releaseCanvas, getCanvas } from './mushaf-renderer.js';
 import type { PageLayoutData } from './mushaf-renderer.js';
 import { loadTafsirForSurahAyah } from './tafsir.js';
 import { __ } from './i18n.js';
@@ -285,10 +285,8 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   const canvasWrapper = document.createElement('div');
   canvasWrapper.className = 'mushaf-image-wrapper';
 
-  const canvas = document.createElement('canvas');
+  const canvas = getCanvas();
   canvas.className = 'mushaf-page-canvas';
-  canvas.width = 1080;
-  canvas.height = 1540;
 
   canvasWrapper.appendChild(canvas);
 

@@ -240,6 +240,15 @@ let _loadCounter = 0;
 let currentSurahController: AbortController | null = null;
 /** Separate AbortController for background refresh — not cancelled when loading a new surah. */
 let _refreshController: AbortController | null = null;
+/**
+ * Debounce handle for the background refresh. When the user flips quickly through
+ * cached surahs, each one schedules a background re-fetch. We delay the first
+ * refresh by a short window and coalesce — if another surah loads before the
+ * window elapses, we reschedule against the newest surah only. This prevents a
+ * burst of identical stale-while-revalidate requests during fast navigation.
+ */
+let _refreshDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+const REFRESH_DEBOUNCE_MS = 1200;
 
 async function prepareTajweedForSurah(surahNum: number): Promise<void> {
   if (state.tajweedEnabled) {
@@ -371,13 +380,33 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     dom.surahContent?.classList.remove('is-loading');
     dom.surahContent?.setAttribute('aria-busy', 'false');
     // If online, still try to refresh the data in background (stale-while-revalidate)
-    // Use a SEPARATE AbortController so the refresh isn't cancelled when the user loads a different surah
+    // Use a SEPARATE AbortController so the refresh isn't cancelled when the user loads a different surah.
+    // Debounce so fast navigation across cached surahs coalesces into at most one
+    // refresh for the most recently opened surah, instead of one request per surah.
     if (navigator.onLine) {
-      if (_refreshController) {
-        _refreshController.abort();
+      if (_refreshDebounceTimer) {
+        clearTimeout(_refreshDebounceTimer);
       }
-      _refreshController = new AbortController();
-      _refreshSurahFromAPI(surahNum, cacheKey, reciterInfo, isMp3quran, currentLoad, _refreshController.signal);
+      const debouncedSurahNum = surahNum;
+      const debouncedCacheKey = cacheKey;
+      const debouncedReciterInfo = reciterInfo;
+      const debouncedIsMp3quran = isMp3quran;
+      const debouncedCurrentLoad = currentLoad;
+      _refreshDebounceTimer = setTimeout(() => {
+        _refreshDebounceTimer = null;
+        if (_refreshController) {
+          _refreshController.abort();
+        }
+        _refreshController = new AbortController();
+        void _refreshSurahFromAPI(
+          debouncedSurahNum,
+          debouncedCacheKey,
+          debouncedReciterInfo,
+          debouncedIsMp3quran,
+          debouncedCurrentLoad,
+          _refreshController.signal,
+        );
+      }, REFRESH_DEBOUNCE_MS);
     }
     return;
   }
