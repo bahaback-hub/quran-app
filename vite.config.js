@@ -171,7 +171,6 @@ export default defineConfig({
           '**/*.mp3',             // Audio files — runtime cached
           '**/*.ttf',             // Fonts — runtime cached via CacheFirst
           '**/fonts/qcf4/**',     // Downloaded together only when the user enables offline Mushaf
-          '**/*.png',             // Icons/screenshots — handled separately
         ],
         offlineGoogleAnalytics: false,
         navigateFallback: 'index.html',
