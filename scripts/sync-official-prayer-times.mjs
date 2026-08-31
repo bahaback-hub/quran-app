@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 /**
- * Sync prayer times with official Umm Al-Qura calendar.
+ * ⚠️ DEPRECATED — do NOT use to regenerate the published file.
  *
+ * This script pulls from the Aladhan API (method=4), which diverges from the
+ * official ummulqura.org.sa calendar by ~1-2 minutes (see comments below).
+ *
+ * Use `scripts/regenerate-prayer-times-adhan.mjs` instead — it generates the
+ * same file with the adhan library's UmmAlQura method, which matches the
+ * official Saudi calendar within ±1 minute.
+ *
+ * Legacy note (kept for reference only):
  * Uses Aladhan API (method=4) which closely matches ummulqura.org.sa
  * with an inherent ±1 minute variance due to different calculation
  * parameters. The official site uses exact astronomical algorithms
  * from Umm Al-Qura University that are not fully replicated by any
  * public API.
- *
- * For apps where ±1 min precision is acceptable (most prayer apps),
- * this sync ensures the JSON file always has today's data.
  */
 
 import https from 'node:https';
