@@ -182,6 +182,11 @@ export default {
   // === الموقع ===
   save_location: 'تم حفظ الموقع',
   location_not_supported: 'الموقع غير مدعوم في هذا المتصفح',
+  use_my_location: '📍 استخدم موقعي',
+  auto_location: 'تلقائي',
+  location_detected: 'تم اكتشاف الموقع: {0}',
+  location_denied: 'تم رفض إذن الموقع',
+  location_no_city: 'لم يتم العثور على مدينة قريبة',
 
   // === السور والآيات ===
   select_surah: 'اختر سورة',

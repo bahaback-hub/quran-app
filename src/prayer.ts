@@ -515,12 +515,20 @@ function updateCountdowns(): void {
   const m = Math.floor((diffSec % 3600) / 60);
   const s = diffSec % 60;
   const countdownText = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
-  const headerCountdownText = `${pad2(h)}:${pad2(m)}`;
-  if (dom.countdownDisplay) {
-    dom.countdownDisplay.textContent = countdownText;
-  }
-  if (dom.prayerCountdown) {
-    dom.prayerCountdown.textContent = __('prayer_countdown_header', getPrayerName(nextKey), headerCountdownText);
+  // Live countdown shown INSIDE the prayer-times container (replaces the old
+  // top-of-screen countdown that was removed at the user's request).
+  const bannerText = __('prayer_countdown_header', getPrayerName(nextKey), countdownText);
+  // Update every banner inside a prayer-times container (production path).
+  getPrayerTimesContainers().forEach((container) => {
+    const banner = container.querySelector<HTMLElement>('#prayerNextCountdown');
+    if (banner) {
+      banner.textContent = bannerText;
+    }
+  });
+  // Fallback: also update a directly-rendered banner (e.g. outside containers).
+  const directBanner = document.getElementById('prayerNextCountdown');
+  if (directBanner && !directBanner.textContent) {
+    directBanner.textContent = bannerText;
   }
   const time24 = (state.prayerTimes[nextKey] || '').split(' ')[0]!;
   if (dom.nextPrayerName) {

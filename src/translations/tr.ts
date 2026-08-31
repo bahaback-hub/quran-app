@@ -201,6 +201,11 @@ export default {
   // === Konum ===
   save_location: 'Konum kaydedildi',
   location_not_supported: 'Konum bu tarayıcıda desteklenmiyor',
+  use_my_location: '📍 Konumumu kullan',
+  auto_location: 'Otomatik',
+  location_detected: 'Konum tespit edildi: {0}',
+  location_denied: 'Konum izni reddedildi',
+  location_no_city: 'Yakın şehir bulunamadı',
 
   // === Sureler ve Ayetler ===
   select_surah: 'Sure Seç',

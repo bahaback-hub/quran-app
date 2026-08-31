@@ -222,6 +222,11 @@ export function bindHeaderAndSettingsEvents(): void {
   });
   dom.settingsCloseBtn?.addEventListener('click', closeSettings);
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
+  dom.useLocationBtn?.addEventListener('click', useMyLocation);
+  dom.autoLocationToggle?.addEventListener('change', () => {
+    state.autoLocation = dom.autoLocationToggle!.checked;
+    storage.set('auto_location', state.autoLocation);
+  });
   dom.testAzanBtn?.addEventListener('click', testAzan);
   dom.azanNotifStopBtn?.addEventListener('click', stopAzan);
   // welcome screen removed
@@ -1139,6 +1144,33 @@ export function bindHelpEvents(): void {
   if (!seen) {
     storage.set('help_seen', true);
     openHelp();
+  }
+}
+
+/**
+ * Use the device's GPS to detect the nearest supported city and fill the
+ * city input. Requires the user's permission (browser will prompt).
+ */
+async function useMyLocation(): Promise<void> {
+  if (!navigator.geolocation) {
+    showToast(__('location_not_supported'), 'error');
+    return;
+  }
+  // Dynamically import prayer-local to avoid a hard dependency at module load.
+  const { getCoordinates, nearestCityToCoords } = await import('./prayer-local.js');
+  const coords = await getCoordinates();
+  if (!coords) {
+    showToast(__('location_denied'), 'error');
+    return;
+  }
+  const city = nearestCityToCoords(coords.latitude, coords.longitude);
+  if (city && dom.cityInput) {
+    dom.cityInput.value = city;
+    state.city = city;
+    storage.set('city', city);
+    showToast(__('location_detected', city), 'success');
+  } else {
+    showToast(__('location_no_city'), 'error');
   }
 }
 

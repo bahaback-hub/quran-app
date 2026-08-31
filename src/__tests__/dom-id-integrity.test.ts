@@ -54,7 +54,7 @@ const INDEX_HTML_PATH = join(process.cwd(), 'index.html');
  * - `loadingProgress`: created by `LoadingBar.init()` in `ui.ts` if no
  *   element with that ID exists. See ui.ts:44-47.
  */
-const DYNAMICALLY_CREATED_IDS = new Set(['audioPlayer2', 'loadingProgress']);
+const DYNAMICALLY_CREATED_IDS = new Set(['audioPlayer2', 'loadingProgress', 'prayerNextCountdown']);
 
 /**
  * Load the real index.html and inject the same overlay HTML strings that

@@ -182,6 +182,11 @@ export default {
   // === Location ===
   save_location: 'Location saved',
   location_not_supported: 'Location not supported in this browser',
+  use_my_location: '📍 Use my location',
+  auto_location: 'Auto',
+  location_detected: 'Location detected: {0}',
+  location_denied: 'Location permission denied',
+  location_no_city: 'No nearby city found',
 
   // === Surahs & Ayahs ===
   select_surah: 'Select Surah',

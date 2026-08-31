@@ -183,6 +183,7 @@ export interface AppState {
   method: string;
   prayerTimes: PrayerTimes | null;
   lastAzanFired: string | null;
+  autoLocation: boolean;
   favorites: FavoriteEntry[];
   bookmark: BookmarkEntry | null;
   pendingTafsirAfterLoad: string | null;
@@ -251,6 +252,7 @@ export function createDefaultState(): AppState {
     method: '4',
     prayerTimes: null,
     lastAzanFired: null,
+    autoLocation: false,
     favorites: [],
     bookmark: null,
     pendingTafsirAfterLoad: null,

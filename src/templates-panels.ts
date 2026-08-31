@@ -62,6 +62,13 @@ export function settingsPanelHTML(): string {
             <label for="cityInput" data-i18n="city">المدينة:</label>
             <input type="text" id="cityInput" placeholder="مكة" />
           </div>
+          <div class="settings-row" style="gap:8px;">
+            <button class="btn" id="useLocationBtn" data-i18n="use_my_location">📍 استخدم موقعي</button>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:normal;">
+              <input type="checkbox" id="autoLocationToggle" />
+              <span data-i18n="auto_location">تلقائي</span>
+            </label>
+          </div>
           <div class="settings-row">
             <label for="countryInput" data-i18n="country">الدولة:</label>
             <input type="text" id="countryInput" placeholder="SA" />

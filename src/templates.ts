@@ -642,9 +642,15 @@ export function favoriteMeta(surahName: string, ayah: number | string): string {
 
 /**
  * Generate prayer times rows HTML.
+ * Includes a live "time until next prayer" banner at the top of the container
+ * (filled by updateCountdowns() in prayer.ts).
  */
 export function prayerTimesRows(times: Array<{ name: string; time: string; isNext: boolean }>): string {
-  return times.map((t) => prayerTimeRow(t.name, t.time, t.isNext)).join('');
+  if (times.length === 0) {
+    return '';
+  }
+  const banner = `<div id="prayerNextCountdown" class="prayer-next-countdown"></div>`;
+  return banner + times.map((t) => prayerTimeRow(t.name, t.time, t.isNext)).join('');
 }
 
 /* ===================== ERROR BOUNDARY TEMPLATE ===================== */
