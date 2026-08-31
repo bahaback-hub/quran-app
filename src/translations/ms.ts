@@ -198,9 +198,14 @@ export default {
   weekday_saturday: 'Sabtu',
   weekdays: ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'],
 
-  // === Lokasi ===
+  // === Location ===
   save_location: 'Lokasi disimpan',
   location_not_supported: 'Lokasi tidak disokong dalam pelayar ini',
+  use_my_location: '📍 Gunakan lokasi saya',
+  auto_location: 'Auto',
+  location_detected: 'Lokasi dikesan: {0}',
+  location_denied: 'Kebenaran lokasi ditolak',
+  location_no_city: 'Tiada berdekatan bandar ditemui',
 
   // === Surah & Ayat ===
   select_surah: 'Pilih Surah',

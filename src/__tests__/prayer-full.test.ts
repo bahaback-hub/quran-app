@@ -42,8 +42,8 @@ const {
     countryInput: Object.assign(createMockElement(), { value: 'SA' }) as unknown as HTMLInputElement,
     methodSelect: Object.assign(createMockElement(), { value: '4' }) as unknown as HTMLSelectElement,
     prayerTimesRows: createMockElement(),
-    countdownDisplay: createMockElement(),
-    prayerCountdown: createMockElement(),
+    prayerNextCountdown: Object.assign(createMockElement(), { id: 'prayerNextCountdown' }),
+    prayerTimesRows: createMockElement(),
     nextPrayerName: createMockElement(),
     nextPrayerTime: createMockElement(),
     azanNotification: createMockElement(),
@@ -1346,34 +1346,33 @@ describe('prayer.ts', () => {
     it('should update countdown when prayerTimes is set', () => {
       state.prayerTimes = { ...SAMPLE_PRAYER_TIMES };
       setNowToTime(10, 0);
+      // Banner rendered directly (fallback path in updateCountdowns)
+      document.body.appendChild(mockDom.prayerNextCountdown!);
       startClock();
       vi.advanceTimersByTime(1000);
-      expect(mockDom.countdownDisplay!.textContent).toBeTruthy();
+      expect(mockDom.prayerNextCountdown!.textContent).toBeTruthy();
+      document.body.removeChild(mockDom.prayerNextCountdown!);
     });
 
     it('should not update countdown when prayerTimes is null', () => {
       state.prayerTimes = null;
+      document.body.appendChild(mockDom.prayerNextCountdown!);
       startClock();
-      const prev = mockDom.countdownDisplay!.textContent;
+      const prev = mockDom.prayerNextCountdown!.textContent;
       vi.advanceTimersByTime(1000);
-      expect(mockDom.countdownDisplay!.textContent).toBe(prev);
+      expect(mockDom.prayerNextCountdown!.textContent).toBe(prev);
+      document.body.removeChild(mockDom.prayerNextCountdown!);
     });
 
     it('should compute correct countdown format', () => {
       state.prayerTimes = { ...SAMPLE_PRAYER_TIMES };
       setNowToTime(10, 0);
+      document.body.appendChild(mockDom.prayerNextCountdown!);
       startClock();
       vi.advanceTimersByTime(1000);
-      const text = mockDom.countdownDisplay!.textContent!;
-      expect(text).toMatch(/^\d{2}:\d{2}:\d{2}$/);
-    });
-
-    it('shows the header countdown with hours and minutes only', () => {
-      state.prayerTimes = { ...SAMPLE_PRAYER_TIMES };
-      setNowToTime(10, 0);
-      startClock();
-      vi.advanceTimersByTime(1000);
-      expect(mockDom.prayerCountdown!.textContent).toMatch(/^prayer_countdown_header:.+:\d{2}:\d{2}$/);
+      const text = mockDom.prayerNextCountdown!.textContent!;
+      expect(text).toMatch(/prayer_countdown_header:.+:\d{2}:\d{2}:\d{2}/);
+      document.body.removeChild(mockDom.prayerNextCountdown!);
     });
   });
 

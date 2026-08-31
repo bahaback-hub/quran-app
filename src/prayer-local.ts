@@ -184,3 +184,39 @@ export function calculateLocalQibla(latitude: number, longitude: number): number
   const coords = new Coordinates(latitude, longitude);
   return Qibla(coords);
 }
+
+/* ===================== NEAREST CITY ===================== */
+
+/** Coordinates of the 10 officially supported Saudi cities. */
+const CITY_COORDS: Array<{ ar: string; lat: number; lng: number }> = [
+  { ar: 'مكة المكرمة', lat: 21.426666, lng: 39.831666 },
+  { ar: 'المدينة المنورة', lat: 24.524722, lng: 39.569722 },
+  { ar: 'الرياض', lat: 24.713333, lng: 46.675278 },
+  { ar: 'جدة', lat: 21.543333, lng: 39.172778 },
+  { ar: 'الدمام', lat: 26.433333, lng: 50.083333 },
+  { ar: 'أبها', lat: 18.216667, lng: 42.505278 },
+  { ar: 'تبوك', lat: 28.383333, lng: 36.566667 },
+  { ar: 'بريدة', lat: 26.326389, lng: 43.975 },
+  { ar: 'حائل', lat: 27.511667, lng: 41.720833 },
+  { ar: 'الطائف', lat: 21.285833, lng: 40.418333 },
+];
+
+/**
+ * Find the nearest supported city to the given coordinates.
+ * Uses simple Euclidean distance (good enough for nearest-city at city scale).
+ * @returns Arabic city name (e.g. "مكة المكرمة") or null if no cities.
+ */
+export function nearestCityToCoords(latitude: number, longitude: number): string | null {
+  let best: string | null = null;
+  let bestDist = Infinity;
+  for (const c of CITY_COORDS) {
+    const dLat = c.lat - latitude;
+    const dLng = c.lng - longitude;
+    const dist = dLat * dLat + dLng * dLng;
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = c.ar;
+    }
+  }
+  return best;
+}

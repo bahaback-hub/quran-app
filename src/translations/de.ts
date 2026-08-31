@@ -183,6 +183,11 @@ export default {
   // === Location ===
   save_location: 'Ort gespeichert',
   location_not_supported: 'Ortsermittlung wird in diesem Browser nicht unterstützt',
+  use_my_location: '📍 Meinen Standort verwenden',
+  auto_location: 'Auto',
+  location_detected: 'Standort erkannt: {0}',
+  location_denied: 'Standortberechtigung verweigert',
+  location_no_city: 'Keine nahegelegene Stadt gefunden',
 
   // === Surahs & Ayahs ===
   select_surah: 'Sure auswählen',

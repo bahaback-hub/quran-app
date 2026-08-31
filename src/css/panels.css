@@ -467,6 +467,23 @@ body.night-mode .settings-header h2 {
   padding: 15px;
   margin-bottom: 20px;
 }
+.prayer-next-countdown {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 12px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+}
+body.night-mode .prayer-next-countdown {
+  background: linear-gradient(135deg, #6b5520, #4a3d1a);
+  color: #ffe066;
+  box-shadow: 0 0 14px rgba(255, 224, 102, 0.25);
+}
 .prayer-row {
   display: flex;
   justify-content: space-between;

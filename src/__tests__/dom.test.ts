@@ -198,9 +198,8 @@ describe('DOM_IDS completeness', () => {
     const expectedKeys = [
       'nextPrayerName',
       'nextPrayerTime',
-      'countdownDisplay',
+      'prayerNextCountdown',
       'prayerTimesRows',
-      'prayerCountdown',
       'bigClockTime',
       'bigClockTime2',
       'bigClockDate',

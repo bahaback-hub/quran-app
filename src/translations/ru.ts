@@ -182,6 +182,11 @@ export default {
   // === Location ===
   save_location: 'Местоположение сохранено',
   location_not_supported: 'Определение местоположения не поддерживается в этом браузере',
+  use_my_location: '📍 Использовать моё местоположение',
+  auto_location: 'Авто',
+  location_detected: 'Местоположение определено: {0}',
+  location_denied: 'Доступ к местоположению запрещён',
+  location_no_city: 'Ближайший город не найден',
 
   // === Surahs & Ayahs ===
   select_surah: 'Выберите суру',

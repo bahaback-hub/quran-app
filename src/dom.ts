@@ -20,9 +20,8 @@
 interface DomMap {
   nextPrayerName: HTMLElement | null;
   nextPrayerTime: HTMLElement | null;
-  countdownDisplay: HTMLElement | null;
+  prayerNextCountdown: HTMLElement | null;
   prayerTimesRows: HTMLElement | null;
-  prayerCountdown: HTMLElement | null;
   bigClockTime: HTMLElement | null;
   bigClockTime2: HTMLElement | null;
   bigClockDate: HTMLElement | null;
@@ -45,6 +44,8 @@ interface DomMap {
   surahContent: HTMLElement | null;
   cityInput: HTMLInputElement | null;
   countryInput: HTMLInputElement | null;
+  useLocationBtn: HTMLElement | null;
+  autoLocationToggle: HTMLInputElement | null;
   methodSelect: HTMLSelectElement | null;
   cityQuickSelect: HTMLSelectElement | null;
   saveLocationBtn: HTMLElement | null;
@@ -212,9 +213,8 @@ interface DomMap {
 const DOM_IDS: (keyof DomMap)[] = [
   'nextPrayerName',
   'nextPrayerTime',
-  'countdownDisplay',
+  'prayerNextCountdown',
   'prayerTimesRows',
-  'prayerCountdown',
   'bigClockTime',
   'bigClockTime2',
   'bigClockDate',
@@ -236,6 +236,8 @@ const DOM_IDS: (keyof DomMap)[] = [
   'surahContent',
   'cityInput',
   'countryInput',
+  'useLocationBtn',
+  'autoLocationToggle',
   'methodSelect',
   'cityQuickSelect',
   'saveLocationBtn',
