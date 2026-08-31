@@ -98,6 +98,7 @@ vi.mock('../internal-state.js', () => ({
 vi.mock('../prayer.js', () => ({
   startClock: vi.fn(),
   loadPrayerTimes: vi.fn(() => Promise.resolve()),
+  loadUnderwrittenPrayerTable: vi.fn(() => Promise.resolve()),
   scheduleNextAzanCheck: vi.fn(),
 }));
 

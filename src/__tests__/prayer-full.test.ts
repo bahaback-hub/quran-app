@@ -293,6 +293,10 @@ describe('prayer.ts', () => {
 
   describe('loadPrayerTimes', () => {
     it('should use the selected-city source before device location (Strategy 1)', async () => {
+      // Use a NON-Saudi city so Aladhan (Strategy 1) is the authoritative source.
+      // Saudi cities are served from the official offline KACST table and must NOT hit Aladhan.
+      (mockDom.cityInput as HTMLInputElement).value = 'London';
+      (mockDom.countryInput as HTMLInputElement).value = 'GB';
       mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
 
       await loadPrayerTimes();
@@ -305,12 +309,15 @@ describe('prayer.ts', () => {
         }),
       );
       expect(mockPrayerFetch).toHaveBeenCalledWith(
-        '?city=%D9%85%D9%83%D8%A9%20%D8%A7%D9%84%D9%85%D9%83%D8%B1%D9%85%D8%A9&country=SA&method=4',
+        '?city=London&country=GB&method=4',
         {
           errorMsg: 'failed_prayer',
         },
       );
       expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
+
+      (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
+      (mockDom.countryInput as HTMLInputElement).value = 'SA';
     });
 
     it('should fall back to device calculation when the selected-city source fails', async () => {
@@ -350,6 +357,9 @@ describe('prayer.ts', () => {
     });
 
     it('should use the selected-city source without asking for device location', async () => {
+      // Non-Saudi city → Aladhan (Strategy 1) is authoritative.
+      (mockDom.cityInput as HTMLInputElement).value = 'London';
+      (mockDom.countryInput as HTMLInputElement).value = 'GB';
       mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
 
       await loadPrayerTimes();
@@ -357,6 +367,9 @@ describe('prayer.ts', () => {
       expect(state.prayerTimes).toEqual(SAMPLE_PRAYER_TIMES);
       expect(mockPrayerFetch).toHaveBeenCalled();
       expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
+
+      (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
+      (mockDom.countryInput as HTMLInputElement).value = 'SA';
     });
 
     it('should use localStorage cache when API also fails (Strategy 3)', async () => {
@@ -382,6 +395,9 @@ describe('prayer.ts', () => {
     });
 
     it('should reject stale cache (> 3 days old)', async () => {
+      // Non-Saudi city so Strategy 0/0.5 are skipped and Strategy 2 (cache) is reached.
+      (mockDom.cityInput as HTMLInputElement).value = 'London';
+      (mockDom.countryInput as HTMLInputElement).value = 'GB';
       mockCalculatePrayerTimesLocally.mockResolvedValue(null);
       mockPrayerFetch.mockRejectedValue(new Error('Network error'));
       const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString();
@@ -390,8 +406,8 @@ describe('prayer.ts', () => {
           return {
             date: fourDaysAgo,
             timings: SAMPLE_PRAYER_TIMES,
-            city: 'مكة المكرمة',
-            country: 'SA',
+            city: 'London',
+            country: 'GB',
             method: '4',
           };
         }
@@ -401,6 +417,9 @@ describe('prayer.ts', () => {
       await loadPrayerTimes();
 
       expect(state.prayerTimes).toBeNull();
+
+      (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
+      (mockDom.countryInput as HTMLInputElement).value = 'SA';
     });
 
     it('should accept cache up to 3 days old', async () => {
@@ -457,18 +476,19 @@ describe('prayer.ts', () => {
     });
 
     it('should use DOM inputs for city/country/method when available', async () => {
-      mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
-      (mockDom.cityInput as HTMLInputElement).value = 'الرياض';
-      (mockDom.countryInput as HTMLInputElement).value = 'SA';
+      // Non-Saudi city → Aladhan (Strategy 1) is authoritative.
+      (mockDom.cityInput as HTMLInputElement).value = 'London';
+      (mockDom.countryInput as HTMLInputElement).value = 'GB';
       (mockDom.methodSelect as HTMLSelectElement).value = '1';
+      mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
 
       await loadPrayerTimes();
 
       expect(mockStorageSet).toHaveBeenCalledWith(
         'cached_prayer_times',
         expect.objectContaining({
-          city: 'الرياض',
-          country: 'SA',
+          city: 'London',
+          country: 'GB',
           method: '1',
         }),
       );
@@ -478,30 +498,40 @@ describe('prayer.ts', () => {
       (mockDom.methodSelect as HTMLSelectElement).value = '4';
     });
 
-    it('should request Madinah times when Madinah is the selected city', async () => {
-      mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
+    it('should NOT request Aladhan for a Saudi city (uses official KACST table)', async () => {
+      // Saudi cities are served from the bundled official Umm Al-Qura table, so the
+      // Aladhan API (Strategy 1) must NOT be consulted for them. When the offline
+      // tables are unavailable (e.g. in tests) it falls through to the device-location
+      // calculation as the last resort — never Aladhan.
+      mockCalculatePrayerTimesLocally.mockResolvedValue({ ...SAMPLE_PRAYER_TIMES });
       (mockDom.cityInput as HTMLInputElement).value = 'المدينة';
       (mockDom.countryInput as HTMLInputElement).value = 'SA';
       (mockDom.methodSelect as HTMLSelectElement).value = '4';
 
       await loadPrayerTimes();
 
-      expect(mockPrayerFetch).toHaveBeenCalledWith(
+      expect(mockPrayerFetch).not.toHaveBeenCalledWith(
         '?city=%D8%A7%D9%84%D9%85%D8%AF%D9%8A%D9%86%D8%A9&country=SA&method=4',
-        {
-          errorMsg: 'failed_prayer',
-        },
+        expect.anything(),
       );
-      expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
+      // Falls through to the offline/local calculation, not Aladhan
+      expect(mockCalculatePrayerTimesLocally).toHaveBeenCalled();
 
       (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
+      (mockDom.countryInput as HTMLInputElement).value = 'SA';
+      (mockDom.methodSelect as HTMLSelectElement).value = '4';
     });
 
     it('should use state defaults when DOM inputs are null', async () => {
+      // Non-Saudi default city so Strategy 1 (Aladhan) is consulted.
+      const savedCity = state.city;
+      const savedCountry = state.country;
+      state.city = 'London';
+      state.country = 'GB';
       mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
-      const savedCity = mockDom.cityInput;
+      const savedInputCity = mockDom.cityInput;
       mockDom.cityInput = null;
-      const savedCountry = mockDom.countryInput;
+      const savedCountryInput = mockDom.countryInput;
       mockDom.countryInput = null;
       const savedMethod = mockDom.methodSelect;
       mockDom.methodSelect = null;
@@ -517,9 +547,11 @@ describe('prayer.ts', () => {
         }),
       );
 
-      mockDom.cityInput = savedCity;
-      mockDom.countryInput = savedCountry;
+      mockDom.cityInput = savedInputCity;
+      mockDom.countryInput = savedCountryInput;
       mockDom.methodSelect = savedMethod;
+      state.city = savedCity;
+      state.country = savedCountry;
     });
 
     it('should show stale cache toast for cache between 0.5 and 3 days', async () => {
@@ -545,6 +577,9 @@ describe('prayer.ts', () => {
     });
 
     it('should show fresh cache toast for cache less than 0.5 days', async () => {
+      // Non-Saudi city so Strategy 0/0.5 are skipped and Strategy 2 (cache) is reached.
+      (mockDom.cityInput as HTMLInputElement).value = 'London';
+      (mockDom.countryInput as HTMLInputElement).value = 'GB';
       mockCalculatePrayerTimesLocally.mockResolvedValue(null);
       mockPrayerFetch.mockRejectedValue(new Error('Network error'));
       const oneHourAgo = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString();
@@ -553,8 +588,8 @@ describe('prayer.ts', () => {
           return {
             date: oneHourAgo,
             timings: SAMPLE_PRAYER_TIMES,
-            city: 'مكة المكرمة',
-            country: 'SA',
+            city: 'London',
+            country: 'GB',
             method: '4',
           };
         }
@@ -564,6 +599,9 @@ describe('prayer.ts', () => {
       await loadPrayerTimes();
 
       expect(mockShowToast).toHaveBeenCalledWith('cached_prayer', 'info');
+
+      (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
+      (mockDom.countryInput as HTMLInputElement).value = 'SA';
     });
   });
 
@@ -1674,11 +1712,17 @@ describe('prayer.ts', () => {
     });
 
     it('renderPrayerTimes should call prayerTimesRows template', async () => {
+      // Non-Saudi city → Strategy 1 (Aladhan) succeeds and renders.
+      (mockDom.cityInput as HTMLInputElement).value = 'London';
+      (mockDom.countryInput as HTMLInputElement).value = 'GB';
       mockPrayerFetch.mockResolvedValue({ data: { timings: { ...SAMPLE_PRAYER_TIMES } } });
 
       await loadPrayerTimes();
 
       expect(mockPrayerTimesRows).toHaveBeenCalled();
+
+      (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
+      (mockDom.countryInput as HTMLInputElement).value = 'SA';
     });
 
     it('should handle Notification permission granted in showAzanNotification', async () => {

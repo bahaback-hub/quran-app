@@ -351,29 +351,39 @@ export async function loadPrayerTimes(): Promise<void> {
   }
 
   // ── Strategy 1: Selected-city source (the user's explicit setting is authoritative) ──
-  const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
-  try {
-    const data: import('./types.js').AladhanTimingsResponse = await prayerFetch(query, {
-      errorMsg: __('failed_prayer'),
-    });
-    if (data?.data?.timings) {
-      // Aladhan returns Record<string,string>; cast to PrayerTimes for type-safe state
-      state.prayerTimes = data.data.timings as import('./types.js').PrayerTimes;
-      storage.set('cached_prayer_times', {
-        date: new Date().toISOString(),
-        timings: state.prayerTimes,
-        city,
-        country,
-        method,
+  // IMPORTANT: Saudi cities covered by the official offline tables (Strategy 0/0.5,
+  // sourced from the KACST/ummulqura.org.sa API) must NEVER fall back to Aladhan,
+  // whose method=4 times diverge from the official calendar by ~1 min. Only consult
+  // Aladhan for cities NOT present in the official Saudi table.
+  const isSaudiCity = Boolean(LOCAL_CITY_MAP[city.trim().toLowerCase()] || LOCAL_CITY_MAP[city.trim()]);
+  if (!isSaudiCity) {
+    const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
+    try {
+      const data: import('./types.js').AladhanTimingsResponse = await prayerFetch(query, {
+        errorMsg: __('failed_prayer'),
       });
-      renderPrayerTimes();
-      checkAzanTime();
-      scheduleNextAzanCheck();
-      return;
+      if (data?.data?.timings) {
+        // Aladhan returns Record<string,string>; cast to PrayerTimes for type-safe state
+        state.prayerTimes = data.data.timings as import('./types.js').PrayerTimes;
+        storage.set('cached_prayer_times', {
+          date: new Date().toISOString(),
+          timings: state.prayerTimes,
+          city,
+          country,
+          method,
+        });
+        renderPrayerTimes();
+        checkAzanTime();
+        scheduleNextAzanCheck();
+        return;
+      }
+      throw new Error('Invalid response');
+    } catch {
+      // fall through to cache below
     }
-    throw new Error('Invalid response');
-  } catch {
-    // ── Strategy 2: LocalStorage cache for the same city and method ──
+  }
+  // Saudi cities never reach Aladhan; if both offline tables failed they fall through to cache.
+  // ── Strategy 2: LocalStorage cache for the same city and method ──
     const cached = storage.get<CachedPrayerTimes>('cached_prayer_times');
     if (cached && cached.city === city && cached.country === country && cached.method === method) {
       // Accept cache from today or up to 3 days ago (prayer times shift ~1 min/day)
@@ -426,9 +436,8 @@ export async function loadPrayerTimes(): Promise<void> {
     showToast(__('failed_prayer'), 'error');
     renderPrayerLoadFailure();
   }
-}
 
-/** Replace the temporary loading message in every prayer-times view after all sources fail. */
+  /** Replace the temporary loading message in every prayer-times view after all sources fail. */
 function getPrayerTimesContainers(): HTMLElement[] {
   const containers = Array.from(document.querySelectorAll<HTMLElement>('#prayerTimesRows, #settingsPrayerTimesRows'));
   if (dom.prayerTimesRows && !containers.includes(dom.prayerTimesRows)) {

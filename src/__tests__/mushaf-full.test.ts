@@ -146,6 +146,7 @@ vi.mock('../ayah-click.js', () => ({
 vi.mock('../mushaf-renderer.js', () => ({
   renderPage: vi.fn(),
   loadPageData: vi.fn(),
+  getCanvas: vi.fn(() => document.createElement('canvas')),
 }));
 
 vi.mock('../tafsir.js', () => ({
