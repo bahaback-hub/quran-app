@@ -113,7 +113,7 @@ describe('surah-cache', () => {
           number: 3,
           name: 'آل عمران',
           englishName: 'Al-Imran',
-          ayahs: [],
+          ayahs: [{ numberInSurah: 1, text: 'بسم الله', number: 1 }],
         },
         audios: [null, null],
         translation: null,
@@ -132,7 +132,7 @@ describe('surah-cache', () => {
           number: 1,
           name: 'الفاتحة',
           englishName: 'Al-Fatiha',
-          ayahs: [],
+          ayahs: [{ numberInSurah: 1, text: 'بسم الله الرحمن الرحيم', number: 1 }],
         },
         translation: null,
       };
@@ -147,7 +147,7 @@ describe('surah-cache', () => {
           number: 1,
           name: 'الفاتحة',
           englishName: 'Al-Fatiha',
-          ayahs: [],
+          ayahs: [{ numberInSurah: 1, text: 'بسم الله الرحمن الرحيم', number: 1 }],
         },
         translation: null,
       };
@@ -164,7 +164,7 @@ describe('surah-cache', () => {
           number: 1,
           name: 'الفاتحة',
           englishName: 'Al-Fatiha',
-          ayahs: [],
+          ayahs: [{ numberInSurah: 1, text: 'بسم الله الرحمن الرحيم', number: 1 }],
         },
         translation: null,
       };
@@ -176,7 +176,7 @@ describe('surah-cache', () => {
       expect(cached).not.toBeNull();
     });
 
-    it('should cache entry with empty ayahs array', async () => {
+    it('should reject a cache entry whose text.ayahs is empty (corrupt shape)', async () => {
       const entry: CachedSurahEntry = {
         text: {
           number: 108,
@@ -189,9 +189,32 @@ describe('surah-cache', () => {
 
       await cacheSurahToIDB('108_ar.alafasy', entry);
 
+      // The shape-guard must drop entries without a valid (non-empty) ayahs array
+      // so downstream renderers never crash on `cached.text.ayahs.map(...)`.
+      const cached = await getCachedSurahFromIDB('108_ar.alafasy');
+      expect(cached).toBeNull();
+    });
+
+    it('should cache Al-Kawthar with its real (non-empty) ayahs', async () => {
+      const entry: CachedSurahEntry = {
+        text: {
+          number: 108,
+          name: 'الكوثر',
+          englishName: 'Al-Kawthar',
+          ayahs: [
+            { numberInSurah: 1, text: 'إنا أعطيناك الكوثر', number: 1 },
+            { numberInSurah: 2, text: 'فصل لربك وانحر', number: 2 },
+            { numberInSurah: 3, text: 'إن شانئك هو الأبتر', number: 3 },
+          ],
+        },
+        translation: null,
+      };
+
+      await cacheSurahToIDB('108_ar.alafasy', entry);
+
       const cached = await getCachedSurahFromIDB('108_ar.alafasy');
       expect(cached).not.toBeNull();
-      expect(cached!.text.ayahs).toEqual([]);
+      expect(cached!.text.ayahs).toHaveLength(3);
     });
 
     it('should cache entry with complex translation object', async () => {
@@ -200,7 +223,7 @@ describe('surah-cache', () => {
           number: 1,
           name: 'الفاتحة',
           englishName: 'Al-Fatiha',
-          ayahs: [],
+          ayahs: [{ numberInSurah: 1, text: 'بسم الله الرحمن الرحيم', number: 1 }],
         },
         translation: {
           id: 'en.sahih',
@@ -280,7 +303,7 @@ describe('surah-cache', () => {
           number: 1,
           name: 'الفاتحة',
           englishName: 'Al-Fatiha',
-          ayahs: [],
+          ayahs: [{ numberInSurah: 1, text: 'بسم الله الرحمن الرحيم', number: 1 }],
         },
         translation: null,
       };
@@ -344,11 +367,11 @@ describe('surah-cache', () => {
 
     it('should return correct entry when multiple entries are cached', async () => {
       const entry1: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] },
+        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
         translation: null,
       };
       const entry2: CachedSurahEntry = {
-        text: { number: 2, name: 'البقرة', englishName: 'Al-Baqarah', ayahs: [] },
+        text: { number: 2, name: 'البقرة', englishName: 'Al-Baqarah', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
         translation: null,
       };
 
@@ -364,7 +387,7 @@ describe('surah-cache', () => {
 
     it('should return null for a key that was never cached', async () => {
       const entry: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] },
+        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
         translation: null,
       };
 
@@ -377,11 +400,11 @@ describe('surah-cache', () => {
 
     it('should distinguish keys with similar prefixes', async () => {
       const entry1: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] },
+        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
         translation: null,
       };
       const entry2: CachedSurahEntry = {
-        text: { number: 11, name: 'هود', englishName: 'Hud', ayahs: [] },
+        text: { number: 11, name: 'هود', englishName: 'Hud', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
         translation: null,
       };
 
@@ -455,7 +478,7 @@ describe('surah-cache', () => {
           number: 114,
           name: 'الناس',
           englishName: 'An-Nas',
-          ayahs: [],
+          ayahs: [{ numberInSurah: 1, text: 'قل هو الله أحد', number: 1 }],
         },
         translation: null,
       };
@@ -477,11 +500,11 @@ describe('surah-cache', () => {
   describe('edge cases', () => {
     it('should handle concurrent writes to different keys', async () => {
       const entry1: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] },
+        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
         translation: null,
       };
       const entry2: CachedSurahEntry = {
-        text: { number: 2, name: 'البقرة', englishName: 'Al-Baqarah', ayahs: [] },
+        text: { number: 2, name: 'البقرة', englishName: 'Al-Baqarah', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
         translation: null,
       };
 
@@ -519,7 +542,7 @@ describe('surah-cache', () => {
     it('should handle very long key strings', async () => {
       const longKey = '1_' + 'a'.repeat(500);
       const entry: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] },
+        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
         translation: null,
       };
 
@@ -532,7 +555,7 @@ describe('surah-cache', () => {
     it('should handle Unicode key strings', async () => {
       const unicodeKey = '1_ar.alafasy_ترجمة_العربية';
       const entry: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] },
+        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
         translation: null,
       };
 

@@ -24,31 +24,11 @@ import { __, __n, toArabicDigits } from './i18n.js';
 
 const APP_BASE_URL = import.meta.env.BASE_URL;
 
-/* ===================== ESCAPE UTILITY ===================== */
-
-/**
- * Escape HTML special characters to prevent XSS injection.
- * MUST be used for all user-provided or API-provided text in templates.
- *
- * @param text Raw text that may contain HTML characters
- * @returns Escaped text safe for innerHTML assignment
- *
- * @example
- *   escapeHtml('<script>alert("xss")</script>')
- *   // → '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
- */
-export function escapeHtml(text: string | null | undefined): string {
-  if (text == null) {
-    return '';
-  }
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
+// Single source of truth for HTML escaping (prevents XSS and avoids a 3rd
+// duplicate implementation). Imported for internal use below and re-exported so
+// existing `./templates.js` importers keep working unchanged.
+import { escapeHtml } from './templates/escape.js';
+export { escapeHtml } from './templates/escape.js';
 /* ===================== SURAH TEMPLATES ===================== */
 
 /**
