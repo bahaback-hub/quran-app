@@ -61,16 +61,22 @@ let _localPrayerJSON: Record<string, unknown> | null = null;
  * Returns PrayerTimes if the city is found and today's date matches.
  * This is instant (no network) and works fully offline.
  */
-async function loadPrayerTimesFromLocalJSON(city: string): Promise<Record<string, string> | null> {
+/** @internal exported for unit testing the offline-table guard */
+export async function loadPrayerTimesFromLocalJSON(city: string): Promise<Record<string, string> | null> {
   try {
     // Normalize city name to match JSON keys
     const norm = city.trim().toLowerCase();
     const jsonCity = LOCAL_CITY_MAP[norm] || LOCAL_CITY_MAP[city.trim()];
     if (!jsonCity) {
+      // City is not covered by the offline table — do NOT fetch the ~975 KB
+      // JSON just to discover it is unsupported. Return early and let the
+      // caller fall through to the Aladhan API instead.
       return null;
     }
 
-    // Load JSON file (cached after first load)
+    // Load JSON file (cached after first load).
+    // NOTE: the file is ~975 KB; we only parse it when we already know the
+    // requested city is covered, so we never load it for unsupported cities.
     if (!_localPrayerJSON) {
       const url = `${import.meta.env.BASE_URL}data/prayer-times-1448.json`;
       const response = await fetch(url);
