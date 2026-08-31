@@ -1057,6 +1057,13 @@ function initAyahDelegation(): void {
       }
       highlightCurrentAyah();
       updatePlayerInfo();
+      // حافظ على التفسير مفتوحاً واحمِه من الإغلاق عند فشل التحميل
+      if (tafsirIsOpen && dom.tafsirCurtain) {
+        dom.tafsirCurtain.classList.add('open');
+        loadTafsirForCurrentAyah().catch(() => {
+          /* لا تُغلق التفسير عند فشل التحميل */
+        });
+      }
       return;
     }
 

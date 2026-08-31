@@ -17,6 +17,13 @@
   padding-bottom: env(safe-area-inset-bottom, 0);
   /* CLS: Reserve space so content doesn't jump when player appears */
   contain: layout style;
+  /* مؤشر النقر فوق المشغل ومنع تحديد النص */
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.player audio {
+  cursor: default;
 }
 .player:not(.collapsed) {
   padding: 12px 18px;
