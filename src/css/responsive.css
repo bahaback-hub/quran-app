@@ -737,7 +737,8 @@
     font-size: 11px;
   }
   #surahContent {
-    padding-left: 80px !important;
+    margin-left: 80px !important;
+    padding-left: 0 !important;
   }
   .settings-panel,
   .favorites-panel,
