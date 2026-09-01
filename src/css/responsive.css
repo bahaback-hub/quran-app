@@ -39,7 +39,7 @@
 @media (max-width: 600px) {
   body {
     padding: 0;
-    padding-bottom: 120px;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0));
   }
   .container {
     border-radius: 0;
@@ -47,49 +47,243 @@
     max-width: 100%;
   }
   .header {
-    padding: 22px 15px;
+    padding: 10px 8px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  body:not(.capacitor-native) .header {
+    padding-top: calc(10px + env(safe-area-inset-top, 0));
   }
   .header h1 {
-    font-size: 22px;
+    font-size: 18px;
+    text-align: center;
   }
   .header p {
-    font-size: 13px;
+    font-size: 11px;
+    text-align: center;
   }
-  /* WCAG 2.5.5: لمس أدنى 44×44 — أزرار الرأس كبيرة بما يكفي للإصبع */
+  /* Header actions: 2 rows on mobile, not cramped */
+  .header-primary-actions {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 4px;
+    width: 100%;
+    margin-top: 6px;
+  }
   .header-action-btn,
   .header-menu-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .header-action-label {
+    font-size: 7px;
+    letter-spacing: -0.2px;
   }
   .header-menu-container {
-    top: 10px;
-    left: 10px;
-    gap: 2px;
+    position: static;
+    width: auto;
   }
-  /* تجاوز فجوات أزرار الرأس على الشاشات الضيقة جداً */
   .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
     gap: 4px;
   }
-  .mode-btn.mode-toggle {
+  .header-utility-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .header-prayer-tile {
+    width: 100%;
+  }
+  .header-prayer-tile .prayer-bar-toggle {
+    min-height: 44px;
+    height: 44px;
     padding: 4px 8px;
+  }
+  .header-prayer-tile .prayer-bar-summary strong {
+    max-width: none;
     font-size: 10px;
   }
+  .header-prayer-tile .prayer-bar-summary-time {
+    font-size: 10px;
+  }
+  /* Theme & search buttons */
+  .theme-btn {
+    width: auto;
+    height: 44px;
+    font-size: 16px;
+  }
+  .theme-switcher {
+    padding: 2px;
+  }
+  .theme-menu-trigger,
+  .header-search-trigger {
+    width: 32px;
+    height: 32px;
+  }
+  .header-search-input {
+    top: calc(100% + 4px);
+    right: 0;
+    left: auto;
+    width: min(360px, calc(100vw - 16px));
+  }
+  /* Controls: show by default, simplified layout */
+  .controls {
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+  .controls-row {
+    width: 100%;
+  }
+  .control-group {
+    min-width: 100%;
+    max-width: 100%;
+  }
+  .control-group select,
+  .control-group input {
+    min-width: 100%;
+    font-size: 13px;
+    height: 36px;
+    padding: 6px 8px;
+  }
+  /* Reader command bar - mobile friendly */
+  .control-card.reader-command-bar.control-card-persistent {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'display'
+      'search';
+    align-items: stretch;
+    gap: 6px;
+    padding: 6px;
+    margin: 6px 0;
+  }
+  .reader-command-display .view-mode-group {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    padding: 0;
+  }
+  .view-mode-btn {
+    min-width: 0;
+    min-height: 70px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 36px auto;
+    gap: 2px;
+    text-align: center;
+    font-size: 11px;
+  }
+  .reading-mode-preview {
+    min-height: 36px;
+    height: 36px;
+  }
+  .reading-mode-desc {
+    display: none;
+  }
+  .reader-command-search .search-input-wrapper input {
+    min-width: 0;
+    padding-inline: 6px;
+    font-size: 13px;
+  }
+  .reader-command-search .search-input-wrapper .kbd-toggle-btn,
+  .reader-command-search .search-input-wrapper .voice-search-btn {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+  .reader-command-search .search-toggle-btn {
+    flex-basis: 32px;
+    width: 32px;
+  }
+  .reader-toolbar-shell.is-pinned {
+    max-height: 60dvh;
+    overflow-y: auto;
+  }
+  .reader-toolbar-pin {
+    width: 32px;
+    height: 32px;
+  }
+  /* Surah content */
   .surah-content {
-    padding: 16px;
-    min-height: 300px;
+    padding: 10px;
+    min-height: 200px;
   }
   .surah-title {
-    font-size: 22px;
+    font-size: 18px;
   }
   .bismillah {
-    font-size: 24px;
+    font-size: 20px;
   }
   .ayahs-container {
     line-height: 2.2;
+    font-size: 22px;
   }
+  /* Player - simplified */
+  .player:not(.collapsed) {
+    padding: 6px 8px;
+    padding-bottom: 56px;
+  }
+  .player.collapsed {
+    height: 44px;
+    padding: 4px 8px;
+  }
+  .expanded-header {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+  .current-ayah {
+    font-size: 13px;
+    padding: 4px 8px;
+    margin-bottom: 4px;
+  }
+  .player-buttons {
+    gap: 3px;
+    margin-top: 3px;
+  }
+  .player-buttons #prevSurahBtn,
+  .player-buttons #nextSurahBtn {
+    display: none;
+  }
+  .player-more-row .btn {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+  .player-row {
+    flex-direction: column;
+    gap: 3px;
+  }
+  .player-row audio {
+    max-width: 100%;
+  }
+  .speed-control {
+    font-size: 10px;
+  }
+  /* Bottom nav - visible on mobile */
+  .bottom-nav {
+    display: flex;
+  }
+  .bottom-nav-btn {
+    font-size: 14px;
+    padding: 4px 2px 2px;
+  }
+  .bottom-nav-btn span {
+    font-size: 7px;
+  }
+  /* Panels - full width */
   .settings-panel,
-  .favorites-panel {
+  .favorites-panel,
+  .adhkar-panel,
+  .tafsir-curtain {
     width: 100%;
     max-width: 100%;
   }
@@ -99,74 +293,136 @@
   .favorites-panel {
     left: -100%;
   }
+  .adhkar-panel {
+    left: -100%;
+  }
   .tafsir-curtain {
-    width: 100%;
-    max-width: 100%;
+    width: 100vw;
     left: 0;
   }
-  .big-clock-time {
-    font-size: 32px;
+  .tafsir-curtain-handle.open {
+    left: 50%;
+    right: auto;
   }
-  .player:not(.collapsed) {
-    padding: 8px 10px;
+  /* Prayer bar - compact */
+  .prayer-bar-details {
+    padding: 6px 8px 8px;
   }
-  .btn {
-    padding: 6px 10px;
-    font-size: 12px;
+  .prayer-bar-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
   }
-  .player-buttons {
-    gap: 5px;
+  .prayer-row {
+    padding: 6px;
+    font-size: 10px;
   }
   .prayer-bar-item {
-    padding: 3px 8px;
-    font-size: 11px;
+    padding: 3px 6px;
+    font-size: 10px;
   }
   .prayer-bar-actions {
-    gap: 6px;
+    gap: 4px;
   }
-  .settings-toggle-btn {
-    padding: 5px 12px;
+  /* Toast */
+  .toast {
+    bottom: 85px;
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+  /* Search results */
+  .search-result-text {
+    font-size: 14px;
+  }
+  .search-results {
+    padding: 8px;
+    max-height: 50vh;
+  }
+  /* Ayah numbers */
+  .ayah-number {
+    min-width: 22px;
+    height: 22px;
+    line-height: 22px;
+    font-size: 10px;
+  }
+  /* Footer */
+  .footer {
+    font-size: 10px;
+    padding: 8px 6px;
+    line-height: 1.6;
+  }
+  /* Arabic keyboard */
+  .arabic-keyboard {
+    gap: 2px;
+    padding: 4px;
+    overflow: hidden;
+  }
+  .kbd-key {
+    min-width: 0;
+    height: 26px;
     font-size: 12px;
+    padding: 2px 1px;
   }
-  .player-info {
-    font-size: 14px;
-    gap: 6px;
+  .kbd-key-shift,
+  .kbd-key-clear,
+  .kbd-key-backspace {
+    flex: 0 0 32px;
   }
-  .player-info .current-ayah {
+  /* Theme dropdown */
+  .theme-dropdown-menu {
+    min-width: 140px;
+    grid-template-columns: repeat(2, minmax(60px, 1fr));
+  }
+  .theme-label {
+    font-size: 9px;
+  }
+  /* Adhkar action buttons */
+  .adhkar-item-action-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
     font-size: 14px;
+  }
+  .adhkar-counter-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 18px;
+  }
+  .adhkar-tab {
+    min-height: 36px;
     padding: 6px 10px;
   }
-  audio {
-    max-width: 100%;
+  /* Update banner */
+  .update-banner {
+    bottom: 110px;
+    font-size: 12px;
+    padding: 6px 12px;
+    max-width: calc(100vw - 16px);
+    box-sizing: border-box;
   }
+  .update-banner .update-banner-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+    min-height: 32px;
+  }
+  /* Mode toggle */
+  .mode-btn.mode-toggle {
+    padding: 3px 6px;
+    font-size: 9px;
+  }
+  /* Keyboard hint */
   .keyboard-hint {
     display: none;
   }
-  .toast {
-    bottom: 250px;
-    font-size: 13px;
-    padding: 10px 18px;
+  /* Audio element */
+  audio {
+    max-width: 100%;
   }
-  .search-result-text {
-    font-size: 16px;
-  }
-  .ayah-number {
-    min-width: 28px;
-    height: 28px;
-    line-height: 28px;
-    font-size: 12px;
-  }
-  .controls-row .search-input-group {
-    min-width: 100px;
-    max-width: 160px;
-  }
-  .controls-row .btn-sm {
-    padding: 4px 6px;
-    font-size: 11px;
-  }
-  .controls-row .font-size-select {
-    width: 52px;
-    min-width: 52px;
+  /* Help toggle */
+  #helpToggleBtn {
+    display: flex;
   }
 }
 
@@ -510,14 +766,6 @@
   body.sepia-mode {
     background: var(--bg-gradient) !important;
     background-attachment: scroll !important;
-  }
-
-  body {
-    padding: 8px;
-    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0));
-  }
-  .container {
-    border-radius: 10px;
   }
 
   /* الهاتف يحافظ على فكرة الحاسوب: العنوان في عمود، والصلاة والهلال والبحث داخل أدوات الجهة المقابلة. */
