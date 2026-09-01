@@ -1,0 +1,93 @@
+{
+  "_comment": "Umm Al-Qura (رئاسة الحرمين) underwritten prayer times for major Saudi cities. Used as the FIRST source in prayer.ts, before Aladhan. Fajr/Isha for Makkah & Madinah are confirmed against ummulqura.org.sa; other cities use Aladhan method=4 as a starting point and MUST be verified against the official site. Keys are lowercase city names as typed by the user / matched from state.city.",
+  "makkah": {
+    "label": "مكة المكرمة",
+    "Fajr": "04:45",
+    "Sunrise": "06:04",
+    "Dhuhr": "12:21",
+    "Asr": "15:47",
+    "Maghrib": "18:39",
+    "Isha": "20:09"
+  },
+  "madinah": {
+    "label": "المدينة المنورة",
+    "Fajr": "04:43",
+    "Sunrise": "06:02",
+    "Dhuhr": "12:22",
+    "Asr": "15:52",
+    "Maghrib": "18:42",
+    "Isha": "20:12"
+  },
+  "riyadh": {
+    "label": "الرياض",
+    "Fajr": "04:39",
+    "Sunrise": "05:58",
+    "Dhuhr": "12:20",
+    "Asr": "15:46",
+    "Maghrib": "18:38",
+    "Isha": "20:08"
+  },
+  "jeddah": {
+    "label": "جدة",
+    "Fajr": "04:44",
+    "Sunrise": "06:03",
+    "Dhuhr": "12:23",
+    "Asr": "15:49",
+    "Maghrib": "18:42",
+    "Isha": "20:12"
+  },
+  "dammam": {
+    "label": "الدمام",
+    "Fajr": "04:30",
+    "Sunrise": "05:49",
+    "Dhuhr": "12:13",
+    "Asr": "15:40",
+    "Maghrib": "18:31",
+    "Isha": "20:01"
+  },
+  "abha": {
+    "label": "أبها",
+    "Fajr": "04:39",
+    "Sunrise": "05:58",
+    "Dhuhr": "12:22",
+    "Asr": "15:49",
+    "Maghrib": "18:41",
+    "Isha": "20:11"
+  },
+  "tabuk": {
+    "label": "تبوك",
+    "Fajr": "04:38",
+    "Sunrise": "05:58",
+    "Dhuhr": "12:26",
+    "Asr": "15:56",
+    "Maghrib": "18:50",
+    "Isha": "20:20"
+  },
+  "buraydah": {
+    "label": "بريدة",
+    "Fajr": "04:37",
+    "Sunrise": "05:56",
+    "Dhuhr": "12:20",
+    "Asr": "15:47",
+    "Maghrib": "18:39",
+    "Isha": "20:09"
+  },
+  "hail": {
+    "label": "حائل",
+    "Fajr": "04:36",
+    "Sunrise": "05:56",
+    "Dhuhr": "12:23",
+    "Asr": "15:52",
+    "Maghrib": "18:44",
+    "Isha": "20:14"
+  },
+  "taif": {
+    "label": "الطائف",
+    "Fajr": "04:43",
+    "Sunrise": "06:02",
+    "Dhuhr": "12:23",
+    "Asr": "15:49",
+    "Maghrib": "18:42",
+    "Isha": "20:12"
+  }
+}

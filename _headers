@@ -1,0 +1,44 @@
+# Security headers for GitHub Pages / Netlify deployment
+# These headers complement the CSP meta tag in index.html
+# by providing server-level security headers that cannot be bypassed.
+
+/*
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+  # XSS Protection (legacy browsers)
+  X-Frame-Options: DENY
+  # Referrer policy
+  Referrer-Policy: strict-origin-when-cross-origin
+  # Force HTTPS for 1 year with preload
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  # Cross-Origin isolation (enables SharedArrayBuffer, prevents Spectre-class attacks)
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
+  # Permissions policy — restrict unnecessary browser features
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self), payment=()
+  # Content Security Policy via HTTP header (stronger than meta tag)
+  # Note: 'unsafe-inline' kept for style-src (PWA runtime injection); script-src uses 'self' + 'wasm-unsafe-eval' only
+  Content-Security-Policy: default-src 'self' data: blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' https: blob: data:; connect-src 'self' https://api.alquran.cloud https://api.quran.com https://cdn.jsdelivr.net https://api.aladhan.com https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https: blob: data:; frame-src 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+
+# Cache static assets aggressively
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/data/*
+  Cache-Control: public, max-age=604800
+
+/backgrounds/*
+  Cache-Control: public, max-age=604800
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/icon-*.png
+  Cache-Control: public, max-age=604800
+
+# Service worker must always be fresh
+/sw.js
+  Cache-Control: no-cache
+/registerSW.js
+  Cache-Control: no-cache
