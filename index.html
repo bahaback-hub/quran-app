@@ -13,7 +13,7 @@
     <meta property="og:description" content="تطبيق القرآن الكريم — تلاوة، استماع، بحث، تفسير، مواقيت الصلاة، وأذكار" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://bahaback-hub.github.io/quran-app/" />
-    <meta property="og:image" content="%BASE_URL%icon-512.png" />
+    <meta property="og:image" content="/quran-app/icon-512.png" />
     <meta property="og:locale" content="ar_SA" />
     <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:locale:alternate" content="tr_TR" />
@@ -23,7 +23,7 @@
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="القرآن الكريم" />
     <meta name="twitter:description" content="تطبيق القرآن الكريم — تلاوة، استماع، بحث، تفسير، مواقيت الصلاة" />
-    <meta name="twitter:image" content="%BASE_URL%icon-512.png" />
+    <meta name="twitter:image" content="/quran-app/icon-512.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -34,12 +34,12 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>القرآن الكريم - عائلة السليماني</title>
-    <link rel="icon" href="%BASE_URL%icon-192.png" />
-    <link rel="apple-touch-icon" href="%BASE_URL%icon-192.png" />
+    <link rel="icon" href="/quran-app/icon-192.png" />
+    <link rel="apple-touch-icon" href="/quran-app/icon-192.png" />
     <!-- Self-hosted fonts (replaces Google Fonts CDN for offline support & privacy) -->
     <!-- LCP: Preload the primary body font to speed up first paint -->
-    <link rel="preload" href="%BASE_URL%fonts/amiri-regular-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="/fonts/fonts.css" fetchpriority="high" />
+    <link rel="preload" href="/quran-app/fonts/amiri-regular-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/quran-app/fonts/fonts.css" fetchpriority="high" />
     <link rel="preconnect" href="https://api.alquran.cloud" />
     <link rel="preconnect" href="https://cdn.islamic.network" />
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
@@ -48,7 +48,6 @@
     <!-- Performance: Preload critical API endpoints for faster first surah load -->
     <link rel="dns-prefetch" href="https://server8.mp3quran.net" />
     <link rel="dns-prefetch" href="https://server9.mp3quran.net" />
-    <link rel="stylesheet" href="styles.css" />
     <style>
       /* Reduced motion: disable animations and transitions for users who need it */
       @media (prefers-reduced-motion: reduce) {
@@ -83,7 +82,18 @@
         border: 0;
       }
     </style>
-  </head>
+    <script type="module" crossorigin src="/quran-app/assets/index-NjxuZM_J.js"></script>
+    <link rel="modulepreload" crossorigin href="/quran-app/assets/feature-mushaf-D3tRtRjx.js">
+    <link rel="modulepreload" crossorigin href="/quran-app/assets/rolldown-runtime-BQ-_32WO.js">
+    <link rel="modulepreload" crossorigin href="/quran-app/assets/feature-audio-visualizer-B4JYA0Uz.js">
+    <link rel="modulepreload" crossorigin href="/quran-app/assets/feature-prayer-local-BclE65P0.js">
+    <link rel="modulepreload" crossorigin href="/quran-app/assets/feature-pres-backgrounds-B33gubZ_.js">
+    <link rel="modulepreload" crossorigin href="/quran-app/assets/feature-pres-styles-CLXo6F4f.js">
+    <link rel="modulepreload" crossorigin href="/quran-app/assets/feature-presentation-BgaMHhXS.js">
+    <link rel="modulepreload" crossorigin href="/quran-app/assets/error-boundary-D8iT584G.js">
+    <link rel="modulepreload" crossorigin href="/quran-app/assets/feature-search-BgybQVZT.js">
+    <link rel="stylesheet" crossorigin href="/quran-app/assets/index-DgzdBQoY.css">
+  <link rel="manifest" href="/quran-app/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/quran-app/registerSW.js"></script></head>
   <body>
     <div
       class="reading-progress"
@@ -207,7 +217,7 @@
                   aria-label="السورة"
                   aria-pressed="true"
                 >
-                  <span class="reading-mode-preview reading-mode-preview-surah" aria-hidden="true"><img class="reading-mode-preview-logo" src="/brand/reading-mode-surah-logo.png" alt="" /></span>
+                  <span class="reading-mode-preview reading-mode-preview-surah" aria-hidden="true"><img class="reading-mode-preview-logo" src="/quran-app/brand/reading-mode-surah-logo.png" alt="" /></span>
                   <span class="reading-mode-copy">
                     <span class="reading-mode-title" data-i18n="reading_mode_surah">السورة</span>
                     <span class="reading-mode-desc" data-i18n="reading_mode_surah_desc">نص السورة كاملاً في قراءة متصلة</span>
@@ -222,7 +232,7 @@
                   aria-label="المصحف"
                   aria-pressed="false"
                 >
-                  <span class="reading-mode-preview reading-mode-preview-mushaf" aria-hidden="true"><img class="reading-mode-preview-logo" src="/brand/reading-mode-mushaf-logo.png" alt="" /></span>
+                  <span class="reading-mode-preview reading-mode-preview-mushaf" aria-hidden="true"><img class="reading-mode-preview-logo" src="/quran-app/brand/reading-mode-mushaf-logo.png" alt="" /></span>
                   <span class="reading-mode-copy">
                     <span class="reading-mode-title" data-i18n="reading_mode_mushaf">المصحف</span>
                     <span class="reading-mode-desc" data-i18n="reading_mode_mushaf_desc">تصفح الآيات على هيئة صفحات</span>
@@ -237,7 +247,7 @@
                   aria-label="آية مميزة"
                   aria-pressed="false"
                 >
-                  <span class="reading-mode-preview reading-mode-preview-featured" aria-hidden="true"><img class="reading-mode-preview-logo" src="/brand/reading-mode-featured-ayah-logo.png" alt="" /></span>
+                  <span class="reading-mode-preview reading-mode-preview-featured" aria-hidden="true"><img class="reading-mode-preview-logo" src="/quran-app/brand/reading-mode-featured-ayah-logo.png" alt="" /></span>
                   <span class="reading-mode-copy">
                     <span class="reading-mode-title" data-i18n="reading_mode_featured">آية مميزة</span>
                     <span class="reading-mode-desc" data-i18n="reading_mode_featured_desc">آية واحدة بخلفية هادئة</span>
@@ -537,6 +547,5 @@
 
     <!-- Overlays injected by overlays.ts: qiblaOverlay, readingStatsPanel -->
 
-    <script type="module" src="./src/main.js"></script>
   </body>
 </html>

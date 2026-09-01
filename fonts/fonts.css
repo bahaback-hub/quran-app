@@ -1,0 +1,74 @@
+/**
+ * Self-hosted Arabic fonts — replaces Google Fonts CDN.
+ *
+ * Benefits:
+ *   - Eliminates external dependency on fonts.googleapis.com / fonts.gstatic.com
+ *   - Enables SRI (Subresource Integrity) for all resources
+ *   - Reduces DNS lookups and connection overhead
+ *   - Works fully offline after first load (PWA caches via Workbox)
+ *   - No tracking by Google Fonts
+ *
+ * font-display strategy:
+ *   - swap: for body text (Amiri) — show fallback immediately, swap when loaded
+ *   - optional: for Quran text (Scheherazade) — only use if cached, else fallback
+ *     This prevents layout shift when switching between surahs
+ */
+
+/* ── Amiri (Arabic serif — body text) ── */
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./amiri-regular-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./amiri-italic-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./amiri-bold-700.woff2') format('woff2');
+}
+
+/* ── Scheherazade New (Arabic Naskh — Quran text) ── */
+/* Using 'optional' for Quran text: if font is cached, use it; if not, use fallback.
+   This prevents FOUT flicker when navigating between surahs. */
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 400;
+  font-display: optional;
+  src: url('./scheherazade-regular-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 700;
+  font-display: optional;
+  src: url('./scheherazade-bold-700.woff2') format('woff2');
+}
+
+/* ── KFGQPC HAFS Uthmanic Script 2.2 (Quran text) ── */
+/* Original TTF distributed by King Fahd Glorious Quran Printing Complex.
+   It is intentionally shipped unchanged: no conversion, subsetting, or edits.
+   This family is offered only in Surah/text reading; the page-based QCF4
+   renderer keeps its own glyph fonts and is not affected by this declaration. */
+@font-face {
+  font-family: 'KFGQPC HAFS Uthmanic Script';
+  font-style: normal;
+  font-weight: 400;
+  font-display: optional;
+  src: url('./official/UthmanicHafs_V22.ttf') format('truetype');
+}

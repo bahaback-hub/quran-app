@@ -1,0 +1,49 @@
+[
+  {
+    "id": "none",
+    "name": "بدون",
+    "type": "none"
+  },
+  {
+    "id": "geometric-gold",
+    "name": "ذهبي هندسي",
+    "type": "css",
+    "css": "repeating-conic-gradient(from 0deg at 50% 50%, #8b6f5a 0deg 10deg, #d4af37 10deg 20deg, #8b6f5a 20deg 30deg)"
+  },
+  {
+    "id": "arabic-calligraphy",
+    "name": "خط عربي",
+    "type": "css",
+    "cssBlock": "body.bg-css-arabic { --s: 200px; --c1: #1d1d1d; --c2: #4e4f51; --c3: #3c3c3c; background: repeating-conic-gradient(from 30deg,#0000 0 120deg,var(--c3) 0 50%) calc(var(--s)/2) calc(var(--s)*tan(30deg)/2), repeating-conic-gradient(from 30deg,var(--c1) 0 60deg,var(--c2) 0 120deg,var(--c3) 0 50%); background-size: var(--s) calc(var(--s)*tan(30deg)); }"
+  },
+  {
+    "id": "floral-blue",
+    "name": "زخارف زرقاء",
+    "type": "css",
+    "css": "repeating-radial-gradient(circle at 50% 50%, #1a3a5c 0px, #2e6fa0 20px, #1a3a5c 40px)"
+  },
+  {
+    "id": "dark-night",
+    "name": "ليل مظلم",
+    "type": "css",
+    "css": "linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #232838 100%)"
+  },
+  {
+    "id": "emerald-green",
+    "name": "زمردي",
+    "type": "css",
+    "css": "repeating-linear-gradient(45deg, #0a3d2e 0px, #0e5c42 20px, #0a3d2e 40px)"
+  },
+  {
+    "id": "burgundy",
+    "name": "نبيذي",
+    "type": "css",
+    "css": "linear-gradient(135deg, #3a0e0e 0%, #6b1515 50%, #8b2020 100%)"
+  },
+  {
+    "id": "video-bg",
+    "name": "فيديو خلفية",
+    "type": "video",
+    "src": "videos/12033393_1920_1080_30fps.mp4"
+  }
+]
