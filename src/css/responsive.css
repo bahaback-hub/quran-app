@@ -736,9 +736,8 @@
     padding: 5px 10px;
     font-size: 11px;
   }
-  .surah-content {
-    padding: 20px;
-    padding-left: 80px;
+  #surahContent {
+    padding-left: 80px !important;
   }
   .settings-panel,
   .favorites-panel,
@@ -1250,7 +1249,7 @@
   .player.collapsed { height: 36px; bottom: 0; }
   .player:not(.collapsed) { padding: 4px 8px; padding-bottom: 44px; }
   .bottom-nav { display: none; }
-  .surah-content { padding: 8px; padding-left: 80px; min-height: 180px; }
+  #surahContent { padding-left: 80px !important; }
   .surah-title { font-size: 18px; }
   .bismillah { font-size: 20px; }
 }
