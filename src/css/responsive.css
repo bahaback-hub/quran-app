@@ -45,22 +45,17 @@
     border-radius: 0;
     width: 100%;
     max-width: 100%;
-  }
-  .header {
-    padding: 10px 8px;
-    flex-direction: column;
-    align-items: stretch;
-  }
-  body:not(.capacitor-native) .header {
-    padding-top: calc(10px + env(safe-area-inset-top, 0));
+    overflow-x: clip;
   }
   .header h1 {
     font-size: 18px;
     text-align: center;
+    word-break: break-word;
   }
   .header p {
     font-size: 11px;
     text-align: center;
+    word-break: break-word;
   }
   /* Header actions: 2 rows on mobile, not cramped */
   .header-primary-actions {
@@ -129,7 +124,8 @@
     top: calc(100% + 4px);
     right: 0;
     left: auto;
-    width: min(360px, calc(100vw - 16px));
+    width: min(360px, calc(100% - 8px));
+    max-width: calc(100vw - 16px);
   }
   /* Controls: show by default, simplified layout */
   .controls {
@@ -297,11 +293,13 @@
     left: -100%;
   }
   .tafsir-curtain {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     left: 0;
   }
   .tafsir-curtain-handle.open {
     left: 50%;
+    transform: translateX(-50%);
     right: auto;
   }
   /* Prayer bar - compact */
@@ -740,6 +738,7 @@
   }
   .surah-content {
     padding: 20px;
+    padding-left: 80px;
   }
   .settings-panel,
   .favorites-panel,
@@ -768,12 +767,11 @@
     background-attachment: scroll !important;
   }
 
-  /* الهاتف يحافظ على فكرة الحاسوب: العنوان في عمود، والصلاة والهلال والبحث داخل أدوات الجهة المقابلة. */
+  /* الهاتف: ترتيب عمودي آمن بدون تداخل، مع حماية عرض/كسر النص. */
   .header {
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     gap: 8px;
     padding: 12px 10px;
   }
@@ -783,31 +781,33 @@
   .header h1 {
     font-size: 20px;
     margin-bottom: 0;
+    text-align: center;
+    word-break: break-word;
   }
   .header-title-row {
     order: 1;
-    align-items: flex-start;
+    align-items: center;
     min-width: 0;
     flex: 1 1 auto;
   }
   .header-menu-container {
-    position: static;
     order: 2;
-    width: auto;
-    flex: 0 1 242px;
+    position: static;
+    width: 100%;
+    flex: 0 0 auto;
   }
   .header-actions {
+    order: 3;
     flex-direction: column;
-    flex-wrap: nowrap;
-    align-items: flex-end;
-    width: auto;
+    align-items: stretch;
+    width: 100%;
     gap: 6px;
   }
   .header-primary-actions {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: center;
-    width: min(100%, 242px);
+    width: 100%;
     gap: 4px;
   }
   .header-action-btn,
@@ -817,15 +817,15 @@
     min-width: 0;
     min-height: 52px;
     font-size: 18px;
-    justify-self: center;
+    justify-self: stretch;
   }
   .header-action-label {
     font-size: 7px;
     letter-spacing: -0.15px;
   }
   .header-utility-row {
-    grid-template-columns: 34px 34px minmax(0, 1fr);
-    align-self: flex-start;
+    grid-template-columns: 34px 34px 1fr;
+    align-self: stretch;
     gap: 4px;
   }
   .header-prayer-tile {
@@ -867,7 +867,8 @@
     top: calc(100% + 7px);
     right: 0;
     left: auto;
-    width: min(360px, calc(100vw - 20px));
+    width: min(360px, calc(100% - 8px));
+    max-width: calc(100vw - 16px);
   }
   .reader-toolbar-shell.is-pinned {
     max-height: 72dvh;
@@ -1061,11 +1062,13 @@
     left: -100%;
   }
   .tafsir-curtain {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     left: 0;
   }
   .tafsir-curtain-handle.open {
     left: 50%;
+    transform: translateX(-50%);
     right: auto;
   }
   /* ستارة التفسير كانت تتراكب مع أزرار المشغل عند فتحه من الشريط السفلي. */
@@ -1247,7 +1250,7 @@
   .player.collapsed { height: 36px; bottom: 0; }
   .player:not(.collapsed) { padding: 4px 8px; padding-bottom: 44px; }
   .bottom-nav { display: none; }
-  .surah-content { padding: 8px; min-height: 180px; }
+  .surah-content { padding: 8px; padding-left: 80px; min-height: 180px; }
   .surah-title { font-size: 18px; }
   .bismillah { font-size: 20px; }
 }

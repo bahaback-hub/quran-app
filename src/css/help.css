@@ -195,7 +195,7 @@ body.sepia-mode .help-section-toggle {
 /* Responsive */
 @media (max-width: 480px) {
   .help-panel {
-    width: 100vw;
-    max-width: 100vw;
+    width: calc(100% - 16px);
+    max-width: calc(100vw - 16px);
   }
 }
