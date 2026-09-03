@@ -105,6 +105,10 @@ function initReaderToolbarPin(): void {
 
 /** Bind the compact reader-surface popover beside Settings. */
 function initReaderSurfaceControl(): void {
+  dom.readerSurfaceSlider?.addEventListener('input', () => {
+    applyReaderSurfaceTransparency(Number(dom.readerSurfaceSlider!.value));
+  });
+
   const control = dom.readerSurfaceControl;
   const trigger = dom.readerSurfaceToggle;
   const popover = dom.readerSurfacePopover;
@@ -119,9 +123,6 @@ function initReaderSurfaceControl(): void {
     event.stopPropagation();
     const wasHidden = popover.classList.toggle('hidden');
     trigger.setAttribute('aria-expanded', String(!wasHidden));
-  });
-  dom.readerSurfaceSlider?.addEventListener('input', () => {
-    applyReaderSurfaceTransparency(Number(dom.readerSurfaceSlider!.value));
   });
   document.addEventListener('click', (event: MouseEvent) => {
     if (!control.contains(event.target as Node)) {
