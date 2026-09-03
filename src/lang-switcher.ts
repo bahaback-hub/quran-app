@@ -10,7 +10,23 @@
 
 import { AVAILABLE_LANGUAGES, getLang, setLang, type LangCode } from './i18n.js';
 
-/** Flag emoji per language code. */
+/**
+ * Country whose flag represents each language. Real SVG flags are served from
+ * /flags/{code}.svg (bundled in public/flags) because Windows browsers do not
+ * render country-flag emoji.
+ */
+const COUNTRY_CODES: Record<LangCode, string> = {
+  ar: 'sa',
+  en: 'gb',
+  tr: 'tr',
+  ms: 'my',
+  id: 'id',
+  fr: 'fr',
+  de: 'de',
+  ru: 'ru',
+};
+
+/** Emoji fallback shown only if the SVG flag image fails to load. */
 const FLAGS: Record<LangCode, string> = {
   ar: '🇸🇦',
   en: '🇬🇧',
@@ -22,6 +38,13 @@ const FLAGS: Record<LangCode, string> = {
   ru: '🇷🇺',
 };
 
+/** Build flag markup: SVG image with emoji fallback on load error. */
+function flagMarkup(lang: LangCode): string {
+  const src = `flags/${COUNTRY_CODES[lang]}.svg`;
+  const emoji = FLAGS[lang] ?? '🌐';
+  return `<img class="lang-flag-img" src="${src}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span class="lang-flag-emoji" style="display:none">${emoji}</span>`;
+}
+
 let dropdownOpen = false;
 
 /** Update the flag shown on the header button from the current i18n state. */
@@ -29,7 +52,7 @@ function updateButtonState(): void {
   const flag = document.getElementById('langCurrentFlag');
   const current = getLang();
   if (flag) {
-    flag.textContent = FLAGS[current] ?? '🌐';
+    flag.innerHTML = flagMarkup(current);
   }
 }
 
@@ -78,7 +101,7 @@ function buildDropdown(): void {
     item.className = 'lang-option';
     item.dataset['lang'] = lang.code;
     item.setAttribute('role', 'option');
-    item.innerHTML = `<span class="lang-option-flag" aria-hidden="true">${FLAGS[lang.code]}</span><span class="lang-option-name">${lang.nativeName}</span>`;
+    item.innerHTML = `<span class="lang-option-flag" aria-hidden="true">${flagMarkup(lang.code)}</span><span class="lang-option-name">${lang.nativeName}</span>`;
     item.addEventListener('click', () => {
       closeDropdown();
       if (lang.code !== getLang()) {

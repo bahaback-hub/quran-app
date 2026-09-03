@@ -1357,6 +1357,25 @@ html {
   line-height: 1;
   pointer-events: none;
 }
+.lang-flag-img {
+  width: 30px;
+  height: 21px;
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+.lang-flag-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+.lang-option-flag .lang-flag-img {
+  width: 24px;
+  height: 17px;
+}
+.lang-option-flag .lang-flag-emoji {
+  font-size: 18px;
+}
 .lang-toggle .header-action-label {
   display: none;
 }
