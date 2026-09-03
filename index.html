@@ -139,25 +139,6 @@
                 </button>
                 <div class="lang-dropdown hidden" id="langDropdown" role="listbox" aria-label="اختيار اللغة"></div>
               </div>
-              <div class="reader-surface-control" id="readerSurfaceControl">
-                <button class="header-action-btn reader-surface-toggle" id="readerSurfaceToggle" type="button" data-i18n-title="reader_surface_transparency" data-i18n-aria-label="reader_surface_transparency" title="شفافية خلفية الآيات" aria-label="شفافية خلفية الآيات" aria-controls="readerSurfacePopover" aria-expanded="false">
-                  <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 0 0 18z"></path>
-                  </svg>
-                  <span class="header-action-label" data-i18n="reader_surface_short">وضوح</span>
-                </button>
-                <div class="reader-surface-popover hidden" id="readerSurfacePopover" role="group" data-i18n-aria-label="reader_surface_transparency" aria-label="شفافية خلفية الآيات">
-                  <div class="reader-surface-popover-head">
-                    <span data-i18n="reader_surface_transparency">شفافية خلفية الآيات</span>
-                    <output id="readerSurfaceValue" for="readerSurfaceSlider" aria-live="polite">65%</output>
-                  </div>
-                  <div class="reader-surface-range-row">
-                    <span class="reader-surface-range-end" data-i18n="reader_surface_solid">قراءة أوضح</span>
-                    <input id="readerSurfaceSlider" type="range" min="0" max="100" step="5" value="65" dir="ltr" data-i18n-aria-label="reader_surface_transparency" aria-label="شفافية خلفية الآيات" aria-valuemin="0" aria-valuemax="100" aria-valuenow="65" />
-                    <span class="reader-surface-range-end" data-i18n="reader_surface_transparent">خلفية ظاهرة</span>
-                  </div>
-                </div>
-              </div>
               <div class="theme-switcher theme-menu theme-visible-grid" id="themeToggle" role="group" aria-label="تبديل المظهر">
                 <div class="theme-dropdown-menu" id="themeDropdownMenu" role="group" aria-label="أوضاع القراءة">
                   <button class="theme-btn active" data-theme="light" title="الوضع النهاري" aria-label="الوضع النهاري" aria-pressed="true" role="menuitem"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-label" data-i18n="theme_light_short">نهاري</span></button>
@@ -202,6 +183,10 @@
                   <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
                   <div id="arabicKeyboardMount"></div>
                 </div>
+              </div>
+              <div class="reader-surface-inline" id="readerSurfaceControl" data-i18n-title="reader_surface_transparency" title="شفافية خلفية الآيات">
+                <input id="readerSurfaceSlider" type="range" min="0" max="100" step="5" value="65" dir="ltr" data-i18n-aria-label="reader_surface_transparency" aria-label="شفافية خلفية الآيات" aria-valuemin="0" aria-valuemax="100" aria-valuenow="65" />
+                <output id="readerSurfaceValue" for="readerSurfaceSlider" aria-live="polite">65%</output>
               </div>
               <div class="view-mode-group" data-i18n-aria-label="reading_mode_label" aria-label="طريقة القراءة">
                 <button

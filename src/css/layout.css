@@ -1426,3 +1426,24 @@ html {
 .lang-option-name {
   white-space: nowrap;
 }
+
+/* Inline reader-surface transparency slider (reader command bar, after search) */
+.reader-surface-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+.reader-surface-inline input[type='range'] {
+  width: clamp(90px, 12vw, 160px);
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.reader-surface-inline output {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 38px;
+  text-align: center;
+  white-space: nowrap;
+}
