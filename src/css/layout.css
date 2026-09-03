@@ -1343,3 +1343,57 @@ html {
 .adhkar-panel {
   will-change: transform;
 }
+
+/* Header language switcher (flag button + dropdown) */
+.lang-switcher {
+  position: relative;
+}
+.lang-toggle .lang-flag {
+  font-size: 20px;
+  line-height: 1;
+  pointer-events: none;
+}
+.lang-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  background: var(--surface, #fff);
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  padding: 6px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text, inherit);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: start;
+  transition: background 0.2s ease;
+}
+.lang-option:hover {
+  background: rgba(217, 119, 6, 0.1);
+}
+.lang-option.active {
+  background: var(--accent);
+  color: #fff;
+}
+.lang-option-flag {
+  font-size: 18px;
+  line-height: 1;
+}
+.lang-option-name {
+  white-space: nowrap;
+}

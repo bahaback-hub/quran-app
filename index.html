@@ -133,6 +133,13 @@
               </svg>
               <span class="header-action-label" data-i18n="settings">الإعدادات</span>
               </button>
+              <div class="lang-switcher" id="langSwitcher">
+                <button class="header-action-btn lang-toggle" id="langToggleBtn" type="button" title="اللغة" aria-label="اللغة" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="lang-flag" id="langCurrentFlag" aria-hidden="true">🇸🇦</span>
+                  <span class="header-action-label" id="langCurrentLabel">العربية</span>
+                </button>
+                <div class="lang-dropdown hidden" id="langDropdown" role="listbox" aria-label="اختيار اللغة"></div>
+              </div>
               <div class="reader-surface-control" id="readerSurfaceControl">
                 <button class="header-action-btn reader-surface-toggle" id="readerSurfaceToggle" type="button" data-i18n-title="reader_surface_transparency" data-i18n-aria-label="reader_surface_transparency" title="شفافية خلفية الآيات" aria-label="شفافية خلفية الآيات" aria-controls="readerSurfacePopover" aria-expanded="false">
                   <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

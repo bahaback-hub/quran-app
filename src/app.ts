@@ -38,6 +38,7 @@ import { injectOverlays } from './overlays.js';
 import { loadFullQuranText } from './search-ui.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { refreshRecentExternalData } from './external-data-cache.js';
+import { initLangSwitcher } from './lang-switcher.js';
 
 export {
   loadSurah,
@@ -140,6 +141,7 @@ export async function initApp(): Promise<void> {
   if (dom.langSelect) {
     dom.langSelect.value = getLang();
   }
+  initLangSwitcher();
 
   // Listen for language changes to update UI text (custom event from i18n module)
   window.addEventListener('app:langchange', () => {
