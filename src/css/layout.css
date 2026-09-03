@@ -265,6 +265,10 @@
 #settingsToggleBtn {
   order: 1;
 }
+/* يأتي بنفس ترتيب الإعدادات (order:1) فيحتل مكانه التالي في الـ DOM: بجانبها مباشرة */
+#langSwitcher {
+  order: 1;
+}
 .reader-surface-control {
   order: 2;
   position: relative;
@@ -1349,9 +1353,15 @@ html {
   position: relative;
 }
 .lang-toggle .lang-flag {
-  font-size: 20px;
+  font-size: 26px;
   line-height: 1;
   pointer-events: none;
+}
+.lang-toggle .header-action-label {
+  display: none;
+}
+.lang-toggle {
+  justify-content: center;
 }
 .lang-dropdown {
   position: absolute;

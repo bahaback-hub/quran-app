@@ -24,16 +24,12 @@ const FLAGS: Record<LangCode, string> = {
 
 let dropdownOpen = false;
 
-/** Update the flag/label shown on the header button from the current i18n state. */
+/** Update the flag shown on the header button from the current i18n state. */
 function updateButtonState(): void {
   const flag = document.getElementById('langCurrentFlag');
-  const label = document.getElementById('langCurrentLabel');
   const current = getLang();
   if (flag) {
     flag.textContent = FLAGS[current] ?? '🌐';
-  }
-  if (label) {
-    label.textContent = AVAILABLE_LANGUAGES.find((l) => l.code === current)?.nativeName ?? current;
   }
 }
 
