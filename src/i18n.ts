@@ -217,7 +217,9 @@ function getPreloadCandidates(current: LangCode): LangCode[] {
   return candidates.slice(0, 2); // Max 2 preloads to save bandwidth
 }
 
-/** Set the active language and update document direction. */
+/** Set the active language. The layout direction stays RTL regardless of the
+ * language: the whole UI is designed around Arabic layout and must not flip
+ * (logo, menus, buttons keep their positions); only translated text changes. */
 export async function setLang(lang: LangCode): Promise<void> {
   const bundle = await loadTranslation(lang);
   currentLang = lang;
@@ -225,8 +227,8 @@ export async function setLang(lang: LangCode): Promise<void> {
   storage.set(STORAGE_KEY, lang);
 
   document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.dir = 'rtl';
+  document.body.style.direction = 'rtl';
 
   applyTranslations();
   window.dispatchEvent(new CustomEvent('app:langchange', { detail: { lang } }));

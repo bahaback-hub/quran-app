@@ -210,9 +210,9 @@ describe('setLang', () => {
     expect(getLang()).toBe('en');
   });
 
-  it('should update document direction to ltr for English', async () => {
+  it('should keep RTL direction for English (layout must not flip)', async () => {
     await setLang('en');
-    expect(document.documentElement.dir).toBe('ltr');
+    expect(document.documentElement.dir).toBe('rtl');
   });
 
   it('should update document direction to rtl for Arabic', async () => {
@@ -230,9 +230,9 @@ describe('setLang', () => {
     expect(document.body.style.direction).toBe('rtl');
   });
 
-  it('should update body style direction to ltr for English', async () => {
+  it('should keep body direction rtl for English (layout must not flip)', async () => {
     await setLang('en');
-    expect(document.body.style.direction).toBe('ltr');
+    expect(document.body.style.direction).toBe('rtl');
   });
 
   it('should save language to storage', async () => {
@@ -264,20 +264,20 @@ describe('setLang', () => {
     document.body.removeChild(el);
   });
 
-  it('should set LTR direction for Turkish', async () => {
+  it('should keep RTL direction for Turkish (layout must not flip)', async () => {
     await setLang('tr');
-    expect(document.documentElement.dir).toBe('ltr');
-    expect(document.body.style.direction).toBe('ltr');
+    expect(document.documentElement.dir).toBe('rtl');
+    expect(document.body.style.direction).toBe('rtl');
   });
 
-  it('should set LTR direction for Malay', async () => {
+  it('should keep RTL direction for Malay (layout must not flip)', async () => {
     await setLang('ms');
-    expect(document.documentElement.dir).toBe('ltr');
+    expect(document.documentElement.dir).toBe('rtl');
   });
 
-  it('should set LTR direction for Indonesian', async () => {
+  it('should keep RTL direction for Indonesian (layout must not flip)', async () => {
     await setLang('id');
-    expect(document.documentElement.dir).toBe('ltr');
+    expect(document.documentElement.dir).toBe('rtl');
   });
 
   it('should save Turkish to storage', async () => {
