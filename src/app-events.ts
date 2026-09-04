@@ -147,7 +147,7 @@ export function bindNavigationEvents(): void {
     }
     const surahNum = parseInt(dom.surahSelect!.value, 10);
     // أخرج التركيز من القائمة لعودة المؤشر لطبيعته
-    dom.surahSelect!.blur();
+    dom.surahSelect?.blur?.();
     if (state.mushafMode) {
       state.currentSurah = surahNum;
       fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)

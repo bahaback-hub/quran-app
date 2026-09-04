@@ -224,8 +224,8 @@ const DOM_IDS: (keyof DomMap)[] = [
   'settingsToggleBtn',
   'themeToggle',
   'readerSurfaceControl',
-  'readerSurfaceToggle',
-  'readerSurfacePopover',
+  // readerSurfaceToggle/Popover removed with the header icon; the transparency
+  // slider now lives inline in the reader command bar.
   'readerSurfaceSlider',
   'readerSurfaceValue',
   'surahSelect',

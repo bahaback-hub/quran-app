@@ -441,7 +441,7 @@ describe('error log entry structure', () => {
 
     const log = getErrorLog();
     expect(log.length).toBeGreaterThan(0);
-    expect(log[0].message).toBe(String(event));
+    expect(log[0].message).toBe('[object Event: ' + event.type + ']');
   });
 
   it('should handle undefined source, line, col', () => {

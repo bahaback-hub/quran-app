@@ -1383,9 +1383,10 @@ html {
   justify-content: center;
 }
 .lang-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  /* Positioned via JS (fixed, viewport-clamped) so it never clips at screen edges */
+  position: fixed;
+  top: auto;
+  right: auto;
   min-width: 180px;
   background: var(--surface, #fff);
   border: 2px solid var(--accent);

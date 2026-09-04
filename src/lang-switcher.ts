@@ -73,6 +73,15 @@ function openDropdown(): void {
     return;
   }
   dropdown.classList.remove('hidden');
+  // Position the dropdown fixed against the viewport, clamped so it never
+  // overflows the screen (the absolute right:0 anchor clips it near edges).
+  const rect = btn.getBoundingClientRect();
+  const width = dropdown.offsetWidth;
+  const margin = 8;
+  const left = Math.max(margin, Math.min(rect.left, window.innerWidth - width - margin));
+  dropdown.style.left = `${Math.round(left)}px`;
+  dropdown.style.right = 'auto';
+  dropdown.style.top = `${Math.round(rect.bottom + 8)}px`;
   btn.setAttribute('aria-expanded', 'true');
   dropdownOpen = true;
   updateDropdownSelection();
@@ -145,6 +154,10 @@ export function initLangSwitcher(): void {
       (btn as HTMLElement).focus();
     }
   });
+
+  // Fixed-position dropdown does not follow the button — close on scroll/resize
+  window.addEventListener('scroll', closeDropdown, { passive: true });
+  window.addEventListener('resize', closeDropdown);
 
   // Keep the header button and the settings-panel select in sync with i18n state
   window.addEventListener('app:langchange', () => {
