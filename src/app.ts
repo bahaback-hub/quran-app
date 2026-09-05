@@ -94,6 +94,13 @@ export async function initApp(): Promise<void> {
   if (last && last.surah) {
     state.currentSurah = last.surah;
     await loadSurah(last.surah, { startAyah: last.ayahNumberInSurah || 1 });
+
+    // [إصلاح الخلل] تحديث القائمة المنسدلة لتطابق السورة المعروضة فعلاً
+    const surahSelect = document.getElementById('surah-selector');
+    if (surahSelect) {
+      surahSelect.value = state.currentSurah;
+    }
+
     // Confirm the restored reading position with a short, dismissible card.
     // The position itself remains local to the reader's device.
     window.setTimeout(() => {
@@ -108,6 +115,12 @@ export async function initApp(): Promise<void> {
     }, 420);
   } else {
     await loadSurah(1);
+
+    // [إصلاح الخلل] تحديث القائمة المنسدلة لتطابق السورة المعروضة فعلاً (الفاتحة)
+    const surahSelect = document.getElementById('surah-selector');
+    if (surahSelect) {
+      surahSelect.value = 1;
+    }
   }
 
   // This now resolves to the active surah's small tajweed chunk, not the
