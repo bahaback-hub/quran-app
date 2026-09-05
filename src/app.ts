@@ -1,3 +1,4 @@
+
 /**
  * Application Initialization Module.
  *
@@ -94,10 +95,6 @@ export async function initApp(): Promise<void> {
   if (last && last.surah) {
     state.currentSurah = last.surah;
     await loadSurah(last.surah, { startAyah: last.ayahNumberInSurah || 1 });
-
-    // [الحل النهائي] تحديث القائمة المنسدلة باستخدام دالة المشروع الرسمية
-    updateCurrentSurahLocale();
-
     // Confirm the restored reading position with a short, dismissible card.
     // The position itself remains local to the reader's device.
     window.setTimeout(() => {
@@ -112,9 +109,6 @@ export async function initApp(): Promise<void> {
     }, 420);
   } else {
     await loadSurah(1);
-
-    // [الحل النهائي] تحديث القائمة المنسدلة باستخدام دالة المشروع الرسمية
-    updateCurrentSurahLocale();
   }
 
   // This now resolves to the active surah's small tajweed chunk, not the
