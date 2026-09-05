@@ -24,9 +24,6 @@ const PLAN_STORAGE_KEY = 'hifz_plan_v1';
 const CURTAIN_REVEAL_STORAGE_KEY = 'hifz_curtain_reveal';
 const DOWNLOAD_STORAGE_KEY = 'hifz_session_downloads_v1';
 const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5];
-const FOCUSED_CONTROLS_AUTO_HIDE_MS = 3_000;
-
-let focusedControlsHideTimer: number | null = null;
 
 type ReviewChoice = 'today' | 'tomorrow' | 'later' | 'custom';
 
@@ -656,7 +653,6 @@ function enterFocusedSession(room: HTMLElement, plan: HifzPlan): void {
 
 function leaveFocusedSession(room: HTMLElement, restoreSetup = true): void {
   const focused = getFocusedControls(room);
-  clearFocusedControlsHideTimer();
   room.classList.remove('hifz-room-focused', 'hifz-room-text-hidden', 'hifz-room-show-range');
   document.body.classList.remove('hifz-room-focused-active', 'hifz-room-tools-hidden');
   room.setAttribute('aria-hidden', 'false');
@@ -671,29 +667,6 @@ function leaveFocusedSession(room: HTMLElement, restoreSetup = true): void {
   }
 }
 
-function clearFocusedControlsHideTimer(): void {
-  if (focusedControlsHideTimer !== null) {
-    window.clearTimeout(focusedControlsHideTimer);
-    focusedControlsHideTimer = null;
-  }
-}
-
-function hideFocusedControls(room: HTMLElement): void {
-  if (!room.classList.contains('hifz-room-focused')) {
-    return;
-  }
-  // Session controls must remain visible and interactive; only cancel any legacy timer.
-  clearFocusedControlsHideTimer();
-  document.body.classList.remove('hifz-room-tools-hidden');
-  room.setAttribute('aria-hidden', 'false');
-  room.removeAttribute('inert');
-}
-
-function scheduleFocusedControlsHide(room: HTMLElement): void {
-  // Do not auto-hide the session panel; its controls must stay available.
-  clearFocusedControlsHideTimer();
-}
-
 function showFocusedControls(room: HTMLElement): void {
   if (!room.classList.contains('hifz-room-focused')) {
     return;
@@ -701,7 +674,6 @@ function showFocusedControls(room: HTMLElement): void {
   document.body.classList.remove('hifz-room-tools-hidden');
   room.setAttribute('aria-hidden', 'false');
   room.removeAttribute('inert');
-  scheduleFocusedControlsHide(room);
 }
 
 function restartFocusedPortion(room: HTMLElement): void {
