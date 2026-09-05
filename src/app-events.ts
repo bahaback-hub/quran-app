@@ -678,19 +678,31 @@ export function bindDisplaySettingsEvents(): void {
   dom.presBgVideoSelect?.addEventListener('change', (e: Event) =>
     applyPresBgVideo((e.target as HTMLSelectElement).value),
   );
-  dom.tajweedToggle?.addEventListener('click', () => {
-    state.tajweedEnabled = dom.tajweedToggle!.classList.toggle('on');
-    storage.set('tajweed_enabled', state.tajweedEnabled);
+  const applyTajweedEnabled = (enabled: boolean) => {
+    state.tajweedEnabled = enabled;
+    storage.set('tajweed_enabled', enabled);
+    // Keep the settings-panel switch and the inline header button in sync.
+    dom.tajweedToggle?.classList.toggle('on', enabled);
+    dom.tajweedInlineBtn?.classList.toggle('tajweed-off', !enabled);
+    dom.tajweedInlineBtn?.setAttribute('aria-pressed', String(enabled));
     const reload = () => {
       if (state.currentSurah) {
         loadSurah(state.currentSurah);
       }
     };
-    if (state.tajweedEnabled) {
+    if (enabled) {
       loadTajweedAnnotationsForSurah(state.currentSurah).then(reload);
     } else {
       reload();
     }
+  };
+
+  dom.tajweedToggle?.addEventListener('click', () => {
+    applyTajweedEnabled(!state.tajweedEnabled);
+  });
+
+  dom.tajweedInlineBtn?.addEventListener('click', () => {
+    applyTajweedEnabled(!state.tajweedEnabled);
   });
 
   dom.azanToggle?.addEventListener('click', () => {

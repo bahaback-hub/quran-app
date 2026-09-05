@@ -1448,3 +1448,30 @@ html {
   text-align: center;
   white-space: nowrap;
 }
+
+/* Inline tajweed colors toggle (beside the reader-surface slider) */
+.tajweed-inline-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid var(--accent);
+  color: var(--header-text, inherit);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.3s ease;
+  filter: grayscale(0);
+}
+.tajweed-inline-btn:hover {
+  background: var(--accent);
+  transform: translateY(-1px);
+}
+.tajweed-inline-btn.tajweed-off {
+  filter: grayscale(1);
+  opacity: 0.55;
+}

@@ -35,6 +35,7 @@ interface DomMap {
   readerSurfacePopover: HTMLElement | null;
   readerSurfaceSlider: HTMLInputElement | null;
   readerSurfaceValue: HTMLOutputElement | null;
+  tajweedInlineBtn: HTMLElement | null;
   surahSelect: HTMLSelectElement | null;
   reciterSelect: HTMLSelectElement | null;
   searchInput: HTMLInputElement | null;
@@ -228,6 +229,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   // slider now lives inline in the reader command bar.
   'readerSurfaceSlider',
   'readerSurfaceValue',
+  'tajweedInlineBtn',
   'surahSelect',
   'reciterSelect',
   'searchInput',

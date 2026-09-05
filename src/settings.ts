@@ -918,11 +918,15 @@ export function restoreSettings(): void {
     if (dom.tajweedToggle) {
       dom.tajweedToggle.classList.remove('on');
     }
+    dom.tajweedInlineBtn?.classList.add('tajweed-off');
+    dom.tajweedInlineBtn?.setAttribute('aria-pressed', 'false');
   } else {
     state.tajweedEnabled = true;
     if (dom.tajweedToggle) {
       dom.tajweedToggle.classList.add('on');
     }
+    dom.tajweedInlineBtn?.classList.remove('tajweed-off');
+    dom.tajweedInlineBtn?.setAttribute('aria-pressed', 'true');
   }
   const presBg = storage.get<string>('pres_bg_mode');
   if (
