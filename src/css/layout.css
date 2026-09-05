@@ -1042,11 +1042,11 @@ body.night-mode .control-group label {
 .reader-command-display {
   grid-area: display;
   display: grid;
-  grid-template-columns: auto auto auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto auto auto auto minmax(0, 1fr) auto;
   grid-template-areas:
-    'label pin search spacer zoom'
-    'modes modes modes modes modes'
-    'page page page page page';
+    'label pin search surf tajweed spacer zoom'
+    'modes modes modes modes modes modes modes'
+    'page page page page page page page';
   justify-content: flex-start;
   align-items: stretch;
   gap: 5px;
@@ -1474,4 +1474,18 @@ html {
 .tajweed-inline-btn.tajweed-off {
   filter: grayscale(1);
   opacity: 0.55;
+}
+
+/* Reader command bar grid slots: transparency slider + tajweed toggle */
+#readerSurfaceControl.reader-surface-inline {
+  grid-area: surf;
+  align-self: center;
+}
+#tajweedInlineBtn {
+  grid-area: tajweed;
+  align-self: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 15px;
 }
