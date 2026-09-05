@@ -687,14 +687,21 @@ export function bindDisplaySettingsEvents(): void {
     dom.tajweedInlineBtn?.setAttribute('aria-pressed', String(enabled));
     if (state.mushafMode) {
       // In mushaf mode loadSurah() would overwrite the mushaf page with the
-      // surah view — force-reload the current mushaf page instead.
-      import('./mushaf.js')
-        .then((m: { loadPage: (p: number, skipNav?: boolean, force?: boolean) => Promise<void> }) =>
-          m.loadPage(state.currentPage, true, true),
-        )
-        .catch(() => {
-          /* noop */
-        });
+      // surah view — force-reload the current mushaf page instead. Annotations
+      // must be loaded for the current surah before the page re-renders.
+      const reloadPage = () =>
+        import('./mushaf.js')
+          .then((m: { loadPage: (p: number, skipNav?: boolean, force?: boolean) => Promise<void> }) =>
+            m.loadPage(state.currentPage, true, true),
+          )
+          .catch(() => {
+            /* noop */
+          });
+      if (enabled && state.currentSurah) {
+        loadTajweedAnnotationsForSurah(state.currentSurah).then(reloadPage);
+      } else {
+        void reloadPage();
+      }
       return;
     }
     const reload = () => {

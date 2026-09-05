@@ -782,19 +782,20 @@ export function getLineY(lineIndex: number, lineCount: number, imgHeight: number
 }
 
 /** Pre-compute per-word tajweed coloring data for the entire page. */
-const _pageTajweedCache = new Map<number, { wordIdx: number; lineIdx: number; color: string | null }[] | null>();
+const _pageTajweedCache = new Map<string, { wordIdx: number; lineIdx: number; color: string | null }[] | null>();
 
 function computePageTajweed(data: PageLayoutData, pageNum: number): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
-  // The tajweed coloring for a page depends only on its static layout + the
-  // current theme (via getTajweedColor). Cache the result so repeated renders
-  // of the same page (e.g. the WebView font-delay re-render) skip recomputation.
-  const cached = _pageTajweedCache.get(pageNum);
+  // The tajweed coloring for a page depends only on its static layout, the
+  // current theme (via getTajweedColor), and the tajweedEnabled state — the
+  // state is part of the cache key so toggling colors invalidates the entry.
+  const cacheKey = `${pageNum}:${state.tajweedEnabled ? 1 : 0}`;
+  const cached = _pageTajweedCache.get(cacheKey);
   if (cached !== undefined) {
     return cached;
   }
 
   if (!state.tajweedEnabled) {
-    _pageTajweedCache.set(pageNum, null);
+    _pageTajweedCache.set(cacheKey, null);
     return null;
   }
 
@@ -860,7 +861,7 @@ function computePageTajweed(data: PageLayoutData, pageNum: number): { wordIdx: n
     }
   }
 
-  _pageTajweedCache.set(pageNum, result);
+  _pageTajweedCache.set(cacheKey, result);
   return result;
 }
 
