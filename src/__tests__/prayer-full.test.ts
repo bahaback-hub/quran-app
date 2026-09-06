@@ -892,6 +892,34 @@ describe('prayer.ts', () => {
       expect(azanPlayer.src).toContain('/azan.mp3');
     });
 
+    it('should fire azan when the scheduler tick is delivered late (grace window)', () => {
+      state.prayerTimes = { ...SAMPLE_PRAYER_TIMES };
+      state.azanEnabled = true;
+      state.azanFajrEnabled = true;
+      state.lastAzanFired = null;
+      setNowToTime(12, 19); // 4 minutes after Dhuhr (12:15) — within the 5-min grace
+
+      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      azanPlayer.play.mockResolvedValue(undefined);
+
+      checkAzanTime();
+
+      expect(azanPlayer.src).toContain('/azan.mp3');
+    });
+
+    it('should NOT fire azan after the grace window has closed', () => {
+      state.prayerTimes = { ...SAMPLE_PRAYER_TIMES };
+      state.azanEnabled = true;
+      state.azanFajrEnabled = true;
+      state.lastAzanFired = null;
+      setNowToTime(12, 45); // 30 minutes after Dhuhr — far outside the grace window
+
+      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      checkAzanTime();
+
+      expect(azanPlayer.play).not.toHaveBeenCalled();
+    });
+
     it('should skip Fajr when azanFajrEnabled is false', () => {
       state.prayerTimes = { ...SAMPLE_PRAYER_TIMES };
       state.azanEnabled = true;

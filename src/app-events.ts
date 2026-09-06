@@ -47,6 +47,7 @@ import {
   hideQiblaCompass,
   hideAzanNotification,
   showQiblaCompass,
+  scheduleNextAzanCheck,
 } from './prayer.js';
 import { toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
@@ -727,10 +728,12 @@ export function bindDisplaySettingsEvents(): void {
   dom.azanToggle?.addEventListener('click', () => {
     state.azanEnabled = dom.azanToggle!.classList.toggle('on');
     storage.set('azan_enabled', state.azanEnabled);
+    scheduleNextAzanCheck();
   });
   dom.azanFajrToggle?.addEventListener('click', () => {
     state.azanFajrEnabled = dom.azanFajrToggle!.classList.toggle('on');
     storage.set('azan_fajr_enabled', state.azanFajrEnabled);
+    scheduleNextAzanCheck();
   });
   dom.autoSaveToggle?.addEventListener('click', () => {
     state.autoSave = dom.autoSaveToggle!.classList.toggle('on');
