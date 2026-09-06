@@ -45,6 +45,7 @@ vi.mock('../prayer.js', () => ({
   showQiblaCompass: vi.fn(),
   hideQiblaCompass: vi.fn(),
   hideAzanNotification: vi.fn(),
+  scheduleNextAzanCheck: vi.fn(),
 }));
 
 // Mock favorites module
