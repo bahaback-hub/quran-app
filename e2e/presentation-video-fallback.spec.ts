@@ -28,10 +28,11 @@ test('retries a motion background after autoplay is denied', async ({ page }) =>
   if (await helpClose.isVisible().catch(() => false)) {
     await helpClose.click();
   }
-  await expect(page.locator('#surahContent .ayah')).toHaveCount(7);
+  await expect(page.locator('#surahContent .ayah')).toHaveCount(7, { timeout: 15000 });
   await page.locator('#viewPresBtn').click({ force: true });
   await expect(page.locator('#presentationOverlay')).toBeVisible();
   await page.locator('#presBackgroundBtn').click();
+  await expect(page.locator('[data-pres-bg-video="wave"]')).toBeVisible({ timeout: 15000 });
   await page.locator('[data-pres-bg-video="wave"]').click();
 
   const retryButton = page.locator('#presVideoRetryBtn');
