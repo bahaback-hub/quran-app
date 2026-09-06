@@ -9,15 +9,19 @@ test.describe('مواقيت الصلاة', () => {
 
   test('يعرض شريط مواقيت الصلاة', async ({ page }) => {
     await expect(page.locator('#prayerBar')).toBeVisible();
-    await page.evaluate(() => {
-      const bar = document.getElementById('prayerBar');
-      if (bar) {
-        bar.classList.remove('collapsed');
-        bar.classList.add('expanded');
-      }
-    });
-    await page.waitForTimeout(500);
-    await expect(page.locator('#nextPrayerName')).toBeVisible();
+    // في التصميم الجديد يكون اسم الصلاة التالية مخفياً في البلاطة ويظهر
+    // السجل الكامل داخل الستارة عند الفتح — اضغط زر التوسيع الحقيقي.
+    // ربط الأحداث يتم في المرحلة الثانية من الإقلاع (بعد تحميل السورة)،
+    // فاعتبرها جاهزة عندما يؤدي النقر إلى التبديل الفعلي.
+    const bar = page.locator('#prayerBar');
+    await expect
+      .poll(async () => {
+        await page.locator('#expandBarBtn').click({ force: true });
+        return (await bar.getAttribute('class')) ?? '';
+      })
+      .toContain('expanded');
+    await expect(page.locator('#prayerBarDetails')).toBeVisible();
+    await expect(page.locator('#prayerBar')).toHaveClass(/expanded/);
   });
 
   test('يعرض الساعة في شريط المواقيت', async ({ page }) => {

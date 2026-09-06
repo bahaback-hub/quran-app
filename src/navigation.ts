@@ -185,6 +185,8 @@ export function initNavigation(): void {
         dom.controls?.classList.toggle('mobile-show');
         break;
       case 'search':
+        // على الجوال تكون شريط الأدوات مخفياً افتراضياً؛ إظهاره مع البحث الموسّع
+        dom.controls?.classList.add('mobile-show');
         document.getElementById('headerSearch')?.classList.add('is-expanded');
         dom.searchToggleBtn?.setAttribute('aria-expanded', 'true');
         dom.searchInput?.focus();

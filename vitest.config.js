@@ -12,6 +12,12 @@ export default defineConfig({
     pool: 'forks',
     isolate: true,
     fileParallelism: false,
+    // Vitest 4.x worker teardown can race with an in-flight console RPC call,
+    // surfacing as "EnvironmentTeardownError ... onUserConsoleLog was pending"
+    // and failing the run (exit 1) even though every test passes. Writing worker
+    // console output straight to stdout instead of forwarding it over the worker
+    // RPC removes that race entirely — the documented Vitest remedy.
+    disableConsoleIntercept: true,
     coverage: {
       reporter: ['text', 'html', 'json-summary', 'json'],
       exclude: [
