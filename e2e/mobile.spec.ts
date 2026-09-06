@@ -161,18 +161,32 @@ test.describe('Quran App — Mobile Controls', () => {
 
   test('should keep primary header actions in one row and keep theme controls separate', async ({ page }) => {
     const primaryActions = page.locator('.header-primary-actions .header-action-btn');
-    await expect(primaryActions).toHaveCount(4);
+    await expect(primaryActions).toHaveCount(2);
     await expect(page.locator('#settingsToggleBtn')).toBeVisible();
     await expect(page.locator('#breadcrumbs')).toHaveCount(0);
 
     const firstAction = await primaryActions.nth(0).boundingBox();
-    const lastAction = await primaryActions.nth(3).boundingBox();
+    const lastAction = await primaryActions.nth(1).boundingBox();
     const theme = await page.locator('#themeToggle').boundingBox();
     expect(firstAction).not.toBeNull();
     expect(lastAction).not.toBeNull();
     expect(theme).not.toBeNull();
     expect(Math.abs(firstAction!.y - lastAction!.y)).toBeLessThan(2);
-    expect(theme!.y).toBeGreaterThan(firstAction!.y + firstAction!.height);
+    // يظهر هذا التطبيق الثيمات في كتلة منفصلة إلى جوار الأزرار (وليس فوقها)
+    // — تحقق أنها لا تتداخل مع أي من أزرار الإجراءات.
+    const actionsArea = await primaryActions.evaluateAll((els) => {
+      const rects = els.map((e) => e.getBoundingClientRect());
+      return {
+        x: Math.min(...rects.map((r) => r.x)),
+        right: Math.max(...rects.map((r) => r.x + r.width)),
+        y: Math.min(...rects.map((r) => r.y)),
+        bottom: Math.max(...rects.map((r) => r.y + r.height)),
+      };
+    });
+    const overlaps =
+      theme!.x < actionsArea.right && theme!.x + theme!.width > actionsArea.x
+      && theme!.y < actionsArea.bottom && theme!.y + theme!.height > actionsArea.y;
+    expect(overlaps).toBe(false);
 
     await expect(page.locator('#collapsedInfo')).not.toHaveText('');
     await expect(page.locator('#collapsedInfo')).not.toContainText(/آية/);

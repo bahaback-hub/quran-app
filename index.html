@@ -141,10 +141,10 @@
               </div>
               <div class="theme-switcher theme-menu theme-visible-grid" id="themeToggle" role="group" aria-label="تبديل المظهر">
                 <div class="theme-dropdown-menu" id="themeDropdownMenu" role="group" aria-label="أوضاع القراءة">
-                  <button class="theme-btn active" data-theme="light" title="الوضع النهاري" aria-label="الوضع النهاري" aria-pressed="true" role="menuitem"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-label" data-i18n="theme_light_short">نهاري</span></button>
-                  <button class="theme-btn" data-theme="sepia" title="وضع السيبيا" aria-label="وضع السيبيا" aria-pressed="false" role="menuitem"><span class="theme-icon" aria-hidden="true">📜</span><span class="theme-label" data-i18n="theme_sepia_short">سيبيا</span></button>
-                  <button class="theme-btn" data-theme="night" title="الوضع الليلي" aria-label="الوضع الليلي" aria-pressed="false" role="menuitem"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-label" data-i18n="theme_night_short">ليلي</span></button>
-                  <button class="theme-btn" data-theme="deep-night" data-i18n-title="theme_deep_night" data-i18n-aria-label="theme_deep_night" title="الوضع الليلي القاتم" aria-label="الوضع الليلي القاتم" aria-pressed="false" role="menuitem"><span class="theme-icon" aria-hidden="true">🌑</span><span class="theme-label" data-i18n="theme_deep_night_short">ليلي قاتم</span></button>
+                  <button class="theme-btn active" data-theme="light" title="الوضع النهاري" aria-label="الوضع النهاري" aria-pressed="true"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-label" data-i18n="theme_light_short">نهاري</span></button>
+                  <button class="theme-btn" data-theme="sepia" title="وضع السيبيا" aria-label="وضع السيبيا" aria-pressed="false"><span class="theme-icon" aria-hidden="true">📜</span><span class="theme-label" data-i18n="theme_sepia_short">سيبيا</span></button>
+                  <button class="theme-btn" data-theme="night" title="الوضع الليلي" aria-label="الوضع الليلي" aria-pressed="false"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-label" data-i18n="theme_night_short">ليلي</span></button>
+                  <button class="theme-btn" data-theme="deep-night" data-i18n-title="theme_deep_night" data-i18n-aria-label="theme_deep_night" title="الوضع الليلي القاتم" aria-label="الوضع الليلي القاتم" aria-pressed="false"><span class="theme-icon" aria-hidden="true">🌑</span><span class="theme-label" data-i18n="theme_deep_night_short">ليلي قاتم</span></button>
                 </div>
               </div>
             </div>
@@ -275,7 +275,7 @@
               <select id="pageSelect" aria-label="اختيار صفحة المصحف" class="hidden"></select>
               <select id="reciterSelect" aria-label="اختيار القارئ"></select>
             </div>
-            <input type="range" id="pageSlider" min="1" max="604" value="1" class="hidden" />
+            <input type="range" id="pageSlider" min="1" max="604" value="1" class="hidden" aria-label="اختيار صفحة المصحف" />
           </div>
         </div>
       </section>
@@ -363,7 +363,7 @@
 
     <!-- ========== ستارة التفسير ========== -->
     <aside class="tafsir-curtain" id="tafsirCurtain" role="complementary" aria-label="نافذة التفسير">
-      <div class="tafsir-curtain-grip" id="tafsirCurtainGrip" role="separator" aria-orientation="horizontal" aria-label="اسحب لتغيير ارتفاع التفسير" tabindex="0">
+      <div class="tafsir-curtain-grip" id="tafsirCurtainGrip" role="separator" aria-orientation="horizontal" aria-label="اسحب لتغيير ارتفاع التفسير" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" tabindex="0">
         <span aria-hidden="true"></span>
       </div>
       <div class="tafsir-curtain-topbar">

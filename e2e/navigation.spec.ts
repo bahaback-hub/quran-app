@@ -67,11 +67,8 @@ test.describe('Quran App — Theme Switching', () => {
   });
 
   test('should apply night mode via theme toggle', async ({ page }) => {
-    // The click handler on #themeToggle uses event delegation: it looks
-    // for `e.target.closest('.theme-btn')` and applies that button's
-    // `data-theme` value. Clicking the wrapper div itself does nothing —
-    // we must click the night-mode button specifically.
-    await page.locator('#themeMenuBtn').click();
+    // The theme picker is rendered inline (all theme buttons visible, no menu
+    // to expand). Click the night-mode button directly.
     const nightBtn = page.locator('.theme-btn[data-theme="night"]');
     await expect(nightBtn).toBeVisible();
     await nightBtn.click();
@@ -81,14 +78,11 @@ test.describe('Quran App — Theme Switching', () => {
   });
 
   test('should toggle night mode off when clicked again', async ({ page }) => {
-    // Same delegation pattern as above — click the night button, then
-    // the light button to revert.
-    await page.locator('#themeMenuBtn').click();
+    // Click the night button, then the light button to revert.
     const nightBtn = page.locator('.theme-btn[data-theme="night"]');
     const lightBtn = page.locator('.theme-btn[data-theme="light"]');
     await expect(nightBtn).toBeVisible();
     await nightBtn.click(); // Night mode on
-    await page.locator('#themeMenuBtn').click();
     await expect(lightBtn).toBeVisible();
     await lightBtn.click(); // Back to light
 
@@ -130,10 +124,10 @@ test.describe('Quran App — Mobile Layout', () => {
   test('should keep the unified search and display controls inside a narrow viewport', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.ayah[data-surah="1"]', { timeout: 30000 });
-    await page.locator('#searchToggleBtn').click();
     await page.evaluate(() => {
       document.getElementById('controls')?.classList.add('mobile-show');
     });
+    await page.locator('#searchToggleBtn').click();
 
     const elements = [
       page.locator('#searchInput'),

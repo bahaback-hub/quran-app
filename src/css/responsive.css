@@ -915,6 +915,9 @@
   }
   .controls.mobile-show {
     display: flex;
+    /* شريط الأدوات الجانبي الثابت (الأيسر) يعلو محتوى <main>؛ نزيح شريط
+       التحكم يمينه حتى لا يختفي البحث/الأزرار تحت الشريط على الشاشات الضيقة. */
+    padding-left: 76px;
   }
   /* الهاتف: طريقة القراءة أولاً في صف واضح، ثم بحث كامل العرض أسفلها. */
   .control-card.reader-command-bar.control-card-persistent {
@@ -944,6 +947,88 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
     padding: 0;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  /* الهاتف: شريط البحث العائم فوق البطاقة، ثم صفوف الأنماط والأدوات تحته. */
+  .control-card.reader-command-bar.control-card-persistent {
+    position: relative;
+    grid-template-areas:
+      'display';
+    gap: 0;
+  }
+  .reader-command-search {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    min-height: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .reader-command-search .header-search-trigger,
+  .reader-command-search .search-toggle-btn {
+    flex: 0 0 auto;
+  }
+  #headerSearch.reader-command-search .header-search-input {
+    top: 0;
+    right: 8px;
+    left: 0;
+    width: auto;
+    max-width: calc(100vw - 96px);
+  }
+  .reader-command-display {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-top: 40px;
+    grid-template-columns: none;
+    grid-template-areas: none;
+  }
+  .reader-command-display .reader-mode-label {
+    display: none;
+  }
+  .reader-command-display .reader-toolbar-pin {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+  }
+  .reader-command-display .reader-surface-inline {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 45%;
+    gap: 4px;
+  }
+  .reader-command-display .reader-surface-inline input[type='range'] {
+    width: 60px;
+    min-width: 0;
+  }
+  .reader-command-display .reader-surface-inline output {
+    min-width: 24px;
+    font-size: 11px;
+  }
+  .reader-command-display .tajweed-inline-btn {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+  }
+  .reader-command-display .reader-zoom-control {
+    flex: 0 0 auto;
+    gap: 2px;
+  }
+  .reader-command-display .reader-zoom-btn {
+    min-width: 26px;
+    min-height: 26px;
+  }
+  .reader-command-display .reader-zoom-value {
+    min-width: 30px;
+  }
+  .reader-command-display .page-indicator {
+    flex-basis: 100%;
   }
   .view-mode-btn {
     min-width: 0;

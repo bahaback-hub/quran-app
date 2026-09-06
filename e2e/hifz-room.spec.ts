@@ -7,7 +7,7 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(page.locator('#hifzRoomToggle')).toBeVisible({ timeout: 10000 });
   });
 
-  test('opens from its right-edge handle and exposes its focused memorization controls', async ({ page }) => {
+  test('opens from its left-edge handle and exposes its focused memorization controls', async ({ page }) => {
     await page.locator('#hifzRoomToggle').click();
 
     const room = page.locator('#hifzRoom');
@@ -22,10 +22,11 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     const viewport = page.viewportSize();
     expect(roomBox).not.toBeNull();
     expect(viewport).not.toBeNull();
-    // The room is a partially revealed curtain: its visible edge remains on
-    // screen while the rest stays outside until the reader drags it farther.
-    expect(roomBox!.x).toBeLessThan(viewport!.width);
-    expect(roomBox!.x + roomBox!.width).toBeGreaterThan(viewport!.width);
+    // The room is a partially revealed left-edge curtain: its left edge stays
+    // off-screen (negative x) while its visible right portion remains on screen.
+    expect(roomBox!.x).toBeLessThan(0);
+    expect(roomBox!.x + roomBox!.width).toBeGreaterThan(0);
+    expect(roomBox!.x + roomBox!.width).toBeLessThanOrEqual(viewport!.width);
   });
 
   test('opens with H and closes with Escape without invoking the existing Hifdh shortcut', async ({ page }) => {
@@ -89,14 +90,14 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(page.locator('#hifzRoomStage')).toHaveAttribute('aria-hidden', 'true');
   });
 
-  test('opens when its right-edge handle is dragged toward the reader', async ({ page }) => {
+  test('opens when its left-edge handle is dragged toward the reader', async ({ page }) => {
     const handle = page.locator('#hifzRoomToggle');
     const box = await handle.boundingBox();
     expect(box).not.toBeNull();
 
     await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
     await page.mouse.down();
-    await page.mouse.move(box!.x - 160, box!.y + box!.height / 2, { steps: 8 });
+    await page.mouse.move(box!.x + 160, box!.y + box!.height / 2, { steps: 8 });
     await page.mouse.up();
 
     await expect(page.locator('#hifzRoom')).toHaveClass(/is-open/);

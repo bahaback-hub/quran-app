@@ -34,7 +34,7 @@ test.describe('Visual Regression', () => {
   });
 
   test('prayer bar - collapsed state', async ({ page }) => {
-    const prayerBar = page.locator('.prayer-bar');
+    const prayerBar = page.locator('#prayerBar');
     if (await prayerBar.isVisible()) {
       await expect(prayerBar).toHaveScreenshot('prayer-bar-collapsed.png', {
         maxDiffPixelRatio: 0.3,
