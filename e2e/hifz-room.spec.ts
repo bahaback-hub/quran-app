@@ -18,15 +18,22 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(room.locator('#hifzRoomStart')).toBeVisible();
     await expect(page.locator('#hifzRoomBackdrop')).toHaveCSS('opacity', '1');
 
-    const roomBox = await room.boundingBox();
     const viewport = page.viewportSize();
-    expect(roomBox).not.toBeNull();
     expect(viewport).not.toBeNull();
-    // The room is a partially revealed left-edge curtain: its left edge stays
-    // off-screen (negative x) while its visible right portion remains on screen.
-    expect(roomBox!.x).toBeLessThan(0);
-    expect(roomBox!.x + roomBox!.width).toBeGreaterThan(0);
-    expect(roomBox!.x + roomBox!.width).toBeLessThanOrEqual(viewport!.width);
+    // The room's open state is `translateX(0)` (fully revealed), anchored on either
+    // side depending on LTR/RTL. Wait for the 260ms open transition to finish —
+    // boundingBox() reads a single synchronous frame that can land mid-transition
+    // in WebKit — then assert the room sits fully inside the viewport.
+    await room.waitForFunction(() => {
+      const matrix = new DOMMatrix(getComputedStyle(document.getElementById('hifzRoom')!).transform);
+      return Math.abs(matrix.m41) < 0.5 && Math.abs(matrix.m42) < 0.5;
+    });
+
+    const roomBox = await room.boundingBox();
+    expect(roomBox).not.toBeNull();
+    expect(roomBox!.width).toBeGreaterThan(0);
+    expect(roomBox!.x).toBeGreaterThanOrEqual(-1);
+    expect(roomBox!.x + roomBox!.width).toBeLessThanOrEqual(viewport!.width + 1);
   });
 
   test('opens with H and closes with Escape without invoking the existing Hifdh shortcut', async ({ page }) => {
