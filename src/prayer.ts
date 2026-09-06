@@ -29,6 +29,13 @@ const LOCAL_CITY_MAP: Record<string, string> = {
   'taif': 'الطائف', 'الطائف': 'الطائف',
 };
 
+/**
+ * Maximum delay (seconds) past a prayer minute within which the azan still
+ * fires. Mobile WebView timers are throttled in background tabs; without this
+ * grace a single deferred tick would permanently skip that day's adhan.
+ */
+const AZAN_GRACE_SECONDS = 300;
+
 /** Get today's Hijri date in YYYY-MM-DD format (Umm Al-Qura calendar) */
 function getTodayHijriISO(): string {
   try {
@@ -627,15 +634,27 @@ export function checkAzanTime(): void {
   }
   const now = new Date();
   const cur = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+  const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const todayStamp = now.toDateString();
   for (const key of PRAYER_ORDER) {
     if (key === 'Fajr' && !state.azanFajrEnabled) {
       continue;
     }
     const raw = (state.prayerTimes[key] || '').split(' ')[0];
-    if (raw === cur) {
-      const stamp = key + '_' + now.toDateString() + '_' + cur;
-      if (state.lastAzanFired === stamp) {
-        continue; // Skip already-fired prayer, check remaining ones
+    if (!raw) {
+      continue;
+    }
+    const [h, m] = raw.split(':') as [string, string];
+    const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
+    // Fire when the current minute matches the prayer OR when the scheduler
+    // delivered this tick late (throttled background-tab timer) but still within
+    // the grace window. Without the grace, any deferral past the minute boundary
+    // silently dropped that day's adhan.
+    const withinGrace = prayerSec <= nowSec && nowSec - prayerSec <= AZAN_GRACE_SECONDS;
+    if (raw === cur || withinGrace) {
+      const stamp = key + '_' + todayStamp + '_' + cur;
+      if (state.lastAzanFired?.startsWith(key + '_' + todayStamp)) {
+        continue; // Skip already-fired prayer today, check remaining ones
       }
       state.lastAzanFired = stamp;
       if (dom.azanPlayer) {
@@ -671,7 +690,10 @@ export function scheduleNextAzanCheck(): void {
     clearTimeout(azanTimer);
   }
   if (!state.prayerTimes || !state.azanEnabled) {
-    azanTimer = setTimeout(scheduleNextAzanCheck, 60000);
+    // Nothing to schedule. Do NOT re-poll forever: the toggle handlers call
+    // scheduleNextAzanCheck() again the moment azan is re-enabled or prayer
+    // times finish loading, so there is no need for a background wake-up loop.
+    azanTimer = null;
     return;
   }
   const now = new Date();

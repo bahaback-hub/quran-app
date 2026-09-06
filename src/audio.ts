@@ -416,7 +416,15 @@ function onTimeUpdate(): void {
     }
   }
 
-  if (state.currentAyahIndex !== _cachedWordAyahIndex) {
+  // Re-query whenever the index changed OR the cached nodes were detached by a
+  // surah re-render (translation late-load re-renders keep the same ayah index,
+  // which previously left the cache pointing at a replaced, disconnected DOM).
+  if (
+    state.currentAyahIndex !== _cachedWordAyahIndex ||
+    !_cachedWordEls ||
+    _cachedWordEls.length === 0 ||
+    !document.contains(_cachedWordEls[0]!)
+  ) {
     _cachedWordEls = document.querySelectorAll(`.ayah[data-index="${state.currentAyahIndex}"] .word`);
     _cachedWordAyahIndex = state.currentAyahIndex;
   }
@@ -1010,9 +1018,13 @@ function ensureSleepTimerInterval(): void {
     return;
   }
   _sleepTimerInterval = setInterval(() => {
-    if (_sleepTimerMinutes && _sleepTimerStart) {
-      updateSleepTimerDisplay();
+    if (!_sleepTimerMinutes || !_sleepTimerStart) {
+      // Timer finished or was cleared — retire the interval instead of
+      // polling every 15s forever (background wake-up + DOM churn).
+      cleanupSleepTimerInterval();
+      return;
     }
+    updateSleepTimerDisplay();
   }, 15000);
 }
 
