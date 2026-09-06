@@ -1142,6 +1142,12 @@ export function highlightCurrentAyah(): void {
     }
     cur.scrollIntoView({ behavior: 'instant', block: 'center' });
   }
+  // Keep the surah dropdown in sync with what is actually displayed — on app
+  // start the dropdown is populated with the default surah before the restored
+  // surah finishes loading, so it must be corrected here.
+  if (dom.surahSelect && dom.surahSelect.value !== String(state.currentSurah)) {
+    dom.surahSelect.value = String(state.currentSurah);
+  }
   updatePlayerInfo();
   import('./presentation.js')
     .then((m: { syncPresentation: () => void }) => m.syncPresentation())
