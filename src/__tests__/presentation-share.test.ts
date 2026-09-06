@@ -24,9 +24,20 @@ vi.mock('../pres-backgrounds.js', () => ({
   getAutoBackground: () => ({ src: 'backgrounds/dawn.jpg' }),
   getNatureBgByMood: () => ({ src: 'backgrounds/dawn.jpg' }),
 }));
-vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform: () => false } }));
-vi.mock('@capacitor/filesystem', () => ({ Directory: { Cache: 'CACHE' }, Filesystem: { writeFile: vi.fn() } }));
-vi.mock('@capacitor/share', () => ({ Share: { canShare: vi.fn(), share: vi.fn() } }));
+const capacitorMock = vi.hoisted(() => ({ isNativePlatform: vi.fn(() => false) }));
+const filesystemMock = vi.hoisted(() => ({
+  writeFile: vi.fn(() => Promise.resolve({ uri: 'file:///cache/shared/x.png' })),
+}));
+const capacitorShareMock = vi.hoisted(() => ({
+  canShare: vi.fn(() => Promise.resolve({ value: true })),
+  share: vi.fn(() => Promise.resolve()),
+}));
+vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform: capacitorMock.isNativePlatform } }));
+vi.mock('@capacitor/filesystem', () => ({
+  Directory: { Cache: 'CACHE' },
+  Filesystem: { writeFile: filesystemMock.writeFile },
+}));
+vi.mock('@capacitor/share', () => ({ Share: { canShare: capacitorShareMock.canShare, share: capacitorShareMock.share } }));
 vi.mock('../state.js', () => ({ state: mockState }));
 
 function mountPreview(): void {
@@ -39,6 +50,7 @@ function mountPreview(): void {
       <button id="presentationShareNativeBtn"></button>
       <button id="presentationShareDownloadBtn"></button>
       <button id="presentationShareVideoBtn"></button>
+      <button id="presentationShareVideoDownloadBtn"></button>
     </div>`;
   mockDom.presShareBtn = document.createElement('button');
   mockDom.presVideoShareBtn = document.createElement('button');
@@ -59,6 +71,10 @@ describe('presentation image sharing', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.restoreAllMocks();
+    capacitorMock.isNativePlatform.mockImplementation(() => false);
+    capacitorShareMock.canShare.mockImplementation(() => Promise.resolve({ value: true }));
+    capacitorShareMock.share.mockImplementation(() => Promise.resolve());
+    filesystemMock.writeFile.mockImplementation(() => Promise.resolve({ uri: 'file:///cache/shared/x.png' }));
     mockState.presBgMode = 'plain';
     mockState.currentReciter = 'ar.alafasy';
     renderedCanvasSize = null;
@@ -126,14 +142,16 @@ describe('presentation image sharing', () => {
     expect(mockDom.presVideoShareBtn.classList.contains('hidden')).toBe(true);
   });
 
-  it('closes the preview and clears its visible state', async () => {
-    const { closePresentationSharePreview } = await import('../presentation-share.js');
+  it('closes the preview, revokes its object URL and clears its visible state', async () => {
+    const { openPresentationSharePreview, closePresentationSharePreview } = await import('../presentation-share.js');
     const preview = document.getElementById('presentationSharePreview')!;
+    await openPresentationSharePreview();
     preview.classList.remove('hidden');
     preview.style.display = 'flex';
     closePresentationSharePreview();
     expect(preview.classList.contains('hidden')).toBe(true);
     expect(preview.style.display).toBe('none');
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:share-preview');
   });
 
   it('renders a preview image and enables its sharing and download actions', async () => {
@@ -177,4 +195,82 @@ describe('presentation image sharing', () => {
     expect(renderedCanvasSize).toEqual([1920, 1080]);
     expect(strokeRect).not.toHaveBeenCalled();
   });
+
+  it('prepares the share image in advance without opening any UI', async () => {
+    const { preparePresentationShareImage } = await import('../presentation-share.js');
+    preparePresentationShareImage();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(document.getElementById('presentationSharePreview')?.classList.contains('hidden')).toBe(true);
+  });
+
+it('marks the video creating status as failed when the timing service is unavailable', async () => {
+    // Recording is advertised as supported so the video button stays enabled;
+    // the Alafasy timing request then fails (503) and the status must degrade.
+    class MediaRecorderMock {}
+    Object.defineProperty(MediaRecorderMock, 'isTypeSupported', { value: vi.fn(() => true) });
+    vi.stubGlobal('MediaRecorder', MediaRecorderMock);
+    vi.stubGlobal('AudioContext', class AudioContextMock {});
+    Object.defineProperty(HTMLCanvasElement.prototype, 'captureStream', { configurable: true, value: vi.fn() });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(new Response(null, { status: 503 }))),
+    );
+    const { initPresentationShare, openPresentationSharePreview } = await import('../presentation-share.js');
+    await openPresentationSharePreview();
+    initPresentationShare();
+    const videoButton = document.getElementById('presentationShareVideoBtn') as HTMLButtonElement;
+
+    videoButton.click();
+    await new Promise((resolve) => setTimeout(resolve, 30));
+
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('video-failed');
+    expect(videoButton.disabled).toBe(false);
+  });
+
+  it('falls back to the preview with a download hint when no native share sheet exists', async () => {
+    const { initPresentationShare } = await import('../presentation-share.js');
+    Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
+    Object.defineProperty(navigator, 'canShare', { configurable: true, value: undefined });
+    initPresentationShare();
+
+    mockDom.presShareBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(document.getElementById('presentationSharePreview')?.style.display).toBe('flex');
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('download');
+  });
+
+  it('treats a user cancellation of the native share sheet as cancelled', async () => {
+    const { initPresentationShare } = await import('../presentation-share.js');
+    vi.mocked(navigator.share).mockRejectedValue(Object.assign(new Error('denied'), { name: 'AbortError' }));
+    initPresentationShare();
+
+    mockDom.presShareBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(document.getElementById('presentationSharePreview')?.classList.contains('hidden')).toBe(true);
+  });
+
+it('shares through the Capacitor bridge when running inside the native wrapper', async () => {
+    capacitorMock.isNativePlatform.mockImplementation(() => true);
+    const { initPresentationShare } = await import('../presentation-share.js');
+    initPresentationShare();
+
+    mockDom.presShareBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 30));
+
+    expect(capacitorShareMock.canShare).toHaveBeenCalled();
+    expect(filesystemMock.writeFile).toHaveBeenCalledWith(
+      expect.objectContaining({ path: 'shared/quran-1-1-portrait.png', directory: 'CACHE', recursive: true }),
+    );
+    expect(capacitorShareMock.share).toHaveBeenCalledTimes(1);
+  });
+
+  it('guards against double initialisation', async () => {
+    const { initPresentationShare } = await import('../presentation-share.js');
+    initPresentationShare();
+    initPresentationShare();
+    expect(mockDom.presShareBtn.dataset['presentationShareBound']).toBe('true');
+  });
 });
+
