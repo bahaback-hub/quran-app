@@ -1336,14 +1336,31 @@
   .bismillah { font-size: 20px; }
 }
 
+/* ========== الشاشات الواسعة (≥1440) ==========
+   تُوسَّع الحاوية فقط؛ التوسعة مبتدئة عند ≥1440 حتى لا تتغير مخرجات
+   التخطيط المعياري عند 1280px. */
+@media (min-width: 1440px) {
+  .container { max-width: 1500px; }
+}
+
 /* ========== الشاشات الكبيرة جداً (Ultra-wide / 4K) ========== */
 @media (min-width: 1800px) {
-  .container { max-width: 1400px; }
+  .container { max-width: 1600px; }
   .surah-content { font-size: 24px; }
   .surah-title { font-size: 36px; }
   .bismillah { font-size: 36px; }
   .ayah-number { min-width: 40px; height: 40px; line-height: 40px; font-size: 16px; }
   .header h1 { font-size: 32px; }
+}
+
+/* ========== التلفزيون ولوحات اللمس الكبيرة (TV / large touch screens) ==========
+   جهاز بلا مؤشر hover (لمس/ريموت) وشاشة عريضة: يُحفَظ التخطيط الواسع وتُرفَع
+   بروز حلقة التركيز لدعم التنقل بالأسهم (D-pad) بعيداً عن الشاشة. */
+@media (hover: none) and (pointer: coarse) and (min-width: 1024px) and (min-aspect-ratio: 4/3) {
+  :focus-visible {
+    outline-width: 4px;
+    outline-offset: 3px;
+  }
 }
 
 /* ========== تفضيل تقليل الحركة (prefers-reduced-motion) — WCAG 2.3.3 ========== */

@@ -329,3 +329,9 @@ function setupMobilePanelObserver(): void {
 }
 
 setupMobilePanelObserver();
+
+// Responsive diagnostics — hidden test lens, only loaded when the developer
+// opts in via ?diag=response or #diag=response in the URL (see responsive-diagnostics.ts).
+if (location.search.includes('diag=response') || location.hash.includes('diag=response')) {
+  void import('./responsive-diagnostics.js').then(m => m.initResponsiveDiagnostics());
+}
