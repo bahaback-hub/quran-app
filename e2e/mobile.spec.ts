@@ -210,23 +210,21 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('.juz-label').first()).not.toHaveText('juz_num');
   });
 
-  test('should resize the tafsir sheet with its grip and keep its body scroll-contained', async ({ page }) => {
+  test('should open the tafsir as a left 40% panel and keep its body scroll-contained', async ({ page }) => {
     await page.locator('#tafsirCurtainHandle').click();
     const curtain = page.locator('#tafsirCurtain');
-    const grip = page.locator('#tafsirCurtainGrip');
     const body = page.locator('#tafsirCurtainBody');
     await expect(curtain).toHaveClass(/open/);
-    await expect(grip).toBeVisible();
+    await expect(curtain).toBeVisible();
 
-    const before = await curtain.boundingBox();
-    expect(before).not.toBeNull();
-    await grip.dispatchEvent('pointerdown', { pointerId: 31, clientY: 500 });
-    await grip.dispatchEvent('pointermove', { pointerId: 31, clientY: 420 });
-    await grip.dispatchEvent('pointerup', { pointerId: 31, clientY: 420 });
-
-    const after = await curtain.boundingBox();
-    expect(after).not.toBeNull();
-    expect(after!.height).toBeGreaterThan(before!.height + 40);
+    await page.waitForTimeout(400);
+    const box = await curtain.boundingBox();
+    expect(box).not.toBeNull();
+    // On mobile the tafsir now docks as a left panel taking ~40% of the width.
+    expect(box!.width / 390).toBeGreaterThan(0.36);
+    expect(box!.width / 390).toBeLessThan(0.44);
+    expect(box!.x).toBeLessThan(2);
+    // The body content stays scrollable and touch-contained for reading.
     await expect(body).toHaveCSS('overflow-y', 'auto');
     await expect(body).toHaveCSS('overscroll-behavior-y', 'contain');
   });
