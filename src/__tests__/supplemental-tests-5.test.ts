@@ -249,8 +249,6 @@ describe('app-events.ts — exported functions', () => {
     (dom as Record<string, unknown>).settingsPanel = document.createElement('div');
     (dom as Record<string, unknown>).favoritesPanel = document.createElement('div');
     (dom as Record<string, unknown>).adhkarPanel = document.createElement('div');
-    (dom as Record<string, unknown>).shareMenu = document.createElement('div');
-    (dom as Record<string, unknown>).shareBtn = document.createElement('button');
     (dom as Record<string, unknown>).settingsToggleBtn = document.createElement('button');
     (dom as Record<string, unknown>).favoritesOpenBtn = document.createElement('button');
     (dom as Record<string, unknown>).adhkarBtn = document.createElement('button');
@@ -342,13 +340,6 @@ describe('app-events.ts — exported functions', () => {
 
   it('bindAllEvents registers without throwing', () => {
     expect(() => bindAllEvents()).not.toThrow();
-  });
-
-  it('global click handler closes share menu when clicking outside', () => {
-    bindGlobalClickHandler();
-    (dom.shareMenu as HTMLElement).classList.add('show');
-    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(true).toBe(true);
   });
 
   it('help toggle opens the help panel', () => {

@@ -934,20 +934,34 @@ describe('floatingPlayerHTML', () => {
     expect(result).toContain('nextSurahBtn');
   });
 
-  it('should contain visible player controls grid', () => {
+  it('should contain visible player action grid with the essential controls only', () => {
     const result = floatingPlayerHTML();
     expect(result).toContain('player-grid');
     expect(result).toContain('hifdhBtn');
     expect(result).toContain('repeatBtn');
-    expect(result).toContain('bookmarkBtn');
-    expect(result).toContain('favoriteBtn');
-    expect(result).toContain('shareBtn');
+    expect(result).toContain('autoPlayNextBtn');
+    expect(result).toContain('sleepTimerBtn');
     expect(result).toContain('downloadAudioBtn');
+    expect(result).not.toContain('bookmarkBtn');
+    expect(result).not.toContain('favoriteBtn');
+    expect(result).not.toContain('shareBtn');
+    expect(result).not.toContain('selectModeBtn');
   });
 
-  it('should contain speed control', () => {
+  it('should contain a compact speed control beside the audio in the player row', () => {
     const result = floatingPlayerHTML();
+    expect(result).toContain('speedControl');
     expect(result).toContain('speedSelect');
+    expect(result).not.toContain('grid-speed');
+  });
+
+  it('should keep the collapsed bar minimal: ayah nav + play only', () => {
+    const result = floatingPlayerHTML();
+    expect(result).toContain('collapsedPrevAyahBtn');
+    expect(result).toContain('collapsedPlayBtn');
+    expect(result).toContain('collapsedNextAyahBtn');
+    expect(result).not.toContain('collapsedPrevSurahBtn');
+    expect(result).not.toContain('collapsedNextSurahBtn');
   });
 
   it('should contain sleep timer button', () => {
@@ -964,10 +978,12 @@ describe('floatingPlayerHTML', () => {
     expect(result).not.toContain('playerMoreBtn');
   });
 
-  it('should contain select mode bar', () => {
+  it('should not contain select-mode bar or share menu', () => {
     const result = floatingPlayerHTML();
-    expect(result).toContain('selectModeBar');
-    expect(result).toContain('selectCount');
+    expect(result).not.toContain('selectModeBar');
+    expect(result).not.toContain('selectCount');
+    expect(result).not.toContain('shareMenu');
+    expect(result).not.toContain('data-share=');
   });
 
   it('should contain repeat controls', () => {
@@ -976,15 +992,6 @@ describe('floatingPlayerHTML', () => {
     expect(result).toContain('repeatFrom');
     expect(result).toContain('repeatTo');
     expect(result).toContain('repeatTimes');
-  });
-
-  it('should contain share menu', () => {
-    const result = floatingPlayerHTML();
-    expect(result).toContain('shareMenu');
-    expect(result).toContain('data-share="native"');
-    expect(result).toContain('data-share="copy"');
-    expect(result).toContain('data-share="whatsapp"');
-    expect(result).toContain('data-share="telegram"');
   });
 
   it('should contain current ayah display', () => {

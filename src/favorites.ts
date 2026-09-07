@@ -42,7 +42,6 @@ export function toggleFavorite(): void {
   if (idx !== -1) {
     immutableSplice(state, 'favorites', idx, 1);
     showToast(__('removed_from_favorites'), '');
-    dom.favoriteBtn?.classList.remove('active');
   } else {
     immutablePush(state, 'favorites', {
       key,
@@ -53,7 +52,6 @@ export function toggleFavorite(): void {
       timestamp: Date.now(),
     });
     showToast(__('added_to_favorites'), 'success');
-    dom.favoriteBtn?.classList.add('active');
   }
   saveFavorites();
   renderFavorites();

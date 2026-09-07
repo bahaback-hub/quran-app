@@ -93,7 +93,6 @@ beforeEach(() => {
   dom.searchResults = null;
   dom.searchInput = null;
   dom.surahSecretsOverlay = null;
-  dom.shareMenu = null;
   dom.player = null;
 
   // Re-init shortcuts for each test (adds a fresh listener)
@@ -286,14 +285,6 @@ describe('keyboard shortcuts - Escape', () => {
     dom.searchResults = { style: { display: 'block' } } as unknown as HTMLElement;
     pressKey('Escape');
     expect((dom.searchResults as unknown as { style: { display: string } }).style.display).toBe('none');
-  });
-
-  it('should remove show class from share menu on Escape', () => {
-    dom.shareMenu = { classList: { remove: vi.fn() } } as unknown as HTMLElement;
-    pressKey('Escape');
-    expect(
-      (dom.shareMenu as unknown as { classList: { remove: ReturnType<typeof vi.fn> } }).classList.remove,
-    ).toHaveBeenCalledWith('show');
   });
 
   it('should collapse player if not already collapsed on Escape', () => {

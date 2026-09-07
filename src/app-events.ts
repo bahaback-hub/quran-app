@@ -49,7 +49,7 @@ import {
   showQiblaCompass,
   scheduleNextAzanCheck,
 } from './prayer.js';
-import { toggleFavorite, openFavorites, closeFavorites, setBookmark, gotoBookmark } from './favorites.js';
+import { openFavorites, closeFavorites } from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah, toggleTranslation } from './surah-loader.js';
 import {
@@ -61,7 +61,6 @@ import {
 } from './search-ui.js';
 import { showSleepTimerModal } from './sleep-timer-modal.js';
 import { loadTajweedAnnotationsForSurah } from './tajweed-data.js';
-import { toggleShareMenu, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from './share.js';
 import { toggleTafsir, openTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import * as audioModule from './audio.js';
 
@@ -179,18 +178,32 @@ export function bindNavigationEvents(): void {
       loadSurah(state.currentSurah);
     }
   });
+
+  // Compact player: tapping the current ayah opens the full ayah modal.
+  dom.playerCurrentAyah?.addEventListener('click', () => {
+    const data = state.surahData;
+    const idx = state.currentAyahIndex;
+    if (data && idx >= 0 && data.ayahs[idx]) {
+      const a = data.ayahs[idx]!;
+      import('./ayah-modal.js').then((m) =>
+        m.openAyahModal({
+          surah: state.currentSurah,
+          ayah: idx + 1,
+          text: a.text,
+          surahName: data.name,
+          index: idx,
+        }),
+      );
+    }
+  });
 }
 
 /**
- * Bind bookmark, favorite, theme, and settings buttons.
+ * Bind theme and settings buttons.
  */
 export function bindHeaderAndSettingsEvents(): void {
   initReaderToolbarPin();
   initReaderSurfaceControl();
-  dom.bookmarkBtn?.addEventListener('click', setBookmark);
-  dom.bookmarkBtn?.addEventListener('dblclick', gotoBookmark);
-  dom.favoriteBtn?.addEventListener('click', toggleFavorite);
-  dom.shareBtn?.addEventListener('click', () => toggleShareMenu());
   dom.themeToggle?.addEventListener('click', (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const btn = target.closest('.theme-btn') as HTMLElement | null;
@@ -767,7 +780,7 @@ export function bindDisplaySettingsEvents(): void {
 }
 
 /**
- * Bind favorites, prayer bar collapse, share menu items.
+ * Bind favorites and prayer bar collapse events.
  */
 export function bindPanelsAndShareEvents(): void {
   dom.favoritesOpenBtn?.addEventListener('click', () => {
@@ -780,37 +793,6 @@ export function bindPanelsAndShareEvents(): void {
   dom.favoritesCloseBtn?.addEventListener('click', closeFavorites);
   dom.collapseBarBtn?.addEventListener('click', togglePrayerBar);
   dom.expandBarBtn?.addEventListener('click', togglePrayerBar);
-
-  document.querySelectorAll('[data-share="native"]').forEach((btn) =>
-    btn.addEventListener('click', () => {
-      shareNative();
-      toggleShareMenu();
-    }),
-  );
-  document.querySelectorAll('[data-share="copy"]').forEach((btn) =>
-    btn.addEventListener('click', () => {
-      shareCopy();
-      toggleShareMenu();
-    }),
-  );
-  document.querySelectorAll('[data-share="copy-simple"]').forEach((btn) =>
-    btn.addEventListener('click', () => {
-      shareCopySimple();
-      toggleShareMenu();
-    }),
-  );
-  document.querySelectorAll('[data-share="whatsapp"]').forEach((btn) =>
-    btn.addEventListener('click', () => {
-      shareWhatsApp();
-      toggleShareMenu();
-    }),
-  );
-  document.querySelectorAll('[data-share="telegram"]').forEach((btn) =>
-    btn.addEventListener('click', () => {
-      shareTelegram();
-      toggleShareMenu();
-    }),
-  );
 }
 
 /**
@@ -956,9 +938,6 @@ export function bindSearchEvents(): void {
  */
 export function bindGlobalClickHandler(): void {
   document.addEventListener('click', (e: MouseEvent) => {
-    if (!dom.shareMenu?.contains(e.target as Node) && !dom.shareBtn?.contains(e.target as Node)) {
-      dom.shareMenu?.classList.remove('show');
-    }
     const settingsTarget = e.target as HTMLElement;
     if (!dom.themeToggle?.contains(settingsTarget)) {
       dom.themeToggle?.classList.remove('open');

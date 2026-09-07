@@ -5,11 +5,9 @@ Element.prototype.scrollIntoView = vi.fn();
 
 function setupDOM() {
   document.body.innerHTML = `
-    <button id="collapsedPrevSurahBtn"></button>
     <button id="collapsedPrevAyahBtn"></button>
     <button id="collapsedPlayBtn"></button>
     <button id="collapsedNextAyahBtn"></button>
-    <button id="collapsedNextSurahBtn"></button>
     <div id="collapsedContent"></div>
     <div id="player"></div>
   `;
@@ -142,10 +140,8 @@ describe('initNavigation', () => {
     const { initNavigation } = await import('../navigation.js');
     initNavigation();
     const ids = [
-      'collapsedPrevSurahBtn',
       'collapsedPrevAyahBtn',
       'collapsedNextAyahBtn',
-      'collapsedNextSurahBtn',
     ];
     for (const id of ids) {
       const btn = document.getElementById(id);

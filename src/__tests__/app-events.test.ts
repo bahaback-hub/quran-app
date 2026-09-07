@@ -144,10 +144,6 @@ function createDomElements() {
   const el = (tag: string) => document.createElement(tag);
   dom.surahSelect = el('select') as HTMLSelectElement;
   dom.reciterSelect = el('select') as HTMLSelectElement;
-  dom.bookmarkBtn = el('button');
-  dom.favoriteBtn = el('button');
-  dom.shareBtn = el('button');
-  dom.shareMenu = el('div');
   dom.themeToggle = el('div');
   dom.settingsToggleBtn = el('button');
   dom.readerSurfaceControl = el('div');
@@ -309,38 +305,6 @@ describe('app-events', () => {
   /* ==================== bindHeaderAndSettingsEvents ==================== */
 
   describe('bindHeaderAndSettingsEvents', () => {
-    it('should bind bookmark button click to setBookmark', async () => {
-      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
-      bindHeaderAndSettingsEvents();
-      dom.bookmarkBtn!.click();
-      const { setBookmark } = await import('../favorites.js');
-      expect(setBookmark).toHaveBeenCalled();
-    });
-
-    it('should bind bookmark button dblclick to gotoBookmark', async () => {
-      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
-      bindHeaderAndSettingsEvents();
-      dom.bookmarkBtn!.dispatchEvent(new MouseEvent('dblclick'));
-      const { gotoBookmark } = await import('../favorites.js');
-      expect(gotoBookmark).toHaveBeenCalled();
-    });
-
-    it('should bind favoriteBtn click to toggleFavorite', async () => {
-      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
-      bindHeaderAndSettingsEvents();
-      dom.favoriteBtn!.click();
-      const { toggleFavorite } = await import('../favorites.js');
-      expect(toggleFavorite).toHaveBeenCalled();
-    });
-
-    it('should bind shareBtn click to toggleShareMenu', async () => {
-      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
-      bindHeaderAndSettingsEvents();
-      dom.shareBtn!.click();
-      const { toggleShareMenu } = await import('../share.js');
-      expect(toggleShareMenu).toHaveBeenCalled();
-    });
-
     it('should bind settingsToggleBtn click to openSettings', async () => {
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
@@ -786,20 +750,6 @@ describe('app-events', () => {
       const { togglePrayerBar } = await import('../prayer.js');
       expect(togglePrayerBar).toHaveBeenCalledTimes(2);
     });
-
-    it('should bind share buttons in the DOM', async () => {
-      // Create share buttons in the DOM
-      const nativeBtn = document.createElement('button');
-      nativeBtn.dataset.share = 'native';
-      document.body.appendChild(nativeBtn);
-
-      const { bindPanelsAndShareEvents } = await import('../app-events.js');
-      bindPanelsAndShareEvents();
-      nativeBtn.click();
-      const { shareNative, toggleShareMenu } = await import('../share.js');
-      expect(shareNative).toHaveBeenCalled();
-      expect(toggleShareMenu).toHaveBeenCalled();
-    });
   });
 
   /* ==================== bindSearchEvents ==================== */
@@ -869,15 +819,6 @@ describe('app-events', () => {
   /* ==================== bindGlobalClickHandler ==================== */
 
   describe('bindGlobalClickHandler', () => {
-    it('should close share menu when clicking outside', async () => {
-      dom.shareMenu!.classList.add('show');
-      const { bindGlobalClickHandler } = await import('../app-events.js');
-      bindGlobalClickHandler();
-      // Click on the body (outside share menu)
-      document.body.click();
-      expect(dom.shareMenu!.classList.contains('show')).toBe(false);
-    });
-
     it('should close settings when clicking outside', async () => {
       dom.settingsPanel!.classList.add('open');
       const { bindGlobalClickHandler } = await import('../app-events.js');
@@ -1207,58 +1148,6 @@ describe('app-events', () => {
       bindSearchEvents();
       dom.autoPlayNextBtn!.click();
       expect(dom.autoPlayNextBtn!.classList.contains('active')).toBe(true);
-    });
-  });
-
-  /* ==================== Share button data attributes ==================== */
-
-  describe('share data attribute bindings', () => {
-    it('should bind data-share=copy button', async () => {
-      const copyBtn = document.createElement('button');
-      copyBtn.dataset.share = 'copy';
-      document.body.appendChild(copyBtn);
-      const { bindPanelsAndShareEvents } = await import('../app-events.js');
-      bindPanelsAndShareEvents();
-      copyBtn.click();
-      const { shareCopy, toggleShareMenu } = await import('../share.js');
-      expect(shareCopy).toHaveBeenCalled();
-      expect(toggleShareMenu).toHaveBeenCalled();
-    });
-
-    it('should bind data-share=copy-simple button', async () => {
-      const copySimpleBtn = document.createElement('button');
-      copySimpleBtn.dataset.share = 'copy-simple';
-      document.body.appendChild(copySimpleBtn);
-      const { bindPanelsAndShareEvents } = await import('../app-events.js');
-      bindPanelsAndShareEvents();
-      copySimpleBtn.click();
-      const { shareCopySimple, toggleShareMenu } = await import('../share.js');
-      expect(shareCopySimple).toHaveBeenCalled();
-      expect(toggleShareMenu).toHaveBeenCalled();
-    });
-
-    it('should bind data-share=whatsapp button', async () => {
-      const whatsappBtn = document.createElement('button');
-      whatsappBtn.dataset.share = 'whatsapp';
-      document.body.appendChild(whatsappBtn);
-      const { bindPanelsAndShareEvents } = await import('../app-events.js');
-      bindPanelsAndShareEvents();
-      whatsappBtn.click();
-      const { shareWhatsApp, toggleShareMenu } = await import('../share.js');
-      expect(shareWhatsApp).toHaveBeenCalled();
-      expect(toggleShareMenu).toHaveBeenCalled();
-    });
-
-    it('should bind data-share=telegram button', async () => {
-      const telegramBtn = document.createElement('button');
-      telegramBtn.dataset.share = 'telegram';
-      document.body.appendChild(telegramBtn);
-      const { bindPanelsAndShareEvents } = await import('../app-events.js');
-      bindPanelsAndShareEvents();
-      telegramBtn.click();
-      const { shareTelegram, toggleShareMenu } = await import('../share.js');
-      expect(shareTelegram).toHaveBeenCalled();
-      expect(toggleShareMenu).toHaveBeenCalled();
     });
   });
 });

@@ -152,9 +152,6 @@ export function initKeyboardShortcuts(): void {
         if (dom.searchResults) {
           dom.searchResults.style.display = 'none';
         }
-        if (dom.shareMenu) {
-          dom.shareMenu.classList.remove('show');
-        }
         closeTafsir();
         if (dom.player && !dom.player.classList.contains('collapsed')) {
           collapsePlayer();

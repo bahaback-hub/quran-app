@@ -3,7 +3,6 @@
  *
  * Covers ALL exported functions:
  *   - buildShareText — with/without surahData, with/without ayah
- *   - toggleShareMenu — DOM toggle
  *   - shareNative — with navigator.share / fallback to clipboard
  *   - shareCopy — clipboard copy
  *   - shareCopySimple — strip tashkeel + clipboard
@@ -27,9 +26,7 @@ const { mockState, mockDom, mockShowToast, mockCopyToClipboard, mockStripTashkee
     surahData: null as unknown,
     currentAyahIndex: 0,
   },
-  mockDom: {
-    shareMenu: null as HTMLElement | null,
-  },
+  mockDom: {},
   mockShowToast: vi.fn(),
   mockCopyToClipboard: vi.fn(),
   mockStripTashkeel: vi.fn((str: string) => str.replace(/[\u064B-\u065F\u0670]/g, '')),
@@ -77,7 +74,6 @@ vi.mock('../i18n.js', () => ({
 
 import {
   buildShareText,
-  toggleShareMenu,
   shareNative,
   shareCopy,
   shareCopySimple,
@@ -106,7 +102,6 @@ describe('share.ts — full coverage', () => {
     vi.clearAllMocks();
     mockState.surahData = null;
     mockState.currentAyahIndex = 0;
-    mockDom.shareMenu = null;
   });
 
   // ─── buildShareText ─────────────────────────────────────────────
@@ -149,26 +144,6 @@ describe('share.ts — full coverage', () => {
 
       const text = buildShareText();
       expect(text).toContain(' — ');
-    });
-  });
-
-  // ─── toggleShareMenu ────────────────────────────────────────────
-
-  describe('toggleShareMenu', () => {
-    it('should toggle show class on share menu element', () => {
-      const menu = document.createElement('div');
-      mockDom.shareMenu = menu;
-
-      toggleShareMenu();
-      expect(menu.classList.contains('show')).toBe(true);
-
-      toggleShareMenu();
-      expect(menu.classList.contains('show')).toBe(false);
-    });
-
-    it('should handle null shareMenu gracefully', () => {
-      mockDom.shareMenu = null;
-      expect(() => toggleShareMenu()).not.toThrow();
     });
   });
 

@@ -26,7 +26,7 @@
   cursor: default;
 }
 .player:not(.collapsed) {
-  padding: 12px 18px;
+  padding: 10px 14px;
 }
 .player.collapsed {
   padding: 6px 12px;
@@ -36,7 +36,7 @@
 .expanded-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .player.collapsed .expanded-content {
   display: none;
@@ -163,13 +163,20 @@ body.night-mode .floating-info {
   color: var(--accent-dark);
   font-weight: bold;
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   padding: 8px 14px;
   background: rgba(184, 110, 14, 0.08);
   border: 1px solid rgba(184, 110, 14, 0.2);
   border-radius: 10px;
   line-height: 1.8;
   word-break: break-word;
+  /* Compact player: clamp the ayah to 2 lines so a long text never covers
+     the page. Tapping opens the ayah modal with the full text. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 audio {
@@ -196,6 +203,21 @@ audio {
   font-size: 13px;
   color: var(--text-muted);
   white-space: nowrap;
+  flex-shrink: 0;
+}
+.speed-control .speed-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+.speed-control .speed-select {
+  padding: 3px 6px;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: var(--select-bg);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 /* First-run hint: chevron on the collapsed bar + pill above it */
@@ -270,9 +292,9 @@ audio {
 
 .player-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 .player-grid .grid-btn {
   display: flex;
@@ -284,70 +306,8 @@ audio {
   border-radius: 10px;
   line-height: 1.2;
 }
-.player-grid .grid-speed {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 8px 4px;
-  font-size: 12px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-.player-grid .grid-speed select {
-  max-width: 100%;
-  padding: 3px 6px;
-  border: 2px solid var(--accent);
-  border-radius: 8px;
-  background: var(--select-bg);
-  color: var(--text-secondary);
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
 
-/* ========== Multi-ayah select mode ========== */
-.select-mode-bar {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: var(--accent, #d97706);
-  color: #fff;
-  font-size: 14px;
-  border-radius: 10px;
-  margin-top: 6px;
-}
-.select-mode-bar.show {
-  display: flex;
-}
-.select-mode-bar .btn {
-  padding: 4px 12px;
-  font-size: 12px;
-}
-.select-mode-bar .btn-gold {
-  background: #fff;
-  color: var(--primary);
-}
-
-.ayah.selectable {
-  cursor: pointer;
-}
-.ayah.selectable:hover {
-  outline: 2px dashed var(--accent);
-}
-.ayah.selected {
-  outline: 3px solid var(--accent, #d97706);
-  outline-offset: 2px;
-  border-radius: 8px;
-  background: rgba(217, 119, 6, 0.1);
-}
-body.night-mode .ayah.selected {
-  background: rgba(255, 224, 102, 0.1);
-}
-
+/* ========== Repeat controls ========== */
 .repeat-controls {
   display: flex;
   flex-wrap: wrap;

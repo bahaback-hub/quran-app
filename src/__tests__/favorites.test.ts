@@ -31,7 +31,6 @@ vi.mock('../state.js', () => {
 
 vi.mock('../dom.js', () => ({
   dom: {
-    favoriteBtn: null as HTMLElement | null,
     favoritesList: null as HTMLElement | null,
     favoritesPanel: null as HTMLElement | null,
     surahSelect: null as HTMLSelectElement | null,
@@ -96,7 +95,6 @@ describe('favorites', () => {
     state.currentAyahIndex = 0;
     state.surahData = null;
     // Reset dom mocks
-    (dom as any).favoriteBtn = null;
     (dom as any).favoritesList = null;
     (dom as any).favoritesPanel = null;
     (dom as any).surahSelect = null;
@@ -163,21 +161,6 @@ describe('favorites', () => {
       toggleFavorite();
       expect(immutablePush).not.toHaveBeenCalled();
       expect(immutableSplice).not.toHaveBeenCalled();
-    });
-
-    it('should add active class to favoriteBtn when adding', () => {
-      const btn = { classList: { add: vi.fn(), remove: vi.fn() } };
-      (dom as any).favoriteBtn = btn;
-      toggleFavorite();
-      expect(btn.classList.add).toHaveBeenCalledWith('active');
-    });
-
-    it('should remove active class from favoriteBtn when removing', () => {
-      state.favorites = [{ key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', timestamp: 1000 }];
-      const btn = { classList: { add: vi.fn(), remove: vi.fn() } };
-      (dom as any).favoriteBtn = btn;
-      toggleFavorite();
-      expect(btn.classList.remove).toHaveBeenCalledWith('active');
     });
 
     it('should save favorites after toggling', () => {

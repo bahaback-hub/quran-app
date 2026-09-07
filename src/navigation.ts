@@ -60,10 +60,8 @@ export function initNavigation(): void {
   });
 
   // Collapsed-mode quick navigation: these act without expanding the player.
-  bindCollapsedNav('collapsedPrevSurahBtn', () => prevSurah());
   bindCollapsedNav('collapsedPrevAyahBtn', () => prevAyah());
   bindCollapsedNav('collapsedNextAyahBtn', () => nextAyah(false));
-  bindCollapsedNav('collapsedNextSurahBtn', () => nextSurah());
 
   dom.speedSelect?.addEventListener('change', () => {
     const rate = parseFloat(dom.speedSelect!.value);

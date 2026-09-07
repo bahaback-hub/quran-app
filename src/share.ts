@@ -8,7 +8,6 @@
 
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
-import { dom } from './dom.js';
 import { showToast } from './ui.js';
 import { stripTashkeel, copyToClipboard } from './utils.js';
 import { state } from './state.js';
@@ -84,11 +83,6 @@ export function buildShareText(): string {
     return '';
   }
   return `${a.text} — ${surahData.name} — ${__('ayah')} ${a.numberInSurah}`;
-}
-
-/** Toggle share menu visibility. */
-export function toggleShareMenu(): void {
-  dom.shareMenu?.classList.toggle('show');
 }
 
 /** Share the current ayah through the unified native/web share path. */
