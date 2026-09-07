@@ -78,14 +78,10 @@ interface DomMap {
   nextSurahBtn: HTMLElement | null;
   hifdhBtn: HTMLElement | null;
   repeatBtn: HTMLElement | null;
-  bookmarkBtn: HTMLElement | null;
-  favoriteBtn: HTMLElement | null;
-  shareBtn: HTMLElement | null;
   repeatControls: HTMLElement | null;
   repeatFrom: HTMLSelectElement | null;
   repeatTo: HTMLSelectElement | null;
   repeatTimes: HTMLSelectElement | null;
-  shareMenu: HTMLElement | null;
   azanPlayer: HTMLAudioElement | null;
   toast: HTMLElement | null;
   collapseBarBtn: HTMLElement | null;
@@ -269,14 +265,10 @@ const DOM_IDS: (keyof DomMap)[] = [
   'nextSurahBtn',
   'hifdhBtn',
   'repeatBtn',
-  'bookmarkBtn',
-  'favoriteBtn',
-  'shareBtn',
   'repeatControls',
   'repeatFrom',
   'repeatTo',
   'repeatTimes',
-  'shareMenu',
   'azanPlayer',
   'toast',
   'collapseBarBtn',
