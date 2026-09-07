@@ -155,4 +155,25 @@ test.describe('التوافق — أوضاع مختلفة', () => {
     // Wider than the desktop default (1200px) once the >=1440 rule applies.
     expect(width).toBeGreaterThan(1200);
   });
+
+  test('الشريط الجانبي لا يغطي الآيات على الجوال (390×844)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.evaluate(() => {
+      const ws = document.getElementById('welcomeScreen');
+      if (ws) ws.remove();
+    });
+    // Wait for real surah content to render.
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
+
+    const railBox = await page.locator('#readerSideTools').boundingBox();
+    const content = await page.locator('.surah-content').boundingBox();
+    // The rail must sit horizontally above the content (static flow), not as a
+    // fixed vertical column overlapping the first-line of the ayahs.
+    expect(railBox).not.toBeNull();
+    expect(content).not.toBeNull();
+    // The rail's top is above (or at) the content's top, and its left edge does
+    // not overlap the ayah text region on the right of the RTL content.
+    expect(railBox.y + railBox.height).toBeLessThanOrEqual(content.y + 2);
+  });
 });

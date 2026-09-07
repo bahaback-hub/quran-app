@@ -1748,6 +1748,67 @@ body.favorites-curtain-active #readerSideTools {
   pointer-events: none !important;
 }
 
+/* ===== الجوال: الشريط الجانبي عائم ثابت فوق الآيات يغطي بداية كل سطر =====
+   تصميم hifz-room أعلاه يجعل #readerSideTools عمودًا position:fixed على
+   left:0 (أعلى تحديدًا وترتيبًا لاحقًا من قاعدة layout.css التي تجعله أفقيًا
+   عند <=1024px). على الشاشات الصغيرة نحتاج عودة الشريط إلى الوضع الأفقي
+   المدمج داخل التدفق (static) حتى لا يغطي نصّ الآيات، كما يصمّم layout.css
+   للأجهزة الضيقة. الستائر المفتوحة تبقى كما هي (تُخفى عبر القواعد أعلاه). */
+@media (max-width: 600px) {
+  #readerSideTools {
+    position: static;
+    top: auto;
+    left: auto;
+    width: 100%;
+    margin: 8px 0 4px;
+    padding: 0 2px 6px;
+    flex-direction: row;
+    justify-content: flex-start;
+    overflow-x: auto;
+    transform: none;
+    z-index: 920;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  #readerSideTools .reader-side-tool,
+  #readerSideTools .hifz-room-toggle,
+  #readerSideTools .tafsir-curtain-handle {
+    flex: 0 0 66px;
+    width: 66px;
+    min-width: 66px;
+    min-height: 66px;
+    height: 66px;
+    margin: 0;
+    padding: 6px 4px;
+    border: 1px solid rgba(196, 122, 18, 0.5);
+    border-radius: 13px;
+    background: rgba(92, 68, 48, 0.85);
+    box-shadow: 0 7px 18px rgb(0 0 0 / 18%);
+  }
+
+  #readerSideTools .reader-side-prayer {
+    position: static;
+  }
+
+  #readerSideTools .reader-side-prayer .prayer-bar-toggle {
+    min-height: 66px;
+  }
+
+  #readerSideTools .reader-side-prayer .prayer-bar-details {
+    top: max(68px, calc(env(safe-area-inset-top, 0px) + 8px));
+    left: 8px;
+  }
+
+  body.tafsir-curtain-active #readerSideTools {
+    left: auto;
+  }
+}
+
 /* Touch and TV-friendly surah selection: use the native list control instead of datalist. */
 @media (max-width: 760px), (hover: none) {
   .hifz-room-field-full .hifz-room-surah-search {
