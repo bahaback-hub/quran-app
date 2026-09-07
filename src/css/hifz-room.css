@@ -1748,65 +1748,117 @@ body.favorites-curtain-active #readerSideTools {
   pointer-events: none !important;
 }
 
-/* ===== الجوال: الشريط الجانبي عائم ثابت فوق الآيات يغطي بداية كل سطر =====
+/* ===== الجوال: شريط جانبي يسار ضيق (10%) + التفسير الجانبي (40/60) =====
    تصميم hifz-room أعلاه يجعل #readerSideTools عمودًا position:fixed على
-   left:0 (أعلى تحديدًا وترتيبًا لاحقًا من قاعدة layout.css التي تجعله أفقيًا
-   عند <=1024px). على الشاشات الصغيرة نحتاج عودة الشريط إلى الوضع الأفقي
-   المدمج داخل التدفق (static) حتى لا يغطي نصّ الآيات، كما يصمّم layout.css
-   للأجهزة الضيقة. الستائر المفتوحة تبقى كما هي (تُخفى عبر القواعد أعلاه). */
+   left:0 بعرض 78px. على الجوال يُضيّق إلى ~10% (أيقونات فقط) وتُحجز
+   مساحته جانبًا في المحتوى حتى لا يغطي نص الآيات. وعند فتح التفسير
+   يتحول يسار الشاشة إلى لوحة تفسير بعرض 40% والآيات 60% بلا تداخل
+   (الآيات تُزاح يسارًا عبر padding على body، والستارة تلتصق باليسار). */
 @media (max-width: 600px) {
+  /* 1) الشريط الجانبي: عمود ثابت يسار ~10% (حد أدنى للّمس 48px) */
   #readerSideTools {
-    position: static;
-    top: auto;
-    left: auto;
-    width: 100%;
-    margin: 8px 0 4px;
-    padding: 0 2px 6px;
-    flex-direction: row;
-    justify-content: flex-start;
-    overflow-x: auto;
-    transform: none;
+    position: fixed;
+    top: 50%;
+    left: 8px;
+    width: max(10%, 48px);
+    max-width: 64px;
+    margin: 0;
+    padding: 10px 4px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(-50%);
+    overflow: visible;
     z-index: 920;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    border: 1px solid rgba(196, 122, 18, 0.5);
+    border-radius: 16px;
+    background: rgba(92, 68, 48, 0.88);
+    box-shadow: 0 7px 18px rgb(0 0 0 / 18%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
+  /* الأزرار أيقونات فقط بحجم لمس مريح (44px)، بلا انسدال أفقي */
   #readerSideTools .reader-side-tool,
   #readerSideTools .hifz-room-toggle,
   #readerSideTools .tafsir-curtain-handle {
-    flex: 0 0 66px;
-    width: 66px;
-    min-width: 66px;
-    min-height: 66px;
-    height: 66px;
+    flex: 0 0 auto;
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    height: 44px;
     margin: 0;
-    padding: 6px 4px;
-    border: 1px solid rgba(196, 122, 18, 0.5);
-    border-radius: 13px;
-    background: rgba(92, 68, 48, 0.85);
-    box-shadow: 0 7px 18px rgb(0 0 0 / 18%);
+    padding: 6px 2px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    box-shadow: none;
   }
 
-  #readerSideTools .reader-side-prayer {
+  /* لا يطفو زر التفسير فوق الشاشة (يبقى داخل الشريط كأيقونة) */
+  #readerSideTools .tafsir-curtain-handle {
     position: static;
-  }
-
-  #readerSideTools .reader-side-prayer .prayer-bar-toggle {
-    min-height: 66px;
-  }
-
-  #readerSideTools .reader-side-prayer .prayer-bar-details {
-    top: max(68px, calc(env(safe-area-inset-top, 0px) + 8px));
-    left: 8px;
-  }
-
-  body.tafsir-curtain-active #readerSideTools {
+    top: auto;
+    bottom: auto;
     left: auto;
+    transform: none;
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
   }
+
+  /* إخفاء النصوص في الوضع الضيق — العناوين أداة تلميح aria/title */
+  #readerSideTools .reader-side-tool-label,
+  #readerSideTools .hifz-room-toggle [data-hifz-toggle-label],
+  #readerSideTools .prayer-bar-summary strong,
+  #readerSideTools .prayer-bar-summary-time,
+  #readerSideTools .prayer-bar-chevron {
+    display: none;
+  }
+  #readerSideTools .reader-side-prayer .prayer-bar-toggle {
+    width: 44px;
+    min-height: 44px;
+    height: 44px;
+    padding: 4px 2px;
+  }
+
+  /* 2) حجز مساحة الشريط جانبًا: الآيات تبدأ بعد ~13% ولا يغطيها الشريط.
+        غلاف المحتوى تُزاح يساره بحجم الشريط + فاصل، والرأس يبقى كاملًا. */
+  .surah-content {
+    padding-left: max(13%, 54px);
+  }
+
+  /* عند فتح التفسير: يسار الشاشة 40% ستارة، والآيات 60% (padding على
+        body بنفس مبدأ سطح المكتب، مع انتقال ناعم). */
+  body.tafsir-curtain-active {
+    padding-left: 40%;
+    transition: padding-left 0.28s ease;
+  }
+  body.tafsir-curtain-active .surah-content {
+    padding-left: 1%;
+  }
+
+  /* 3) ستارة التفسير على الجوال: لوحة يسرى 40% بارتفاع كامل بدل
+        الورقة السفلية (bottom sheet) القديمة. */
+  body.tafsir-curtain-active .tafsir-curtain {
+    position: fixed;
+    top: 0;
+    right: auto;
+    left: 0;
+    width: 40%;
+    max-width: 40%;
+    height: 100dvh;
+    max-height: none;
+    min-height: 0;
+    border-right: 3px solid var(--accent);
+    border-top: none;
+    border-radius: 0;
+    box-shadow: 8px 0 32px rgb(0 0 0 / 30%);
+  }
+  body.tafsir-curtain-active .tafsir-curtain.open {
+    left: 0;
+    bottom: auto;
+  }
+  body.tafsir-curtain-active .tafsir-curtain-grip { display: none; }
 }
 
 /* Touch and TV-friendly surah selection: use the native list control instead of datalist. */

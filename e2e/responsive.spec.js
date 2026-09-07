@@ -161,19 +161,42 @@ test.describe('التوافق — أوضاع مختلفة', () => {
     await page.goto('/');
     await page.evaluate(() => {
       const ws = document.getElementById('welcomeScreen');
-      if (ws) ws.remove();
+      if (ws) { ws.remove(); }
     });
     // Wait for real surah content to render.
     await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
 
     const railBox = await page.locator('#readerSideTools').boundingBox();
     const content = await page.locator('.surah-content').boundingBox();
-    // The rail must sit horizontally above the content (static flow), not as a
-    // fixed vertical column overlapping the first-line of the ayahs.
+    const bodyPad = await page.evaluate(() => getComputedStyle(document.body).paddingLeft);
+    // Closed state: the rail is a slim vertical rail on the far left (~10%).
+    // The surah content reserves space (body/surah padding) so the ayah text
+    // never runs underneath the rail.
     expect(railBox).not.toBeNull();
     expect(content).not.toBeNull();
-    // The rail's top is above (or at) the content's top, and its left edge does
-    // not overlap the ayah text region on the right of the RTL content.
-    expect(railBox.y + railBox.height).toBeLessThanOrEqual(content.y + 2);
+    expect(bodyPad).toBe('0px');
+    expect(railBox.width).toBeLessThanOrEqual(content.width * 0.16);
+    // The content's left padding keeps the ayahs clear of the rail.
+    const contentPad = await page.locator('.surah-content').evaluate((el) =>
+      getComputedStyle(el).paddingLeft
+    );
+    expect(parseFloat(contentPad)).toBeGreaterThanOrEqual(railBox.x + railBox.width - 2);
+
+    // Open the tafsir: the screen splits 40% curtain / 60% ayahs.
+    await page.locator('#tafsirCurtainHandle').click();
+    await expect(page.locator('.tafsir-curtain')).toHaveClass(/open/, { timeout: 10000 });
+    await page.waitForTimeout(400);
+
+    const curtainBox = await page.locator('.tafsir-curtain').boundingBox();
+    const contentOpen = await page.locator('.surah-content').boundingBox();
+    const bodyPadOpen = await page.evaluate(() => getComputedStyle(document.body).paddingLeft);
+    expect(curtainBox).not.toBeNull();
+    expect(contentOpen).not.toBeNull();
+    // Curtain occupies ~40% from the left edge.
+    expect(curtainBox.width / 390).toBeGreaterThan(0.36);
+    expect(curtainBox.width / 390).toBeLessThan(0.44);
+    // Body pushed right by ~40% so the ayahs take the remaining ~60%.
+    expect(parseFloat(bodyPadOpen)).toBeGreaterThan(130);
+    expect(contentOpen.x).toBeGreaterThan(150);
   });
 });
