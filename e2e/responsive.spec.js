@@ -106,4 +106,53 @@ test.describe('التوافق — أوضاع مختلفة', () => {
     // Allow 2px tolerance for sub-pixel rounding
     expect(box.x + box.width).toBeLessThanOrEqual(322);
   });
+
+  test('شريط التنقل السفلي مخفي على الشاشة الكبيرة (1920×1080)', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+    await expect(page.locator('#bottomNav')).toBeHidden();
+  });
+
+  test('شريط التنقل السفلي ظاهر على الجوال (390×844)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await expect(page.locator('#bottomNav')).toBeVisible();
+  });
+
+  test('شكل الجوال لا يُفرض على شاشة كبيرة حتى داخل بيئة Capacitor', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+    // Simulate the Capacitor-native class (what the WebView adds) and confirm
+    // the broad layout still wins on a wide viewport.
+    await page.evaluate(() => {
+      document.body.classList.add('capacitor-native');
+      document.documentElement.classList.add('capacitor-native');
+    });
+    await expect(page.locator('#bottomNav')).toBeHidden();
+    // The container must not be forced to phone width.
+    const width = await page.evaluate(() =>
+      document.querySelector('.container').getBoundingClientRect().width
+    );
+    expect(width).toBeGreaterThan(1200);
+  });
+
+  test('شكل الجوال يبقى على شاشة صغيرة داخل بيئة Capacitor', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.evaluate(() => {
+      document.body.classList.add('capacitor-native');
+      document.documentElement.classList.add('capacitor-native');
+    });
+    await expect(page.locator('#bottomNav')).toBeVisible();
+  });
+
+  test('الحاوية تتسع على الشاشة الواسعة (≥1440)', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto('/');
+    const width = await page.evaluate(() =>
+      document.querySelector('.container').getBoundingClientRect().width
+    );
+    // Wider than the desktop default (1200px) once the >=1440 rule applies.
+    expect(width).toBeGreaterThan(1200);
+  });
 });

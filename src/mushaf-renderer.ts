@@ -77,15 +77,19 @@ const MOBILE_CANVAS_H = 1028; // Maintains 7:10 aspect ratio
 const DESKTOP_CANVAS_W = 1080;
 const DESKTOP_CANVAS_H = 1540;
 
-/** Detect if device is mobile (low memory) */
+/** Detect if device is mobile (low memory).
+ *  Only genuinely phone-sized viewports get the reduced canvas. A large
+ *  Android display (tablet / TV) must render at full resolution instead of
+ *  being classified as mobile just because the user agent contains "Android". */
 function isMobileDevice(): boolean {
   if (typeof window === 'undefined') {
     return false;
   }
+  const width = window.innerWidth;
   return (
-    window.innerWidth <= 600 ||
-    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (navigator.maxTouchPoints > 1 && window.innerWidth <= 900)
+    width <= 600 ||
+    (navigator.maxTouchPoints > 1 && width <= 900) ||
+    (/Mobi|iPhone|iPod/i.test(navigator.userAgent) && width <= 700)
   );
 }
 
