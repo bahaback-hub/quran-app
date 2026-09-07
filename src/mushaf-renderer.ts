@@ -600,14 +600,21 @@ export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasEleme
       }
       return result;
     });
-    const timeoutPromise = new Promise<RenderPageResult>((resolve) =>
-      setTimeout(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<RenderPageResult>((resolve) => {
+      timeoutId = setTimeout(() => {
         timedOut = true;
         console.error(`[Mushaf] renderPage(${pageNum}) timed out after ${timeoutMs}ms`);
+        if (targetCanvas && !document.contains(targetCanvas)) {
+          resolve({ canvas: null, layout: null });
+          return;
+        }
         _renderPageWithCurrentFonts(pageNum, targetCanvas).then(resolve);
-      }, timeoutMs),
-    );
-    return Promise.race([mainPromise, timeoutPromise]);
+      }, timeoutMs);
+    });
+    const result = await Promise.race([mainPromise, timeoutPromise]);
+    clearTimeout(timeoutId);
+    return result;
   }
 
   return _renderPageInternal(pageNum, targetCanvas);
@@ -785,10 +792,15 @@ export function getLineY(lineIndex: number, lineCount: number, imgHeight: number
 const _pageTajweedCache = new Map<string, { wordIdx: number; lineIdx: number; color: string | null }[] | null>();
 
 function computePageTajweed(data: PageLayoutData, pageNum: number): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
-  // The tajweed coloring for a page depends only on its static layout, the
+  // The tajweed coloring for a page depends on its static layout, the
   // current theme (via getTajweedColor), and the tajweedEnabled state — the
-  // state is part of the cache key so toggling colors invalidates the entry.
-  const cacheKey = `${pageNum}:${state.tajweedEnabled ? 1 : 0}`;
+  // state and theme are part of the cache key so toggling them invalidates the entry.
+  const themeKey = document.body.classList.contains('deep-night-mode')
+    ? 2
+    : document.body.classList.contains('night-mode')
+      ? 1
+      : 0;
+  const cacheKey = `${pageNum}:${state.tajweedEnabled ? 1 : 0}:${themeKey}`;
   const cached = _pageTajweedCache.get(cacheKey);
   if (cached !== undefined) {
     return cached;

@@ -180,7 +180,10 @@ async function _doLoadFullQuranText(): Promise<void> {
 function generateArabicVariants(normQuery: string): string[] {
   const variants = [normQuery];
   if (normQuery.startsWith('ال') && normQuery.length > 3) {
-    variants.push(normQuery.slice(2));
+    const bare = normQuery.slice(2);
+    if (bare.length >= 3) {
+      variants.push(bare);
+    }
   }
   return [...new Set(variants)];
 }

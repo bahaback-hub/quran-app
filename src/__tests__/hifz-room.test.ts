@@ -97,6 +97,8 @@ const {
 vi.mock('../i18n.js', () => ({
   __: (key: string, ...args: string[]) =>
     (translations[key] || key).replace(/\{(\d+)\}/g, (_, index) => args[Number(index)] || ''),
+  toLatinDigits: (value: string) =>
+    value.replace(/[\u0660-\u0669]/g, (d) => String('\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669'.indexOf(d))),
 }));
 vi.mock('../state.js', () => ({ state: mockState }));
 vi.mock('../storage.js', () => ({ storage: mockStorage }));
@@ -301,6 +303,22 @@ describe('Hifz Room', () => {
     expect(document.documentElement.style.getPropertyValue('--hifz-curtain-reveal')).toBe(revealBefore);
   });
 
+  it('does not leak click suppression after a pointercancel', () => {
+    initHifzRoom();
+    const toggle = document.getElementById('hifzRoomToggle') as HTMLButtonElement;
+    toggle.setPointerCapture = vi.fn();
+    vi.spyOn(document.getElementById('hifzRoom')!, 'getBoundingClientRect').mockReturnValue({ width: 420 } as DOMRect);
+    const click = new MouseEvent('click', { bubbles: true });
+    dispatchPointer(toggle, 'pointerdown', 24);
+    dispatchPointer(toggle, 'pointermove', 204);
+    dispatchPointer(toggle, 'pointercancel', 204);
+    toggle.dispatchEvent(click);
+    expect(isHifzRoomOpen()).toBe(true);
+    vi.advanceTimersByTime(150);
+    toggle.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(isHifzRoomOpen()).toBe(false);
+  });
+
   it('updates the live summary and keeps the review choice locally', () => {
     initHifzRoom();
     const room = document.getElementById('hifzRoom')!;
@@ -336,6 +354,17 @@ describe('Hifz Room', () => {
     await Promise.resolve();
     await Promise.resolve();
     expect((document.getElementById('repeatTimes') as HTMLSelectElement).value).toBe('37');
+  });
+
+  it('converts Arabic-Indic digits in the custom repeat field', () => {
+    addPlayerControls();
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    const customRepeat = room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat')!;
+    Object.defineProperty(customRepeat, 'value', { writable: true, value: '١٥' });
+    customRepeat.dispatchEvent(new Event('change'));
+    expect(customRepeat.value).toBe('15');
+    expect(room.querySelector('#hifzRoomSummary')!.textContent).toContain('15 مرات');
   });
 
   it('stores a selected custom review date and time locally', () => {
