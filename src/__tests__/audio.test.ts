@@ -102,11 +102,6 @@ vi.mock('../audio-cache.js', () => ({
   getCachedAudioUrl: vi.fn(() => Promise.resolve(null)),
 }));
 
-vi.mock('../audio-visualizer.js', () => ({
-  startVisualizer: vi.fn(),
-  stopVisualizer: vi.fn(),
-}));
-
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { storage } from '../storage.js';
@@ -1483,22 +1478,52 @@ describe('Audio Event Handlers', () => {
     document.body.removeChild(timerEl);
   });
 
-  it('onAudioPlay should start visualizer if canvas exists', async () => {
+  it('onAudioPlay should show the first-run expand hint once', () => {
     setupAudioWithEvents();
     state.surahData = createSurahData(7);
     state.ayahsAudios = ['a1'];
 
-    const vizCanvas = document.createElement('canvas');
-    vizCanvas.id = 'audioVisualizer';
-    document.body.appendChild(vizCanvas);
+    const player = document.createElement('div');
+    const hint = document.createElement('div');
+    hint.id = 'playerExpandHint';
+    hint.hidden = true;
+    document.body.appendChild(player);
+    document.body.appendChild(hint);
+    dom.player = player;
+    (storage.get as ReturnType<typeof vi.fn>).mockReturnValueOnce(null);
+    (storage.set as ReturnType<typeof vi.fn>).mockClear();
 
-    const { startVisualizer } = await import('../audio-visualizer.js');
     const playHandler = eventHandlers['play'];
     playHandler!(new Event('play'));
 
-    expect(startVisualizer).toHaveBeenCalled();
+    expect(storage.set).toHaveBeenCalledWith('player_expand_hint_seen', '1');
+    expect(player.classList.contains('first-play-glow')).toBe(true);
+    expect(hint.hidden).toBe(false);
 
-    document.body.removeChild(vizCanvas);
+    dom.player = null;
+    document.body.removeChild(player);
+    document.body.removeChild(hint);
+  });
+
+  it('onAudioPlay should not show the hint again once recorded', () => {
+    setupAudioWithEvents();
+    state.surahData = createSurahData(7);
+    state.ayahsAudios = ['a1'];
+
+    const player = document.createElement('div');
+    document.body.appendChild(player);
+    dom.player = player;
+    (storage.get as ReturnType<typeof vi.fn>).mockReturnValueOnce('1');
+    (storage.set as ReturnType<typeof vi.fn>).mockClear();
+
+    const playHandler = eventHandlers['play'];
+    playHandler!(new Event('play'));
+
+    expect(storage.set).not.toHaveBeenCalledWith('player_expand_hint_seen', '1');
+    expect(player.classList.contains('first-play-glow')).toBe(false);
+
+    dom.player = null;
+    document.body.removeChild(player);
   });
 });
 

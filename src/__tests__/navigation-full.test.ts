@@ -66,8 +66,6 @@ vi.mock('../dom.js', () => ({
     collapsedContent: null as HTMLElement | null,
     collapsedPlayBtn: null as HTMLElement | null,
     playPauseBtn: null as HTMLElement | null,
-    playerMoreBtn: null as HTMLElement | null,
-    playerMoreRow: null as HTMLElement | null,
     speedSelect: null as HTMLSelectElement | null,
     audioPlayer: null as HTMLAudioElement | null,
     viewSurahBtn: null as HTMLElement | null,
@@ -115,10 +113,8 @@ function setupDOM() {
   dom.repeatBtn = el('button');
   dom.collapsePlayerBtn = el('button');
   dom.collapsedContent = el('div');
-  dom.playPauseBtn = el('button');
+dom.playPauseBtn = el('button');
   dom.collapsedPlayBtn = el('button');
-  dom.playerMoreBtn = el('button');
-  dom.playerMoreRow = el('div');
   dom.speedSelect = el('select') as HTMLSelectElement;
   dom.audioPlayer = el('audio') as HTMLAudioElement;
   dom.viewSurahBtn = el('button');
@@ -233,23 +229,6 @@ describe('navigation-full', () => {
       dom.collapsedPlayBtn!.click();
       expect(togglePlayPause).toHaveBeenCalled();
       expect(updatePlayPauseBtn).toHaveBeenCalled();
-    });
-
-    it('should toggle playerMoreRow visibility on playerMoreBtn click', async () => {
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      dom.playerMoreBtn!.click();
-      expect(dom.playerMoreRow!.classList.contains('hidden')).toBe(true);
-      expect(dom.playerMoreBtn!.getAttribute('aria-expanded')).toBe('false');
-    });
-
-    it('should toggle playerMoreRow back to visible on second click', async () => {
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      dom.playerMoreBtn!.click();
-      dom.playerMoreBtn!.click();
-      expect(dom.playerMoreRow!.classList.contains('hidden')).toBe(false);
-      expect(dom.playerMoreBtn!.getAttribute('aria-expanded')).toBe('true');
     });
 
     it('should update playback rate on speed select change', async () => {

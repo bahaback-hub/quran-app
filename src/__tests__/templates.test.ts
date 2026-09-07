@@ -934,14 +934,15 @@ describe('floatingPlayerHTML', () => {
     expect(result).toContain('nextSurahBtn');
   });
 
-  it('should contain player more row', () => {
+  it('should contain visible player controls grid', () => {
     const result = floatingPlayerHTML();
-    expect(result).toContain('playerMoreBtn');
+    expect(result).toContain('player-grid');
     expect(result).toContain('hifdhBtn');
     expect(result).toContain('repeatBtn');
     expect(result).toContain('bookmarkBtn');
     expect(result).toContain('favoriteBtn');
     expect(result).toContain('shareBtn');
+    expect(result).toContain('downloadAudioBtn');
   });
 
   it('should contain speed control', () => {
@@ -955,9 +956,12 @@ describe('floatingPlayerHTML', () => {
     expect(result).toContain('sleepTimerDisplay');
   });
 
-  it('should contain audio visualizer', () => {
+  it('should contain the expand hint and chevron, and no visualizer', () => {
     const result = floatingPlayerHTML();
-    expect(result).toContain('audioVisualizer');
+    expect(result).toContain('collapse-chevron');
+    expect(result).toContain('playerExpandHint');
+    expect(result).not.toContain('audioVisualizer');
+    expect(result).not.toContain('playerMoreBtn');
   });
 
   it('should contain select mode bar', () => {

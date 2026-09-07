@@ -65,13 +65,6 @@ export function initNavigation(): void {
   bindCollapsedNav('collapsedNextAyahBtn', () => nextAyah(false));
   bindCollapsedNav('collapsedNextSurahBtn', () => nextSurah());
 
-  dom.playerMoreBtn?.addEventListener('click', () => {
-    if (dom.playerMoreRow) {
-      const isHidden = dom.playerMoreRow.classList.toggle('hidden');
-      dom.playerMoreBtn?.setAttribute('aria-expanded', String(!isHidden));
-    }
-  });
-
   dom.speedSelect?.addEventListener('change', () => {
     const rate = parseFloat(dom.speedSelect!.value);
     if (dom.audioPlayer) {

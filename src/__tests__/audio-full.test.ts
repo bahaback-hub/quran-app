@@ -7,7 +7,7 @@
  *   - onAudioEnded — auto-play next surah, surah 114 stop
  *   - handleRepeatOnEnd — edge cases
  *   - onTimeUpdate — mp3quran word tracking
- *   - onAudioPlay / onAudioPause — visualizer, mediaSession
+ *   - onAudioPlay / onAudioPause — first-run expand hint, mediaSession
  *   - preloadNextAyah — audioPlayer2 creation
  *   - populateRepeatUI — onchange handlers
  */
@@ -136,11 +136,6 @@ vi.mock('../i18n.js', () => ({
 
 vi.mock('../audio-cache.js', () => ({
   getCachedAudioUrl: (...args: unknown[]) => mockGetCachedAudioUrl(...args),
-}));
-
-vi.mock('../audio-visualizer.js', () => ({
-  startVisualizer: vi.fn(),
-  stopVisualizer: vi.fn(),
 }));
 
 // ─── Import module under test ──────────────────────────────────────
@@ -573,7 +568,7 @@ describe('audio — full coverage', () => {
 
   // ─── onAudioPlay / onAudioPause ─────────────────────────────────
 
-  describe('onAudioPlay — visualizer and mediaSession', () => {
+  describe('onAudioPlay — first-run expand hint', () => {
     it('should set playing state and update UI', () => {
       bindAudioEvents();
       mockState.surahData = sampleSurahData;
@@ -584,22 +579,36 @@ describe('audio — full coverage', () => {
       expect(mockState.isPlaying).toBe(true);
     });
 
-    it('should start visualizer when canvas exists', () => {
-      const canvas = document.createElement('canvas');
-      canvas.id = 'audioVisualizer';
-      document.body.appendChild(canvas);
+    it('should show the expand hint only once via storage flag', () => {
+      const hint = document.createElement('div');
+      hint.id = 'playerExpandHint';
+      hint.hidden = true;
+      document.body.appendChild(hint);
+      mockStorageSet.mockClear();
 
       bindAudioEvents();
-      mockState.surahData = sampleSurahData;
-
       fireEvent(mockAudioPlayer, 'play');
 
-      document.body.removeChild(canvas);
+      expect(mockStorageSet).toHaveBeenCalledWith('player_expand_hint_seen', '1');
+      expect(mockDom.player!.classList.contains('first-play-glow')).toBe(true);
+      expect(hint.hidden).toBe(false);
+      document.body.removeChild(hint);
+    });
+
+    it('should skip the expand hint once it has been recorded', () => {
+      mockStorageGet.mockReturnValue('1');
+      mockStorageSet.mockClear();
+
+      bindAudioEvents();
+      fireEvent(mockAudioPlayer, 'play');
+
+      expect(mockStorageSet).not.toHaveBeenCalledWith('player_expand_hint_seen', '1');
+      expect(mockDom.player!.classList.contains('first-play-glow')).toBe(false);
     });
   });
 
-  describe('onAudioPause — visualizer stop', () => {
-    it('should stop visualizer when paused (not ended)', () => {
+  describe('onAudioPause', () => {
+    it('should stop when paused (not ended)', () => {
       bindAudioEvents();
       (mockAudioPlayer as unknown as Record<string, unknown>).ended = false;
       mockState.isPlaying = true;
