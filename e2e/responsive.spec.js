@@ -175,12 +175,16 @@ test.describe('التوافق — أوضاع مختلفة', () => {
     expect(railBox).not.toBeNull();
     expect(content).not.toBeNull();
     expect(bodyPad).toBe('0px');
-    expect(railBox.width).toBeLessThanOrEqual(content.width * 0.16);
-    // The content's left padding keeps the ayahs clear of the rail.
+    expect(railBox.width).toBeLessThanOrEqual(64);
+    expect(railBox.width).toBeGreaterThanOrEqual(40);
+    // The content's left padding keeps the ayahs clear of the rail. The text
+    // region starts at content.x + paddingLeft, which must sit at/right of the
+    // rail's right edge (with a small rounding tolerance across engines).
     const contentPad = await page.locator('.surah-content').evaluate((el) =>
       getComputedStyle(el).paddingLeft
     );
-    expect(parseFloat(contentPad)).toBeGreaterThanOrEqual(railBox.x + railBox.width - 2);
+    const textStart = content.x + parseFloat(contentPad);
+    expect(textStart + 2).toBeGreaterThanOrEqual(railBox.x + railBox.width);
 
     // Open the tafsir: the screen splits 40% curtain / 60% ayahs.
     await page.locator('#tafsirCurtainHandle').click();
