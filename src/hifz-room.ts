@@ -4,7 +4,7 @@
  * explicit user action, without changing the reader layout or Android.
  */
 
-import { __ } from './i18n.js';
+import { __, toLatinDigits } from './i18n.js';
 import { playCurrentAyah, togglePlayPause } from './audio.js';
 import { cacheSurahAudio, isSurahCached } from './audio-cache.js';
 import { getReciterDisplayName, RECITERS } from './reciters.js';
@@ -391,7 +391,7 @@ function readPlan(room: HTMLElement): HifzPlan | null {
     surah: parseInt(controls.surah.value, 10),
     from: parseInt(controls.from.value, 10),
     to: parseInt(controls.to.value, 10),
-    times: parseInt(controls.repeat.value || repeat?.dataset['hifzRepeat'] || '5', 10),
+    times: parseInt(toLatinDigits(controls.repeat.value || repeat?.dataset['hifzRepeat'] || '5'), 10),
     review: reviewAt ? 'custom' : (review?.dataset['hifzReview'] as ReviewChoice | undefined) || 'today',
     reviewAt,
   });
@@ -963,6 +963,13 @@ function attachCurtainDrag(room: HTMLElement, handle: HTMLButtonElement): void {
     if (!dragged) {
       return;
     }
+    if (event.type === 'pointercancel') {
+      suppressClick = true;
+      setTimeout(() => {
+        suppressClick = false;
+      }, 100);
+      return;
+    }
     suppressClick = true;
     const reveal = readHifzCurtainReveal(getHifzCurtainWidth(room));
     if (reveal < 48) {
@@ -1126,7 +1133,7 @@ export function initHifzRoom(): void {
   );
   room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat')?.addEventListener('change', (event) => {
     const input = event.currentTarget as HTMLInputElement;
-    const times = normalizeRepeatCount(parseInt(input.value, 10));
+    const times = normalizeRepeatCount(parseInt(toLatinDigits(input.value), 10));
     input.value = String(times);
     setChoice(room, '[data-hifz-repeat]', String(times));
     updateSummary(room);

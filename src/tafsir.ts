@@ -31,6 +31,8 @@ interface TafsirCacheEntry {
 
 let _localMuyassar: LocalMuyassar = null;
 
+let _tafsirRenderSeq = 0;
+
 /** Load the local Muyassar tafsir file once. */
 async function loadLocalMuyassar(): Promise<LocalMuyassar> {
   if (_localMuyassar) {
@@ -221,12 +223,16 @@ export async function loadTafsirForCurrentAyah(): Promise<void> {
     return;
   }
   const edition = state.currentTafsirEdition;
+  const renderSeq = ++_tafsirRenderSeq;
   setTafsirHeader(surahData.name, a.numberInSurah);
   // Try instant local first for Muyassar
   if (edition === 'ar-tafsir-muyassar') {
     const local = await loadLocalMuyassar();
     const localText = local ? getLocalMuyassarAyah(state.currentSurah, a.numberInSurah) : null;
     if (localText) {
+      if (renderSeq !== _tafsirRenderSeq) {
+        return;
+      }
       renderTafsirContent(localText, a.text, surahData.name, a.numberInSurah);
       return;
     }
@@ -235,14 +241,20 @@ export async function loadTafsirForCurrentAyah(): Promise<void> {
   const cacheKey = getTafsirCacheKey(edition, state.currentSurah, a.numberInSurah);
   const cached = await getTafsirFromDB(cacheKey);
   if (cached) {
+    if (renderSeq !== _tafsirRenderSeq) {
+      return;
+    }
     renderTafsirContent(cached, a.text, surahData.name, a.numberInSurah);
     return;
   }
   showTafsirLoading();
   const text = await fetchTafsirFromAPI(edition, state.currentSurah, a.numberInSurah);
   if (text) {
+    if (renderSeq !== _tafsirRenderSeq) {
+      return;
+    }
     renderTafsirContent(text, a.text, surahData.name, a.numberInSurah);
-  } else {
+  } else if (renderSeq === _tafsirRenderSeq) {
     showTafsirError();
   }
 }
@@ -253,6 +265,7 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
     return;
   }
   const edition = state.currentTafsirEdition || CONFIG.DEFAULT_TAFSIR;
+  const renderSeq = ++_tafsirRenderSeq;
   const surahInfo = state.surahList.find((s) => s.number === surahNum);
   const surahName = surahInfo ? surahInfo.name : `${__('surah')} ${surahNum}`;
   setTafsirHeader(surahName, ayahNum);
@@ -266,6 +279,9 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
     const local = await loadLocalMuyassar();
     const localText = local ? getLocalMuyassarAyah(surahNum, ayahNum) : null;
     if (localText) {
+      if (renderSeq !== _tafsirRenderSeq) {
+        return;
+      }
       renderTafsirContent(localText, ayahText, surahName, ayahNum);
       return;
     }
@@ -274,6 +290,9 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
   const cacheKey = getTafsirCacheKey(edition, surahNum, ayahNum);
   const cached = await getTafsirFromDB(cacheKey);
   if (cached) {
+    if (renderSeq !== _tafsirRenderSeq) {
+      return;
+    }
     renderTafsirContent(cached, ayahText, surahName, ayahNum);
     return;
   }
@@ -283,8 +302,11 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
   document.body.classList.add('tafsir-curtain-active', 'tafsir-only-open');
   const text = await fetchTafsirFromAPI(edition, surahNum, ayahNum);
   if (text) {
+    if (renderSeq !== _tafsirRenderSeq) {
+      return;
+    }
     renderTafsirContent(text, ayahText, surahName, ayahNum);
-  } else {
+  } else if (renderSeq === _tafsirRenderSeq) {
     showTafsirError();
   }
 }

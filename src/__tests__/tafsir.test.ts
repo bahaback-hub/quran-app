@@ -338,4 +338,22 @@ describe('loadTafsirForSurahAyah', () => {
 
     expect(dom.tafsirCurtainBody!.innerHTML).toContain('tafsir-error');
   });
+
+  it('should not let a slower earlier fetch overwrite a newer tafsir', async () => {
+    state.currentTafsirEdition = 'ar-tafsir-tabari';
+    const { tafsirFetch } = await import('../api-client.js');
+    vi.mocked(tafsirFetch).mockReset();
+    let resolveFirst!: (v: { tafsir: { text: string } }) => void;
+    const first = new Promise<{ tafsir: { text: string } }>((res) => {
+      resolveFirst = res;
+    });
+    vi.mocked(tafsirFetch).mockReturnValueOnce(first as never);
+    vi.mocked(tafsirFetch).mockResolvedValueOnce({ tafsir: { text: 'b-text' } });
+    const early = loadTafsirForSurahAyah(1, 1);
+    await loadTafsirForSurahAyah(1, 2);
+    resolveFirst({ tafsir: { text: 'a-text' } });
+    await early;
+    expect(dom.tafsirCurtainBody!.innerHTML).toContain('b-text');
+    expect(dom.tafsirCurtainBody!.innerHTML).not.toContain('a-text');
+  });
 });

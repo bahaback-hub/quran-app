@@ -204,6 +204,13 @@ describe('performSearch', () => {
     expect(result.length).toBeGreaterThanOrEqual(1);
   });
 
+  it('should not strip ال when the remaining word is too short (الله → له false positive)', () => {
+    // Stripping ال from الله would produce له, which matches nearly every ayah.
+    (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'له')];
+    const result = performSearch('الله');
+    expect(result).toEqual([]);
+  });
+
   it('should not generate variant for ال prefix when query is short (length ≤ 3)', () => {
     // 'ال' itself has length 2, the variant slice would be '' (empty), which is guarded
     (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'الله')];
@@ -480,9 +487,11 @@ describe('performSearch — integration scenarios', () => {
     ];
   });
 
-  it('should search for Allah and find multiple ayahs', () => {
+  it('should search for Allah and only match ayahs that actually contain الله', () => {
     const results = performSearch('الله');
-    expect(results.length).toBeGreaterThanOrEqual(3);
+    // Ayah 2 contains 'لله' (not the word الله), so it must NOT be matched.
+    expect(results.length).toBe(2);
+    expect(results.every((r) => r.ayah !== 2)).toBe(true);
   });
 
   it('should search for a single common word', () => {

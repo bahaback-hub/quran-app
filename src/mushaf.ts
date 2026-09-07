@@ -376,6 +376,9 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
       }
     })
     .catch((err) => {
+      if (_mushafLoadCounter !== currentLoad) {
+        return;
+      }
       console.error('[Mushaf] renderPage error:', err);
       showToast(__('mushaf_page_error'), 'error');
       loadingBar.hide();
