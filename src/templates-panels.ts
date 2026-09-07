@@ -317,6 +317,7 @@ export function settingsPanelHTML(): string {
 export function floatingPlayerHTML(): string {
   return `<div class="player collapsed" id="player" role="region" aria-label="مشغل التلاوة">
       <div class="collapsed-content" id="collapsedContent">
+        <span class="collapse-chevron" aria-hidden="true">▲</span>
         <div class="collapsed-controls">
           <button class="collapsed-nav-btn" id="collapsedPrevSurahBtn" aria-label="السورة السابقة" title="السورة السابقة">⏮</button>
           <button class="collapsed-nav-btn" id="collapsedPrevAyahBtn" aria-label="الآية السابقة" title="الآية السابقة">◀</button>
@@ -330,6 +331,7 @@ export function floatingPlayerHTML(): string {
         </div>
         <div class="floating-info" id="collapsedInfo">—</div>
       </div>
+      <div class="player-expand-hint" id="playerExpandHint" role="status" hidden>اضغط لعرض كامل المشغل ▲</div>
 
       <div class="expanded-content">
         <div class="expanded-header">
@@ -339,7 +341,6 @@ export function floatingPlayerHTML(): string {
         </div>
         <div class="current-ayah" id="playerCurrentAyah">—</div>
         <span id="sleepTimerDisplay" style="display:none;font-size:11px;color:var(--accent);margin:0 8px;"></span>
-        <canvas class="audio-visualizer" id="audioVisualizer" width="300" height="40" aria-hidden="true"></canvas>
         <div class="player-row">
           <audio id="audioPlayer" controls preload="metadata"></audio>
         </div>
@@ -349,25 +350,24 @@ export function floatingPlayerHTML(): string {
           <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف">⏯</button>
           <button class="btn" id="nextAyahBtn" aria-label="الآية التالية" title="الآية التالية">▶</button>
           <button class="btn" id="nextSurahBtn" aria-label="السورة التالية" title="السورة التالية">⏭</button>
-          <button class="btn btn-more" id="playerMoreBtn" aria-label="المزيد" title="المزيد">⁝</button>
         </div>
-        <div class="player-more-row hidden" id="playerMoreRow">
-          <button class="btn btn-hifdh" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
-          <button class="btn btn-repeat" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
-          <button class="btn btn-autoplay" id="autoPlayNextBtn" data-i18n="autoplay_next" aria-label="التشغيل المتصل" title="التشغيل المتصل — ينتقل تلقائياً للسورة التالية">🔗 متصل</button>
-          <button class="btn btn-select" id="selectModeBtn" aria-label="تحديد متعدد">☑️ تحديد</button>
+        <div class="player-grid">
+          <button class="btn btn-hifdh grid-btn" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
+          <button class="btn btn-repeat grid-btn" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
+          <button class="btn btn-autoplay grid-btn" id="autoPlayNextBtn" data-i18n="autoplay_next" aria-label="التشغيل المتصل" title="التشغيل المتصل — ينتقل تلقائياً للسورة التالية">🔗 متصل</button>
+          <button class="btn btn-select grid-btn" id="selectModeBtn" aria-label="تحديد متعدد">☑️ تحديد</button>
           <button
-            class="btn btn-bookmark"
+            class="btn btn-bookmark grid-btn"
             id="bookmarkBtn"
             aria-label="إشارة مرجعية"
             title="نقرة: حفظ — نقرتان: انتقال"
           >
             🔖 علامة
           </button>
-          <button class="btn btn-favorite" id="favoriteBtn" aria-label="إضافة للمفضلة">❤️ مفضلة</button>
-          <button class="btn btn-gold" id="shareBtn" aria-label="مشاركة الآية">📤 مشاركة</button>
-          <span class="speed-control speed-control-span">
-            <span>⏩</span>
+          <button class="btn btn-favorite grid-btn" id="favoriteBtn" aria-label="إضافة للمفضلة">❤️ مفضلة</button>
+          <button class="btn btn-gold grid-btn" id="shareBtn" aria-label="مشاركة الآية">📤 مشاركة</button>
+          <span class="speed-control grid-speed">
+            <span>⏩ سرعة</span>
             <select id="speedSelect" aria-label="سرعة التلاوة" class="speed-select">
               <option value="0.5">0.5x</option>
               <option value="0.75">0.75x</option>
@@ -377,8 +377,8 @@ export function floatingPlayerHTML(): string {
               <option value="2">2x</option>
             </select>
           </span>
-          <button class="btn btn-sleep" id="sleepTimerBtn" aria-label="مؤقت النوم" title="مؤقت النوم">😴 نوم</button>
-          <button class="btn btn-download" id="downloadAudioBtn" data-i18n="download_audio" aria-label="تحميل السورة للعمل بدون إنترنت" title="تحميل السورة للعمل بدون إنترنت">📥 تحميل</button>
+          <button class="btn btn-sleep grid-btn" id="sleepTimerBtn" aria-label="مؤقت النوم" title="مؤقت النوم">😴 نوم</button>
+          <button class="btn btn-download grid-btn" id="downloadAudioBtn" data-i18n="download_audio" aria-label="تحميل السورة للعمل بدون إنترنت" title="تحميل السورة للعمل بدون إنترنت">📥 تحميل</button>
         </div>
         <div class="select-mode-bar hidden" id="selectModeBar">
           <span id="selectCount">0</span> آية محددة

@@ -115,17 +115,6 @@ body.night-mode .search-highlight {
   font-size: 15px;
 }
 
-.btn-more {
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 18px;
-  padding: 4px 10px;
-}
-.btn-more:hover {
-  color: var(--accent-dark);
-  background: rgba(217, 119, 6, 0.1);
-}
-
 .btn {
   padding: 8px 16px;
   background: var(--primary);

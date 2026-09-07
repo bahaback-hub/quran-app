@@ -112,11 +112,6 @@ vi.mock('../audio-cache.js', () => ({
   getCachedAudioUrl: mockGetCachedAudioUrl,
 }));
 
-vi.mock('../audio-visualizer.js', () => ({
-  startVisualizer: vi.fn(),
-  stopVisualizer: vi.fn(),
-}));
-
 vi.mock('../storage.js', () => ({
   storage: {
     get: mockStorageGet,
@@ -386,18 +381,8 @@ describe('audio — deep coverage', () => {
     });
   });
 
-  describe('onAudioPlay — visualizer and mediaSession', () => {
-    it('should start visualizer and set mediaSession metadata', async () => {
-      const { startVisualizer } = await import('../audio-visualizer.js');
-
-      mockState.surahData = SAMPLE_SURAH_DATA;
-      mockState.currentAyahIndex = 0;
-
-      // Add a visualizer canvas to the DOM
-      const vizCanvas = document.createElement('canvas');
-      vizCanvas.id = 'audioVisualizer';
-      document.body.appendChild(vizCanvas);
-
+  describe('onAudioPlay — mediaSession metadata', () => {
+    it('should set mediaSession metadata on play', async () => {
       const setActionHandlerSpy = vi.fn();
       const mediaMetadataSpy = vi.fn();
       vi.stubGlobal('navigator', {
@@ -409,23 +394,25 @@ describe('audio — deep coverage', () => {
       });
       vi.stubGlobal('MediaMetadata', mediaMetadataSpy);
 
+      mockState.surahData = SAMPLE_SURAH_DATA;
+      mockState.currentAyahIndex = 0;
+
       bindAudioEvents();
 
-      // Simulate play event
       const audio = mockDom.audioPlayer!;
       audio.dispatchEvent(new Event('play'));
 
       await flushPromises();
 
-      expect(startVisualizer).toHaveBeenCalled();
+      expect(mediaMetadataSpy).toHaveBeenCalled();
+      expect(setActionHandlerSpy).toHaveBeenCalled();
 
       vi.unstubAllGlobals();
     });
   });
 
   describe('onAudioPause — ended check', () => {
-    it('should stop visualizer but not change isPlaying when ended', async () => {
-      const { stopVisualizer } = await import('../audio-visualizer.js');
+    it('should not change isPlaying when ended', () => {
       mockState.isPlaying = true;
 
       bindAudioEvents();
@@ -434,7 +421,7 @@ describe('audio — deep coverage', () => {
       Object.defineProperty(audio, 'ended', { value: true, configurable: true });
       audio.dispatchEvent(new Event('pause'));
 
-      expect(stopVisualizer).toHaveBeenCalled();
+      expect(mockState.isPlaying).toBe(true);
     });
   });
 

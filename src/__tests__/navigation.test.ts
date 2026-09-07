@@ -28,8 +28,6 @@ function setupDOM() {
   dom.collapsedContent = document.getElementById('collapsedContent');
   dom.playPauseBtn = el('button');
   dom.collapsedPlayBtn = document.getElementById('collapsedPlayBtn');
-  dom.playerMoreBtn = el('button');
-  dom.playerMoreRow = el('div');
   dom.speedSelect = el('select') as HTMLSelectElement;
   dom.audioPlayer = el('audio') as HTMLAudioElement;
   dom.viewSurahBtn = el('button');

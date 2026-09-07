@@ -9,7 +9,6 @@
  *   - Sleep timer with countdown display
  *   - MediaSession API integration for lock-screen controls
  *   - Audio error auto-retry (up to 2 attempts) with skip-on-failure
- *   - Audio visualization via canvas-based waveform renderer
  *
  * Architecture note: setLoadSurah() is called by app.ts during initialization
  * to inject the surah-loading callback, avoiding circular imports.
@@ -72,6 +71,8 @@ let _sleepTimerStart: number = 0;
 let _audioRetryCount = 0;
 const MAX_AUDIO_RETRIES = 2;
 let _autoAdvanceSafetyTimer: ReturnType<typeof setTimeout> | null = null;
+const EXPAND_HINT_KEY = 'player_expand_hint_seen';
+const PLAYER_HINT_DURATION = 6000;
 
 /**
  * Reset audio state when switching surahs.
@@ -518,6 +519,26 @@ export function bindAudioEvents(): void {
   }
 }
 
+/** Show a one-time hint (arrow pulse + message) the first time playback starts. */
+function maybeShowExpandHint(): void {
+  if (storage.get(EXPAND_HINT_KEY)) {
+    return;
+  }
+  storage.set(EXPAND_HINT_KEY, '1');
+  dom.player?.classList.add('first-play-glow');
+  const hint = document.getElementById('playerExpandHint');
+  if (hint) {
+    hint.hidden = false;
+  }
+  window.setTimeout(() => {
+    dom.player?.classList.remove('first-play-glow');
+    const el = document.getElementById('playerExpandHint');
+    if (el) {
+      el.hidden = true;
+    }
+  }, PLAYER_HINT_DURATION);
+}
+
 function onAudioPlay(): void {
   _autoAdvancing = false;
   _audioRetryCount = 0;
@@ -527,10 +548,7 @@ function onAudioPlay(): void {
   }
   setPlayingState();
   updateSleepTimerDisplay();
-  const vizCanvas = document.getElementById('audioVisualizer');
-  if (vizCanvas) {
-    startVisualizer(vizCanvas as HTMLCanvasElement);
-  }
+  maybeShowExpandHint();
   if ('mediaSession' in navigator && state.surahData) {
     const surahData: SurahData | null = state.surahData;
     if (!surahData) {
@@ -553,19 +571,15 @@ function onAudioPause(): void {
   // otherwise nextSurah() will see autoPlay=false and won't auto-play.
   if (dom.audioPlayer?.ended) {
     // Audio ended naturally — let onAudioEnded handle the state transition.
-    // Only stop the visualizer; don't change isPlaying.
-    stopVisualizer();
     return;
   }
   setStoppedState();
-  stopVisualizer();
 }
 
 function onAudioError(): void {
   _autoAdvancing = false;
   _mp3quranUrl = null;
   stopWordTracking();
-  stopVisualizer();
 
   // Auto-retry: try the same ayah up to MAX_AUDIO_RETRIES times, then skip
   if (_audioRetryCount < MAX_AUDIO_RETRIES && state.surahData && state.ayahsAudios) {
@@ -1038,6 +1052,3 @@ export function cleanupSleepTimerInterval(): void {
     _sleepTimerInterval = null;
   }
 }
-
-// Re-export for audio-visualizer (avoids circular import)
-import { startVisualizer, stopVisualizer } from './audio-visualizer.js';

@@ -56,7 +56,6 @@ test.describe('Quran App — Mobile Controls', () => {
 
   test('should reveal the repeat range controls when repeat is enabled', async ({ page }) => {
     await page.locator('#bottomNav .bottom-nav-btn[data-tab="player"]').click();
-    await page.locator('#playerMoreBtn').click();
     await expect(page.locator('#repeatBtn')).toBeVisible();
 
     await page.locator('#repeatBtn').click();

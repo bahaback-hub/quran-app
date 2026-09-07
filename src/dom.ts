@@ -184,8 +184,6 @@ interface DomMap {
 
   searchToggleBtn: HTMLElement | null;
   searchInputGroup: HTMLElement | null;
-  playerMoreBtn: HTMLElement | null;
-  playerMoreRow: HTMLElement | null;
   fontTypeSelect: HTMLSelectElement | null;
   lineSpacingSelect: HTMLSelectElement | null;
   tajweedToggle: HTMLInputElement | null;
@@ -376,8 +374,6 @@ const DOM_IDS: (keyof DomMap)[] = [
   'readingStatsCloseBtn',
   'searchToggleBtn',
   'searchInputGroup',
-  'playerMoreBtn',
-  'playerMoreRow',
   'fontTypeSelect',
   'lineSpacingSelect',
   'tajweedToggle',

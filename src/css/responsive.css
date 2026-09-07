@@ -250,7 +250,8 @@
   .player-buttons #nextSurahBtn {
     display: none;
   }
-  .player-more-row .btn {
+  .player-grid .grid-btn,
+  .player-grid .grid-speed {
     padding: 4px 8px;
     font-size: 10px;
   }
@@ -732,7 +733,8 @@
   .player:not(.collapsed) {
     padding: 8px 12px;
   }
-  .player-more-row .btn {
+  .player-grid .grid-btn,
+  .player-grid .grid-speed {
     padding: 5px 10px;
     font-size: 11px;
   }
@@ -1110,7 +1112,8 @@
   .player-buttons #nextSurahBtn {
     display: none;
   }
-  .player-more-row .btn {
+  .player-grid .grid-btn,
+  .player-grid .grid-speed {
     padding: 5px 10px;
     font-size: 11px;
   }
