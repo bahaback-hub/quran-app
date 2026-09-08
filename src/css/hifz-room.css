@@ -902,6 +902,18 @@ body.hifz-room-active .hifz-room-toggle {
   background: #d7bb81;
 }
 
+/* وضع الستارة: الغرفة تُفتح من يمين الشاشة وقد تُكشف جزئياً على الجوال،
+   فزر الإغلاق على الحافة اليسرى يكون خارج الشاشة. ننقله إلى الحافة
+   الظاهرة (يمين الغرفة) مع تحريك العنوان جانبه حتى لا يلتقيا. */
+.hifz-room--rtl .hifz-room-header {
+  padding-left: 0;
+  padding-right: 3rem;
+}
+.hifz-room--rtl .hifz-room-close {
+  left: auto;
+  right: 0;
+}
+
 .hifz-room-session,
 .hifz-room-repeat,
 .hifz-room-review,
