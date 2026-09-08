@@ -990,16 +990,17 @@
     min-width: 30px;
   }
   .reader-command-display .reader-surface-inline {
-    flex: 1 1 100%;
-    order: 2;
+    flex: 0 1 auto;
+    order: 1;
     min-width: 0;
     max-width: 100%;
-    gap: 4px;
-    justify-content: center;
-    margin-top: 2px;
+    gap: 2px;
+    justify-content: flex-start;
+    margin-top: 0;
   }
   .reader-command-display .reader-surface-inline input[type='range'] {
-    width: 170px;
+    flex: 0 1 48px;
+    width: 48px;
     min-width: 0;
   }
   .reader-command-display .reader-surface-inline output {
@@ -1231,6 +1232,20 @@
   }
   .theme-switcher {
     padding: 1px;
+  }
+  /* ضيق شديد: تُدمج أدوات الصف الأول، فيُحذف مؤشر النسبة المئوية للزوم
+     وعدد الشفافية ويُصغّر شريط الشفافية لتوفير المساحة. */
+  .reader-command-display {
+    gap: 2px;
+  }
+  .reader-command-display .reader-zoom-value {
+    display: none;
+  }
+  .reader-command-display .reader-surface-inline output {
+    display: none;
+  }
+  .reader-command-display .reader-surface-inline input[type='range'] {
+    width: 44px;
   }
   #helpToggleBtn {
     display: flex;

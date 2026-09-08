@@ -948,10 +948,11 @@ describe('floatingPlayerHTML', () => {
     expect(result).not.toContain('selectModeBtn');
   });
 
-  it('should contain a compact speed control beside the audio in the player row', () => {
+  it('should contain a compact speed control inside the play-buttons row', () => {
     const result = floatingPlayerHTML();
     expect(result).toContain('speedControl');
     expect(result).toContain('speedSelect');
+    expect(result.indexOf('speedControl')).toBeLessThan(result.indexOf('playPauseBtn'));
     expect(result).not.toContain('grid-speed');
   });
 

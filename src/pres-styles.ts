@@ -587,9 +587,12 @@ export function injectStyles(): void {
       .presentation-ayah-nav { grid-column: 2; grid-row: 2; justify-content: flex-end; }
       .presentation-actions {
         grid-column: 1 / -1; grid-row: 3; margin-inline-start: 0; justify-content: center;
-        max-width: 100%; overflow-x: auto; scrollbar-width: none;
+        max-width: 100%;
+        /* overflow-x: auto يقصّ منتقي الخلفية (child مطلق خارج الصندوق) فيصبح
+           غير مرئي عند فتحه على الجوال. الأزرار (6×36px) تتسع في هذا العرض،
+           فلا حاجة للتمرير الأفقي. */
+        overflow: visible;
       }
-      .presentation-actions::-webkit-scrollbar { display: none; }
       .presentation-header-btn, .presentation-close-btn {
         width: 36px; height: 36px; font-size: 16px; border-radius: 8px; flex: 0 0 auto;
       }
