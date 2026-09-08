@@ -2,8 +2,8 @@
  * @module navigation
  * @description Navigation controller for the Quran app. Initializes all navigation
  * event listeners including surah navigation buttons, player controls, view mode
- * toggles (surah/mushaf/presentation), page selectors, and the bottom navigation
- * tab bar. Also restores persisted mushaf mode on startup.
+ * toggles (surah/mushaf/presentation), and page selectors. Also restores
+ * persisted mushaf mode on startup.
  */
 
 import { state } from './state.js';
@@ -21,12 +21,11 @@ import {
   togglePlayPause,
   updatePlayPauseBtn,
 } from './audio.js';
-import { toggleAdhkarPanel } from './adhkar.js';
 
 /**
  * Initialize all navigation event listeners for the app.
- * Binds surah navigation, player controls, view mode toggles, page selectors,
- * and bottom navigation tab handling. Should be called once during app startup.
+ * Binds surah navigation, player controls, view mode toggles, and page selectors.
+ * Should be called once during app startup.
  *
  * @example
  * initNavigation(); // call after cacheDom()
@@ -131,66 +130,6 @@ export function initNavigation(): void {
       dom.pageSelect.value = String(p);
     }
     import('./mushaf.js').then((m) => m.loadPage(p, true));
-  });
-
-  /* ========== BOTTOM NAV (جوال/تابلت) ========== */
-  const bottomNav = document.getElementById('bottomNav');
-  let activeTab: string = 'quran';
-
-  function activateTab(tab: string): void {
-    if (!bottomNav) {
-      return;
-    }
-    activeTab = tab;
-    bottomNav.querySelectorAll('.bottom-nav-btn').forEach((b) => {
-      b.classList.toggle('active', (b as HTMLElement).dataset['tab'] === tab);
-    });
-  }
-
-  bottomNav?.addEventListener('click', (e: MouseEvent) => {
-    const btn = (e.target as HTMLElement).closest('.bottom-nav-btn') as HTMLElement | null;
-    if (!btn) {
-      return;
-    }
-    const tab = btn.dataset['tab'];
-    if (!tab) {
-      return;
-    }
-    if (tab === activeTab && tab !== 'player' && tab !== 'controls') {
-      activateTab(tab);
-      return;
-    }
-    activateTab(tab);
-
-    switch (tab) {
-      case 'quran':
-        dom.surahContent?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        dom.controls?.classList.remove('mobile-show');
-        break;
-      case 'player':
-        expandPlayer();
-        dom.player?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        dom.controls?.classList.remove('mobile-show');
-        break;
-      case 'controls':
-        dom.controls?.classList.toggle('mobile-show');
-        break;
-      case 'search':
-        // على الجوال تكون شريط الأدوات مخفياً افتراضياً؛ إظهاره مع البحث الموسّع
-        dom.controls?.classList.add('mobile-show');
-        document.getElementById('headerSearch')?.classList.add('is-expanded');
-        dom.searchToggleBtn?.setAttribute('aria-expanded', 'true');
-        dom.searchInput?.focus();
-        dom.searchInput?.select();
-        break;
-      case 'more':
-        // Open adhkar panel (was opening settings, but adhkar had no button)
-        toggleAdhkarPanel();
-        dom.controls?.classList.remove('mobile-show');
-        break;
-      default:
-        break;
-    }
   });
 
   // Restore mushaf mode

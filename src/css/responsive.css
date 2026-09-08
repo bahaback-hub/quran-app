@@ -264,17 +264,6 @@
   .speed-control {
     font-size: 10px;
   }
-  /* Bottom nav - visible on mobile */
-  .bottom-nav {
-    display: flex;
-  }
-  .bottom-nav-btn {
-    font-size: 14px;
-    padding: 4px 2px 2px;
-  }
-  .bottom-nav-btn span {
-    font-size: 7px;
-  }
   /* Panels - full width */
   .settings-panel,
   .favorites-panel,
@@ -483,17 +472,6 @@
   .share-btn,
   .play-pause-btn,
   .collapsed-play-btn,
-  .bottom-nav-btn {
-    min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
-    width: auto;
-    height: auto;
-    padding: 10px 14px;
-    font-size: 15px;
-  }
-  .bottom-nav-btn {
-    padding: 6px 4px;
-  }
   .collapse-bar-btn,
   .expand-bar-btn {
     width: var(--touch-target-min);
@@ -588,7 +566,6 @@
   input,
   textarea,
   .toggle-switch,
-  .bottom-nav-btn,
   .header-action-btn,
   .header-menu-btn,
   .player-buttons .btn,
@@ -906,15 +883,12 @@
     padding: 8px 12px;
   }
 
-  /* أدوات التحكم — تخفى افتراضياً وتظهر عند الضغط على تبويب "أدوات". */
+  /* أدوات التحكم — ظاهرة دائماً على الجوال (لا يوجد شريط تنقل سفلي). */
   .controls {
     padding: 8px;
-    display: none;
+    display: flex;
     max-width: 100%;
     overflow-x: clip;
-  }
-  .controls.mobile-show {
-    display: flex;
     /* شريط الأدوات الجانبي الثابت (الأيسر) يعلو محتوى <main>؛ نزيح شريط
        التحكم يمينه حتى لا يختفي البحث/الأزرار تحت الشريط على الشاشات الضيقة. */
     padding-left: 76px;
@@ -1190,17 +1164,12 @@
     line-height: 1.7;
   }
 
-  /* إظهار شريط التنقل السفلي */
-  .bottom-nav {
-    display: flex;
-  }
-
-  /* المشغل لا يتزاحم مع الشريط السفلي */
+  /* المشغل يلتصق بأسفل الشاشة (لا وجود لشريط تنقل سفلي) */
   .player {
-    bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0));
+    bottom: env(safe-area-inset-bottom, 0);
   }
   .player.collapsed {
-    bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0));
+    bottom: env(safe-area-inset-bottom, 0);
   }
 
   /* لوحة المفاتيح العربية */
@@ -1256,19 +1225,11 @@
   #helpToggleBtn {
     display: flex;
   }
-  .bottom-nav-btn {
-    font-size: 15px;
-    padding: 4px 4px 2px;
-  }
-  .bottom-nav-btn span {
-    font-size: 8px;
-  }
 }
 
-/* ========== إصلاحات الجوال: z-index اللوحات فوق شريط التنقل + padding-bottom آمن ==========
-   على الجوال، الـ bottom-nav (z-index 5000) كان يغطي اللوحات المنزلقة (settings/favorites/adhkar/tafsir/help)
-   عند فتحها. الآن نرفع z-index اللوحات فوق 5000، ونضيف padding-bottom آمن داخلها
-   حتى لا يُغطَّى محتواها السفلي بـ bottom-nav (56px) + المشغل (44px) = 100px تقريباً. */
+/* ========== إصلاحات الجوال: z-index اللوحات فوق المحتوى + padding-bottom آمن ==========
+   نرفع z-index اللوحات المنزلقة (settings/favorites/adhkar/tafsir/help)، ونضيف
+   padding-bottom آمن داخلها حتى لا يُغطَّى محتواها السفلي بالمشغل (44px). */
 @media (max-width: 600px) {
   .settings-panel,
   .favorites-panel,
@@ -1279,18 +1240,17 @@
   .sleep-timer-overlay {
     z-index: 5500;
   }
-  /* padding-bottom داخل اللوحات لمنع تغطية المحتوى السفلي */
+  /* padding-bottom داخل اللوحات لمنع تغطية المحتوى السفلي بالمشغل */
   .settings-panel,
   .favorites-panel,
   .adhkar-panel,
   .help-panel {
-    padding-bottom: 110px;
+    padding-bottom: 60px;
   }
   .tafsir-curtain {
     padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
-  /* عند فتح أي لوحة: أخفِ شريط التنقل السفلي والمشغل لتحرير المساحة */
-  body.panel-open .bottom-nav,
+  /* عند فتح أي لوحة: أخفِ المشغل لتحرير المساحة */
   body.panel-open .player {
     display: none !important;
   }
@@ -1298,13 +1258,10 @@
   body.tafsir-only-open .player {
     display: block !important;
   }
-  body.tafsir-only-open .bottom-nav {
-    display: none !important;
-  }
-  /* بانر التحديث: على الجوال يوجد bottom-nav (56px) + المشغل (44px) في الأسفل.
-     نرفع البانر ليكون فوق الاثنين بفاصل 12px. */
+  /* بانر التحديث: على الجوال يوجد المشغل (44px) في الأسفل.
+     نرفع البانر ليكون فوقه بفاصل 12px. */
   .update-banner {
-    bottom: 120px;
+    bottom: 60px;
     /* على الجوال نصغر النص قليلاً ليكون أكثر احتواءً */
     font-size: 13px;
     padding: 8px 16px;
@@ -1330,7 +1287,6 @@
   .collapsed-preview { height: 28px; font-size: 11px; }
   .player.collapsed { height: 36px; bottom: 0; }
   .player:not(.collapsed) { padding: 4px 8px; padding-bottom: 44px; }
-  .bottom-nav { display: none; }
   #surahContent { padding-left: 80px !important; }
   .surah-title { font-size: 18px; }
   .bismillah { font-size: 20px; }
@@ -1383,7 +1339,7 @@
     --surface-alt: #f0f0f0;
     --border: #000000;
   }
-  .btn, .control-group button, .header-action-btn, .header-menu-btn, .bottom-nav-btn {
+  .btn, .control-group button, .header-action-btn, .header-menu-btn {
     border: 2px solid currentColor !important;
   }
   .ayah.current { outline: 3px solid currentColor !important; outline-offset: 2px; }
@@ -1405,7 +1361,6 @@
   .header-action-btn,
   .header-menu-btn,
   .header-menu-container,
-  .bottom-nav,
   .network-banner,
   .toast,
   .azan-notification,
@@ -1413,8 +1368,7 @@
   .prayer-bar,
   .reading-progress,
   .footer,
-  .skip-link,
-  .bottom-nav {
+  .skip-link {
     display: none !important;
   }
   .container {

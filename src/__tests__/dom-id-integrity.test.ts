@@ -14,8 +14,7 @@
  *     silently no-op'd — the entire favorites panel feature was unreachable
  *
  * Another example was `<section class="controls">` missing `id="controls"`,
- * which prevented the "Tools" tab in the mobile bottom-nav from opening the
- * controls panel on mobile devices.
+ * which would have prevented the reader tools from being accessible.
  *
  * This test prevents that class of bug by:
  *   1. Loading the real `index.html` from disk

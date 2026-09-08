@@ -89,14 +89,6 @@ body.sepia-mode .player {
   box-shadow: 0 -6px 24px rgba(80, 60, 30, 0.08);
 }
 
-/* شريط التنقل السفلي */
-body.sepia-mode .bottom-nav {
-  background: rgba(107, 78, 46, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-top: 2px solid rgba(138, 104, 64, 0.45);
-}
-
 /* ========== اللوحات الجانبية ========== */
 body.sepia-mode .settings-panel {
   background: rgba(242, 232, 212, 0.85);
@@ -375,14 +367,6 @@ body.sepia-mode .settings-close:hover,
 body.sepia-mode .favorites-close:hover,
 body.sepia-mode .adhkar-close:hover {
   transform: scale(1.1) rotate(90deg);
-}
-
-body.sepia-mode .bottom-nav button {
-  transition: all 0.2s ease;
-}
-
-body.sepia-mode .bottom-nav button:hover {
-  transform: translateY(-2px);
 }
 
 /* ========== دعم المتصفحات بدون backdrop-filter ========== */

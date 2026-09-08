@@ -124,9 +124,6 @@ test.describe('Quran App — Mobile Layout', () => {
   test('should keep the unified search and display controls inside a narrow viewport', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('.ayah[data-surah="1"]', { timeout: 30000 });
-    await page.evaluate(() => {
-      document.getElementById('controls')?.classList.add('mobile-show');
-    });
     await page.locator('#searchToggleBtn').click();
 
     const elements = [

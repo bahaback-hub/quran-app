@@ -167,8 +167,7 @@ body.night-mode .container {
 .header-menu-btn,
 .collapse-bar-btn,
 .floating-play-btn,
-.settings-toggle-btn,
-.bottom-nav-btn {
+.settings-toggle-btn {
   position: relative;
   overflow: hidden;
 }
