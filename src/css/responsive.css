@@ -740,96 +740,93 @@
     background-attachment: scroll !important;
   }
 
-  /* الهاتف: ترتيب عمودي آمن بدون تداخل، مع حماية عرض/كسر النص. */
+  /* الهاتف: صف واحد يجمع شعار المصحف السليماني مع أزرار اللغة
+     والإعدادات وأوضاع القراءة (نهاري/سيبيا/ليلي/قاتم). */
   .header {
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
     gap: 8px;
-    padding: 12px 10px;
+    padding: 8px 10px;
   }
   body:not(.capacitor-native) .header {
-    padding-top: calc(12px + env(safe-area-inset-top, 0));
+    padding-top: calc(8px + env(safe-area-inset-top, 0));
   }
   .header h1 {
     font-size: 20px;
     margin-bottom: 0;
     text-align: center;
-    word-break: break-word;
   }
   .header-title-row {
     order: 1;
     align-items: center;
     min-width: 0;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
+  }
+  .header-brand-mark {
+    width: 58px;
+    height: 40px;
   }
   .header-menu-container {
     order: 2;
     position: static;
-    width: 100%;
-    flex: 0 0 auto;
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
   }
   .header-actions {
     order: 3;
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-    gap: 6px;
-  }
-  .header-primary-actions {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    flex-direction: row;
     align-items: center;
+    justify-content: flex-end;
     width: 100%;
     gap: 4px;
+  }
+  .header-primary-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    width: auto;
+    flex: 0 0 auto;
   }
   .header-action-btn,
   .header-menu-btn {
-    width: 100%;
-    height: 52px;
-    min-width: 0;
-    min-height: 52px;
-    font-size: 18px;
-    justify-self: stretch;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 16px;
+    padding: 0;
   }
   .header-action-label {
-    font-size: 7px;
-    letter-spacing: -0.15px;
+    display: none;
   }
-  .header-utility-row {
-    grid-template-columns: 34px 34px 1fr;
-    align-self: stretch;
-    gap: 4px;
+  /* وضع القراءة: صف أزرار مدمج إلى جوار أزرار اللغة والإعدادات. */
+  .theme-switcher {
+    padding: 0;
+    flex: 0 0 auto;
+    order: 2;
   }
-  .header-prayer-tile {
-    width: 100%;
-    min-width: 0;
-    flex-basis: auto;
-  }
-  .header-prayer-tile .prayer-bar-toggle {
-    min-height: 52px;
-    height: 52px;
-    padding: 4px 2px;
-  }
-  .header-prayer-tile .prayer-bar-summary strong {
-    max-width: 42px;
-    font-size: 8px;
-  }
-  .header-prayer-tile .prayer-bar-summary-time {
-    font-size: 10px;
-  }
-  /* زر الهلال وحده، والأوضاع تظهر عند الضغط. */
-  .theme-btn {
+  .theme-visible-grid .theme-dropdown-menu {
+    display: flex;
+    flex-direction: row;
     width: auto;
-    height: 44px;
+    min-width: 0;
+    gap: 3px;
+  }
+  .theme-visible-grid .theme-btn {
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
+    min-width: 30px;
+    flex: 0 0 30px;
+    border-radius: 7px;
     font-size: 15px;
   }
-  .theme-dropdown-menu {
-    min-width: 148px;
-    grid-template-columns: repeat(2, minmax(64px, 1fr));
-  }
-  .theme-label {
-    font-size: 9px;
+  .theme-visible-grid .theme-btn .theme-label {
+    display: none;
   }
   .theme-menu-trigger,
   .header-search-trigger {

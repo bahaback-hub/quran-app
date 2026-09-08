@@ -158,7 +158,7 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(needle).toHaveAttribute('style', /rotate/);
   });
 
-  test('should keep primary header actions in one row and keep theme controls separate', async ({ page }) => {
+  test('should keep brand, actions, and theme controls in one header row', async ({ page }) => {
     const primaryActions = page.locator('.header-primary-actions .header-action-btn');
     await expect(primaryActions).toHaveCount(2);
     await expect(page.locator('#settingsToggleBtn')).toBeVisible();
@@ -167,12 +167,16 @@ test.describe('Quran App — Mobile Controls', () => {
     const firstAction = await primaryActions.nth(0).boundingBox();
     const lastAction = await primaryActions.nth(1).boundingBox();
     const theme = await page.locator('#themeToggle').boundingBox();
+    const brand = await page.locator('.header-brand-mark').boundingBox();
     expect(firstAction).not.toBeNull();
     expect(lastAction).not.toBeNull();
     expect(theme).not.toBeNull();
+    expect(brand).not.toBeNull();
     expect(Math.abs(firstAction!.y - lastAction!.y)).toBeLessThan(2);
-    // يظهر هذا التطبيق الثيمات في كتلة منفصلة إلى جوار الأزرار (وليس فوقها)
-    // — تحقق أنها لا تتداخل مع أي من أزرار الإجراءات.
+    // شعار المصحف السليماني يجلس في نفس صف أزرار اللغة والإعدادات والسمات.
+    expect(Math.abs(brand!.y - firstAction!.y)).toBeLessThan(12);
+    // يقوم الشعار قرب حافة الصف دون أن يتداخل مع أزرار السمات بجانبه.
+    expect(brand!.x).toBeGreaterThanOrEqual(theme!.x + theme!.width - 1);
     const actionsArea = await primaryActions.evaluateAll((els) => {
       const rects = els.map((e) => e.getBoundingClientRect());
       return {
