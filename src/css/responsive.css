@@ -932,26 +932,25 @@
     gap: 0;
   }
   .reader-command-search {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
     width: auto;
-    min-height: 0;
+    min-height: 32px;
     z-index: 60;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
   }
   .reader-command-search .header-search-trigger,
   .reader-command-search .search-toggle-btn {
     flex: 0 0 auto;
   }
   #headerSearch.reader-command-search .header-search-input {
-    top: 0;
-    right: 8px;
-    left: 0;
-    width: auto;
+    top: calc(100% + 6px);
+    right: -11px;
+    left: auto;
+    width: min(420px, calc(100vw - 96px));
     max-width: calc(100vw - 96px);
   }
   .reader-command-display {
@@ -959,7 +958,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 4px;
-    margin-top: 40px;
+    margin-top: 0;
     grid-template-columns: none;
     grid-template-areas: none;
   }
@@ -968,30 +967,22 @@
   }
   .reader-command-display .reader-toolbar-pin {
     flex: 0 0 auto;
+    order: 1;
     width: 28px;
     height: 28px;
   }
-  .reader-command-display .reader-surface-inline {
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: 45%;
-    gap: 4px;
-  }
-  .reader-command-display .reader-surface-inline input[type='range'] {
-    width: 60px;
-    min-width: 0;
-  }
-  .reader-command-display .reader-surface-inline output {
-    min-width: 24px;
-    font-size: 11px;
+  .reader-command-display .reader-command-search {
+    order: 1;
   }
   .reader-command-display .tajweed-inline-btn {
     flex: 0 0 auto;
+    order: 1;
     width: 32px;
     height: 32px;
   }
   .reader-command-display .reader-zoom-control {
     flex: 0 0 auto;
+    order: 1;
     gap: 2px;
   }
   .reader-command-display .reader-zoom-btn {
@@ -1001,8 +992,30 @@
   .reader-command-display .reader-zoom-value {
     min-width: 30px;
   }
+  .reader-command-display .reader-surface-inline {
+    flex: 1 1 100%;
+    order: 2;
+    min-width: 0;
+    max-width: 100%;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .reader-command-display .reader-surface-inline input[type='range'] {
+    width: 170px;
+    min-width: 0;
+  }
+  .reader-command-display .reader-surface-inline output {
+    min-width: 24px;
+    font-size: 11px;
+  }
+  .reader-command-display .view-mode-group {
+    order: 3;
+  }
   .reader-command-display .page-indicator {
+    order: 4;
     flex-basis: 100%;
+    margin-top: 0;
   }
   .view-mode-btn {
     min-width: 0;

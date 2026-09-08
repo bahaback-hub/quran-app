@@ -155,15 +155,15 @@ test.describe('Quran App — Mobile Layout', () => {
 
     const commandBar = page.locator('.reader-command-bar');
     const searchBox = await page.locator('#searchInputGroup').boundingBox();
-    const displayBox = await page.locator('.reader-command-display').boundingBox();
     const commandBox = await commandBar.boundingBox();
     expect(commandBox).not.toBeNull();
     expect(searchBox).not.toBeNull();
-    expect(displayBox).not.toBeNull();
-    // On a narrow phone, expanded search comes first and the display modes stay
-    // directly below it without clipping either control group. WebKit includes
-    // the soft input shadow in this box, so allow its small painted overlap.
-    expect(searchBox!.y + searchBox!.height).toBeLessThanOrEqual(displayBox!.y + 16);
+    // On a narrow phone the expanded search opens from the unified reader row:
+    // it must stay inside the viewport (no horizontal overflow) and the whole
+    // command bar, including the search trigger row that houses it, must remain
+    // reasonably compact vertically (WebKit counts its soft-input painted box).
+    expect(searchBox!.x).toBeGreaterThanOrEqual(0);
+    expect(searchBox!.x + searchBox!.width).toBeLessThanOrEqual(viewportWidth + fractionalEdgeAllowance);
     expect(commandBox!.height).toBeLessThan(210);
   });
 });
