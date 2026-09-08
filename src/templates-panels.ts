@@ -341,6 +341,10 @@ export function floatingPlayerHTML(): string {
         <span id="sleepTimerDisplay" style="display:none;font-size:11px;color:var(--accent);margin:0 8px;"></span>
         <div class="player-row">
           <audio id="audioPlayer" controls preload="metadata"></audio>
+        </div>
+        <div class="player-buttons">
+          <button class="btn" id="prevSurahBtn" aria-label="السورة السابقة" title="السورة السابقة">⏮</button>
+          <button class="btn" id="prevAyahBtn" aria-label="الآية السابقة" title="الآية السابقة">◀</button>
           <span class="speed-control" id="speedControl">
             <span class="speed-icon" aria-hidden="true">⏩</span>
             <select id="speedSelect" aria-label="سرعة التلاوة" title="سرعة التلاوة" class="speed-select">
@@ -352,10 +356,6 @@ export function floatingPlayerHTML(): string {
               <option value="2">2x</option>
             </select>
           </span>
-        </div>
-        <div class="player-buttons">
-          <button class="btn" id="prevSurahBtn" aria-label="السورة السابقة" title="السورة السابقة">⏮</button>
-          <button class="btn" id="prevAyahBtn" aria-label="الآية السابقة" title="الآية السابقة">◀</button>
           <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف">⏯</button>
           <button class="btn" id="nextAyahBtn" aria-label="الآية التالية" title="الآية التالية">▶</button>
           <button class="btn" id="nextSurahBtn" aria-label="السورة التالية" title="السورة التالية">⏭</button>
