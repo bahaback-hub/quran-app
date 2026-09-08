@@ -130,7 +130,7 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
     }
     const banner = document.createElement('div');
     banner.id = 'updateBanner';
-    // On mobile, the player (44px) + bottom-nav (56px) occupy the bottom ~100px.
+    // On mobile, the player (44px) sits at the bottom; the update banner sits above it.
     // Desktop only has the player (~55px) at bottom:0, so 70px clears it.
     // Use a CSS class instead of inline bottom so media queries can adjust it.
     banner.style.cssText =
@@ -248,12 +248,12 @@ initI18n().then(() => initApp());
  *
  * Watches the sliding panels (settings / favorites / adhkar / tafsir / help /
  * mushaf-surah-overlay) for `open` class changes and toggles body classes:
- *   - `panel-open`      → any panel is open (hides bottom-nav + player on mobile)
+ *   - `panel-open`      → any panel is open (hides the floating player on mobile)
  *   - `tafsir-only-open` → only the tafsir curtain is open (keeps player visible)
  *
  * This keeps the mobile UI usable: panels that take full-screen width no longer
- * get their bottom content covered by the fixed bottom-nav (z-index 5000) and
- * floating player. See responsive.css for the matching CSS rules.
+ * get their bottom content covered by the floating player.
+ * See responsive.css for the matching CSS rules.
  *
  * Implementation note: uses subtree:true on document.body because some panels
  * (settings, help, sleep-timer, etc.) are injected dynamically by overlays.ts

@@ -6,20 +6,15 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
   });
 
-  test('should expose the five-tab mobile navigation', async ({ page }) => {
-    await expect(page.locator('#bottomNav')).toBeVisible();
-    await expect(page.locator('#bottomNav .bottom-nav-btn')).toHaveCount(5);
-  });
-
-  test('should reveal reader controls from the controls tab', async ({ page }) => {
-    await page.locator('#bottomNav .bottom-nav-btn[data-tab="controls"]').click();
+  test('should expose the reader tools directly on mobile', async ({ page }) => {
+    // Reader tools (controls) are always visible; there is no bottom nav.
+    await expect(page.locator('#bottomNav')).toHaveCount(0);
     await expect(page.locator('#controls')).toBeVisible();
     await expect(page.locator('#surahSelect')).toBeVisible();
     await expect(page.locator('#reciterSelect')).toBeVisible();
   });
 
   test('should place the command bar before the compact surah and reciter controls', async ({ page }) => {
-    await page.locator('#bottomNav .bottom-nav-btn[data-tab="controls"]').click();
     const commandBar = page.locator('.reader-command-bar');
     const contextCard = page.locator('.reader-context-card');
     await expect(commandBar).toBeVisible();
@@ -43,19 +38,24 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(readingProgress).toHaveCSS('display', 'none');
   });
 
-  test('should reveal the search field from the search tab', async ({ page }) => {
-    await page.locator('#bottomNav .bottom-nav-btn[data-tab="search"]').click();
+  test('should reveal the search field via the header search trigger', async ({ page }) => {
+    // The search input is inside the always-visible reader tools and expands
+    // from the header search trigger (no bottom nav needed).
+    await page.locator('#searchToggleBtn').click();
     await expect(page.locator('#searchInput')).toBeVisible();
   });
 
-  test('should expand the player from the player tab', async ({ page }) => {
-    await page.locator('#bottomNav .bottom-nav-btn[data-tab="player"]').click();
+  test('should expand the player from its collapsed state', async ({ page }) => {
+    // On mobile the player starts collapsed; tapping the collapsed bar expands it.
+    await expect(page.locator('#player')).toHaveClass(/collapsed/);
+    await page.locator('#collapsedInfo').click();
     await expect(page.locator('#player')).not.toHaveClass(/collapsed/);
     await expect(page.locator('#playPauseBtn')).toBeVisible();
   });
 
   test('should reveal the repeat range controls when repeat is enabled', async ({ page }) => {
-    await page.locator('#bottomNav .bottom-nav-btn[data-tab="player"]').click();
+    // Expand the collapsed player so the full controls are available.
+    await page.locator('#collapsedInfo').click();
     await expect(page.locator('#repeatBtn')).toBeVisible();
 
     await page.locator('#repeatBtn').click();

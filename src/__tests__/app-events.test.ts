@@ -846,17 +846,17 @@ describe('app-events', () => {
       expect(closeAdhkarPanel).toHaveBeenCalled();
     });
 
-    it('should keep the adhkar panel open when the mobile adhkar tab is pressed', async () => {
+    it('should keep the adhkar panel open when clicking inside it', async () => {
       dom.adhkarPanel!.classList.add('open');
-      const mobileAdhkarTab = document.createElement('button');
-      mobileAdhkarTab.dataset['tab'] = 'more';
-      document.body.appendChild(mobileAdhkarTab);
+      const innerButton = document.createElement('button');
+      innerButton.textContent = 'تبويب أذكار (الجوال)';
+      dom.adhkarPanel!.appendChild(innerButton);
       const { bindGlobalClickHandler } = await import('../app-events.js');
       bindGlobalClickHandler();
-      mobileAdhkarTab.click();
+      innerButton.click();
       const { closeAdhkarPanel } = await import('../adhkar.js');
       expect(closeAdhkarPanel).not.toHaveBeenCalled();
-      mobileAdhkarTab.remove();
+      innerButton.remove();
     });
   });
 

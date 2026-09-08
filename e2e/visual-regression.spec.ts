@@ -43,16 +43,6 @@ test.describe('Visual Regression', () => {
     }
   });
 
-  test('bottom navigation', async ({ page }) => {
-    const bottomNav = page.locator('.bottom-nav');
-    if (await bottomNav.isVisible()) {
-      await expect(bottomNav).toHaveScreenshot('bottom-nav.png', {
-        maxDiffPixelRatio: 0.15,
-        threshold: 0.3,
-      });
-    }
-  });
-
   test('header area', async ({ page }) => {
     const header = page.locator('.header');
     if (await header.isVisible()) {

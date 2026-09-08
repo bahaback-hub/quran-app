@@ -5,7 +5,7 @@ import { test, expect } from './fixtures/mock-network';
 // pointer interception, sub-pixel layout differences). They still run
 // locally for development feedback.
 
-test.describe('التنقل السفلي (جوال)', () => {
+test.describe('أدوات القراءة على الجوال', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
@@ -15,31 +15,13 @@ test.describe('التنقل السفلي (جوال)', () => {
     });
   });
 
-  test('شريط التنقل السفلي مرئي', async ({ page }) => {
-    await expect(page.locator('#bottomNav')).toBeVisible();
+  test('لا يوجد شريط تنقل سفلي', async ({ page }) => {
+    await expect(page.locator('#bottomNav')).toHaveCount(0);
   });
 
-  test('يحتوي على 5 أزرار', async ({ page }) => {
-    const btns = page.locator('#bottomNav .bottom-nav-btn');
-    await expect(btns).toHaveCount(5);
-  });
-
-  test('النقر على زر المشغل يظهر خيار المشغل', async ({ page }) => {
-    // Ensure all panels are closed before clicking
-    await page.evaluate(() => {
-      document.body.classList.remove('panel-open', 'tafsir-only-open');
-      document.querySelectorAll('.settings-panel.open, .favorites-panel.open, .adhkar-panel.open, .tafsir-curtain.open, .help-panel.open, .mushaf-surah-overlay.open, .sleep-timer-overlay.open')
-        .forEach(el => el.classList.remove('open'));
-    });
-    await page.waitForTimeout(500);
-    // Dispatch click event directly via JS (bypasses Playwright visibility checks)
-    await page.evaluate(() => {
-      const btn = document.querySelector('#bottomNav .bottom-nav-btn[data-tab="player"]');
-      if (btn) {
-        btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-      }
-    });
-    await expect(page.locator('#player')).toBeVisible({ timeout: 10000 });
+  test('أدوات القراءة ظاهرة مباشرة', async ({ page }) => {
+    await expect(page.locator('#controls')).toBeVisible();
+    await expect(page.locator('#surahSelect')).toBeVisible();
   });
 });
 
@@ -107,16 +89,16 @@ test.describe('التوافق — أوضاع مختلفة', () => {
     expect(box.x + box.width).toBeLessThanOrEqual(322);
   });
 
-  test('شريط التنقل السفلي مخفي على الشاشة الكبيرة (1920×1080)', async ({ page }) => {
+  test('أدوات القراءة ظاهرة على الشاشة الكبيرة (1920×1080)', async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto('/');
-    await expect(page.locator('#bottomNav')).toBeHidden();
+    await expect(page.locator('#controls')).toBeVisible();
   });
 
-  test('شريط التنقل السفلي ظاهر على الجوال (390×844)', async ({ page }) => {
+  test('أدوات القراءة ظاهرة على الجوال (390×844)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    await expect(page.locator('#bottomNav')).toBeVisible();
+    await expect(page.locator('#controls')).toBeVisible();
   });
 
   test('شكل الجوال لا يُفرض على شاشة كبيرة حتى داخل بيئة Capacitor', async ({ page }) => {
@@ -128,7 +110,6 @@ test.describe('التوافق — أوضاع مختلفة', () => {
       document.body.classList.add('capacitor-native');
       document.documentElement.classList.add('capacitor-native');
     });
-    await expect(page.locator('#bottomNav')).toBeHidden();
     // The container must not be forced to phone width.
     const width = await page.evaluate(() =>
       document.querySelector('.container').getBoundingClientRect().width
@@ -143,7 +124,7 @@ test.describe('التوافق — أوضاع مختلفة', () => {
       document.body.classList.add('capacitor-native');
       document.documentElement.classList.add('capacitor-native');
     });
-    await expect(page.locator('#bottomNav')).toBeVisible();
+    await expect(page.locator('#controls')).toBeVisible();
   });
 
   test('الحاوية تتسع على الشاشة الواسعة (≥1440)', async ({ page }) => {

@@ -945,12 +945,10 @@ export function bindGlobalClickHandler(): void {
     }
     const isSettingsTrigger =
       settingsTarget === dom.settingsToggleBtn ||
-      settingsTarget.closest?.('#settingsToggleBtn') !== null ||
-      settingsTarget.closest?.('[data-tab="more"]');
+      settingsTarget.closest?.('#settingsToggleBtn') !== null;
     const isAdhkarTrigger =
       settingsTarget === dom.adhkarBtn ||
-      settingsTarget.closest?.('#adhkarBtn') !== null ||
-      settingsTarget.closest?.('[data-tab="more"]');
+      settingsTarget.closest?.('#adhkarBtn') !== null;
     if (
       dom.settingsPanel?.classList.contains('open') &&
       !dom.settingsPanel.contains(e.target as Node) &&

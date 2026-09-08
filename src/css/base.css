@@ -188,10 +188,3 @@ noscript > div {
 .icon-play {
   color: inherit;
 }
-
-body:not(.night-mode) .bottom-nav-btn .icon-nav {
-  color: rgba(255, 255, 255, 0.8);
-}
-body:not(.night-mode) .bottom-nav-btn.active .icon-nav {
-  color: #fff;
-}

@@ -52,7 +52,6 @@ body.night-mode.deep-night-mode .mushaf-page-canvas {
 }
 body.night-mode.deep-night-mode .control-card,
 body.night-mode.deep-night-mode .player,
-body.night-mode.deep-night-mode .bottom-nav,
 body.night-mode.deep-night-mode .footer {
   background: transparent;
   border-color: rgba(194, 158, 82, 0.2);
@@ -198,14 +197,6 @@ body.night-mode .player {
   -webkit-backdrop-filter: blur(14px);
   border-top: 2px solid rgba(212, 175, 55, 0.4);
   box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.35);
-}
-
-/* شريط التنقل السفلي */
-body.night-mode .bottom-nav {
-  background: rgba(14, 18, 32, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-top: 2px solid rgba(212, 175, 55, 0.4);
 }
 
 /* ========== اللوحات الجانبية ========== */
@@ -516,14 +507,6 @@ body.night-mode .settings-close:hover,
 body.night-mode .favorites-close:hover,
 body.night-mode .adhkar-close:hover {
   transform: scale(1.1) rotate(90deg);
-}
-
-body.night-mode .bottom-nav button {
-  transition: all 0.2s ease;
-}
-
-body.night-mode .bottom-nav button:hover {
-  transform: translateY(-2px);
 }
 
 /* ========== تحسين تباين الأزرار في الوضع الليلي ========== */

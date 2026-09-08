@@ -1,7 +1,7 @@
 /**
  * Comprehensive tests for navigation.ts — Navigation controller for the Quran app.
  * Covers: initNavigation, surah nav buttons, player controls, view mode toggles,
- * page selectors, bottom navigation tab bar, and mushaf mode restoration.
+ * page selectors, and mushaf mode restoration.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -324,167 +324,6 @@ describe('navigation-full', () => {
     });
   });
 
-  /* ===================== Bottom Navigation ===================== */
-
-  describe('bottom navigation', () => {
-    it('should handle quran tab click', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const btnQuran = document.createElement('button');
-      btnQuran.className = 'bottom-nav-btn';
-      btnQuran.dataset.tab = 'quran';
-      bottomNav.appendChild(btnQuran);
-      document.body.appendChild(bottomNav);
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      // First switch to 'controls' to change activeTab away from 'quran'
-      const btnControls = document.createElement('button');
-      btnControls.className = 'bottom-nav-btn';
-      btnControls.dataset.tab = 'controls';
-      bottomNav.appendChild(btnControls);
-      btnControls.click();
-      btnQuran.click();
-      expect(dom.surahContent!.scrollIntoView).toHaveBeenCalled();
-      expect(dom.controls!.classList.contains('mobile-show')).toBe(false);
-    });
-
-    it('should handle player tab click', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const btn = document.createElement('button');
-      btn.className = 'bottom-nav-btn';
-      btn.dataset.tab = 'player';
-      bottomNav.appendChild(btn);
-      document.body.appendChild(bottomNav);
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      btn.click();
-      expect(expandPlayer).toHaveBeenCalled();
-      expect(dom.player!.scrollIntoView).toHaveBeenCalled();
-      expect(dom.controls!.classList.contains('mobile-show')).toBe(false);
-    });
-
-    it('should handle controls tab click', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const btn = document.createElement('button');
-      btn.className = 'bottom-nav-btn';
-      btn.dataset.tab = 'controls';
-      bottomNav.appendChild(btn);
-      document.body.appendChild(bottomNav);
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      btn.click();
-      expect(dom.controls!.classList.contains('mobile-show')).toBe(true);
-    });
-
-    it('should toggle mobile-show on repeated controls tab click', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const btn = document.createElement('button');
-      btn.className = 'bottom-nav-btn';
-      btn.dataset.tab = 'controls';
-      bottomNav.appendChild(btn);
-      document.body.appendChild(bottomNav);
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      btn.click();
-      expect(dom.controls!.classList.contains('mobile-show')).toBe(true);
-      btn.click();
-      expect(dom.controls!.classList.contains('mobile-show')).toBe(false);
-    });
-
-    it('should handle search tab click', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const btn = document.createElement('button');
-      btn.className = 'bottom-nav-btn';
-      btn.dataset.tab = 'search';
-      bottomNav.appendChild(btn);
-      document.body.appendChild(bottomNav);
-      const headerSearch = document.createElement('div');
-      headerSearch.id = 'headerSearch';
-      document.body.appendChild(headerSearch);
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      dom.searchInputGroup!.classList.add('hidden');
-      btn.click();
-      expect(headerSearch.classList.contains('is-expanded')).toBe(true);
-      expect(dom.searchToggleBtn!.getAttribute('aria-expanded')).toBe('true');
-    });
-
-    it('should handle more tab click (opens adhkar panel)', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const btn = document.createElement('button');
-      btn.className = 'bottom-nav-btn';
-      btn.dataset.tab = 'more';
-      bottomNav.appendChild(btn);
-      document.body.appendChild(bottomNav);
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      btn.click();
-      // 'more' tab now opens adhkar panel (was openSettings before)
-      // Verify controls are hidden (mobile-show removed)
-      expect(dom.controls!.classList.contains('mobile-show')).toBe(false);
-    });
-
-    it('should ignore clicks on non-button elements in bottom nav', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const span = document.createElement('span');
-      span.textContent = 'not a button';
-      bottomNav.appendChild(span);
-      document.body.appendChild(bottomNav);
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      span.click();
-      // Should not throw or call any navigation functions
-    });
-
-    it('should ignore clicks on buttons without tab dataset', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const btn = document.createElement('button');
-      btn.className = 'bottom-nav-btn';
-      // No dataset.tab
-      bottomNav.appendChild(btn);
-      document.body.appendChild(bottomNav);
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      btn.click();
-      // Should not throw
-    });
-
-    it('should handle default case (unknown tab)', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const btn = document.createElement('button');
-      btn.className = 'bottom-nav-btn';
-      btn.dataset.tab = 'unknown';
-      bottomNav.appendChild(btn);
-      document.body.appendChild(bottomNav);
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      expect(() => btn.click()).not.toThrow();
-    });
-
-    it('should handle bottom nav click when bottomNav is null', async () => {
-      // No bottomNav element in the DOM
-      const { initNavigation } = await import('../navigation.js');
-      expect(() => initNavigation()).not.toThrow();
-    });
-  });
-
   /* ===================== Mushaf Mode Restoration ===================== */
 
   describe('mushaf mode restoration', () => {
@@ -526,23 +365,6 @@ describe('navigation-full', () => {
 
       const { initNavigation } = await import('../navigation.js');
       expect(() => initNavigation()).not.toThrow();
-    });
-
-    it('should handle search tab when search input group is already visible', async () => {
-      const bottomNav = document.createElement('div');
-      bottomNav.id = 'bottomNav';
-      const btn = document.createElement('button');
-      btn.className = 'bottom-nav-btn';
-      btn.dataset.tab = 'search';
-      bottomNav.appendChild(btn);
-      document.body.appendChild(bottomNav);
-
-      dom.searchInputGroup!.classList.remove('hidden');
-
-      const { initNavigation } = await import('../navigation.js');
-      initNavigation();
-      btn.click();
-      // Should still focus the search input
     });
 
     it('should handle viewSurahBtn when in mushafMode', async () => {

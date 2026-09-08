@@ -1233,75 +1233,8 @@ body {
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
   /* Safe area padding for Capacitor/Android status bar */
-  padding-top: env(safe-area-inset-top, 0);
-}
-
-/* البوتوم ناف — أيقونات أكبر وإحساس تطبيقي */
-.bottom-nav-btn {
-  position: relative;
-  gap: 2px;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-.bottom-nav-btn:active {
-  transform: scale(0.94);
-}
-.bottom-nav-btn span {
-  font-weight: 500;
-  letter-spacing: 0.3px;
-}
-
-/* ========== شريط التنقل السفلي (جوال/تابلت) ========== */
-.bottom-nav {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--header-bg);
-  border-top: 3px solid var(--accent);
-  z-index: 5000;
-  justify-content: space-around;
-  align-items: stretch;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
-  direction: rtl;
-  /* Safe area for Android gesture navigation */
-  padding-bottom: env(safe-area-inset-bottom, 0);
-  /* CLS: Fixed height prevents layout shift when nav appears */
-  height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0));
-  min-height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0));
-}
-.bottom-nav-btn {
-  background: none;
-  border: none;
-  color: var(--header-text);
-  opacity: 0.6;
-  padding: 6px 8px 4px;
-  font-size: 18px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  flex: 1;
-  border-top: 3px solid transparent;
-  margin-top: -3px;
-}
-.bottom-nav-btn span {
-  font-size: 9px;
-  font-weight: bold;
-  white-space: nowrap;
-}
-.bottom-nav-btn:hover {
-  opacity: 0.9;
-}
-.bottom-nav-btn.active {
-  opacity: 1;
-  border-top-color: var(--accent);
-  background: rgba(255, 255, 255, 0.08);
-}
+padding-top: env(safe-area-inset-top, 0);
+  }
 
 /* ========== شريط تقدم القراءة ========== */
 .reading-progress {

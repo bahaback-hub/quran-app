@@ -278,6 +278,9 @@ body.night-mode .keyboard-hint {
   max-width: 90vw;
   text-align: center;
 }
+.toast:not(.show) {
+  pointer-events: none;
+}
 .toast.show {
   transform: translateX(-50%) translateY(0);
   opacity: 1;

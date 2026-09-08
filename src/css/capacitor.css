@@ -2,21 +2,16 @@
 
 /* Detect Capacitor native environment */
 :root {
-  --capacitor-bottom-nav: 56px;
-  --capacitor-player-offset: 56px;
+  --capacitor-player-offset: env(safe-area-inset-bottom, 0);
 }
 
-/* Capacitor-specific mobile chrome: bottom nav, player offsets and body
-   clearance apply ONLY to the phone viewport (<=600px). On wide WebViews
-   (tablets, large screens, TV) the responsive desktop layout applies so the
-   app no longer behaves like a phone on a big display. */
+/* Capacitor-specific mobile chrome: player offsets and body clearance apply
+   ONLY to the phone viewport (<=600px). On wide WebViews (tablets, large
+   screens, TV) the responsive desktop layout applies so the app no longer
+   behaves like a phone on a big display. */
 @media (max-width: 600px) {
   /* In Capacitor, the WebView is always "mobile-like" but we need full UI */
   body.capacitor-native .controls {
-    display: flex !important;
-  }
-
-  body.capacitor-native .bottom-nav {
     display: flex !important;
   }
 

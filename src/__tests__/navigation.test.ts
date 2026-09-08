@@ -70,61 +70,6 @@ describe('initNavigation', () => {
     expect(dom.player!.classList.contains('collapsed')).toBe(true);
   });
 
-  it('should navigate on bottom nav tab click', async () => {
-    const bottomNav = document.createElement('div');
-    bottomNav.id = 'bottomNav';
-    const btnQuran = document.createElement('button');
-    btnQuran.className = 'bottom-nav-btn';
-    btnQuran.dataset.tab = 'quran';
-    const btnControls = document.createElement('button');
-    btnControls.className = 'bottom-nav-btn';
-    btnControls.dataset.tab = 'controls';
-    bottomNav.appendChild(btnQuran);
-    bottomNav.appendChild(btnControls);
-    document.body.appendChild(bottomNav);
-
-    const { initNavigation } = await import('../navigation.js');
-    initNavigation();
-    // First switch to 'controls' to change activeTab away from 'quran'
-    btnControls.click();
-    // Now 'quran' should trigger the switch case
-    btnQuran.click();
-    expect(dom.surahContent!.scrollIntoView).toHaveBeenCalled();
-  });
-
-  it('should handle player tab in bottom nav', async () => {
-    const bottomNav = document.createElement('div');
-    bottomNav.id = 'bottomNav';
-    const btn = document.createElement('button');
-    btn.className = 'bottom-nav-btn';
-    btn.dataset.tab = 'player';
-    bottomNav.appendChild(btn);
-    document.body.appendChild(bottomNav);
-
-    const { initNavigation } = await import('../navigation.js');
-    initNavigation();
-    btn.click();
-    expect(dom.player!.scrollIntoView).toHaveBeenCalled();
-  });
-
-  it('should handle search tab in bottom nav', async () => {
-    const bottomNav = document.createElement('div');
-    bottomNav.id = 'bottomNav';
-    const btn = document.createElement('button');
-    btn.className = 'bottom-nav-btn';
-    btn.dataset.tab = 'search';
-    bottomNav.appendChild(btn);
-    document.body.appendChild(bottomNav);
-    const headerSearch = document.createElement('div');
-    headerSearch.id = 'headerSearch';
-    document.body.appendChild(headerSearch);
-
-    const { initNavigation } = await import('../navigation.js');
-    initNavigation();
-    btn.click();
-    expect(headerSearch.classList.contains('is-expanded')).toBe(true);
-  });
-
   it('should handle speed select change', async () => {
     const { initNavigation } = await import('../navigation.js');
     initNavigation();
