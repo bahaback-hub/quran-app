@@ -16,8 +16,8 @@ import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from './app.js';
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from './audio.js';
 import { handlePageClick, getAyahHighlightRects } from './ayah-click.js';
-import { renderPage, loadPageData, releaseCanvas, getCanvas } from './mushaf-renderer.js';
-import type { PageLayoutData } from './mushaf-renderer.js';
+import { renderPage, loadPageData, releaseCanvas, getCanvas, computeMushafPageGeometry } from './mushaf-renderer.js';
+import type { PageLayoutData, MushafLineLayout } from './mushaf-renderer.js';
 import { loadTafsirForSurahAyah } from './tafsir.js';
 import { __ } from './i18n.js';
 import { updateReaderZoomControl } from './settings.js';
@@ -273,6 +273,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   if (!dom.surahContent) {
     return;
   }
+  _mushafGeomCache.clear();
   const juz = getJuzForPage(pageNum);
 
   const container = document.createElement('div');
@@ -307,6 +308,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
       rect.width,
       rect.height,
       pageLayout,
+      getMushafPageGeometry(canvas, pageNum),
     )) as AyahClickResult | null;
     if (result) {
       playMushafAyah(result.surah, result.ayah);
@@ -538,6 +540,34 @@ export function showSurahSecret(surahNum: number, surahName?: string): void {
 
 /* ===================== HIGHLIGHT MUSHAF AYAH ===================== */
 
+/** Cached measured page geometry keyed by `${pageNum}:${renderToken}`. */
+const _mushafGeomCache = new Map<string, MushafLineLayout>();
+
+/**
+ * Return the measured geometry of the current page (exact pixel layout), or
+ * null when it cannot be measured (no canvas context / mocked renderer).
+ */
+function getMushafPageGeometry(canvasEl: HTMLCanvasElement, pageNum: number): MushafLineLayout | null {
+  const layout = state.currentPageLayout;
+  if (!layout || typeof computeMushafPageGeometry !== 'function') {
+    return null;
+  }
+  const key = `${pageNum}:${canvasEl.dataset['renderToken'] ?? ''}`;
+  const cached = _mushafGeomCache.get(key);
+  if (cached) {
+    return cached;
+  }
+  const ctx = canvasEl.getContext('2d');
+  if (!ctx) {
+    return null;
+  }
+  const geometry = computeMushafPageGeometry(ctx, layout, pageNum);
+  if (geometry && geometry.lines.length) {
+    _mushafGeomCache.set(key, geometry);
+  }
+  return geometry;
+}
+
 /** Update the mushaf page highlight overlay to mark the current ayah. */
 export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
   if (!state.mushafMode) {
@@ -597,6 +627,7 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
     rect.width,
     rect.height,
     state.currentPageLayout,
+    getMushafPageGeometry(canvasEl, state.currentPage),
   )) as AyahHighlightRect[];
   if (!rects.length) {
     return;

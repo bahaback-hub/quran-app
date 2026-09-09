@@ -1,4 +1,5 @@
-import { getLineY } from './mushaf-renderer.js';
+import { getLineY, CANVAS_W, CANVAS_H } from './mushaf-renderer.js';
+import type { MushafLineLayout } from './mushaf-renderer.js';
 
 /** Result of an ayah lookup from a click. */
 interface AyahInfo {
@@ -54,6 +55,67 @@ function getAyahFromWord(word: LayoutWord): AyahInfo | null {
   return null;
 }
 
+function ayahKeyMatches(verseKey: string | undefined, location: string | undefined, surah: number, ayah: number): boolean {
+  const key = verseKey || location;
+  if (!key) {
+    return false;
+  }
+  const parts = key.split(':');
+  if (parts.length < 2) {
+    return false;
+  }
+  return parseInt(parts[0]!, 10) === surah && parseInt(parts[1]!, 10) === ayah;
+}
+
+/** Highlight rects computed from the measured page geometry (exact pixel bounds). */
+function getMeasuredAyahHighlightRects(
+  geometry: MushafLineLayout,
+  surah: number,
+  ayah: number,
+  imgWidth: number,
+  imgHeight: number,
+): HighlightRect[] {
+  const scaleX = imgWidth / CANVAS_W;
+  const scaleY = imgHeight / CANVAS_H;
+  const rects: HighlightRect[] = [];
+
+  for (const lineBox of geometry.lines) {
+    if (lineBox.words[0]?.type === 'bismillah') {
+      continue;
+    }
+    let minX = Infinity;
+    let maxX = -Infinity;
+    for (const box of lineBox.words) {
+      // On the opening pages the surah header is drawn centered as its own
+      // decoration, so exclude it from flowing ayah bounds.
+      if (geometry.isOpeningPage && box.type === 'surah_header') {
+        continue;
+      }
+      if (!ayahKeyMatches(box.verse_key, box.location, surah, ayah)) {
+        continue;
+      }
+      const left = box.x - box.width;
+      if (left < minX) {
+        minX = left;
+      }
+      if (box.x > maxX) {
+        maxX = box.x;
+      }
+    }
+    if (!(maxX > minX)) {
+      continue;
+    }
+    rects.push({
+      left: minX * scaleX,
+      top: lineBox.y * scaleY,
+      width: (maxX - minX) * scaleX,
+      height: lineBox.lineHeight * scaleY,
+    });
+  }
+
+  return rects;
+}
+
 export async function handlePageClick(
   pageNum: number,
   clickX: number,
@@ -61,6 +123,7 @@ export async function handlePageClick(
   imgWidth: number,
   imgHeight: number,
   layout: PageLayout | null,
+  geometry?: MushafLineLayout | null,
 ): Promise<AyahInfo | null> {
   if (!layout) {
     return null;
@@ -68,6 +131,34 @@ export async function handlePageClick(
 
   const totalLines = layout.lines.length;
   if (totalLines === 0) {
+    return null;
+  }
+
+  // Measured path — hit-tests the exact painted word boxes.
+  if (geometry) {
+    const scaleX = imgWidth / CANVAS_W;
+    const scaleY = imgHeight / CANVAS_H;
+    for (const lineBox of geometry.lines) {
+      if (lineBox.words.length === 0) {
+        continue;
+      }
+      const top = lineBox.y * scaleY;
+      const bottom = top + lineBox.lineHeight * scaleY;
+      if (clickY < top || clickY > bottom) {
+        continue;
+      }
+      for (const box of lineBox.words) {
+        if (box.type === 'bismillah') {
+          continue;
+        }
+        const left = (box.x - box.width) * scaleX;
+        const right = box.x * scaleX;
+        if (clickX >= left && clickX <= right) {
+          return getAyahFromWord(box);
+        }
+      }
+      return null;
+    }
     return null;
   }
 
@@ -126,6 +217,7 @@ export async function getAyahHighlightRects(
   imgWidth: number,
   imgHeight: number,
   layout: PageLayout | null,
+  geometry?: MushafLineLayout | null,
 ): Promise<HighlightRect[]> {
   if (!layout) {
     return [];
@@ -135,6 +227,12 @@ export async function getAyahHighlightRects(
   if (totalLines === 0) {
     return [];
   }
+
+  // Measured path — exact ayah bounds matching the painted pixels.
+  if (geometry) {
+    return getMeasuredAyahHighlightRects(geometry, surah, ayah, imgWidth, imgHeight);
+  }
+
   const lineHeight = imgHeight / totalLines;
 
   const rects: HighlightRect[] = [];
