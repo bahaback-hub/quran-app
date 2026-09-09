@@ -12,9 +12,9 @@
   "source": {
     "repository": "https://github.com/MohamadHajjRabee/quran-qcf4",
     "commit": "5130511027e769f0a8f4eeb7f00f46bde3788d60",
-    "rawBaseUrl": "https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/5130511027e769f0a8f4eeb7f00f46bde3788d60",
+    "rawBaseUrl": "https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@5130511027e769f0a8f4eeb7f00f46bde3788d60",
     "dataLicense": "MIT",
-    "dataLicenseUrl": "https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/5130511027e769f0a8f4eeb7f00f46bde3788d60/LICENSE.md",
+    "dataLicenseUrl": "https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@5130511027e769f0a8f4eeb7f00f46bde3788d60/LICENSE.md",
     "attribution": "Copyright (c) 2026 Mohamad Hajj Rabee. Page data and schemas are licensed under MIT.",
     "fontNotice": "QCF4 font files are excluded. The upstream license states that redistributing font files requires explicit permission from the original rights holders."
   },
