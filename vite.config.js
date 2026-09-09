@@ -171,6 +171,10 @@ export default defineConfig({
           '**/*.mp3',             // Audio files — runtime cached
           '**/*.ttf',             // Fonts — runtime cached via CacheFirst
           '**/fonts/qcf4/**',     // Downloaded together only when the user enables offline Mushaf
+          // Landing-preview copy of the sulaymani logo — the app uses the
+          // hashed asset (assets/mushaf-...-SK6DYjQy.png) instead. Precacheing
+          // both identical 2MB copies wasted ~2MB of install payload.
+          '**/brand/mushaf-sulaymani-transparent-final.png',
         ],
         offlineGoogleAnalytics: false,
         navigateFallback: 'index.html',
