@@ -150,7 +150,7 @@ describe('getLineY', () => {
 
 describe('computeMushafLineLayout', () => {
   const fakeCtx = {
-    measureText: (s: string) => ({ width: Array.from(s).length * 10 }),
+    measureText: (s: string) => ({ width: Array.from(s).length * 10, actualBoundingBoxAscent: 40, actualBoundingBoxDescent: 6 }),
   } as unknown as CanvasRenderingContext2D;
 
   const mkData = (lines: PageLayoutData['lines'], font = 'QCF4_Hafs_01'): PageLayoutData => ({ font, lines });
@@ -173,6 +173,9 @@ describe('computeMushafLineLayout', () => {
     const last = line.words[2]!;
     expect(last.x - last.width).toBeCloseTo(30, 3);
     expect(layout.isOpeningPage).toBe(false);
+    // ink band recorded from the measured glyph metrics
+    expect(line.inkAscent).toBe(40);
+    expect(line.inkDescent).toBe(6);
   });
 
   it('matches getLineY vertical positions on short pages', () => {

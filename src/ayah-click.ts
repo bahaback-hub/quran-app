@@ -105,12 +105,18 @@ function getMeasuredAyahHighlightRects(
     if (!(maxX > minX)) {
       continue;
     }
-    rects.push({
-      left: minX * scaleX,
-      top: lineBox.y * scaleY,
-      width: (maxX - minX) * scaleX,
-      height: lineBox.lineHeight * scaleY,
-    });
+    const ascent = lineBox.inkAscent ?? 0;
+    const descent = lineBox.inkDescent ?? 0;
+    let top = lineBox.y * scaleY;
+    let height = lineBox.lineHeight * scaleY;
+    if (ascent > 0 || descent > 0) {
+      // Clamp the bar around the actual ink band instead of the whole line
+      // slot: the text is drawn with textBaseline 'middle', so the real glyphs
+      // span [y - ascent, y + descent].
+      top = (lineBox.y - ascent) * scaleY;
+      height = (ascent + descent) * scaleY;
+    }
+    rects.push({ left: minX * scaleX, top, width: (maxX - minX) * scaleX, height });
   }
 
   return rects;
