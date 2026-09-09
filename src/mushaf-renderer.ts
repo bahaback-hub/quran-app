@@ -44,6 +44,40 @@ export interface PageLayoutData {
   lines: PageLine[];
 }
 
+/** A single word laid out on a mushaf line with its measured geometry (canvas px). */
+export interface PageWordBox {
+  /** Right edge of the word box (text is right-aligned at this x). */
+  x: number;
+  /** Measured glyph width in canvas pixels. */
+  width: number;
+  char?: string;
+  font: string;
+  type?: string;
+  verse_key?: string;
+  location?: string;
+  word?: string;
+}
+
+/** A single laid-out mushaf line (canvas px coordinates). */
+export interface PageLineBox {
+  y: number;
+  lineHeight: number;
+  gap: number;
+  totalWidth: number;
+  words: PageWordBox[];
+}
+
+/** Full measured layout of a mushaf page — mirrors exactly how the page is painted. */
+export interface MushafLineLayout {
+  lines: PageLineBox[];
+  isOpeningPage: boolean;
+  isShortPage: boolean;
+  stdLineHeight: number;
+  pageFontSize: number;
+  availableW: number;
+  textRight: number;
+}
+
 /** Result of rendering a mushaf page. */
 export interface RenderPageResult {
   canvas: HTMLCanvasElement | null;
@@ -56,12 +90,6 @@ interface PageColors {
   txt: string;
   frame: string;
   frameInner: string;
-}
-
-/** Measured widths for a single line's words. */
-interface LineWidths {
-  widths: number[];
-  gap: number;
 }
 
 /* ===================== CONSTANTS ===================== */
@@ -792,6 +820,88 @@ export function getLineY(lineIndex: number, lineCount: number, imgHeight: number
   return (y / CANVAS_H) * imgHeight;
 }
 
+/**
+ * Lay out every line/word of a page using the SAME geometry the painter uses
+ * (real measured glyph widths, justified gaps, opening-page centering). This is
+ * the single source of truth for coordinates, so the highlight overlay and
+ * click hit-testing can never drift away from the painted pixels.
+ *
+ * The returned array keeps the same index order as `data.lines`.
+ */
+export function computeMushafLineLayout(
+  ctx: CanvasRenderingContext2D,
+  data: PageLayoutData,
+  pageNum: number,
+  pageFont: string,
+): MushafLineLayout {
+  const lines = data.lines;
+  if (!lines || lines.length === 0) {
+    return { lines: [], isOpeningPage: false, isShortPage: false, stdLineHeight: 0, pageFontSize: 0, availableW: 0, textRight: 0 };
+  }
+
+  const lineCount = lines.length;
+  const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
+  const isOpeningPage = pageNum === 1 || pageNum === 2;
+  const availableW = (CANVAS_W - PAD_H * 2) * (isOpeningPage ? OPENING_PAGE_TEXT_SCALE : 1);
+  const textRight = (CANVAS_W + availableW) / 2;
+
+  const stdLineHeight = usableHeight / STD_LINES;
+  const baseFontSize = Math.max(26, Math.min(55, stdLineHeight * 0.85));
+  const pageFontSize = baseFontSize * (isOpeningPage ? OPENING_PAGE_TEXT_SCALE : 1);
+
+  const isShortPage = lineCount < STD_LINES;
+  const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / Math.max(1, lineCount - 1) : stdLineHeight;
+
+  const layout: PageLineBox[] = [];
+
+  for (let i = 0; i < lineCount; i++) {
+    const line = lines[i];
+    if (!line?.words || line.words.length === 0) {
+      layout.push({ y: TOP_OFFSET + i * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2), lineHeight: lineSpacing, gap: 0, totalWidth: 0, words: [] });
+      continue;
+    }
+
+    const widths = measureLine(ctx, line.words, pageFont, pageFontSize);
+    const totalW = widths.reduce((a: number, b: number) => a + b, 0);
+    const gap = isOpeningPage
+      ? pageFontSize * OPENING_PAGE_WORD_GAP_SCALE
+      : line.words.length > 1
+        ? (availableW - totalW) / (line.words.length - 1)
+        : 0;
+    const gapFinal = Math.max(0, gap);
+    const totalWidth = totalW + gapFinal * Math.max(0, line.words.length - 1);
+    const startX = isOpeningPage ? CANVAS_W / 2 + totalWidth / 2 : textRight;
+    const y = TOP_OFFSET + i * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2);
+
+    const words: PageWordBox[] = [];
+    let x = startX;
+    for (let j = 0; j < line.words.length; j++) {
+      const w = line.words[j]!;
+      words.push({
+        x,
+        width: widths[j]!,
+        char: w.char,
+        font: w.font || pageFont,
+        type: w.type,
+        verse_key: w.verse_key,
+        location: w.location,
+        word: w.word,
+      });
+      x -= widths[j]! + gapFinal;
+    }
+
+    layout.push({ y, lineHeight: lineSpacing, gap: gapFinal, totalWidth, words });
+  }
+
+  return { lines: layout, isOpeningPage, isShortPage, stdLineHeight: lineSpacing, pageFontSize, availableW, textRight };
+}
+
+/** Compute the measured layout for a page with its actual page font. */
+export function computeMushafPageGeometry(ctx: CanvasRenderingContext2D, data: PageLayoutData, pageNum: number): MushafLineLayout {
+  const pageFont = data?.font || getPageFont(pageNum, null);
+  return computeMushafLineLayout(ctx, data, pageNum, pageFont);
+}
+
 /** Pre-compute per-word tajweed coloring data for the entire page. */
 const _pageTajweedCache = new Map<string, { wordIdx: number; lineIdx: number; color: string | null }[] | null>();
 
@@ -893,37 +1003,8 @@ function renderPageContent(
     return;
   }
 
-  const lineCount = lines.length;
-  const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
-  const isOpeningPage = pageNum === 1 || pageNum === 2;
-  const availableW = (CANVAS_W - PAD_H * 2) * (isOpeningPage ? OPENING_PAGE_TEXT_SCALE : 1);
-  const textRight = (CANVAS_W + availableW) / 2;
-
-  const stdLineHeight = usableHeight / STD_LINES;
-  const baseFontSize = Math.max(26, Math.min(55, stdLineHeight * 0.85));
-  const pageFontSize = baseFontSize * (isOpeningPage ? OPENING_PAGE_TEXT_SCALE : 1);
-
-  const isShortPage = lineCount < 15;
-  const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / Math.max(1, lineCount - 1) : stdLineHeight;
-
-  const lineWidths: (LineWidths | null)[] = [];
-  for (let i = 0; i < lineCount; i++) {
-    const line = lines[i];
-    if (!line?.words || line.words.length === 0) {
-      lineWidths.push(null);
-      continue;
-    }
-    const widths = measureLine(ctx, line.words, pageFont, pageFontSize);
-    const totalW = widths.reduce((a: number, b: number) => a + b, 0);
-    // The opening pages use centered, naturally spaced lines like the Madinah Mushaf.
-    // Justifying their short lines would spread the words too far apart.
-    const gap = isOpeningPage
-      ? pageFontSize * OPENING_PAGE_WORD_GAP_SCALE
-      : line.words.length > 1
-        ? (availableW - totalW) / (line.words.length - 1)
-        : 0;
-    lineWidths.push({ widths, gap: Math.max(0, gap) });
-  }
+  const layout = computeMushafLineLayout(ctx, data, pageNum, pageFont);
+  const { pageFontSize, isOpeningPage } = layout;
 
   const tajweedColors = computePageTajweed(data, pageNum);
   const tajweedLookup = new Map<string, string | null>();
@@ -940,21 +1021,15 @@ function renderPageContent(
 
   ctx.textBaseline = 'middle';
 
-  for (let i = 0; i < lineCount; i++) {
+  for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    if (!line?.words || line.words.length === 0) {
+    const lineBox = layout.lines[i];
+    if (!line?.words || !lineBox || lineBox.words.length === 0) {
       continue;
     }
 
-    const y = TOP_OFFSET + i * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2);
-    const words = line.words;
-    const lw = lineWidths[i];
-    if (!lw) {
-      continue;
-    }
-    const { widths, gap } = lw;
-
-    const lineType = words[0]?.type;
+    const y = lineBox.y;
+    const lineType = line.words[0]?.type;
     const isBismillahLine = lineType === 'bismillah';
     const isHeaderLine = lineType === 'surah_header';
 
@@ -967,13 +1042,10 @@ function renderPageContent(
       continue;
     }
 
-    const lineWidth = widths.reduce((total, width) => total + width, 0) + gap * Math.max(0, words.length - 1);
-    let x = isOpeningPage ? CANVAS_W / 2 + lineWidth / 2 : textRight;
-
-    for (let j = 0; j < words.length; j++) {
-      const w = words[j]!;
-      const fn = w.font || pageFont;
-      ctx.font = `${pageFontSize}px "${fn}"`;
+    for (let j = 0; j < lineBox.words.length; j++) {
+      const box = lineBox.words[j]!;
+      const w = line.words[j]!;
+      ctx.font = `${pageFontSize}px "${box.font}"`;
       ctx.textAlign = 'right';
 
       if (isHeaderLine) {
@@ -987,9 +1059,8 @@ function renderPageContent(
         ctx.textAlign = 'center';
         ctx.fillText(w.char, CANVAS_W / 2, y);
       } else {
-        ctx.fillText(w.char, x, y);
+        ctx.fillText(w.char, box.x, y);
       }
-      x -= widths[j]! + gap;
     }
   }
 }

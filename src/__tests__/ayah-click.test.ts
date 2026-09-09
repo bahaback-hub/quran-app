@@ -11,6 +11,8 @@ vi.mock('../mushaf-renderer.js', () => ({
     const lineHeight = imgHeight / _lineCount;
     return lineIndex * lineHeight;
   }),
+  CANVAS_W: 1080,
+  CANVAS_H: 1540,
 }));
 
 import { handlePageClick, getAyahHighlightRects } from '../ayah-click.js';
@@ -610,5 +612,115 @@ describe('ayah-click', () => {
       expect(result1.length).toBeGreaterThan(0);
       expect(result2.length).toBeGreaterThan(0);
     });
+  });
+});
+
+/* ===================== Measured geometry path ===================== */
+
+describe('getAyahHighlightRects with measured geometry', () => {
+  const makeLine = (words: unknown[], over: Record<string, unknown> = {}) => ({
+    y: 100,
+    lineHeight: 80,
+    gap: 10,
+    totalWidth: 300,
+    words,
+    ...over,
+  });
+  const makeWord = (over: Record<string, unknown>) => ({ x: 1050, width: 90, font: 'QCF4_Hafs_01', ...over });
+  const simpleGeometry = (lines: unknown[], isOpeningPage = false) => ({
+    lines,
+    isOpeningPage,
+    isShortPage: false,
+    stdLineHeight: 80,
+    pageFontSize: 52,
+    availableW: 1020,
+    textRight: 1050,
+  });
+  const emptyLayout = makeLayout([{ words: [] }]);
+
+  it('should union the exact word boxes of the target ayah including end markers', async () => {
+    const geometry = simpleGeometry([
+      makeLine([
+        makeWord({ char: 'الم', verse_key: '1:1' }),
+        makeWord({ char: 'حٰم', verse_key: '1:2', x: 940, width: 30 }),
+        makeWord({ char: '١', type: 'end', verse_key: '1:1', x: 900, width: 40 }),
+      ]),
+    ]);
+    // scale 540/1080 = 0.5 horizontally, 770/1540 = 0.5 vertically
+    const result = await getAyahHighlightRects(1, 1, 1, 540, 770, emptyLayout, geometry as never);
+    expect(result.length).toBe(1);
+    expect(result[0]!.left).toBeCloseTo(430, 3); // (900 - 40) × 0.5
+    expect(result[0]!.top).toBeCloseTo(50, 3); // 100 × 0.5
+    expect(result[0]!.width).toBeCloseTo(95, 3); // (1050 - 860) × 0.5
+    expect(result[0]!.height).toBeCloseTo(40, 3); // 80 × 0.5
+  });
+
+  it('should create one rect per line containing a matching ayah', async () => {
+    const geometry = simpleGeometry([
+      makeLine([makeWord({ char: 'a', verse_key: '2:1' })]),
+      makeLine([makeWord({ char: 'b', verse_key: '2:1', x: 900, width: 40 })], { y: 300 }),
+      makeLine([makeWord({ char: 'c', verse_key: '2:2', x: 700 })], { y: 500 }),
+    ]);
+    const result = await getAyahHighlightRects(1, 2, 1, 1080, 1540, emptyLayout, geometry as never);
+    expect(result.length).toBe(2);
+    expect(result[0]!.top).toBe(100);
+    expect(result[1]!.top).toBe(300);
+  });
+
+  it('should skip bismillah lines and centered opening headers', async () => {
+    const geometry = simpleGeometry(
+      [
+        makeLine([makeWord({ char: 'بسملة', type: 'bismillah', verse_key: '1:1' })]),
+        makeLine([makeWord({ char: 'الفاتحة', type: 'surah_header', verse_key: '1:1' })], { y: 300 }),
+        makeLine([makeWord({ char: 'مالك', verse_key: '1:1', x: 800, width: 50 })], { y: 500 }),
+      ],
+      true,
+    );
+    const result = await getAyahHighlightRects(1, 1, 1, 1080, 1540, emptyLayout, geometry as never);
+    expect(result.length).toBe(1);
+    expect(result[0]!.top).toBe(500);
+  });
+
+  it('should return empty when no word matches the ayah', async () => {
+    const geometry = simpleGeometry([makeLine([makeWord({ char: 'الم', verse_key: '3:1' })])]);
+    const result = await getAyahHighlightRects(1, 1, 2, 1080, 1540, emptyLayout, geometry as never);
+    expect(result.length).toBe(0);
+  });
+});
+
+describe('handlePageClick with measured geometry', () => {
+  const geometry = {
+    lines: [
+      {
+        y: 100,
+        lineHeight: 80,
+        gap: 10,
+        totalWidth: 300,
+        words: [
+          { x: 1050, width: 90, font: 'QCF4_Hafs_01', char: 'الم', verse_key: '1:1' },
+          { x: 940, width: 60, font: 'QCF4_Hafs_01', char: 'حٰم', verse_key: '1:2' },
+        ],
+      },
+    ],
+    isOpeningPage: false,
+    isShortPage: false,
+    stdLineHeight: 80,
+    pageFontSize: 52,
+    availableW: 1020,
+    textRight: 1050,
+  };
+  const emptyLayout = makeLayout([{ words: [] }]);
+
+  it('should hit-test the exact scaled word boxes', async () => {
+    // scale 0.5 → band 50..90; word1 480..525, word2 440..470
+    const w1 = await handlePageClick(1, 490, 60, 540, 770, emptyLayout, geometry as never);
+    expect(w1).toEqual({ surah: 1, ayah: 1 });
+    const w2 = await handlePageClick(1, 450, 60, 540, 770, emptyLayout, geometry as never);
+    expect(w2).toEqual({ surah: 1, ayah: 2 });
+  });
+
+  it('should return null for clicks inside the line band but off any word', async () => {
+    const result = await handlePageClick(1, 300, 60, 540, 770, emptyLayout, geometry as never);
+    expect(result).toBeNull();
   });
 });

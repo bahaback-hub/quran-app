@@ -55,8 +55,9 @@ import {
   getCanvas,
   releaseCanvas,
   clearCanvasPool,
+  computeMushafLineLayout,
 } from '../mushaf-renderer.js';
-import type { PageLayoutData } from '../mushaf-renderer.js';
+import type { PageLayoutData, PageWord } from '../mushaf-renderer.js';
 
 describe('Constants', () => {
   it('should have CANVAS_W = 1080', () => {
@@ -144,6 +145,74 @@ describe('getLineY', () => {
     const diff2 = y3 - y2;
     // Should be approximately evenly spaced
     expect(Math.abs(diff1 - diff2)).toBeLessThan(1);
+  });
+});
+
+describe('computeMushafLineLayout', () => {
+  const fakeCtx = {
+    measureText: (s: string) => ({ width: Array.from(s).length * 10 }),
+  } as unknown as CanvasRenderingContext2D;
+
+  const mkData = (lines: PageLayoutData['lines'], font = 'QCF4_Hafs_01'): PageLayoutData => ({ font, lines });
+  const w = (char: string, verseKey = '1:1', type = 'word'): PageWord => ({ char, verse_key: verseKey, type });
+
+  it('fills the available width on a standard page with justified gaps', () => {
+    const layout = computeMushafLineLayout(
+      fakeCtx,
+      mkData([{ words: [w('aaaa'), w('bb', '1:2'), w('c', '1:3')] }]),
+      10,
+      'QCF4_Hafs_01',
+    );
+    const line = layout.lines[0]!;
+    // widths: 40, 20, 10 → totalW 70; availableW = 1080 - 60 = 1020; gap = (1020-70)/2 = 475
+    expect(line.gap).toBeCloseTo(475, 3);
+    expect(line.totalWidth).toBeCloseTo(1020, 3);
+    // first word right edge at textRight = (1080 + 1020) / 2 = 1050
+    expect(line.words[0]!.x).toBeCloseTo(1050, 3);
+    // last word left edge lands at textRight - totalWidth = 30
+    const last = line.words[2]!;
+    expect(last.x - last.width).toBeCloseTo(30, 3);
+    expect(layout.isOpeningPage).toBe(false);
+  });
+
+  it('matches getLineY vertical positions on short pages', () => {
+    const count = 5;
+    const data = mkData(
+      Array.from({ length: count }, (_, i) => ({ words: [w('aa', `1:${i + 1}`)] })),
+    );
+    const layout = computeMushafLineLayout(fakeCtx, data, 42, 'QCF4_Hafs_01');
+    expect(layout.isShortPage).toBe(true);
+    // getLineY(0) is a special case returning 0; the painted first line sits at TOP_OFFSET
+    expect(layout.lines[0]!.y).toBeCloseTo(TOP_OFFSET, 3);
+    for (let i = 1; i < count; i++) {
+      expect(layout.lines[i]!.y).toBeCloseTo(getLineY(i, count, CANVAS_H), 3);
+    }
+  });
+
+  it('centers lines on opening pages and keeps empty-line placeholders', () => {
+    const layout = computeMushafLineLayout(
+      fakeCtx,
+      mkData([
+        { words: [w('aaaa'), w('bb')] },
+        { words: [] },
+        { words: [w('c', '1:3')] },
+      ]),
+      1,
+      'QCF4_Hafs_01',
+    );
+    expect(layout.isOpeningPage).toBe(true);
+    const first = layout.lines[0]!;
+    // centered: startX = CANVAS_W/2 + totalWidth/2
+    expect(first.words[0]!.x).toBeCloseTo(CANVAS_W / 2 + first.totalWidth / 2, 3);
+    // placeholder line kept so indices align with data.lines
+    expect(layout.lines[1]!.words).toHaveLength(0);
+    expect(layout.lines).toHaveLength(3);
+  });
+
+  it('returns an empty layout for a page with no lines', () => {
+    const layout = computeMushafLineLayout(fakeCtx, mkData([]), 10, 'QCF4_Hafs_01');
+    expect(layout.lines).toHaveLength(0);
+    expect(layout.stdLineHeight).toBe(0);
   });
 });
 
