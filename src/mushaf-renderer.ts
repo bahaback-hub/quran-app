@@ -98,7 +98,15 @@ interface PageColors {
 
 /* ===================== CONSTANTS ===================== */
 
-const PAGE_BASE = 'https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/pages/';
+// Page layout JSONs live in the quran-qcf4 GitHub repo. raw.githubusercontent
+// is unreachable on some networks, so we try jsDelivr mirrors first (they
+// mirror the same @main content) and keep the direct GitHub source last.
+const PAGE_SOURCES = [
+  'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages/',
+  'https://fastly.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages/',
+  'https://gcore.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages/',
+  'https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/pages/',
+];
 const BSML_FONT = 'QCF4_QBSML';
 
 // Canvas dimensions — scaled based on device capabilities to reduce memory usage
@@ -226,8 +234,9 @@ function getPageFont(pageNum: number, fontMap: Record<string, string> | null | u
 /** Cache name for page layout JSONs rendered once, then reused offline. */
 const LAYOUT_CACHE_NAME = 'qcf4-page-layouts';
 
-function pageLayoutUrl(pageNum: number): string {
-  return `${PAGE_BASE}${String(pageNum).padStart(3, '0')}.json`;
+function pageLayoutUrls(pageNum: number): string[] {
+  const padded = String(pageNum).padStart(3, '0');
+  return PAGE_SOURCES.map((base) => `${base}${padded}.json`);
 }
 
 /** Read a previously rendered page layout straight from the browser cache. */
@@ -237,9 +246,11 @@ async function cachedPageLayoutData(pageNum: number): Promise<PageLayoutData | n
   }
   try {
     const cache = await globalThis.caches.open(LAYOUT_CACHE_NAME);
-    const res = await cache.match(pageLayoutUrl(pageNum));
-    if (res && res.ok) {
-      return (await res.json()) as PageLayoutData;
+    for (const url of pageLayoutUrls(pageNum)) {
+      const res = await cache.match(url);
+      if (res && res.ok) {
+        return (await res.json()) as PageLayoutData;
+      }
     }
   } catch {
     /* cache is best-effort — fall through to the network */
@@ -247,16 +258,16 @@ async function cachedPageLayoutData(pageNum: number): Promise<PageLayoutData | n
   return null;
 }
 
-/** Fetch a page layout from the remote source with timeout and one retry. */
+/** Fetch a page layout from any available source with a per-source timeout. */
 async function fetchPageLayoutFromNetwork(pageNum: number): Promise<PageLayoutData | null> {
-  const url = pageLayoutUrl(pageNum);
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  const urls = pageLayoutUrls(pageNum);
+  for (const url of urls) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 10_000);
+    const timer = setTimeout(() => controller.abort(), 12_000);
     try {
       const res = await fetch(url, { signal: controller.signal });
       if (!res.ok) {
-        return null; // the server answered — the page genuinely isn't there
+        continue; // a mirror answered negative — try the next source
       }
       const data = (await res.json()) as PageLayoutData;
       if (typeof globalThis.caches !== 'undefined') {
@@ -271,8 +282,8 @@ async function fetchPageLayoutFromNetwork(pageNum: number): Promise<PageLayoutDa
       }
       return data;
     } catch {
-      if (attempt === 2) {
-        console.warn(`[Mushaf] Failed to load page data for page ${pageNum}`);
+      if (url === urls[urls.length - 1]) {
+        console.warn(`[Mushaf] Failed to load page data for page ${pageNum} from all sources`);
       }
     } finally {
       clearTimeout(timer);
