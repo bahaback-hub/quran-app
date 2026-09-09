@@ -223,12 +223,69 @@ function getPageFont(pageNum: number, fontMap: Record<string, string> | null | u
   return fontMap?.[String(pageNum)] || `QCF4_Hafs_${String(Math.min(47, Math.ceil(pageNum / 13))).padStart(2, '0')}`;
 }
 
+/** Cache name for page layout JSONs rendered once, then reused offline. */
+const LAYOUT_CACHE_NAME = 'qcf4-page-layouts';
+
+function pageLayoutUrl(pageNum: number): string {
+  return `${PAGE_BASE}${String(pageNum).padStart(3, '0')}.json`;
+}
+
+/** Read a previously rendered page layout straight from the browser cache. */
+async function cachedPageLayoutData(pageNum: number): Promise<PageLayoutData | null> {
+  if (typeof globalThis.caches === 'undefined') {
+    return null;
+  }
+  try {
+    const cache = await globalThis.caches.open(LAYOUT_CACHE_NAME);
+    const res = await cache.match(pageLayoutUrl(pageNum));
+    if (res && res.ok) {
+      return (await res.json()) as PageLayoutData;
+    }
+  } catch {
+    /* cache is best-effort — fall through to the network */
+  }
+  return null;
+}
+
+/** Fetch a page layout from the remote source with timeout and one retry. */
+async function fetchPageLayoutFromNetwork(pageNum: number): Promise<PageLayoutData | null> {
+  const url = pageLayoutUrl(pageNum);
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10_000);
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      if (!res.ok) {
+        return null; // the server answered — the page genuinely isn't there
+      }
+      const data = (await res.json()) as PageLayoutData;
+      if (typeof globalThis.caches !== 'undefined') {
+        try {
+          const cache = await globalThis.caches.open(LAYOUT_CACHE_NAME);
+          await cache.put(url, new Response(JSON.stringify(data), {
+            headers: { 'Content-Type': 'application/json' },
+          }));
+        } catch {
+          /* persistent caching is best-effort */
+        }
+      }
+      return data;
+    } catch {
+      if (attempt === 2) {
+        console.warn(`[Mushaf] Failed to load page data for page ${pageNum}`);
+      }
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return null;
+}
+
 export async function loadPageData(pageNum: number): Promise<PageLayoutData | null> {
   const key = `qcf4-${pageNum}`;
   if (layoutCache.has(key)) {
     return layoutCache.get(key)!;
   }
-  const padded = String(pageNum).padStart(3, '0');
   try {
     // A verified, user-installed data pack has priority and supports offline
     // page rendering. The remote fixed source remains the fallback until the
@@ -236,10 +293,8 @@ export async function loadPageData(pageNum: number): Promise<PageLayoutData | nu
     const installedData = await getMushafPageLayout(pageNum);
     const data = installedData
       ? (installedData as PageLayoutData)
-      : await (async (): Promise<PageLayoutData | null> => {
-          const res = await fetch(`${PAGE_BASE}${padded}.json`);
-          return res.ok ? ((await res.json()) as PageLayoutData) : null;
-        })();
+      : ((await cachedPageLayoutData(pageNum)) ??
+        (await fetchPageLayoutFromNetwork(pageNum)));
     if (!data) {
       return null;
     }
