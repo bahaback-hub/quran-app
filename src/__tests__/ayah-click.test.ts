@@ -686,6 +686,19 @@ describe('getAyahHighlightRects with measured geometry', () => {
     const result = await getAyahHighlightRects(1, 1, 2, 1080, 1540, emptyLayout, geometry as never);
     expect(result.length).toBe(0);
   });
+
+  it('should clamp the bar around the ink band when glyph metrics exist', async () => {
+    const geometry = simpleGeometry([
+      makeLine([makeWord({ char: 'الم', verse_key: '1:1' })], { inkAscent: 30, inkDescent: 10 }),
+    ]);
+    // scale 540/1080 = 0.5 horizontally, 770/1540 = 0.5 vertically
+    const result = await getAyahHighlightRects(1, 1, 1, 540, 770, emptyLayout, geometry as never);
+    expect(result.length).toBe(1);
+    expect(result[0]!.top).toBeCloseTo(35, 3); // (100 - 30) × 0.5
+    expect(result[0]!.height).toBeCloseTo(20, 3); // (30 + 10) × 0.5
+    // The band must hug the glyphs well inside the old full-line slot.
+    expect(result[0]!.height).toBeLessThan(40); // 0.5 × lineHeight(80)
+  });
 });
 
 describe('handlePageClick with measured geometry', () => {

@@ -65,6 +65,10 @@ export interface PageLineBox {
   gap: number;
   totalWidth: number;
   words: PageWordBox[];
+  /** Glyph ink that rises ABOVE the line's vertical center (canvas px). Text is painted with textBaseline 'middle'. */
+  inkAscent?: number;
+  /** Glyph ink that hangs BELOW the line's vertical center (canvas px). */
+  inkDescent?: number;
 }
 
 /** Full measured layout of a mushaf page — mirrors exactly how the page is painted. */
@@ -797,11 +801,22 @@ async function _renderPageInternal(
   return { canvas, layout: data };
 }
 
-function measureLine(ctx: CanvasRenderingContext2D, words: PageWord[], pageFont: string, fontSize: number): number[] {
+interface GlyphMeasure {
+  width: number;
+  ascent: number;
+  descent: number;
+}
+
+function measureLine(ctx: CanvasRenderingContext2D, words: PageWord[], pageFont: string, fontSize: number): GlyphMeasure[] {
   return words.map((w) => {
     const fn = w.font || pageFont;
     ctx.font = `${fontSize}px "${fn}"`;
-    return ctx.measureText(w.char).width;
+    const m = ctx.measureText(w.char);
+    return {
+      width: m.width,
+      ascent: typeof m.actualBoundingBoxAscent === 'number' ? m.actualBoundingBoxAscent : 0,
+      descent: typeof m.actualBoundingBoxDescent === 'number' ? m.actualBoundingBoxDescent : 0,
+    };
   });
 }
 
@@ -861,8 +876,19 @@ export function computeMushafLineLayout(
       continue;
     }
 
-    const widths = measureLine(ctx, line.words, pageFont, pageFontSize);
-    const totalW = widths.reduce((a: number, b: number) => a + b, 0);
+    const measures = measureLine(ctx, line.words, pageFont, pageFontSize);
+    const totalW = measures.reduce((a: number, x: GlyphMeasure) => a + x.width, 0);
+    const widths = measures.map((m) => m.width);
+    let maxAscent = 0;
+    let maxDescent = 0;
+    for (const m of measures) {
+      if (m.ascent > maxAscent) {
+        maxAscent = m.ascent;
+      }
+      if (m.descent > maxDescent) {
+        maxDescent = m.descent;
+      }
+    }
     const gap = isOpeningPage
       ? pageFontSize * OPENING_PAGE_WORD_GAP_SCALE
       : line.words.length > 1
@@ -890,7 +916,7 @@ export function computeMushafLineLayout(
       x -= widths[j]! + gapFinal;
     }
 
-    layout.push({ y, lineHeight: lineSpacing, gap: gapFinal, totalWidth, words });
+    layout.push({ y, lineHeight: lineSpacing, gap: gapFinal, totalWidth, words, inkAscent: maxAscent, inkDescent: maxDescent });
   }
 
   return { lines: layout, isOpeningPage, isShortPage, stdLineHeight: lineSpacing, pageFontSize, availableW, textRight };
