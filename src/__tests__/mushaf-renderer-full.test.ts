@@ -359,7 +359,10 @@ describe('mushaf-renderer.ts', () => {
       const mockFetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ lines: [] }) }));
       vi.stubGlobal('fetch', mockFetch);
       await loadPageData(2005);
-      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('2005.json'));
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('2005.json'),
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      );
       vi.restoreAllMocks();
     });
 
