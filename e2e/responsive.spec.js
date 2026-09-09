@@ -184,4 +184,27 @@ test.describe('التوافق — أوضاع مختلفة', () => {
     expect(parseFloat(bodyPadOpen)).toBeGreaterThan(130);
     expect(contentOpen.x).toBeGreaterThan(150);
   });
+
+  test('الشريط الجانبي لا يغطي الآيات على اللوحي (1024×1366)', async ({ page }) => {
+    // Tablet viewports (768–1024) hit the range where the rail (78px) floats
+    // over the centered container, so the surah text must reserve its width.
+    await page.setViewportSize({ width: 1024, height: 1366 });
+    await page.goto('/');
+    await page.evaluate(() => {
+      const ws = document.getElementById('welcomeScreen');
+      if (ws) { ws.remove(); }
+    });
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
+
+    const railBox = await page.locator('#readerSideTools').boundingBox();
+    const content = await page.locator('.surah-content').boundingBox();
+    expect(railBox).not.toBeNull();
+    expect(content).not.toBeNull();
+    expect(railBox.width).toBeLessThanOrEqual(78);
+    const contentPad = await page.locator('.surah-content').evaluate((el) =>
+      getComputedStyle(el).paddingLeft
+    );
+    const textStart = content.x + parseFloat(contentPad);
+    expect(textStart + 2).toBeGreaterThanOrEqual(railBox.x + railBox.width);
+  });
 });
