@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   sync:
@@ -24,10 +25,29 @@ jobs:
       - name: Sync prayer times
         run: node scripts/sync-official-prayer-times.mjs
 
-      - name: Commit changes
+      - name: Open pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          BRANCH="sync/prayer-times-$(date -u +%F)"
           git config user.name "Prayer Times Bot"
           git config user.email "bot@quran-app.local"
+          git checkout -B "$BRANCH"
           git add public/data/prayer-times-1448.json
-          git diff --staged --quiet || git commit -m "chore: sync prayer times for today"
-          git push
+          if git diff --cached --quiet; then
+            echo "No changes to sync."
+            exit 0
+          fi
+          git commit -m "chore: sync prayer times for today"
+          git push --force origin "$BRANCH"
+          # main is a protected branch: submit the change as a PR instead of
+          # pushing directly, so the required status checks can run.
+          if gh pr view "$BRANCH" --json url --jq .url > /dev/null 2>&1; then
+            echo "Pull request already open — force-pushed the latest update to it."
+          else
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "chore: sync prayer times for today" \
+              --body "Automated daily prayer-time sync from Aladhan (method=4, Umm Al-Qura)."
+          fi
