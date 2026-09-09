@@ -35,6 +35,66 @@
   }
 }
 
+/* ========== سطح المكتب: شريط موحّد (السورة + المقرئ في نفس صف البحث والتجويد) ========== */
+@media (min-width: 901px) {
+  .controls-row {
+    gap: 0;
+    justify-content: flex-start;
+    align-items: stretch;
+    flex-wrap: nowrap;
+  }
+  /* بطاقة السياق (السورة/المقرئ/الصفحة) تسكن يمين البطاقة (RTL) في نفس الصف،
+     وتندمج مع شريط الأدوات في بطاقة واحدة بلا فاصل حدودي. */
+  .reader-context-card {
+    flex: 0 1 auto;
+    order: -1;
+    width: auto;
+    min-width: 0;
+    min-height: 0;
+    justify-content: flex-start;
+    align-content: flex-start;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-left: 0;
+    border-radius: 12px 0 0 12px;
+  }
+  .reader-command-bar {
+    flex: 1 1 auto;
+    min-width: 0;
+    border-radius: 0 12px 12px 0;
+    border-right: 0;
+  }
+  /* بطاقة السياق لا ترتفع فوق القائمة الممتدّة للبحث */
+  .reader-context-card {
+    position: relative;
+    z-index: 0;
+  }
+  /* القائمة الممتدّة للبحث تنفتح يساراً داخل بطاقة الأدوات بعيداً عن بطاقة السياق */
+  #readerToolbarShell #headerSearch.reader-command-search .header-search-input {
+    right: 0;
+    left: auto;
+    width: 380px;
+  }
+  /* قائمتا السورة والمقرئ أكثر انضغاطاً داخل الشريط الموحّد */
+  #readerToolbarShell .surah-reciter-group {
+    width: auto;
+    gap: 8px;
+  }
+  #readerToolbarShell .surah-reciter-group #surahSelect,
+  #readerToolbarShell .surah-reciter-group #reciterSelect {
+    min-width: 150px;
+    height: 38px;
+    padding: 4px 10px;
+    font-size: 14px;
+  }
+  #readerToolbarShell .reader-context-card #surahSelect {
+    flex: 1.15 1 230px;
+  }
+  #readerToolbarShell .reader-context-card #reciterSelect {
+    flex: 1 1 180px;
+  }
+}
+
 /* ========== التجاوب مع الموبايل ========== */
 @media (max-width: 600px) {
   body {
