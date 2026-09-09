@@ -866,19 +866,21 @@ body.mushaf-active.reader-toolbar-pinned .container {
 
 /* ===== الشريط الجانبي الثابت لا يغطي صفحات المصحف =====
    الشريط (readerSideTools) مثبت على الحافة اليسرى ويعلو محتوى الصفحة.
-   حجزنا عرضه في وضع المصحف: 52px عند ≤600 (أزرار مدمجة 48px)،
-   و82px من 601 إلى 768 (الشريط الكامل 78px)، فيبدو المحتوى يمين الشريط. */
+   حجزنا عرضه في وضع المصحف مع هامش قراءة مريح حتى لا تزحم نهايات
+   الآيات حافة الشريط: 72px عند ≤600 (أزرار مدمجة 48px)، و96px من
+   601 إلى 768 (الشريط الكامل 78px)، فيبدو المحتوى يمين الشريط تماماً
+   كما يظهر عمود قراءة السورة. */
 @media (max-width: 768px) {
   body.mushaf-active .mushaf-container {
-    margin-left: 82px;
-    width: calc(100% - 82px);
-    max-width: calc(100% - 82px);
+    margin-left: 96px;
+    width: calc(100% - 96px);
+    max-width: calc(100% - 96px);
   }
 }
 @media (max-width: 600px) {
   body.mushaf-active .mushaf-container {
-    margin-left: 52px;
-    width: calc(100% - 52px);
-    max-width: calc(100% - 52px);
+    margin-left: 72px;
+    width: calc(100% - 72px);
+    max-width: calc(100% - 72px);
   }
 }
