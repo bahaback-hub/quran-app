@@ -45,7 +45,7 @@ describe('prayer-local', () => {
         } as GeolocationPositionError);
       });
 
-      const { calculatePrayerTimesLocally } = await import('../prayer-local.js');
+      const { calculatePrayerTimesLocally } = await import('../features/prayer/prayer-local.js');
       const result = await calculatePrayerTimesLocally('4');
       expect(result).toBeNull();
     });
@@ -57,7 +57,7 @@ describe('prayer-local', () => {
         } as GeolocationPosition);
       });
 
-      const { calculatePrayerTimesLocally } = await import('../prayer-local.js');
+      const { calculatePrayerTimesLocally } = await import('../features/prayer/prayer-local.js');
       const result = await calculatePrayerTimesLocally('4');
       expect(result).not.toBeNull();
       expect(result).toHaveProperty('Fajr');
@@ -88,7 +88,7 @@ describe('prayer-local', () => {
         throw new Error('Should not be called');
       });
 
-      const { calculatePrayerTimesLocally } = await import('../prayer-local.js');
+      const { calculatePrayerTimesLocally } = await import('../features/prayer/prayer-local.js');
       const result = await calculatePrayerTimesLocally('4');
       expect(result).not.toBeNull();
       expect(result).toHaveProperty('Fajr');
@@ -112,7 +112,7 @@ describe('prayer-local', () => {
       });
 
       // Use dynamic import with cache busting for fresh module
-      const mod = await import('../prayer-local.js?t=' + Date.now());
+      const mod = await import('../features/prayer/prayer-local.js?t=' + Date.now());
       const result = await mod.calculatePrayerTimesLocally('4');
       // The key assertion: result should come from fresh GPS (Riyadh)
       expect(result).not.toBeNull();
@@ -126,7 +126,7 @@ describe('prayer-local', () => {
         } as GeolocationPosition);
       });
 
-      const { calculatePrayerTimesLocally } = await import('../prayer-local.js');
+      const { calculatePrayerTimesLocally } = await import('../features/prayer/prayer-local.js');
       const result = await calculatePrayerTimesLocally('999');
       expect(result).not.toBeNull();
       expect(result).toHaveProperty('Fajr');
@@ -135,7 +135,7 @@ describe('prayer-local', () => {
 
   describe('calculateLocalQibla', () => {
     it('should return Qibla direction for Makkah coordinates', async () => {
-      const { calculateLocalQibla } = await import('../prayer-local.js');
+      const { calculateLocalQibla } = await import('../features/prayer/prayer-local.js');
       // From Makkah itself, Qibla should be close to 0 or 360
       const result = calculateLocalQibla(21.4225, 39.8262);
       expect(typeof result).toBe('number');
@@ -144,7 +144,7 @@ describe('prayer-local', () => {
     });
 
     it('should return different angles for different locations', async () => {
-      const { calculateLocalQibla } = await import('../prayer-local.js');
+      const { calculateLocalQibla } = await import('../features/prayer/prayer-local.js');
       const makkah = calculateLocalQibla(21.4225, 39.8262);
       const riyadh = calculateLocalQibla(24.7136, 46.6753);
       // Riyadh and Makkah should have different Qibla directions

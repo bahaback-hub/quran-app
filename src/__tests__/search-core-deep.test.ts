@@ -159,7 +159,7 @@ import {
   addToSearchHistory,
   getSearchHistory,
   clearSearchHistory,
-} from '../search-core.js';
+} from '../features/search/search-core.js';
 import { storage } from '../storage.js';
 import { showToast } from '../ui.js';
 

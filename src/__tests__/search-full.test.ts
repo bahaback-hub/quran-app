@@ -140,7 +140,7 @@ import {
   startVoiceSearch,
   initKeyboard,
   initSearchAutocomplete,
-} from '../search.js';
+} from '../features/search/search.js';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { showToast } from '../ui.js';

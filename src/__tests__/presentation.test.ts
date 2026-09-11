@@ -34,7 +34,7 @@ vi.mock('../types.js', async (importOriginal) => {
 });
 
 // Mock pres-backgrounds
-vi.mock('../pres-backgrounds.js', () => ({
+vi.mock('../features/presentation/pres-backgrounds.js', () => ({
   getAutoBackground: vi.fn(() => ({ src: 'auto-bg.jpg' })),
   getNatureBgByMood: vi.fn(() => ({ src: 'nature-bg.jpg' })),
   getRandomNatureBg: vi.fn(() => ({ src: 'random-nature.jpg' })),
@@ -45,7 +45,7 @@ vi.mock('../pres-backgrounds.js', () => ({
 }));
 
 // Mock pres-styles
-vi.mock('../pres-styles.js', () => ({
+vi.mock('../features/presentation/pres-styles.js', () => ({
   injectStyles: vi.fn(),
   buildAyahHtml: vi.fn(
     (_text: string, _surah: number, _ayah: number, _tajweed: boolean) => '<span>mock ayah html</span>',
@@ -123,13 +123,13 @@ describe('presentation', () => {
 
   describe('openPresentation', () => {
     it('should set presentationMode to true', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       expect(state.presentationMode).toBe(true);
     });
 
     it('should make overlay visible', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       expect(dom.presentationOverlay!.classList.contains('hidden')).toBe(false);
       expect(dom.presentationOverlay!.classList.contains('presentation-visible')).toBe(true);
@@ -137,28 +137,28 @@ describe('presentation', () => {
     });
 
     it('should add presentation-active class to body', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       expect(document.body.classList.contains('presentation-active')).toBe(true);
     });
 
     it('should add pres-light class when not in night mode and bg is plain', async () => {
       document.body.classList.remove('night-mode');
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       expect(dom.presentationOverlay!.classList.contains('pres-light')).toBe(true);
     });
 
     it('should NOT add pres-light class when in night mode', async () => {
       document.body.classList.add('night-mode');
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       expect(dom.presentationOverlay!.classList.contains('pres-light')).toBe(false);
     });
 
     it('should sync tajweed button with global setting', async () => {
       state.tajweedEnabled = false;
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       expect(dom.presTajweedBtn!.classList.contains('pres-tajweed-off')).toBe(true);
     });
@@ -169,7 +169,7 @@ describe('presentation', () => {
         { dataset: { mode: 'presentation' }, classList: { toggle: vi.fn() } },
       ];
       const querySelectorAllSpy = vi.spyOn(document, 'querySelectorAll').mockReturnValue(viewBtns as any);
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       expect(querySelectorAllSpy).toHaveBeenCalledWith('.view-mode-btn');
       querySelectorAllSpy.mockRestore();
@@ -177,16 +177,16 @@ describe('presentation', () => {
 
     it('should exit mushaf mode synchronously before opening', async () => {
       state.mushafMode = true;
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       expect(state.mushafMode).toBe(false);
       expect(storage.set).toHaveBeenCalledWith('mushaf_mode', false);
     });
 
     it('should call injectStyles', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
-      const { injectStyles } = await import('../pres-styles.js');
+      const { injectStyles } = await import('../features/presentation/pres-styles.js');
       expect(injectStyles).toHaveBeenCalled();
     });
   });
@@ -195,14 +195,14 @@ describe('presentation', () => {
 
   describe('closePresentation', () => {
     it('should set presentationMode to false', async () => {
-      const { openPresentation, closePresentation } = await import('../presentation.js');
+      const { openPresentation, closePresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       closePresentation();
       expect(state.presentationMode).toBe(false);
     });
 
     it('should hide overlay', async () => {
-      const { openPresentation, closePresentation } = await import('../presentation.js');
+      const { openPresentation, closePresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       closePresentation();
       expect(dom.presentationOverlay!.classList.contains('hidden')).toBe(true);
@@ -211,14 +211,14 @@ describe('presentation', () => {
     });
 
     it('should remove presentation-active class from body', async () => {
-      const { openPresentation, closePresentation } = await import('../presentation.js');
+      const { openPresentation, closePresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       closePresentation();
       expect(document.body.classList.contains('presentation-active')).toBe(false);
     });
 
     it('should remove presentation CSS classes from overlay', async () => {
-      const { openPresentation, closePresentation } = await import('../presentation.js');
+      const { openPresentation, closePresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       closePresentation();
       const overlay = dom.presentationOverlay!;
@@ -231,7 +231,7 @@ describe('presentation', () => {
     });
 
     it('should clear inline positioning styles from overlay', async () => {
-      const { openPresentation, closePresentation } = await import('../presentation.js');
+      const { openPresentation, closePresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       closePresentation();
       const overlay = dom.presentationOverlay!;
@@ -242,16 +242,16 @@ describe('presentation', () => {
     });
 
     it('should call removeAnimatedBgLayer and removeSceneCanvas', async () => {
-      const { openPresentation, closePresentation } = await import('../presentation.js');
+      const { openPresentation, closePresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       closePresentation();
-      const { removeAnimatedBgLayer, removeSceneCanvas } = await import('../pres-backgrounds.js');
+      const { removeAnimatedBgLayer, removeSceneCanvas } = await import('../features/presentation/pres-backgrounds.js');
       expect(removeAnimatedBgLayer).toHaveBeenCalled();
       expect(removeSceneCanvas).toHaveBeenCalled();
     });
 
     it('should set view-mode-btn to surah mode', async () => {
-      const { openPresentation, closePresentation } = await import('../presentation.js');
+      const { openPresentation, closePresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       closePresentation();
       // The view-mode-btns are toggled via querySelectorAll
@@ -264,13 +264,13 @@ describe('presentation', () => {
   describe('togglePresentation', () => {
     it('should open presentation when not in presentation mode', async () => {
       state.presentationMode = false;
-      const { togglePresentation } = await import('../presentation.js');
+      const { togglePresentation } = await import('../features/presentation/presentation.js');
       togglePresentation();
       expect(state.presentationMode).toBe(true);
     });
 
     it('should close presentation when already in presentation mode', async () => {
-      const { openPresentation, togglePresentation } = await import('../presentation.js');
+      const { openPresentation, togglePresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       togglePresentation();
       expect(state.presentationMode).toBe(false);
@@ -282,7 +282,7 @@ describe('presentation', () => {
   describe('syncPresentation', () => {
     it('should update display when in presentation mode', async () => {
       state.presentationMode = true;
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       // Should update ayah text display
       expect(dom.presentationAyahText!.innerHTML).toBeTruthy();
@@ -290,7 +290,7 @@ describe('presentation', () => {
 
     it('should do nothing when not in presentation mode', async () => {
       state.presentationMode = false;
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       dom.presentationAyahText!.innerHTML = '';
       syncPresentation();
       expect(dom.presentationAyahText!.innerHTML).toBe('');
@@ -301,7 +301,7 @@ describe('presentation', () => {
 
   describe('initPresentation', () => {
     it('should bind click handlers to navigation buttons', async () => {
-      const { initPresentation } = await import('../presentation.js');
+      const { initPresentation } = await import('../features/presentation/presentation.js');
       const closeSpy = vi.spyOn(dom.presentationCloseBtn!, 'addEventListener');
       const prevSpy = vi.spyOn(dom.presentationPrevBtn!, 'addEventListener');
       const nextSpy = vi.spyOn(dom.presentationNextBtn!, 'addEventListener');
@@ -321,7 +321,7 @@ describe('presentation', () => {
         { number: 1, name: 'الفاتحة', numberOfAyahs: 7 },
         { number: 2, name: 'البقرة', numberOfAyahs: 286 },
       ];
-      const { initPresentation } = await import('../presentation.js');
+      const { initPresentation } = await import('../features/presentation/presentation.js');
       initPresentation();
       dom.presentationNextSurahBtn!.click();
       await Promise.resolve();
@@ -329,21 +329,21 @@ describe('presentation', () => {
     });
 
     it('should bind click handler to play/pause button', async () => {
-      const { initPresentation } = await import('../presentation.js');
+      const { initPresentation } = await import('../features/presentation/presentation.js');
       const spy = vi.spyOn(dom.presPlayPauseBtn!, 'addEventListener');
       initPresentation();
       expect(spy).toHaveBeenCalledWith('click', expect.any(Function));
     });
 
     it('should bind click handler to tajweed button', async () => {
-      const { initPresentation } = await import('../presentation.js');
+      const { initPresentation } = await import('../features/presentation/presentation.js');
       const spy = vi.spyOn(dom.presTajweedBtn!, 'addEventListener');
       initPresentation();
       expect(spy).toHaveBeenCalledWith('click', expect.any(Function));
     });
 
     it('opens the background picker and applies a selected scene through settings helpers', async () => {
-      const { initPresentation } = await import('../presentation.js');
+      const { initPresentation } = await import('../features/presentation/presentation.js');
       const { applyPresBgMode, applyPresBgScene } = await import('../settings.js');
       initPresentation();
 
@@ -359,14 +359,14 @@ describe('presentation', () => {
     });
 
     it('should bind click handler to fullscreen button', async () => {
-      const { initPresentation } = await import('../presentation.js');
+      const { initPresentation } = await import('../features/presentation/presentation.js');
       const spy = vi.spyOn(dom.presFullscreenBtn!, 'addEventListener');
       initPresentation();
       expect(spy).toHaveBeenCalledWith('click', expect.any(Function));
     });
 
     it('should bind mousemove handler on overlay', async () => {
-      const { initPresentation } = await import('../presentation.js');
+      const { initPresentation } = await import('../features/presentation/presentation.js');
       const spy = vi.spyOn(dom.presentationOverlay!, 'addEventListener');
       initPresentation();
       expect(spy).toHaveBeenCalledWith('mousemove', expect.any(Function));
@@ -376,7 +376,7 @@ describe('presentation', () => {
       // Remove the overlay from DOM
       const overlay = document.getElementById('presentationOverlay');
       if (overlay) overlay.remove();
-      const { initPresentation } = await import('../presentation.js');
+      const { initPresentation } = await import('../features/presentation/presentation.js');
       expect(() => initPresentation()).not.toThrow();
     });
   });
@@ -387,7 +387,7 @@ describe('presentation', () => {
     it('should show dash when surahData is null', async () => {
       state.surahData = null;
       state.presentationMode = true;
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       expect(dom.presentationAyahText!.textContent).toBe('—');
       expect(dom.presentationAyahNum!.textContent).toBe('—');
@@ -397,14 +397,14 @@ describe('presentation', () => {
     it('should show dash when ayahs array is empty', async () => {
       state.surahData = { number: 1, name: 'Test', englishName: 'Test', ayahs: [] } as any;
       state.presentationMode = true;
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       expect(dom.presentationAyahText!.textContent).toBe('—');
     });
 
     it('should display current ayah info', async () => {
       state.presentationMode = true;
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       expect(dom.presentationAyahNum!.textContent).toContain('1');
       expect(dom.presentationTitle!.textContent).toContain('الفاتحة');
@@ -412,7 +412,7 @@ describe('presentation', () => {
 
     it('should display ayah counter', async () => {
       state.presentationMode = true;
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       expect(dom.presentationCounter!.textContent).toBe('1 / 3');
     });
@@ -426,7 +426,7 @@ describe('presentation', () => {
         get: () => (Number.parseFloat(dom.presentationAyahText!.style.fontSize || '72') > 42 ? 780 : 420),
       });
       Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1280 });
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       expect(Number.parseFloat(dom.presentationAyahText!.style.fontSize)).toBeLessThanOrEqual(42);
       expect(dom.presentationAyahText!.style.lineHeight).toBe('1.9');
@@ -443,7 +443,7 @@ describe('presentation', () => {
           { numberInSurah: 3, text: 'The Most Merciful' },
         ],
       } as any;
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       expect(dom.presentationTranslation!.textContent).toBe('In the name of Allah');
       expect(dom.presentationTranslation!.style.display).not.toBe('none');
@@ -452,7 +452,7 @@ describe('presentation', () => {
     it('should hide translation when disabled', async () => {
       state.presentationMode = true;
       state.translationEnabled = false;
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       expect(dom.presentationTranslation!.style.display).toBe('none');
     });
@@ -460,9 +460,9 @@ describe('presentation', () => {
     it('should apply nature background mode', async () => {
       state.presentationMode = true;
       state.presBgMode = 'nature';
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
-      const { getRandomNatureBg } = await import('../pres-backgrounds.js');
+      const { getRandomNatureBg } = await import('../features/presentation/pres-backgrounds.js');
       expect(getRandomNatureBg).toHaveBeenCalled();
       expect(dom.presentationOverlay!.classList.contains('pres-nature')).toBe(true);
     });
@@ -470,9 +470,9 @@ describe('presentation', () => {
     it('should apply auto background mode', async () => {
       state.presentationMode = true;
       state.presBgMode = 'auto';
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
-      const { getAutoBackground } = await import('../pres-backgrounds.js');
+      const { getAutoBackground } = await import('../features/presentation/pres-backgrounds.js');
       expect(getAutoBackground).toHaveBeenCalled();
       expect(dom.presentationOverlay!.classList.contains('pres-auto')).toBe(true);
     });
@@ -480,9 +480,9 @@ describe('presentation', () => {
     it('should apply animated background mode', async () => {
       state.presentationMode = true;
       state.presBgMode = 'animated';
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
-      const { applyAnimatedBg } = await import('../pres-backgrounds.js');
+      const { applyAnimatedBg } = await import('../features/presentation/pres-backgrounds.js');
       expect(applyAnimatedBg).toHaveBeenCalled();
       expect(dom.presentationOverlay!.classList.contains('pres-animated')).toBe(true);
     });
@@ -491,9 +491,9 @@ describe('presentation', () => {
       state.presentationMode = true;
       state.presBgMode = 'scene';
       state.presBgScene = 'stars';
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
-      const { startSceneAnimation } = await import('../pres-backgrounds.js');
+      const { startSceneAnimation } = await import('../features/presentation/pres-backgrounds.js');
       expect(startSceneAnimation).toHaveBeenCalled();
       expect(dom.presentationOverlay!.classList.contains('pres-scene')).toBe(true);
     });
@@ -505,7 +505,7 @@ describe('presentation', () => {
     it('should close presentation on Escape key when not fullscreen', async () => {
       const { isFullscreen } = await import('../types.js');
       (isFullscreen as ReturnType<typeof vi.fn>).mockReturnValue(false);
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       // Dispatch Escape key event
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
@@ -515,7 +515,7 @@ describe('presentation', () => {
     it('should exit fullscreen on Escape when in fullscreen mode', async () => {
       const { isFullscreen, exitFullscreen } = await import('../types.js');
       (isFullscreen as ReturnType<typeof vi.fn>).mockReturnValue(true);
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
       expect(exitFullscreen).toHaveBeenCalled();
@@ -524,7 +524,7 @@ describe('presentation', () => {
     it('should ignore keydown events on INPUT elements', async () => {
       const input = document.createElement('input');
       document.body.appendChild(input);
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true });
       Object.defineProperty(event, 'target', { value: input, writable: false });

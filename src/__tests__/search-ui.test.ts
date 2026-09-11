@@ -90,7 +90,7 @@ vi.mock('../features/audio/audio.js', () => ({
 }));
 
 // Mock search-core module
-vi.mock('../search-core.js', () => ({
+vi.mock('../features/search/search-core.js', () => ({
   SEARCH_PAGE_SIZE: 10,
   performSearch: vi.fn(() => []),
   addToSearchHistory: vi.fn(),
@@ -135,11 +135,11 @@ import {
   startVoiceSearch,
   initKeyboard,
   _resetKeyboardForTests,
-} from '../search-ui.js';
+} from '../features/search/search-ui.js';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { showToast } from '../ui.js';
-import { performSearch, addToSearchHistory, getSearchHistory } from '../search-core.js';
+import { performSearch, addToSearchHistory, getSearchHistory } from '../features/search/search-core.js';
 import { setAllSearchMatches, setSearchResultsPage, getVoiceListening, setVoiceListening } from '../internal-state.js';
 
 describe('performExactSearch', () => {

@@ -68,7 +68,7 @@ vi.mock('../templates.js', () => ({
   escapeHtml: vi.fn((s: string) => s),
 }));
 
-import * as searchModule from '../search.js';
+import * as searchModule from '../features/search/search.js';
 
 describe('search.ts barrel re-exports', () => {
   it('should export loadFullQuranText from search-core', () => {

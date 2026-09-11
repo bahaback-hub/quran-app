@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { loadSurah } from './surah-loader.js';
-import { stopClock, startClock } from './prayer.js';
+import { stopClock, startClock } from './features/prayer/prayer.js';
 import { checkAdhkarNotifications } from './adhkar.js';
 import { __, getLang } from './i18n.js';
 import { getAdhkarIntervalId, setAdhkarIntervalId } from './internal-state.js';

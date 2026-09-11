@@ -32,7 +32,7 @@ vi.mock('../favorites.js', () => ({
   closeFavorites: vi.fn(),
 }));
 
-vi.mock('../prayer.js', () => ({
+vi.mock('../features/prayer/prayer.js', () => ({
   stopAzan: vi.fn(),
 }));
 
@@ -50,7 +50,7 @@ vi.mock('../features/mushaf/mushaf.js', () => ({
   toggleMushafMode: vi.fn(),
 }));
 
-vi.mock('../presentation.js', () => ({
+vi.mock('../features/presentation/presentation.js', () => ({
   openPresentation: vi.fn(),
   closePresentation: vi.fn(),
 }));
@@ -68,7 +68,7 @@ import {
 } from '../features/audio/audio.js';
 import { toggleNightMode, applyFontSize, closeSettings } from '../settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark } from '../favorites.js';
-import { stopAzan } from '../prayer.js';
+import { stopAzan } from '../features/prayer/prayer.js';
 import { toggleTafsir, closeTafsir } from '../tafsir.js';
 
 // Helper to dispatch a keydown event

@@ -1,4 +1,4 @@
-import { __ } from './i18n.js';
+import { __ } from '../../i18n.js';
 
 /** WeakMap for storing cleanup functions on canvas elements (replaces expando properties). */
 const _cleanupMap = new WeakMap<Element, () => void>();

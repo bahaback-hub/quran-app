@@ -29,7 +29,7 @@ vi.mock('../features/mushaf/mushaf.js', () => ({
   loadPage: vi.fn(),
 }));
 
-vi.mock('../presentation.js', () => ({
+vi.mock('../features/presentation/presentation.js', () => ({
   closePresentation: vi.fn(),
   openPresentation: vi.fn(),
 }));

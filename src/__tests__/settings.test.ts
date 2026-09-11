@@ -49,7 +49,7 @@ vi.mock('../ui.js', () => ({
   loadingBar: { init: vi.fn(), show: vi.fn(), hide: vi.fn() },
 }));
 
-vi.mock('../prayer.js', () => ({
+vi.mock('../features/prayer/prayer.js', () => ({
   stopAzan: vi.fn(),
   loadPrayerTimes: vi.fn(),
 }));

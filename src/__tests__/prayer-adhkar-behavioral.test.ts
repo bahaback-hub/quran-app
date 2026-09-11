@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 
-vi.unmock('../prayer.js');
+vi.unmock('../features/prayer/prayer.js');
 vi.unmock('../adhkar.js');
 vi.unmock('../config.js');
 
