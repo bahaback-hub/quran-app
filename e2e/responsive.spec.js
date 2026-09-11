@@ -202,8 +202,12 @@ test.describe('التوافق — أوضاع مختلفة', () => {
     expect(content).not.toBeNull();
     expect(railBox.width).toBeLessThanOrEqual(78);
     // The whole surah box (background included) must start at/right of the
-    // rail's right edge — not just the ayah text inside it.
+    // rail's right edge — not just the ayah text inside it. Same for the
+    // reader toolbar box above it.
     expect(content.x + 2).toBeGreaterThanOrEqual(railBox.x + railBox.width);
+    const controlsBox = await page.locator('#controls').boundingBox();
+    expect(controlsBox).not.toBeNull();
+    expect(controlsBox.x + 2).toBeGreaterThanOrEqual(railBox.x + railBox.width);
     const contentPad = await page.locator('.surah-content').evaluate((el) =>
       getComputedStyle(el).paddingLeft
     );
