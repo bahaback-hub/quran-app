@@ -117,7 +117,7 @@ vi.mock('../presentation.js', () => ({
   syncPresentation: vi.fn(),
 }));
 
-vi.mock('../mushaf.js', () => ({
+vi.mock('../features/mushaf/mushaf.js', () => ({
   toggleMushafMode: vi.fn(),
   highlightMushafAyah: vi.fn(),
 }));

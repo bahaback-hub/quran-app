@@ -39,7 +39,7 @@ import {
   formatMushafDataBytes,
   getMushafDataPackStatus,
   verifyMushafDataPack,
-} from './mushaf-data-pack.js';
+} from './features/mushaf/mushaf-data-pack.js';
 import {
   togglePrayerBar,
   testAzan,
@@ -160,7 +160,7 @@ export function bindNavigationEvents(): void {
           if (dom.pageSlider) {
             dom.pageSlider.value = String(page);
           }
-          import('./mushaf.js').then((m) => m.loadPage(page, true)); // lazy: mushaf not in main chunk
+          import('./features/mushaf/mushaf.js').then((m) => m.loadPage(page, true)); // lazy: mushaf not in main chunk
         })
         .catch(() => showToast(__('mushaf_page_not_found'), 'error'));
     } else {
@@ -704,7 +704,7 @@ export function bindDisplaySettingsEvents(): void {
       // surah view — force-reload the current mushaf page instead. Annotations
       // must be loaded for the current surah before the page re-renders.
       const reloadPage = () =>
-        import('./mushaf.js')
+        import('./features/mushaf/mushaf.js')
           .then((m: { loadPage: (p: number, skipNav?: boolean, force?: boolean) => Promise<void> }) =>
             m.loadPage(state.currentPage, true, true),
           )

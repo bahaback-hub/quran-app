@@ -5,7 +5,7 @@
 @import './src/css/surah.css';
 @import './src/css/player.css';
 @import './src/css/panels.css';
-@import './src/css/mushaf.css';
+@import './src/features/mushaf/mushaf.css';
 @import './src/css/modals.css';
 @import './src/css/components.css';
 @import './src/css/animations.css';

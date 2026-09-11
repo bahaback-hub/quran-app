@@ -82,7 +82,7 @@ vi.mock('../presentation.js', () => ({
   syncPresentation: vi.fn(),
 }));
 
-vi.mock('../mushaf.js', () => ({
+vi.mock('../features/mushaf/mushaf.js', () => ({
   loadPage: vi.fn(() => Promise.resolve()),
 }));
 

@@ -7,6 +7,7 @@ import { PRESENTATION_VIDEO_SRC, getPresentationVideo } from './pres-video.js';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { QURAN_COM_API_BASE } from './external-sources.js';
 
 const PORTRAIT_EXPORT_WIDTH = 1080;
 const PORTRAIT_EXPORT_HEIGHT = 1920;
@@ -369,7 +370,7 @@ async function getAlafasyTiming(): Promise<AlafasyTiming> {
     throw new Error('No current ayah');
   }
   const response = await fetch(
-    `https://api.quran.com/api/v4/chapter_recitations/${ALAFASY_QURAN_COM_RECITATION_ID}/${state.currentSurah}?segments=true`,
+    `${QURAN_COM_API_BASE}/chapter_recitations/${ALAFASY_QURAN_COM_RECITATION_ID}/${state.currentSurah}?segments=true`,
     { credentials: 'omit' },
   );
   if (!response.ok) {

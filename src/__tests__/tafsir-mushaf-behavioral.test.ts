@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 
 vi.unmock('../tafsir.js');
-vi.unmock('../mushaf.js');
+vi.unmock('../features/mushaf/mushaf.js');
 vi.unmock('../config.js');
 
 import { state, resetState } from '../state.js';

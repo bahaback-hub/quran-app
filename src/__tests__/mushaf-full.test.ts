@@ -143,7 +143,7 @@ vi.mock('../ayah-click.js', () => ({
   getAyahHighlightRects: vi.fn(),
 }));
 
-vi.mock('../mushaf-renderer.js', () => ({
+vi.mock('../features/mushaf/mushaf-renderer.js', () => ({
   renderPage: vi.fn(),
   loadPageData: vi.fn(),
   getCanvas: vi.fn(() => document.createElement('canvas')),
@@ -163,12 +163,12 @@ import {
   populateSurahOverlay,
   showSurahSecret,
   highlightMushafAyah,
-} from '../mushaf.js';
+} from '../features/mushaf/mushaf.js';
 
 import { loadSurah, renderSurah, updatePlayerInfo, highlightCurrentAyah } from '../app.js';
 import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from '../audio.js';
 import { handlePageClick, getAyahHighlightRects } from '../ayah-click.js';
-import { renderPage, loadPageData } from '../mushaf-renderer.js';
+import { renderPage, loadPageData } from '../features/mushaf/mushaf-renderer.js';
 import { loadTafsirForSurahAyah } from '../tafsir.js';
 
 /* ===================== HELPERS ===================== */
