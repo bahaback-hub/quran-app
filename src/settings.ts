@@ -324,7 +324,9 @@ export function applyPresBgMode(
   }
   // Update presentation display if active
   if (state.presentationMode) {
-    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) =>
+      p.syncPresentation(),
+    );
   }
 }
 
@@ -337,7 +339,9 @@ export function applyPresBgScene(scene: string): void {
   }
   // Update presentation display if currently in scene mode
   if (state.presentationMode && state.presBgMode === 'scene') {
-    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) =>
+      p.syncPresentation(),
+    );
   }
 }
 
@@ -350,7 +354,9 @@ export function applyPresBgNature(nature: string): void {
   }
   // Update presentation display if currently in singleNature mode
   if (state.presentationMode && state.presBgMode === 'singleNature') {
-    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) =>
+      p.syncPresentation(),
+    );
   }
 }
 
@@ -363,7 +369,9 @@ export function applyPresBgVideo(video: string): void {
     dom.presBgVideoSelect.value = state.presBgVideo;
   }
   if (state.presentationMode && state.presBgMode === 'video') {
-    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) =>
+      p.syncPresentation(),
+    );
   }
 }
 

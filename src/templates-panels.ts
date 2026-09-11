@@ -298,6 +298,16 @@ export function settingsPanelHTML(): string {
               🔄 إعادة ضبط الإعدادات
             </button>
           </div>
+          <div class="settings-section" id="appUpdateSection">
+            <div class="settings-section-title">🆕 <span data-i18n="app_updates">تحديثات التطبيق</span></div>
+            <div class="settings-row">
+              <span><span data-i18n="app_version">إصدار التطبيق:</span> <strong id="appVersionLabel">…</strong></span>
+            </div>
+            <div class="settings-row">
+              <button class="btn btn-gold" id="checkUpdatesBtn">🔄 <span data-i18n="check_updates">التحقق من التحديث</span></button>
+            </div>
+            <p class="settings-note" id="updateCheckStatus" aria-live="polite"></p>
+          </div>
         </div>
       </div>
     </aside>`;

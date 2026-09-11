@@ -1,5 +1,10 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { readFileSync } from 'node:fs';
+
+// Single source of truth for the app version shown in Settings ("App version")
+// and used by future "What's new" logic. Bumped via package.json only.
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
 // When building for Capacitor Android, disable PWA/Service Worker entirely
 const isCapacitorBuild = process.env.BUILD_TARGET === 'capacitor';
@@ -8,6 +13,9 @@ export default defineConfig({
   base: '/quran-app/',
   root: '.',
   publicDir: 'public',
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
