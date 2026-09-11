@@ -16,7 +16,12 @@ import { loadingBar } from './ui.js';
 import { getLang, applyTranslations } from './i18n.js';
 import { state, resetState } from './state.js';
 import { setUpdateReadingProgress } from './internal-state.js';
-import { startClock, loadPrayerTimes, loadUnderwrittenPrayerTable, scheduleNextAzanCheck } from './features/prayer/prayer.js';
+import {
+  startClock,
+  loadPrayerTimes,
+  loadUnderwrittenPrayerTable,
+  scheduleNextAzanCheck,
+} from './features/prayer/prayer.js';
 import { loadFavorites } from './favorites.js';
 import { initAdhkarState, loadAdhkarSettings, startAdhkarNotificationScheduler } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah } from './features/audio/audio.js';

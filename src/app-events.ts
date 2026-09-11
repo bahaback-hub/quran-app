@@ -52,6 +52,7 @@ import {
 import { openFavorites, closeFavorites } from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah, toggleTranslation } from './surah-loader.js';
+import { CHECK_UPDATES_EVENT } from './app-updates.js';
 import {
   performExactSearch,
   initKeyboard,
@@ -250,6 +251,18 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.resetSettingsBtn?.addEventListener('click', resetSettings);
   document.getElementById('exportSettingsBtn')?.addEventListener('click', () => exportSettings());
   document.getElementById('importSettingsBtn')?.addEventListener('click', () => importSettings());
+  // App version label + manual update check (handled in main.ts via event).
+  const versionLabel = document.getElementById('appVersionLabel');
+  if (versionLabel) {
+    try {
+      versionLabel.textContent = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
+    } catch {
+      versionLabel.textContent = '';
+    }
+  }
+  document.getElementById('checkUpdatesBtn')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent(CHECK_UPDATES_EVENT));
+  });
   document.getElementById('helpFromSettingsBtn')?.addEventListener('click', () => {
     closeSettings();
     openHelp();

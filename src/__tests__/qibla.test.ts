@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { calculateQibla, circularQiblaDifference, getWebQiblaHeading, normalizeQiblaAngle } from '../features/prayer/prayer.js';
+import {
+  calculateQibla,
+  circularQiblaDifference,
+  getWebQiblaHeading,
+  normalizeQiblaAngle,
+} from '../features/prayer/prayer.js';
 
 describe('calculateQibla', () => {
   it('should return ~0° for Mecca (from Mecca)', () => {
