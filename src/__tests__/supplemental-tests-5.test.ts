@@ -31,7 +31,7 @@ vi.mock('../ui.js', () => ({
   showToast: vi.fn(),
   loadingBar: { show: vi.fn(), hide: vi.fn() },
 }));
-vi.mock('../audio.js', async (importOriginal) => {
+vi.mock('../features/audio/audio.js', async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
@@ -447,7 +447,7 @@ import {
   populateRepeatUI,
   expandPlayer,
   setLoadSurah,
-} from '../audio.js';
+} from '../features/audio/audio.js';
 
 describe('audio.ts — exported utility functions', () => {
   beforeEach(() => {

@@ -83,7 +83,9 @@ describe('presentation video background', () => {
     retryButton.id = 'presVideoRetryBtn';
     retryButton.classList.add('hidden');
     document.body.append(overlay, retryButton);
-    play.mockImplementationOnce(() => Promise.reject(new Error('Autoplay blocked'))).mockImplementation(() => Promise.resolve());
+    play
+      .mockImplementationOnce(() => Promise.reject(new Error('Autoplay blocked')))
+      .mockImplementation(() => Promise.resolve());
 
     applyPresentationVideo(overlay, 'wave');
     await Promise.resolve();

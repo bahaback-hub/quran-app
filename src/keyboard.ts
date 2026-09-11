@@ -17,7 +17,7 @@ import {
   toggleHifdh,
   toggleRepeat,
   collapsePlayer,
-} from './audio.js';
+} from './features/audio/audio.js';
 import { toggleNightMode, applyFontSize, closeSettings } from './settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './favorites.js';
 import { stopAzan } from './prayer.js';

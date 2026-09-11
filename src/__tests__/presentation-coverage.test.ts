@@ -15,7 +15,7 @@ import { dom } from '../dom.js';
 import { storage } from '../storage.js';
 
 // Mock audio module
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   togglePlayPause: vi.fn(),
   updatePlayPauseBtn: vi.fn(),
   playCurrentAyah: vi.fn(),
@@ -283,7 +283,7 @@ describe('presentation coverage', () => {
 
     it('should toggle play/pause on space key', async () => {
       const { openPresentation } = await import('../presentation.js');
-      const { togglePlayPause } = await import('../audio.js');
+      const { togglePlayPause } = await import('../features/audio/audio.js');
       openPresentation();
       document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
       expect(togglePlayPause).toHaveBeenCalled();
@@ -410,7 +410,7 @@ describe('presentation coverage', () => {
     it('should play new ayah when navigating while playing', async () => {
       state.isPlaying = true;
       const { openPresentation } = await import('../presentation.js');
-      const { playCurrentAyah } = await import('../audio.js');
+      const { playCurrentAyah } = await import('../features/audio/audio.js');
       openPresentation();
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
       expect(playCurrentAyah).toHaveBeenCalled();

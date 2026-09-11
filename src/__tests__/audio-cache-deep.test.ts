@@ -50,7 +50,7 @@ import {
   getCacheStats,
   deleteSurahCache,
   clearAudioCache,
-} from '../audio-cache.js';
+} from '../features/audio/audio-cache.js';
 
 function mockBlob(size: number): Blob {
   return new Blob([new ArrayBuffer(size)], { type: 'audio/mpeg' });

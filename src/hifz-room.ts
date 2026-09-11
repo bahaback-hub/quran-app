@@ -5,8 +5,8 @@
  */
 
 import { __, toLatinDigits } from './i18n.js';
-import { playCurrentAyah, togglePlayPause } from './audio.js';
-import { cacheSurahAudio, isSurahCached } from './audio-cache.js';
+import { playCurrentAyah, togglePlayPause } from './features/audio/audio.js';
+import { cacheSurahAudio, isSurahCached } from './features/audio/audio-cache.js';
 import { getReciterDisplayName, RECITERS } from './reciters.js';
 import { highlightCurrentAyah, loadAudioUrlsForSession, loadSurah } from './surah-loader.js';
 import { state } from './state.js';

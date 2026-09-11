@@ -259,9 +259,12 @@ async function fetchPageLayoutFromNetwork(pageNum: number): Promise<PageLayoutDa
       if (typeof globalThis.caches !== 'undefined') {
         try {
           const cache = await globalThis.caches.open(LAYOUT_CACHE_NAME);
-          await cache.put(url, new Response(JSON.stringify(data), {
-            headers: { 'Content-Type': 'application/json' },
-          }));
+          await cache.put(
+            url,
+            new Response(JSON.stringify(data), {
+              headers: { 'Content-Type': 'application/json' },
+            }),
+          );
         } catch {
           /* persistent caching is best-effort */
         }
@@ -290,8 +293,7 @@ export async function loadPageData(pageNum: number): Promise<PageLayoutData | nu
     const installedData = await getMushafPageLayout(pageNum);
     const data = installedData
       ? (installedData as PageLayoutData)
-      : ((await cachedPageLayoutData(pageNum)) ??
-        (await fetchPageLayoutFromNetwork(pageNum)));
+      : ((await cachedPageLayoutData(pageNum)) ?? (await fetchPageLayoutFromNetwork(pageNum)));
     if (!data) {
       return null;
     }
@@ -859,7 +861,12 @@ interface GlyphMeasure {
   descent: number;
 }
 
-function measureLine(ctx: CanvasRenderingContext2D, words: PageWord[], pageFont: string, fontSize: number): GlyphMeasure[] {
+function measureLine(
+  ctx: CanvasRenderingContext2D,
+  words: PageWord[],
+  pageFont: string,
+  fontSize: number,
+): GlyphMeasure[] {
   return words.map((w) => {
     const fn = w.font || pageFont;
     ctx.font = `${fontSize}px "${fn}"`;
@@ -903,7 +910,15 @@ export function computeMushafLineLayout(
 ): MushafLineLayout {
   const lines = data.lines;
   if (!lines || lines.length === 0) {
-    return { lines: [], isOpeningPage: false, isShortPage: false, stdLineHeight: 0, pageFontSize: 0, availableW: 0, textRight: 0 };
+    return {
+      lines: [],
+      isOpeningPage: false,
+      isShortPage: false,
+      stdLineHeight: 0,
+      pageFontSize: 0,
+      availableW: 0,
+      textRight: 0,
+    };
   }
 
   const lineCount = lines.length;
@@ -924,7 +939,13 @@ export function computeMushafLineLayout(
   for (let i = 0; i < lineCount; i++) {
     const line = lines[i];
     if (!line?.words || line.words.length === 0) {
-      layout.push({ y: TOP_OFFSET + i * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2), lineHeight: lineSpacing, gap: 0, totalWidth: 0, words: [] });
+      layout.push({
+        y: TOP_OFFSET + i * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2),
+        lineHeight: lineSpacing,
+        gap: 0,
+        totalWidth: 0,
+        words: [],
+      });
       continue;
     }
 
@@ -968,14 +989,26 @@ export function computeMushafLineLayout(
       x -= widths[j]! + gapFinal;
     }
 
-    layout.push({ y, lineHeight: lineSpacing, gap: gapFinal, totalWidth, words, inkAscent: maxAscent, inkDescent: maxDescent });
+    layout.push({
+      y,
+      lineHeight: lineSpacing,
+      gap: gapFinal,
+      totalWidth,
+      words,
+      inkAscent: maxAscent,
+      inkDescent: maxDescent,
+    });
   }
 
   return { lines: layout, isOpeningPage, isShortPage, stdLineHeight: lineSpacing, pageFontSize, availableW, textRight };
 }
 
 /** Compute the measured layout for a page with its actual page font. */
-export function computeMushafPageGeometry(ctx: CanvasRenderingContext2D, data: PageLayoutData, pageNum: number): MushafLineLayout {
+export function computeMushafPageGeometry(
+  ctx: CanvasRenderingContext2D,
+  data: PageLayoutData,
+  pageNum: number,
+): MushafLineLayout {
   const pageFont = data?.font || getPageFont(pageNum, null);
   return computeMushafLineLayout(ctx, data, pageNum, pageFont);
 }
@@ -983,7 +1016,10 @@ export function computeMushafPageGeometry(ctx: CanvasRenderingContext2D, data: P
 /** Pre-compute per-word tajweed coloring data for the entire page. */
 const _pageTajweedCache = new Map<string, { wordIdx: number; lineIdx: number; color: string | null }[] | null>();
 
-function computePageTajweed(data: PageLayoutData, pageNum: number): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
+function computePageTajweed(
+  data: PageLayoutData,
+  pageNum: number,
+): { wordIdx: number; lineIdx: number; color: string | null }[] | null {
   // The tajweed coloring for a page depends on its static layout, the
   // current theme (via getTajweedColor), and the tajweedEnabled state — the
   // state and theme are part of the cache key so toggling them invalidates the entry.

@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Mock dependencies
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   prevAyah: vi.fn(),
   nextAyah: vi.fn(),
   prevSurah: vi.fn(),
@@ -92,7 +92,7 @@ import {
   collapsePlayer,
   togglePlayPause,
   updatePlayPauseBtn,
-} from '../audio.js';
+} from '../features/audio/audio.js';
 import { openSettings } from '../settings.js';
 
 Element.prototype.scrollIntoView = vi.fn();
@@ -113,7 +113,7 @@ function setupDOM() {
   dom.repeatBtn = el('button');
   dom.collapsePlayerBtn = el('button');
   dom.collapsedContent = el('div');
-dom.playPauseBtn = el('button');
+  dom.playPauseBtn = el('button');
   dom.collapsedPlayBtn = el('button');
   dom.speedSelect = el('select') as HTMLSelectElement;
   dom.audioPlayer = el('audio') as HTMLAudioElement;

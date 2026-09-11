@@ -144,7 +144,10 @@ function setPreviewText(): void {
   const shareActionKind = getPresentationShareActionKind(readyVideo);
   if (share) {
     share.textContent = `↗ ${shareActionKind === 'video' ? __('presentation_share_video_now') : __('presentation_share_now')}`;
-    share.setAttribute('aria-label', shareActionKind === 'video' ? __('presentation_share_video_now') : __('presentation_share_now'));
+    share.setAttribute(
+      'aria-label',
+      shareActionKind === 'video' ? __('presentation_share_video_now') : __('presentation_share_now'),
+    );
   }
   if (download) {
     download.textContent = `↓ ${__('presentation_share_download')}`;

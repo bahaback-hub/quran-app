@@ -37,7 +37,7 @@ beforeEach(() => {
   } as Storage;
 });
 
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   togglePlayPause: vi.fn(),
   nextAyah: vi.fn(),
   prevAyah: vi.fn(),
@@ -285,7 +285,7 @@ describe('surah-loader deep2 coverage', () => {
       await loadSurah(1, { autoPlay: true });
 
       // playCurrentAyah is imported and called from the mock
-      const { playCurrentAyah } = await import('../audio.js');
+      const { playCurrentAyah } = await import('../features/audio/audio.js');
       expect(playCurrentAyah).toHaveBeenCalled();
     });
   });
