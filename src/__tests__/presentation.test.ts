@@ -9,7 +9,7 @@ import { storage } from '../storage.js';
 import { loadSurah } from '../surah-loader.js';
 
 // Mock audio module
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   togglePlayPause: vi.fn(),
   updatePlayPauseBtn: vi.fn(),
   playCurrentAyah: vi.fn(),

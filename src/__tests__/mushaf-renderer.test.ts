@@ -150,7 +150,11 @@ describe('getLineY', () => {
 
 describe('computeMushafLineLayout', () => {
   const fakeCtx = {
-    measureText: (s: string) => ({ width: Array.from(s).length * 10, actualBoundingBoxAscent: 40, actualBoundingBoxDescent: 6 }),
+    measureText: (s: string) => ({
+      width: Array.from(s).length * 10,
+      actualBoundingBoxAscent: 40,
+      actualBoundingBoxDescent: 6,
+    }),
   } as unknown as CanvasRenderingContext2D;
 
   const mkData = (lines: PageLayoutData['lines'], font = 'QCF4_Hafs_01'): PageLayoutData => ({ font, lines });
@@ -180,9 +184,7 @@ describe('computeMushafLineLayout', () => {
 
   it('matches getLineY vertical positions on short pages', () => {
     const count = 5;
-    const data = mkData(
-      Array.from({ length: count }, (_, i) => ({ words: [w('aa', `1:${i + 1}`)] })),
-    );
+    const data = mkData(Array.from({ length: count }, (_, i) => ({ words: [w('aa', `1:${i + 1}`)] })));
     const layout = computeMushafLineLayout(fakeCtx, data, 42, 'QCF4_Hafs_01');
     expect(layout.isShortPage).toBe(true);
     // getLineY(0) is a special case returning 0; the painted first line sits at TOP_OFFSET
@@ -195,11 +197,7 @@ describe('computeMushafLineLayout', () => {
   it('centers lines on opening pages and keeps empty-line placeholders', () => {
     const layout = computeMushafLineLayout(
       fakeCtx,
-      mkData([
-        { words: [w('aaaa'), w('bb')] },
-        { words: [] },
-        { words: [w('c', '1:3')] },
-      ]),
+      mkData([{ words: [w('aaaa'), w('bb')] }, { words: [] }, { words: [w('c', '1:3')] }]),
       1,
       'QCF4_Hafs_01',
     );

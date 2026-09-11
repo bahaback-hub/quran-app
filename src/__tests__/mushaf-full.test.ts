@@ -132,7 +132,7 @@ vi.mock('../app.js', () => ({
   highlightCurrentAyah: vi.fn(),
 }));
 
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   prepareAudioForNewSurah: vi.fn(),
   playCurrentAyah: vi.fn(),
   updatePlayPauseBtn: vi.fn(),
@@ -166,7 +166,7 @@ import {
 } from '../features/mushaf/mushaf.js';
 
 import { loadSurah, renderSurah, updatePlayerInfo, highlightCurrentAyah } from '../app.js';
-import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from '../audio.js';
+import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from '../features/audio/audio.js';
 import { handlePageClick, getAyahHighlightRects } from '../ayah-click.js';
 import { renderPage, loadPageData } from '../features/mushaf/mushaf-renderer.js';
 import { loadTafsirForSurahAyah } from '../tafsir.js';

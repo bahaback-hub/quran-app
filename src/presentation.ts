@@ -2,7 +2,7 @@ import { __ } from './i18n.js';
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
-import { togglePlayPause, updatePlayPauseBtn, playCurrentAyah } from './audio.js';
+import { togglePlayPause, updatePlayPauseBtn, playCurrentAyah } from './features/audio/audio.js';
 import { highlightCurrentAyah, loadSurah } from './surah-loader.js';
 import { getFullscreenElement, requestFullscreen, exitFullscreen, isFullscreen } from './types.js';
 import type { SurahDataLike, TranslationDataLike } from './types.js';

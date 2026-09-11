@@ -48,7 +48,11 @@ function prefersStaticPresentationBackground(): boolean {
 }
 
 function canPlay(overlay: HTMLElement, forceMotion: boolean): boolean {
-  return document.visibilityState === 'visible' && overlay.isConnected && (forceMotion || !prefersStaticPresentationBackground());
+  return (
+    document.visibilityState === 'visible' &&
+    overlay.isConnected &&
+    (forceMotion || !prefersStaticPresentationBackground())
+  );
 }
 
 /** Pause or resume the active video according to current visibility and user preferences. */
@@ -142,7 +146,9 @@ export function applyPresentationVideo(overlay: HTMLElement, videoId = 'eva', fo
     video.src = selectedVideo.src;
     video.poster = selectedVideo.poster;
     video.dataset['presentationVideo'] = videoId;
-    video.addEventListener('loadeddata', () => syncPresentationVideoPlayback(overlay, shouldForceMotion), { once: true });
+    video.addEventListener('loadeddata', () => syncPresentationVideoPlayback(overlay, shouldForceMotion), {
+      once: true,
+    });
     video.addEventListener('error', () => setPresentationVideoRetryState(overlay, true), { once: true });
     video.load();
   }

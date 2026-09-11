@@ -289,7 +289,7 @@ function handleOnError(
   // تحسين تسجيل الأخطاء لتحديد السبب الحقيقي
   const msg = message instanceof Event ? `[object Event: ${message.type}]` : String(message);
   const stack = error?.stack || (message instanceof Error ? message.stack : undefined);
-  
+
   logError({
     type: 'sync',
     message: msg,

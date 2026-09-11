@@ -16,10 +16,7 @@ function env(key: string, fallback: string): string {
 }
 
 /** Base URL of the quran.com v4 API (word timings, recitations). */
-export const QURAN_COM_API_BASE: string = env(
-  'VITE_QURAN_COM_API_BASE',
-  'https://api.quran.com/api/v4',
-);
+export const QURAN_COM_API_BASE: string = env('VITE_QURAN_COM_API_BASE', 'https://api.quran.com/api/v4');
 
 /**
  * Ordered mirrors serving the quran-qcf4 page-layout JSONs. The first
@@ -41,7 +38,10 @@ export function mushafPageLayoutUrls(pageNum: number): string[] {
   const padded = String(pageNum).padStart(3, '0');
   const override = env('VITE_MUSHAF_PAGE_SOURCES', '');
   const bases = override
-    ? override.split(',').map((s) => s.trim()).filter(Boolean)
+    ? override
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
     : MUSHAF_PAGE_SOURCES;
   return bases.map((base) => `${base}${padded}.json`);
 }

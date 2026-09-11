@@ -21,10 +21,12 @@ function stubMatchMedia(matches: Record<string, boolean> = {}): void {
 }
 
 describe('media()', () => {
-  beforeEach(() => stubMatchMedia({
-    '(max-width: 600px)': true,
-    '(pointer: coarse)': true,
-  }));
+  beforeEach(() =>
+    stubMatchMedia({
+      '(max-width: 600px)': true,
+      '(pointer: coarse)': true,
+    }),
+  );
 
   it('returns yes/no for supported queries', () => {
     expect(media('(max-width: 600px)')).toBe('yes');
@@ -79,7 +81,7 @@ describe('collectResponsiveMetrics()', () => {
       '(max-width: 900px)': false,
       '(min-width: 1440px)': true,
     });
-    Object.defineProperty(window, 'innerWidth',  { value: 1920, configurable: true });
+    Object.defineProperty(window, 'innerWidth', { value: 1920, configurable: true });
     Object.defineProperty(window, 'innerHeight', { value: 1080, configurable: true });
     Object.defineProperty(window, 'devicePixelRatio', { value: 2, configurable: true });
     Object.defineProperty(navigator, 'maxTouchPoints', { value: 0, configurable: true });
@@ -117,17 +119,19 @@ describe('collectResponsiveMetrics()', () => {
 });
 
 describe('buildDiagnosticsPanel()', () => {
-  beforeEach(() => stubMatchMedia({
-    '(pointer: coarse)': false,
-    '(pointer: fine)': true,
-    '(hover: hover)': true,
-    '(hover: none)': false,
-    '(orientation: portrait)': true,
-    '(prefers-reduced-motion: reduce)': false,
-    '(max-width: 600px)': true,
-    '(max-width: 900px)': true,
-    '(min-width: 1440px)': false,
-  }));
+  beforeEach(() =>
+    stubMatchMedia({
+      '(pointer: coarse)': false,
+      '(pointer: fine)': true,
+      '(hover: hover)': true,
+      '(hover: none)': false,
+      '(orientation: portrait)': true,
+      '(prefers-reduced-motion: reduce)': false,
+      '(max-width: 600px)': true,
+      '(max-width: 900px)': true,
+      '(min-width: 1440px)': false,
+    }),
+  );
 
   it('creates a single DOM node containing key metrics', () => {
     const metrics = collectResponsiveMetrics();
@@ -163,19 +167,23 @@ describe('initResponsiveDiagnostics()', () => {
 
   it('mounts the panel when param is present and returns cleanup', () => {
     stubMatchMedia({
-      '(pointer: coarse)': false, '(pointer: fine)': true,
-      '(hover: hover)': true, '(hover: none)': false,
+      '(pointer: coarse)': false,
+      '(pointer: fine)': true,
+      '(hover: hover)': true,
+      '(hover: none)': false,
       '(orientation: portrait)': false,
       '(prefers-reduced-motion: reduce)': false,
-      '(max-width: 600px)': false, '(max-width: 900px)': false,
+      '(max-width: 600px)': false,
+      '(max-width: 900px)': false,
       '(min-width: 1440px)': true,
     });
-    Object.defineProperty(window, 'innerWidth',  { value: 1920, configurable: true });
+    Object.defineProperty(window, 'innerWidth', { value: 1920, configurable: true });
     Object.defineProperty(window, 'innerHeight', { value: 1080, configurable: true });
     Object.defineProperty(window, 'devicePixelRatio', { value: 1.5, configurable: true });
     Object.defineProperty(navigator, 'maxTouchPoints', { value: 0, configurable: true });
     Object.defineProperty(navigator, 'userAgent', {
-      value: 'Chrome/126 Test', configurable: true,
+      value: 'Chrome/126 Test',
+      configurable: true,
     });
     Object.defineProperty(window, 'location', {
       value: new URL('https://example.com/app?diag=response'),

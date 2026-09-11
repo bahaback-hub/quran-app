@@ -352,7 +352,7 @@ describe('audio-cache.ts — branch coverage', () => {
       throw new Error('IndexedDB unavailable');
     }) as unknown as typeof indexedDB.open;
     // Force reimport to reset module state is not possible; instead test via cacheStats which calls openDB
-    const mod = await import('../audio-cache.js');
+    const mod = await import('../features/audio/audio-cache.js');
     // Should handle gracefully (returns empty stats on error)
     const stats = await mod.getCacheStats();
     expect(stats).toBeDefined();
@@ -375,7 +375,7 @@ describe('audio-cache.ts — branch coverage', () => {
       }, 0);
       return req;
     }) as unknown as typeof indexedDB.open;
-    const mod = await import('../audio-cache.js');
+    const mod = await import('../features/audio/audio-cache.js');
     const stats = await mod.getCacheStats();
     expect(stats.fileCount).toBe(0);
     expect(stats.totalSize).toBe(0);
@@ -383,7 +383,7 @@ describe('audio-cache.ts — branch coverage', () => {
   });
 
   it('getCachedAudioUrl should return null when cache miss', async () => {
-    const mod = await import('../audio-cache.js');
+    const mod = await import('../features/audio/audio-cache.js');
     const url = await mod.getCachedAudioUrl('https://nonexistent.example/audio.mp3');
     expect(url).toBeNull();
   });
@@ -403,7 +403,7 @@ describe('audio-cache.ts — branch coverage', () => {
       }, 0);
       return req;
     }) as unknown as typeof indexedDB.open;
-    const mod = await import('../audio-cache.js');
+    const mod = await import('../features/audio/audio-cache.js');
     const url = await mod.getCachedAudioUrl('https://example.com/audio.mp3');
     expect(url).toBeNull();
     indexedDB.open = original;
@@ -414,7 +414,7 @@ describe('audio-cache.ts — branch coverage', () => {
     indexedDB.open = vi.fn(() => {
       throw new Error('fail');
     }) as unknown as typeof indexedDB.open;
-    const mod = await import('../audio-cache.js');
+    const mod = await import('../features/audio/audio-cache.js');
     await expect(mod.clearAudioCache()).resolves.not.toThrow();
     indexedDB.open = original;
   });
@@ -424,7 +424,7 @@ describe('audio-cache.ts — branch coverage', () => {
     indexedDB.open = vi.fn(() => {
       throw new Error('fail');
     }) as unknown as typeof indexedDB.open;
-    const mod = await import('../audio-cache.js');
+    const mod = await import('../features/audio/audio-cache.js');
     await expect(mod.deleteSurahCache(1, 'ar.abdulbasitmurattal')).resolves.not.toThrow();
     indexedDB.open = original;
   });
@@ -434,7 +434,7 @@ describe('audio-cache.ts — branch coverage', () => {
     indexedDB.open = vi.fn(() => {
       throw new Error('fail');
     }) as unknown as typeof indexedDB.open;
-    const mod = await import('../audio-cache.js');
+    const mod = await import('../features/audio/audio-cache.js');
     const result = await mod.isAudioCached('https://example.com/check.mp3');
     expect(result).toBe(false);
     indexedDB.open = original;
@@ -445,7 +445,7 @@ describe('audio-cache.ts — branch coverage', () => {
     indexedDB.open = vi.fn(() => {
       throw new Error('fail');
     }) as unknown as typeof indexedDB.open;
-    const mod = await import('../audio-cache.js');
+    const mod = await import('../features/audio/audio-cache.js');
     const result = await mod.isSurahCached(['https://example.com/check.mp3']);
     expect(result).toBe(false);
     indexedDB.open = original;
@@ -456,7 +456,7 @@ describe('audio-cache.ts — branch coverage', () => {
     indexedDB.open = vi.fn(() => {
       throw new Error('fail');
     }) as unknown as typeof indexedDB.open;
-    const mod = await import('../audio-cache.js');
+    const mod = await import('../features/audio/audio-cache.js');
     const blob = await mod.getCachedAudioBlob('https://example.com/blob.mp3');
     expect(blob).toBeNull();
     indexedDB.open = original;
@@ -469,92 +469,92 @@ describe('audio-cache.ts — branch coverage', () => {
 
 describe('audio.ts — defensive branches', () => {
   it('prepareAudioForNewSurah should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.prepareAudioForNewSurah()).not.toThrow();
   });
 
   it('resetAudioPlayerUI should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.resetAudioPlayerUI()).not.toThrow();
   });
 
   it('resetAudioElement should handle null player', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.resetAudioElement(null)).not.toThrow();
   });
 
   it('updatePlayPauseBtn should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.updatePlayPauseBtn()).not.toThrow();
   });
 
   it('resetRepeatUI should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.resetRepeatUI()).not.toThrow();
   });
 
   it('expandPlayer should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.expandPlayer()).not.toThrow();
   });
 
   it('nextAyah should not throw when state is empty', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.nextAyah(false)).not.toThrow();
   });
 
   it('prevAyah should not throw when state is empty', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.prevAyah()).not.toThrow();
   });
 
   it('nextSurah should not throw when state is empty', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.nextSurah()).not.toThrow();
   });
 
   it('prevSurah should not throw when state is empty', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.prevSurah()).not.toThrow();
   });
 
   it('applyHifdhUI should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.applyHifdhUI(false)).not.toThrow();
   });
 
   it('toggleHifdh should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.toggleHifdh()).not.toThrow();
   });
 
   it('toggleRepeat should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.toggleRepeat()).not.toThrow();
   });
 
   it('togglePlayPause should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.togglePlayPause()).not.toThrow();
   });
 
   it('bindAudioEvents should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.bindAudioEvents()).not.toThrow();
   });
 
   it('applyRepeatUI should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.applyRepeatUI(false)).not.toThrow();
   });
 
   it('populateRepeatUI should not throw when DOM is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     expect(() => mod.populateRepeatUI({ start: 1, end: 7 })).not.toThrow();
   });
 
   it('playCurrentAyah should not throw when audio element is missing', async () => {
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     await expect(mod.playCurrentAyah()).resolves.not.toThrow();
   });
 });

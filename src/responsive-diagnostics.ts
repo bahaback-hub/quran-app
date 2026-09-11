@@ -40,9 +40,7 @@ export function media(mq: string): string {
 
 /** Collect the responsive metric snapshot. Pure and testable. */
 export function collectResponsiveMetrics(el?: Element | null): ResponsiveMetrics {
-  const vv = typeof window.visualViewport === 'object' && window.visualViewport
-    ? window.visualViewport
-    : null;
+  const vv = typeof window.visualViewport === 'object' && window.visualViewport ? window.visualViewport : null;
   let containerWidth = 0;
   if (el) {
     containerWidth = el.clientWidth || 0;
@@ -60,23 +58,22 @@ export function collectResponsiveMetrics(el?: Element | null): ResponsiveMetrics
     cssHeight: typeof document !== 'undefined' ? document.documentElement.clientHeight : 0,
     devicePixelRatio: typeof window !== 'undefined' ? Math.round(window.devicePixelRatio * 1000) / 1000 : 0,
     touchPoints: typeof navigator !== 'undefined' ? navigator.maxTouchPoints || 0 : 0,
-    pointer: media('(pointer: coarse)') === 'yes'
-      ? 'coarse (touch)'
-      : media('(pointer: fine)') === 'yes'
-        ? 'fine (mouse/pen)'
-        : 'none',
-    hover: media('(hover: hover)') === 'yes'
-      ? 'hover'
-      : media('(hover: none)') === 'yes'
-        ? 'no-hover'
-        : 'n/a',
+    pointer:
+      media('(pointer: coarse)') === 'yes'
+        ? 'coarse (touch)'
+        : media('(pointer: fine)') === 'yes'
+          ? 'fine (mouse/pen)'
+          : 'none',
+    hover: media('(hover: hover)') === 'yes' ? 'hover' : media('(hover: none)') === 'yes' ? 'no-hover' : 'n/a',
     orientation: media('(orientation: portrait)') === 'yes' ? 'portrait' : 'landscape',
     userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
     containerWidth,
   };
 }
 
-const EMPTY_NOOP = (): void => { /* no-op */ };
+const EMPTY_NOOP = (): void => {
+  /* no-op */
+};
 
 /**
  * Build a small on-screen panel for the developer.
@@ -96,15 +93,15 @@ export function buildDiagnosticsPanel(
     'text-align:left;max-width:min(92vw,360px);box-shadow:0 8px 28px #0006;';
 
   const head = document.createElement('div');
-  head.style.cssText = 'display:flex;justify-content:space-between;align-items:center;' +
-    'font-weight:700;gap:12px;color:#38bdf8;';
+  head.style.cssText =
+    'display:flex;justify-content:space-between;align-items:center;' + 'font-weight:700;gap:12px;color:#38bdf8;';
   head.textContent = 'Responsive diag';
   const close = document.createElement('button');
   close.type = 'button';
   close.setAttribute('aria-label', 'إغلاق لوحة الفحص');
   close.textContent = '✕';
-  close.style.cssText = 'border:0;background:#38bdf8;color:#062536;' +
-    'border-radius:6px;cursor:pointer;font-weight:700;padding:2px 8px;';
+  close.style.cssText =
+    'border:0;background:#38bdf8;color:#062536;' + 'border-radius:6px;cursor:pointer;font-weight:700;padding:2px 8px;';
   close.addEventListener('click', () => panel.remove());
   head.appendChild(close);
 

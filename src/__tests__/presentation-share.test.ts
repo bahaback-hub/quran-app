@@ -37,7 +37,9 @@ vi.mock('@capacitor/filesystem', () => ({
   Directory: { Cache: 'CACHE' },
   Filesystem: { writeFile: filesystemMock.writeFile },
 }));
-vi.mock('@capacitor/share', () => ({ Share: { canShare: capacitorShareMock.canShare, share: capacitorShareMock.share } }));
+vi.mock('@capacitor/share', () => ({
+  Share: { canShare: capacitorShareMock.canShare, share: capacitorShareMock.share },
+}));
 vi.mock('../state.js', () => ({ state: mockState }));
 
 function mountPreview(): void {
@@ -203,7 +205,7 @@ describe('presentation image sharing', () => {
     expect(document.getElementById('presentationSharePreview')?.classList.contains('hidden')).toBe(true);
   });
 
-it('marks the video creating status as failed when the timing service is unavailable', async () => {
+  it('marks the video creating status as failed when the timing service is unavailable', async () => {
     // Recording is advertised as supported so the video button stays enabled;
     // the Alafasy timing request then fails (503) and the status must degrade.
     class MediaRecorderMock {}
@@ -251,7 +253,7 @@ it('marks the video creating status as failed when the timing service is unavail
     expect(document.getElementById('presentationSharePreview')?.classList.contains('hidden')).toBe(true);
   });
 
-it('shares through the Capacitor bridge when running inside the native wrapper', async () => {
+  it('shares through the Capacitor bridge when running inside the native wrapper', async () => {
     capacitorMock.isNativePlatform.mockImplementation(() => true);
     const { initPresentationShare } = await import('../presentation-share.js');
     initPresentationShare();
@@ -273,4 +275,3 @@ it('shares through the Capacitor bridge when running inside the native wrapper',
     expect(mockDom.presShareBtn.dataset['presentationShareBound']).toBe('true');
   });
 });
-

@@ -17,7 +17,7 @@ afterEach(() => {
 describe('setSleepTimer / clearSleepTimer', () => {
   async function freshMod() {
     vi.useFakeTimers();
-    const mod = await import('../audio.js');
+    const mod = await import('../features/audio/audio.js');
     mod.clearSleepTimer();
     dom.audioPlayer = document.createElement('audio');
     dom.playPauseBtn = document.createElement('button');

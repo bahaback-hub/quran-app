@@ -10,7 +10,7 @@
  */
 
 import { CONFIG } from './config.js';
-import { cacheSurahAudio, isSurahCached } from './audio-cache.js';
+import { cacheSurahAudio, isSurahCached } from './features/audio/audio-cache.js';
 import { cacheExternalData } from './external-data-cache.js';
 import { buildAudioUrl, getReciterById } from './reciters.js';
 

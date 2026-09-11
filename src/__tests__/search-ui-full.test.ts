@@ -86,7 +86,7 @@ vi.mock('../app.js', () => ({
   highlightCurrentAyah: vi.fn(),
 }));
 
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   playCurrentAyah: vi.fn(),
 }));
 
@@ -151,7 +151,7 @@ import {
 } from '../internal-state.js';
 import { copyToClipboard } from '../utils.js';
 import { loadSurah, highlightCurrentAyah } from '../app.js';
-import { playCurrentAyah } from '../audio.js';
+import { playCurrentAyah } from '../features/audio/audio.js';
 
 // ═══════════════════════════════════════════════════════════════
 // performExactSearch
