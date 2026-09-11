@@ -33,7 +33,7 @@ import {
   escapeHtml,
 } from './templates.js';
 import { loadSurah, highlightCurrentAyah } from './app.js';
-import { playCurrentAyah } from './audio.js';
+import { playCurrentAyah } from './features/audio/audio.js';
 import {
   SEARCH_PAGE_SIZE,
   performSearch,

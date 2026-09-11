@@ -84,10 +84,7 @@ describe('initNavigation', () => {
   it('binds collapsed-mode nav buttons without expanding the player', async () => {
     const { initNavigation } = await import('../navigation.js');
     initNavigation();
-    const ids = [
-      'collapsedPrevAyahBtn',
-      'collapsedNextAyahBtn',
-    ];
+    const ids = ['collapsedPrevAyahBtn', 'collapsedNextAyahBtn'];
     for (const id of ids) {
       const btn = document.getElementById(id);
       expect(btn).not.toBeNull();

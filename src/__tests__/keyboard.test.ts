@@ -3,7 +3,7 @@ import { state } from '../state.js';
 import { dom } from '../dom.js';
 
 // Mock all the imported modules so keyboard shortcuts can be tested in isolation
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   togglePlayPause: vi.fn(),
   nextAyah: vi.fn(),
   prevAyah: vi.fn(),
@@ -65,7 +65,7 @@ import {
   toggleHifdh,
   toggleRepeat,
   collapsePlayer,
-} from '../audio.js';
+} from '../features/audio/audio.js';
 import { toggleNightMode, applyFontSize, closeSettings } from '../settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark } from '../favorites.js';
 import { stopAzan } from '../prayer.js';

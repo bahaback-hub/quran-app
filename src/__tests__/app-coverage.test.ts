@@ -112,7 +112,7 @@ vi.mock('../adhkar.js', () => ({
   startAdhkarNotificationScheduler: vi.fn(),
 }));
 
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   bindAudioEvents: vi.fn(),
   setLoadSurah: vi.fn(),
 }));
@@ -206,7 +206,7 @@ describe('app.ts — initApp', () => {
     });
 
     it('should call setLoadSurah with loadSurah', async () => {
-      const { setLoadSurah } = await import('../audio.js');
+      const { setLoadSurah } = await import('../features/audio/audio.js');
       await initApp();
       expect(setLoadSurah).toHaveBeenCalledWith(expect.any(Function));
     });
@@ -306,7 +306,7 @@ describe('app.ts — initApp', () => {
     });
 
     it('should call bindAudioEvents', async () => {
-      const { bindAudioEvents } = await import('../audio.js');
+      const { bindAudioEvents } = await import('../features/audio/audio.js');
       await initApp();
       expect(bindAudioEvents).toHaveBeenCalled();
     });

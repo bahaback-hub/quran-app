@@ -134,7 +134,7 @@ vi.mock('../i18n.js', () => ({
   loadLocale: vi.fn(() => Promise.resolve()),
 }));
 
-vi.mock('../audio-cache.js', () => ({
+vi.mock('../features/audio/audio-cache.js', () => ({
   getCachedAudioUrl: (...args: unknown[]) => mockGetCachedAudioUrl(...args),
 }));
 
@@ -167,7 +167,7 @@ import {
   clearSleepTimer,
   cleanupSleepTimerInterval,
   type RepeatRange,
-} from '../audio.js';
+} from '../features/audio/audio.js';
 
 import type { SurahData } from '../types.js';
 

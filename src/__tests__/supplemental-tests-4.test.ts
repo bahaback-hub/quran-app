@@ -156,7 +156,7 @@ import { state } from '../state.js';
 import { dom } from '../dom.js';
 
 // Mock external action modules - keyboard.ts calls these
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   togglePlayPause: vi.fn(),
   nextAyah: vi.fn(),
   prevAyah: vi.fn(),
@@ -196,7 +196,7 @@ vi.mock('../prayer.js', () => ({
 }));
 
 // Import the mocked modules — these will be the mocked versions
-import * as audio from '../audio.js';
+import * as audio from '../features/audio/audio.js';
 import * as settings from '../settings.js';
 import * as favorites from '../favorites.js';
 import * as tafsir from '../tafsir.js';
@@ -485,7 +485,7 @@ import {
   getCacheStats,
   deleteSurahCache,
   clearAudioCache,
-} from '../audio-cache.js';
+} from '../features/audio/audio-cache.js';
 
 describe('audio-cache.ts — eviction paths', () => {
   beforeEach(() => {

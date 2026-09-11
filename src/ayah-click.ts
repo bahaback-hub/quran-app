@@ -55,7 +55,12 @@ function getAyahFromWord(word: LayoutWord): AyahInfo | null {
   return null;
 }
 
-function ayahKeyMatches(verseKey: string | undefined, location: string | undefined, surah: number, ayah: number): boolean {
+function ayahKeyMatches(
+  verseKey: string | undefined,
+  location: string | undefined,
+  surah: number,
+  ayah: number,
+): boolean {
   const key = verseKey || location;
   if (!key) {
     return false;

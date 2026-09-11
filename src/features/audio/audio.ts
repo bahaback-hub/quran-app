@@ -14,15 +14,15 @@
  * to inject the surah-loading callback, avoiding circular imports.
  */
 
-import { state } from './state.js';
-import { dom } from './dom.js';
-import { storage } from './storage.js';
-import { showToast } from './ui.js';
-import { hapticFeedback } from './utils.js';
-import { highlightCurrentAyah } from './surah-loader.js';
-import { __ } from './i18n.js';
+import { state } from '../../state.js';
+import { dom } from '../../dom.js';
+import { storage } from '../../storage.js';
+import { showToast } from '../../ui.js';
+import { hapticFeedback } from '../../utils.js';
+import { highlightCurrentAyah } from '../../surah-loader.js';
+import { __ } from '../../i18n.js';
 import { getCachedAudioUrl } from './audio-cache.js';
-import type { SurahData } from './types.js';
+import type { SurahData } from '../../types.js';
 
 /* ===================== INTERFACES ===================== */
 

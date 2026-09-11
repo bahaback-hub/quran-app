@@ -36,7 +36,7 @@ import {
   nextSurah,
   prevSurah,
   type RepeatRange,
-} from '../audio.js';
+} from '../features/audio/audio.js';
 import type { SurahData } from '../types.js';
 
 // Mock dependencies
@@ -98,7 +98,7 @@ vi.mock('../i18n.js', () => ({
   __: (key: string) => key,
 }));
 
-vi.mock('../audio-cache.js', () => ({
+vi.mock('../features/audio/audio-cache.js', () => ({
   getCachedAudioUrl: vi.fn(() => Promise.resolve(null)),
 }));
 

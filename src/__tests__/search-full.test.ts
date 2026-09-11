@@ -98,7 +98,7 @@ vi.mock('../app.js', () => ({
   highlightCurrentAyah: vi.fn(),
 }));
 
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   playCurrentAyah: vi.fn(),
 }));
 

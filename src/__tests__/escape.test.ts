@@ -11,7 +11,7 @@ describe('escapeHtml', () => {
     expect(escapeHtml('<script>')).toBe('&lt;script&gt;');
     expect(escapeHtml('one > two')).toBe('one &gt; two');
     expect(escapeHtml('say "hi"')).toBe('say &quot;hi&quot;');
-    expect(escapeHtml('it\'s')).toBe('it&#39;s');
+    expect(escapeHtml("it's")).toBe('it&#39;s');
   });
 
   it('escapes every metacharacter in a single pass', () => {
@@ -37,9 +37,7 @@ describe('escapeHtml', () => {
 
 describe('escapeAttr', () => {
   it('escapes values for HTML attribute contexts', () => {
-    expect(escapeAttr('"><img src=x onerror=alert(1)>')).toBe(
-      '&quot;&gt;&lt;img src=x onerror=alert(1)&gt;',
-    );
+    expect(escapeAttr('"><img src=x onerror=alert(1)>')).toBe('&quot;&gt;&lt;img src=x onerror=alert(1)&gt;');
     expect(escapeAttr('plain value')).toBe('plain value');
   });
 

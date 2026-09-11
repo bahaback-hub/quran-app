@@ -102,7 +102,9 @@ function getColor(rule: string): string {
   if (body && body.classList.contains('night-mode')) {
     // Deep-night uses a pure-black surface; pick the higher-contrast palette.
     if (body.classList.contains('deep-night-mode')) {
-      return (DEEP_NIGHT_COLORS as Record<string, string>)[rule] || (NIGHT_COLORS as Record<string, string>)[rule] || '#000';
+      return (
+        (DEEP_NIGHT_COLORS as Record<string, string>)[rule] || (NIGHT_COLORS as Record<string, string>)[rule] || '#000'
+      );
     }
     return (NIGHT_COLORS as Record<string, string>)[rule] || (RULE_COLORS as Record<string, string>)[rule] || '#000';
   }

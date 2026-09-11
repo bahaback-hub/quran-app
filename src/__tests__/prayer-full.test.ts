@@ -129,7 +129,7 @@ vi.mock('../templates.js', () => ({
   prayerTimesRows: mockPrayerTimesRows,
 }));
 
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   updatePlayPauseBtn: mockUpdatePlayPauseBtn,
 }));
 
@@ -308,12 +308,9 @@ describe('prayer.ts', () => {
           timings: SAMPLE_PRAYER_TIMES,
         }),
       );
-      expect(mockPrayerFetch).toHaveBeenCalledWith(
-        '?city=London&country=GB&method=4',
-        {
-          errorMsg: 'failed_prayer',
-        },
-      );
+      expect(mockPrayerFetch).toHaveBeenCalledWith('?city=London&country=GB&method=4', {
+        errorMsg: 'failed_prayer',
+      });
       expect(mockCalculatePrayerTimesLocally).not.toHaveBeenCalled();
 
       (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
