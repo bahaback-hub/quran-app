@@ -38,7 +38,7 @@ vi.mock('../state.js', () => ({
 }));
 
 // Mock prayer module
-vi.mock('../prayer.js', () => ({
+vi.mock('../features/prayer/prayer.js', () => ({
   stopClock: vi.fn(),
   startClock: vi.fn(),
 }));

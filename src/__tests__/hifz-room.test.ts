@@ -121,7 +121,7 @@ vi.mock('../tafsir.js', () => ({ closeTafsir: mockCloseTafsir }));
 vi.mock('../adhkar.js', () => ({ closeAdhkarPanel: mockCloseAdhkarPanel }));
 vi.mock('../favorites.js', () => ({ closeFavorites: mockCloseFavorites }));
 vi.mock('../settings.js', () => ({ closeSettings: mockCloseSettings }));
-vi.mock('../prayer.js', () => ({ hideQiblaCompass: mockHideQiblaCompass, togglePrayerBar: mockTogglePrayerBar }));
+vi.mock('../features/prayer/prayer.js', () => ({ hideQiblaCompass: mockHideQiblaCompass, togglePrayerBar: mockTogglePrayerBar }));
 vi.mock('../reciters.js', () => ({
   RECITERS: [{ id: 'ar.alafasy' }, { id: 'ar.husary' }],
   getReciterDisplayName: (reciter: { id: string }) => (reciter.id === 'ar.husary' ? 'الحصري' : 'العفاسي'),

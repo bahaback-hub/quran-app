@@ -1,13 +1,13 @@
-import { state } from './state.js';
-import { CONFIG, PRAYER_ORDER, PRAYER_DISPLAY_ORDER } from './config.js';
-import { dom } from './dom.js';
-import { storage } from './storage.js';
-import { showToast } from './ui.js';
-import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
-import { prayerFetch } from './api-client.js';
-import { __, getCityName, getPrayerName } from './i18n.js';
-import { prayerTimesRows } from './templates.js';
-import { updatePlayPauseBtn } from './features/audio/audio.js';
+import { state } from '../../state.js';
+import { CONFIG, PRAYER_ORDER, PRAYER_DISPLAY_ORDER } from '../../config.js';
+import { dom } from '../../dom.js';
+import { storage } from '../../storage.js';
+import { showToast } from '../../ui.js';
+import { pad2, formatTime12, timeStrToMinutes } from '../../utils.js';
+import { prayerFetch } from '../../api-client.js';
+import { __, getCityName, getPrayerName } from '../../i18n.js';
+import { prayerTimesRows } from '../../templates.js';
+import { updatePlayPauseBtn } from '../audio/audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
@@ -172,7 +172,7 @@ export async function loadPrayerTimesFromLocalJSON(city: string): Promise<Record
 /** Shape of cached prayer times stored in localStorage. */
 interface CachedPrayerTimes {
   date: string;
-  timings: import('./types.js').PrayerTimes;
+  timings: import('../../types.js').PrayerTimes;
   city: string;
   country: string;
   method: string;
@@ -181,7 +181,7 @@ interface CachedPrayerTimes {
 /** Device-derived times are deliberately kept separate from an explicitly selected city. */
 interface CachedLocalPrayerTimes {
   date: string;
-  timings: import('./types.js').PrayerTimes;
+  timings: import('../../types.js').PrayerTimes;
   method: string;
   source: 'device-location';
 }
@@ -345,7 +345,7 @@ export async function loadPrayerTimes(): Promise<void> {
   // Highest priority: matches ummulqura.org.sa exactly, no network round-trip.
   const underwritten = getUnderwrittenPrayerTimes(city);
   if (underwritten) {
-    state.prayerTimes = underwritten as import('./types.js').PrayerTimes;
+    state.prayerTimes = underwritten as import('../../types.js').PrayerTimes;
     storage.set('cached_prayer_times', {
       date: new Date().toISOString(),
       timings: state.prayerTimes,
@@ -363,7 +363,7 @@ export async function loadPrayerTimes(): Promise<void> {
   // Instant (no network), works fully offline, uses Umm Al-Qura calendar (method=4).
   const localTimes = await loadPrayerTimesFromLocalJSON(city);
   if (localTimes) {
-    state.prayerTimes = localTimes as import('./types.js').PrayerTimes;
+    state.prayerTimes = localTimes as import('../../types.js').PrayerTimes;
     storage.set('cached_prayer_times', {
       date: new Date().toISOString(),
       timings: state.prayerTimes,
@@ -386,12 +386,12 @@ export async function loadPrayerTimes(): Promise<void> {
   if (!isSaudiCity) {
     const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
     try {
-      const data: import('./types.js').AladhanTimingsResponse = await prayerFetch(query, {
+      const data: import('../../types.js').AladhanTimingsResponse = await prayerFetch(query, {
         errorMsg: __('failed_prayer'),
       });
       if (data?.data?.timings) {
         // Aladhan returns Record<string,string>; cast to PrayerTimes for type-safe state
-        state.prayerTimes = data.data.timings as import('./types.js').PrayerTimes;
+        state.prayerTimes = data.data.timings as import('../../types.js').PrayerTimes;
         storage.set('cached_prayer_times', {
           date: new Date().toISOString(),
           timings: state.prayerTimes,
@@ -967,7 +967,7 @@ export function showQiblaCompass(): void {
     }
 
     _qiblaOrientationHandler = handleOrientation as (ev: DeviceOrientationEvent) => void;
-    const DOE = DeviceOrientationEvent as unknown as import('./types.js').WebkitDeviceOrientationEvent;
+    const DOE = DeviceOrientationEvent as unknown as import('../../types.js').WebkitDeviceOrientationEvent;
     if (typeof DOE.requestPermission === 'function') {
       void DOE.requestPermission()
         .then((permState: string) => {

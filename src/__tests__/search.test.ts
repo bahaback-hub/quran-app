@@ -77,14 +77,14 @@ describe('performExactSearch', () => {
     const domModule = await import('../dom.js');
     domModule.dom.searchResults = document.createElement('div');
 
-    const searchModule = await import('../search.js');
+    const searchModule = await import('../features/search/search.js');
     // performExactSearch depends on __, search-core, etc.
     // Just verify it doesn't throw with proper data
     expect(() => searchModule.performExactSearch('اللَّهِ')).not.toThrow();
   });
 
   it('should show toast for short queries', async () => {
-    const searchModule = await import('../search.js');
+    const searchModule = await import('../features/search/search.js');
     const uiModule = await import('../ui.js');
     const toastSpy = vi.spyOn(uiModule, 'showToast');
     searchModule.performExactSearch('a');
@@ -92,7 +92,7 @@ describe('performExactSearch', () => {
   });
 
   it('should show toast if Quran not loaded', async () => {
-    const searchModule = await import('../search.js');
+    const searchModule = await import('../features/search/search.js');
     const { state } = await import('../state.js');
     state.fullQuranLoaded = false;
     const uiModule = await import('../ui.js');

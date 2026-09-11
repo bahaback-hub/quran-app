@@ -54,7 +54,7 @@ import {
   applyAnimatedBg,
   removeSceneCanvas,
   startSceneAnimation,
-} from '../pres-backgrounds.js';
+} from '../features/presentation/pres-backgrounds.js';
 
 describe('NATURE_BACKGROUNDS', () => {
   it('should have 5 background entries', () => {

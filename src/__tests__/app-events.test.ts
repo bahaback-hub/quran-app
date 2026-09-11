@@ -38,7 +38,7 @@ vi.mock('../features/audio/audio-cache.js', () => ({
 }));
 
 // Mock prayer module
-vi.mock('../prayer.js', () => ({
+vi.mock('../features/prayer/prayer.js', () => ({
   togglePrayerBar: vi.fn(),
   testAzan: vi.fn(),
   stopAzan: vi.fn(),
@@ -69,7 +69,7 @@ vi.mock('../surah-loader.js', () => ({
 }));
 
 // Mock search-ui
-vi.mock('../search-ui.js', () => ({
+vi.mock('../features/search/search-ui.js', () => ({
   performExactSearch: vi.fn(),
   loadFullQuranText: vi.fn(() => Promise.resolve()),
   initKeyboard: vi.fn(),
@@ -364,7 +364,7 @@ describe('app-events', () => {
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
       dom.testAzanBtn!.click();
-      const { testAzan } = await import('../prayer.js');
+      const { testAzan } = await import('../features/prayer/prayer.js');
       expect(testAzan).toHaveBeenCalled();
     });
 
@@ -372,7 +372,7 @@ describe('app-events', () => {
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
       dom.azanNotifStopBtn!.click();
-      const { stopAzan } = await import('../prayer.js');
+      const { stopAzan } = await import('../features/prayer/prayer.js');
       expect(stopAzan).toHaveBeenCalled();
     });
 
@@ -443,7 +443,7 @@ describe('app-events', () => {
       const event = new MouseEvent('click', { bubbles: true });
       Object.defineProperty(event, 'target', { value: dom.azanNotification, writable: false });
       dom.azanNotification!.dispatchEvent(event);
-      const { stopAzan } = await import('../prayer.js');
+      const { stopAzan } = await import('../features/prayer/prayer.js');
       expect(stopAzan).toHaveBeenCalled();
     });
 
@@ -459,7 +459,7 @@ describe('app-events', () => {
       const { bindAzanEvents } = await import('../app-events.js');
       bindAzanEvents();
       dom.azanPlayer!.dispatchEvent(new Event('ended'));
-      const { hideAzanNotification } = await import('../prayer.js');
+      const { hideAzanNotification } = await import('../features/prayer/prayer.js');
       expect(hideAzanNotification).toHaveBeenCalled();
     });
   });
@@ -747,7 +747,7 @@ describe('app-events', () => {
       bindPanelsAndShareEvents();
       dom.collapseBarBtn!.click();
       dom.expandBarBtn!.click();
-      const { togglePrayerBar } = await import('../prayer.js');
+      const { togglePrayerBar } = await import('../features/prayer/prayer.js');
       expect(togglePrayerBar).toHaveBeenCalledTimes(2);
     });
   });
@@ -760,7 +760,7 @@ describe('app-events', () => {
       const { bindSearchEvents } = await import('../app-events.js');
       bindSearchEvents();
       dom.searchBtn!.click();
-      const { performExactSearch } = await import('../search-ui.js');
+      const { performExactSearch } = await import('../features/search/search-ui.js');
       expect(performExactSearch).toHaveBeenCalledWith('الله');
     });
 
@@ -769,7 +769,7 @@ describe('app-events', () => {
       const { bindSearchEvents } = await import('../app-events.js');
       bindSearchEvents();
       dom.searchBtn!.click();
-      const { performExactSearch } = await import('../search-ui.js');
+      const { performExactSearch } = await import('../features/search/search-ui.js');
       expect(performExactSearch).not.toHaveBeenCalled();
     });
 
@@ -778,7 +778,7 @@ describe('app-events', () => {
       const { bindSearchEvents } = await import('../app-events.js');
       bindSearchEvents();
       dom.searchBtn!.click();
-      const { performExactSearch } = await import('../search-ui.js');
+      const { performExactSearch } = await import('../features/search/search-ui.js');
       expect(performExactSearch).not.toHaveBeenCalled();
     });
 
@@ -795,7 +795,7 @@ describe('app-events', () => {
       const { bindSearchEvents } = await import('../app-events.js');
       bindSearchEvents();
       dom.voiceSearchBtn!.click();
-      const { startVoiceSearch } = await import('../search-ui.js');
+      const { startVoiceSearch } = await import('../features/search/search-ui.js');
       expect(startVoiceSearch).toHaveBeenCalled();
     });
 
@@ -810,7 +810,7 @@ describe('app-events', () => {
     it('should call initKeyboard and initSearchAutocomplete', async () => {
       const { bindSearchEvents } = await import('../app-events.js');
       bindSearchEvents();
-      const { initKeyboard, initSearchAutocomplete } = await import('../search-ui.js');
+      const { initKeyboard, initSearchAutocomplete } = await import('../features/search/search-ui.js');
       expect(initKeyboard).toHaveBeenCalled();
       expect(initSearchAutocomplete).toHaveBeenCalled();
     });
@@ -918,7 +918,7 @@ describe('app-events', () => {
       const { bindMiscEvents } = await import('../app-events.js');
       bindMiscEvents();
       dom.qiblaCloseBtn!.click();
-      const { hideQiblaCompass } = await import('../prayer.js');
+      const { hideQiblaCompass } = await import('../features/prayer/prayer.js');
       expect(hideQiblaCompass).toHaveBeenCalled();
     });
 
@@ -927,7 +927,7 @@ describe('app-events', () => {
       const { bindMiscEvents } = await import('../app-events.js');
       bindMiscEvents();
       dom.qiblaBtn!.click();
-      const { hideQiblaCompass } = await import('../prayer.js');
+      const { hideQiblaCompass } = await import('../features/prayer/prayer.js');
       expect(hideQiblaCompass).toHaveBeenCalled();
     });
 

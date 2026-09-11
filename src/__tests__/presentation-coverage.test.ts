@@ -39,7 +39,7 @@ vi.mock('../types.js', async (importOriginal) => {
 });
 
 // Mock pres-backgrounds
-vi.mock('../pres-backgrounds.js', () => ({
+vi.mock('../features/presentation/pres-backgrounds.js', () => ({
   getAutoBackground: vi.fn(() => ({ src: 'auto-bg.jpg' })),
   getNatureBgByMood: vi.fn(() => ({ src: 'nature-bg.jpg' })),
   getRandomNatureBg: vi.fn(() => ({ src: 'random-nature.jpg' })),
@@ -50,7 +50,7 @@ vi.mock('../pres-backgrounds.js', () => ({
 }));
 
 // Mock pres-styles
-vi.mock('../pres-styles.js', () => ({
+vi.mock('../features/presentation/pres-styles.js', () => ({
   injectStyles: vi.fn(),
   buildAyahHtml: vi.fn(
     (_text: string, _surah: number, _ayah: number, _tajweed: boolean) => '<span>mock ayah html</span>',
@@ -117,9 +117,9 @@ describe('presentation coverage', () => {
       state.presentationMode = true;
       state.presBgMode = 'singleNature';
       state.presBgNature = 'dawn';
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
-      const { getNatureBgByMood } = await import('../pres-backgrounds.js');
+      const { getNatureBgByMood } = await import('../features/presentation/pres-backgrounds.js');
       expect(getNatureBgByMood).toHaveBeenCalledWith('dawn');
       expect(dom.presentationOverlay!.classList.contains('pres-nature')).toBe(true);
     });
@@ -137,9 +137,9 @@ describe('presentation coverage', () => {
       existingCanvas.dataset['scene'] = 'stars';
       dom.presentationOverlay!.appendChild(existingCanvas);
 
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
-      const { startSceneAnimation } = await import('../pres-backgrounds.js');
+      const { startSceneAnimation } = await import('../features/presentation/pres-backgrounds.js');
       // Should NOT call startSceneAnimation since scene matches
       expect(startSceneAnimation).not.toHaveBeenCalled();
     });
@@ -155,9 +155,9 @@ describe('presentation coverage', () => {
       existingCanvas.dataset['scene'] = 'stars';
       dom.presentationOverlay!.appendChild(existingCanvas);
 
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
-      const { startSceneAnimation } = await import('../pres-backgrounds.js');
+      const { startSceneAnimation } = await import('../features/presentation/pres-backgrounds.js');
       expect(startSceneAnimation).toHaveBeenCalled();
     });
   });
@@ -167,7 +167,7 @@ describe('presentation coverage', () => {
       document.body.classList.remove('night-mode');
       state.presentationMode = true;
       state.presBgMode = 'plain';
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       expect(dom.presentationOverlay!.classList.contains('pres-light')).toBe(true);
     });
@@ -176,7 +176,7 @@ describe('presentation coverage', () => {
       document.body.classList.add('night-mode');
       state.presentationMode = true;
       state.presBgMode = 'plain';
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
       expect(dom.presentationOverlay!.classList.contains('pres-light')).toBe(false);
     });
@@ -192,7 +192,7 @@ describe('presentation coverage', () => {
       const longText = 'بسم الله '.repeat(50);
       (state.surahData as any).ayahs[0].text = longText;
 
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
 
       // Mock innerWidth for mobile
       const innerWidthSpy = vi.spyOn(window, 'innerWidth', 'get').mockReturnValue(400);
@@ -209,7 +209,7 @@ describe('presentation coverage', () => {
       state.presBgMode = 'plain';
       Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true });
 
-      const { syncPresentation } = await import('../presentation.js');
+      const { syncPresentation } = await import('../features/presentation/presentation.js');
       syncPresentation();
 
       // Desktop should use CSS default (empty fontSize)
@@ -221,8 +221,8 @@ describe('presentation coverage', () => {
 
   describe('Android fullscreen transition', () => {
     it('renders one uninterrupted Arabic run as soon as fullscreen is requested', async () => {
-      const { openPresentation, initPresentation } = await import('../presentation.js');
-      const { buildAyahHtml } = await import('../pres-styles.js');
+      const { openPresentation, initPresentation } = await import('../features/presentation/presentation.js');
+      const { buildAyahHtml } = await import('../features/presentation/pres-styles.js');
       const { requestFullscreen } = await import('../types.js');
 
       initPresentation();
@@ -242,7 +242,7 @@ describe('presentation coverage', () => {
 
   describe('keyboard navigation — arrow keys', () => {
     it('should navigate to next ayah on ArrowRight', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       const initialIndex = state.currentAyahIndex;
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
@@ -250,7 +250,7 @@ describe('presentation coverage', () => {
     });
 
     it('should navigate to previous ayah on ArrowLeft', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       state.currentAyahIndex = 1;
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
@@ -258,7 +258,7 @@ describe('presentation coverage', () => {
     });
 
     it('should navigate on ArrowDown/ArrowUp', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       state.currentAyahIndex = 1;
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
@@ -266,7 +266,7 @@ describe('presentation coverage', () => {
     });
 
     it('should not navigate past boundaries', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       state.currentAyahIndex = 2; // Last ayah
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
@@ -274,7 +274,7 @@ describe('presentation coverage', () => {
     });
 
     it('should not navigate below 0', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       state.currentAyahIndex = 0;
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
@@ -282,7 +282,7 @@ describe('presentation coverage', () => {
     });
 
     it('should toggle play/pause on space key', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       const { togglePlayPause } = await import('../features/audio/audio.js');
       openPresentation();
       document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
@@ -290,7 +290,7 @@ describe('presentation coverage', () => {
     });
 
     it('should ignore keydown events on TEXTAREA elements', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       const textarea = document.createElement('textarea');
       document.body.appendChild(textarea);
@@ -301,7 +301,7 @@ describe('presentation coverage', () => {
     });
 
     it('should ignore keydown events on SELECT elements', async () => {
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
       const select = document.createElement('select');
       document.body.appendChild(select);
@@ -318,7 +318,7 @@ describe('presentation coverage', () => {
     it('should request fullscreen when not in fullscreen', async () => {
       const { isFullscreen, requestFullscreen } = await import('../types.js');
       vi.mocked(isFullscreen).mockReturnValue(false);
-      const { openPresentation, initPresentation } = await import('../presentation.js');
+      const { openPresentation, initPresentation } = await import('../features/presentation/presentation.js');
       // init to bind handlers
       initPresentation();
       openPresentation();
@@ -331,7 +331,7 @@ describe('presentation coverage', () => {
     it('should exit fullscreen when already in fullscreen', async () => {
       const { isFullscreen, exitFullscreen } = await import('../types.js');
       vi.mocked(isFullscreen).mockReturnValue(true);
-      const { openPresentation, initPresentation } = await import('../presentation.js');
+      const { openPresentation, initPresentation } = await import('../features/presentation/presentation.js');
       initPresentation();
       openPresentation();
       // Reset the mock to count only the button click
@@ -345,8 +345,8 @@ describe('presentation coverage', () => {
 
     it('should render a continuous Arabic run in fullscreen and restore tajweed on exit', async () => {
       const { isFullscreen } = await import('../types.js');
-      const { buildAyahHtml } = await import('../pres-styles.js');
-      const { openPresentation, initPresentation } = await import('../presentation.js');
+      const { buildAyahHtml } = await import('../features/presentation/pres-styles.js');
+      const { openPresentation, initPresentation } = await import('../features/presentation/presentation.js');
       initPresentation();
       openPresentation();
       vi.mocked(buildAyahHtml).mockClear();
@@ -366,7 +366,7 @@ describe('presentation coverage', () => {
 
   describe('tajweed toggle', () => {
     it('should toggle tajweed colors on click', async () => {
-      const { openPresentation, initPresentation } = await import('../presentation.js');
+      const { openPresentation, initPresentation } = await import('../features/presentation/presentation.js');
       initPresentation();
       openPresentation();
       dom.presTajweedBtn!.click();
@@ -384,7 +384,7 @@ describe('presentation coverage', () => {
     it('should close presentation when clicking overlay background', async () => {
       const { isFullscreen } = await import('../types.js');
       vi.mocked(isFullscreen).mockReturnValue(false);
-      const { openPresentation, initPresentation } = await import('../presentation.js');
+      const { openPresentation, initPresentation } = await import('../features/presentation/presentation.js');
       initPresentation();
       openPresentation();
       expect(state.presentationMode).toBe(true);
@@ -399,7 +399,7 @@ describe('presentation coverage', () => {
     it('should log error when overlay is missing from DOM', async () => {
       const overlay = document.getElementById('presentationOverlay');
       if (overlay) overlay.remove();
-      const { initPresentation } = await import('../presentation.js');
+      const { initPresentation } = await import('../features/presentation/presentation.js');
       expect(() => initPresentation()).not.toThrow();
     });
   });
@@ -409,7 +409,7 @@ describe('presentation coverage', () => {
   describe('navigateAyah with playing audio', () => {
     it('should play new ayah when navigating while playing', async () => {
       state.isPlaying = true;
-      const { openPresentation } = await import('../presentation.js');
+      const { openPresentation } = await import('../features/presentation/presentation.js');
       const { playCurrentAyah } = await import('../features/audio/audio.js');
       openPresentation();
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));

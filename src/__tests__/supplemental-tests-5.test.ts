@@ -63,7 +63,7 @@ vi.mock('../surah-cache.js', () => ({
   cacheSurahToIDB: vi.fn(() => Promise.resolve()),
   getCachedSurahFromIDB: vi.fn(() => Promise.resolve(null)),
 }));
-vi.mock('../presentation.js', async (importOriginal) => {
+vi.mock('../features/presentation/presentation.js', async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
@@ -197,7 +197,7 @@ describe('reading-stats.ts — public exports', () => {
 /*  presentation.ts — public exports                                 */
 /* ------------------------------------------------------------------ */
 
-import { syncPresentation, openPresentation, closePresentation } from '../presentation.js';
+import { syncPresentation, openPresentation, closePresentation } from '../features/presentation/presentation.js';
 
 describe('presentation.ts — public exports', () => {
   beforeEach(() => {

@@ -12,7 +12,7 @@ vi.mock('@capacitor/core', () => ({
   registerPlugin: vi.fn(() => plugin),
 }));
 
-import { startNativeQiblaCompass } from '../qibla-compass.js';
+import { startNativeQiblaCompass } from '../features/prayer/qibla-compass.js';
 
 const options = { latitude: 24.7136, longitude: 46.6753, altitude: 612 };
 

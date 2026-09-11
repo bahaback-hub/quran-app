@@ -6,12 +6,12 @@
  * and managing search history persistence.
  */
 
-import { state, QuranTextEntry, SearchWord } from './state.js';
-import { CONFIG } from './config.js';
-import { storage } from './storage.js';
-import { showToast } from './ui.js';
-import { normalizeExactText, normalizeRelaxed } from './utils.js';
-import { __, toLatinDigits } from './i18n.js';
+import { state, QuranTextEntry, SearchWord } from '../../state.js';
+import { CONFIG } from '../../config.js';
+import { storage } from '../../storage.js';
+import { showToast } from '../../ui.js';
+import { normalizeExactText, normalizeRelaxed } from '../../utils.js';
+import { __, toLatinDigits } from '../../i18n.js';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_SEARCH_HISTORY = 10;

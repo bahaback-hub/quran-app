@@ -563,7 +563,7 @@ export function highlightCurrentAyah(): void {
     dom.surahSelect.value = String(state.currentSurah);
   }
   updatePlayerInfo();
-  import('./presentation.js')
+  import('./features/presentation/presentation.js')
     .then((m: { syncPresentation: () => void }) => m.syncPresentation())
     .catch(() => {
       /* noop */
