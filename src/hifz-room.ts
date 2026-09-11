@@ -15,7 +15,7 @@ import { closeTafsir } from './tafsir.js';
 import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeSettings } from './settings.js';
-import { hideQiblaCompass, togglePrayerBar } from './prayer.js';
+import { hideQiblaCompass, togglePrayerBar } from './features/prayer/prayer.js';
 
 const ROOM_ID = 'hifzRoom';
 const TOGGLE_ID = 'hifzRoomToggle';

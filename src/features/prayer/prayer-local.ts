@@ -10,7 +10,7 @@
 
 import { CalculationMethod, Coordinates, PrayerTimes as AdhanPrayerTimes, Qibla } from 'adhan';
 import type { CalculationParameters } from 'adhan';
-import type { PrayerTimes } from './types.js';
+import type { PrayerTimes } from '../../types.js';
 
 /* ===================== METHOD MAPPING ===================== */
 

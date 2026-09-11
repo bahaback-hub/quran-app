@@ -26,7 +26,7 @@ vi.mock('../utils.js', () => ({
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
 }));
 
-import { injectStyles, buildAyahHtml } from '../pres-styles.js';
+import { injectStyles, buildAyahHtml } from '../features/presentation/pres-styles.js';
 import { buildColorMap, tajweedColorWord } from '../tajweed.js';
 
 describe('injectStyles', () => {

@@ -1,7 +1,7 @@
-import { buildColorMap, tajweedColorWord } from './tajweed.js';
-import { getAyahAnnotations } from './tajweed-data.js';
-import type { TajweedAnnotation } from './tajweed-data.js';
-import { escapeHtml } from './utils.js';
+import { buildColorMap, tajweedColorWord } from '../../tajweed.js';
+import { getAyahAnnotations } from '../../tajweed-data.js';
+import type { TajweedAnnotation } from '../../tajweed-data.js';
+import { escapeHtml } from '../../utils.js';
 
 /** Inject presentation-specific CSS styles into the document head (idempotent). */
 export function injectStyles(): void {

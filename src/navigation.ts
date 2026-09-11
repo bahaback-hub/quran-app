@@ -72,7 +72,7 @@ export function initNavigation(): void {
 
   /* ========== VIEW MODE TOGGLES ========== */
   dom.viewSurahBtn?.addEventListener('click', () => {
-    import('./presentation.js')
+    import('./features/presentation/presentation.js')
       .then((m) => m.closePresentation())
       .catch(() => {
         /* noop */
@@ -98,7 +98,7 @@ export function initNavigation(): void {
     }
   });
   dom.viewMushafBtn?.addEventListener('click', () => {
-    import('./presentation.js')
+    import('./features/presentation/presentation.js')
       .then((m) => m.closePresentation())
       .catch(() => {
         /* noop */
@@ -108,7 +108,7 @@ export function initNavigation(): void {
   dom.viewPresBtn?.addEventListener('click', () => {
     // openPresentation() handles mushaf mode toggle internally — don't toggle here
     // to avoid double-toggle race condition
-    import('./presentation.js')
+    import('./features/presentation/presentation.js')
       .then((m) => m.openPresentation())
       .catch((err) => {
         console.error('[Nav] Failed to open presentation:', err);

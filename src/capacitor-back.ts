@@ -13,7 +13,7 @@ import { state } from './state.js';
 import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
-import { hideQiblaCompass } from './prayer.js';
+import { hideQiblaCompass } from './features/prayer/prayer.js';
 import { __ } from './i18n.js';
 import { getCapacitor } from './types.js';
 import type { CapacitorPlugins } from './types.js';
@@ -46,7 +46,7 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
     app.addListener?.('backButton', () => {
       // Close presentation overlay first — use proper close function
       if (state.presentationMode) {
-        import('./presentation.js')
+        import('./features/presentation/presentation.js')
           .then((m) => m.closePresentation())
           .catch(() => {
             /* noop */

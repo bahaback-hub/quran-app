@@ -47,7 +47,7 @@ vi.mock('../storage.js', () => ({
 }));
 
 import { PRAYER_ORDER, PRAYER_NAMES_AR } from '../config.js';
-import { getNextPrayerKey } from '../prayer.js';
+import { getNextPrayerKey } from '../features/prayer/prayer.js';
 
 describe('PRAYER_ORDER', () => {
   it('should have 5 prayers in order', () => {
@@ -96,7 +96,7 @@ describe('loadPrayerTimesFromLocalJSON — offline table guard', () => {
     const fetchSpy = vi.fn(() => Promise.resolve(new Response('{}', { status: 200 })));
     vi.stubGlobal('fetch', fetchSpy);
 
-    const { loadPrayerTimesFromLocalJSON } = await import('../prayer.js');
+    const { loadPrayerTimesFromLocalJSON } = await import('../features/prayer/prayer.js');
     const result = await loadPrayerTimesFromLocalJSON('Cairo');
 
     expect(result).toBeNull();

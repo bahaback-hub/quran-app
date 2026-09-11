@@ -178,7 +178,7 @@ describe('surah-loader.ts — non-network functions', () => {
 
 describe('presentation.ts — defensive branches', () => {
   it('exported functions should not throw with empty state', async () => {
-    const mod = (await import('../presentation.js')) as Record<string, unknown>;
+    const mod = (await import('../features/presentation/presentation.js')) as Record<string, unknown>;
     for (const [name, fn] of Object.entries(mod)) {
       if (typeof fn === 'function') {
         try {
