@@ -40,6 +40,10 @@ declare function initKeyboardShortcuts(): void;
 declare function initNavigation(): void;
 declare function initCapacitorBackButton(): void;
 
+// Build-time app version injected by Vite (see vite.config.js `define`).
+// Single source of truth: package.json "version".
+declare const __APP_VERSION__: string;
+
 // Capacitor (Android/iOS) — available via <script> tag at runtime
 interface Window {
   Capacitor?: {
