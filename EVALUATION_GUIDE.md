@@ -9,17 +9,17 @@
 | المجال | نقطة البداية للمراجعة |
 |---|---|
 | نقطة الدخول والتهيئة | [`src/app.ts`](src/app.ts) |
-| تحميل السور والصوت | [`src/surah-loader.ts`](src/surah-loader.ts) و[`src/audio.ts`](src/audio.ts) |
+| تحميل السور والصوت | [`src/surah-loader.ts`](src/surah-loader.ts) و[`src/features/audio/audio.ts`](src/features/audio/audio.ts) |
 | الحزمة دون اتصال | [`src/offline-pack.ts`](src/offline-pack.ts) و[`src/external-data-cache.ts`](src/external-data-cache.ts) |
 | الحفظ والتكرار | [`src/hifz-room.ts`](src/hifz-room.ts) |
-| وضع العرض ومشاركة الآية | [`src/presentation.ts`](src/presentation.ts) و[`src/presentation-share.ts`](src/presentation-share.ts) |
-| خلفيات الفيديو المحلية | [`src/pres-video.ts`](src/pres-video.ts) و[`public/backgrounds/`](public/backgrounds/) |
+| وضع العرض ومشاركة الآية | [`src/features/presentation/presentation.ts`](src/features/presentation/presentation.ts) و[`src/features/presentation/presentation-share.ts`](src/features/presentation/presentation-share.ts) |
+| خلفيات الفيديو المحلية | [`src/features/presentation/pres-video.ts`](src/features/presentation/pres-video.ts) و[`public/backgrounds/`](public/backgrounds/) |
 
 ## حقائق يمكن التحقق منها
 
 ### العمل دون اتصال
 
-تنزّل الحزمة الاختيارية نص القرآن والترجمات وبيانات التجويد والصوت المختار. تخزن البيانات الخارجية في IndexedDB، ويستطيع القارئ تحويل طلب السورة إلى الحزمة الكاملة المناسبة عند انقطاع الإنترنت. يخزن الصوت في ذاكرة صوت محلية ويُستدعى قبل محاولة الشبكة. راجع [`offline-pack.ts`](src/offline-pack.ts)، [`external-data-cache.ts`](src/external-data-cache.ts)، و[`audio-cache.ts`](src/audio-cache.ts).
+تنزّل الحزمة الاختيارية نص القرآن والترجمات وبيانات التجويد والصوت المختار. تخزن البيانات الخارجية في IndexedDB، ويستطيع القارئ تحويل طلب السورة إلى الحزمة الكاملة المناسبة عند انقطاع الإنترنت. يخزن الصوت في ذاكرة صوت محلية ويُستدعى قبل محاولة الشبكة. راجع [`offline-pack.ts`](src/offline-pack.ts)، [`external-data-cache.ts`](src/external-data-cache.ts)، و[`audio-cache.ts`](src/features/audio/audio-cache.ts).
 
 ### الأمان وإدخال المستخدم
 
