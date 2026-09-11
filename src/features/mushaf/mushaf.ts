@@ -1,9 +1,9 @@
-import { state } from './state.js';
-import { CONFIG, JUZ_PAGES } from './config.js';
-import { dom } from './dom.js';
-import { storage } from './storage.js';
-import { showToast, loadingBar } from './ui.js';
-import { toArabicNumeral } from './utils.js';
+import { state } from '../../state.js';
+import { CONFIG, JUZ_PAGES } from '../../config.js';
+import { dom } from '../../dom.js';
+import { storage } from '../../storage.js';
+import { showToast, loadingBar } from '../../ui.js';
+import { toArabicNumeral } from '../../utils.js';
 import {
   mushafLoadingState,
   surahLoadingMessage,
@@ -11,17 +11,17 @@ import {
   mushafErrorFallback,
   mushafSurahNameSpan,
   surahSecretsBody,
-} from './templates.js';
-import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from './surahs-data.js';
-import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from './app.js';
-import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from './audio.js';
-import { handlePageClick, getAyahHighlightRects } from './ayah-click.js';
+} from '../../templates.js';
+import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from '../../surahs-data.js';
+import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from '../../app.js';
+import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from '../../audio.js';
+import { handlePageClick, getAyahHighlightRects } from '../../ayah-click.js';
 import { renderPage, loadPageData, releaseCanvas, getCanvas, computeMushafPageGeometry } from './mushaf-renderer.js';
 import type { PageLayoutData, MushafLineLayout } from './mushaf-renderer.js';
-import { loadTafsirForSurahAyah } from './tafsir.js';
-import { __ } from './i18n.js';
-import { updateReaderZoomControl } from './settings.js';
-import type { SurahData } from './types.js';
+import { loadTafsirForSurahAyah } from '../../tafsir.js';
+import { __ } from '../../i18n.js';
+import { updateReaderZoomControl } from '../../settings.js';
+import type { SurahData } from '../../types.js';
 
 /* ===================== INTERFACES ===================== */
 

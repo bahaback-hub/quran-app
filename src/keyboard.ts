@@ -106,7 +106,7 @@ export function initKeyboardShortcuts(): void {
         break;
       case 'm':
       case 'M':
-        import('./mushaf.js').then((m: { toggleMushafMode: () => void }) => m.toggleMushafMode());
+        import('./features/mushaf/mushaf.js').then((m: { toggleMushafMode: () => void }) => m.toggleMushafMode());
         break;
       case 'p':
       case 'P':

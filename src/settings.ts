@@ -121,7 +121,7 @@ export function applyNightMode(enabled: boolean): void {
   }
   updateThemeButtons();
   if (state.mushafMode && state.currentPage) {
-    import('./mushaf.js').then(
+    import('./features/mushaf/mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
         m.loadPage(state.currentPage, true, true),
     );
@@ -152,7 +152,7 @@ export function applySepiaMode(enabled: boolean): void {
   }
   updateThemeButtons();
   if (state.mushafMode && state.currentPage) {
-    import('./mushaf.js').then(
+    import('./features/mushaf/mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
         m.loadPage(state.currentPage, true, true),
     );
@@ -176,7 +176,7 @@ export function applyDeepNightMode(enabled: boolean): void {
   }
   updateThemeButtons();
   if (state.mushafMode && state.currentPage) {
-    import('./mushaf.js').then(
+    import('./features/mushaf/mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
         m.loadPage(state.currentPage, true, true),
     );

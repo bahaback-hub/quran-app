@@ -7,7 +7,7 @@ import {
   getMushafDataPackStatus,
   getMushafPageLayout,
   verifyMushafDataPack,
-} from '../mushaf-data-pack.js';
+} from '../features/mushaf/mushaf-data-pack.js';
 
 const SOURCE_COMMIT = 'test-fixed-commit';
 const PACK_ID = 'qcf4-hafs-layout-v1';

@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 /* ===================== MOCKS ===================== */
 
 // Unmock the mushaf-renderer module (setup-i18n.ts mocks it as {})
-vi.unmock('../mushaf-renderer.js');
+vi.unmock('../features/mushaf/mushaf-renderer.js');
 
 // Hoist mock state to be available in vi.mock factory
 const { mockState } = vi.hoisted(() => ({
@@ -58,8 +58,8 @@ import {
   loadPageData,
   renderPage,
   getLineY,
-} from '../mushaf-renderer.js';
-import type { PageLayoutData } from '../mushaf-renderer.js';
+} from '../features/mushaf/mushaf-renderer.js';
+import type { PageLayoutData } from '../features/mushaf/mushaf-renderer.js';
 
 /* ===================== HELPERS ===================== */
 

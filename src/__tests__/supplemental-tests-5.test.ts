@@ -12,7 +12,7 @@ import 'fake-indexeddb/auto';
 // Unmock modules that are globally mocked so we can test real implementations
 vi.unmock('../dom.js');
 vi.unmock('../storage.js');
-vi.unmock('../mushaf-renderer.js');
+vi.unmock('../features/mushaf/mushaf-renderer.js');
 vi.unmock('../i18n.js');
 
 /* ------------------------------------------------------------------ */
@@ -70,7 +70,7 @@ vi.mock('../presentation.js', async (importOriginal) => {
     syncPresentation: vi.fn(),
   };
 });
-vi.mock('../mushaf.js', () => ({
+vi.mock('../features/mushaf/mushaf.js', () => ({
   highlightMushafAyah: vi.fn(),
   toggleMushafMode: vi.fn(),
 }));
@@ -382,7 +382,7 @@ import {
   TOP_OFFSET,
   BOTTOM_OFFSET,
   STD_LINES,
-} from '../mushaf-renderer.js';
+} from '../features/mushaf/mushaf-renderer.js';
 
 describe('mushaf-renderer.ts — exported functions', () => {
   beforeEach(() => {

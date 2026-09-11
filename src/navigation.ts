@@ -78,7 +78,7 @@ export function initNavigation(): void {
         /* noop */
       });
     if (state.mushafMode) {
-      import('./mushaf.js').then((m) => m.toggleMushafMode());
+      import('./features/mushaf/mushaf.js').then((m) => m.toggleMushafMode());
     }
     document.querySelectorAll('.view-mode-btn').forEach((b) => {
       const active = (b as HTMLElement).dataset['mode'] === 'surah';
@@ -103,7 +103,7 @@ export function initNavigation(): void {
       .catch(() => {
         /* noop */
       });
-    import('./mushaf.js').then((m) => m.toggleMushafMode());
+    import('./features/mushaf/mushaf.js').then((m) => m.toggleMushafMode());
   });
   dom.viewPresBtn?.addEventListener('click', () => {
     // openPresentation() handles mushaf mode toggle internally — don't toggle here
@@ -121,7 +121,7 @@ export function initNavigation(): void {
       if (dom.pageSlider) {
         dom.pageSlider.value = String(p);
       }
-      import('./mushaf.js').then((m) => m.loadPage(p, true));
+      import('./features/mushaf/mushaf.js').then((m) => m.loadPage(p, true));
     }
   });
   dom.pageSlider?.addEventListener('input', () => {
@@ -129,7 +129,7 @@ export function initNavigation(): void {
     if (dom.pageSelect) {
       dom.pageSelect.value = String(p);
     }
-    import('./mushaf.js').then((m) => m.loadPage(p, true));
+    import('./features/mushaf/mushaf.js').then((m) => m.loadPage(p, true));
   });
 
   // Restore mushaf mode
@@ -139,7 +139,7 @@ export function initNavigation(): void {
     state.currentPage = savedPage;
   }
   if (savedMushaf) {
-    import('./mushaf.js').then((m) => m.toggleMushafMode());
+    import('./features/mushaf/mushaf.js').then((m) => m.toggleMushafMode());
   }
 }
 

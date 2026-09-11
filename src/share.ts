@@ -10,6 +10,7 @@ import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { showToast } from './ui.js';
 import { stripTashkeel, copyToClipboard } from './utils.js';
+import { SHARE_WHATSAPP_BASE, SHARE_TELEGRAM_BASE } from './external-sources.js';
 import { state } from './state.js';
 import { __ } from './i18n.js';
 
@@ -121,7 +122,7 @@ export function shareWhatsApp(): void {
   if (!text) {
     return;
   }
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  window.open(`${SHARE_WHATSAPP_BASE}/?text=${encodeURIComponent(text)}`, '_blank');
 }
 
 /** Share current ayah via Telegram. */
@@ -131,7 +132,7 @@ export function shareTelegram(): void {
     return;
   }
   window.open(
-    `https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`,
+    `${SHARE_TELEGRAM_BASE}?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`,
     '_blank',
   );
 }

@@ -36,7 +36,7 @@ export default defineConfig({
           // Split translation bundles for lazy loading
           if (id.includes('/translations/')) return 'i18n-translations';
           // Split large feature modules for lazy loading
-          if (id.includes('/mushaf-') || id.includes('/mushaf.js')) return 'feature-mushaf';
+          if (id.includes('/features/mushaf/') || id.includes('/mushaf-') || id.includes('/mushaf.js')) return 'feature-mushaf';
           // Split presentation into smaller chunks (was 167KB, now ~3 chunks)
           if (id.includes('/presentation')) return 'feature-presentation';
           if (id.includes('/pres-backgrounds')) return 'feature-pres-backgrounds';

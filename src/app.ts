@@ -252,7 +252,7 @@ export async function initApp(): Promise<void> {
             presentation.module.initPresentation();
           }
 
-          const mushaf = await safeLoad(() => import('./mushaf.js'), {
+          const mushaf = await safeLoad(() => import('./features/mushaf/mushaf.js'), {
             label: 'وضع المصحف',
             maxRetries: 2,
             baseDelay: 800,

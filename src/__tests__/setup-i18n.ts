@@ -38,7 +38,7 @@ vi.mock('../internal-state.js', () => ({
 }));
 
 // Mock the mushaf-renderer module
-vi.mock('../mushaf-renderer.js', () => ({}));
+vi.mock('../features/mushaf/mushaf-renderer.js', () => ({}));
 
 // Mock the storage module
 vi.mock('../storage.js', () => ({
