@@ -69,7 +69,7 @@ vi.mock('../ui.js', () => ({
   loadingBar: { init: vi.fn(), show: vi.fn(), hide: vi.fn() },
 }));
 
-vi.mock('../prayer.js', () => ({
+vi.mock('../features/prayer/prayer.js', () => ({
   stopAzan: vi.fn(),
   loadPrayerTimes: vi.fn(),
 }));
@@ -78,7 +78,7 @@ vi.mock('../adhkar.js', () => ({
   renderAdhkarSettingsList: vi.fn(),
 }));
 
-vi.mock('../presentation.js', () => ({
+vi.mock('../features/presentation/presentation.js', () => ({
   syncPresentation: vi.fn(),
 }));
 
@@ -1188,7 +1188,7 @@ describe('settings — additional coverage', () => {
       expect(state.city).toBe('Makkah');
       expect(state.country).toBe('SA');
 
-      const { loadPrayerTimes } = await import('../prayer.js');
+      const { loadPrayerTimes } = await import('../features/prayer/prayer.js');
       expect(loadPrayerTimes).toHaveBeenCalled();
 
       mockDom.cityInput = null;
@@ -1246,7 +1246,7 @@ describe('settings — additional coverage', () => {
       const { closeSettings } = await import('../settings.js');
       closeSettings();
 
-      const { stopAzan } = await import('../prayer.js');
+      const { stopAzan } = await import('../features/prayer/prayer.js');
       expect(stopAzan).toHaveBeenCalled();
 
       state.azanPlaying = false;

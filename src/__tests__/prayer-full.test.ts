@@ -137,7 +137,7 @@ vi.mock('../api-client.js', () => ({
   prayerFetch: (...args: unknown[]) => mockPrayerFetch(...args),
 }));
 
-vi.mock('../prayer-local.js', () => ({
+vi.mock('../features/prayer/prayer-local.js', () => ({
   calculatePrayerTimesLocally: (...args: unknown[]) => mockCalculatePrayerTimesLocally(...args),
 }));
 
@@ -161,7 +161,7 @@ import {
   togglePrayerBar,
   showQiblaCompass,
   hideQiblaCompass,
-} from '../prayer.js';
+} from '../features/prayer/prayer.js';
 
 // ─── Helpers ───
 

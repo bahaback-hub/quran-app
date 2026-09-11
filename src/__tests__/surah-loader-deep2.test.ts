@@ -111,7 +111,7 @@ vi.mock('../reciters.js', () => ({
   getTimingApiId: vi.fn(() => null),
 }));
 
-vi.mock('../presentation.js', () => ({
+vi.mock('../features/presentation/presentation.js', () => ({
   openPresentation: vi.fn(),
   closePresentation: vi.fn(),
   syncPresentation: vi.fn(),

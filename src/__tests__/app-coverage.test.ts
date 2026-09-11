@@ -95,7 +95,7 @@ vi.mock('../internal-state.js', () => ({
   resetInternalState: vi.fn(),
 }));
 
-vi.mock('../prayer.js', () => ({
+vi.mock('../features/prayer/prayer.js', () => ({
   startClock: vi.fn(),
   loadPrayerTimes: vi.fn(() => Promise.resolve()),
   loadUnderwrittenPrayerTable: vi.fn(() => Promise.resolve()),
@@ -117,7 +117,7 @@ vi.mock('../features/audio/audio.js', () => ({
   setLoadSurah: vi.fn(),
 }));
 
-vi.mock('../search-ui.js', () => ({
+vi.mock('../features/search/search-ui.js', () => ({
   loadFullQuranText: vi.fn(() => Promise.resolve()),
 }));
 
@@ -505,7 +505,7 @@ describe('app.ts — initApp', () => {
     });
 
     it('should call startClock and scheduleNextAzanCheck', async () => {
-      const { startClock, scheduleNextAzanCheck } = await import('../prayer.js');
+      const { startClock, scheduleNextAzanCheck } = await import('../features/prayer/prayer.js');
       await initApp();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -546,7 +546,7 @@ describe('app.ts — initApp', () => {
 
   describe('Offline mode handling', () => {
     it('should await fullQuranPromise when offline', async () => {
-      const { loadFullQuranText } = await import('../search-ui.js');
+      const { loadFullQuranText } = await import('../features/search/search-ui.js');
 
       // Simulate offline
       const originalOnLine = navigator.onLine;

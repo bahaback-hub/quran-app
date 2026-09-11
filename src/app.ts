@@ -16,7 +16,7 @@ import { loadingBar } from './ui.js';
 import { getLang, applyTranslations } from './i18n.js';
 import { state, resetState } from './state.js';
 import { setUpdateReadingProgress } from './internal-state.js';
-import { startClock, loadPrayerTimes, loadUnderwrittenPrayerTable, scheduleNextAzanCheck } from './prayer.js';
+import { startClock, loadPrayerTimes, loadUnderwrittenPrayerTable, scheduleNextAzanCheck } from './features/prayer/prayer.js';
 import { loadFavorites } from './favorites.js';
 import { initAdhkarState, loadAdhkarSettings, startAdhkarNotificationScheduler } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah } from './features/audio/audio.js';
@@ -35,7 +35,7 @@ import { handleVisibilityChange, showContinueWidget, updateNetworkBanner, update
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
 import { injectOverlays } from './overlays.js';
-import { loadFullQuranText } from './search-ui.js';
+import { loadFullQuranText } from './features/search/search-ui.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { refreshRecentExternalData } from './external-data-cache.js';
 import { initLangSwitcher } from './lang-switcher.js';
@@ -242,7 +242,7 @@ export async function initApp(): Promise<void> {
             ayahModal.module.initAyahModal();
           }
 
-          const presentation = await safeLoad(() => import('./presentation.js'), {
+          const presentation = await safeLoad(() => import('./features/presentation/presentation.js'), {
             label: 'وضع العرض',
             maxRetries: 2,
             baseDelay: 800,

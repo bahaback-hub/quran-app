@@ -90,7 +90,7 @@ vi.mock('../features/audio/audio.js', () => ({
   playCurrentAyah: vi.fn(),
 }));
 
-vi.mock('../search-core.js', () => ({
+vi.mock('../features/search/search-core.js', () => ({
   SEARCH_PAGE_SIZE: 10,
   performSearch: vi.fn(() => []),
   addToSearchHistory: vi.fn(),
@@ -134,11 +134,11 @@ import {
   startVoiceSearch,
   initKeyboard,
   _resetKeyboardForTests,
-} from '../search-ui.js';
+} from '../features/search/search-ui.js';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 import { showToast } from '../ui.js';
-import { performSearch, addToSearchHistory, getSearchHistory } from '../search-core.js';
+import { performSearch, addToSearchHistory, getSearchHistory } from '../features/search/search-core.js';
 import {
   setAllSearchMatches,
   setSearchResultsPage,
@@ -1262,17 +1262,17 @@ describe('search history display', () => {
 
 describe('search-ui re-exports', () => {
   it('should re-export loadFullQuranText from search-core', async () => {
-    const mod = await import('../search-ui.js');
+    const mod = await import('../features/search/search-ui.js');
     expect(mod.loadFullQuranText).toBeDefined();
   });
 
   it('should re-export getSearchHistory from search-core', async () => {
-    const mod = await import('../search-ui.js');
+    const mod = await import('../features/search/search-ui.js');
     expect(mod.getSearchHistory).toBeDefined();
   });
 
   it('should re-export clearSearchHistory from search-core', async () => {
-    const mod = await import('../search-ui.js');
+    const mod = await import('../features/search/search-ui.js');
     expect(mod.clearSearchHistory).toBeDefined();
   });
 });

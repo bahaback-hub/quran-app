@@ -46,7 +46,7 @@ describe('prayer-local coverage', () => {
           } as GeolocationPosition);
         });
 
-        const { calculatePrayerTimesLocally } = await import('../prayer-local.js');
+        const { calculatePrayerTimesLocally } = await import('../features/prayer/prayer-local.js');
         const result = await calculatePrayerTimesLocally(method.id);
         expect(result).not.toBeNull();
         expect(result).toHaveProperty('Fajr');
@@ -66,7 +66,7 @@ describe('prayer-local coverage', () => {
         } as GeolocationPosition);
       });
 
-      const { calculatePrayerTimesLocally } = await import('../prayer-local.js');
+      const { calculatePrayerTimesLocally } = await import('../features/prayer/prayer-local.js');
       const result = await calculatePrayerTimesLocally('unknown');
       expect(result).not.toBeNull();
       expect(result).toHaveProperty('Fajr');
@@ -78,7 +78,7 @@ describe('prayer-local coverage', () => {
       const origGeo = navigator.geolocation;
       vi.stubGlobal('navigator', { geolocation: undefined });
 
-      const { getCoordinates } = await import('../prayer-local.js?_t=' + Date.now());
+      const { getCoordinates } = await import('../features/prayer/prayer-local.js?_t=' + Date.now());
       const result = await getCoordinates();
       expect(result).toBeNull();
 
@@ -93,7 +93,7 @@ describe('prayer-local coverage', () => {
         } as GeolocationPositionError);
       });
 
-      const { getCoordinates } = await import('../prayer-local.js?_t2=' + Date.now());
+      const { getCoordinates } = await import('../features/prayer/prayer-local.js?_t2=' + Date.now());
       const result = await getCoordinates();
       expect(result).toBeNull();
     });
@@ -105,7 +105,7 @@ describe('prayer-local coverage', () => {
 
       // Override setTimeout behavior for the 10s timeout
       vi.useFakeTimers();
-      const { getCoordinates } = await import('../prayer-local.js?_t3=' + Date.now());
+      const { getCoordinates } = await import('../features/prayer/prayer-local.js?_t3=' + Date.now());
       const promise = getCoordinates();
 
       // Advance past the 10s timeout
@@ -123,7 +123,7 @@ describe('prayer-local coverage', () => {
         } as GeolocationPosition);
       });
 
-      const { getCoordinates } = await import('../prayer-local.js?_t4=' + Date.now());
+      const { getCoordinates } = await import('../features/prayer/prayer-local.js?_t4=' + Date.now());
       const result = await getCoordinates();
       expect(result).not.toBeNull();
       expect(result!.latitude).toBe(24.7136);
@@ -137,7 +137,7 @@ describe('prayer-local coverage', () => {
         } as GeolocationPosition);
       });
 
-      const { getCoordinates } = await import('../prayer-local.js?_t5=' + Date.now());
+      const { getCoordinates } = await import('../features/prayer/prayer-local.js?_t5=' + Date.now());
 
       // First call — should use GPS
       const first = await getCoordinates();
@@ -152,7 +152,7 @@ describe('prayer-local coverage', () => {
 
   describe('calculateLocalQibla', () => {
     it('should return a valid angle for Makkah', async () => {
-      const { calculateLocalQibla } = await import('../prayer-local.js');
+      const { calculateLocalQibla } = await import('../features/prayer/prayer-local.js');
       const result = calculateLocalQibla(21.4225, 39.8262);
       expect(typeof result).toBe('number');
       expect(result).not.toBeNaN();
@@ -161,14 +161,14 @@ describe('prayer-local coverage', () => {
     });
 
     it('should return different angles for different locations', async () => {
-      const { calculateLocalQibla } = await import('../prayer-local.js');
+      const { calculateLocalQibla } = await import('../features/prayer/prayer-local.js');
       const makkah = calculateLocalQibla(21.4225, 39.8262);
       const newYork = calculateLocalQibla(40.7128, -74.006);
       expect(makkah).not.toBe(newYork);
     });
 
     it('should handle extreme coordinates', async () => {
-      const { calculateLocalQibla } = await import('../prayer-local.js');
+      const { calculateLocalQibla } = await import('../features/prayer/prayer-local.js');
       const result = calculateLocalQibla(0, 0);
       expect(typeof result).toBe('number');
       expect(result).not.toBeNaN();
@@ -183,7 +183,7 @@ describe('prayer-local coverage', () => {
         onLine: true,
       });
 
-      const { calculatePrayerTimesLocally } = await import('../prayer-local.js?_t6=' + Date.now());
+      const { calculatePrayerTimesLocally } = await import('../features/prayer/prayer-local.js?_t6=' + Date.now());
       const result = await calculatePrayerTimesLocally('4');
       expect(result).toBeNull();
     });

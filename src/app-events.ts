@@ -48,7 +48,7 @@ import {
   hideAzanNotification,
   showQiblaCompass,
   scheduleNextAzanCheck,
-} from './prayer.js';
+} from './features/prayer/prayer.js';
 import { openFavorites, closeFavorites } from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah, toggleTranslation } from './surah-loader.js';
@@ -58,7 +58,7 @@ import {
   initSearchAutocomplete,
   loadFullQuranText,
   startVoiceSearch,
-} from './search-ui.js';
+} from './features/search/search-ui.js';
 import { showSleepTimerModal } from './sleep-timer-modal.js';
 import { loadTajweedAnnotationsForSurah } from './tajweed-data.js';
 import { toggleTafsir, openTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
@@ -1168,7 +1168,7 @@ async function useMyLocation(): Promise<void> {
     return;
   }
   // Dynamically import prayer-local to avoid a hard dependency at module load.
-  const { getCoordinates, nearestCityToCoords } = await import('./prayer-local.js');
+  const { getCoordinates, nearestCityToCoords } = await import('./features/prayer/prayer-local.js');
   const coords = await getCoordinates();
   if (!coords) {
     showToast(__('location_denied'), 'error');

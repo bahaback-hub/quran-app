@@ -20,7 +20,7 @@ import {
 } from './features/audio/audio.js';
 import { toggleNightMode, applyFontSize, closeSettings } from './settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './favorites.js';
-import { stopAzan } from './prayer.js';
+import { stopAzan } from './features/prayer/prayer.js';
 import { toggleTafsir, closeTafsir } from './tafsir.js';
 
 /**
@@ -111,13 +111,13 @@ export function initKeyboardShortcuts(): void {
       case 'p':
       case 'P':
         if (state.presentationMode) {
-          import('./presentation.js')
+          import('./features/presentation/presentation.js')
             .then((m: { closePresentation: () => void }) => m.closePresentation())
             .catch(() => {
               /* noop */
             });
         } else {
-          import('./presentation.js')
+          import('./features/presentation/presentation.js')
             .then((m: { openPresentation: () => void }) => m.openPresentation())
             .catch(() => {
               /* noop */

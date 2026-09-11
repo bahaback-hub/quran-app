@@ -83,7 +83,7 @@ import {
   getSearchHistory,
   clearSearchHistory,
   loadFullQuranText,
-} from '../search-core.js';
+} from '../features/search/search-core.js';
 
 // ─── Helper: create QuranTextEntry ─────────────────────────────
 

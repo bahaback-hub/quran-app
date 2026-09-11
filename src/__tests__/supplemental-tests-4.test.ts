@@ -191,7 +191,7 @@ vi.mock('../tafsir.js', () => ({
   toggleTafsir: vi.fn(),
   closeTafsir: vi.fn(),
 }));
-vi.mock('../prayer.js', () => ({
+vi.mock('../features/prayer/prayer.js', () => ({
   stopAzan: vi.fn(),
 }));
 

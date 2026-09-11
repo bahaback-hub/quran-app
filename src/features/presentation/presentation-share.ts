@@ -1,13 +1,13 @@
-import { __ } from './i18n.js';
-import { state } from './state.js';
-import { dom } from './dom.js';
-import { showToast } from './ui.js';
+import { __ } from '../../i18n.js';
+import { state } from '../../state.js';
+import { dom } from '../../dom.js';
+import { showToast } from '../../ui.js';
 import { getAutoBackground, getNatureBgByMood } from './pres-backgrounds.js';
 import { PRESENTATION_VIDEO_SRC, getPresentationVideo } from './pres-video.js';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
-import { QURAN_COM_API_BASE } from './external-sources.js';
+import { QURAN_COM_API_BASE } from '../../external-sources.js';
 
 const PORTRAIT_EXPORT_WIDTH = 1080;
 const PORTRAIT_EXPORT_HEIGHT = 1920;

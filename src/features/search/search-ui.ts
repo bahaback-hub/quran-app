@@ -6,7 +6,7 @@
  * Web Speech API, and an on-screen Arabic keyboard for input.
  */
 
-import { state, type QuranTextEntry, type SearchWord } from './state.js';
+import { state, type QuranTextEntry, type SearchWord } from '../../state.js';
 import { Capacitor } from '@capacitor/core';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import {
@@ -18,11 +18,11 @@ import {
   setVoiceListening,
   getVoiceRecognition,
   setVoiceRecognition,
-} from './internal-state.js';
-import { dom } from './dom.js';
-import { storage } from './storage.js';
-import { showToast } from './ui.js';
-import { escapeRegExp, copyToClipboard, normalizeExactText } from './utils.js';
+} from '../../internal-state.js';
+import { dom } from '../../dom.js';
+import { storage } from '../../storage.js';
+import { showToast } from '../../ui.js';
+import { escapeRegExp, copyToClipboard, normalizeExactText } from '../../utils.js';
 import {
   searchEmptyResults,
   searchResultsHeader,
@@ -31,9 +31,9 @@ import {
   searchHistoryItem,
   searchAutocompleteItem,
   escapeHtml,
-} from './templates.js';
-import { loadSurah, highlightCurrentAyah } from './app.js';
-import { playCurrentAyah } from './features/audio/audio.js';
+} from '../../templates.js';
+import { loadSurah, highlightCurrentAyah } from '../../app.js';
+import { playCurrentAyah } from '../audio/audio.js';
 import {
   SEARCH_PAGE_SIZE,
   performSearch,
@@ -42,9 +42,9 @@ import {
   getSearchHistory,
   clearSearchHistory,
 } from './search-core.js';
-import { CONFIG } from './config.js';
-import { __ } from './i18n.js';
-import { shareText } from './share.js';
+import { CONFIG } from '../../config.js';
+import { __ } from '../../i18n.js';
+import { shareText } from '../../share.js';
 
 /** Data shape for opening the ayah modal. */
 interface ModalAyahData {
@@ -265,7 +265,7 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
       if (!ayahObj) {
         return;
       }
-      import('./ayah-modal.js').then((m: AyahModalModule) =>
+      import('../../ayah-modal.js').then((m: AyahModalModule) =>
         m.openAyahModal({ surah: s, ayah: a, text: ayahObj.text, surahName: item.dataset['surahname']!, index: idx }),
       );
     });

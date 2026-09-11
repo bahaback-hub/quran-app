@@ -6,7 +6,7 @@ import {
   removePresentationVideo,
   retryPresentationVideoPlayback,
   syncPresentationVideoPlayback,
-} from '../pres-video.js';
+} from '../features/presentation/pres-video.js';
 
 describe('presentation video background', () => {
   const play = vi.fn(() => Promise.resolve());

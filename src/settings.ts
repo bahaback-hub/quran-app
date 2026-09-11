@@ -18,7 +18,7 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { stopAzan, loadPrayerTimes } from './prayer.js';
+import { stopAzan, loadPrayerTimes } from './features/prayer/prayer.js';
 import { renderAdhkarSettingsList } from './adhkar.js';
 import { __ } from './i18n.js';
 
@@ -324,7 +324,7 @@ export function applyPresBgMode(
   }
   // Update presentation display if active
   if (state.presentationMode) {
-    import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
   }
 }
 
@@ -337,7 +337,7 @@ export function applyPresBgScene(scene: string): void {
   }
   // Update presentation display if currently in scene mode
   if (state.presentationMode && state.presBgMode === 'scene') {
-    import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
   }
 }
 
@@ -350,7 +350,7 @@ export function applyPresBgNature(nature: string): void {
   }
   // Update presentation display if currently in singleNature mode
   if (state.presentationMode && state.presBgMode === 'singleNature') {
-    import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
   }
 }
 
@@ -363,7 +363,7 @@ export function applyPresBgVideo(video: string): void {
     dom.presBgVideoSelect.value = state.presBgVideo;
   }
   if (state.presentationMode && state.presBgMode === 'video') {
-    import('./presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
+    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) => p.syncPresentation());
   }
 }
 

@@ -20,7 +20,7 @@ const mockDom = {
 vi.mock('../dom.js', () => ({ dom: mockDom }));
 vi.mock('../i18n.js', () => ({ __: (key: string) => key }));
 vi.mock('../ui.js', () => ({ showToast: vi.fn() }));
-vi.mock('../pres-backgrounds.js', () => ({
+vi.mock('../features/presentation/pres-backgrounds.js', () => ({
   getAutoBackground: () => ({ src: 'backgrounds/dawn.jpg' }),
   getNatureBgByMood: () => ({ src: 'backgrounds/dawn.jpg' }),
 }));
@@ -61,7 +61,7 @@ function mountPreview(): void {
 
 describe('presentation image sharing', () => {
   it('switches the primary share action to video after video generation completes', async () => {
-    const { getPresentationShareActionKind } = await import('../presentation-share.js');
+    const { getPresentationShareActionKind } = await import('../features/presentation/presentation-share.js');
     expect(getPresentationShareActionKind(false)).toBe('image');
     expect(getPresentationShareActionKind(true)).toBe('video');
   });
@@ -115,7 +115,7 @@ describe('presentation image sharing', () => {
   });
 
   it('localises and labels the share trigger on initialisation', async () => {
-    const { initPresentationShare } = await import('../presentation-share.js');
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
     initPresentationShare();
     expect(mockDom.presShareBtn.getAttribute('aria-label')).toBe('presentation_share_image');
     expect(document.getElementById('presentationShareHeading')?.textContent).toBe('presentation_share_preview');
@@ -130,7 +130,7 @@ describe('presentation image sharing', () => {
       configurable: true,
       value: vi.fn(),
     });
-    const { initPresentationShare } = await import('../presentation-share.js');
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
     initPresentationShare();
     const videoButton = document.getElementById('presentationShareVideoBtn')!;
 
@@ -145,7 +145,7 @@ describe('presentation image sharing', () => {
   });
 
   it('closes the preview, revokes its object URL and clears its visible state', async () => {
-    const { openPresentationSharePreview, closePresentationSharePreview } = await import('../presentation-share.js');
+    const { openPresentationSharePreview, closePresentationSharePreview } = await import('../features/presentation/presentation-share.js');
     const preview = document.getElementById('presentationSharePreview')!;
     await openPresentationSharePreview();
     preview.classList.remove('hidden');
@@ -157,7 +157,7 @@ describe('presentation image sharing', () => {
   });
 
   it('renders a preview image and enables its sharing and download actions', async () => {
-    const { openPresentationSharePreview } = await import('../presentation-share.js');
+    const { openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
 
     await openPresentationSharePreview();
 
@@ -169,7 +169,7 @@ describe('presentation image sharing', () => {
   });
 
   it('uses the browser share sheet from both share actions after preparing the image', async () => {
-    const { initPresentationShare, openPresentationSharePreview } = await import('../presentation-share.js');
+    const { initPresentationShare, openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
     const share = vi.mocked(navigator.share);
     const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     await openPresentationSharePreview();
@@ -187,7 +187,7 @@ describe('presentation image sharing', () => {
 
   it('renders wide video-background shares without a frame and with the discreet Sulaimani signature', async () => {
     mockState.presBgMode = 'video';
-    const { openPresentationSharePreview } = await import('../presentation-share.js');
+    const { openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
 
     await openPresentationSharePreview();
 
@@ -199,7 +199,7 @@ describe('presentation image sharing', () => {
   });
 
   it('prepares the share image in advance without opening any UI', async () => {
-    const { preparePresentationShareImage } = await import('../presentation-share.js');
+    const { preparePresentationShareImage } = await import('../features/presentation/presentation-share.js');
     preparePresentationShareImage();
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(document.getElementById('presentationSharePreview')?.classList.contains('hidden')).toBe(true);
@@ -217,7 +217,7 @@ describe('presentation image sharing', () => {
       'fetch',
       vi.fn(() => Promise.resolve(new Response(null, { status: 503 }))),
     );
-    const { initPresentationShare, openPresentationSharePreview } = await import('../presentation-share.js');
+    const { initPresentationShare, openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
     await openPresentationSharePreview();
     initPresentationShare();
     const videoButton = document.getElementById('presentationShareVideoBtn') as HTMLButtonElement;
@@ -230,7 +230,7 @@ describe('presentation image sharing', () => {
   });
 
   it('falls back to the preview with a download hint when no native share sheet exists', async () => {
-    const { initPresentationShare } = await import('../presentation-share.js');
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
     Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     Object.defineProperty(navigator, 'canShare', { configurable: true, value: undefined });
     initPresentationShare();
@@ -243,7 +243,7 @@ describe('presentation image sharing', () => {
   });
 
   it('treats a user cancellation of the native share sheet as cancelled', async () => {
-    const { initPresentationShare } = await import('../presentation-share.js');
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
     vi.mocked(navigator.share).mockRejectedValue(Object.assign(new Error('denied'), { name: 'AbortError' }));
     initPresentationShare();
 
@@ -255,7 +255,7 @@ describe('presentation image sharing', () => {
 
   it('shares through the Capacitor bridge when running inside the native wrapper', async () => {
     capacitorMock.isNativePlatform.mockImplementation(() => true);
-    const { initPresentationShare } = await import('../presentation-share.js');
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
     initPresentationShare();
 
     mockDom.presShareBtn.click();
@@ -269,7 +269,7 @@ describe('presentation image sharing', () => {
   });
 
   it('guards against double initialisation', async () => {
-    const { initPresentationShare } = await import('../presentation-share.js');
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
     initPresentationShare();
     initPresentationShare();
     expect(mockDom.presShareBtn.dataset['presentationShareBound']).toBe('true');

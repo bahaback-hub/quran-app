@@ -1,11 +1,11 @@
-import { __ } from './i18n.js';
-import { state } from './state.js';
-import { dom } from './dom.js';
-import { storage } from './storage.js';
-import { togglePlayPause, updatePlayPauseBtn, playCurrentAyah } from './features/audio/audio.js';
-import { highlightCurrentAyah, loadSurah } from './surah-loader.js';
-import { getFullscreenElement, requestFullscreen, exitFullscreen, isFullscreen } from './types.js';
-import type { SurahDataLike, TranslationDataLike } from './types.js';
+import { __ } from '../../i18n.js';
+import { state } from '../../state.js';
+import { dom } from '../../dom.js';
+import { storage } from '../../storage.js';
+import { togglePlayPause, updatePlayPauseBtn, playCurrentAyah } from '../audio/audio.js';
+import { highlightCurrentAyah, loadSurah } from '../../surah-loader.js';
+import { getFullscreenElement, requestFullscreen, exitFullscreen, isFullscreen } from '../../types.js';
+import type { SurahDataLike, TranslationDataLike } from '../../types.js';
 import {
   getAutoBackground,
   getNatureBgByMood,
@@ -28,7 +28,7 @@ import {
   initPresentationShare,
   preparePresentationShareImage,
 } from './presentation-share.js';
-import { applyPresBgMode, applyPresBgScene, applyPresBgVideo } from './settings.js';
+import { applyPresBgMode, applyPresBgScene, applyPresBgVideo } from '../../settings.js';
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -432,7 +432,7 @@ export function openPresentation(): void {
       }
     });
     // Re-render the surah content in the background (async, non-blocking)
-    import('./app.js')
+    import('../../app.js')
       .then(({ renderSurah }) => {
         const surahData = state.surahData;
         if (surahData && surahData.number === state.currentSurah) {
