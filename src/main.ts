@@ -106,13 +106,11 @@ window.installPWA = function (): void {
 // Service Worker — DISABLE in Capacitor native app to avoid conflicts
 // The SW intercepts fetch requests and breaks Capacitor's WebView loading
 if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
-  let _swUpdateToastShown = false;
   let _swUpdateInProgress = false;
   let _swReloadFallback: number | null = null;
 
   function hideUpdateBanner(): void {
     document.getElementById('updateBanner')?.remove();
-    _swUpdateToastShown = false;
   }
 
   /**

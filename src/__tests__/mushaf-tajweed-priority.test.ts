@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-vi.unmock('../mushaf-renderer.js');
+vi.unmock('../features/mushaf/mushaf-renderer.js');
 vi.unmock('../tajweed.js');
 
 const { mockState } = vi.hoisted(() => ({
@@ -30,7 +30,7 @@ vi.mock('../storage.js', () => ({
 }));
 
 import { pickTajweedRule } from '../tajweed.js';
-import { renderPage } from '../mushaf-renderer.js';
+import { renderPage } from '../features/mushaf/mushaf-renderer.js';
 
 describe('pickTajweedRule priority', () => {
   it('chooses the highest-priority rule from a mixed set', () => {

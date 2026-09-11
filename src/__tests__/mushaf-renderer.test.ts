@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Unmock the mushaf-renderer module (mocked as {} by setup-i18n.ts)
-vi.unmock('../mushaf-renderer.js');
+vi.unmock('../features/mushaf/mushaf-renderer.js');
 
 // Mock state module
 vi.mock('../state.js', () => ({
@@ -56,8 +56,8 @@ import {
   releaseCanvas,
   clearCanvasPool,
   computeMushafLineLayout,
-} from '../mushaf-renderer.js';
-import type { PageLayoutData, PageWord } from '../mushaf-renderer.js';
+} from '../features/mushaf/mushaf-renderer.js';
+import type { PageLayoutData, PageWord } from '../features/mushaf/mushaf-renderer.js';
 
 describe('Constants', () => {
   it('should have CANVAS_W = 1080', () => {

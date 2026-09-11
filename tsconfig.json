@@ -19,7 +19,8 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "allowUnusedLabels": false,
-    "allowUnreachableCode": false
+    "allowUnreachableCode": false,
+    "noUnusedLocals": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "app.bundle.js"]

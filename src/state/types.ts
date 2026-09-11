@@ -6,7 +6,7 @@
  */
 
 import type { SurahData, PrayerTimes, AdhkarSettings } from '../types.js';
-import type { PageLayoutData } from '../mushaf-renderer.js';
+import type { PageLayoutData } from '../features/mushaf/mushaf-renderer.js';
 import { CONFIG } from '../config.js';
 
 /* ===================== DOMAIN ENTRY INTERFACES ===================== */

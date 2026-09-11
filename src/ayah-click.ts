@@ -1,5 +1,5 @@
-import { getLineY, CANVAS_W, CANVAS_H } from './mushaf-renderer.js';
-import type { MushafLineLayout } from './mushaf-renderer.js';
+import { getLineY, CANVAS_W, CANVAS_H } from './features/mushaf/mushaf-renderer.js';
+import type { MushafLineLayout } from './features/mushaf/mushaf-renderer.js';
 
 /** Result of an ayah lookup from a click. */
 interface AyahInfo {

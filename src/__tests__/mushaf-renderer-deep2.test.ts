@@ -8,7 +8,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-vi.unmock('../mushaf-renderer.js');
+vi.unmock('../features/mushaf/mushaf-renderer.js');
 
 const { mockState, mockIsCapacitorNative } = vi.hoisted(() => ({
   mockState: {
@@ -109,8 +109,8 @@ Object.defineProperty(document, 'fonts', {
   configurable: true,
 });
 
-import { renderPage, loadPageData, CANVAS_W, CANVAS_H } from '../mushaf-renderer.js';
-import type { PageLayoutData } from '../mushaf-renderer.js';
+import { renderPage, loadPageData, CANVAS_W, CANVAS_H } from '../features/mushaf/mushaf-renderer.js';
+import type { PageLayoutData } from '../features/mushaf/mushaf-renderer.js';
 
 function setupFetchMock(data: PageLayoutData) {
   vi.spyOn(globalThis, 'fetch').mockResolvedValue({

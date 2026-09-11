@@ -46,7 +46,7 @@ vi.mock('../storage.js', () => ({
   storage: { get: vi.fn(), set: vi.fn() },
 }));
 
-vi.mock('../mushaf.js', () => ({
+vi.mock('../features/mushaf/mushaf.js', () => ({
   toggleMushafMode: vi.fn(),
 }));
 

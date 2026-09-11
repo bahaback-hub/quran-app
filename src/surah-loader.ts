@@ -20,6 +20,7 @@ import { cacheSurahToIDB, getCachedSurahFromIDB } from './surah-cache.js';
 import type { CachedSurahEntry } from './surah-cache.js';
 import { loadLocalSurahText } from './api-fallback.js';
 import { getOfflinePackAudioUrls } from './offline-pack.js';
+import { QURAN_COM_API_BASE } from './external-sources.js';
 
 // Re-export surah-list helpers so existing callers of surah-loader.loadSurahList /
 // populateReciterSelect / buildSurahOffsets continue to work without changing import paths.
@@ -95,7 +96,7 @@ async function fetchAyahTimings(reciterId: string, surahNum: number, ayahs: Ayah
   }
   try {
     const data: { audio_file?: { timestamps?: TimestampEntry[] } } = (await jsonFetch(
-      `https://api.quran.com/api/v4/chapter_recitations/${apiId}/${surahNum}?segments=true`,
+      `${QURAN_COM_API_BASE}/chapter_recitations/${apiId}/${surahNum}?segments=true`,
       { silent: true, timeout: 8000 },
     )) as { audio_file?: { timestamps?: TimestampEntry[] } };
     if (!data) {
@@ -629,7 +630,6 @@ const VIRTUAL_CHUNK_SIZE = 20;
 const VISIBLE_WINDOW_CHUNKS = 2; // chunks to keep visible above and below viewport
 let _ayahsReadyCount = 0;
 let _virtualObserver: IntersectionObserver | null = null;
-const _scrollObserver: IntersectionObserver | null = null;
 
 /** Cached heights of rendered chunks for accurate spacer sizing. */
 const _chunkHeightCache = new Map<string, number>();
@@ -927,18 +927,6 @@ function onVirtualScroll(): void {
   });
 }
 
-/**
- * Set up the scroll-based virtual scrolling observer.
- * Uses a scroll event listener with requestAnimationFrame throttling.
- *
- * NOTE: Currently unused — renderSurah() renders all ayahs at once instead of
- * using virtual scrolling. Kept for future re-enablement if performance requires it.
- */
-function _setupVirtualScrollObserver(): void {
-  cleanupVirtualScrollObserver();
-  window.addEventListener('scroll', onVirtualScroll, { passive: true });
-}
-
 function cleanupVirtualScrollObserver(): void {
   window.removeEventListener('scroll', onVirtualScroll);
   _scrollRafPending = false;
@@ -998,7 +986,7 @@ export function renderSurah(textData: SurahTextData): void {
   if (secretBtn) {
     (secretBtn as HTMLElement).addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
-      import('./mushaf.js').then((m: { showSurahSecret: (surahNum: number, surahName?: string) => void }) =>
+      import('./features/mushaf/mushaf.js').then((m: { showSurahSecret: (surahNum: number, surahName?: string) => void }) =>
         m.showSurahSecret(
           parseInt((secretBtn as HTMLElement).dataset['surah'] || '0', 10),
           (secretBtn as HTMLElement).dataset['surahname'],
@@ -1158,7 +1146,7 @@ export function highlightCurrentAyah(): void {
     loadTafsirForCurrentAyah();
   }
   if (state.mushafMode) {
-    import('./mushaf.js').then((m: { highlightMushafAyah: () => void }) => m.highlightMushafAyah());
+    import('./features/mushaf/mushaf.js').then((m: { highlightMushafAyah: () => void }) => m.highlightMushafAyah());
   }
 }
 

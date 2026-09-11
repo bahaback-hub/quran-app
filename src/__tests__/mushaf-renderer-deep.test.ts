@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Unmock the mushaf-renderer module
-vi.unmock('../mushaf-renderer.js');
+vi.unmock('../features/mushaf/mushaf-renderer.js');
 
 const { mockState } = vi.hoisted(() => ({
   mockState: {
@@ -40,7 +40,7 @@ vi.mock('../storage.js', () => ({
   },
 }));
 
-import { loadPageData } from '../mushaf-renderer.js';
+import { loadPageData } from '../features/mushaf/mushaf-renderer.js';
 
 describe('mushaf-renderer deep coverage', () => {
   beforeEach(() => {
