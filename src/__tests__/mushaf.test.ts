@@ -37,7 +37,7 @@ vi.mock('../i18n.js', () => ({
   loadLocale: vi.fn(() => Promise.resolve()),
 }));
 
-vi.mock('../mushaf-renderer.js', () => ({}));
+vi.mock('../features/mushaf/mushaf-renderer.js', () => ({}));
 
 vi.mock('../storage.js', () => ({
   storage: {
@@ -47,7 +47,7 @@ vi.mock('../storage.js', () => ({
   },
 }));
 
-import { getJuzForPage, updatePageIndicator } from '../mushaf.js';
+import { getJuzForPage, updatePageIndicator } from '../features/mushaf/mushaf.js';
 
 describe('getJuzForPage', () => {
   it('should return juz 1 for page 1', () => {

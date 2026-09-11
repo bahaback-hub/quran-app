@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock mushaf-renderer's getLineY to return predictable values
-vi.mock('../mushaf-renderer.js', () => ({
+vi.mock('../features/mushaf/mushaf-renderer.js', () => ({
   getLineY: vi.fn((lineIndex: number, _lineCount: number, imgHeight: number) => {
     // Simple uniform line height calculation
     const lineHeight = imgHeight / _lineCount;

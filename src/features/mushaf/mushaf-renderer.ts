@@ -12,13 +12,14 @@
  * - A re-render is scheduled 2.5s after first render to handle WebView
  *   font processing delays.
  */
-import { state } from './state.js';
-import { buildColorMap, getTajweedColor, pickTajweedRule } from './tajweed.js';
-import { getAyahAnnotations } from './tajweed-data.js';
-import type { TajweedAnnotation } from './tajweed-data.js';
-import { isCapacitorNative } from './types.js';
+import { state } from '../../state.js';
+import { buildColorMap, getTajweedColor, pickTajweedRule } from '../../tajweed.js';
+import { getAyahAnnotations } from '../../tajweed-data.js';
+import type { TajweedAnnotation } from '../../tajweed-data.js';
+import { isCapacitorNative } from '../../types.js';
 import { getMushafPageLayout } from './mushaf-data-pack.js';
 import { qcf4FontUrl } from './qcf4-font-pack.js';
+import { mushafPageLayoutUrls } from '../../external-sources.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -97,16 +98,6 @@ interface PageColors {
 }
 
 /* ===================== CONSTANTS ===================== */
-
-// Page layout JSONs live in the quran-qcf4 GitHub repo. raw.githubusercontent
-// is unreachable on some networks, so we try jsDelivr mirrors first (they
-// mirror the same @main content) and keep the direct GitHub source last.
-const PAGE_SOURCES = [
-  'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages/',
-  'https://fastly.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages/',
-  'https://gcore.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages/',
-  'https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/pages/',
-];
 const BSML_FONT = 'QCF4_QBSML';
 
 // Canvas dimensions — scaled based on device capabilities to reduce memory usage
@@ -234,11 +225,6 @@ function getPageFont(pageNum: number, fontMap: Record<string, string> | null | u
 /** Cache name for page layout JSONs rendered once, then reused offline. */
 const LAYOUT_CACHE_NAME = 'qcf4-page-layouts';
 
-function pageLayoutUrls(pageNum: number): string[] {
-  const padded = String(pageNum).padStart(3, '0');
-  return PAGE_SOURCES.map((base) => `${base}${padded}.json`);
-}
-
 /** Read a previously rendered page layout straight from the browser cache. */
 async function cachedPageLayoutData(pageNum: number): Promise<PageLayoutData | null> {
   if (typeof globalThis.caches === 'undefined') {
@@ -246,7 +232,7 @@ async function cachedPageLayoutData(pageNum: number): Promise<PageLayoutData | n
   }
   try {
     const cache = await globalThis.caches.open(LAYOUT_CACHE_NAME);
-    for (const url of pageLayoutUrls(pageNum)) {
+    for (const url of mushafPageLayoutUrls(pageNum)) {
       const res = await cache.match(url);
       if (res && res.ok) {
         return (await res.json()) as PageLayoutData;
@@ -260,7 +246,7 @@ async function cachedPageLayoutData(pageNum: number): Promise<PageLayoutData | n
 
 /** Fetch a page layout from any available source with a per-source timeout. */
 async function fetchPageLayoutFromNetwork(pageNum: number): Promise<PageLayoutData | null> {
-  const urls = pageLayoutUrls(pageNum);
+  const urls = mushafPageLayoutUrls(pageNum);
   for (const url of urls) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 12_000);
@@ -1049,7 +1035,6 @@ function computePageTajweed(data: PageLayoutData, pageNum: number): { wordIdx: n
       continue;
     }
 
-    const _ayahText = words.map((w) => w.text).join(' ');
     const colorMap = buildColorMap(annotations);
     if (!colorMap || colorMap.size === 0) {
       for (const w of words) {
