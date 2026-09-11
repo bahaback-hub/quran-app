@@ -3,6 +3,7 @@ import { initApp } from './app.js';
 import { initI18n, __ } from './i18n.js';
 import { isCapacitorNative, getCapacitor } from './types.js';
 import { updateBanner } from './templates.js';
+import { CHECK_UPDATES_EVENT, UPDATE_AVAILABLE_EVENT, checkForAppUpdates } from './app-updates.js';
 
 /**
  * Performance: Load non-critical modules lazily after initial render.
@@ -181,17 +182,29 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
     }
   });
 
+  function showUpdateNotification(): void {
+    const el = document.getElementById('updateBanner');
+    if (el) {
+      el.style.display = 'flex';
+      return;
+    }
+    createUpdateBanner();
+  }
+
+  // Manual update checks (Settings → "Check for updates") reuse the same
+  // banner as automatic background updates. Registered synchronously (not
+  // inside `ready.then`) so the button degrades to an explicit status
+  // instead of silently doing nothing when SW is slow or unavailable.
+  window.addEventListener(CHECK_UPDATES_EVENT, () => {
+    const status = document.getElementById('updateCheckStatus');
+    void checkForAppUpdates(status);
+  });
+  window.addEventListener(UPDATE_AVAILABLE_EVENT, () => {
+    showUpdateNotification();
+  });
+
   navigator.serviceWorker.ready
     .then((reg) => {
-      function showUpdateNotification(): void {
-        const el = document.getElementById('updateBanner');
-        if (el) {
-          el.style.display = 'flex';
-          return;
-        }
-        createUpdateBanner();
-      }
-
       if (reg.waiting) {
         showUpdateNotification();
         return;

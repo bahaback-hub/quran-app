@@ -145,7 +145,8 @@ describe('presentation image sharing', () => {
   });
 
   it('closes the preview, revokes its object URL and clears its visible state', async () => {
-    const { openPresentationSharePreview, closePresentationSharePreview } = await import('../features/presentation/presentation-share.js');
+    const { openPresentationSharePreview, closePresentationSharePreview } =
+      await import('../features/presentation/presentation-share.js');
     const preview = document.getElementById('presentationSharePreview')!;
     await openPresentationSharePreview();
     preview.classList.remove('hidden');
@@ -169,7 +170,8 @@ describe('presentation image sharing', () => {
   });
 
   it('uses the browser share sheet from both share actions after preparing the image', async () => {
-    const { initPresentationShare, openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
+    const { initPresentationShare, openPresentationSharePreview } =
+      await import('../features/presentation/presentation-share.js');
     const share = vi.mocked(navigator.share);
     const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     await openPresentationSharePreview();
@@ -217,7 +219,8 @@ describe('presentation image sharing', () => {
       'fetch',
       vi.fn(() => Promise.resolve(new Response(null, { status: 503 }))),
     );
-    const { initPresentationShare, openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
+    const { initPresentationShare, openPresentationSharePreview } =
+      await import('../features/presentation/presentation-share.js');
     await openPresentationSharePreview();
     initPresentationShare();
     const videoButton = document.getElementById('presentationShareVideoBtn') as HTMLButtonElement;
