@@ -367,11 +367,21 @@ describe('surah-cache', () => {
 
     it('should return correct entry when multiple entries are cached', async () => {
       const entry1: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
+        text: {
+          number: 1,
+          name: 'الفاتحة',
+          englishName: 'Al-Fatiha',
+          ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }],
+        },
         translation: null,
       };
       const entry2: CachedSurahEntry = {
-        text: { number: 2, name: 'البقرة', englishName: 'Al-Baqarah', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
+        text: {
+          number: 2,
+          name: 'البقرة',
+          englishName: 'Al-Baqarah',
+          ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }],
+        },
         translation: null,
       };
 
@@ -387,7 +397,12 @@ describe('surah-cache', () => {
 
     it('should return null for a key that was never cached', async () => {
       const entry: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
+        text: {
+          number: 1,
+          name: 'الفاتحة',
+          englishName: 'Al-Fatiha',
+          ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }],
+        },
         translation: null,
       };
 
@@ -400,7 +415,12 @@ describe('surah-cache', () => {
 
     it('should distinguish keys with similar prefixes', async () => {
       const entry1: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
+        text: {
+          number: 1,
+          name: 'الفاتحة',
+          englishName: 'Al-Fatiha',
+          ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }],
+        },
         translation: null,
       };
       const entry2: CachedSurahEntry = {
@@ -500,11 +520,21 @@ describe('surah-cache', () => {
   describe('edge cases', () => {
     it('should handle concurrent writes to different keys', async () => {
       const entry1: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
+        text: {
+          number: 1,
+          name: 'الفاتحة',
+          englishName: 'Al-Fatiha',
+          ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }],
+        },
         translation: null,
       };
       const entry2: CachedSurahEntry = {
-        text: { number: 2, name: 'البقرة', englishName: 'Al-Baqarah', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
+        text: {
+          number: 2,
+          name: 'البقرة',
+          englishName: 'Al-Baqarah',
+          ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }],
+        },
         translation: null,
       };
 
@@ -542,7 +572,12 @@ describe('surah-cache', () => {
     it('should handle very long key strings', async () => {
       const longKey = '1_' + 'a'.repeat(500);
       const entry: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
+        text: {
+          number: 1,
+          name: 'الفاتحة',
+          englishName: 'Al-Fatiha',
+          ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }],
+        },
         translation: null,
       };
 
@@ -555,7 +590,12 @@ describe('surah-cache', () => {
     it('should handle Unicode key strings', async () => {
       const unicodeKey = '1_ar.alafasy_ترجمة_العربية';
       const entry: CachedSurahEntry = {
-        text: { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }] },
+        text: {
+          number: 1,
+          name: 'الفاتحة',
+          englishName: 'Al-Fatiha',
+          ayahs: [{ numberInSurah: 1, text: 'آية', number: 1 }],
+        },
         translation: null,
       };
 

@@ -29,7 +29,7 @@ beforeEach(() => {
 });
 
 // Mock external dependencies
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   togglePlayPause: vi.fn(),
   nextAyah: vi.fn(),
   prevAyah: vi.fn(),
@@ -148,7 +148,7 @@ import {
   toggleTranslation,
 } from '../surah-loader.js';
 import { apiFetch, jsonFetch } from '../api-client.js';
-import { prepareAudioForNewSurah, playCurrentAyah } from '../audio.js';
+import { prepareAudioForNewSurah, playCurrentAyah } from '../features/audio/audio.js';
 import { recordReadingSession } from '../reading-stats.js';
 import { showToast, loadingBar } from '../ui.js';
 import { cacheSurahToIDB, getCachedSurahFromIDB } from '../surah-cache.js';

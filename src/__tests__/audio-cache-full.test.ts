@@ -45,7 +45,7 @@ import {
   getCacheStats,
   deleteSurahCache,
   clearAudioCache,
-} from '../audio-cache.js';
+} from '../features/audio/audio-cache.js';
 
 // ─── Helper ────────────────────────────────────────────────────────
 

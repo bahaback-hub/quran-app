@@ -22,7 +22,7 @@ beforeEach(() => {
 });
 
 // Mock external dependencies
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   togglePlayPause: vi.fn(),
   nextAyah: vi.fn(),
   prevAyah: vi.fn(),

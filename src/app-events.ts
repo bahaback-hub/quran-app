@@ -32,7 +32,7 @@ import {
   importSettings,
   initSettingsTabs,
 } from './settings.js';
-import { cacheSurahAudio, isSurahCached, deleteSurahCache } from './audio-cache.js';
+import { cacheSurahAudio, isSurahCached, deleteSurahCache } from './features/audio/audio-cache.js';
 import {
   deleteMushafDataPack,
   downloadMushafDataPack,
@@ -62,7 +62,7 @@ import {
 import { showSleepTimerModal } from './sleep-timer-modal.js';
 import { loadTajweedAnnotationsForSurah } from './tajweed-data.js';
 import { toggleTafsir, openTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
-import * as audioModule from './audio.js';
+import * as audioModule from './features/audio/audio.js';
 
 /** API response shape for ayah page lookup. */
 interface AyahPageResponse {
@@ -944,11 +944,8 @@ export function bindGlobalClickHandler(): void {
       document.getElementById('themeMenuBtn')?.setAttribute('aria-expanded', 'false');
     }
     const isSettingsTrigger =
-      settingsTarget === dom.settingsToggleBtn ||
-      settingsTarget.closest?.('#settingsToggleBtn') !== null;
-    const isAdhkarTrigger =
-      settingsTarget === dom.adhkarBtn ||
-      settingsTarget.closest?.('#adhkarBtn') !== null;
+      settingsTarget === dom.settingsToggleBtn || settingsTarget.closest?.('#settingsToggleBtn') !== null;
+    const isAdhkarTrigger = settingsTarget === dom.adhkarBtn || settingsTarget.closest?.('#adhkarBtn') !== null;
     if (
       dom.settingsPanel?.classList.contains('open') &&
       !dom.settingsPanel.contains(e.target as Node) &&

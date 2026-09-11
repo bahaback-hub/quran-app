@@ -221,7 +221,7 @@ describe('offline-pack — additional coverage', () => {
       });
 
       // Mock audio-cache module
-      vi.doMock('../audio-cache.js', () => ({
+      vi.doMock('../features/audio/audio-cache.js', () => ({
         cacheSurahAudio: vi.fn().mockResolvedValue(undefined),
         isSurahCached: vi.fn().mockResolvedValue(true),
       }));
@@ -250,7 +250,7 @@ describe('offline-pack — additional coverage', () => {
         });
       });
 
-      vi.doMock('../audio-cache.js', () => ({
+      vi.doMock('../features/audio/audio-cache.js', () => ({
         cacheSurahAudio: vi.fn().mockResolvedValue(undefined),
         isSurahCached: vi.fn().mockResolvedValue(true),
       }));

@@ -20,7 +20,7 @@ import {
   collapsePlayer,
   togglePlayPause,
   updatePlayPauseBtn,
-} from './audio.js';
+} from './features/audio/audio.js';
 
 /**
  * Initialize all navigation event listeners for the app.

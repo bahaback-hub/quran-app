@@ -72,14 +72,7 @@ vi.mock('../i18n.js', () => ({
 
 // ─── Import module under test ──────────────────────────────────────
 
-import {
-  buildShareText,
-  shareNative,
-  shareCopy,
-  shareCopySimple,
-  shareWhatsApp,
-  shareTelegram,
-} from '../share.js';
+import { buildShareText, shareNative, shareCopy, shareCopySimple, shareWhatsApp, shareTelegram } from '../share.js';
 
 // ─── Sample data ───────────────────────────────────────────────────
 

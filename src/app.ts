@@ -1,4 +1,3 @@
-
 /**
  * Application Initialization Module.
  *
@@ -20,7 +19,7 @@ import { setUpdateReadingProgress } from './internal-state.js';
 import { startClock, loadPrayerTimes, loadUnderwrittenPrayerTable, scheduleNextAzanCheck } from './prayer.js';
 import { loadFavorites } from './favorites.js';
 import { initAdhkarState, loadAdhkarSettings, startAdhkarNotificationScheduler } from './adhkar.js';
-import { bindAudioEvents, setLoadSurah } from './audio.js';
+import { bindAudioEvents, setLoadSurah } from './features/audio/audio.js';
 import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
 import { initNavigation } from './navigation.js';

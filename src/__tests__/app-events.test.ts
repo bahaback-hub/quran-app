@@ -31,7 +31,7 @@ vi.mock('../settings.js', () => ({
 }));
 
 // Mock audio-cache module
-vi.mock('../audio-cache.js', () => ({
+vi.mock('../features/audio/audio-cache.js', () => ({
   cacheSurahAudio: vi.fn(),
   isSurahCached: vi.fn(() => Promise.resolve(false)),
   deleteSurahCache: vi.fn(() => Promise.resolve(0)),
@@ -107,7 +107,7 @@ vi.mock('../tafsir.js', () => ({
 }));
 
 // Mock audio module
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   togglePlayPause: vi.fn(),
   updatePlayPauseBtn: vi.fn(),
   playCurrentAyah: vi.fn(),
@@ -1105,9 +1105,9 @@ describe('app-events', () => {
       state.ayahsAudios = ['https://example.com/audio1.mp3'];
       state.currentSurah = 1;
       state.currentReciter = 'ar.alafasy';
-      const { isSurahCached } = await import('../audio-cache.js');
+      const { isSurahCached } = await import('../features/audio/audio-cache.js');
       (isSurahCached as ReturnType<typeof vi.fn>).mockResolvedValue(false);
-      const { cacheSurahAudio } = await import('../audio-cache.js');
+      const { cacheSurahAudio } = await import('../features/audio/audio-cache.js');
       (cacheSurahAudio as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
       const { bindSearchEvents } = await import('../app-events.js');

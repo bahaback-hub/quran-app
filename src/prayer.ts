@@ -7,7 +7,7 @@ import { pad2, formatTime12, timeStrToMinutes } from './utils.js';
 import { prayerFetch } from './api-client.js';
 import { __, getCityName, getPrayerName } from './i18n.js';
 import { prayerTimesRows } from './templates.js';
-import { updatePlayPauseBtn } from './audio.js';
+import { updatePlayPauseBtn } from './features/audio/audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
@@ -17,16 +17,31 @@ import { startNativeQiblaCompass } from './qibla-compass.js';
 
 /** Map English/Arabic city names to the keys in prayer-times-1448.json */
 const LOCAL_CITY_MAP: Record<string, string> = {
-  'makkah': 'مكة المكرمة', 'mecca': 'مكة المكرمة', 'مكة': 'مكة المكرمة', 'مكة المكرمة': 'مكة المكرمة',
-  'madinah': 'المدينة المنورة', 'medina': 'المدينة المنورة', 'المدينة': 'المدينة المنورة', 'المدينة المنورة': 'المدينة المنورة',
-  'riyadh': 'الرياض', 'الرياض': 'الرياض',
-  'jeddah': 'جدة', 'جدة': 'جدة',
-  'dammam': 'الدمام', 'الدمام': 'الدمام',
-  'abha': 'أبها', 'أبها': 'أبها',
-  'tabuk': 'تبوك', 'تبوك': 'تبوك',
-  'buraydah': 'بريدة', 'buraidah': 'بريدة', 'بريدة': 'بريدة',
-  'hail': 'حائل', 'حائل': 'حائل',
-  'taif': 'الطائف', 'الطائف': 'الطائف',
+  makkah: 'مكة المكرمة',
+  mecca: 'مكة المكرمة',
+  مكة: 'مكة المكرمة',
+  'مكة المكرمة': 'مكة المكرمة',
+  madinah: 'المدينة المنورة',
+  medina: 'المدينة المنورة',
+  المدينة: 'المدينة المنورة',
+  'المدينة المنورة': 'المدينة المنورة',
+  riyadh: 'الرياض',
+  الرياض: 'الرياض',
+  jeddah: 'جدة',
+  جدة: 'جدة',
+  dammam: 'الدمام',
+  الدمام: 'الدمام',
+  abha: 'أبها',
+  أبها: 'أبها',
+  tabuk: 'تبوك',
+  تبوك: 'تبوك',
+  buraydah: 'بريدة',
+  buraidah: 'بريدة',
+  بريدة: 'بريدة',
+  hail: 'حائل',
+  حائل: 'حائل',
+  taif: 'الطائف',
+  الطائف: 'الطائف',
 };
 
 /**
@@ -44,7 +59,9 @@ function getTodayHijriISO(): string {
       month: '2-digit',
       day: '2-digit',
     }).formatToParts(new Date());
-    let day = '', month = '', year = '';
+    let day = '',
+      month = '',
+      year = '';
     for (const p of parts) {
       if (p.type === 'day') {
         day = p.value;
@@ -90,10 +107,13 @@ export async function loadPrayerTimesFromLocalJSON(city: string): Promise<Record
       if (!response.ok) {
         return null;
       }
-      _localPrayerJSON = await response.json() as Record<string, unknown>;
+      _localPrayerJSON = (await response.json()) as Record<string, unknown>;
     }
 
-    const cities = (_localPrayerJSON as Record<string, unknown>)['cities'] as Record<string, { days: Array<Record<string, string>> }>;
+    const cities = (_localPrayerJSON as Record<string, unknown>)['cities'] as Record<
+      string,
+      { days: Array<Record<string, string>> }
+    >;
     if (!cities || !cities[jsonCity]) {
       return null;
     }
@@ -391,60 +411,60 @@ export async function loadPrayerTimes(): Promise<void> {
   }
   // Saudi cities never reach Aladhan; if both offline tables failed they fall through to cache.
   // ── Strategy 2: LocalStorage cache for the same city and method ──
-    const cached = storage.get<CachedPrayerTimes>('cached_prayer_times');
-    if (cached && cached.city === city && cached.country === country && cached.method === method) {
-      // Accept cache from today or up to 3 days ago (prayer times shift ~1 min/day)
-      const cacheAge = (Date.now() - new Date(cached.date).getTime()) / (1000 * 60 * 60 * 24);
-      if (cacheAge <= PRAYER_CACHE_MAX_AGE_DAYS) {
-        state.prayerTimes = cached.timings;
-        renderPrayerTimes();
-        checkAzanTime();
-        scheduleNextAzanCheck();
-        showToast(cacheAge < 0.5 ? __('cached_prayer') : __('cached_prayer_stale'), 'info');
-        return;
-      }
+  const cached = storage.get<CachedPrayerTimes>('cached_prayer_times');
+  if (cached && cached.city === city && cached.country === country && cached.method === method) {
+    // Accept cache from today or up to 3 days ago (prayer times shift ~1 min/day)
+    const cacheAge = (Date.now() - new Date(cached.date).getTime()) / (1000 * 60 * 60 * 24);
+    if (cacheAge <= PRAYER_CACHE_MAX_AGE_DAYS) {
+      state.prayerTimes = cached.timings;
+      renderPrayerTimes();
+      checkAzanTime();
+      scheduleNextAzanCheck();
+      showToast(cacheAge < 0.5 ? __('cached_prayer') : __('cached_prayer_stale'), 'info');
+      return;
     }
-
-    // ── Strategy 3: Device-location cache ──
-    // Never reuse this for the selected city: it represents the phone's physical location.
-    const cachedLocal = storage.get<CachedLocalPrayerTimes>(LOCAL_PRAYER_CACHE_KEY);
-    if (cachedLocal && cachedLocal.source === 'device-location' && cachedLocal.method === method) {
-      const cacheAge = (Date.now() - new Date(cachedLocal.date).getTime()) / (1000 * 60 * 60 * 24);
-      if (cacheAge <= PRAYER_CACHE_MAX_AGE_DAYS) {
-        state.prayerTimes = cachedLocal.timings;
-        renderPrayerTimes();
-        checkAzanTime();
-        scheduleNextAzanCheck();
-        showToast(cacheAge < 0.5 ? __('cached_prayer') : __('cached_prayer_stale'), 'info');
-        return;
-      }
-    }
-
-    // ── Strategy 4: Device-location calculation (last resort when the selected city is unavailable) ──
-    try {
-      const localTimes = await calculatePrayerTimesLocally(method);
-      if (localTimes) {
-        state.prayerTimes = localTimes;
-        storage.set(LOCAL_PRAYER_CACHE_KEY, {
-          date: new Date().toISOString(),
-          timings: localTimes,
-          method,
-          source: 'device-location',
-        } satisfies CachedLocalPrayerTimes);
-        renderPrayerTimes();
-        checkAzanTime();
-        scheduleNextAzanCheck();
-        return;
-      }
-    } catch (e) {
-      console.warn('[Prayer] Device-location fallback failed:', e);
-    }
-
-    showToast(__('failed_prayer'), 'error');
-    renderPrayerLoadFailure();
   }
 
-  /** Replace the temporary loading message in every prayer-times view after all sources fail. */
+  // ── Strategy 3: Device-location cache ──
+  // Never reuse this for the selected city: it represents the phone's physical location.
+  const cachedLocal = storage.get<CachedLocalPrayerTimes>(LOCAL_PRAYER_CACHE_KEY);
+  if (cachedLocal && cachedLocal.source === 'device-location' && cachedLocal.method === method) {
+    const cacheAge = (Date.now() - new Date(cachedLocal.date).getTime()) / (1000 * 60 * 60 * 24);
+    if (cacheAge <= PRAYER_CACHE_MAX_AGE_DAYS) {
+      state.prayerTimes = cachedLocal.timings;
+      renderPrayerTimes();
+      checkAzanTime();
+      scheduleNextAzanCheck();
+      showToast(cacheAge < 0.5 ? __('cached_prayer') : __('cached_prayer_stale'), 'info');
+      return;
+    }
+  }
+
+  // ── Strategy 4: Device-location calculation (last resort when the selected city is unavailable) ──
+  try {
+    const localTimes = await calculatePrayerTimesLocally(method);
+    if (localTimes) {
+      state.prayerTimes = localTimes;
+      storage.set(LOCAL_PRAYER_CACHE_KEY, {
+        date: new Date().toISOString(),
+        timings: localTimes,
+        method,
+        source: 'device-location',
+      } satisfies CachedLocalPrayerTimes);
+      renderPrayerTimes();
+      checkAzanTime();
+      scheduleNextAzanCheck();
+      return;
+    }
+  } catch (e) {
+    console.warn('[Prayer] Device-location fallback failed:', e);
+  }
+
+  showToast(__('failed_prayer'), 'error');
+  renderPrayerLoadFailure();
+}
+
+/** Replace the temporary loading message in every prayer-times view after all sources fail. */
 function getPrayerTimesContainers(): HTMLElement[] {
   const containers = Array.from(document.querySelectorAll<HTMLElement>('#prayerTimesRows, #settingsPrayerTimesRows'));
   if (dom.prayerTimesRows && !containers.includes(dom.prayerTimesRows)) {

@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import 'fake-indexeddb/auto';
 
-vi.unmock('../audio.js');
+vi.unmock('../features/audio/audio.js');
 
 import { state, resetState } from '../state.js';
 
@@ -199,17 +199,17 @@ describe('audio — cleanup', () => {
   });
 
   it('cleanupSleepTimerInterval does not throw when no timer is active', async () => {
-    const { cleanupSleepTimerInterval } = await import('../audio.js');
+    const { cleanupSleepTimerInterval } = await import('../features/audio/audio.js');
     expect(() => cleanupSleepTimerInterval()).not.toThrow();
   });
 
   it('resetAudioPlayerUI does not throw when DOM is empty', async () => {
-    const { resetAudioPlayerUI } = await import('../audio.js');
+    const { resetAudioPlayerUI } = await import('../features/audio/audio.js');
     expect(() => resetAudioPlayerUI()).not.toThrow();
   });
 
   it('resetAudioElement does not throw with null player', async () => {
-    const { resetAudioElement } = await import('../audio.js');
+    const { resetAudioElement } = await import('../features/audio/audio.js');
     expect(() => resetAudioElement(null)).not.toThrow();
   });
 });
@@ -221,12 +221,12 @@ describe('audio — updatePlayPauseBtn', () => {
   });
 
   it('does not throw when dom.playPauseBtn exists', async () => {
-    const { updatePlayPauseBtn } = await import('../audio.js');
+    const { updatePlayPauseBtn } = await import('../features/audio/audio.js');
     expect(() => updatePlayPauseBtn()).not.toThrow();
   });
 
   it('does not throw when dom.playPauseBtn is null', async () => {
-    const { updatePlayPauseBtn } = await import('../audio.js');
+    const { updatePlayPauseBtn } = await import('../features/audio/audio.js');
     expect(() => updatePlayPauseBtn()).not.toThrow();
   });
 });
@@ -237,7 +237,7 @@ describe('audio — expandPlayer', () => {
   });
 
   it('does not throw when called', async () => {
-    const { expandPlayer } = await import('../audio.js');
+    const { expandPlayer } = await import('../features/audio/audio.js');
     expect(() => expandPlayer()).not.toThrow();
   });
 });
@@ -248,7 +248,7 @@ describe('audio — toggleRepeat', () => {
   });
 
   it('does not throw when called without surahData', async () => {
-    const { toggleRepeat } = await import('../audio.js');
+    const { toggleRepeat } = await import('../features/audio/audio.js');
     expect(() => toggleRepeat()).not.toThrow();
   });
 });
@@ -259,14 +259,14 @@ describe('audio — toggleHifdh', () => {
   });
 
   it('does not throw when called', async () => {
-    const { toggleHifdh } = await import('../audio.js');
+    const { toggleHifdh } = await import('../features/audio/audio.js');
     expect(() => toggleHifdh()).not.toThrow();
   });
 });
 
 describe('audio — getDefaultRepeatRange', () => {
   it('returns range 1..7 with 3 times for Al-Fatiha (7 ayahs)', async () => {
-    const { getDefaultRepeatRange } = await import('../audio.js');
+    const { getDefaultRepeatRange } = await import('../features/audio/audio.js');
     const surahData = {
       number: 1,
       name: 'الفاتحة',
@@ -281,7 +281,7 @@ describe('audio — getDefaultRepeatRange', () => {
   });
 
   it('returns range 1..ayahs.length for any surah', async () => {
-    const { getDefaultRepeatRange } = await import('../audio.js');
+    const { getDefaultRepeatRange } = await import('../features/audio/audio.js');
     const ayahs = Array.from({ length: 286 }, (_, i) => ({ numberInSurah: i + 1, text: 'آية' }));
     const surahData = {
       number: 2,

@@ -15,7 +15,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 
-vi.unmock('../audio-cache.js');
+vi.unmock('../features/audio/audio-cache.js');
 
 describe('audio-cache — empty cache behavior', () => {
   beforeEach(() => {
@@ -28,38 +28,38 @@ describe('audio-cache — empty cache behavior', () => {
   });
 
   it('isAudioCached returns false for uncached URL', async () => {
-    const { isAudioCached } = await import('../audio-cache.js');
+    const { isAudioCached } = await import('../features/audio/audio-cache.js');
     const result = await isAudioCached('https://example.com/audio/001.mp3');
     expect(result).toBe(false);
   });
 
   it('getCachedAudioUrl returns null for uncached URL', async () => {
-    const { getCachedAudioUrl } = await import('../audio-cache.js');
+    const { getCachedAudioUrl } = await import('../features/audio/audio-cache.js');
     const result = await getCachedAudioUrl('https://example.com/audio/001.mp3');
     expect(result).toBeNull();
   });
 
   it('getCachedAudioBlob returns null for uncached URL', async () => {
-    const { getCachedAudioBlob } = await import('../audio-cache.js');
+    const { getCachedAudioBlob } = await import('../features/audio/audio-cache.js');
     const result = await getCachedAudioBlob('https://example.com/audio/001.mp3');
     expect(result).toBeNull();
   });
 
   it('isSurahCached returns false when no audio URLs are cached', async () => {
-    const { isSurahCached } = await import('../audio-cache.js');
+    const { isSurahCached } = await import('../features/audio/audio-cache.js');
     const result = await isSurahCached(['https://example.com/001.mp3', 'https://example.com/002.mp3']);
     expect(result).toBe(false);
   });
 
   it('isSurahCached returns true when audioUrls is empty (vacuously true)', async () => {
-    const { isSurahCached } = await import('../audio-cache.js');
+    const { isSurahCached } = await import('../features/audio/audio-cache.js');
     const result = await isSurahCached([]);
     // Empty array means no audio to cache — should return true (nothing missing)
     expect(typeof result).toBe('boolean');
   });
 
   it('getCacheStats returns zero stats on empty cache', async () => {
-    const { getCacheStats } = await import('../audio-cache.js');
+    const { getCacheStats } = await import('../features/audio/audio-cache.js');
     const stats = await getCacheStats();
     expect(stats).toBeDefined();
     expect(typeof stats.fileCount).toBe('number');
@@ -70,13 +70,13 @@ describe('audio-cache — empty cache behavior', () => {
   });
 
   it('clearAudioCache succeeds on empty cache', async () => {
-    const { clearAudioCache } = await import('../audio-cache.js');
+    const { clearAudioCache } = await import('../features/audio/audio-cache.js');
     const result = await clearAudioCache();
     expect(typeof result).toBe('boolean');
   });
 
   it('deleteSurahCache returns 0 on empty cache (nothing deleted)', async () => {
-    const { deleteSurahCache } = await import('../audio-cache.js');
+    const { deleteSurahCache } = await import('../features/audio/audio-cache.js');
     const result = await deleteSurahCache(1, 'ar.alafasy');
     expect(typeof result).toBe('number');
     expect(result).toBe(0);
@@ -89,7 +89,7 @@ describe('audio-cache — cache stats interface', () => {
   });
 
   it('CacheStats has fileCount, totalSize, maxSize, usagePercent, cachedSurahs', async () => {
-    const { getCacheStats } = await import('../audio-cache.js');
+    const { getCacheStats } = await import('../features/audio/audio-cache.js');
     const stats = await getCacheStats();
     expect(stats).toHaveProperty('fileCount');
     expect(stats).toHaveProperty('totalSize');
@@ -111,7 +111,7 @@ describe('audio-cache — cacheSurahAudio with mocked fetch', () => {
   });
 
   it('cacheSurahAudio handles fetch failure gracefully (returns false or throws)', async () => {
-    const { cacheSurahAudio } = await import('../audio-cache.js');
+    const { cacheSurahAudio } = await import('../features/audio/audio-cache.js');
     const fetchMock = vi.fn().mockRejectedValue(new Error('Network error'));
     vi.stubGlobal('fetch', fetchMock);
 
@@ -127,7 +127,7 @@ describe('audio-cache — cacheSurahAudio with mocked fetch', () => {
   });
 
   it('cacheSurahAudio returns false for empty audio URLs', async () => {
-    const { cacheSurahAudio } = await import('../audio-cache.js');
+    const { cacheSurahAudio } = await import('../features/audio/audio-cache.js');
     const progressCb = vi.fn();
     try {
       const result = await cacheSurahAudio([], 1, 'ar.alafasy', progressCb);
@@ -138,7 +138,7 @@ describe('audio-cache — cacheSurahAudio with mocked fetch', () => {
   });
 
   it('cacheSurahAudio returns false for all-null audio URLs', async () => {
-    const { cacheSurahAudio } = await import('../audio-cache.js');
+    const { cacheSurahAudio } = await import('../features/audio/audio-cache.js');
     const progressCb = vi.fn();
     try {
       const result = await cacheSurahAudio([null, null], 1, 'ar.alafasy', progressCb);

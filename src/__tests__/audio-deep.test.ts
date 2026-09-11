@@ -108,7 +108,7 @@ vi.mock('../i18n.js', () => ({
   __: vi.fn((key: string) => key),
 }));
 
-vi.mock('../audio-cache.js', () => ({
+vi.mock('../features/audio/audio-cache.js', () => ({
   getCachedAudioUrl: mockGetCachedAudioUrl,
 }));
 
@@ -151,7 +151,7 @@ import {
   clearSleepTimer,
   cleanupSleepTimerInterval,
   setSleepTimer,
-} from '../audio.js';
+} from '../features/audio/audio.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 

@@ -85,7 +85,7 @@ vi.mock('../app.js', () => ({
 }));
 
 // Mock audio module
-vi.mock('../audio.js', () => ({
+vi.mock('../features/audio/audio.js', () => ({
   playCurrentAyah: vi.fn(),
 }));
 
