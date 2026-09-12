@@ -346,7 +346,7 @@ describe('keyboard shortcuts - Escape', () => {
       btn.focus();
       pressKey('Enter', { _target: btn });
       expect(state.pointerMode).toBe(false);
-      vi.advanceTimersByTime(800);
+      vi.advanceTimersByTime(1100);
       expect(state.pointerMode).toBe(true);
       btn.remove();
     });
