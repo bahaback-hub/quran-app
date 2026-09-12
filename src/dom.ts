@@ -56,6 +56,7 @@ interface DomMap {
   fontSizeSelect: HTMLSelectElement | null;
   autoSaveToggle: HTMLInputElement | null;
   tvModeToggle: HTMLElement | null;
+  pointerModeToggle: HTMLElement | null;
   resetSettingsBtn: HTMLElement | null;
   favoritesPanel: HTMLElement | null;
   favoritesCloseBtn: HTMLElement | null;
@@ -244,6 +245,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'fontSizeSelect',
   'autoSaveToggle',
   'tvModeToggle',
+  'pointerModeToggle',
   'resetSettingsBtn',
   'favoritesPanel',
   'favoritesCloseBtn',

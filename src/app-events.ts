@@ -54,6 +54,7 @@ import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah, toggleTranslation } from './surah-loader.js';
 import { CHECK_UPDATES_EVENT } from './app-updates.js';
 import { setTvMode } from './tv-nav.js';
+import { setPointerMode } from './pointer-nav.js';
 import {
   performExactSearch,
   initKeyboard,
@@ -769,6 +770,10 @@ export function bindDisplaySettingsEvents(): void {
   dom.tvModeToggle?.addEventListener('click', () => {
     setTvMode(!state.tvMode);
     dom.tvModeToggle!.classList.toggle('on', state.tvMode);
+  });
+  dom.pointerModeToggle?.addEventListener('click', () => {
+    setPointerMode(!state.pointerMode);
+    dom.pointerModeToggle!.classList.toggle('on', state.pointerMode);
   });
 
   dom.langSelect?.addEventListener('change', () => {

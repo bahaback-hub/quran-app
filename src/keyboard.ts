@@ -23,6 +23,112 @@ import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './fav
 import { stopAzan } from './features/prayer/prayer.js';
 import { toggleTafsir, closeTafsir } from './tafsir.js';
 import { isTvNavActive, moveTvFocus } from './tv-nav.js';
+import { activateAtCursor, isPointerMode, movePointer, setPointerMode } from './pointer-nav.js';
+
+/** Long-press threshold distinguishing OK click from pointer-mode toggle. */
+const OK_LONG_PRESS_MS = 700;
+
+interface OkPress {
+  el: Element;
+  timer: ReturnType<typeof setTimeout>;
+}
+
+let _okPending: OkPress | null = null;
+let _okLongFired = false;
+let _pointerStreak = 0;
+let _pointerLastMove = 0;
+
+function clearOkPending(): void {
+  if (_okPending) {
+    clearTimeout(_okPending.timer);
+    _okPending = null;
+  }
+}
+
+/** True for the remote OK key in all its browser spellings. */
+function isOkKey(key: string): boolean {
+  return key === 'Enter' || key === ' ';
+}
+
+/**
+ * Intercept OK in TV mode: hold to toggle pointer mode, tap to activate.
+ * Returns true when the event was consumed. Non-TV behavior is untouched.
+ */
+function beginOkPress(e: KeyboardEvent): boolean {
+  if (e.repeat) {
+    return true;
+  }
+  if (_okLongFired && !_okPending) {
+    // A previous keyup was never observed (lost on real remotes too);
+    // treat this press as fresh instead of sticking.
+    _okLongFired = false;
+  }
+  if (_okPending || _okLongFired) {
+    return true;
+  }
+  if (isPointerMode()) {
+    e.preventDefault();
+    clearOkPending();
+    _okPending = {
+      el: document.body,
+      timer: setTimeout(() => {
+        _okLongFired = true;
+        _okPending = null;
+        setPointerMode(false);
+      }, OK_LONG_PRESS_MS),
+    };
+    return true;
+  }
+  const t = e.target as HTMLElement | null;
+  const actionable =
+    t &&
+    t !== document.body &&
+    (t.tagName === 'BUTTON' ||
+      t.tagName === 'A' ||
+      (typeof t.hasAttribute === 'function' && t.hasAttribute('tabindex')));
+  if (!actionable) {
+    return false;
+  }
+  e.preventDefault();
+  clearOkPending();
+  _okPending = {
+    el: t,
+    timer: setTimeout(() => {
+      _okLongFired = true;
+      _okPending = null;
+      setPointerMode(true);
+    }, OK_LONG_PRESS_MS),
+  };
+  return true;
+}
+
+/** Resolve a pending OK press on key release: click on tap, nothing on hold. */
+function endOkPress(): void {
+  if (_okLongFired) {
+    _okLongFired = false;
+    return;
+  }
+  const pending = _okPending;
+  clearOkPending();
+  if (!pending) {
+    return;
+  }
+  if (isPointerMode()) {
+    activateAtCursor();
+    return;
+  }
+  if (pending.el instanceof HTMLElement) {
+    pending.el.click();
+  }
+}
+
+/** Advance the acceleration streak and move the pointer one step. */
+function pointerMove(direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight'): void {
+  const now = Date.now();
+  _pointerStreak = now - _pointerLastMove < 300 ? _pointerStreak + 1 : 0;
+  _pointerLastMove = now;
+  movePointer(direction, _pointerStreak);
+}
 
 /**
  * Initialize global keyboard shortcut listeners.
@@ -76,21 +182,23 @@ export function initKeyboardShortcuts(): void {
     }
     switch (e.key) {
       case ' ':
-        // In TV mode a focused control activates natively; only toggle
-        // playback when the focus sits on nothing actionable.
-        if (isTvNavActive()) {
-          const ae = document.activeElement as HTMLElement | null;
-          if (ae && ae !== document.body && ['BUTTON', 'A', 'INPUT', 'SELECT', 'TEXTAREA'].includes(ae.tagName)) {
-            return;
-          }
+      case 'Enter':
+        if (isTvNavActive() && beginOkPress(e)) {
+          break;
         }
-        e.preventDefault();
-        togglePlayPause();
+        if (e.key === ' ') {
+          e.preventDefault();
+          togglePlayPause();
+        }
         break;
       case 'ArrowLeft':
         if (isTvNavActive()) {
           e.preventDefault();
-          moveTvFocus('ArrowLeft');
+          if (isPointerMode()) {
+            pointerMove('ArrowLeft');
+          } else {
+            moveTvFocus('ArrowLeft');
+          }
           break;
         }
         prevAyah();
@@ -98,7 +206,11 @@ export function initKeyboardShortcuts(): void {
       case 'ArrowRight':
         if (isTvNavActive()) {
           e.preventDefault();
-          moveTvFocus('ArrowRight');
+          if (isPointerMode()) {
+            pointerMove('ArrowRight');
+          } else {
+            moveTvFocus('ArrowRight');
+          }
           break;
         }
         nextAyah(false);
@@ -106,13 +218,21 @@ export function initKeyboardShortcuts(): void {
       case 'ArrowUp':
         if (isTvNavActive()) {
           e.preventDefault();
-          moveTvFocus('ArrowUp');
+          if (isPointerMode()) {
+            pointerMove('ArrowUp');
+          } else {
+            moveTvFocus('ArrowUp');
+          }
         }
         break;
       case 'ArrowDown':
         if (isTvNavActive()) {
           e.preventDefault();
-          moveTvFocus('ArrowDown');
+          if (isPointerMode()) {
+            pointerMove('ArrowDown');
+          } else {
+            moveTvFocus('ArrowDown');
+          }
         }
         break;
       case 's':
@@ -182,6 +302,11 @@ export function initKeyboardShortcuts(): void {
         applyFontSize(28);
         break;
       case 'Escape':
+        // Pointer mode exits first — it is a transient cursor state, not content.
+        if (isPointerMode()) {
+          setPointerMode(false);
+          break;
+        }
         // If presentation mode is active, let the presentation's own handler manage Escape
         if (state.presentationMode) {
           return;
@@ -202,6 +327,11 @@ export function initKeyboardShortcuts(): void {
         break;
       default:
         break;
+    }
+  });
+  document.addEventListener('keyup', (e: KeyboardEvent) => {
+    if (isTvNavActive() && isOkKey(e.key)) {
+      endOkPress();
     }
   });
 }

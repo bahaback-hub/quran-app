@@ -900,6 +900,9 @@ export function restoreSettings(): void {
   if (dom.tvModeToggle) {
     dom.tvModeToggle.classList.toggle('on', state.tvMode);
   }
+  if (dom.pointerModeToggle) {
+    dom.pointerModeToggle.classList.toggle('on', state.pointerMode);
+  }
   if (dom.reciterSelect) {
     dom.reciterSelect.value = state.currentReciter;
   }

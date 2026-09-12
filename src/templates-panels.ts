@@ -302,6 +302,10 @@ export function settingsPanelHTML(): string {
               <div class="toggle-switch" id="tvModeToggle" role="switch" aria-label="وضع التلفاز"></div>
             </div>
             <div class="settings-row">
+              <label data-i18n="pointer_mode">وضع المؤشر (ريموت بلا فأرة)</label>
+              <div class="toggle-switch" id="pointerModeToggle" role="switch" aria-label="وضع المؤشر"></div>
+            </div>
+            <div class="settings-row">
               <span><span data-i18n="app_version">إصدار التطبيق:</span> <strong id="appVersionLabel">…</strong></span>
             </div>
             <div class="settings-row">

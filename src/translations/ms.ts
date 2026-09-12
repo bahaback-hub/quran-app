@@ -105,6 +105,8 @@ export default {
   export_settings: 'Eksport tetapan',
   import_settings: 'Import tetapan',
   tv_mode: 'Mod TV (kawalan jauh)',
+  pointer_mode: 'Mod penunjuk (jauh tanpa tetikus)',
+  pointer_hint: 'Mod penunjuk: gerak dengan anak panah, OK untuk klik — tekan lama untuk kembali',
   app_updates: 'Kemas kini aplikasi',
   app_version: 'Versi aplikasi',
   check_updates: 'Semak kemas kini',
