@@ -104,6 +104,7 @@ export default {
   notification_sound: 'Звук уведомления',
   export_settings: 'Экспорт настроек',
   import_settings: 'Импорт настроек',
+  tv_mode: 'ТВ-режим (пульт)',
   app_updates: 'Обновления приложения',
   app_version: 'Версия приложения',
   check_updates: 'Проверить обновления',

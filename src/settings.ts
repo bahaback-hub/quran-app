@@ -21,6 +21,7 @@ import { showToast } from './ui.js';
 import { stopAzan, loadPrayerTimes } from './features/prayer/prayer.js';
 import { renderAdhkarSettingsList } from './adhkar.js';
 import { __ } from './i18n.js';
+import { isTvDevice, setTvMode } from './tv-nav.js';
 
 /* ===================== FONT SIZE ===================== */
 
@@ -732,6 +733,7 @@ export const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = 
   azan_enabled: (v) => typeof v === 'boolean',
   azan_fajr_enabled: (v) => typeof v === 'boolean',
   auto_save: (v) => typeof v === 'boolean',
+  tv_mode: (v) => typeof v === 'boolean',
   reciter: (v) => typeof v === 'string',
   tafsir_edition: (v) => typeof v === 'string',
   bar_collapsed: (v) => typeof v === 'boolean',
@@ -849,6 +851,13 @@ export function restoreSettings(): void {
   if (as === false) {
     state.autoSave = false;
   }
+  // TV mode: stored choice wins; otherwise auto-enable on TV-shaped devices
+  // (native app without touch). Applied through setTvMode so the body class
+  // stays in sync with the state.
+  const tvStored = storage.get<boolean>('tv_mode');
+  if (tvStored ?? isTvDevice()) {
+    setTvMode(true);
+  }
   const rec = storage.get<string>('reciter');
   if (rec) {
     state.currentReciter = rec;
@@ -887,6 +896,9 @@ export function restoreSettings(): void {
   }
   if (dom.autoSaveToggle) {
     dom.autoSaveToggle.classList.toggle('on', state.autoSave);
+  }
+  if (dom.tvModeToggle) {
+    dom.tvModeToggle.classList.toggle('on', state.tvMode);
   }
   if (dom.reciterSelect) {
     dom.reciterSelect.value = state.currentReciter;

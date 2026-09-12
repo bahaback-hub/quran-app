@@ -53,6 +53,7 @@ import { openFavorites, closeFavorites } from './favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from './adhkar.js';
 import { loadSurah, toggleTranslation } from './surah-loader.js';
 import { CHECK_UPDATES_EVENT } from './app-updates.js';
+import { setTvMode } from './tv-nav.js';
 import {
   performExactSearch,
   initKeyboard,
@@ -764,6 +765,10 @@ export function bindDisplaySettingsEvents(): void {
   dom.autoSaveToggle?.addEventListener('click', () => {
     state.autoSave = dom.autoSaveToggle!.classList.toggle('on');
     storage.set('auto_save', state.autoSave);
+  });
+  dom.tvModeToggle?.addEventListener('click', () => {
+    setTvMode(!state.tvMode);
+    dom.tvModeToggle!.classList.toggle('on', state.tvMode);
   });
 
   dom.langSelect?.addEventListener('change', () => {

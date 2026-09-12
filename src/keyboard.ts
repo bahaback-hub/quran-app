@@ -22,6 +22,7 @@ import { toggleNightMode, applyFontSize, closeSettings } from './settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './favorites.js';
 import { stopAzan } from './features/prayer/prayer.js';
 import { toggleTafsir, closeTafsir } from './tafsir.js';
+import { isTvNavActive, moveTvFocus } from './tv-nav.js';
 
 /**
  * Initialize global keyboard shortcut listeners.
@@ -51,6 +52,18 @@ export function initKeyboardShortcuts(): void {
           dom.searchResults.style.display = 'none';
         }
       }
+      // In TV mode the remote has no cursor keys: vertical arrows leave text
+      // fields toward neighboring controls (e.g. down to the on-screen
+      // keyboard), while horizontal arrows keep native caret movement and
+      // SELECT popups stay fully native for the system picker.
+      if (
+        isTvNavActive() &&
+        (e.key === 'ArrowUp' || e.key === 'ArrowDown') &&
+        (e.target as HTMLElement).tagName !== 'SELECT'
+      ) {
+        e.preventDefault();
+        moveTvFocus(e.key === 'ArrowUp' ? 'ArrowUp' : 'ArrowDown');
+      }
       return;
     }
     if (e.ctrlKey || e.metaKey) {
@@ -63,14 +76,44 @@ export function initKeyboardShortcuts(): void {
     }
     switch (e.key) {
       case ' ':
+        // In TV mode a focused control activates natively; only toggle
+        // playback when the focus sits on nothing actionable.
+        if (isTvNavActive()) {
+          const ae = document.activeElement as HTMLElement | null;
+          if (ae && ae !== document.body && ['BUTTON', 'A', 'INPUT', 'SELECT', 'TEXTAREA'].includes(ae.tagName)) {
+            return;
+          }
+        }
         e.preventDefault();
         togglePlayPause();
         break;
       case 'ArrowLeft':
+        if (isTvNavActive()) {
+          e.preventDefault();
+          moveTvFocus('ArrowLeft');
+          break;
+        }
         prevAyah();
         break;
       case 'ArrowRight':
+        if (isTvNavActive()) {
+          e.preventDefault();
+          moveTvFocus('ArrowRight');
+          break;
+        }
         nextAyah(false);
+        break;
+      case 'ArrowUp':
+        if (isTvNavActive()) {
+          e.preventDefault();
+          moveTvFocus('ArrowUp');
+        }
+        break;
+      case 'ArrowDown':
+        if (isTvNavActive()) {
+          e.preventDefault();
+          moveTvFocus('ArrowDown');
+        }
         break;
       case 's':
       case 'S':

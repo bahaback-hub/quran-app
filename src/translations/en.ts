@@ -104,6 +104,7 @@ export default {
   notification_sound: 'Notification sound',
   export_settings: 'Export settings',
   import_settings: 'Import settings',
+  tv_mode: 'TV mode (remote control)',
   app_updates: 'App updates',
   app_version: 'App version',
   check_updates: 'Check for updates',
