@@ -63,6 +63,7 @@ export default {
   hifz_room_download_failed: "La session n'a pas pu être téléchargée. Vérifiez votre connexion et réessayez.",
   exit_app_confirm: "Voulez-vous vraiment quitter l'application ?",
   makkah: 'La Mecque',
+  madinah: 'Médine',
   close: 'Fermer',
   success: 'Succès',
   copied: 'Copié',

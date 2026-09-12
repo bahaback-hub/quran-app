@@ -63,6 +63,7 @@ export default {
   hifz_room_download_failed: 'Не удалось скачать сессию. Проверьте соединение и попробуйте снова.',
   exit_app_confirm: 'Вы действительно хотите выйти из приложения?',
   makkah: 'Мекка',
+  madinah: 'Медина',
   close: 'Закрыть',
   success: 'Успешно',
   copied: 'Скопировано',

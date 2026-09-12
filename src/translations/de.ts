@@ -64,6 +64,7 @@ export default {
     'Die Sitzung konnte nicht heruntergeladen werden. Überprüfe deine Verbindung und versuche es erneut.',
   exit_app_confirm: 'Möchtest du die App wirklich beenden?',
   makkah: 'Mekka',
+  madinah: 'Medina',
   close: 'Schließen',
   success: 'Erfolgreich',
   copied: 'Kopiert',

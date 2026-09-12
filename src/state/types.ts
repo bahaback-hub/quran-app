@@ -284,7 +284,7 @@ export function createDefaultState(): AppState {
     fontType: 'amiri',
     lineSpacing: '1.8',
     tajweedEnabled: true,
-    presBgMode: 'plain',
+    presBgMode: 'video',
     presBgScene: 'stars',
     presBgNature: 'dawn',
     presBgVideo: 'eva',
