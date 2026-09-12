@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { state } from '../state.js';
 import { dom } from '../dom.js';
 
@@ -301,5 +301,31 @@ describe('keyboard shortcuts - Escape', () => {
     expect(
       (dom.player as unknown as { classList: { add: ReturnType<typeof vi.fn> } }).classList.add,
     ).not.toHaveBeenCalled();
+  });
+
+  describe('TV mode (remote control)', () => {
+    afterEach(() => {
+      state.tvMode = false;
+    });
+
+    it('should not flip ayahs with arrows in TV mode', () => {
+      state.tvMode = true;
+      pressKey('ArrowRight');
+      pressKey('ArrowLeft');
+      expect(nextAyah).not.toHaveBeenCalled();
+      expect(prevAyah).not.toHaveBeenCalled();
+    });
+
+    it('should still flip ayahs with arrows outside TV mode', () => {
+      state.tvMode = false;
+      pressKey('ArrowRight');
+      expect(nextAyah).toHaveBeenCalled();
+    });
+
+    it('should toggle playback with Space when nothing is focused in TV mode', () => {
+      state.tvMode = true;
+      pressKey(' ');
+      expect(togglePlayPause).toHaveBeenCalled();
+    });
   });
 });

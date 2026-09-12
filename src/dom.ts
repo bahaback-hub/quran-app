@@ -55,6 +55,7 @@ interface DomMap {
   testAzanBtn: HTMLElement | null;
   fontSizeSelect: HTMLSelectElement | null;
   autoSaveToggle: HTMLInputElement | null;
+  tvModeToggle: HTMLElement | null;
   resetSettingsBtn: HTMLElement | null;
   favoritesPanel: HTMLElement | null;
   favoritesCloseBtn: HTMLElement | null;
@@ -242,6 +243,7 @@ const DOM_IDS: (keyof DomMap)[] = [
   'testAzanBtn',
   'fontSizeSelect',
   'autoSaveToggle',
+  'tvModeToggle',
   'resetSettingsBtn',
   'favoritesPanel',
   'favoritesCloseBtn',

@@ -104,6 +104,7 @@ export default {
   notification_sound: 'Bunyi pemberitahuan',
   export_settings: 'Eksport tetapan',
   import_settings: 'Import tetapan',
+  tv_mode: 'Mod TV (kawalan jauh)',
   app_updates: 'Kemas kini aplikasi',
   app_version: 'Versi aplikasi',
   check_updates: 'Semak kemas kini',

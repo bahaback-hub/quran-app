@@ -298,6 +298,10 @@ export function settingsPanelHTML(): string {
           <div class="settings-section" id="appUpdateSection">
             <div class="settings-section-title">🆕 <span data-i18n="app_updates">تحديثات التطبيق</span></div>
             <div class="settings-row">
+              <label data-i18n="tv_mode">وضع التلفاز (تحكم بالريموت)</label>
+              <div class="toggle-switch" id="tvModeToggle" role="switch" aria-label="وضع التلفاز"></div>
+            </div>
+            <div class="settings-row">
               <span><span data-i18n="app_version">إصدار التطبيق:</span> <strong id="appVersionLabel">…</strong></span>
             </div>
             <div class="settings-row">

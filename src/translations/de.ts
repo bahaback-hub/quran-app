@@ -105,6 +105,7 @@ export default {
   notification_sound: 'Benachrichtigungston',
   export_settings: 'Einstellungen exportieren',
   import_settings: 'Einstellungen importieren',
+  tv_mode: 'TV-Modus (Fernbedienung)',
   app_updates: 'App-Updates',
   app_version: 'App-Version',
   check_updates: 'Nach Updates suchen',
