@@ -26,7 +26,7 @@ vi.mock('../config.js', () => ({
     DEFAULT_RECITER: 'ar.alafasy',
     DEFAULT_TAFSIR: 'ar-tafsir-muyassar',
     DEFAULT_METHOD: '4',
-    DEFAULT_CITY: 'مكة المكرمة',
+    DEFAULT_CITY: 'المدينة المنورة',
     DEFAULT_COUNTRY: 'SA',
     CACHE_LIMIT: 20,
   },

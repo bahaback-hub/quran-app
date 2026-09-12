@@ -63,6 +63,7 @@ export default {
   hifz_room_steps_label: 'Langkah sesi hafazan',
   exit_app_confirm: 'Adakah anda benar-benar mahu keluar daripada aplikasi?',
   makkah: 'Makkah',
+  madinah: 'Madinah',
   close: 'Tutup',
   success: 'Berjaya',
   copied: 'Disalin',

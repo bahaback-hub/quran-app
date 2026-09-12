@@ -183,16 +183,13 @@ export function settingsPanelHTML(): string {
             <label for="presBgSceneSelect">اختر المنظر:</label>
             <select id="presBgSceneSelect" aria-label="اختر المنظر المتحرك">
               <option value="stars">سماء نجوم ✨</option>
-              <option value="waves">أمواج البحر 🌊</option>
-              <option value="aurora">شفق قطبي 🌌</option>
               <option value="particles">جسيمات ذهبية ✦</option>
-              <option value="rain">مطر 🌧️</option>
             </select>
           </div>
           <div class="settings-row hidden" id="presBgVideoRow">
             <label for="presBgVideoSelect">اختر الفيديو المحلي:</label>
             <select id="presBgVideoSelect" aria-label="اختر فيديو خلفية وضع العرض">
-              <option value="eva">منزل إيفا والماء</option>
+              <option value="eva">منزل على البحر</option>
               <option value="alps">جبال الألب والضباب</option>
               <option value="sunset">غروب البحر</option>
               <option value="wave">الموج المتكسر</option>

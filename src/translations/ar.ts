@@ -63,6 +63,7 @@ export default {
   hifz_room_download_failed: 'تعذر تنزيل الجلسة. تحقق من الاتصال ثم أعد المحاولة.',
   exit_app_confirm: 'هل تريد حقًا الخروج من التطبيق؟',
   makkah: 'مكة المكرمة',
+  madinah: 'المدينة المنورة',
   close: 'إغلاق',
   success: 'تم بنجاح',
   copied: 'تم النسخ',

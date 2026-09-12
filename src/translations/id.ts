@@ -63,6 +63,7 @@ export default {
   hifz_room_download_failed: 'Sesi tidak dapat diunduh. Periksa koneksi lalu coba lagi.',
   exit_app_confirm: 'Apakah Anda benar-benar ingin keluar dari aplikasi?',
   makkah: 'Makkah',
+  madinah: 'Madinah',
   close: 'Tutup',
   success: 'Berhasil',
   copied: 'Disalin',

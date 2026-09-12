@@ -982,7 +982,8 @@ describe('settings — additional coverage', () => {
       storage.set('pres_bg_mode', 'invalid_mode');
       const { restoreSettings } = await import('../settings.js');
       restoreSettings();
-      expect(state.presBgMode).toBe('plain');
+      // Invalid values are ignored, keeping the default (eva video background).
+      expect(state.presBgMode).toBe('video');
     });
 
     it('should not restore invalid pres_bg_scene', async () => {
