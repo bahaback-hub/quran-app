@@ -33,11 +33,17 @@
             android:launchMode="singleTask"
             android:exported="true"
             android:resizeableActivity="true"
+            android:banner="@drawable/tv_banner"
             android:windowSoftInputMode="adjustResize">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
 
         </activity>
@@ -54,6 +60,11 @@
     </application>
 
     <!-- Permissions -->
+
+    <!-- Android TV / Google TV: without the Leanback launcher declaration,
+         sideloaded apps never appear on the TV home screen. required="false"
+         keeps the app installable on phones and tablets. -->
+    <uses-feature android:name="android.software.leanback" android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
