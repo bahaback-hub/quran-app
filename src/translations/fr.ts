@@ -104,6 +104,7 @@ export default {
   notification_sound: 'Son de notification',
   export_settings: 'Exporter les paramètres',
   import_settings: 'Importer les paramètres',
+  tv_mode: 'Mode TV (télécommande)',
   app_updates: 'Mises à jour',
   app_version: 'Version de l’app',
   check_updates: 'Vérifier les mises à jour',

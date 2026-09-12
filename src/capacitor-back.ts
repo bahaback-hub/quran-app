@@ -3,7 +3,7 @@
  * @description Capacitor back button handler for the Quran app. Implements the
  * hardware back button behavior on Android/Capacitor builds, closing panels and
  * overlays in a priority order: presentation → mushaf overlay → secrets overlay →
- * active panels (settings, adhkar, favorites, ayah modal, tafsir) → player
+ * active panels (settings, adhkar, favorites, ayah modal, tafsir, hifz room) → player
  * collapse → mushaf mode exit. The reader search field is permanently visible,
  * so Android back now leaves it in place rather than hiding a core control.
  */
@@ -13,6 +13,7 @@ import { state } from './state.js';
 import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
+import { closeHifzRoom, isHifzRoomOpen } from './hifz-room.js';
 import { hideQiblaCompass } from './features/prayer/prayer.js';
 import { __ } from './i18n.js';
 import { getCapacitor } from './types.js';
@@ -115,12 +116,21 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
           close: () => document.getElementById('ayahModalCloseBtn')?.click(),
         },
         { el: document.getElementById('tafsirCurtain'), close: () => closeTafsir() },
+        {
+          el: document.getElementById('hifzRoom'),
+          close: () => {
+            if (isHifzRoomOpen()) {
+              closeHifzRoom();
+            }
+          },
+        },
       ];
       for (const { el, close } of activeElements) {
-        // Check visibility using CSS classes (open/hidden) not inline display
+        // Check visibility using CSS classes (open/hidden/is-open) not inline display
         const isVisible =
           el &&
           (el.classList.contains('open') ||
+            el.classList.contains('is-open') ||
             (!el.classList.contains('hidden') && el.style.display && el.style.display !== 'none'));
         if (isVisible) {
           close();

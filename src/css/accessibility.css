@@ -6,6 +6,17 @@
   border-radius: 4px;
 }
 
+/* ========== وضع التلفاز: إطار تركيز كبير يُرى من الأريكة ========== */
+body.tv-nav :focus-visible {
+  outline-width: 4px;
+  outline-offset: 3px;
+}
+
+body.tv-nav :focus {
+  outline-width: 4px;
+  outline-offset: 3px;
+}
+
 /* ========== دعم تقليل الحركة ========== */
 @media (prefers-reduced-motion: reduce) {
   *,
