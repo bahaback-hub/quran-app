@@ -23,10 +23,10 @@ import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './fav
 import { stopAzan } from './features/prayer/prayer.js';
 import { toggleTafsir, closeTafsir } from './tafsir.js';
 import { isTvNavActive, moveTvFocus } from './tv-nav.js';
-import { activateAtCursor, isPointerMode, movePointer, setPointerMode } from './pointer-nav.js';
+import { activateAtCursor, activateEl, isPointerMode, movePointer, setPointerMode } from './pointer-nav.js';
 
 /** Long-press threshold distinguishing OK click from pointer-mode toggle. */
-const OK_LONG_PRESS_MS = 700;
+const OK_LONG_PRESS_MS = 1000;
 
 interface OkPress {
   el: Element;
@@ -117,9 +117,7 @@ function endOkPress(): void {
     activateAtCursor();
     return;
   }
-  if (pending.el instanceof HTMLElement) {
-    pending.el.click();
-  }
+  activateEl(pending.el);
 }
 
 /** Advance the acceleration streak and move the pointer one step. */
