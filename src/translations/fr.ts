@@ -105,6 +105,8 @@ export default {
   export_settings: 'Exporter les paramètres',
   import_settings: 'Importer les paramètres',
   tv_mode: 'Mode TV (télécommande)',
+  pointer_mode: 'Mode pointeur (télécommande sans souris)',
+  pointer_hint: 'Mode pointeur : déplacez avec les flèches, OK pour cliquer — appui long pour revenir',
   app_updates: 'Mises à jour',
   app_version: 'Version de l’app',
   check_updates: 'Vérifier les mises à jour',

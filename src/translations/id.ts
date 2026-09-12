@@ -105,6 +105,8 @@ export default {
   export_settings: 'Ekspor pengaturan',
   import_settings: 'Impor pengaturan',
   tv_mode: 'Mode TV (remote control)',
+  pointer_mode: 'Mode penunjuk (remote tanpa mouse)',
+  pointer_hint: 'Mode penunjuk: gerakkan dengan panah, OK untuk klik — tahan lama untuk kembali',
   app_updates: 'Pembaruan aplikasi',
   app_version: 'Versi aplikasi',
   check_updates: 'Periksa pembaruan',

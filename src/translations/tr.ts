@@ -105,6 +105,8 @@ export default {
   export_settings: 'Ayarları dışa aktar',
   import_settings: 'Ayarları içe aktar',
   tv_mode: 'TV modu (kumanda)',
+  pointer_mode: 'İşaretçi modu (faresiz kumanda)',
+  pointer_hint: 'İşaretçi modu: oklarla hareket, tıklamak için OK — dönmek için basılı tut',
   app_updates: 'Uygulama güncellemeleri',
   app_version: 'Uygulama sürümü',
   check_updates: 'Güncellemeleri denetle',

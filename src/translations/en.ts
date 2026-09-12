@@ -105,6 +105,8 @@ export default {
   export_settings: 'Export settings',
   import_settings: 'Import settings',
   tv_mode: 'TV mode (remote control)',
+  pointer_mode: 'Pointer mode (remote without mouse)',
+  pointer_hint: 'Pointer mode: move with arrows, press OK to click — long-press returns to navigation',
   app_updates: 'App updates',
   app_version: 'App version',
   check_updates: 'Check for updates',
