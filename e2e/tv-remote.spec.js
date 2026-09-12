@@ -61,11 +61,10 @@ test.describe('TV remote control', () => {
   });
 
   test('long-press OK toggles pointer mode and arrows move the cursor', async ({ page }) => {
-    // Focus a real button first so the long-press has an owner.
     await page.locator('#settingsToggleBtn').evaluate((el) => el.focus());
-    // Long-press: down, hold past the threshold, release.
+    // Long-press: down, hold past the 1000ms threshold, release.
     await page.keyboard.down('Enter');
-    await page.waitForTimeout(900);
+    await page.waitForTimeout(1200);
     await page.keyboard.up('Enter');
     await expect(page.locator('body')).toHaveClass(/tv-pointer/);
     const cursor = page.locator('#tvPointerCursor');
@@ -78,5 +77,22 @@ test.describe('TV remote control', () => {
     // Escape leaves pointer mode back to focus jumping.
     await page.keyboard.press('Escape');
     await expect(page.locator('body')).not.toHaveClass(/tv-pointer/);
+  });
+
+  test('pointer clicks land on the surah and reciter selects (no overlay)', async ({ page }) => {
+    // Guards the pointer path: an invisible overlay above these native
+    // selects would swallow cursor clicks while buttons keep working.
+    const hit = await page.evaluate(() => {
+      const out = {};
+      for (const id of ['surahSelect', 'reciterSelect']) {
+        const el = document.getElementById(id);
+        const r = el.getBoundingClientRect();
+        const hitEl = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+        out[id] = hitEl ? hitEl.id || hitEl.tagName : null;
+      }
+      return out;
+    });
+    expect(hit['surahSelect']).toBe('surahSelect');
+    expect(hit['reciterSelect']).toBe('reciterSelect');
   });
 });
