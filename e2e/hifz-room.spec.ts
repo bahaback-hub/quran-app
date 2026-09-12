@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('Hifz Room — Web-only side drawer', () => {
+test.describe('Hifz Room — side drawer', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
@@ -111,11 +111,11 @@ test.describe('Hifz Room — Web-only side drawer', () => {
     await expect(page.locator('#hifzRoom')).toHaveAttribute('aria-hidden', 'false');
   });
 
-  test('keeps the room hidden when the Capacitor-native class is present', async ({ page }) => {
+  test('shows the room when the Capacitor-native class is present', async ({ page }) => {
     await page.locator('body').evaluate((body) => body.classList.add('capacitor-native'));
-    await expect(page.locator('#hifzRoom')).toHaveCSS('display', 'none');
-    await expect(page.locator('#hifzRoomToggle')).toHaveCSS('display', 'none');
-    await expect(page.locator('#hifzRoomBackdrop')).toHaveCSS('display', 'none');
-    await expect(page.locator('#hifzRoomStage')).toHaveCSS('display', 'none');
+    await expect(page.locator('#hifzRoomToggle')).toBeVisible();
+    await page.locator('#hifzRoomToggle').click();
+    await expect(page.locator('#hifzRoom')).toHaveClass(/is-open/);
+    await expect(page.locator('#hifzRoom')).toHaveAttribute('aria-hidden', 'false');
   });
 });
