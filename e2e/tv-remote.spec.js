@@ -59,4 +59,24 @@ test.describe('TV remote control', () => {
     const value = await page.locator('#searchInput').inputValue();
     expect(value.length).toBeGreaterThan(0);
   });
+
+  test('long-press OK toggles pointer mode and arrows move the cursor', async ({ page }) => {
+    // Focus a real button first so the long-press has an owner.
+    await page.locator('#settingsToggleBtn').evaluate((el) => el.focus());
+    // Long-press: down, hold past the threshold, release.
+    await page.keyboard.down('Enter');
+    await page.waitForTimeout(900);
+    await page.keyboard.up('Enter');
+    await expect(page.locator('body')).toHaveClass(/tv-pointer/);
+    const cursor = page.locator('#tvPointerCursor');
+    await expect(cursor).toBeVisible();
+    const before = await cursor.evaluate((el) => ({ x: el.dataset['x'], y: el.dataset['y'] }));
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    const after = await cursor.evaluate((el) => ({ x: el.dataset['x'], y: el.dataset['y'] }));
+    expect(Number(after.x)).toBeGreaterThan(Number(before.x));
+    // Escape leaves pointer mode back to focus jumping.
+    await page.keyboard.press('Escape');
+    await expect(page.locator('body')).not.toHaveClass(/tv-pointer/);
+  });
 });

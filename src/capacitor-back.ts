@@ -14,6 +14,7 @@ import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
 import { closeHifzRoom, isHifzRoomOpen } from './hifz-room.js';
+import { isPointerMode, setPointerMode } from './pointer-nav.js';
 import { hideQiblaCompass } from './features/prayer/prayer.js';
 import { __ } from './i18n.js';
 import { getCapacitor } from './types.js';
@@ -45,6 +46,11 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
   }
   try {
     app.addListener?.('backButton', () => {
+      // Pointer mode exits first — it is a transient cursor state, not content.
+      if (isPointerMode()) {
+        setPointerMode(false);
+        return;
+      }
       // Close presentation overlay first — use proper close function
       if (state.presentationMode) {
         import('./features/presentation/presentation.js')

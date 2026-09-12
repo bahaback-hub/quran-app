@@ -106,6 +106,8 @@ export default {
   export_settings: 'Einstellungen exportieren',
   import_settings: 'Einstellungen importieren',
   tv_mode: 'TV-Modus (Fernbedienung)',
+  pointer_mode: 'Zeigermodus (Fernbedienung ohne Maus)',
+  pointer_hint: 'Zeigermodus: mit Pfeilen bewegen, mit OK klicken — lang drücken für Navigation',
   app_updates: 'App-Updates',
   app_version: 'App-Version',
   check_updates: 'Nach Updates suchen',

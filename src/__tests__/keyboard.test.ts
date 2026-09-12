@@ -328,4 +328,42 @@ describe('keyboard shortcuts - Escape', () => {
       expect(togglePlayPause).toHaveBeenCalled();
     });
   });
+
+  describe('pointer mode (long-press OK)', () => {
+    afterEach(() => {
+      state.tvMode = false;
+      state.pointerMode = false;
+      document.body.classList.remove('tv-pointer');
+      document.getElementById('tvPointerCursor')?.remove();
+      vi.useRealTimers();
+    });
+
+    it('should enter pointer mode on long-press OK in TV mode', () => {
+      state.tvMode = true;
+      vi.useFakeTimers();
+      const btn = document.createElement('button');
+      document.body.append(btn);
+      btn.focus();
+      pressKey('Enter', { _target: btn });
+      expect(state.pointerMode).toBe(false);
+      vi.advanceTimersByTime(800);
+      expect(state.pointerMode).toBe(true);
+      btn.remove();
+    });
+
+    it('should click the focused control on short OK in TV mode', () => {
+      state.tvMode = true;
+      vi.useFakeTimers();
+      const btn = document.createElement('button');
+      const clicked: string[] = [];
+      btn.addEventListener('click', () => clicked.push('x'));
+      document.body.append(btn);
+      btn.focus();
+      pressKey('Enter', { _target: btn });
+      document.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
+      expect(clicked).toEqual(['x']);
+      expect(state.pointerMode).toBe(false);
+      btn.remove();
+    });
+  });
 });

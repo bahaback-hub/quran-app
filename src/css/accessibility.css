@@ -17,6 +17,26 @@ body.tv-nav :focus {
   outline-offset: 3px;
 }
 
+/* ========== مؤشر وضع المؤشر (ريموت بلا فأرة) ========== */
+#tvPointerCursor {
+  position: fixed;
+  z-index: 9999;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: 4px solid var(--accent, #d97706);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 25%);
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 45%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+body:not(.tv-pointer) #tvPointerCursor {
+  display: none;
+}
+
 /* ========== دعم تقليل الحركة ========== */
 @media (prefers-reduced-motion: reduce) {
   *,
