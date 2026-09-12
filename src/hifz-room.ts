@@ -79,13 +79,6 @@ function label(key: string, ...args: string[]): string {
   return __(key, ...args);
 }
 
-function isNativeContainer(): boolean {
-  return (
-    document.documentElement.classList.contains('capacitor-native') ||
-    document.body.classList.contains('capacitor-native')
-  );
-}
-
 function isEditableTarget(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLElement &&
@@ -997,7 +990,7 @@ function attachCurtainDrag(room: HTMLElement, handle: HTMLButtonElement): void {
 
 /** Inject and initialize the web-only Hifz Room. Safe to call more than once. */
 export function initHifzRoom(): void {
-  if (isNativeContainer() || document.getElementById(ROOM_ID)) {
+  if (document.getElementById(ROOM_ID)) {
     return;
   }
   const room = document.createElement('aside');
