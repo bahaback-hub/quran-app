@@ -10,7 +10,11 @@ const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 
 const isCapacitorBuild = process.env.BUILD_TARGET === 'capacitor';
 
 export default defineConfig({
-  base: '/quran-app/',
+  // GitHub Pages serves the web app from /quran-app/, but the Capacitor
+  // WebView serves bundled files from its own root — absolute asset URLs
+  // (/quran-app/...) 404 there, leaving the native app unstyled and empty.
+  // Relative base keeps every asset resolvable in both environments.
+  base: isCapacitorBuild ? './' : '/quran-app/',
   root: '.',
   publicDir: 'public',
   define: {
