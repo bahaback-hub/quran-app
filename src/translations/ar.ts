@@ -98,6 +98,8 @@ export default {
   export_settings: 'تصدير الإعدادات',
   import_settings: 'استيراد الإعدادات',
   tv_mode: 'وضع التلفاز (تحكم بالريموت)',
+  pointer_mode: 'وضع المؤشر (ريموت بلا فأرة)',
+  pointer_hint: 'وضع المؤشر: حرّك بالأسهم واضغط OK للنقر — ضغطة مطولة تعيدك للتنقل',
   app_updates: 'تحديثات التطبيق',
   app_version: 'إصدار التطبيق',
   check_updates: 'التحقق من التحديث',
