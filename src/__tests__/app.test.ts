@@ -237,8 +237,8 @@ describe('initState', () => {
     const { CONFIG } = await import('../config.js');
     expect(CONFIG.DEFAULT_RECITER).toBe('ar.alafasy');
     expect(CONFIG.DEFAULT_TAFSIR).toBe('ar-tafsir-muyassar');
-    // Mock CONFIG uses 'مكة المكرمة' not 'مكة'
-    expect(CONFIG.DEFAULT_CITY).toBe('مكة المكرمة');
+    // Mock CONFIG uses 'المدينة المنورة' as the default city
+    expect(CONFIG.DEFAULT_CITY).toBe('المدينة المنورة');
     expect(CONFIG.DEFAULT_COUNTRY).toBe('SA');
     expect(CONFIG.DEFAULT_METHOD).toBe('4');
   });
