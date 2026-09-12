@@ -10,6 +10,8 @@ const config: CapacitorConfig = {
       'api.alquran.cloud',
       'api.aladhan.com',
       'cdn.jsdelivr.net',
+      'fastly.jsdelivr.net',
+      'gcore.jsdelivr.net',
       'cdn.islamic.network',
       'server1.mp3quran.net',
       'server2.mp3quran.net',
