@@ -1,15 +1,6 @@
-/* Hifz Room — web-only, Rawdah-inspired side space. It overlays the reader
-   instead of changing the existing layout or reader CSS contract. */
-body.capacitor-native #hifzRoom,
-body.capacitor-native #hifzRoomToggle,
-body.capacitor-native #hifzRoomBackdrop,
-body.capacitor-native #hifzRoomStage,
-html.capacitor-native #hifzRoom,
-html.capacitor-native #hifzRoomToggle,
-html.capacitor-native #hifzRoomBackdrop,
-html.capacitor-native #hifzRoomStage {
-  display: none !important;
-}
+/* Hifz Room — Rawdah-inspired side space. It overlays the reader
+   instead of changing the existing layout or reader CSS contract.
+   Available on web and in the native app alike. */
 
 .hifz-room-backdrop {
   position: fixed;
