@@ -63,6 +63,7 @@ export default {
   hifz_room_steps_label: 'Ezber oturumu adımları',
   exit_app_confirm: 'Uygulamadan gerçekten çıkmak istiyor musunuz?',
   makkah: 'Mekke',
+  madinah: 'Medine',
   close: 'Kapat',
   success: 'Başarılı',
   copied: 'Kopyalandı',
