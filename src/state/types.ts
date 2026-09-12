@@ -115,6 +115,7 @@ export interface UIStateSlice {
   nightMode: boolean;
   sepiaMode: boolean;
   autoSave: boolean;
+  tvMode: boolean;
   barCollapsed: boolean;
   fontType: string;
   lineSpacing: string;
@@ -176,6 +177,7 @@ export interface AppState {
   nightMode: boolean;
   sepiaMode: boolean;
   autoSave: boolean;
+  tvMode: boolean;
   azanEnabled: boolean;
   azanFajrEnabled: boolean;
   city: string;
@@ -245,6 +247,7 @@ export function createDefaultState(): AppState {
     nightMode: false,
     sepiaMode: false,
     autoSave: true,
+    tvMode: false,
     azanEnabled: false,
     azanFajrEnabled: false,
     city: CONFIG.DEFAULT_CITY,

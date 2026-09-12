@@ -45,6 +45,7 @@ import {
 import { CONFIG } from '../../config.js';
 import { __ } from '../../i18n.js';
 import { shareText } from '../../share.js';
+import { isTvNavActive } from '../../tv-nav.js';
 
 /** Data shape for opening the ayah modal. */
 interface ModalAyahData {
@@ -683,6 +684,13 @@ function toggleKeyboard(): void {
   }
   kbd.classList.toggle('open');
   dom.kbdToggleBtn?.classList.toggle('active');
+  // On TV the remote has no pointer: drop focus onto the first key when the
+  // keyboard opens so arrows type immediately without hunting for it.
+  if (kbd.classList.contains('open') && isTvNavActive()) {
+    const firstKey = kbd.querySelector<HTMLElement>('.kbd-key');
+    firstKey?.focus({ preventScroll: true });
+    firstKey?.scrollIntoView({ block: 'nearest' });
+  }
 }
 
 function handleKeyClick(e: MouseEvent): void {

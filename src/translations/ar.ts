@@ -97,6 +97,7 @@ export default {
   notification_sound: 'صوت التنبيه',
   export_settings: 'تصدير الإعدادات',
   import_settings: 'استيراد الإعدادات',
+  tv_mode: 'وضع التلفاز (تحكم بالريموت)',
   app_updates: 'تحديثات التطبيق',
   app_version: 'إصدار التطبيق',
   check_updates: 'التحقق من التحديث',

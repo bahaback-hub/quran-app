@@ -104,6 +104,7 @@ export default {
   notification_sound: 'Bildirim sesi',
   export_settings: 'Ayarları dışa aktar',
   import_settings: 'Ayarları içe aktar',
+  tv_mode: 'TV modu (kumanda)',
   app_updates: 'Uygulama güncellemeleri',
   app_version: 'Uygulama sürümü',
   check_updates: 'Güncellemeleri denetle',
