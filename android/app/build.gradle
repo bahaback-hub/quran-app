@@ -7,7 +7,7 @@ android {
         applicationId "com.sulaimani.quranapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 22
+        versionCode 23
         versionName "3.1.21"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
@@ -16,10 +16,27 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Release signing reads from environment variables (never committed):
+    // QURANAPP_KEYSTORE (path to .jks), QURANAPP_STORE_PASS,
+    // QURANAPP_KEY_ALIAS, QURANAPP_KEY_PASS.
+    // Without them the release build stays unsigned (debug-style).
+    signingConfigs {
+        release {
+            if (System.getenv('QURANAPP_KEYSTORE')) {
+                storeFile file(System.getenv('QURANAPP_KEYSTORE'))
+                storePassword System.getenv('QURANAPP_STORE_PASS')
+                keyAlias System.getenv('QURANAPP_KEY_ALIAS')
+                keyPassword System.getenv('QURANAPP_KEY_PASS')
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (System.getenv('QURANAPP_KEYSTORE')) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

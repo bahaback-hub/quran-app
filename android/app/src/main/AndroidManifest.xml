@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Large screens (tablets, TVs) must run the wide layout, not the
+         letterboxed phone width that Android "compatibility mode" would
+         otherwise force. Without this the CSS viewport reports ~360-411dp
+         and the app renders like a phone even on a big display.
+         NOTE: must be a direct child of <manifest> — AAPT rejects it
+         inside <application>. -->
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,18 +24,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config">
-
-        <!-- Large screens (tablets, TVs) must run the wide layout, not the
-             letterboxed phone width that Android "compatibility mode" would
-             otherwise force. Without this the CSS viewport reports ~360-411dp
-             and the app renders like a phone even on a big display. -->
-        <supports-screens
-            android:anyDensity="true"
-            android:largeScreens="true"
-            android:normalScreens="true"
-            android:resizeable="true"
-            android:smallScreens="true"
-            android:xlargeScreens="true" />
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
