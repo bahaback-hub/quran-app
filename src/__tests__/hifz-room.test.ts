@@ -239,11 +239,11 @@ describe('Hifz Room', () => {
     expect(rail.querySelector('#hifzRoomToggle')).not.toBeNull();
   });
 
-  it('does not inject inside the Capacitor-native container', () => {
+  it('injects inside the Capacitor-native container as well', () => {
     document.body.classList.add('capacitor-native');
     initHifzRoom();
-    expect(document.getElementById('hifzRoom')).toBeNull();
-    expect(document.getElementById('hifzRoomToggle')).toBeNull();
+    expect(document.getElementById('hifzRoom')).not.toBeNull();
+    expect(document.getElementById('hifzRoomToggle')).not.toBeNull();
   });
 
   it('opens and closes while synchronizing accessibility state', () => {
