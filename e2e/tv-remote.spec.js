@@ -82,10 +82,14 @@ test.describe('TV remote control', () => {
   test('pointer clicks land on the surah and reciter selects (no overlay)', async ({ page }) => {
     // Guards the pointer path: an invisible overlay above these native
     // selects would swallow cursor clicks while buttons keep working.
+    // Wait for fonts (CI rasterisation shifts layout) and center each
+    // select in view so the probe point is deterministic.
+    await page.waitForFunction(() => document.fonts.status === 'loaded');
     const hit = await page.evaluate(() => {
       const out = {};
       for (const id of ['surahSelect', 'reciterSelect']) {
         const el = document.getElementById(id);
+        el.scrollIntoView({ block: 'center', inline: 'center' });
         const r = el.getBoundingClientRect();
         const hitEl = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
         out[id] = hitEl ? hitEl.id || hitEl.tagName : null;
@@ -94,5 +98,27 @@ test.describe('TV remote control', () => {
     });
     expect(hit['surahSelect']).toBe('surahSelect');
     expect(hit['reciterSelect']).toBe('reciterSelect');
+  });
+
+  test('pointer cursor stays above the presentation overlay', async ({ page }) => {
+    // Regression: the overlay pins itself at z-index 99999, which used to
+    // bury the cursor (z-index 9999) so it moved unseen inside presentation.
+    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    // Long-press OK on the (covered) button to enter pointer mode.
+    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
+    await page.keyboard.down('Enter');
+    await page.waitForTimeout(1200);
+    await page.keyboard.up('Enter');
+    await expect(page.locator('body')).toHaveClass(/tv-pointer/);
+    const layers = await page.evaluate(() => {
+      const cursor = document.getElementById('tvPointerCursor');
+      const overlay = document.getElementById('presentationOverlay');
+      const z = (el) => (el ? Number(getComputedStyle(el).zIndex) || 0 : 0);
+      return { cursor: z(cursor), overlay: z(overlay) };
+    });
+    expect(layers.cursor).toBeGreaterThan(layers.overlay);
+    expect(layers.cursor).toBeGreaterThan(0);
   });
 });

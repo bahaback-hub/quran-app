@@ -21,7 +21,7 @@ import { showToast } from './ui.js';
 import { stopAzan, loadPrayerTimes } from './features/prayer/prayer.js';
 import { renderAdhkarSettingsList } from './adhkar.js';
 import { __ } from './i18n.js';
-import { isTvDevice, setTvMode } from './tv-nav.js';
+import { initTvMode } from './tv-nav.js';
 
 /* ===================== FONT SIZE ===================== */
 
@@ -852,12 +852,9 @@ export function restoreSettings(): void {
     state.autoSave = false;
   }
   // TV mode: stored choice wins; otherwise auto-enable on TV-shaped devices
-  // (native app without touch). Applied through setTvMode so the body class
-  // stays in sync with the state.
-  const tvStored = storage.get<boolean>('tv_mode');
-  if (tvStored ?? isTvDevice()) {
-    setTvMode(true);
-  }
+  // (native app without touch). Applied through initTvMode so the body
+  // class stays in sync with the state.
+  initTvMode();
   const rec = storage.get<string>('reciter');
   if (rec) {
     state.currentReciter = rec;
