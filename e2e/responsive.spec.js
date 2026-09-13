@@ -200,6 +200,33 @@ test.describe('التوافق — أوضاع مختلفة', () => {
     const content = await page.locator('.surah-content').boundingBox();
     expect(railBox).not.toBeNull();
     expect(content).not.toBeNull();
+    // TEMP-DIAG-CI: capture exact rail geometry once (removed after diagnosis).
+    const railDiag = await page.evaluate(() => {
+      const rail = document.getElementById('readerSideTools');
+      const rcs = getComputedStyle(rail);
+      const chain = [];
+      let n = rail.parentElement;
+      while (n && n !== document.body) {
+        const s = getComputedStyle(n);
+        chain.push(`${n.tagName}.${(n.className.baseVal ?? n.className).toString().split(' ')[0]}[tf=${s.transform}|flt=${s.filter}|bf=${s.backdropFilter}|wc=${s.willChange}|ct=${s.contain}|pos=${s.position}]`);
+        n = n.parentElement;
+      }
+      const cont = document.querySelector('.container');
+      return {
+        rect: rail.getBoundingClientRect().toJSON(),
+        css: { position: rcs.position, left: rcs.left, width: rcs.width, transform: rcs.transform },
+        contMargin: getComputedStyle(cont).marginLeft,
+        bodyClass: document.body.className,
+        htmlClass: document.documentElement.className,
+        innerW: window.innerWidth,
+        dpr: window.devicePixelRatio,
+        sheets: Array.from(document.styleSheets).length,
+        colorScheme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+        reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+        chain,
+      };
+    });
+    console.log(`RAIL-DIAG-CI ${JSON.stringify(railDiag)}`);
     expect(railBox.width).toBeLessThanOrEqual(78);
     // The whole surah box (background included) must start at/right of the
     // rail's right edge — not just the ayah text inside it. Same for the
