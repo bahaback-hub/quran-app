@@ -282,6 +282,36 @@
       </div>
 
       <!-- ========== شريط أدوات القراءة ========== -->
+
+
+      <!-- ========== نتائج البحث ========== -->
+      <section
+        class="search-results"
+        id="searchResults"
+        role="region"
+        aria-label="نتائج البحث"
+        aria-live="polite"
+      ></section>
+
+      <!-- ========== محتوى السورة ========== -->
+      <main class="surah-content" id="surahContent" role="main" aria-label="نص السورة">
+        <p class="loading" id="surahSelectHint" data-i18n="select_hint">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
+      </main>
+
+      <!-- ========== التذييل ========== -->
+      <footer class="footer">
+        اللهم اجعل هذا العمل في ميزان أعمال عائلة السليماني — مصادر البيانات:
+        <a href="https://alquran.cloud/" target="_blank" rel="noopener" class="footer-link">AlQuran.cloud API (النص)</a>،
+        <a href="https://github.com/spa5k/tafsir_api" target="_blank" rel="noopener" class="footer-link">Tafsir API (التفسير)</a>،
+        <a href="https://mp3quran.net/" target="_blank" rel="noopener" class="footer-link">mp3quran (الصوت)</a>،
+        <a href="https://quran.com/" target="_blank" rel="noopener" class="footer-link">Quran.com API (التوقيتات)</a>،
+        <a href="https://aladhan.com/" target="_blank" rel="noopener" class="footer-link">Aladhan (المواقيت)</a>،
+        <a href="https://github.com/MohamadHajjRabee/quran-qcf4" target="_blank" rel="noopener" class="footer-link">quran-qcf4 (صفحات المصحف)</a>
+      </footer>
+    </div>
+
+      <!-- ========== الشريط الجانبي: ابن مباشر لـ body ==========
+           مثبت على نافذة العرض (viewport) فلا تأسره فلاتر الحاوية -->
       <aside class="reader-side-tools" id="readerSideTools" aria-label="أدوات القراءة">
         <button class="reader-side-tool tafsir-curtain-handle" id="tafsirCurtainHandle" type="button" data-i18n-title="tafsir" data-i18n-aria-label="tafsir" title="التفسير" aria-label="فتح/إغلاق التفسير">
           <svg class="icon reader-side-tool-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 8h7M8 12h7M8 16h5"/></svg>
@@ -335,32 +365,6 @@
           <span class="reader-side-tool-label" data-i18n="favorites">المفضلة</span>
         </button>
       </aside>
-
-      <!-- ========== نتائج البحث ========== -->
-      <section
-        class="search-results"
-        id="searchResults"
-        role="region"
-        aria-label="نتائج البحث"
-        aria-live="polite"
-      ></section>
-
-      <!-- ========== محتوى السورة ========== -->
-      <main class="surah-content" id="surahContent" role="main" aria-label="نص السورة">
-        <p class="loading" id="surahSelectHint" data-i18n="select_hint">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
-      </main>
-
-      <!-- ========== التذييل ========== -->
-      <footer class="footer">
-        اللهم اجعل هذا العمل في ميزان أعمال عائلة السليماني — مصادر البيانات:
-        <a href="https://alquran.cloud/" target="_blank" rel="noopener" class="footer-link">AlQuran.cloud API (النص)</a>،
-        <a href="https://github.com/spa5k/tafsir_api" target="_blank" rel="noopener" class="footer-link">Tafsir API (التفسير)</a>،
-        <a href="https://mp3quran.net/" target="_blank" rel="noopener" class="footer-link">mp3quran (الصوت)</a>،
-        <a href="https://quran.com/" target="_blank" rel="noopener" class="footer-link">Quran.com API (التوقيتات)</a>،
-        <a href="https://aladhan.com/" target="_blank" rel="noopener" class="footer-link">Aladhan (المواقيت)</a>،
-        <a href="https://github.com/MohamadHajjRabee/quran-qcf4" target="_blank" rel="noopener" class="footer-link">quran-qcf4 (صفحات المصحف)</a>
-      </footer>
-    </div>
 
     <!-- Floating player injected by overlays.ts via floatingPlayerHTML() -->
 
