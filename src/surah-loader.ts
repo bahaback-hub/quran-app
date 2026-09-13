@@ -16,7 +16,7 @@ import type { CachedSurahEntry } from './surah-cache.js';
 import { loadLocalSurahText } from './api-fallback.js';
 import { getOfflinePackAudioUrls } from './offline-pack.js';
 import { QURAN_COM_API_BASE } from './external-sources.js';
-import { renderSurah, finalizeSurahLoad } from './surah-render.js';
+import { renderSurah, finalizeSurahLoad, highlightCurrentAyah } from './surah-render.js';
 import type { SurahTextData, LoadSurahOptions } from './surah-render.js';
 
 // Re-export surah-list helpers so existing callers of surah-loader.loadSurahList /
@@ -207,9 +207,36 @@ export async function loadAudioUrlsForSession(
   }
 }
 
+/**
+ * Find the last good audio list cached for the same surah+reciter under any
+ * translation suffix. When a reload's audio fetch fails (e.g. rate-limited
+ * exactly when translation adds a third parallel request), reusing stale
+ * audio keeps the reader working instead of stranding it silent.
+ */
+function findFallbackAudio(surahNum: number, reciterId: string): { audios: string[]; timings: number[] } | null {
+  const prefix = `${surahNum}_${reciterId}_`;
+  for (const [key, entry] of state.surahCache) {
+    if (!key.startsWith(prefix)) {
+      continue;
+    }
+    const audios = Array.isArray(entry.audios)
+      ? entry.audios.map((a): string => a ?? '')
+      : entry.audio?.ayahs?.map((a: AyahEntry) => a.audio || '');
+    if (audios?.length) {
+      return { audios, timings: Array.isArray(entry.timings) ? [...entry.timings] : [] };
+    }
+  }
+  return null;
+}
+
 /* ===================== LOAD & RENDER SURAH ===================== */
 
 let _loadCounter = 0;
+/** Surah + reciter of the last audio list actually assigned to the player.
+ *  Used to decide whether a new load is a "same surah reload" (keep audio)
+ *  or a real switch (clear audio). */
+let _loadedAudioSurah = -1;
+let _loadedAudioReciter = '';
 let currentSurahController: AbortController | null = null;
 /** Separate AbortController for background refresh — not cancelled when loading a new surah. */
 let _refreshController: AbortController | null = null;
@@ -244,10 +271,13 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   // Also null out surahData and reset currentAyahIndex so consumers reading
   // state.currentSurah + state.surahData during the await below see a consistent
   // "loading" state (null surahData) rather than a stale previous surah.
+  // Audio lists survive a reload of the SAME surah+reciter (e.g. toggling
+  // translation) so the player is never left silent while the new list loads.
+  const keepAudio = surahNum === _loadedAudioSurah && state.currentReciter === _loadedAudioReciter;
   batch(() => {
     state.loadingSurah = surahNum;
-    state.ayahsAudios = [];
-    state.ayahTimings = [];
+    state.ayahsAudios = keepAudio ? state.ayahsAudios : [];
+    state.ayahTimings = keepAudio ? state.ayahTimings : [];
     state.translationData = null;
     state.isPlaying = false;
     state.surahData = null;
@@ -342,6 +372,8 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
         : idbCached.audio?.ayahs?.map((a: AyahEntry) => a.audio || '') || [];
       state.ayahTimings = [];
     }
+    _loadedAudioSurah = surahNum;
+    _loadedAudioReciter = state.currentReciter;
     state.translationData = idbCached.translation || null;
     await prepareTajweedForSurah(surahNum);
     if (_loadCounter !== currentLoad) {
@@ -433,10 +465,19 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     }
     if (audioResult) {
       // Preserve array indices — replace nulls with empty strings instead of filtering
-      // so that ayahsAudios[i] always corresponds to ayah index i
       state.ayahsAudios = audioResult.audios.map((a): string => a ?? '');
       state.ayahTimings = audioResult.timings;
+    } else {
+      // Audio fetch failed (rate-limit, flake): reuse the last good list for
+      // this surah+reciter instead of leaving the reader permanently silent.
+      const fallback = findFallbackAudio(surahNum, state.currentReciter);
+      if (fallback) {
+        state.ayahsAudios = fallback.audios;
+        state.ayahTimings = fallback.timings;
+      }
     }
+    _loadedAudioSurah = surahNum;
+    _loadedAudioReciter = state.currentReciter;
     state.translationData = transResult;
     if (transResult && state.surahData) {
       renderSurah(state.surahData);
@@ -577,7 +618,17 @@ async function _refreshSurahFromAPI(
       // Preserve array indices — replace nulls with empty strings instead of filtering
       state.ayahsAudios = audioResult.audios.map((a): string => a ?? '');
       state.ayahTimings = audioResult.timings;
+    } else {
+      // Audio fetch failed during a background refresh: keep/restore the last
+      // good list for this surah+reciter instead of going silent.
+      const fallback = findFallbackAudio(surahNum, state.currentReciter);
+      if (fallback) {
+        state.ayahsAudios = fallback.audios;
+        state.ayahTimings = fallback.timings;
+      }
     }
+    _loadedAudioSurah = surahNum;
+    _loadedAudioReciter = state.currentReciter;
     state.translationData = transResult;
 
     // Update caches
