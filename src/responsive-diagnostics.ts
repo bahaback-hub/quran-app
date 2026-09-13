@@ -94,14 +94,14 @@ export function buildDiagnosticsPanel(
 
   const head = document.createElement('div');
   head.style.cssText =
-    'display:flex;justify-content:space-between;align-items:center;' + 'font-weight:700;gap:12px;color:#38bdf8;';
+    'display:flex;justify-content:space-between;align-items:center;font-weight:700;gap:12px;color:#38bdf8;';
   head.textContent = 'Responsive diag';
   const close = document.createElement('button');
   close.type = 'button';
   close.setAttribute('aria-label', 'إغلاق لوحة الفحص');
   close.textContent = '✕';
   close.style.cssText =
-    'border:0;background:#38bdf8;color:#062536;' + 'border-radius:6px;cursor:pointer;font-weight:700;padding:2px 8px;';
+    'border:0;background:#38bdf8;color:#062536;border-radius:6px;cursor:pointer;font-weight:700;padding:2px 8px;';
   close.addEventListener('click', () => panel.remove());
   head.appendChild(close);
 

@@ -23,10 +23,11 @@ export default defineConfig({
       exclude: [
         'src/translations/**',
         'src/**/index.js',
-        'src/search.ts',
+        'src/features/search/search.ts',
         'src/types.ts',
         // Re-export wrappers — they have no logic to test
         'src/schemas-validate.ts',
+        'src/templates.ts',
       ],
     },
   },
