@@ -9,7 +9,7 @@
  *   - AbortController support for cancellation
  *   - Full generic type safety — no `any` types
  *   - Request deduplication — concurrent identical requests share one flight
- *   - Automatic retry — transient failures (5xx, network) retried up to 2 times
+ *   - Automatic retry — transient failures (5xx, 429 rate-limit, network) retried up to 2 times
  *
  * Usage:
  *   import { apiFetch, prayerFetch, tafsirFetch } from './api-client.js';
@@ -33,7 +33,7 @@ export interface FetchOptions {
   silent?: boolean;
   errorMsg?: string;
   expectJSON?: boolean;
-  /** Number of retry attempts for transient failures (5xx, network errors). Default: 1. Set to 0 to disable. */
+  /** Number of retry attempts for transient failures (5xx, 429 rate-limit, network errors). Default: 1. Set to 0 to disable. */
   retries?: number;
   /** Delay in ms between retries. Default: 1000. */
   retryDelay?: number;
@@ -253,8 +253,9 @@ async function _fetchWithRetry<T>(
     } catch (error: unknown) {
       lastError = error;
 
-      // Don't retry on: aborts, 4xx client errors, or parse errors
-      if (error instanceof HTTPError && error.status < 500) {
+      // Don't retry on: aborts, 4xx client errors (except 429 rate-limit,
+      // which is transient when parallel requests burst together), or parse errors
+      if (error instanceof HTTPError && error.status < 500 && error.status !== 429) {
         break;
       }
       if (error instanceof DOMException && error.name === 'AbortError') {
@@ -309,8 +310,9 @@ async function _singleFetch<T>(
       const httpError = new HTTPError(response.status, response.statusText);
 
       // Defer only errors that will really be retried. Client errors are final
-      // immediately, while the final server error must remain visible.
-      const willRetry = response.status >= 500 && hasRetryRemaining;
+      // immediately (except 429, which rides the retry backoff), while the
+      // final server error must remain visible.
+      const willRetry = (response.status >= 500 || response.status === 429) && hasRetryRemaining;
       if (!opts.silent && !willRetry) {
         const msg = response.status >= 500 ? ERROR_MESSAGES['server']! : opts.errorMsg || ERROR_MESSAGES['default']!;
         showToastMsg(msg);

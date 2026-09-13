@@ -185,7 +185,9 @@ async function resolveAudioUrl(originalUrl: string): Promise<string> {
  */
 export async function playCurrentAyah(): Promise<void> {
   if (!state.surahData || !state.ayahsAudios?.length) {
-    showToast(__('no_audio'), 'error');
+    // A reload in flight empties the audio list momentarily: tell the truth
+    // (still loading) instead of the misleading "no audio" error.
+    showToast(state.loadingSurah ? __('loading_surah') : __('no_audio'), state.loadingSurah ? 'info' : 'error');
     return;
   }
   const url = state.ayahsAudios[state.currentAyahIndex];
