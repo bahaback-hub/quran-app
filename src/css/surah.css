@@ -319,7 +319,7 @@ body:not(.audio-playing) .word.current-word {
 .ayah .translation-text {
   display: block;
   font-family: 'Segoe UI', 'Arial', sans-serif;
-  font-size: 14px;
+  font-size: 0.5em;
   line-height: 1.7;
   color: var(--text-secondary);
   margin-top: 4px;
