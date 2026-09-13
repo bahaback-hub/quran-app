@@ -58,7 +58,7 @@ export function isTvNavActive(): boolean {
 }
 
 /** Focus the most sensible starting control (the play button when present). */
-export function focusTvDefault(): void {
+function focusTvDefault(): void {
   const play = document.getElementById('playPauseBtn');
   if (play && isTvVisible(play)) {
     (play as HTMLElement).focus({ preventScroll: true });
@@ -96,9 +96,12 @@ export function setTvMode(on: boolean): void {
  */
 export function initTvMode(): void {
   const stored = storage.get<boolean>(TV_MODE_KEY);
-  const on = stored ?? isTvDevice();
-  state.tvMode = on;
-  document.body.classList.toggle(TV_MODE_CLASS, on);
+  if (stored ?? isTvDevice()) {
+    setTvMode(true);
+  } else {
+    state.tvMode = false;
+    document.body.classList.remove(TV_MODE_CLASS);
+  }
 }
 
 /** Move DOM focus to the nearest visible control in `direction`. */
