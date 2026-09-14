@@ -22,6 +22,8 @@ import { stopAzan, loadPrayerTimes } from './features/prayer/prayer.js';
 import { renderAdhkarSettingsList } from './adhkar.js';
 import { __ } from './i18n.js';
 import { initTvMode } from './tv-nav.js';
+import { syncPitchControls, applyPlaybackRate } from './features/audio/audio.js';
+import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from './a11y.js';
 
 /* ===================== FONT SIZE ===================== */
 
@@ -408,6 +410,9 @@ export function initSettingsTabs(): void {
 
 /* ===================== SETTINGS PANEL ===================== */
 
+/** Cleanup for the focus trap installed while the settings panel is open. */
+let _settingsTrapCleanup: (() => void) | null = null;
+
 /** Open the settings panel and render adhkar settings list. */
 export function openSettings(): void {
   if (!dom.settingsPanel) {
@@ -416,11 +421,23 @@ export function openSettings(): void {
   }
   dom.settingsPanel.classList.add('open');
   renderAdhkarSettingsList();
+  // Confine Tab navigation inside the panel and move focus into it, so
+  // keyboard/screen-reader users can't leak focus to the page behind.
+  // Capture the trigger BEFORE trapFocus moves focus into the panel.
+  const trigger = document.activeElement as HTMLElement | undefined;
+  _settingsTrapCleanup?.();
+  _settingsTrapCleanup = trapFocus(dom.settingsPanel);
+  manageFocusOnPanelOpen(dom.settingsPanel, trigger);
 }
 
 /** Close the settings panel and stop azan if playing. */
 export function closeSettings(): void {
-  dom.settingsPanel?.classList.remove('open');
+  _settingsTrapCleanup?.();
+  _settingsTrapCleanup = null;
+  if (dom.settingsPanel) {
+    restoreFocusOnPanelClose(undefined, dom.settingsPanel);
+    dom.settingsPanel.classList.remove('open');
+  }
   if (state.azanPlaying) {
     stopAzan();
   }
@@ -932,6 +949,9 @@ export function restoreSettings(): void {
     dom.speedSelect.value = speed;
     dom.audioPlayer.playbackRate = parseFloat(speed);
   }
+  // Restore the persisted reference frequency UI + live rate (if any).
+  syncPitchControls();
+  applyPlaybackRate();
   const tajweed = storage.get<boolean>('tajweed_enabled');
   if (tajweed === false) {
     state.tajweedEnabled = false;

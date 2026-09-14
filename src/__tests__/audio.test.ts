@@ -35,7 +35,16 @@ import {
   prevAyah,
   nextSurah,
   prevSurah,
-  type RepeatRange,
+  getPitchFreq,
+  setPitchFreq,
+  pitchRatio,
+  getEffectiveRate,
+  applyPlaybackRate,
+  syncPitchControls,
+  ensureAudioGraph,
+  prepareElementForUrl,
+  _resetPitchForTests,
+  setStoppedState,
 } from '../features/audio/audio.js';
 import type { SurahData } from '../types.js';
 
@@ -1698,5 +1707,164 @@ describe('Sleep Timer', () => {
   it('should not throw when sleep timer display element does not exist', () => {
     setSleepTimer(5);
     expect(() => setSleepTimer(10)).not.toThrow();
+  });
+});
+
+/* ===================== play/pause button state sync (item 1) ===================== */
+
+describe('play/pause button state sync', () => {
+  it('updatePlayPauseBtn swaps the collapsed icon to pause bars when playing', () => {
+    const collapsed = createMockElement('button');
+    (dom as unknown as Record<string, unknown>).collapsedPlayBtn = collapsed;
+    try {
+      state.isPlaying = true;
+      updatePlayPauseBtn();
+      expect(collapsed.innerHTML).toContain('icon-pause');
+      expect(collapsed.innerHTML).not.toContain('icon-play');
+      state.isPlaying = false;
+      updatePlayPauseBtn();
+      expect(collapsed.innerHTML).toContain('icon-play');
+    } finally {
+      (dom as unknown as Record<string, unknown>).collapsedPlayBtn = null;
+    }
+  });
+
+  it('togglePlayPause resume flips to pause immediately', () => {
+    state.surahData = createSurahData();
+    const mockPlayer = createMockAudio({ paused: true, src: 'http://example.com/a.mp3', ended: false });
+    dom.audioPlayer = mockPlayer;
+    state.isPlaying = false;
+
+    togglePlayPause();
+    expect(mockPlayer.play).toHaveBeenCalled();
+    expect(state.isPlaying).toBe(true);
+  });
+
+  it('togglePlayPause resume reverts to play when play() rejects', async () => {
+    state.surahData = createSurahData();
+    const bad = createMockAudio({
+      paused: true,
+      src: 'http://example.com/a.mp3',
+      ended: false,
+      play: vi.fn(() => Promise.reject(new Error('autoplay denied'))),
+    });
+    dom.audioPlayer = bad;
+    state.isPlaying = false;
+
+    togglePlayPause();
+    expect(state.isPlaying).toBe(true);
+    await flushPromises();
+    expect(state.isPlaying).toBe(false);
+  });
+
+  it('setStoppedState clears playing state and updates the button', () => {
+    const btn = createMockElement('button');
+    dom.playPauseBtn = btn;
+    state.isPlaying = true;
+    document.body.classList.add('audio-playing');
+
+    setStoppedState();
+    expect(state.isPlaying).toBe(false);
+    expect(document.body.classList.contains('audio-playing')).toBe(false);
+    expect(btn.textContent).toBe('play');
+  });
+});
+
+/* ===================== pitch reference frequency (item 6) ===================== */
+
+describe('pitch reference frequency', () => {
+  beforeEach(() => {
+    _resetPitchForTests();
+  });
+
+  afterEach(() => {
+    _resetPitchForTests();
+    vi.mocked(storage.get).mockReset();
+    vi.mocked(storage.set).mockReset();
+  });
+
+  it('pitchRatio maps 440->1 and scales linearly', () => {
+    expect(pitchRatio(440)).toBe(1);
+    expect(pitchRatio(528)).toBeCloseTo(1.2, 5);
+    expect(pitchRatio(220)).toBeCloseTo(0.5, 5);
+  });
+
+  it('getPitchFreq defaults to 440 and rejects out-of-range stored values', () => {
+    vi.mocked(storage.get).mockReturnValue(undefined);
+    expect(getPitchFreq()).toBe(440);
+    vi.mocked(storage.get).mockReturnValue(9999);
+    expect(getPitchFreq()).toBe(440);
+    vi.mocked(storage.get).mockReturnValue(528);
+    expect(getPitchFreq()).toBe(528);
+  });
+
+  it('setPitchFreq clamps to 400..600 and persists', () => {
+    expect(setPitchFreq(100)).toBe(400);
+    expect(storage.set).toHaveBeenCalledWith('pitch_freq', 400);
+    expect(setPitchFreq(700)).toBe(600);
+    expect(setPitchFreq(432)).toBe(432);
+  });
+
+  it('getEffectiveRate multiplies speed by the pitch ratio', () => {
+    vi.mocked(storage.get).mockImplementation((key: string) => {
+      if (key === 'playback_speed') return '1.5';
+      if (key === 'pitch_freq') return 528;
+      return undefined;
+    });
+    expect(getEffectiveRate()).toBeCloseTo(1.8, 5);
+  });
+
+  it('applyPlaybackRate sets rate and preservesPitch=false when tuned', () => {
+    vi.mocked(storage.get).mockImplementation((key: string) => {
+      if (key === 'playback_speed') return '1';
+      if (key === 'pitch_freq') return 528;
+      return undefined;
+    });
+    const mockPlayer = createMockAudio({});
+    dom.audioPlayer = mockPlayer;
+    applyPlaybackRate();
+    expect(mockPlayer.playbackRate).toBeCloseTo(1.2, 5);
+    expect((mockPlayer as unknown as Record<string, unknown>).preservesPitch).toBe(false);
+  });
+
+  it('applyPlaybackRate restores preservesPitch=true at 440Hz', () => {
+    vi.mocked(storage.get).mockReturnValue(undefined);
+    const mockPlayer = createMockAudio({});
+    dom.audioPlayer = mockPlayer;
+    applyPlaybackRate();
+    expect(mockPlayer.playbackRate).toBe(1);
+    expect((mockPlayer as unknown as Record<string, unknown>).preservesPitch).toBe(true);
+  });
+
+  it('ensureAudioGraph returns false without Web Audio (jsdom)', () => {
+    expect(ensureAudioGraph()).toBe(false);
+  });
+
+  it('prepareElementForUrl is a safe no-op without Web Audio', async () => {
+    await expect(prepareElementForUrl('https://example.com/a.mp3')).resolves.toBeUndefined();
+  });
+
+  it('syncPitchControls writes select and range values', () => {
+    vi.mocked(storage.get).mockReturnValue(432);
+    const select = document.createElement('select');
+    for (const v of ['440', '432', '528', '550']) {
+      const opt = document.createElement('option');
+      opt.value = v;
+      select.append(opt);
+    }
+    const range = document.createElement('input');
+    range.type = 'range';
+    range.min = '400';
+    range.max = '600';
+    (dom as unknown as Record<string, unknown>).pitchSelect = select;
+    (dom as unknown as Record<string, unknown>).pitchRange = range;
+    try {
+      syncPitchControls();
+      expect(select.value).toBe('432');
+      expect(range.value).toBe('432');
+    } finally {
+      (dom as unknown as Record<string, unknown>).pitchSelect = null;
+      (dom as unknown as Record<string, unknown>).pitchRange = null;
+    }
   });
 });
