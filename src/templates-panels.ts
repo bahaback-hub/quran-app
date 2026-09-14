@@ -29,7 +29,7 @@ import { __ } from './i18n.js';
  * @returns HTML string for the complete settings panel aside element
  */
 export function settingsPanelHTML(): string {
-  return `<aside class="settings-panel" id="settingsPanel" aria-label="لوحة الإعدادات">
+  return `<aside class="settings-panel" id="settingsPanel" role="dialog" aria-modal="true" aria-label="لوحة الإعدادات">
       <div class="settings-header">
         <h2 data-i18n="settings">⚙️ الإعدادات</h2>
         <button class="settings-close" id="settingsCloseBtn" aria-label="إغلاق الإعدادات">✖</button>
@@ -370,6 +370,16 @@ export function floatingPlayerHTML(): string {
               <option value="1.5">1.5x</option>
               <option value="2">2x</option>
             </select>
+          </span>
+          <span class="pitch-control" id="pitchControl">
+            <span class="pitch-icon" aria-hidden="true">🎵</span>
+            <select id="pitchSelect" aria-label="التردد المرجعي" title="التردد المرجعي" class="pitch-select">
+              <option value="440" selected>440Hz</option>
+              <option value="432">432Hz</option>
+              <option value="528">528Hz</option>
+              <option value="550">550Hz</option>
+            </select>
+            <input type="range" id="pitchRange" min="400" max="600" step="1" value="440" aria-label="ضبط التردد" title="ضبط التردد (400-600Hz)" class="pitch-range" />
           </span>
           <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف">⏯</button>
           <button class="btn" id="nextAyahBtn" aria-label="الآية التالية" title="الآية التالية">▶</button>

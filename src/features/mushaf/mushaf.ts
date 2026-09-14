@@ -14,7 +14,7 @@ import {
 } from '../../templates.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from '../../surahs-data.js';
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from '../../app.js';
-import { prepareAudioForNewSurah, playCurrentAyah, updatePlayPauseBtn } from '../audio/audio.js';
+import { prepareAudioForNewSurah, playCurrentAyah, setStoppedState, updatePlayPauseBtn } from '../audio/audio.js';
 import { handlePageClick, getAyahHighlightRects } from '../../ayah-click.js';
 import { renderPage, loadPageData, releaseCanvas, getCanvas, computeMushafPageGeometry } from './mushaf-renderer.js';
 import type { PageLayoutData, MushafLineLayout } from './mushaf-renderer.js';
@@ -139,7 +139,8 @@ export async function toggleMushafMode(): Promise<void> {
     loadPage(state.currentPage);
     if (wasPlaying && dom.audioPlayer?.paused) {
       dom.audioPlayer.play().catch(() => {
-        /* noop */
+        // Rejected — don't leave the button stuck on pause.
+        setStoppedState();
       });
       state.isPlaying = true;
       updatePlayPauseBtn();
