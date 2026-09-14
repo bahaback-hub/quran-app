@@ -1,8 +1,8 @@
 /**
  * Deep coverage tests for api-client.ts — covers additional branches:
  * - Request deduplication
- * - Retry logic on 5xx and network errors
- * - No retry on 4xx errors
+ * - Retry logic on 5xx, 429 rate-limit, and network errors
+ * - No retry on other 4xx errors
  * - Abort handling
  * - JSON parse errors
  * - Error classification (offline, timeout, network, server, parse, default)
@@ -106,6 +106,26 @@ describe('api-client deep coverage', () => {
       });
 
       const result = await safeFetch('https://example.com/retry-5xx', { silent: true, retries: 1, retryDelay: 10 });
+      expect(callCount).toBe(2);
+      expect(result).toEqual({ ok: true });
+    });
+
+    it('should retry on 429 rate-limit errors', async () => {
+      let callCount = 0;
+      vi.spyOn(globalThis, 'fetch').mockImplementation(() => {
+        callCount++;
+        if (callCount <= 1) {
+          return Promise.resolve(new Response('Too Many Requests', { status: 429, statusText: 'Too Many Requests' }));
+        }
+        return Promise.resolve(
+          new Response(JSON.stringify({ ok: true }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+        );
+      });
+
+      const result = await safeFetch('https://example.com/retry-429', { silent: true, retries: 1, retryDelay: 10 });
       expect(callCount).toBe(2);
       expect(result).toEqual({ ok: true });
     });
