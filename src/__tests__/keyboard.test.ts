@@ -365,5 +365,49 @@ describe('keyboard shortcuts - Escape', () => {
       expect(state.pointerMode).toBe(false);
       btn.remove();
     });
+
+    it('should enter pointer mode on long-press OK with focus on body (reading)', () => {
+      state.tvMode = true;
+      vi.useFakeTimers();
+      pressKey('Enter');
+      expect(state.pointerMode).toBe(false);
+      vi.advanceTimersByTime(1100);
+      expect(state.pointerMode).toBe(true);
+    });
+
+    it('should keep short OK on body a no-op (no click, no pointer)', () => {
+      state.tvMode = true;
+      vi.useFakeTimers();
+      const clicked: string[] = [];
+      const onClick = (): void => {
+        clicked.push('x');
+      };
+      document.body.addEventListener('click', onClick);
+      try {
+        pressKey('Enter');
+        document.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
+        expect(clicked).toEqual([]);
+        expect(state.pointerMode).toBe(false);
+      } finally {
+        document.body.removeEventListener('click', onClick);
+      }
+    });
+
+    it('should enter pointer mode on long-press OK on ayah text (no tabindex)', () => {
+      state.tvMode = true;
+      vi.useFakeTimers();
+      const span = document.createElement('span');
+      span.className = 'ayah';
+      span.textContent = 'بِسْمِ اللَّهِ';
+      document.body.append(span);
+      try {
+        pressKey('Enter', { _target: span });
+        expect(state.pointerMode).toBe(false);
+        vi.advanceTimersByTime(1100);
+        expect(state.pointerMode).toBe(true);
+      } finally {
+        span.remove();
+      }
+    });
   });
 });

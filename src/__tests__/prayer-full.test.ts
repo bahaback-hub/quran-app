@@ -16,6 +16,7 @@ const {
   mockShowToast,
   mockPrayerTimesRows,
   mockUpdatePlayPauseBtn,
+  mockSetStoppedState,
   mockDom,
 } = vi.hoisted(() => {
   // Helper: create a mock DOM element
@@ -65,6 +66,7 @@ const {
     mockShowToast: vi.fn(),
     mockPrayerTimesRows: vi.fn((times: unknown[]) => JSON.stringify(times)),
     mockUpdatePlayPauseBtn: vi.fn(),
+    mockSetStoppedState: vi.fn(),
     mockDom: dom,
   };
 });
@@ -131,6 +133,7 @@ vi.mock('../templates.js', () => ({
 
 vi.mock('../features/audio/audio.js', () => ({
   updatePlayPauseBtn: mockUpdatePlayPauseBtn,
+  setStoppedState: mockSetStoppedState,
 }));
 
 vi.mock('../api-client.js', () => ({
@@ -830,7 +833,8 @@ describe('prayer.ts', () => {
 
       await vi.waitFor(() => {
         expect(audioPlayer.pause).toHaveBeenCalled();
-        expect(state.isPlaying).toBe(false);
+        // Stopping is delegated to the audio module (was inline before).
+        expect(mockSetStoppedState).toHaveBeenCalled();
       });
     });
 

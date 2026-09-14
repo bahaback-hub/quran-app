@@ -20,6 +20,8 @@ import {
   collapsePlayer,
   togglePlayPause,
   updatePlayPauseBtn,
+  applyPlaybackRate,
+  setPitchFreq,
 } from './features/audio/audio.js';
 
 /**
@@ -64,10 +66,17 @@ export function initNavigation(): void {
 
   dom.speedSelect?.addEventListener('change', () => {
     const rate = parseFloat(dom.speedSelect!.value);
-    if (dom.audioPlayer) {
-      dom.audioPlayer.playbackRate = rate;
-    }
     storage.set('playback_speed', rate);
+    // Pass the rate explicitly (no storage round-trip) and re-apply the
+    // pitch ratio live — no restart needed.
+    applyPlaybackRate(rate);
+  });
+
+  dom.pitchSelect?.addEventListener('change', () => {
+    setPitchFreq(parseInt(dom.pitchSelect!.value, 10));
+  });
+  dom.pitchRange?.addEventListener('input', () => {
+    setPitchFreq(parseInt(dom.pitchRange!.value, 10));
   });
 
   /* ========== VIEW MODE TOGGLES ========== */

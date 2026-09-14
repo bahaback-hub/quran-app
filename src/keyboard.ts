@@ -31,6 +31,10 @@ const OK_LONG_PRESS_MS = 1000;
 interface OkPress {
   el: Element;
   timer: ReturnType<typeof setTimeout>;
+  /** True when the press started outside an actionable control: a tap must
+      stay a no-op (previous behavior) while a long-press still enters
+      pointer mode (e.g. while reading ayah text with focus on body). */
+  tapNoop: boolean;
 }
 
 let _okPending: OkPress | null = null;
@@ -71,6 +75,7 @@ function beginOkPress(e: KeyboardEvent): boolean {
     clearOkPending();
     _okPending = {
       el: document.body,
+      tapNoop: false,
       timer: setTimeout(() => {
         _okLongFired = true;
         _okPending = null;
@@ -86,13 +91,23 @@ function beginOkPress(e: KeyboardEvent): boolean {
     (t.tagName === 'BUTTON' ||
       t.tagName === 'A' ||
       (typeof t.hasAttribute === 'function' && t.hasAttribute('tabindex')));
-  if (!actionable) {
+  if (!t || t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA') {
     return false;
   }
+  if (!actionable && e.key === ' ') {
+    // Legacy: a Space tap with unfocused content toggles playback via the
+    // switch below — only Enter (the remote OK key) gets the relaxed entry.
+    return false;
+  }
+  // A long-press enters pointer mode from anywhere readable (ayah text,
+  // body, plain containers) — not only actionable controls. A tap on a
+  // non-actionable target stays a no-op via tapNoop. (Editable fields and
+  // native selects return earlier above, so reaching here is always safe.)
   e.preventDefault();
   clearOkPending();
   _okPending = {
-    el: t,
+    el: actionable ? t : document.body,
+    tapNoop: !actionable,
     timer: setTimeout(() => {
       _okLongFired = true;
       _okPending = null;
@@ -110,7 +125,7 @@ function endOkPress(): void {
   }
   const pending = _okPending;
   clearOkPending();
-  if (!pending) {
+  if (!pending || pending.tapNoop) {
     return;
   }
   if (isPointerMode()) {

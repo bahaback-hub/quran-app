@@ -1434,6 +1434,10 @@
     outline-width: 4px;
     outline-offset: 3px;
   }
+  /* Couch distance: translation reads at 0.7 of the ayah size on big screens. */
+  .ayah .translation-text {
+    font-size: max(0.7em, 15px);
+  }
 }
 
 /* ========== تفضيل تقليل الحركة (prefers-reduced-motion) — WCAG 2.3.3 ========== */

@@ -74,6 +74,182 @@ let _autoAdvanceSafetyTimer: ReturnType<typeof setTimeout> | null = null;
 const EXPAND_HINT_KEY = 'player_expand_hint_seen';
 const PLAYER_HINT_DURATION = 6000;
 
+/* ===================== PITCH / REFERENCE FREQUENCY =====================
+ * Reference-frequency tuning (default concert pitch 440Hz, presets 432/528/
+ * 550Hz, custom 400-600Hz slider). Implemented as the classic "tape speed"
+ * effect: effectiveRate = speed × (freq/440) with preservesPitch = false,
+ * so pitch and tempo move together — no server processing needed.
+ * An AudioContext graph (MediaElementSource pass-through) is built lazily
+ * ONLY for CORS-clean hosts: routing a tainted (non-CORS) stream would
+ * silence the output, so other hosts keep the direct element path, which
+ * sounds identical (the graph carries no effect nodes yet).
+ */
+export const PITCH_DEFAULT_FREQ = 440;
+export const PITCH_MIN_FREQ = 400;
+export const PITCH_MAX_FREQ = 600;
+const PITCH_STORAGE_KEY = 'pitch_freq';
+
+let _audioCtx: AudioContext | null = null;
+let _mediaSrc: MediaElementAudioSourceNode | null = null;
+/** Per-origin CORS probe results (true = safe to route through the graph). */
+const _corsProbeCache = new Map<string, boolean>();
+
+/** Current reference frequency in Hz (persisted). */
+export function getPitchFreq(): number {
+  const stored = storage.get<number>(PITCH_STORAGE_KEY);
+  return typeof stored === 'number' && stored >= PITCH_MIN_FREQ && stored <= PITCH_MAX_FREQ
+    ? Math.round(stored)
+    : PITCH_DEFAULT_FREQ;
+}
+
+/** pitchRatio = target/440 — the multiplier applied on top of playback speed. */
+export function pitchRatio(freq?: number): number {
+  const f = freq ?? getPitchFreq();
+  return f / PITCH_DEFAULT_FREQ;
+}
+
+/** Effective element rate combining user speed and pitch ratio. */
+export function getEffectiveRate(): number {
+  const speed = parseFloat(storage.get<string>('playback_speed') || '1') || 1;
+  return speed * pitchRatio();
+}
+
+/** Apply the effective rate + preservesPitch to the live element (no restart).
+ * Optional overrides skip the storage round-trip so UI handlers stay
+ * deterministic even when storage is unavailable. */
+export function applyPlaybackRate(speed?: number, freq?: number): void {
+  if (!dom.audioPlayer) {
+    return;
+  }
+  const s = speed ?? (parseFloat(storage.get<string>('playback_speed') || '1') || 1);
+  const f = freq ?? getPitchFreq();
+  try {
+    dom.audioPlayer.playbackRate = s * (f / PITCH_DEFAULT_FREQ);
+  } catch {
+    /* some engines reject rate writes on an unloaded element — UI still syncs below */
+  }
+  // preservesPitch=false lets the rate shift the actual pitch; restore the
+  // browser default when tuned back to 440Hz.
+  const preserves = f === PITCH_DEFAULT_FREQ;
+  try {
+    (dom.audioPlayer as HTMLAudioElement & { preservesPitch?: boolean }).preservesPitch = preserves;
+    (dom.audioPlayer as HTMLAudioElement & { webkitPreservesPitch?: boolean }).webkitPreservesPitch = preserves;
+  } catch {
+    /* older engines ignore it — rate still applies */
+  }
+  syncPitchControls();
+}
+
+/** Keep the select + slider UI in sync with the stored frequency. */
+export function syncPitchControls(): void {
+  const freq = getPitchFreq();
+  if (dom.pitchSelect) {
+    dom.pitchSelect.value = String(freq);
+  }
+  if (dom.pitchRange) {
+    dom.pitchRange.value = String(freq);
+  }
+}
+
+/**
+ * Set the reference frequency: persist, re-apply live, sync UI.
+ * Returns the stored value.
+ */
+export function setPitchFreq(freq: number): number {
+  const clamped = Math.min(PITCH_MAX_FREQ, Math.max(PITCH_MIN_FREQ, Math.round(freq)));
+  storage.set(PITCH_STORAGE_KEY, clamped);
+  applyPlaybackRate(undefined, clamped);
+  return clamped;
+}
+
+/** True when a URL can be routed through Web Audio without tainting. */
+async function isHostCorsClean(url: string): Promise<boolean> {
+  try {
+    const u = new URL(url, window.location.href);
+    if (u.protocol === 'blob:' || u.protocol === 'data:' || u.origin === window.location.origin) {
+      return true;
+    }
+    const cached = _corsProbeCache.get(u.origin);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { Range: 'bytes=0-0' },
+      mode: 'cors',
+      signal: AbortSignal.timeout(5000),
+    });
+    const ok = res.ok || res.status === 206;
+    _corsProbeCache.set(u.origin, ok);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Lazily build the AudioContext graph (created on user gesture so autoplay
+ * policies allow it). Must only be called for CORS-clean hosts — routing a
+ * tainted stream would silence the output. Safe no-op when Web Audio is
+ * unavailable (e.g. jsdom). The direct element path sounds identical
+ * (the graph carries no effect nodes yet; it is scaffolding for the future).
+ */
+export function ensureAudioGraph(): boolean {
+  if (typeof AudioContext === 'undefined' || !dom.audioPlayer) {
+    return false;
+  }
+  try {
+    _audioCtx ??= new AudioContext();
+    if (_audioCtx.state === 'suspended') {
+      void _audioCtx.resume();
+    }
+    if (!_mediaSrc) {
+      _mediaSrc = _audioCtx.createMediaElementSource(dom.audioPlayer);
+      _mediaSrc.connect(_audioCtx.destination);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Prepare the element for a new source URL. Awaits the per-origin CORS probe
+ * (cached after the first byte-range request) BEFORE src is assigned, because
+ * crossOrigin only takes effect on the fetch that starts after it is set.
+ * Clean hosts load with CORS and join the graph; other hosts keep the plain
+ * path so playback can never go silent. If the element was already routed
+ * for an earlier clean host, crossOrigin stays on: a later non-clean host
+ * then fails loudly through the existing error/retry path instead of
+ * silently.
+ */
+export async function prepareElementForUrl(url: string): Promise<void> {
+  if (!dom.audioPlayer || typeof AudioContext === 'undefined') {
+    return;
+  }
+  const clean = await isHostCorsClean(url);
+  if (!dom.audioPlayer) {
+    return;
+  }
+  try {
+    if (clean) {
+      dom.audioPlayer.crossOrigin = 'anonymous';
+      ensureAudioGraph();
+    } else if (!_mediaSrc) {
+      dom.audioPlayer.removeAttribute('crossOrigin');
+    }
+  } catch {
+    /* keep direct playback */
+  }
+}
+
+/** Test hook: reset the CORS probe cache and graph handles. */
+export function _resetPitchForTests(): void {
+  _corsProbeCache.clear();
+  _audioCtx = null;
+  _mediaSrc = null;
+}
+
 /**
  * Reset audio state when switching surahs.
  * Stops playback, clears caches, and resets audio elements.
@@ -151,7 +327,7 @@ function setPlayingState(): void {
 }
 
 /** Set playback state to stopped and update UI. */
-function setStoppedState(): void {
+export function setStoppedState(): void {
   state.isPlaying = false;
   document.body.classList.remove('audio-playing');
   updatePlayPauseBtn();
@@ -203,8 +379,12 @@ export async function playCurrentAyah(): Promise<void> {
 
   if (isMp3quran && _mp3quranUrl === url && dom.audioPlayer.readyState >= 2) {
     dom.audioPlayer.currentTime = _getAyahStartTime();
-    dom.audioPlayer.play().catch((e: unknown) => console.warn(e));
     setPlayingState();
+    dom.audioPlayer.play().catch((e: unknown) => {
+      console.warn(e);
+      // Rejected (e.g. autoplay policy) — don't leave the button stuck on pause.
+      setStoppedState();
+    });
     startWordTracking();
     return;
   }
@@ -213,6 +393,10 @@ export async function playCurrentAyah(): Promise<void> {
 
   // Resolve the audio URL — check offline cache first
   const resolvedUrl = await resolveAudioUrl(url);
+
+  // Match CORS mode / graph routing to the host BEFORE src is assigned
+  // (crossOrigin only takes effect on the fetch that starts after it).
+  await prepareElementForUrl(resolvedUrl);
 
   // أوقف أي تشغيل سابق ونظّف الحالة قبل تغيير المصدر
   const oldSrc = dom.audioPlayer.src;
@@ -231,20 +415,23 @@ export async function playCurrentAyah(): Promise<void> {
       function onMeta(): void {
         dom.audioPlayer!.removeEventListener('loadedmetadata', onMeta);
         dom.audioPlayer!.currentTime = _getAyahStartTime();
-        dom.audioPlayer!.play().catch((e: unknown) => console.warn(e));
+        dom.audioPlayer!.play().catch((e: unknown) => {
+          console.warn(e);
+          setStoppedState();
+        });
       },
       { once: true },
     );
   } else {
     dom.audioPlayer.src = resolvedUrl;
-    dom.audioPlayer.play().catch((e: unknown) => console.warn(e));
+    dom.audioPlayer.play().catch((e: unknown) => {
+      console.warn(e);
+      setStoppedState();
+    });
   }
 
-  // Apply saved playback rate when starting a new audio source
-  const savedSpeed = storage.get<string>('playback_speed');
-  if (savedSpeed) {
-    dom.audioPlayer.playbackRate = parseFloat(savedSpeed);
-  }
+  // Apply saved playback speed × pitch reference when starting a new source
+  applyPlaybackRate();
 
   setPlayingState();
   startWordTracking();
@@ -479,7 +666,13 @@ export function togglePlayPause(): void {
       highlightCurrentAyah();
       playCurrentAyah();
     } else {
-      dom.audioPlayer.play().catch((e: unknown) => console.warn(e));
+      // Optimistic: flip the button now; the play event confirms it, and a
+      // rejection (e.g. autoplay policy) flips it back — never stuck on play.
+      setPlayingState();
+      dom.audioPlayer.play().catch((e: unknown) => {
+        console.warn(e);
+        setStoppedState();
+      });
     }
   } else {
     dom.audioPlayer.pause();
@@ -613,10 +806,18 @@ function onAudioError(): void {
 /**
  * Update the play/pause button text to reflect current playback state.
  * Reads state.isPlaying and updates the button label accordingly.
+ * Also swaps the collapsed floating button icon (it had no pause state).
  */
+const PLAY_SVG =
+  '<svg class="icon icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>';
+const PAUSE_SVG =
+  '<svg class="icon icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" /><rect x="15" y="4" width="4" height="16" /></svg>';
 export function updatePlayPauseBtn(): void {
   if (dom.playPauseBtn) {
     dom.playPauseBtn.textContent = state.isPlaying ? __('pause') : __('play');
+  }
+  if (dom.collapsedPlayBtn) {
+    dom.collapsedPlayBtn.innerHTML = state.isPlaying ? PAUSE_SVG : PLAY_SVG;
   }
 }
 

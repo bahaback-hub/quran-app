@@ -357,4 +357,84 @@ describe('settings', () => {
       expect(() => initSettingsTabs()).not.toThrow();
     });
   });
+
+  describe('settings panel focus confinement (item 2)', () => {
+    let rafSpy: { mockRestore: () => void } | null = null;
+
+    beforeEach(() => {
+      // Run requestAnimationFrame synchronously for deterministic focus asserts.
+      rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
+        cb(0);
+        return 0;
+      });
+    });
+
+    afterEach(() => {
+      rafSpy?.mockRestore();
+    });
+
+    async function openTestPanel(): Promise<{ panel: HTMLElement; trigger: HTMLButtonElement }> {
+      const { dom } = await import('../dom.js');
+      const { openSettings } = await import('../settings.js');
+      const panel = document.createElement('aside');
+      panel.id = 'settingsPanel';
+      const first = document.createElement('button');
+      first.textContent = 'First';
+      const last = document.createElement('button');
+      last.textContent = 'Last';
+      panel.append(first, last);
+      document.body.append(panel);
+      const trigger = document.createElement('button');
+      trigger.textContent = 'Trigger';
+      document.body.append(trigger);
+      (dom as unknown as Record<string, unknown>).settingsPanel = panel;
+      trigger.focus();
+      openSettings();
+      return { panel, trigger };
+    }
+
+    async function closeTestPanel(panel: HTMLElement): Promise<void> {
+      const { dom } = await import('../dom.js');
+      const { closeSettings } = await import('../settings.js');
+      try {
+        closeSettings();
+      } finally {
+        panel.remove();
+        (dom as unknown as Record<string, unknown>).settingsPanel = null;
+      }
+    }
+
+    it('should move focus into the panel on open', async () => {
+      const { panel } = await openTestPanel();
+      try {
+        expect(panel.classList.contains('open')).toBe(true);
+        expect(panel.contains(document.activeElement)).toBe(true);
+      } finally {
+        await closeTestPanel(panel);
+      }
+    });
+
+    it('should wrap Tab from the last control back to the first', async () => {
+      const { panel } = await openTestPanel();
+      try {
+        const buttons = panel.querySelectorAll('button');
+        const first = buttons[0] as HTMLElement;
+        const last = buttons[buttons.length - 1] as HTMLElement;
+        last.focus();
+        const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true });
+        panel.dispatchEvent(tabEvent);
+        expect(document.activeElement).toBe(first);
+      } finally {
+        await closeTestPanel(panel);
+      }
+    });
+
+    it('should restore focus to the trigger on close', async () => {
+      const { panel, trigger } = await openTestPanel();
+      await closeTestPanel(panel);
+      expect(panel.classList.contains('open')).toBe(false);
+      expect(document.activeElement).toBe(trigger);
+      trigger.remove();
+    });
+  });
 });

@@ -7,7 +7,7 @@ import { pad2, formatTime12, timeStrToMinutes } from '../../utils.js';
 import { prayerFetch } from '../../api-client.js';
 import { __, getCityName, getPrayerName } from '../../i18n.js';
 import { prayerTimesRows } from '../../templates.js';
-import { updatePlayPauseBtn } from '../audio/audio.js';
+import { setStoppedState } from '../audio/audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
@@ -606,9 +606,7 @@ export function testAzan(): void {
     // Pause Quran audio before playing azan
     if (dom.audioPlayer && !dom.audioPlayer.paused) {
       dom.audioPlayer.pause();
-      state.isPlaying = false;
-      document.body.classList.remove('audio-playing');
-      updatePlayPauseBtn();
+      setStoppedState();
     }
     dom.azanPlayer.src = getAzanSource();
     dom.azanPlayer.load();
@@ -681,9 +679,7 @@ export function checkAzanTime(): void {
         // Pause Quran audio before playing azan
         if (dom.audioPlayer && !dom.audioPlayer.paused) {
           dom.audioPlayer.pause();
-          state.isPlaying = false;
-          document.body.classList.remove('audio-playing');
-          updatePlayPauseBtn();
+          setStoppedState();
         }
         dom.azanPlayer.src = getAzanSource();
         dom.azanPlayer.currentTime = 0;

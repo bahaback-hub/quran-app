@@ -74,6 +74,8 @@ interface DomMap {
   audioPlayer: HTMLAudioElement | null;
   audioPlayer2: HTMLAudioElement | null;
   speedSelect: HTMLSelectElement | null;
+  pitchSelect: HTMLSelectElement | null;
+  pitchRange: HTMLInputElement | null;
   prevAyahBtn: HTMLElement | null;
   nextAyahBtn: HTMLElement | null;
   prevSurahBtn: HTMLElement | null;
@@ -263,6 +265,8 @@ const DOM_IDS: (keyof DomMap)[] = [
   'audioPlayer',
   'audioPlayer2',
   'speedSelect',
+  'pitchSelect',
+  'pitchRange',
   'prevAyahBtn',
   'nextAyahBtn',
   'prevSurahBtn',
