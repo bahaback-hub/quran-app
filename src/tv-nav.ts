@@ -132,7 +132,15 @@ function toTvBox(r: { x: number; y: number; width: number; height: number }): Tv
 }
 
 function listTvFocusables(): HTMLElement[] {
-  return Array.from(document.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isTvVisible);
+  // When a drawer panel is open, remote navigation stays inside it so focus
+  // can't leak to the page behind (same confinement as the Tab trap).
+  const scope =
+    document.querySelector<HTMLElement>('#settingsPanel.open') ??
+    document.querySelector<HTMLElement>('#favoritesPanel.open') ??
+    document.querySelector<HTMLElement>('#tafsirCurtain.open') ??
+    document.querySelector<HTMLElement>('#adhkarPanel.open');
+  const root: ParentNode = scope ?? document;
+  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isTvVisible);
 }
 
 function isTvVisible(el: Element): boolean {

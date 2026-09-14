@@ -18,6 +18,7 @@ vi.mock('../features/audio/audio.js', () => ({
   collapsePlayer: vi.fn(),
   togglePlayPause: vi.fn(),
   updatePlayPauseBtn: vi.fn(),
+  applyPlaybackRate: vi.fn(),
 }));
 
 vi.mock('../settings.js', () => ({
@@ -92,6 +93,7 @@ import {
   collapsePlayer,
   togglePlayPause,
   updatePlayPauseBtn,
+  applyPlaybackRate,
 } from '../features/audio/audio.js';
 import { openSettings } from '../settings.js';
 
@@ -239,8 +241,10 @@ describe('navigation-full', () => {
       dom.speedSelect!.appendChild(opt);
       dom.speedSelect!.value = '1.5';
       dom.speedSelect!.dispatchEvent(new Event('change'));
-      expect(dom.audioPlayer!.playbackRate).toBe(1.5);
+      // The handler persists the speed and delegates the rate math
+      // (speed × pitch ratio) to applyPlaybackRate — covered in audio.test.ts.
       expect(storage.set).toHaveBeenCalledWith('playback_speed', 1.5);
+      expect(applyPlaybackRate).toHaveBeenCalledWith(1.5);
     });
   });
 

@@ -18,6 +18,7 @@ import { getAyahAnnotations } from './tajweed-data.js';
 import { isSajdaAyah, isJuzStart } from './quran-meta.js';
 import { SURAH_SECRETS } from './surahs-data.js';
 import { playCurrentAyah } from './features/audio/audio.js';
+import { isPointerMode } from './pointer-nav.js';
 import { loadTafsirForCurrentAyah } from './tafsir.js';
 import type { SurahData, AyahEntry } from './types.js';
 
@@ -554,7 +555,12 @@ export function highlightCurrentAyah(): void {
         }
       }
     }
-    cur.scrollIntoView({ behavior: 'instant', block: 'center' });
+    // In pointer mode the cursor is aimed at a fixed viewport point (e.g. the
+    // background picker): auto-advance still moves the highlight, but the
+    // page must not jump under the cursor mid-navigation.
+    if (!isPointerMode()) {
+      cur.scrollIntoView({ behavior: 'instant', block: 'center' });
+    }
   }
   // Keep the surah dropdown in sync with what is actually displayed — on app
   // start the dropdown is populated with the default surah before the restored

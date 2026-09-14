@@ -484,7 +484,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       highlightCurrentAyah();
     }
 
-    if (autoPlay && audioResult) {
+    if (autoPlay && state.ayahsAudios.length) {
       playCurrentAyah();
     }
 
