@@ -14,6 +14,15 @@ test.describe('TV remote control', () => {
     await page.locator('#tvModeToggle').evaluate((el) => el.click());
     await expect(page.locator('body')).toHaveClass(/tv-nav/);
     await page.locator('#settingsCloseBtn').evaluate((el) => el.click());
+    // The settings panel slides out over a 0.4s transition and stays
+    // hit-testable while moving — wait until it is fully off-screen
+    // (fixed at right:-420px, so its left edge leaves the viewport),
+    // otherwise elementFromPoint probes can land on it (CI flake).
+    await page.waitForFunction(() => {
+      const panel = document.getElementById('settingsPanel');
+      if (!panel) return true;
+      return panel.getBoundingClientRect().left >= window.innerWidth;
+    }, undefined, { timeout: 10000 });
   });
 
   async function focusedId(page) {
@@ -83,13 +92,21 @@ test.describe('TV remote control', () => {
     // Guards the pointer path: an invisible overlay above these native
     // selects would swallow cursor clicks while buttons keep working.
     // Wait for fonts (CI rasterisation shifts layout) and center each
-    // select in view so the probe point is deterministic.
+    // select in view so the probe point is deterministic. The scroll is
+    // instant and we wait for the rect to settle: with the default smooth
+    // scrolling the page would still be moving while we measure, and the
+    // probe would land on whatever passes underneath (CI flake).
     await page.waitForFunction(() => document.fonts.status === 'loaded');
-    const hit = await page.evaluate(() => {
+    const hit = await page.evaluate(async () => {
       const out = {};
+      const settled = () =>
+        new Promise((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        });
       for (const id of ['surahSelect', 'reciterSelect']) {
         const el = document.getElementById(id);
-        el.scrollIntoView({ block: 'center', inline: 'center' });
+        el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' });
+        await settled();
         const r = el.getBoundingClientRect();
         const hitEl = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
         out[id] = hitEl ? hitEl.id || hitEl.tagName : null;
