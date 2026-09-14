@@ -567,6 +567,15 @@ describe('playCurrentAyah', () => {
     expect(showToast).toHaveBeenCalledWith('no_audio', 'error');
   });
 
+  it('should show loading toast instead of error when a reload is in flight', async () => {
+    state.surahData = createSurahData();
+    state.ayahsAudios = [];
+    state.loadingSurah = 1;
+    await playCurrentAyah();
+    expect(showToast).toHaveBeenCalledWith('loading_surah', 'info');
+    state.loadingSurah = null;
+  });
+
   it('should show error toast when audio URL is empty', async () => {
     state.surahData = createSurahData();
     state.ayahsAudios = [''];

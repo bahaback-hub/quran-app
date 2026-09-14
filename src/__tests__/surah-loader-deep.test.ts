@@ -193,6 +193,56 @@ describe('surah-loader deep coverage', () => {
       // Should handle error without crashing
     });
 
+    it('should reuse cached audio when the audio fetch fails on a translation reload', async () => {
+      // Reproduces the reported bug: enabling translation forces a fresh
+      // uncached load; if the audio request is rate-limited, the reader
+      // must fall back to the last good list, not go silent.
+      // NOTE: scrollIntoView doesn't exist in jsdom — stub it scoped to
+      // this test only, so the full load flow (render → highlight → audio)
+      // runs here without changing other tests' behavior.
+      const proto = Element.prototype as unknown as Record<string, unknown>;
+      const prevScroll = proto['scrollIntoView'];
+      proto['scrollIntoView'] = vi.fn();
+      const prevTranslationEnabled = state.translationEnabled;
+      const prevTranslation = state.currentTranslation;
+      state.translationEnabled = true;
+      state.currentTranslation = 'en.sahih';
+      state.surahCache.set('1_ar.alafasy_notr', {
+        text: SAMPLE_SURAH,
+        audios: ['https://audio/old1.mp3', 'https://audio/old2.mp3'],
+        timings: [],
+        translation: null,
+      });
+      vi.mocked(apiFetch).mockImplementation(((url: string) => {
+        if (url.includes('/ar.alafasy')) {
+          return Promise.reject(new Error('HTTP 429: Too Many Requests'));
+        }
+        if (url.includes('/en.sahih')) {
+          return Promise.resolve({ data: { ayahs: [] } });
+        }
+        return Promise.resolve({ data: SAMPLE_SURAH });
+      }) as unknown as typeof apiFetch);
+      vi.mocked(jsonFetch).mockRejectedValue(new Error('JSON Error'));
+
+      try {
+        await loadSurah(1);
+
+        expect(state.ayahsAudios).toEqual(['https://audio/old1.mp3', 'https://audio/old2.mp3']);
+        expect(state.translationData).not.toBeNull();
+      } finally {
+        // Don't leak translation state, cache entries, or the stub.
+        if (prevScroll === undefined) {
+          delete proto['scrollIntoView'];
+        } else {
+          proto['scrollIntoView'] = prevScroll;
+        }
+        state.translationEnabled = prevTranslationEnabled;
+        state.currentTranslation = prevTranslation;
+        state.surahCache.delete('1_ar.alafasy_notr');
+        state.surahCache.delete('1_ar.alafasy_en.sahih');
+      }
+    });
+
     it('should load surah with startAyah option', async () => {
       vi.mocked(apiFetch).mockResolvedValue({ data: SAMPLE_SURAH });
 
