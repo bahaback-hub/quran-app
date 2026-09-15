@@ -79,6 +79,8 @@ export default {
   city: 'المدينة',
   country: 'الدولة',
   quick_select: 'اختيار سريع',
+  bar_country: 'الدولة',
+  bar_city: 'المدينة',
   select_option: '— اختر —',
   calculation_method: 'طريقة الحساب',
   font_size: 'حجم الخط',

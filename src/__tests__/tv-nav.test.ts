@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { isTvDevice, isTvNavActive, moveTvFocus, pickTvTarget, setTvMode } from '../tv-nav.js';
+import { getTvScope, isTvDevice, isTvNavActive, moveTvFocus, pickTvTarget, setTvMode } from '../tv-nav.js';
 import { state } from '../state.js';
 
 function box(x: number, y: number, w = 40, h = 40) {
@@ -120,5 +120,101 @@ describe('tv-nav mode', () => {
     expect(moveTvFocus('ArrowDown')).toBe(true);
     expect(document.activeElement).toBe(bottom);
     expect(moveTvFocus('ArrowDown')).toBe(false);
+  });
+});
+
+describe('tv-nav scope', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+  });
+
+  function visibleButton(parent: HTMLElement, x: number, y: number, tag = 'button'): HTMLElement {
+    const el = document.createElement(tag);
+    el.getBoundingClientRect = () =>
+      ({ x, y, width: 60, height: 30, top: y, left: x, right: x + 60, bottom: y + 30 }) as DOMRect;
+    parent.append(el);
+    return el as HTMLElement;
+  }
+
+  it('returns null when no panel is open', () => {
+    expect(getTvScope()).toBeNull();
+  });
+
+  it('scopes to the expanded prayer bar so focus cannot leak to siblings', () => {
+    const sideTools = document.createElement('aside');
+    sideTools.id = 'readerSideTools';
+    const bar = document.createElement('section');
+    bar.id = 'prayerBar';
+    bar.className = 'expanded';
+    const inner = visibleButton(bar, 100, 100);
+    sideTools.append(bar);
+    const sibling = visibleButton(sideTools, 100, 300);
+    (sibling as HTMLButtonElement).id = 'qiblaBtn';
+    document.body.append(sideTools);
+    expect(getTvScope()).toBe(bar);
+    inner.focus();
+    // The only control below is the sibling outside the bar: unreachable.
+    expect(moveTvFocus('ArrowDown')).toBe(false);
+    expect(document.activeElement).toBe(inner);
+  });
+
+  it('skips footer data-source links when moving', () => {
+    const top = visibleButton(document.body, 100, 100);
+    const footer = document.createElement('footer');
+    footer.className = 'footer';
+    const link = visibleButton(footer, 100, 200, 'a');
+    (link as HTMLAnchorElement).href = 'https://example.com/';
+    document.body.append(footer);
+    top.focus();
+    expect(moveTvFocus('ArrowDown')).toBe(false);
+    expect(document.activeElement).toBe(top);
+  });
+
+  it('jumps over the footer to the next control below it', () => {
+    const top = visibleButton(document.body, 100, 100);
+    const footer = document.createElement('footer');
+    footer.className = 'footer';
+    const link = visibleButton(footer, 100, 200, 'a');
+    (link as HTMLAnchorElement).href = 'https://example.com/';
+    document.body.append(footer);
+    const below = visibleButton(document.body, 100, 400);
+    top.focus();
+    expect(moveTvFocus('ArrowDown')).toBe(true);
+    expect(document.activeElement).toBe(below);
+  });
+
+  it('prefers the open ayah modal over drawer panels', () => {
+    const settings = document.createElement('aside');
+    settings.id = 'settingsPanel';
+    settings.className = 'open';
+    const modal = document.createElement('div');
+    modal.id = 'ayahModal';
+    modal.className = 'open';
+    document.body.append(settings, modal);
+    expect(getTvScope()).toBe(modal);
+  });
+
+  it('scopes to the open hifz room', () => {
+    const room = document.createElement('aside');
+    room.id = 'hifzRoom';
+    room.className = 'is-open';
+    document.body.append(room);
+    expect(getTvScope()).toBe(room);
+  });
+
+  it('scopes to the visible qibla overlay', () => {
+    const overlay = document.createElement('div');
+    overlay.id = 'qiblaOverlay';
+    document.body.append(overlay);
+    expect(getTvScope()).toBe(overlay);
+  });
+
+  it('ignores a hidden qibla overlay', () => {
+    const overlay = document.createElement('div');
+    overlay.id = 'qiblaOverlay';
+    overlay.className = 'hidden';
+    document.body.append(overlay);
+    expect(getTvScope()).toBeNull();
   });
 });

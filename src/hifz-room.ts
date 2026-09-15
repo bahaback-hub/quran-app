@@ -15,6 +15,7 @@ import { closeTafsir } from './tafsir.js';
 import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeSettings } from './settings.js';
+import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from './a11y.js';
 import { hideQiblaCompass, togglePrayerBar } from './features/prayer/prayer.js';
 
 const ROOM_ID = 'hifzRoom';
@@ -763,11 +764,19 @@ export function isHifzRoomOpen(): boolean {
   return document.getElementById(ROOM_ID)?.classList.contains('is-open') ?? false;
 }
 
+/** Cleanup for the focus trap installed while the Hifz Room is open. */
+let _hifzTrapCleanup: (() => void) | null = null;
+
 export function closeHifzRoom(returnFocus = false): void {
   const room = document.getElementById(ROOM_ID);
   const toggle = document.getElementById(TOGGLE_ID) as HTMLButtonElement | null;
   if (!room) {
     return;
+  }
+  _hifzTrapCleanup?.();
+  _hifzTrapCleanup = null;
+  if (returnFocus) {
+    restoreFocusOnPanelClose(toggle, room);
   }
   leaveFocusedSession(room, false);
   room.classList.remove('is-open', 'is-dragging');
@@ -845,6 +854,10 @@ export function openHifzRoom(restoreReveal = true): void {
   room.removeAttribute('inert');
   document.body.classList.add('hifz-room-active');
   toggle?.setAttribute('aria-expanded', 'true');
+  // Confine Tab + TV-remote focus inside the room (same pattern as panels).
+  _hifzTrapCleanup?.();
+  _hifzTrapCleanup = trapFocus(room);
+  manageFocusOnPanelOpen(room, toggle ?? undefined);
   window.setTimeout(() => closeButton?.focus(), 0);
 }
 

@@ -86,6 +86,8 @@ export default {
   city: 'City',
   country: 'Country',
   quick_select: 'Quick selection',
+  bar_country: 'Country',
+  bar_city: 'City',
   select_option: '— Select —',
   calculation_method: 'Calculation method',
   font_size: 'Font size',

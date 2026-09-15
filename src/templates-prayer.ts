@@ -28,6 +28,59 @@ export function prayerTimeRow(name: string, time: string, isNext: boolean = fals
 }
 
 /**
+ * Country → cities for the prayer-bar quick location picker.
+ * City names stay Arabic (proper nouns, same as the settings quick select);
+ * the `CC` code travels with each value so duplicate city names
+ * (e.g. طرابلس in LB/LY) stay unambiguous: value is "city|CC".
+ */
+export interface PrayerBarLocationGroup {
+  code: string;
+  label: string;
+  cities: string[];
+}
+
+export const PRAYER_BAR_LOCATIONS: PrayerBarLocationGroup[] = [
+  {
+    code: 'SA',
+    label: 'السعودية',
+    cities: ['مكة المكرمة', 'المدينة المنورة', 'الرياض', 'جدة', 'الدمام', 'أبها', 'تبوك', 'بريدة', 'حائل', 'الطائف'],
+  },
+  { code: 'EG', label: 'مصر', cities: ['القاهرة', 'الإسكندرية', 'الجيزة', 'أسوان'] },
+  { code: 'JO', label: 'الأردن', cities: ['عمّان', 'الزرقاء', 'إربد'] },
+  { code: 'PS', label: 'فلسطين', cities: ['القدس', 'غزة', 'الخليل'] },
+  { code: 'SY', label: 'سوريا', cities: ['دمشق', 'حلب', 'حمص'] },
+  { code: 'LB', label: 'لبنان', cities: ['بيروت', 'طرابلس'] },
+  { code: 'IQ', label: 'العراق', cities: ['بغداد', 'البصرة', 'الموصل', 'أربيل'] },
+  { code: 'KW', label: 'الكويت', cities: ['الكويت', 'حولي'] },
+  { code: 'BH', label: 'البحرين', cities: ['المنامة'] },
+  { code: 'QA', label: 'قطر', cities: ['الدوحة', 'الريان'] },
+  { code: 'AE', label: 'الإمارات', cities: ['دبي', 'أبوظبي', 'الشارقة'] },
+  { code: 'OM', label: 'عُمان', cities: ['مسقط'] },
+  { code: 'YE', label: 'اليمن', cities: ['صنعاء', 'عدن'] },
+  { code: 'DZ', label: 'الجزائر', cities: ['الجزائر', 'وهران', 'قسنطينة'] },
+  { code: 'MA', label: 'المغرب', cities: ['الرباط', 'الدار البيضاء', 'فاس'] },
+  { code: 'TN', label: 'تونس', cities: ['تونس', 'صفاقس'] },
+  { code: 'LY', label: 'ليبيا', cities: ['طرابلس', 'بنغازي'] },
+  { code: 'SD', label: 'السودان', cities: ['الخرطوم', 'أم درمان'] },
+  { code: 'MR', label: 'موريتانيا', cities: ['نواكشوط'] },
+  { code: 'TR', label: 'تركيا', cities: ['إسطنبول', 'أنقرة'] },
+];
+
+/** `<option>` list for the country select. */
+export function barCountryOptions(): string {
+  return PRAYER_BAR_LOCATIONS.map((g) => `<option value="${escapeHtml(g.code)}">${escapeHtml(g.label)}</option>`).join(
+    '',
+  );
+}
+
+/** `<option>` list for the city select of one country code. */
+export function barCityOptions(countryCode: string): string {
+  const group = PRAYER_BAR_LOCATIONS.find((g) => g.code === countryCode) ?? PRAYER_BAR_LOCATIONS[0]!;
+  return group.cities
+    .map((c) => `<option value="${escapeHtml(c)}|${escapeHtml(group.code)}">${escapeHtml(c)}</option>`)
+    .join('');
+}
+/**
  * Generate prayer times rows HTML.
  * Includes a live "time until next prayer" banner at the top of the container
  * (filled by updateCountdowns() in prayer.ts).

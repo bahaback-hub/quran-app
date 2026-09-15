@@ -249,15 +249,17 @@ audio {
 }
 
 /* First-run hint: chevron on the collapsed bar + pill above it */
+/* Persistent affordance: a small arrow on the collapsed bar signaling
+   that inner player content can be expanded. */
 .collapse-chevron {
   position: absolute;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1;
-  color: var(--text-muted);
-  opacity: 0.5;
+  color: var(--accent);
+  opacity: 0.9;
   pointer-events: none;
   transition: opacity 0.2s;
 }
