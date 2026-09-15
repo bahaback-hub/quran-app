@@ -9,6 +9,7 @@ import { RECITERS, getReciterById, buildAudioUrl, getReciterDisplayName } from '
 import { fetchTafsirText } from './tafsir.js';
 import { apiFetch } from './api-client.js';
 import { __ } from './i18n.js';
+import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from './a11y.js';
 import { shareText } from './share.js';
 import { initContemplation, openContemplation, syncContemplationAction } from './contemplation.js';
 
@@ -165,6 +166,9 @@ function refreshLocalizedModalText(): void {
 
 /* ===================== OPEN / CLOSE ===================== */
 
+/** Cleanup for the focus trap installed while the ayah modal is open. */
+let _ayahModalTrapCleanup: (() => void) | null = null;
+
 export function openAyahModal(data: ModalAyahData): void {
   if (!modalEl || !data) {
     return;
@@ -175,8 +179,14 @@ export function openAyahModal(data: ModalAyahData): void {
   }
   current = { ...data, index: idx };
   modalEl.classList.remove('hidden');
+  modalEl.classList.add('open');
   modalEl.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+  // Confine Tab + TV-remote focus to the ayah options (same pattern as panels).
+  const trigger = document.activeElement as HTMLElement | undefined;
+  _ayahModalTrapCleanup?.();
+  _ayahModalTrapCleanup = trapFocus(modalEl);
+  manageFocusOnPanelOpen(modalEl, trigger);
   refreshLocalizedModalText();
   const localizedSurahName = getLocalizedModalSurahName(data.surah, data.surahName);
   M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(data.ayah), localizedSurahName)}`;
@@ -200,7 +210,11 @@ export function closeAyahModal(): void {
   if (!modalEl) {
     return;
   }
+  _ayahModalTrapCleanup?.();
+  _ayahModalTrapCleanup = null;
+  restoreFocusOnPanelClose(undefined, modalEl);
   modalEl.classList.add('hidden');
+  modalEl.classList.remove('open');
   modalEl.style.display = 'none';
   document.body.style.overflow = '';
   pauseModalAudio();

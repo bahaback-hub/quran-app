@@ -117,6 +117,56 @@ test.describe('TV remote control', () => {
     expect(hit['reciterSelect']).toBe('reciterSelect');
   });
 
+  test('prayer bar quick select applies country→city immediately and traps focus', async ({ page }) => {
+    // Real remote flow: focus the toggle and open with Enter.
+    await page.locator('#expandBarBtn').evaluate((el) => el.focus());
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#prayerBar')).toHaveClass(/expanded/);
+    await expect(page.locator('#barCountrySelect')).toBeVisible();
+    await expect(page.locator('#barCitySelect')).toBeVisible();
+    // Pick Egypt: cities repopulate and the first city applies at once.
+    await page.locator('#barCountrySelect').selectOption('EG');
+    await expect(page.locator('#barCitySelect')).toContainText('القاهرة');
+    await expect(page.locator('#barCitySelect')).toHaveValue('القاهرة|EG');
+    await expect(page.locator('#prayerBarLocation')).toContainText('القاهرة', { timeout: 15000 });
+    // Remote focus must stay inside the bar (no leak to #readerSideTools siblings).
+    await page.locator('#collapseBarBtn').evaluate((el) => el.focus());
+    for (let i = 0; i < 8; i++) {
+      await page.keyboard.press('ArrowDown');
+    }
+    const inside = await page.evaluate(() => {
+      const bar = document.getElementById('prayerBar');
+      return !!bar && bar.contains(document.activeElement);
+    });
+    expect(inside).toBe(true);
+  });
+
+  test('ayah modal confines remote focus to its options', async ({ page }) => {
+    await page.locator('.ayah[data-surah="1"]').first().click();
+    await expect(page.locator('#ayahModal')).toHaveClass(/open/);
+    await page.locator('#ayahModalCloseBtn').evaluate((el) => el.focus());
+    for (let i = 0; i < 10; i++) {
+      await page.keyboard.press('ArrowDown');
+    }
+    const inside = await page.evaluate(() => {
+      const modal = document.getElementById('ayahModal');
+      return !!modal && modal.contains(document.activeElement);
+    });
+    expect(inside).toBe(true);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#ayahModal')).toHaveClass(/hidden/);
+  });
+
+  test('favorites panel opens from the left in the native wrapper', async ({ page }) => {
+    await page.evaluate(() => document.body.classList.add('capacitor-native'));
+    await page.locator('#favoritesOpenBtn').evaluate((el) => el.click());
+    await expect(page.locator('#favoritesPanel')).toHaveClass(/open/);
+    const left = await page.locator('#favoritesPanel').evaluate((el) => getComputedStyle(el).left);
+    expect(left).toBe('0px');
+    await page.locator('#favoritesCloseBtn').evaluate((el) => el.click());
+    await page.evaluate(() => document.body.classList.remove('capacitor-native'));
+  });
+
   test('pointer cursor stays above the presentation overlay', async ({ page }) => {
     // Regression: the overlay pins itself at z-index 99999, which used to
     // bury the cursor (z-index 9999) so it moved unseen inside presentation.

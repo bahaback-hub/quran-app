@@ -82,8 +82,8 @@ export async function toggleMushafMode(): Promise<void> {
 
     // === Close all open panels ===
     // Use correct CSS property for each panel:
-    // settings/favorites use 'right' (slide from right)
-    // adhkar uses 'left' (slide from left)
+    // settings uses 'right' (slides from right)
+    // favorites/adhkar use 'left' (slide from left)
     if (dom.settingsPanel) {
       dom.settingsPanel.classList.remove('open');
     }

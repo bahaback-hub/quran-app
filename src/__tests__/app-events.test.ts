@@ -40,6 +40,7 @@ vi.mock('../features/audio/audio-cache.js', () => ({
 // Mock prayer module
 vi.mock('../features/prayer/prayer.js', () => ({
   togglePrayerBar: vi.fn(),
+  initPrayerBarQuickSelect: vi.fn(),
   testAzan: vi.fn(),
   stopAzan: vi.fn(),
   showQiblaCompass: vi.fn(),

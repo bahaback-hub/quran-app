@@ -84,9 +84,9 @@ const PLAYER_HINT_DURATION = 6000;
  * silence the output, so other hosts keep the direct element path, which
  * sounds identical (the graph carries no effect nodes yet).
  */
-export const PITCH_DEFAULT_FREQ = 440;
-export const PITCH_MIN_FREQ = 400;
-export const PITCH_MAX_FREQ = 600;
+const PITCH_DEFAULT_FREQ = 440;
+const PITCH_MIN_FREQ = 400;
+const PITCH_MAX_FREQ = 600;
 const PITCH_STORAGE_KEY = 'pitch_freq';
 
 let _audioCtx: AudioContext | null = null;
