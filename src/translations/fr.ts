@@ -86,6 +86,8 @@ export default {
   city: 'Ville',
   country: 'Pays',
   quick_select: 'Sélection rapide',
+  bar_country: 'Pays',
+  bar_city: 'Ville',
   select_option: '— Sélectionner —',
   calculation_method: 'Méthode de calcul',
   font_size: 'Taille de la police',

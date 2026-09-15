@@ -87,6 +87,8 @@ export default {
   city: 'Kota',
   country: 'Negara',
   quick_select: 'Pilihan cepat',
+  bar_country: 'Negara',
+  bar_city: 'Kota',
   select_option: '— Pilih —',
   calculation_method: 'Metode perhitungan',
   font_size: 'Ukuran huruf',

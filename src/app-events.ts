@@ -42,6 +42,7 @@ import {
 } from './features/mushaf/mushaf-data-pack.js';
 import {
   togglePrayerBar,
+  initPrayerBarQuickSelect,
   testAzan,
   stopAzan,
   hideQiblaCompass,
@@ -816,6 +817,7 @@ export function bindPanelsAndShareEvents(): void {
   dom.favoritesCloseBtn?.addEventListener('click', closeFavorites);
   dom.collapseBarBtn?.addEventListener('click', togglePrayerBar);
   dom.expandBarBtn?.addEventListener('click', togglePrayerBar);
+  initPrayerBarQuickSelect();
 }
 
 /**

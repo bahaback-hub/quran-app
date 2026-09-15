@@ -131,16 +131,36 @@ function toTvBox(r: { x: number; y: number; width: number; height: number }): Tv
   return { x: r.x, y: r.y, width: r.width, height: r.height };
 }
 
+/**
+ * Resolve the container that remote navigation is confined to, if any.
+ * The ayah modal sits on top of everything else so it wins; drawer panels
+ * follow in open-order; the expanded prayer bar scopes to itself so focus
+ * can't leak to the parent #readerSideTools siblings.
+ * Exported for unit testing.
+ */
+export function getTvScope(): HTMLElement | null {
+  return (
+    document.querySelector<HTMLElement>('#ayahModal.open') ??
+    document.querySelector<HTMLElement>('#settingsPanel.open') ??
+    document.querySelector<HTMLElement>('#favoritesPanel.open') ??
+    document.querySelector<HTMLElement>('#hifzRoom.is-open') ??
+    document.querySelector<HTMLElement>('#qiblaOverlay:not(.hidden)') ??
+    document.querySelector<HTMLElement>('#tafsirCurtain.open') ??
+    document.querySelector<HTMLElement>('#adhkarPanel.open') ??
+    document.querySelector<HTMLElement>('#prayerBar.expanded')
+  );
+}
+
 function listTvFocusables(): HTMLElement[] {
   // When a drawer panel is open, remote navigation stays inside it so focus
   // can't leak to the page behind (same confinement as the Tab trap).
-  const scope =
-    document.querySelector<HTMLElement>('#settingsPanel.open') ??
-    document.querySelector<HTMLElement>('#favoritesPanel.open') ??
-    document.querySelector<HTMLElement>('#tafsirCurtain.open') ??
-    document.querySelector<HTMLElement>('#adhkarPanel.open');
+  // The footer data-sources links are skipped: arrows jump over them, while
+  // direct OK activation on a focused link keeps working.
+  const scope = getTvScope();
   const root: ParentNode = scope ?? document;
-  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isTvVisible);
+  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+    .filter(isTvVisible)
+    .filter((el) => !el.closest('footer.footer'));
 }
 
 function isTvVisible(el: Element): boolean {

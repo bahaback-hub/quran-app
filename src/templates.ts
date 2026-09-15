@@ -57,7 +57,13 @@ export {
   favoriteMeta,
 } from './templates-favorites.js';
 
-export { prayerTimeRow, prayerTimesRows } from './templates-prayer.js';
+export {
+  prayerTimeRow,
+  prayerTimesRows,
+  PRAYER_BAR_LOCATIONS,
+  barCountryOptions,
+  barCityOptions,
+} from './templates-prayer.js';
 
 export { adhkarItem, adhkarTab, adhkarCategoryTitle, adhkarItemCard, adhkarSettingRow } from './templates-adhkar.js';
 

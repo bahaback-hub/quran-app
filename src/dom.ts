@@ -91,6 +91,8 @@ interface DomMap {
   collapseBarBtn: HTMLElement | null;
   expandBarBtn: HTMLElement | null;
   prayerBar: HTMLElement | null;
+  barCountrySelect: HTMLSelectElement | null;
+  barCitySelect: HTMLSelectElement | null;
   tafsirCurtainHandle: HTMLElement | null;
   tafsirCurtain: HTMLElement | null;
   tafsirCurtainGrip: HTMLElement | null;
@@ -282,6 +284,8 @@ const DOM_IDS: (keyof DomMap)[] = [
   'collapseBarBtn',
   'expandBarBtn',
   'prayerBar',
+  'barCountrySelect',
+  'barCitySelect',
   'tafsirCurtainHandle',
   'tafsirCurtain',
   'tafsirCurtainGrip',

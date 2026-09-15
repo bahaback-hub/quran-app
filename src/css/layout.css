@@ -107,6 +107,32 @@
 .prayer-bar-close:hover {
   background: rgba(0, 0, 0, 0.06);
 }
+.prayer-bar-quick {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border-soft);
+  border-radius: 10px;
+}
+.prayer-bar-quick-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.prayer-bar-quick-row select {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: var(--text-primary);
+  background: var(--select-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 4px 6px;
+}
 .prayer-bar-items {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

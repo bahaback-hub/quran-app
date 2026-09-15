@@ -167,19 +167,18 @@ body.capacitor-native .settings-panel.open {
   visibility: visible !important;
 }
 
-/* Favorites panel - in web version slides from left (left:-420px),
-   but in Capacitor we move it to the right side to prevent left-swipe
-   from revealing it. We MUST reset the 'left' property to 'auto'. */
+/* Favorites panel - opens from the left on all platforms (same as web:
+   left:-100% hidden, left:0 open). */
 body.capacitor-native .favorites-panel:not(.open) {
-  left: auto !important;
-  right: -100% !important;
+  left: -100% !important;
+  right: auto !important;
   display: none !important;
   visibility: hidden !important;
 }
 
 body.capacitor-native .favorites-panel.open {
-  left: auto !important;
-  right: 0 !important;
+  left: 0 !important;
+  right: auto !important;
   display: block !important;
   visibility: visible !important;
 }

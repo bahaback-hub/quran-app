@@ -6,7 +6,8 @@ import { showToast } from '../../ui.js';
 import { pad2, formatTime12, timeStrToMinutes } from '../../utils.js';
 import { prayerFetch } from '../../api-client.js';
 import { __, getCityName, getPrayerName } from '../../i18n.js';
-import { prayerTimesRows } from '../../templates.js';
+import { prayerTimesRows, PRAYER_BAR_LOCATIONS, barCountryOptions, barCityOptions } from '../../templates.js';
+import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from '../../a11y.js';
 import { setStoppedState } from '../audio/audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
 import { Capacitor } from '@capacitor/core';
@@ -754,12 +755,18 @@ export function scheduleNextAzanCheck(): void {
 
 /* ===================== PRAYER BAR TOGGLE ===================== */
 
+/** Cleanup for the focus trap installed while the prayer bar is expanded. */
+let _prayerBarTrapCleanup: (() => void) | null = null;
+
 export function togglePrayerBar(): void {
   if (!dom.prayerBar) {
     return;
   }
   state.barCollapsed = !state.barCollapsed;
   if (state.barCollapsed) {
+    _prayerBarTrapCleanup?.();
+    _prayerBarTrapCleanup = null;
+    restoreFocusOnPanelClose(undefined, dom.prayerBar);
     dom.prayerBar.classList.add('collapsed');
     dom.prayerBar.classList.remove('expanded');
     document.body.classList.remove('prayer-curtain-active');
@@ -767,9 +774,79 @@ export function togglePrayerBar(): void {
     dom.prayerBar.classList.remove('collapsed');
     dom.prayerBar.classList.add('expanded');
     document.body.classList.add('prayer-curtain-active');
+    // Confine Tab + TV-remote focus inside the bar so it can't leak to the
+    // parent #readerSideTools siblings (same pattern as the settings panel).
+    // Capture the trigger BEFORE trapFocus moves focus into the bar.
+    const trigger = document.activeElement as HTMLElement | undefined;
+    _prayerBarTrapCleanup?.();
+    _prayerBarTrapCleanup = trapFocus(dom.prayerBar);
+    manageFocusOnPanelOpen(dom.prayerBar, trigger);
+    syncPrayerBarQuickSelect();
   }
   dom.expandBarBtn?.setAttribute('aria-expanded', String(!state.barCollapsed));
   storage.set('bar_collapsed', state.barCollapsed);
+}
+
+/* ===================== PRAYER BAR QUICK LOCATION ===================== */
+
+/**
+ * Populate the country → city quick selects inside the prayer-bar details
+ * and wire immediate apply (no save button): picking a city persists the
+ * location and reloads the times at once.
+ */
+export function initPrayerBarQuickSelect(): void {
+  const countrySel = dom.barCountrySelect;
+  const citySel = dom.barCitySelect;
+  if (!countrySel || !citySel) {
+    return;
+  }
+  if (countrySel.options.length === 0) {
+    countrySel.innerHTML = barCountryOptions();
+  }
+  syncPrayerBarQuickSelect();
+  countrySel.addEventListener('change', () => {
+    citySel.innerHTML = barCityOptions(countrySel.value);
+    applyPrayerBarQuickSelect();
+  });
+  citySel.addEventListener('change', applyPrayerBarQuickSelect);
+}
+
+/** Preselect the current country/city without triggering a reload. */
+function syncPrayerBarQuickSelect(): void {
+  const countrySel = dom.barCountrySelect;
+  const citySel = dom.barCitySelect;
+  if (!countrySel || !citySel) {
+    return;
+  }
+  const country = (dom.countryInput?.value.trim() || state.country || 'SA').toUpperCase();
+  countrySel.value = PRAYER_BAR_LOCATIONS.some((g) => g.code === country) ? country : 'SA';
+  citySel.innerHTML = barCityOptions(countrySel.value);
+  const city = dom.cityInput?.value.trim() || state.city;
+  const match = Array.from(citySel.options).find((o) => o.value.split('|')[0] === city);
+  citySel.value = match ? match.value : (citySel.options[0]?.value ?? '');
+}
+
+/** Apply the bar quick selection immediately: persist + reload times. */
+function applyPrayerBarQuickSelect(): void {
+  const v = dom.barCitySelect?.value;
+  if (!v) {
+    return;
+  }
+  const [city, country] = v.split('|') as [string, string];
+  if (!city || !country) {
+    return;
+  }
+  state.city = city;
+  state.country = country;
+  storage.set('city', city);
+  storage.set('country', country);
+  if (dom.cityInput) {
+    dom.cityInput.value = city;
+  }
+  if (dom.countryInput) {
+    dom.countryInput.value = country;
+  }
+  void loadPrayerTimes();
 }
 
 /* ===================== QIBLA COMPASS ===================== */
@@ -853,6 +930,9 @@ async function getNativeQiblaCoordinates(): Promise<QiblaCoordinates> {
   };
 }
 
+/** Cleanup for the focus trap installed while the Qibla overlay is open. */
+let _qiblaTrapCleanup: (() => void) | null = null;
+
 /** Show the Qibla compass overlay. */
 export function showQiblaCompass(): void {
   const overlay = document.getElementById('qiblaOverlay');
@@ -862,6 +942,11 @@ export function showQiblaCompass(): void {
   overlay.classList.remove('hidden');
   overlay.style.display = 'flex';
   document.body.classList.add('qibla-curtain-active');
+  // Confine Tab + TV-remote focus inside the overlay (same pattern as panels).
+  const trigger = document.activeElement as HTMLElement | undefined;
+  _qiblaTrapCleanup?.();
+  _qiblaTrapCleanup = trapFocus(overlay);
+  manageFocusOnPanelOpen(overlay, trigger);
 
   const compass = document.getElementById('qiblaCompass');
   const needle = compass?.querySelector<HTMLElement>('.qibla-needle') || null;
@@ -1023,7 +1108,10 @@ export function showQiblaCompass(): void {
 /** Hide the Qibla compass overlay and remove the orientation listener. */
 export function hideQiblaCompass(): void {
   const overlay = document.getElementById('qiblaOverlay');
+  _qiblaTrapCleanup?.();
+  _qiblaTrapCleanup = null;
   if (overlay) {
+    restoreFocusOnPanelClose(undefined, overlay);
     overlay.classList.add('hidden');
     overlay.style.display = 'none';
   }
