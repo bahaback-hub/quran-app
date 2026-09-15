@@ -26,6 +26,27 @@ describe('official Uthmanic Hafs font', () => {
     expect(template).toContain("value=\"'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif\"");
   });
 
+  it('uses font-display swap so slow WebViews (Android TV) still apply it', () => {
+    const fontCss = readFileSync(fontCssPath, 'utf8');
+    const kfgBlock = fontCss.slice(fontCss.indexOf("'KFGQPC HAFS Uthmanic Script'"));
+    expect(kfgBlock).toContain('font-display: swap');
+    expect(kfgBlock).not.toContain('font-display: optional');
+  });
+
+  it('loads fonts.css through a base-relative URL so Capacitor can resolve it', () => {
+    const html = readFileSync(resolve(root, 'index.html'), 'utf8');
+    expect(html).toContain('href="%BASE_URL%fonts/fonts.css"');
+    expect(html).not.toContain('href="/fonts/fonts.css"');
+    expect(html).toContain('href="%BASE_URL%fonts/official/UthmanicHafs_V22.ttf"');
+  });
+
+  it('does not reference the dead Uthmanic Hafs Official alias', () => {
+    for (const rel of ['src/css/hifz-room.css', 'src/features/presentation/presentation-share.ts']) {
+      const content = readFileSync(resolve(root, rel), 'utf8');
+      expect(content).not.toContain('Uthmanic Hafs Official');
+    }
+  });
+
   it('preserves the required King Fahd Complex attribution and usage notice', () => {
     const notice = readFileSync(noticePath, 'utf8');
     const rights = readFileSync(rightsPath, 'utf8');

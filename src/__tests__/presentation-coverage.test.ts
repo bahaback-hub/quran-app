@@ -289,6 +289,33 @@ describe('presentation coverage', () => {
       expect(togglePlayPause).toHaveBeenCalled();
     });
 
+    describe('TV remote mode — arrows/space stay on focus controls', () => {
+      beforeEach(() => {
+        state.tvMode = true;
+      });
+
+      it('should NOT flip ayah on any arrow in TV mode', async () => {
+        const { openPresentation } = await import('../features/presentation/presentation.js');
+        openPresentation();
+        for (const key of ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp']) {
+          state.currentAyahIndex = 1;
+          document.dispatchEvent(new KeyboardEvent('keydown', { key }));
+          expect(state.currentAyahIndex).toBe(1);
+        }
+        state.tvMode = false;
+      });
+
+      it('should NOT toggle play/pause on space in TV mode', async () => {
+        const { openPresentation } = await import('../features/presentation/presentation.js');
+        const { togglePlayPause } = await import('../features/audio/audio.js');
+        vi.mocked(togglePlayPause).mockClear();
+        openPresentation();
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+        expect(togglePlayPause).not.toHaveBeenCalled();
+        state.tvMode = false;
+      });
+    });
+
     it('should ignore keydown events on TEXTAREA elements', async () => {
       const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
