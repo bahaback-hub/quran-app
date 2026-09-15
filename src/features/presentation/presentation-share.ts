@@ -312,7 +312,7 @@ function drawShareText(
         : 140;
   let lines: string[] = [];
   do {
-    ctx.font = `${fontSize}px "Uthmanic Hafs Official", "Amiri", "Traditional Arabic", serif`;
+    ctx.font = `${fontSize}px "KFGQPC HAFS Uthmanic Script", "Amiri", "Traditional Arabic", serif`;
     lines = wrapText(ctx, ayahText, maxTextWidth);
     fontSize -= 4;
   } while (lines.length > (isWide ? 6 : 8) && fontSize >= (isWide ? 44 : 64));
@@ -324,7 +324,7 @@ function drawShareText(
   ctx.direction = 'rtl';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = `${fontSize}px "Uthmanic Hafs Official", "Amiri", "Traditional Arabic", serif`;
+  ctx.font = `${fontSize}px "KFGQPC HAFS Uthmanic Script", "Amiri", "Traditional Arabic", serif`;
   ctx.fillStyle = '#fffdf6';
   ctx.shadowColor = 'rgba(0, 0, 0, 0.72)';
   ctx.shadowBlur = 18;
