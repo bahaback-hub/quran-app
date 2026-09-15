@@ -110,7 +110,7 @@ vi.mock('../templates.js', () => ({
   escapeHtml: vi.fn((s: string) => s),
 }));
 
-import { loadSurahList, buildSurahOffsets, populateReciterSelect } from '../surah-loader.js';
+import { loadSurahList, buildSurahOffsets, populateReciterSelect, reloadCurrentSurahAudio } from '../surah-loader.js';
 import { apiFetch, jsonFetch } from '../api-client.js';
 
 // Sample surah list data for testing
@@ -286,5 +286,54 @@ describe('populateReciterSelect', () => {
   it('should handle missing reciterSelect gracefully', () => {
     dom.reciterSelect = null;
     expect(() => populateReciterSelect()).not.toThrow();
+  });
+});
+
+describe('reloadCurrentSurahAudio', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    state.currentSurah = 1;
+    state.currentReciter = 'ar.alafasy';
+    state.surahData = {
+      number: 1,
+      name: 'الفاتحة',
+      englishName: 'Al-Fatiha',
+      ayahs: [
+        { numberInSurah: 1, text: 'آية 1' },
+        { numberInSurah: 2, text: 'آية 2' },
+      ],
+    } as unknown as import('../types.js').SurahData;
+    state.ayahsAudios = [];
+    state.ayahTimings = [];
+  });
+
+  it('should refill audio lists for an API reciter', async () => {
+    vi.mocked(apiFetch).mockResolvedValue({
+      data: { ayahs: [{ audio: 'https://example.com/1.mp3' }, { audio: 'https://example.com/2.mp3' }] },
+    });
+    const ok = await reloadCurrentSurahAudio();
+    expect(ok).toBe(true);
+    expect(state.ayahsAudios).toEqual(['https://example.com/1.mp3', 'https://example.com/2.mp3']);
+  });
+
+  it('should return false when the fetch fails and leave lists empty', async () => {
+    vi.mocked(apiFetch).mockRejectedValue(new Error('rate limited'));
+    const ok = await reloadCurrentSurahAudio();
+    expect(ok).toBe(false);
+    expect(state.ayahsAudios).toEqual([]);
+  });
+
+  it('should build mp3quran URLs without network', async () => {
+    state.currentReciter = 'ar.husary';
+    const ok = await reloadCurrentSurahAudio();
+    expect(ok).toBe(true);
+    expect(state.ayahsAudios).toEqual(['https://example.com/audio.mp3', 'https://example.com/audio.mp3']);
+    expect(apiFetch).not.toHaveBeenCalled();
+  });
+
+  it('should return false with no surah loaded', async () => {
+    state.surahData = null;
+    const ok = await reloadCurrentSurahAudio();
+    expect(ok).toBe(false);
   });
 });

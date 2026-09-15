@@ -111,6 +111,7 @@ vi.mock('../utils.js', async (importOriginal) => {
 
 vi.mock('../surah-loader.js', () => ({
   highlightCurrentAyah: (...args: unknown[]) => mockHighlightCurrentAyah(...args),
+  reloadCurrentSurahAudio: vi.fn(() => Promise.resolve(false)),
   loadSurah: vi.fn(),
   loadSurahList: vi.fn(),
   renderSurah: vi.fn(),
