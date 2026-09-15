@@ -87,6 +87,8 @@ export default {
   city: 'Bandar',
   country: 'Negara',
   quick_select: 'Pilihan pantas',
+  bar_country: 'Negara',
+  bar_city: 'Bandar',
   select_option: '— Pilih —',
   calculation_method: 'Kaedah pengiraan',
   font_size: 'Saiz fon',

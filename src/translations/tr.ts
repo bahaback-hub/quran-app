@@ -87,6 +87,8 @@ export default {
   city: 'Şehir',
   country: 'Ülke',
   quick_select: 'Hızlı seçim',
+  bar_country: 'Ülke',
+  bar_city: 'Şehir',
   select_option: '— Seçin —',
   calculation_method: 'Hesaplama yöntemi',
   font_size: 'Yazı boyutu',

@@ -86,6 +86,8 @@ export default {
   city: 'Город',
   country: 'Страна',
   quick_select: 'Быстрый выбор',
+  bar_country: 'Страна',
+  bar_city: 'Город',
   select_option: '— Выбрать —',
   calculation_method: 'Метод расчёта',
   font_size: 'Размер шрифта',

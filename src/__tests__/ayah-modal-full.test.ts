@@ -290,6 +290,21 @@ describe('ayah-modal-full', () => {
       expect(modalEl.classList.contains('hidden')).toBe(false);
     });
 
+    it('should add the open class for TV-remote scoping and remove it on close', () => {
+      initAyahModal();
+      const modalEl = document.getElementById('ayahModal')!;
+      openAyahModal({
+        surah: 1,
+        ayah: 1,
+        text: 'Test text',
+        surahName: 'الفاتحة',
+        index: 0,
+      });
+      expect(modalEl.classList.contains('open')).toBe(true);
+      closeAyahModal();
+      expect(modalEl.classList.contains('open')).toBe(false);
+    });
+
     it('should set body overflow to hidden', () => {
       initAyahModal();
       openAyahModal({

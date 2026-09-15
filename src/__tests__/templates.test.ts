@@ -14,6 +14,9 @@ import {
   searchResultCard,
   prayerTimeRow,
   prayerTimesRows,
+  PRAYER_BAR_LOCATIONS,
+  barCountryOptions,
+  barCityOptions,
   errorOverlay,
   loadingSkeleton,
   adhkarItem,
@@ -474,6 +477,31 @@ describe('Prayer templates', () => {
   it('prayerTimeRow should escape special characters', () => {
     const result = prayerTimeRow('<script>', '04:30');
     expect(result).toContain('&lt;script&gt;');
+  });
+
+  it('barCountryOptions should list every country group', () => {
+    const result = barCountryOptions();
+    expect(PRAYER_BAR_LOCATIONS.length).toBeGreaterThan(10);
+    for (const g of PRAYER_BAR_LOCATIONS) {
+      expect(result).toContain(`value="${g.code}"`);
+      expect(result).toContain(g.label);
+    }
+  });
+
+  it('barCityOptions should carry city|country values', () => {
+    const result = barCityOptions('EG');
+    expect(result).toContain('value="القاهرة|EG"');
+    expect(result).toContain('الإسكندرية');
+  });
+
+  it('barCityOptions should fall back to the first group for unknown codes', () => {
+    const result = barCityOptions('XX');
+    expect(result).toContain(`|${PRAYER_BAR_LOCATIONS[0]!.code}`);
+  });
+
+  it('duplicate city names should stay unambiguous across countries', () => {
+    expect(barCityOptions('LB')).toContain('value="طرابلس|LB"');
+    expect(barCityOptions('LY')).toContain('value="طرابلس|LY"');
   });
 });
 

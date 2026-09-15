@@ -127,9 +127,15 @@ vi.mock('../ui.js', () => ({
   showToast: mockShowToast,
 }));
 
-vi.mock('../templates.js', () => ({
-  prayerTimesRows: mockPrayerTimesRows,
-}));
+vi.mock('../templates.js', async () => {
+  const real = await vi.importActual<typeof import('../templates-prayer.js')>('../templates-prayer.js');
+  return {
+    prayerTimesRows: mockPrayerTimesRows,
+    PRAYER_BAR_LOCATIONS: real.PRAYER_BAR_LOCATIONS,
+    barCountryOptions: real.barCountryOptions,
+    barCityOptions: real.barCityOptions,
+  };
+});
 
 vi.mock('../features/audio/audio.js', () => ({
   updatePlayPauseBtn: mockUpdatePlayPauseBtn,
@@ -162,6 +168,7 @@ import {
   checkAzanTime,
   scheduleNextAzanCheck,
   togglePrayerBar,
+  initPrayerBarQuickSelect,
   showQiblaCompass,
   hideQiblaCompass,
 } from '../features/prayer/prayer.js';
@@ -1122,6 +1129,67 @@ describe('prayer.ts', () => {
       togglePrayerBar();
       expect(state.barCollapsed).toBe(prevState);
       mockDom.prayerBar = saved;
+    });
+  });
+
+  /* ===================== PRAYER BAR QUICK LOCATION ===================== */
+
+  describe('initPrayerBarQuickSelect', () => {
+    let countrySel: HTMLSelectElement;
+    let citySel: HTMLSelectElement;
+
+    beforeEach(() => {
+      countrySel = document.createElement('select');
+      citySel = document.createElement('select');
+      mockDom.barCountrySelect = countrySel;
+      mockDom.barCitySelect = citySel;
+      (mockDom.cityInput as HTMLInputElement).value = 'مكة المكرمة';
+      (mockDom.countryInput as HTMLInputElement).value = 'SA';
+    });
+
+    afterEach(() => {
+      delete mockDom.barCountrySelect;
+      delete mockDom.barCitySelect;
+    });
+
+    it('should populate countries and preselect the current city', () => {
+      initPrayerBarQuickSelect();
+      expect(countrySel.options.length).toBeGreaterThan(10);
+      expect(countrySel.value).toBe('SA');
+      expect(citySel.value).toBe('مكة المكرمة|SA');
+    });
+
+    it('should repopulate cities and apply immediately on country change', async () => {
+      initPrayerBarQuickSelect();
+      countrySel.value = 'EG';
+      countrySel.dispatchEvent(new Event('change'));
+      // Settle the floating loadPrayerTimes() chain inside this test so it
+      // cannot interleave with later azan tests (fake timers are on).
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(citySel.value).toBe('القاهرة|EG');
+      expect(state.city).toBe('القاهرة');
+      expect(state.country).toBe('EG');
+      expect(mockStorageSet).toHaveBeenCalledWith('city', 'القاهرة');
+      expect(mockStorageSet).toHaveBeenCalledWith('country', 'EG');
+      expect((mockDom.cityInput as HTMLInputElement).value).toBe('القاهرة');
+      expect((mockDom.countryInput as HTMLInputElement).value).toBe('EG');
+    });
+
+    it('should apply the picked city immediately on city change', async () => {
+      initPrayerBarQuickSelect();
+      countrySel.value = 'EG';
+      countrySel.dispatchEvent(new Event('change'));
+      citySel.value = 'الإسكندرية|EG';
+      citySel.dispatchEvent(new Event('change'));
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(state.city).toBe('الإسكندرية');
+      expect(state.country).toBe('EG');
+    });
+
+    it('should do nothing when the selects are absent', () => {
+      delete mockDom.barCountrySelect;
+      delete mockDom.barCitySelect;
+      expect(() => initPrayerBarQuickSelect()).not.toThrow();
     });
   });
 
