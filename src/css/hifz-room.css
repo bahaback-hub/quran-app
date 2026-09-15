@@ -153,7 +153,7 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room h2 {
   margin: 0.22rem 0 0;
   color: var(--hifz-curtain-accent-strong);
-  font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
+  font-family: 'KFGQPC HAFS Uthmanic Script', 'Traditional Arabic', serif;
   font-size: clamp(1.75rem, 3.3vw, 2.25rem);
   font-weight: 500;
   line-height: 1.1;
@@ -199,7 +199,7 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-card-title {
   margin: 0.75rem 0 0.42rem;
   color: var(--hifz-curtain-accent-strong);
-  font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
+  font-family: 'KFGQPC HAFS Uthmanic Script', 'Traditional Arabic', serif;
   font-size: 1.55rem;
   line-height: 1.55;
 }
@@ -381,7 +381,7 @@ body.hifz-room-active .hifz-room-toggle {
   border-top: 1px solid rgb(165 132 82 / 60%);
   border-bottom: 1px solid rgb(165 132 82 / 60%);
   color: var(--hifz-curtain-accent-strong);
-  font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
+  font-family: 'KFGQPC HAFS Uthmanic Script', 'Traditional Arabic', serif;
   font-size: 1.02rem;
   line-height: 1.35;
   text-align: center;
@@ -629,7 +629,7 @@ body.hifz-room-tools-hidden .hifz-room-stage {
   max-width: 20ch;
   align-self: center;
   color: #fffaf0;
-  font-family: 'Uthmanic Hafs Official', 'Traditional Arabic', serif;
+  font-family: 'KFGQPC HAFS Uthmanic Script', 'Traditional Arabic', serif;
   font-size: clamp(2.35rem, 4.9vw, 5.6rem);
   line-height: 1.8;
   text-shadow: 0 3px 22px rgb(12 34 28 / 72%);

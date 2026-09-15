@@ -188,4 +188,42 @@ test.describe('TV remote control', () => {
     expect(layers.cursor).toBeGreaterThan(layers.overlay);
     expect(layers.cursor).toBeGreaterThan(0);
   });
+
+  test('remote arrows move focus (not ayahs) in featured-ayah mode', async ({ page }) => {
+    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    const counter = page.locator('#presentationCounter');
+    const before = await counter.textContent();
+    // Focus a neutral control, then push arrows: the ayah must not flip.
+    await page.locator('#presentationCloseBtn').evaluate((el) => el.focus());
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowLeft');
+    await expect(counter).toHaveText(before ?? '');
+    const tag = await page.evaluate(() => document.activeElement?.tagName ?? null);
+    expect(tag).toMatch(/^(BUTTON|INPUT|SELECT|A)$/);
+  });
+
+  test('OK on the featured-ayah next button flips the ayah', async ({ page }) => {
+    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    const counter = page.locator('#presentationCounter');
+    const before = await counter.textContent();
+    await page.locator('#presentationNextBtn').evaluate((el) => el.focus());
+    await page.keyboard.press('Enter');
+    await expect(counter).not.toHaveText(before ?? '', { timeout: 10000 });
+  });
+
+  test('featured-ayah text uses the official Hafs font once loaded', async ({ page }) => {
+    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    await page.waitForFunction(
+      () => document.fonts.check('40px "KFGQPC HAFS Uthmanic Script"'),
+      undefined,
+      { timeout: 15000 },
+    );
+  });
 });

@@ -29,6 +29,7 @@ import {
   preparePresentationShareImage,
 } from './presentation-share.js';
 import { applyPresBgMode, applyPresBgScene, applyPresBgVideo } from '../../settings.js';
+import { isTvNavActive } from '../../tv-nav.js';
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -581,15 +582,28 @@ function handleKeyDown(e: KeyboardEvent): void {
       break;
     case 'ArrowRight':
     case 'ArrowDown':
+      if (isTvNavActive()) {
+        // TV remote: arrows move focus/the pointer cursor via keyboard.ts.
+        // Ayah flipping stays on the dedicated ⏮ ⏭ overlay buttons.
+        return;
+      }
       e.preventDefault();
       navigateAyah(1);
       break;
     case 'ArrowLeft':
     case 'ArrowUp':
+      if (isTvNavActive()) {
+        // TV remote: arrows move focus/the pointer cursor via keyboard.ts.
+        return;
+      }
       e.preventDefault();
       navigateAyah(-1);
       break;
     case ' ':
+      if (isTvNavActive()) {
+        // TV remote: Space/OK activates the focused control via keyboard.ts.
+        return;
+      }
       e.preventDefault();
       togglePlayPause();
       updatePlayPauseBtn();
