@@ -250,12 +250,12 @@ audio {
 
 /* First-run hint: chevron on the collapsed bar + pill above it */
 /* Persistent affordance: a small arrow on the collapsed bar signaling
-   that inner player content can be expanded. */
+   that inner player content can be expanded. Pinned to the bar corner so
+   it never overlaps the centered play button or the info pill. */
 .collapse-chevron {
   position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 4px;
+  inset-inline-end: 10px;
   font-size: 11px;
   line-height: 1;
   color: var(--accent);
@@ -268,8 +268,8 @@ audio {
   animation: chevron-bounce 1.2s ease-in-out 3;
 }
 @keyframes chevron-bounce {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(3px); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
 }
 .player-expand-hint {
   position: fixed;
