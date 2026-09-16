@@ -1274,6 +1274,7 @@ padding-top: env(safe-area-inset-top, 0);
   transform-origin: left;
   transform: scaleX(0);
   transition: transform 0.2s ease;
+  will-change: transform;
 }
 
 /* ========== تحسينات التمرير والتركيز ========== */
