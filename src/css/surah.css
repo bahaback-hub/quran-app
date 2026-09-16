@@ -4,8 +4,8 @@
 .surah-content {
   padding: 36px 32px;
   background: var(--content-bg);
-  min-height: 380px;
-  transition: all 0.3s ease;
+  min-height: clamp(380px, 55vh, 680px);
+  transition: background 0.3s ease, color 0.3s ease, opacity 0.3s ease;
   /* CLS: Prevent layout shift when content loads */
   contain: layout style;
 }
