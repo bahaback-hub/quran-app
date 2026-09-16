@@ -5,6 +5,10 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+const { mockReloadCurrentSurahAudio } = vi.hoisted(() => ({
+  mockReloadCurrentSurahAudio: vi.fn(() => Promise.resolve(false)),
+}));
+
 /** Flush pending microtasks (promises) so async effects propagate. */
 function flushPromises(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0));
@@ -101,6 +105,7 @@ vi.mock('../utils.js', () => ({
 
 vi.mock('../surah-loader.js', () => ({
   highlightCurrentAyah: vi.fn(),
+  reloadCurrentSurahAudio: mockReloadCurrentSurahAudio,
 }));
 
 vi.mock('../i18n.js', () => ({
@@ -573,6 +578,32 @@ describe('playCurrentAyah', () => {
     state.surahData = createSurahData();
     state.ayahsAudios = [];
     await playCurrentAyah();
+    expect(showToast).toHaveBeenCalledWith('no_audio', 'error');
+  });
+
+  it('should retry loading audio on demand when the list is empty', async () => {
+    state.surahData = createSurahData();
+    state.ayahsAudios = [];
+    state.ayahTimings = [];
+    state.currentAyahIndex = 0;
+    dom.audioPlayer = createMockAudio({ paused: true });
+    mockReloadCurrentSurahAudio.mockImplementationOnce(async () => {
+      state.ayahsAudios = ['http://example.com/audio1.mp3'];
+      state.ayahTimings = [];
+      return true;
+    });
+    await playCurrentAyah();
+    expect(mockReloadCurrentSurahAudio).toHaveBeenCalled();
+    expect(dom.audioPlayer.src).toBe('http://example.com/audio1.mp3');
+    expect(dom.audioPlayer.play).toHaveBeenCalled();
+  });
+
+  it('should show error toast when the on-demand reload also fails', async () => {
+    state.surahData = createSurahData();
+    state.ayahsAudios = [];
+    mockReloadCurrentSurahAudio.mockResolvedValueOnce(false);
+    await playCurrentAyah();
+    expect(mockReloadCurrentSurahAudio).toHaveBeenCalled();
     expect(showToast).toHaveBeenCalledWith('no_audio', 'error');
   });
 

@@ -102,6 +102,7 @@ vi.mock('../utils.js', () => ({
 
 vi.mock('../surah-loader.js', () => ({
   highlightCurrentAyah: mockHighlightCurrentAyah,
+  reloadCurrentSurahAudio: vi.fn(() => Promise.resolve(false)),
 }));
 
 vi.mock('../i18n.js', () => ({
