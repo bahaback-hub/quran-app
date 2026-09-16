@@ -286,7 +286,13 @@ describe('surah-loader-full', () => {
     it('should show loading indicator in surah select while fetching', async () => {
       vi.spyOn(storage, 'get').mockReturnValue(null);
       vi.spyOn(storage, 'set').mockImplementation(() => true);
-      // Make API hang but with a short delay so the test doesn't timeout
+      // Simulate no local fallback — throw synchronously so try/catch
+      // resolves without a microtask, keeping surahSelectLoading on the
+      // synchronous path.
+      vi.mocked(jsonFetch).mockImplementation(() => {
+        throw new Error('No local file');
+      });
+      // Make API hang so we can check loading state
       let resolveApi!: (v: unknown) => void;
       vi.mocked(apiFetch).mockReturnValue(
         new Promise((r) => {
@@ -294,7 +300,7 @@ describe('surah-loader-full', () => {
         }),
       );
       const listPromise = loadSurahList();
-      // Check loading state before API resolves
+      // Loading state should be shown while waiting for API
       expect(surahSelectLoading).toHaveBeenCalled();
       // Now resolve so test can complete
       resolveApi({ data: FULL_SURAH_LIST });
