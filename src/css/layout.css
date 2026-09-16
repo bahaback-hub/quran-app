@@ -204,7 +204,7 @@
   display: block;
   width: 126px;
   height: 84px;
-  background: url('../../public/brand/mushaf-sulaymani-transparent-final.png') center / contain no-repeat;
+  background: url('/brand/mushaf-sulaymani-transparent-final.webp') center / contain no-repeat;
 }
 /* سطح المكتب: العنوان والأدوات في صف واحد لتقديم مساحة أكبر للقراءة.
    تتجمع الأدوات كلها إلى اليسار، بينما يتراص البحث والمظهر عموديًا في الطرف نفسه. */
