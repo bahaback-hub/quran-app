@@ -202,8 +202,17 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(infoButton).toBeVisible();
 
     const titleText = await title.textContent();
-    expect(titleText).toMatch(/الفاتحة|Al-Faatiha/);
-    expect(titleText).not.toMatch(/الفاتحة.*Al-Faatiha|Al-Faatiha.*الفاتحة/);
+    // The real AlQuran.cloud name is fully vocalized ("سُورَةُ ٱلْفَاتِحَةِ")
+    // while the E2E mock uses the short form ("الفاتحة"). Normalize before
+    // matching: strip diacritics, turn the wasla alef into a plain alef, and
+    // drop the leading "سورة" prefix when present.
+    const bareTitle = (titleText ?? '')
+      .replace(/\s+/g, ' ')
+      .replace(/[\u064B-\u0652\u0653-\u0655\u0670\u06D6-\u06ED\u0640]/g, '')
+      .replace(/\u0671/g, 'ا')
+      .replace(/^سورة\s+/u, '');
+    expect(bareTitle).toMatch(/الفاتحة|Al-Faatiha/);
+    expect(bareTitle).not.toMatch(/الفاتحة.*Al-Faatiha|Al-Faatiha.*الفاتحة/);
 
     const titleBox = await title.boundingBox();
     const infoBox = await infoButton.boundingBox();

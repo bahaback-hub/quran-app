@@ -463,10 +463,24 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   }
 
   try {
-    const textJson: { data?: SurahTextData } = (await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
-      signal,
-      errorMsg: __('failed_load_surah'),
-    })) as { data?: SurahTextData };
+    // Bundled local text first (data/surah-{n}.json) — a tiny file served with
+    // NO network wait, keeping the first-surah text off the LCP critical path.
+    // Served from the service worker's runtime cache on repeat visits. Any
+    // surah without a bundle falls straight through to the API.
+    let textJson: { data?: SurahTextData } | null = null;
+    try {
+      textJson = (await jsonFetch(`data/surah-${surahNum}.json`, { silent: true })) as {
+        data?: SurahTextData;
+      };
+    } catch {
+      /* no local bundle — fall back to API */
+    }
+    if (!textJson?.data?.ayahs?.length) {
+      textJson = (await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
+        signal,
+        errorMsg: __('failed_load_surah'),
+      })) as { data?: SurahTextData };
+    }
     const textData: SurahTextData = textJson?.data as SurahTextData;
     if (!textData?.ayahs?.length) {
       throw new Error(__('invalid_surah_data'));
