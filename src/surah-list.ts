@@ -38,7 +38,22 @@ export interface AbsToSurahAyahResult {
 
 /* ===================== SURAH LIST LOADING ===================== */
 
-/** Load surah list from cache, API, or local fallback, then populate dropdown. */
+/**
+ * Load surah list and populate the dropdown.
+ *
+ * Priority (best → worst):
+ *   1. Bundled local file `data/surah-list.json` — it is precached by the
+ *      service worker, so it resolves in a single local round-trip with NO
+ *      network wait. This keeps the surah list off the critical LCP path on
+ *      first load (previously we awaited api.alquran.cloud serially before
+ *      starting the surah text fetch).
+ *   2. localStorage cache (repeat visits / offline).
+ *   3. API — used only to refresh the bundled data in the background.
+ *
+ * A successful local fill hands the network request to a non-blocking
+ * background sync, mirroring the stale-while-revalidate pattern already used
+ * by `loadSurah`. A failed local fill falls straight through to the API.
+ */
 export async function loadSurahList(): Promise<void> {
   const cached = storage.get<SurahInfo[]>('surah_list');
   if (cached && cached.length === CONFIG.SURAH_COUNT) {
@@ -46,7 +61,25 @@ export async function loadSurahList(): Promise<void> {
     state.surahOffsets = null;
     buildSurahOffsets();
     populateSurahSelect();
+    // Refresh in the background so the dropdown eventually reflects any
+    // upstream changes without blocking first paint.
+    void refreshSurahListFromAPI();
     return;
+  }
+
+  try {
+    const localData = (await jsonFetch('data/surah-list.json', { silent: true })) as SurahInfo[];
+    if (localData && localData.length === CONFIG.SURAH_COUNT) {
+      state.surahList = localData;
+      state.surahOffsets = null;
+      storage.set('surah_list', localData);
+      populateSurahSelect();
+      // Sync with the authoritative list silently in the background.
+      void refreshSurahListFromAPI();
+      return;
+    }
+  } catch {
+    /* no local fallback — fall through to API */
   }
   if (dom.surahSelect) {
     dom.surahSelect.innerHTML = surahSelectLoading();
@@ -61,22 +94,30 @@ export async function loadSurahList(): Promise<void> {
       return;
     }
   } catch {
-    /* fall through to local fallback */
-  }
-  try {
-    const localData = (await jsonFetch('data/surah-list.json', { silent: true })) as SurahInfo[];
-    if (localData && localData.length === CONFIG.SURAH_COUNT) {
-      state.surahList = localData;
-      state.surahOffsets = null;
-      storage.set('surah_list', localData);
-      populateSurahSelect();
-      return;
-    }
-  } catch {
-    /* no local fallback */
+    /* last resort error state */
   }
   if (dom.surahSelect) {
     dom.surahSelect.innerHTML = surahSelectError();
+  }
+}
+
+/** Background-only re-sync of the local/bundled surah list from the API. */
+let _surahListRefreshController: AbortController | null = null;
+async function refreshSurahListFromAPI(): Promise<void> {
+  try {
+    if (_surahListRefreshController) {
+      _surahListRefreshController.abort();
+    }
+    _surahListRefreshController = new AbortController();
+    const data: { data?: SurahInfo[] } = (await apiFetch('/surah', {
+      silent: true,
+      signal: _surahListRefreshController.signal,
+    })) as { data?: SurahInfo[] };
+    if (data?.data) {
+      storage.set('surah_list', data.data);
+    }
+  } catch {
+    /* non-critical, keep the local list */
   }
 }
 
