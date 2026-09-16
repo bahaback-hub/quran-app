@@ -174,7 +174,7 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 2 * 1024 * 1024, // 2MB limit per file (was 10MB)
         // Only precache small essential files — large data files are runtime-cached
-        globPatterns: ['**/*.{js,css,html,woff2,png}'],
+        globPatterns: ['**/*.{js,css,html,woff2,png,webp}'],
         // Exclude large data files from precache — they're runtime-cached on demand
         globIgnores: [
           '**/data/*.json',      // Quran text, tafsir, tajweed chunks — loaded on demand
@@ -183,10 +183,6 @@ export default defineConfig({
           '**/*.mp3',             // Audio files — runtime cached
           '**/*.ttf',             // Fonts — runtime cached via CacheFirst
           '**/fonts/qcf4/**',     // Downloaded together only when the user enables offline Mushaf
-          // Landing-preview copy of the sulaymani logo — the app uses the
-          // hashed asset (assets/mushaf-...-SK6DYjQy.png) instead. Precacheing
-          // both identical 2MB copies wasted ~2MB of install payload.
-          '**/brand/mushaf-sulaymani-transparent-final.png',
         ],
         offlineGoogleAnalytics: false,
         navigateFallback: 'index.html',
