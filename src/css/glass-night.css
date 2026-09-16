@@ -3,7 +3,6 @@
 /* ========== خلفية المسجد النبوي ليلاً ========== */
 body.night-mode {
   background: url('/backgrounds/mosque-night.jpg') center center / cover no-repeat fixed;
-  position: relative;
 }
 
 /* إزالة تراكب النجوم القديم لأن الخلفية الجديدة تحتوي على سماء ليلية */
@@ -174,7 +173,7 @@ body.night-mode .control-card {
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(212, 175, 55, 0.15);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  transition: all 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
 body.night-mode .control-card:hover {

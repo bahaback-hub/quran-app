@@ -40,9 +40,10 @@
     <!-- LCP: Preload the primary body font to speed up first paint -->
     <link rel="preload" href="%BASE_URL%fonts/amiri-regular-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="%BASE_URL%fonts/official/UthmanicHafs_V22.ttf" as="font" type="font/ttf" crossorigin />
+    <!-- CLS: preload night background to avoid late repaint shift -->
+    <link rel="preload" href="%BASE_URL%backgrounds/mosque-night.jpg" as="image" />
     <link rel="stylesheet" href="%BASE_URL%fonts/fonts.css" fetchpriority="high" />
     <link rel="preconnect" href="https://api.alquran.cloud" />
-    <link rel="preconnect" href="https://cdn.islamic.network" />
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
     <link rel="dns-prefetch" href="https://server.mp3quran.net" />
     <link rel="dns-prefetch" href="https://server6.mp3quran.net" />
