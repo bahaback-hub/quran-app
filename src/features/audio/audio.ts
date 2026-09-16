@@ -19,7 +19,7 @@ import { dom } from '../../dom.js';
 import { storage } from '../../storage.js';
 import { showToast } from '../../ui.js';
 import { hapticFeedback } from '../../utils.js';
-import { highlightCurrentAyah } from '../../surah-loader.js';
+import { highlightCurrentAyah, reloadCurrentSurahAudio } from '../../surah-loader.js';
 import { __ } from '../../i18n.js';
 import { getCachedAudioUrl } from './audio-cache.js';
 import type { SurahData } from '../../types.js';
@@ -91,6 +91,8 @@ const PITCH_STORAGE_KEY = 'pitch_freq';
 
 let _audioCtx: AudioContext | null = null;
 let _mediaSrc: MediaElementAudioSourceNode | null = null;
+/** True while an on-demand audio-list reload is in flight (re-entrancy guard). */
+let _audioReloading = false;
 /** Per-origin CORS probe results (true = safe to route through the graph). */
 const _corsProbeCache = new Map<string, boolean>();
 
@@ -360,11 +362,28 @@ async function resolveAudioUrl(originalUrl: string): Promise<string> {
  * instead of the network URL, enabling offline playback.
  */
 export async function playCurrentAyah(): Promise<void> {
-  if (!state.surahData || !state.ayahsAudios?.length) {
-    // A reload in flight empties the audio list momentarily: tell the truth
-    // (still loading) instead of the misleading "no audio" error.
-    showToast(state.loadingSurah ? __('loading_surah') : __('no_audio'), state.loadingSurah ? 'info' : 'error');
+  if (!state.surahData) {
+    showToast(__('no_audio'), 'error');
     return;
+  }
+  if (!state.ayahsAudios?.length) {
+    // The boot-time audio fetch may have failed (API rate-limit burst on page
+    // load): retry on demand so pressing play recovers instead of silence.
+    if (!_audioReloading) {
+      _audioReloading = true;
+      try {
+        showToast(__('loading_surah'), 'info');
+        await reloadCurrentSurahAudio();
+      } finally {
+        _audioReloading = false;
+      }
+    }
+    if (!state.ayahsAudios?.length) {
+      // A reload in flight empties the audio list momentarily: tell the truth
+      // (still loading) instead of the misleading "no audio" error.
+      showToast(state.loadingSurah ? __('loading_surah') : __('no_audio'), state.loadingSurah ? 'info' : 'error');
+      return;
+    }
   }
   const url = state.ayahsAudios[state.currentAyahIndex];
   if (!url) {

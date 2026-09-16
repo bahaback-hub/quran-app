@@ -208,6 +208,47 @@ export async function loadAudioUrlsForSession(
 }
 
 /**
+ * Re-fetch audio URLs for the currently open surah+reciter and refill the
+ * playback lists. Used when play is pressed but the boot-time audio fetch
+ * failed (e.g. API rate-limit burst on page load) so the button recovers
+ * instead of staying silent. Returns true when playable audio is available.
+ */
+export async function reloadCurrentSurahAudio(): Promise<boolean> {
+  const surahNum = state.currentSurah;
+  const reciterId = state.currentReciter;
+  const ayahs = state.surahData?.ayahs;
+  const reciterInfo = getReciterById(reciterId) as ReciterInfo | undefined;
+  if (!surahNum || !reciterInfo || !ayahs?.length) {
+    return false;
+  }
+  try {
+    if (reciterInfo.source === 'mp3quran') {
+      const url = buildAudioUrl(reciterInfo, surahNum);
+      if (!url) {
+        return false;
+      }
+      state.ayahsAudios = Array.from({ length: ayahs.length }, () => url);
+      state.ayahTimings = (await fetchAyahTimings(reciterId, surahNum, ayahs)) ?? calculateAyahTimings(ayahs, surahNum);
+    } else {
+      const json = (await apiFetch(`/surah/${surahNum}/${reciterId}`, { silent: true })) as {
+        data?: { ayahs?: AyahEntry[] };
+      };
+      const fetched = json?.data?.ayahs;
+      if (!fetched?.length) {
+        return false;
+      }
+      state.ayahsAudios = fetched.map((a) => a.audio ?? '');
+      state.ayahTimings = [];
+    }
+    _loadedAudioSurah = surahNum;
+    _loadedAudioReciter = reciterId;
+    return state.ayahsAudios.some((a) => Boolean(a));
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Find the last good audio list cached for the same surah+reciter under any
  * translation suffix. When a reload's audio fetch fails (e.g. rate-limited
  * exactly when translation adds a third parallel request), reusing stale
