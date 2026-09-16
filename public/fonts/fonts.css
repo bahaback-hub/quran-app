@@ -20,7 +20,7 @@
   font-family: 'Amiri';
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
   src: url('./amiri-regular-400.woff2') format('woff2');
 }
 
@@ -28,7 +28,7 @@
   font-family: 'Amiri';
   font-style: italic;
   font-weight: 400;
-  font-display: swap;
+  font-display: optional;
   src: url('./amiri-italic-400.woff2') format('woff2');
 }
 
@@ -36,7 +36,7 @@
   font-family: 'Amiri';
   font-style: normal;
   font-weight: 700;
-  font-display: swap;
+  font-display: optional;
   src: url('./amiri-bold-700.woff2') format('woff2');
 }
 
