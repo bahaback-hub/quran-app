@@ -116,9 +116,7 @@ describe('quran data integrity', () => {
 
     expect(Object.keys(tafsir)).toHaveLength(SURAH_COUNT);
 
-    const quranKeys = new Set(
-      quran.data.surahs.flatMap((s) => s.ayahs.map((a) => `${s.number}:${a.numberInSurah}`)),
-    );
+    const quranKeys = new Set(quran.data.surahs.flatMap((s) => s.ayahs.map((a) => `${s.number}:${a.numberInSurah}`)));
 
     const tafsirKeys = new Set<string>();
     let total = 0;
