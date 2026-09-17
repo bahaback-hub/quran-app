@@ -93,10 +93,23 @@ jobs:
           path: coverage/
           retention-days: 14
 
+  data-integrity:
+    name: Quran Data Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify bundled Quran data (114 surahs, 6236 ayahs, 604 pages, checksums)
+        run: npm run verify:data
+
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    needs: [lint, test, data-integrity]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
