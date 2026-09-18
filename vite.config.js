@@ -178,6 +178,7 @@ export default defineConfig({
         // Exclude large data files from precache — they're runtime-cached on demand
         globIgnores: [
           '**/data/*.json',      // Quran text, tafsir, tajweed chunks — loaded on demand
+          '**/quran/**',         // Pre-rendered SEO pages — duplicated SPA content, not precached
           '**/screenshots/**',    // PWA screenshots — not needed for offline
           '**/backgrounds/**',    // Background images — not essential
           '**/*.mp3',             // Audio files — runtime cached
