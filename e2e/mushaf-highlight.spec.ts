@@ -7,7 +7,7 @@
  * locally served QCF4 fonts so canvas text measurement matches production.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mock-network';
 import * as fs from 'fs';
 import * as path from 'path';
 

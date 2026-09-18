@@ -709,4 +709,10 @@ export default {
     many: '{count} days in a row',
     other: '{count} days in a row',
   },
+
+  // === Home launcher ===
+  home_welcome: 'Welcome - pick a surah to start reading',
+  home_quick: 'Quick tools',
+  home_browse: 'Surahs of the Quran',
+  home_ayahs: 'verses',
 };
