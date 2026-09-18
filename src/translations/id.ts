@@ -711,4 +711,10 @@ export default {
     many: '{count} hari berturut-turut',
     other: '{count} hari berturut-turut',
   },
+
+  // === Home launcher ===
+  home_welcome: 'Selamat datang - pilih surah untuk mulai membaca',
+  home_quick: 'Alat cepat',
+  home_browse: "Surah-surah Al-Qur'an",
+  home_ayahs: 'ayat',
 };

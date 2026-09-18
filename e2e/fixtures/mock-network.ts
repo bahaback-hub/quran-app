@@ -304,6 +304,38 @@ export const test = base.extend<{
       localStorage.setItem('quran_app_help_seen', JSON.stringify(true));
     });
 
+    // Most specs exercise the reader, so boot them as a returning reader with a
+    // saved position (surah 1) — a first visit would now land on the home
+    // launcher instead. Specs targeting the launcher remove this key.
+    // The resume toast must not intercept toolbar clicks, so hide it too.
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        'quran_app_last_position',
+        JSON.stringify({ surah: 1, surahName: 'الفاتحة', ayahNumberInSurah: 1, timestamp: Date.now() }),
+      );
+      const hideContinue = (): void => {
+        const widget = document.getElementById('continueWidget');
+        if (widget) {
+          widget.style.display = 'none';
+        }
+      };
+      const observer = new MutationObserver(hideContinue);
+      const watchContinueWidget = (): void => {
+        if (document.body) {
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
+      };
+      // Init scripts run before <body> exists, so defer observing until the
+      // DOM is available. A throw here would stop later init scripts (the
+      // spec that clears this key) from running on some engines.
+      if (document.body) {
+        watchContinueWidget();
+      } else {
+        document.addEventListener('DOMContentLoaded', watchContinueWidget, { once: true });
+      }
+      document.addEventListener('DOMContentLoaded', hideContinue);
+    });
+
     // Setup all network mocks before each test
     await setupNetworkMocks(page);
     await use(page);
