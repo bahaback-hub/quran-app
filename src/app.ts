@@ -35,7 +35,9 @@ import {
   buildSurahOffsets,
   populateReciterSelect,
   updateCurrentSurahLocale,
+  highlightCurrentAyah,
 } from './surah-loader.js';
+import { parseDeepLink, clearDeepLinkHash } from './deep-link.js';
 import { handleVisibilityChange, showContinueWidget, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
@@ -95,24 +97,54 @@ export async function initApp(): Promise<void> {
     await loadFullQuranText();
   }
 
-  const last = storage.get<LastPosition>('last_position');
-  if (last && last.surah) {
-    state.currentSurah = last.surah;
-    await loadSurah(last.surah, { startAyah: last.ayahNumberInSurah || 1 });
-    // Confirm the restored reading position with a short, dismissible card.
-    // The position itself remains local to the reader's device.
-    window.setTimeout(() => {
-      showContinueWidget({
-        surah: last.surah!,
-        surahName: state.surahData?.name || last.surahName || String(last.surah),
-        englishSurahName: state.surahData?.englishName,
-        ayahNumberInSurah: last.ayahNumberInSurah || 1,
-        timestamp: last.timestamp,
-        restored: true,
-      });
-    }, 420);
-  } else {
-    await loadSurah(1);
+  const deepLink = parseDeepLink(window.location.hash);
+  let loadedSurah = false;
+  if (deepLink) {
+    // Deep link (#surah=N, #surah=N/A, #page=P) from a pre-rendered SEO page,
+    // a share link, or a bookmark. Surah links take priority over the last
+    // position; page links just remember the target page (Mushaf reads it on
+    // open) while the reader still lands on a usable surah below.
+    if (deepLink.kind === 'surah') {
+      state.currentSurah = deepLink.number;
+      if (dom.surahSelect) {
+        dom.surahSelect.value = String(deepLink.number);
+      }
+      await loadSurah(deepLink.number, { startAyah: deepLink.startAyah });
+      if (deepLink.startAyah) {
+        // Highlight + scroll to the requested ayah once the chunk is rendered.
+        window.setTimeout(() => {
+          highlightCurrentAyah();
+          clearDeepLinkHash();
+        }, 80);
+      } else {
+        clearDeepLinkHash();
+      }
+      loadedSurah = true;
+    } else {
+      state.currentPage = deepLink.page;
+      clearDeepLinkHash();
+    }
+  }
+  if (!loadedSurah) {
+    const last = storage.get<LastPosition>('last_position');
+    if (last && last.surah) {
+      state.currentSurah = last.surah;
+      await loadSurah(last.surah, { startAyah: last.ayahNumberInSurah || 1 });
+      // Confirm the restored reading position with a short, dismissible card.
+      // The position itself remains local to the reader's device.
+      window.setTimeout(() => {
+        showContinueWidget({
+          surah: last.surah!,
+          surahName: state.surahData?.name || last.surahName || String(last.surah),
+          englishSurahName: state.surahData?.englishName,
+          ayahNumberInSurah: last.ayahNumberInSurah || 1,
+          timestamp: last.timestamp,
+          restored: true,
+        });
+      }, 420);
+    } else {
+      await loadSurah(1);
+    }
   }
 
   // This now resolves to the active surah's small tajweed chunk, not the
@@ -127,6 +159,29 @@ export async function initApp(): Promise<void> {
 
   initNavigation();
   initKeyboardShortcuts();
+
+  // React to deep links arriving while the app is already open (e.g. clicking a
+  // shared SEO URL or a bookmarked #surah=N link).
+  window.addEventListener('hashchange', () => {
+    const dl = parseDeepLink(window.location.hash);
+    if (!dl) {
+      return;
+    }
+    if (dl.kind === 'surah') {
+      state.currentSurah = dl.number;
+      if (dom.surahSelect) {
+        dom.surahSelect.value = String(dl.number);
+      }
+      void loadSurah(dl.number, { startAyah: dl.startAyah }).then(() => {
+        if (dl.startAyah) {
+          window.setTimeout(highlightCurrentAyah, 0);
+        }
+      });
+    } else {
+      state.currentPage = dl.page;
+    }
+    clearDeepLinkHash();
+  });
   initCapacitorBackButton({
     App: {
       addListener: (event, callback) => {

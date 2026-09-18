@@ -8,6 +8,7 @@
     "build": "vite build",
     "mushaf:manifest": "node scripts/generate-mushaf-data-manifest.mjs",
     "verify:data": "node scripts/verify-quran-data.mjs",
+    "build:seo": "node scripts/generate-seo-pages.mjs",
     "optimize:brand": "node scripts/optimize-brand-images.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.ci.json",
