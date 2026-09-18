@@ -33,10 +33,13 @@
   User must enable "GitHub Pages → GitHub Actions" in repo settings.
 
 ### Three-Phase Bootstrap (`src/app.ts`)
-1. **Critical path**: state init → DOM cache → settings → surah list → load first surah
-2. **Event binding**: navigation, keyboard, a11y, i18n
+1. **Critical path**: state init → DOM cache → settings → surah list → first load/home.
+   Toolbar/navigation/keyboard events bind BEFORE the first surah load so interaction
+   is never blocked by (or racing) the initial network fetch.
+2. **Init helpers that depend on a rendered surah**: tajweed preload, deep-link tags.
 3. **Deferred tasks** (via `requestIdleCallback`): clock, prayer, adhkar, favorites, modals, search index
 
+First visits (no saved `last_position`, no deep link) land on the surah launcher (`src/home.ts`).
 ### Reactive State (`src/state.ts`) — **Proxy-based, no framework**
 - `state` is a `Proxy`-wrapped typed object (`AppState` interface)
 - `state.xxx = yyy` automatically notifies subscribers
