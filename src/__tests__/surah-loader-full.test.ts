@@ -500,13 +500,51 @@ describe('surah-loader-full', () => {
       expect(loadingBar.hide).toHaveBeenCalled();
     });
 
-    it('should handle AbortError silently', async () => {
-      const abortError = new Error('Aborted');
+    it('should handle a user-navigation abort silently', async () => {
+      state.surahList = SAMPLE_SURAH_LIST;
+      vi.mocked(apiFetch)
+        .mockImplementationOnce((_url, opts) => {
+          const signal = opts?.signal;
+          return new Promise((_resolve, reject) => {
+            const fail = () => {
+              const err = new Error('Aborted');
+              err.name = 'AbortError';
+              reject(err);
+            };
+            signal?.addEventListener('abort', fail);
+            if (signal?.aborted) {
+              fail();
+            }
+          });
+        })
+        .mockResolvedValue({ data: SAMPLE_SURAH_DATA });
+
+      const firstLoad = loadSurah(1);
+      // A newer load supersedes the first one: its controller is aborted, so the
+      // first load's signal.aborted is true — the user-navigation case.
+      const secondLoad = loadSurah(2);
+      const results = await Promise.allSettled([firstLoad, secondLoad]);
+      expect(results[0]!.status).toBe('fulfilled');
+      expect(results[1]!.status).toBe('fulfilled');
+      expect(surahLoadError).not.toHaveBeenCalled();
+    });
+
+    it('should not swallow an internal timeout AbortError (must reach the fallback path)', async () => {
+      const abortError = new Error('Request timeout');
       abortError.name = 'AbortError';
+      // The load controller was NOT cancelled by the user (signal.aborted is
+      // false) — this mimics the internal 15s per-attempt timeout, which used
+      // to be swallowed silently and leave the reader stuck on the loading
+      // notice. It must surface as a real failure and fall through.
       vi.mocked(apiFetch).mockRejectedValue(abortError);
       state.surahList = SAMPLE_SURAH_LIST;
+      state.fullQuranLoaded = true;
+      state.fullQuranText = [
+        { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' },
+      ];
       await loadSurah(1);
       expect(surahLoadError).not.toHaveBeenCalled();
+      expect(state.surahData).toBeTruthy();
     });
 
     it('should fall back to fullQuranText when API fails and data is loaded', async () => {
