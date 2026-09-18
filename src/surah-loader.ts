@@ -559,7 +559,12 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     // Also persist to IndexedDB for offline access
     cacheSurahToIDB(cacheKey, cacheEntry);
   } catch (e: unknown) {
-    if ((e as Error).name === 'AbortError') {
+    // Only treat an abort as "user navigated to another surah" when THIS load's
+    // controller was actually cancelled. The internal per-attempt timeout also
+    // surfaces as an AbortError (15s stall = real outage); bailing silently there
+    // would leave the reader stuck on the loading notice and skip the offline
+    // fallback, so those must still fall through to the local text.
+    if ((e as Error).name === 'AbortError' && signal.aborted) {
       return;
     }
     if (state.fullQuranLoaded && state.fullQuranText) {
