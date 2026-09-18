@@ -1,0 +1,144 @@
+/* Home launcher — first-visit screen with quick tools and a 114-surah grid */
+
+.home-screen {
+  padding: 8px 4px 28px;
+  text-align: center;
+  animation: homeFadeIn 0.35s ease;
+}
+
+@keyframes homeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-hero {
+  margin-bottom: 20px;
+}
+
+.home-bismillah {
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  color: var(--accent);
+  font-family: var(--font-quran, 'Amiri', 'Traditional Arabic', serif);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.home-welcome {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* ========== أدوات سريعة ========== */
+.home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto 26px;
+  max-width: 720px;
+}
+
+.home-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-action-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.home-action-btn:active {
+  transform: translateY(0);
+}
+
+.home-action-icon {
+  font-size: 1.1rem;
+}
+
+/* ========== شبكة السور ========== */
+.home-browse-title {
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  display: inline-block;
+}
+
+.home-surah-grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 10px;
+}
+
+.home-surah-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 12px 8px;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  font-family: var(--font-quran, 'Amiri', 'Traditional Arabic', serif);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-surah-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+
+.home-surah-card:active {
+  transform: translateY(0);
+}
+
+.home-surah-num {
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.home-surah-name {
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.home-surah-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.home-surah-empty {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  padding: 24px;
+  font-size: 0.95rem;
+}

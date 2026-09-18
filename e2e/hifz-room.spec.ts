@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/mock-network';
 
 test.describe('Hifz Room — side drawer', () => {
   test.beforeEach(async ({ page }) => {

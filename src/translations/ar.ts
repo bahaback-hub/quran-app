@@ -711,4 +711,10 @@ export default {
     many: '{count} يوماً متتابعاً',
     other: '{count} يوماً متتابعاً',
   },
+
+  // === الشاشة الرئيسية ===
+  home_welcome: 'مرحباً بك — اختر سورة لبدء القراءة',
+  home_quick: 'أدوات سريعة',
+  home_browse: 'سور القرآن الكريم',
+  home_ayahs: 'آية',
 };

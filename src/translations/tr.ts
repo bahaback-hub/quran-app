@@ -711,4 +711,10 @@ export default {
     many: '{count} gün üst üste',
     other: '{count} gün üst üste',
   },
+
+  // === Home launcher ===
+  home_welcome: 'Ho\u015f geldiniz - okumaya ba\u015flamak i\u00e7in bir sure se\u00e7in',
+  home_quick: 'H\u0131zl\u0131 ara\u00e7lar',
+  home_browse: "Kur'an sureleri",
+  home_ayahs: 'ayet',
 };
