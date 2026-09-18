@@ -65,14 +65,43 @@ async function openFirstAyahModal(page) {
 }
 
 async function selectSurah(page, n) {
+  let lastSelect = 0;
   await expect
     .poll(
       async () => {
-        if (!(await page.locator(`.ayah[data-surah="${n}"]`).first().isVisible())) {
-          await page.selectOption('#surahSelect', String(n));
+        const target = page.locator(`.ayah[data-surah="${n}"]`).first();
+        if (await target.isVisible().catch(() => false)) {
+          return true;
+        }
+
+        // A rendered load error means the previous attempt settled without data —
+        // retry immediately. Otherwise, re-driving every poll tick (selectOption
+        // re-fires `change` even for the SAME value) aborts each in-flight load
+        // before its ~1s retry + fallback can finish — an endless restart storm
+        // on slower engines. Give a settled attempt room to render.
+        const loadFailed = await page
+          .locator('#surahContent .error-msg')
+          .first()
+          .isVisible()
+          .catch(() => false);
+        if (!loadFailed && Date.now() - lastSelect < 3500) {
+          await page.waitForTimeout(200);
+          return target.isVisible().catch(() => false);
+        }
+
+        // Bounce through surah 1 (bundled local file, instant, no API) to force a
+        // REAL value change: it fires a fresh `change` event even when the current
+        // selection already equals n (e.g. a select that landed before the app
+        // bound its change listeners in phase 2 was silently dropped).
+        const current = await page.locator('#surahSelect').inputValue().catch(() => '');
+        if (current !== '1') {
+          await page.selectOption('#surahSelect', '1');
           await page.waitForTimeout(150);
         }
-        return page.locator(`.ayah[data-surah="${n}"]`).first().isVisible();
+        await page.selectOption('#surahSelect', String(n));
+        lastSelect = Date.now();
+        await page.waitForTimeout(150);
+        return target.isVisible().catch(() => false);
       },
       { timeout: 30000 },
     )
@@ -151,14 +180,31 @@ test.describe('الأوفلاين الكامل', () => {
 
     const next = page.locator('.mushaf-page-nav-btn.mushaf-page-nav-next');
     const prev = page.locator('.mushaf-page-nav-btn.mushaf-page-nav-prev');
-    if ((await next.count()) > 0) {
-      await next.click();
-      await expect(page.locator('body')).toHaveClass(/mushaf-active/);
-    }
-    if ((await prev.count()) > 0) {
-      await prev.click();
-      await expect(page.locator('body')).toHaveClass(/mushaf-active/);
-    }
+    await expect.poll(async () => (await next.count()) > 0 && (await prev.count()) > 0, {
+      timeout: 15000,
+    }).toBe(true);
+
+    const pageNum = () =>
+      page
+        .locator('.mushaf-container .mushaf-footer')
+        .textContent()
+        .catch(() => '');
+    const before = await pageNum();
+
+    // Drive the buttons with the browser's own DOM click. On WebKit, the
+    // prev/next buttons overhang the overflow-clipped mushaf container so
+    // Playwright's pixel hit-testing reports the container as the pointer
+    // interceptor even though the button is visible and its handler is wired.
+    // el.click() fires the real click listener — which flips the page through
+    // loadPage offline — so we assert the navigation behavior itself.
+    await next.evaluate((el) => el.click());
+    await expect.poll(async () => (await pageNum()) !== before, { timeout: 10000 }).toBe(true);
+    await expect(page.locator('body')).toHaveClass(/mushaf-active/);
+
+    const afterNext = await pageNum();
+    await prev.evaluate((el) => el.click());
+    await expect.poll(async () => (await pageNum()) !== afterNext, { timeout: 10000 }).toBe(true);
+    await expect(page.locator('body')).toHaveClass(/mushaf-active/);
   });
 
   test('دورة كاملة: تحميل، قطع الشبكة، إعادة فتح، قراءة وبحث', async ({ page }) => {
