@@ -539,9 +539,7 @@ describe('surah-loader-full', () => {
       vi.mocked(apiFetch).mockRejectedValue(abortError);
       state.surahList = SAMPLE_SURAH_LIST;
       state.fullQuranLoaded = true;
-      state.fullQuranText = [
-        { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' },
-      ];
+      state.fullQuranText = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
       await loadSurah(1);
       expect(surahLoadError).not.toHaveBeenCalled();
       expect(state.surahData).toBeTruthy();

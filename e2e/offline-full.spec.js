@@ -93,7 +93,10 @@ async function selectSurah(page, n) {
         // REAL value change: it fires a fresh `change` event even when the current
         // selection already equals n (e.g. a select that landed before the app
         // bound its change listeners in phase 2 was silently dropped).
-        const current = await page.locator('#surahSelect').inputValue().catch(() => '');
+        const current = await page
+          .locator('#surahSelect')
+          .inputValue()
+          .catch(() => '');
         if (current !== '1') {
           await page.selectOption('#surahSelect', '1');
           await page.waitForTimeout(150);
@@ -180,9 +183,11 @@ test.describe('الأوفلاين الكامل', () => {
 
     const next = page.locator('.mushaf-page-nav-btn.mushaf-page-nav-next');
     const prev = page.locator('.mushaf-page-nav-btn.mushaf-page-nav-prev');
-    await expect.poll(async () => (await next.count()) > 0 && (await prev.count()) > 0, {
-      timeout: 15000,
-    }).toBe(true);
+    await expect
+      .poll(async () => (await next.count()) > 0 && (await prev.count()) > 0, {
+        timeout: 15000,
+      })
+      .toBe(true);
 
     const pageNum = () =>
       page
