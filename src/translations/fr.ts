@@ -716,4 +716,10 @@ export default {
     many: '{count} jours consécutifs',
     other: '{count} jours consécutifs',
   },
+
+  // === Home launcher ===
+  home_welcome: 'Bienvenue - choisissez une sourate pour commencer \u00e0 lire',
+  home_quick: 'Outils rapides',
+  home_browse: 'Sourates du Coran',
+  home_ayahs: 'versets',
 };

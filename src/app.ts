@@ -2,8 +2,10 @@
  * Application Initialization Module.
  *
  * Orchestrates the 3-phase bootstrap sequence:
- *   Phase 1 — Critical path: state, DOM cache, settings, surah list, first surah load
- *   Phase 2 — Event bindings: navigation, keyboard, accessibility, language, visibility
+ *   Phase 1 — Critical path: state, DOM cache, settings, surah list, first surah load.
+ *             Toolbar/navigation/keyboard events bind before the first load so the
+ *             reader is never blocked by (or racing) the initial network fetch.
+ *   Phase 2 — Init helpers that depend on a rendered surah (tajweed preload, hash links).
  *   Phase 3 — Deferred: clock, prayer, adhkar, favorites, modals, search index
  *
  * Re-exports core surah-loader functions for use by other modules.
@@ -38,6 +40,7 @@ import {
   highlightCurrentAyah,
 } from './surah-loader.js';
 import { parseDeepLink, clearDeepLinkHash } from './deep-link.js';
+import { showHome } from './home.js';
 import { handleVisibilityChange, showContinueWidget, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
@@ -97,6 +100,17 @@ export async function initApp(): Promise<void> {
     await loadFullQuranText();
   }
 
+  // Bind toolbar, navigation, and keyboard events BEFORE the first surah load
+  // resolves so a reader can start navigating as soon as the surah selector is
+  // populated — interaction is never blocked by the initial network fetch. This
+  // also keeps E2E deterministic on slower engines: a surah change high in the
+  // boot sequence is still handled instead of racing the initial load.
+  bindAudioEvents();
+  bindAllEvents();
+  initAutoPlayNextButton();
+  initNavigation();
+  initKeyboardShortcuts();
+
   const deepLink = parseDeepLink(window.location.hash);
   let loadedSurah = false;
   if (deepLink) {
@@ -142,6 +156,10 @@ export async function initApp(): Promise<void> {
           restored: true,
         });
       }, 420);
+    } else if (!deepLink) {
+      // First visit with no saved position and no deep link: welcome the
+      // visitor with the launcher instead of dumping them into Al-Fatiha.
+      showHome();
     } else {
       await loadSurah(1);
     }
@@ -150,15 +168,6 @@ export async function initApp(): Promise<void> {
   // This now resolves to the active surah's small tajweed chunk, not the
   // full corpus, and is a no-op when tajweed is disabled.
   void preloadTajweedIfNeeded();
-
-  bindAudioEvents();
-
-  // ========== PHASE 2: EVENT BINDINGS ==========
-  bindAllEvents();
-  initAutoPlayNextButton();
-
-  initNavigation();
-  initKeyboardShortcuts();
 
   // React to deep links arriving while the app is already open (e.g. clicking a
   // shared SEO URL or a bookmarked #surah=N link).

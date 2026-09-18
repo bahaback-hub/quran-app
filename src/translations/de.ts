@@ -715,4 +715,10 @@ export default {
     many: '{count} Tage in Folge',
     other: '{count} Tage in Folge',
   },
+
+  // === Home launcher ===
+  home_welcome: 'Willkommen - w\u00e4hle eine Sure zum Lesen',
+  home_quick: 'Schnellzugriff',
+  home_browse: 'Suren des Korans',
+  home_ayahs: 'Verse',
 };

@@ -27,6 +27,7 @@ const {
   mockLoadSurahList,
   mockBuildSurahOffsets,
   mockPopulateReciterSelect,
+  mockShowHome,
 } = vi.hoisted(() => ({
   mockStorageGet: vi.fn(() => null),
   mockStorageSet: vi.fn(),
@@ -40,6 +41,7 @@ const {
   mockLoadSurahList: vi.fn(() => Promise.resolve()),
   mockBuildSurahOffsets: vi.fn(),
   mockPopulateReciterSelect: vi.fn(),
+  mockShowHome: vi.fn(),
 }));
 
 // ─── Mock ALL dependencies ─────────────────────────────────────────
@@ -153,6 +155,10 @@ vi.mock('../tajweed-data.js', () => ({
   preloadTajweedIfNeeded: vi.fn(),
 }));
 
+vi.mock('../home.js', () => ({
+  showHome: () => mockShowHome(),
+}));
+
 vi.mock('../ui-extras.js', () => ({
   handleVisibilityChange: vi.fn(),
   updateNetworkBanner: vi.fn(),
@@ -261,15 +267,18 @@ describe('app.ts — initApp', () => {
       expect(mockBuildSurahOffsets).toHaveBeenCalled();
     });
 
-    it('should load surah 1 when no last_position', async () => {
+    it('should show the home launcher when no last_position', async () => {
       mockStorageGet.mockImplementation((key: string) => {
         if (key === 'last_position') return null;
         if (key === 'player_collapsed') return null;
         return null;
       });
+      mockShowHome.mockClear();
+      mockLoadSurah.mockClear();
 
       await initApp();
-      expect(mockLoadSurah).toHaveBeenCalledWith(1);
+      expect(mockShowHome).toHaveBeenCalled();
+      expect(mockLoadSurah).not.toHaveBeenCalledWith(1);
     });
 
     it('should restore last_position and load that surah', async () => {
@@ -294,15 +303,18 @@ describe('app.ts — initApp', () => {
       expect(mockLoadSurah).toHaveBeenCalledWith(3, { startAyah: 1 });
     });
 
-    it('should load surah 1 when last_position has no surah', async () => {
+    it('should show the home launcher when last_position has no surah', async () => {
       mockStorageGet.mockImplementation((key: string) => {
         if (key === 'last_position') return { ayahNumberInSurah: 5 };
         if (key === 'player_collapsed') return null;
         return null;
       });
+      mockShowHome.mockClear();
+      mockLoadSurah.mockClear();
 
       await initApp();
-      expect(mockLoadSurah).toHaveBeenCalledWith(1);
+      expect(mockShowHome).toHaveBeenCalled();
+      expect(mockLoadSurah).not.toHaveBeenCalledWith(1);
     });
 
     it('should call bindAudioEvents', async () => {
