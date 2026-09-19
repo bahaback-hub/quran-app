@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify Quran data integrity (114 surahs, 6236 ayahs, 604 pages, canonical ayahs)
+        run: npm run verify:data
+
       - name: Build
         run: npm run build && npm run build:seo
 
