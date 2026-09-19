@@ -351,6 +351,38 @@ describe('keyboard shortcuts - Escape', () => {
       btn.remove();
     });
 
+    it('should cancel native activation on held OK auto-repeat over a control', () => {
+      // jsdom never sets defaultPrevented (even after a manual preventDefault),
+      // so spy on the method instead of reading the read-only flag.
+      state.tvMode = true;
+      vi.useFakeTimers();
+      const btn = document.createElement('button');
+      document.body.append(btn);
+      btn.focus();
+      const repeatEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, repeat: true });
+      Object.defineProperty(repeatEvent, 'target', { value: btn, writable: false });
+      const prevented = vi.fn();
+      repeatEvent.preventDefault = prevented;
+      document.dispatchEvent(repeatEvent);
+      expect(prevented).toHaveBeenCalled();
+      btn.remove();
+    });
+
+    it('should leave text fields native caret repeat untouched', () => {
+      state.tvMode = true;
+      vi.useFakeTimers();
+      const input = document.createElement('input');
+      document.body.append(input);
+      input.focus();
+      const repeatEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, repeat: true });
+      Object.defineProperty(repeatEvent, 'target', { value: input, writable: false });
+      const prevented = vi.fn();
+      repeatEvent.preventDefault = prevented;
+      document.dispatchEvent(repeatEvent);
+      expect(prevented).not.toHaveBeenCalled();
+      input.remove();
+    });
+
     it('should click the focused control on short OK in TV mode', () => {
       state.tvMode = true;
       vi.useFakeTimers();
