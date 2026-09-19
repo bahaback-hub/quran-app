@@ -156,4 +156,33 @@ describe('quran data integrity', () => {
       expect(p.text.replace(/^\uFEFF/, '')).toBe(r.text.replace(/^\uFEFF/, ''));
     }
   });
+
+  it('canonical reference ayahs match the text, page, juz and global position exactly', async () => {
+    const quran = await readJson<QuranSource>('quran-uthmani.json');
+    const canon = JSON.parse(await readFile(resolve(projectRoot, 'scripts/quran-canons.json'), 'utf8')) as {
+      ayahs: { surah: number; ayah: number; globalNumber: number; juz: number; page: number; text: string }[];
+    };
+
+    expect(canon.ayahs.length).toBeGreaterThan(0);
+
+    for (const entry of canon.ayahs) {
+      const surah = quran.data.surahs.find((s) => s.number === entry.surah);
+      expect(surah, `canon ayah ${entry.surah}:${entry.ayah} — surah missing`).toBeDefined();
+      if (!surah) {
+        continue;
+      }
+
+      const ayah = surah.ayahs[entry.ayah - 1];
+      expect(ayah, `canon ayah ${entry.surah}:${entry.ayah} — ayah missing`).toBeDefined();
+      if (!ayah) {
+        continue;
+      }
+
+      expect(ayah.number).toBe(entry.globalNumber);
+      expect(ayah.numberInSurah).toBe(entry.ayah);
+      expect(ayah.juz).toBe(entry.juz);
+      expect(ayah.page).toBe(entry.page);
+      expect(ayah.text.replace(/^\uFEFF/, '')).toBe(entry.text);
+    }
+  });
 });
