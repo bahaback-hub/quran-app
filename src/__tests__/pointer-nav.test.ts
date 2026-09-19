@@ -50,6 +50,40 @@ describe('pointer-nav mode', () => {
     expect(Number(cursor.dataset['x'])).toBeGreaterThanOrEqual(6);
   });
 
+  it('starts inside the reachable band when focus hugs the right edge', () => {
+    window.scrollBy = vi.fn() as unknown as typeof window.scrollBy;
+    const btn = document.createElement('button');
+    btn.getBoundingClientRect = () =>
+      ({ x: 999, y: 300, width: 50, height: 30, top: 300, left: 999, right: 1049, bottom: 330 }) as DOMRect;
+    document.body.append(btn);
+    btn.focus();
+    setPointerMode(true);
+    const cursor = document.getElementById('tvPointerCursor')!;
+    const start = Number(cursor.dataset['x']);
+    // One BASE_STEP away from the clamp boundary, not pinned on it.
+    expect(start).toBeLessThan(window.innerWidth - 1 - 6);
+    movePointer('ArrowRight', 0);
+    expect(Number(cursor.dataset['x'])).toBeGreaterThan(start);
+    btn.remove();
+  });
+
+  it('starts inside the reachable band when focus hugs the bottom edge', () => {
+    window.scrollBy = vi.fn() as unknown as typeof window.scrollBy;
+    const btn = document.createElement('button');
+    const h = window.innerHeight;
+    btn.getBoundingClientRect = () =>
+      ({ x: 300, y: h - 15, width: 50, height: 30, top: h - 15, left: 300, right: 350, bottom: h + 15 }) as DOMRect;
+    document.body.append(btn);
+    btn.focus();
+    setPointerMode(true);
+    const cursor = document.getElementById('tvPointerCursor')!;
+    const start = Number(cursor.dataset['y']);
+    expect(start).toBeLessThan(window.innerHeight - 1 - 6);
+    movePointer('ArrowDown', 0);
+    expect(Number(cursor.dataset['y'])).toBeGreaterThan(start);
+    btn.remove();
+  });
+
   it('clicks whatever sits under the cursor', () => {
     const btn = document.createElement('button');
     const click = vi.fn();

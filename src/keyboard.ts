@@ -59,7 +59,15 @@ function isOkKey(key: string): boolean {
  * Returns true when the event was consumed. Non-TV behavior is untouched.
  */
 function beginOkPress(e: KeyboardEvent): boolean {
+  const t = e.target as HTMLElement | null;
   if (e.repeat) {
+    // A held OK key must not keep re-activating a focused control through
+    // the native default (e.g. the covered shortcut button re-opening the
+    // presentation while the long-press is still building). Text fields and
+    // selects keep their native caret/space repeat untouched.
+    if (!t || (t.tagName !== 'INPUT' && t.tagName !== 'SELECT' && t.tagName !== 'TEXTAREA')) {
+      e.preventDefault();
+    }
     return true;
   }
   if (_okLongFired && !_okPending) {
@@ -68,6 +76,9 @@ function beginOkPress(e: KeyboardEvent): boolean {
     _okLongFired = false;
   }
   if (_okPending || _okLongFired) {
+    if (!t || (t.tagName !== 'INPUT' && t.tagName !== 'SELECT' && t.tagName !== 'TEXTAREA')) {
+      e.preventDefault();
+    }
     return true;
   }
   if (isPointerMode()) {
@@ -84,7 +95,6 @@ function beginOkPress(e: KeyboardEvent): boolean {
     };
     return true;
   }
-  const t = e.target as HTMLElement | null;
   const actionable =
     t &&
     t !== document.body &&
