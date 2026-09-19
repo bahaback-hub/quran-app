@@ -8,6 +8,9 @@
  *   - public/data/surah-list.json     — 114 surah metadata with numberOfAyahs
  *   - public/data/muyassar-tafsir.json — Muyassar tafsir for every ayah
  *   - public/data/surah-1.json        — bundled first-surah payload
+ *   - scripts/quran-canons.json       — canonical reference ayahs (text, page, juz,
+ *                                       global position) anchored to the standard
+ *                                       Madani 604-page Hafs mushaf
  *
  * Usage:
  *   node scripts/verify-quran-data.mjs            # verify invariants + manifest
@@ -211,6 +214,35 @@ async function verifyFirstSurahPayload(quranSurahs) {
   }
 }
 
+async function verifyCanonicalAyahs(quranSurahs) {
+  const canon = JSON.parse(await readFile(resolve(projectRoot, 'scripts/quran-canons.json'), 'utf8'));
+  const entries = canon?.ayahs;
+  check(Array.isArray(entries) && entries.length > 0, 'canonical reference file empty or missing', 'quran-canons.json');
+  if (!Array.isArray(entries)) {
+    return;
+  }
+
+  for (const entry of entries) {
+    const label = `canon ayah ${entry.surah}:${entry.ayah}`;
+    const surah = quranSurahs?.find((s) => s.number === entry.surah);
+    check(surah, `${label} — surah ${entry.surah} not found`, 'quran-uthmani.json');
+    if (!surah) {
+      continue;
+    }
+
+    const ayah = surah.ayahs?.[entry.ayah - 1];
+    check(ayah && ayah.numberInSurah === entry.ayah, `${label} — ayah missing from its canonical position`, 'quran-uthmani.json');
+    if (!ayah) {
+      continue;
+    }
+
+    check(ayah.number === entry.globalNumber, `${label} — global number ${ayah.number}, expected ${entry.globalNumber}`, 'quran-uthmani.json');
+    check(ayah.juz === entry.juz, `${label} — juz ${ayah.juz}, expected ${entry.juz}`, 'quran-uthmani.json');
+    check(ayah.page === entry.page, `${label} — page ${ayah.page}, expected ${entry.page}`, 'quran-uthmani.json');
+    check(cleanText(ayah.text) === cleanText(entry.text), `${label} — text differs from the canonical reference`, 'quran-uthmani.json');
+  }
+}
+
 async function verifyManifest() {
   const manifestPath = resolve(dataDir, MANIFEST_FILE);
   const entries = {};
@@ -247,6 +279,7 @@ async function main() {
   const { surahs, seenAyahKeys } = await verifyQuranText(surahList);
   await verifyTafsir(surahList, seenAyahKeys);
   await verifyFirstSurahPayload(surahs);
+  await verifyCanonicalAyahs(surahs);
   await verifyManifest();
 
   if (problems.length > 0) {
@@ -257,7 +290,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('✅ Quran data integrity verified: 114 surahs, 6236 ayahs, 604 pages, 30 juz, full tafsir coverage.');
+  console.log('✅ Quran data integrity verified: 114 surahs, 6236 ayahs, 604 pages, 30 juz, full tafsir coverage, canonical ayahs.');
 }
 
 main().catch((error) => {
