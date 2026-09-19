@@ -92,7 +92,8 @@ Key modules:
 | `app-events.ts` | Event bindings (separated from `app.ts`) |
 | `state.ts` | Reactive `state` Proxy + `subscribe`/`batch`/`setState` |
 | `internal-state.ts` | Non-reactive internal counters/flags |
-| `api-client.ts` | Unified HTTP client: timeout (15s), retry (2x on 5xx), dedup, AbortController, Arabic error classification |
+| `api-client.ts` | Unified HTTP client: timeout (15s), retry (2x on 5xx), dedup, AbortController, Arabic error classification. Composition root for the provider registry |
+| `providers/` | Data-provider contracts + registry: `types.ts` (interfaces), `registry.ts` (register/get/override), `tafsir.ts` + `prayer.ts` (per-endpoint providers). `api-client` registers the built-ins; tests/experiments swap an endpoint with `overrideProvider(id, provider)` |
 | `error-boundary.ts` | Global error handler + error log persistence |
 | `dom.ts` | Cached DOM element references via `cacheDom()` |
 | `ui.ts` / `ui-extras.ts` | Toast, loading bar, UI utilities |

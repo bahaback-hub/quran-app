@@ -15,6 +15,11 @@
  *   import { apiFetch, prayerFetch, tafsirFetch } from './api-client.js';
  *   const data = await apiFetch<SurahResponse>('/surah/1');
  *   const times = await prayerFetch<PrayerResponse>('?city=Makkah&country=SA&method=4');
+ *
+ * `prayerFetch`/`tafsirFetch` are the app's facade over the provider registry:
+ * they build the URL through the registered provider for each endpoint, so a
+ * future API swap or a test override is a single `overrideProvider` call. The
+ * built-in providers are registered below (composition root).
  */
 
 import { CONFIG } from './config.js';
@@ -24,6 +29,9 @@ import { CONFIG } from './config.js';
 import { showToast } from './ui.js';
 import { __ } from './i18n.js';
 import { fetchJsonWithOfflineFallback } from './external-data-cache.js';
+import { registerProvider, getProvider } from './providers/registry.js';
+import { TAFSIR_PROVIDER_ID, createTafsirProvider } from './providers/tafsir.js';
+import { PRAYER_PROVIDER_ID, createPrayerProvider } from './providers/prayer.js';
 
 /* ===================== TYPES ===================== */
 
@@ -383,8 +391,7 @@ export function apiFetch<T = unknown>(path: string, options?: FetchOptions): Pro
  *   const times = await prayerFetch<PrayerTimesResponse>('?city=Makkah&country=SA&method=4');
  */
 export function prayerFetch<T = unknown>(query: string, options?: FetchOptions): Promise<T> {
-  const url = `${CONFIG.PRAYER_API}${query}`;
-  return cachedJsonRequest<T>(url, { timeout: 20000, ...options });
+  return getProvider(PRAYER_PROVIDER_ID).fetch<T>(query, options);
 }
 
 /**
@@ -396,8 +403,7 @@ export function prayerFetch<T = unknown>(query: string, options?: FetchOptions):
  *   const tafsir = await tafsirFetch<TafsirResponse>('/ar-tafsir-muyassar/1/1.json');
  */
 export function tafsirFetch<T = unknown>(path: string, options?: FetchOptions): Promise<T> {
-  const url = `${CONFIG.TAFSIR_API}${path}`;
-  return cachedJsonRequest<T>(url, { timeout: 10000, ...options });
+  return getProvider(TAFSIR_PROVIDER_ID).fetch<T>(path, options);
 }
 
 /**
@@ -419,3 +425,12 @@ function cachedJsonRequest<T>(url: string, options?: FetchOptions): Promise<T> {
   }
   return fetchJsonWithOfflineFallback(url, () => safeFetch<T>(url, options), options?.signal);
 }
+
+/* ===================== PROVIDER COMPOSITION ===================== */
+
+// Wire each built-in provider to the app's fetch pipeline (timeout, retry,
+// dedup, offline fallback). api-client is the composition root: consumers keep
+// using the facade functions (prayerFetch/tafsirFetch), while tests and future
+// API swaps can overrideProvider a single endpoint without touching callers.
+registerProvider(createTafsirProvider((url, options) => cachedJsonRequest(url, options)));
+registerProvider(createPrayerProvider((url, options) => cachedJsonRequest(url, options)));
