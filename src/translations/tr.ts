@@ -717,4 +717,7 @@ export default {
   home_quick: 'H\u0131zl\u0131 ara\u00e7lar',
   home_browse: "Kur'an sureleri",
   home_ayahs: 'ayet',
+  home_read: 'Okuma',
+  home_listen: 'Dinle',
+  home_more: 'Daha fazla',
 };

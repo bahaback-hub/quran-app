@@ -715,4 +715,7 @@ export default {
   home_quick: 'Quick tools',
   home_browse: 'Surahs of the Quran',
   home_ayahs: 'verses',
+  home_read: 'Reading',
+  home_listen: 'Listening',
+  home_more: 'More',
 };

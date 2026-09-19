@@ -718,4 +718,7 @@ export default {
   home_quick: 'Alat pantas',
   home_browse: 'Surah-surah al-Quran',
   home_ayahs: 'ayat',
+  home_read: 'Membaca',
+  home_listen: 'Mendengar',
+  home_more: 'Lebih banyak',
 };
