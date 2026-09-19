@@ -717,4 +717,7 @@ export default {
   home_quick: 'Alat cepat',
   home_browse: "Surah-surah Al-Qur'an",
   home_ayahs: 'ayat',
+  home_read: 'Membaca',
+  home_listen: 'Mendengarkan',
+  home_more: 'Lainnya',
 };

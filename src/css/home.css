@@ -35,19 +35,25 @@
   margin: 0;
 }
 
-/* ========== أدوات سريعة ========== */
-.home-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin: 0 auto 26px;
-  max-width: 720px;
+/* ========== إجراءات سريعة ========== */
+.home-primary-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 0 auto 18px;
+  max-width: 560px;
+}
+
+@media (min-width: 640px) {
+  .home-primary-actions {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .home-action-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 10px 16px;
   background: var(--card-bg);
@@ -68,6 +74,51 @@
 
 .home-action-btn:active {
   transform: translateY(0);
+}
+
+.home-action-btn.home-primary {
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  min-height: 96px;
+}
+
+.home-action-btn.home-primary .home-action-icon {
+  font-size: 1.6rem;
+}
+
+.home-more {
+  margin-bottom: 26px;
+  text-align: center;
+}
+
+.home-more-toggle {
+  background: transparent;
+  box-shadow: none;
+  border-color: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.home-more-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* The flex display above would override the HTML `hidden` attribute; keep it
+   authoritative so the secondary cluster stays collapsed on first visit. */
+.home-more-actions[hidden] {
+  display: none;
+}
+
+.home-more-actions .home-action-btn {
+  padding: 8px 14px;
+  font-size: 0.9rem;
 }
 
 .home-action-icon {

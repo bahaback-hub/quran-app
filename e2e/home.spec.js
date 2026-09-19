@@ -42,4 +42,40 @@ test.describe('home launcher', () => {
 
     await expect(page.locator('#searchInput')).toBeVisible({ timeout: 10000 });
   });
+
+  test('launcher shows 4 primary actions with the rest tucked behind "المزيد"', async ({ page }) => {
+    await page.addInitScript(() => localStorage.removeItem('quran_app_last_position'));
+    await page.goto('/');
+    await expect(page.locator('#homeScreen')).toBeVisible({ timeout: 20000 });
+
+    // Exactly the four primary entries are visible…
+    await expect(page.locator('.home-primary-actions .home-action-btn')).toHaveCount(4);
+    await expect(page.locator('.home-primary-actions [data-action="read"]')).toHaveCount(1);
+    await expect(page.locator('.home-primary-actions [data-action="mushaf"]')).toHaveCount(1);
+    await expect(page.locator('.home-primary-actions [data-action="listen"]')).toHaveCount(1);
+    await expect(page.locator('.home-primary-actions [data-action="search"]')).toHaveCount(1);
+
+    // …while the secondary tools stay hidden until "المزيد" is tapped.
+    const moreActions = page.locator('#homeMoreActions');
+    await expect(moreActions).toBeHidden();
+    await page.locator('#homeMoreToggle').click();
+    await expect(moreActions).toBeVisible();
+    await expect(moreActions.locator('.home-action-btn')).toHaveCount(5);
+    await expect(moreActions.locator('[data-action="qibla"]')).toHaveCount(1);
+    await expect(moreActions.locator('[data-action="prayer"]')).toHaveCount(1);
+    await expect(moreActions.locator('[data-action="adhkar"]')).toHaveCount(1);
+    await expect(moreActions.locator('[data-action="favorites"]')).toHaveCount(1);
+    await expect(moreActions.locator('[data-action="settings"]')).toHaveCount(1);
+  });
+
+  test('primary "القراءة" opens the reader from the launcher', async ({ page }) => {
+    await page.addInitScript(() => localStorage.removeItem('quran_app_last_position'));
+    await page.goto('/');
+    await expect(page.locator('#homeScreen')).toBeVisible({ timeout: 20000 });
+
+    await page.locator('.home-action-btn[data-action="read"]').click();
+
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('#homeScreen')).toHaveCount(0);
+  });
 });

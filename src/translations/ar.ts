@@ -717,4 +717,7 @@ export default {
   home_quick: 'أدوات سريعة',
   home_browse: 'سور القرآن الكريم',
   home_ayahs: 'آية',
+  home_read: 'القراءة',
+  home_listen: 'الاستماع',
+  home_more: 'المزيد',
 };
