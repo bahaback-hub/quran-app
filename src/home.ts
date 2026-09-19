@@ -41,13 +41,21 @@ export function showHome(): void {
         <div class="home-bismillah" aria-hidden="true">بِسْمِ اللهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
         <p class="home-welcome" data-i18n="home_welcome">${escapeHtml(__('home_welcome'))}</p>
       </div>
-      <div class="home-actions" role="group" aria-label="${escapeHtml(__('home_quick'))}">
-        <button type="button" class="home-action-btn" data-action="mushaf" data-i18n-title="reading_mode_mushaf"><span class="home-action-icon" aria-hidden="true">📖</span><span data-i18n="reading_mode_mushaf">${escapeHtml(__('reading_mode_mushaf'))}</span></button>
-        <button type="button" class="home-action-btn" data-action="search" data-i18n-title="search"><span class="home-action-icon" aria-hidden="true">🔍</span><span data-i18n="search">${escapeHtml(__('search'))}</span></button>
-        <button type="button" class="home-action-btn" data-action="prayer" data-i18n-title="prayer_times"><span class="home-action-icon" aria-hidden="true">🕌</span><span data-i18n="prayer_times">${escapeHtml(__('prayer_times'))}</span></button>
-        <button type="button" class="home-action-btn" data-action="adhkar" data-i18n-title="adhkar"><span class="home-action-icon" aria-hidden="true">📿</span><span data-i18n="adhkar">${escapeHtml(__('adhkar'))}</span></button>
-        <button type="button" class="home-action-btn" data-action="favorites" data-i18n-title="favorites"><span class="home-action-icon" aria-hidden="true">❤️</span><span data-i18n="favorites">${escapeHtml(__('favorites'))}</span></button>
-        <button type="button" class="home-action-btn" data-action="settings" data-i18n-title="settings"><span class="home-action-icon" aria-hidden="true">⚙️</span><span data-i18n="settings">${escapeHtml(__('settings'))}</span></button>
+      <div class="home-primary-actions" role="group" aria-label="${escapeHtml(__('home_quick'))}">
+        <button type="button" class="home-action-btn home-primary" data-action="read" data-i18n="home_read"><span class="home-action-icon" aria-hidden="true">📖</span><span data-i18n="home_read">${escapeHtml(__('home_read'))}</span></button>
+        <button type="button" class="home-action-btn home-primary" data-action="mushaf" data-i18n="reading_mode_mushaf"><span class="home-action-icon" aria-hidden="true">📗</span><span data-i18n="reading_mode_mushaf">${escapeHtml(__('reading_mode_mushaf'))}</span></button>
+        <button type="button" class="home-action-btn home-primary" data-action="listen" data-i18n="home_listen"><span class="home-action-icon" aria-hidden="true">🎧</span><span data-i18n="home_listen">${escapeHtml(__('home_listen'))}</span></button>
+        <button type="button" class="home-action-btn home-primary" data-action="search" data-i18n="search"><span class="home-action-icon" aria-hidden="true">🔍</span><span data-i18n="search">${escapeHtml(__('search'))}</span></button>
+      </div>
+      <div class="home-more">
+        <button type="button" class="home-action-btn home-more-toggle" id="homeMoreToggle" data-action="more" aria-expanded="false" aria-controls="homeMoreActions" data-i18n="home_more"><span class="home-action-icon" aria-hidden="true">⋯</span><span data-i18n="home_more">${escapeHtml(__('home_more'))}</span></button>
+        <div class="home-more-actions" id="homeMoreActions" role="group" aria-label="${escapeHtml(__('home_more'))}" hidden>
+          <button type="button" class="home-action-btn" data-action="adhkar" data-i18n="adhkar"><span class="home-action-icon" aria-hidden="true">📿</span><span data-i18n="adhkar">${escapeHtml(__('adhkar'))}</span></button>
+          <button type="button" class="home-action-btn" data-action="prayer" data-i18n="prayer_times"><span class="home-action-icon" aria-hidden="true">🕌</span><span data-i18n="prayer_times">${escapeHtml(__('prayer_times'))}</span></button>
+          <button type="button" class="home-action-btn" data-action="qibla" data-i18n="qibla"><span class="home-action-icon" aria-hidden="true">🧭</span><span data-i18n="qibla">${escapeHtml(__('qibla'))}</span></button>
+          <button type="button" class="home-action-btn" data-action="favorites" data-i18n="favorites"><span class="home-action-icon" aria-hidden="true">❤️</span><span data-i18n="favorites">${escapeHtml(__('favorites'))}</span></button>
+          <button type="button" class="home-action-btn" data-action="settings" data-i18n="settings"><span class="home-action-icon" aria-hidden="true">⚙️</span><span data-i18n="settings">${escapeHtml(__('settings'))}</span></button>
+        </div>
       </div>
       <h2 class="home-browse-title" data-i18n="home_browse">${escapeHtml(__('home_browse'))}</h2>
       <ul class="home-surah-grid">${grid}</ul>
@@ -87,9 +95,15 @@ function renderEmptyGrid(): string {
   return `<li class="home-surah-empty" data-i18n="select_hint">${escapeHtml(__('select_hint'))}</li>`;
 }
 
-/** Map the launcher quick buttons onto the existing toolbar controls. */
+/** Map the launcher quick buttons onto the existing controls. */
 function handleQuickAction(action: string | undefined): void {
   switch (action) {
+    case 'read':
+      void loadSurah(1);
+      break;
+    case 'listen':
+      void loadSurah(state.surahList[0]?.number ?? 1, { autoPlay: true });
+      break;
     case 'mushaf':
       dom.viewMushafBtn?.click();
       break;
@@ -103,12 +117,25 @@ function handleQuickAction(action: string | undefined): void {
     case 'adhkar':
       dom.adhkarBtn?.click();
       break;
+    case 'qibla':
+      dom.qiblaBtn?.click();
+      break;
     case 'favorites':
       dom.favoritesOpenBtn?.click();
       break;
     case 'settings':
       dom.settingsToggleBtn?.click();
       break;
+    case 'more': {
+      const toggle = document.getElementById('homeMoreToggle');
+      const actions = document.getElementById('homeMoreActions');
+      if (actions && toggle) {
+        const willShow = actions.hidden;
+        actions.hidden = !willShow;
+        toggle.setAttribute('aria-expanded', String(willShow));
+      }
+      break;
+    }
     default:
       break;
   }

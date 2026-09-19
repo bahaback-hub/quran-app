@@ -721,4 +721,7 @@ export default {
   home_quick: 'Schnellzugriff',
   home_browse: 'Suren des Korans',
   home_ayahs: 'Verse',
+  home_read: 'Lesen',
+  home_listen: 'Anhören',
+  home_more: 'Mehr',
 };

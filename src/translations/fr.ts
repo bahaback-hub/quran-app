@@ -722,4 +722,7 @@ export default {
   home_quick: 'Outils rapides',
   home_browse: 'Sourates du Coran',
   home_ayahs: 'versets',
+  home_read: 'Lecture',
+  home_listen: 'Écoute',
+  home_more: 'Plus',
 };
