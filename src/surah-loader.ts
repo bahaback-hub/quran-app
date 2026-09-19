@@ -88,7 +88,16 @@ async function fetchAyahTimings(reciterId: string, surahNum: number, ayahs: Ayah
   }
 }
 
-function calculateAyahTimings(ayahs: AyahEntry[], surahNumber: number): number[] {
+/**
+ * Fallback ayah timings computed from Arabic character weights. Used when a
+ * reciter has no quran.com timing API (e.g. hthfi, salamah, qtm, mtrod) or the
+ * API payload is unavailable/incomplete. Because the timing array is derived
+ * one-to-one from the ayah list, the audio↔ayah binding is exact by construction.
+ * @internal Exported for the audio-binding integrity tests, which verify a
+ *   one-to-one timing↔ayah binding for every surah against the bundled text.
+ * @knip-ignore
+ */
+export function calculateAyahTimings(ayahs: AyahEntry[], surahNumber: number): number[] {
   const timings: number[] = [];
   const MIN_PER_AYAH = 5;
   const BASMALAH_MIN = 24;

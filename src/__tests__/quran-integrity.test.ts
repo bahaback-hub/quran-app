@@ -34,6 +34,20 @@ interface MuyassarEntry {
   text: string;
 }
 
+interface JuzStart {
+  juz: number;
+  surah: number;
+  ayah: number;
+  page: number;
+  globalNumber: number;
+}
+
+interface CanonFile {
+  ayahs: { surah: number; ayah: number; globalNumber: number; juz: number; page: number; text: string }[];
+  surahAyahCounts: number[];
+  juzStarts: JuzStart[];
+}
+
 const projectRoot = resolve(import.meta.dirname, '../..');
 const dataDir = resolve(projectRoot, 'public/data');
 
@@ -159,9 +173,7 @@ describe('quran data integrity', () => {
 
   it('canonical reference ayahs match the text, page, juz and global position exactly', async () => {
     const quran = await readJson<QuranSource>('quran-uthmani.json');
-    const canon = JSON.parse(await readFile(resolve(projectRoot, 'scripts/quran-canons.json'), 'utf8')) as {
-      ayahs: { surah: number; ayah: number; globalNumber: number; juz: number; page: number; text: string }[];
-    };
+    const canon = JSON.parse(await readFile(resolve(projectRoot, 'scripts/quran-canons.json'), 'utf8')) as CanonFile;
 
     expect(canon.ayahs.length).toBeGreaterThan(0);
 
@@ -184,5 +196,70 @@ describe('quran data integrity', () => {
       expect(ayah.page).toBe(entry.page);
       expect(ayah.text.replace(/^\uFEFF/, '')).toBe(entry.text);
     }
+  });
+
+  it('canonical per-surah ayah counts match surah-list.json and the text arrays for all 114 surahs', async () => {
+    const quran = await readJson<QuranSource>('quran-uthmani.json');
+    const surahList = await readJson<SurahListItem[]>('surah-list.json');
+    const canon = JSON.parse(await readFile(resolve(projectRoot, 'scripts/quran-canons.json'), 'utf8')) as CanonFile;
+
+    expect(canon.surahAyahCounts).toHaveLength(SURAH_COUNT);
+    expect(canon.surahAyahCounts.reduce((sum, n) => sum + n, 0)).toBe(TOTAL_AYAHS);
+
+    for (let i = 0; i < SURAH_COUNT; i++) {
+      const expected = canon.surahAyahCounts[i];
+      const listed = surahList[i];
+      const inText = quran.data.surahs[i]?.ayahs.length;
+      expect(expected, `surah ${i + 1} — canonical count missing`).toBeGreaterThan(0);
+      expect(listed?.numberOfAyahs, `surah ${i + 1} — surah-list.json mismatch`).toBe(expected);
+      expect(inText, `surah ${i + 1} — text array mismatch`).toBe(expected);
+    }
+  });
+
+  it('every juz begins at its canonical boundary ayah and page, with a true previous-juz neighbor', async () => {
+    const quran = await readJson<QuranSource>('quran-uthmani.json');
+    const canon = JSON.parse(await readFile(resolve(projectRoot, 'scripts/quran-canons.json'), 'utf8')) as CanonFile;
+
+    expect(canon.juzStarts).toHaveLength(JUZ_COUNT);
+
+    const seenJuz = new Set<number>();
+    for (const entry of canon.juzStarts) {
+      expect(entry.juz, 'juz out of range').toBeGreaterThanOrEqual(1);
+      expect(entry.juz, 'juz out of range').toBeLessThanOrEqual(JUZ_COUNT);
+      expect(seenJuz.has(entry.juz), `juz ${entry.juz} — duplicate boundary`).toBe(false);
+      seenJuz.add(entry.juz);
+
+      const surah = quran.data.surahs.find((s) => s.number === entry.surah);
+      expect(surah, `juz ${entry.juz} — surah ${entry.surah} missing`).toBeDefined();
+      if (!surah) {
+        continue;
+      }
+
+      const ayah = surah.ayahs[entry.ayah - 1];
+      expect(ayah, `juz ${entry.juz} — ayah ${entry.surah}:${entry.ayah} missing`).toBeDefined();
+      if (!ayah) {
+        continue;
+      }
+
+      expect(ayah.number).toBe(entry.globalNumber);
+      expect(ayah.numberInSurah).toBe(entry.ayah);
+      expect(ayah.juz).toBe(entry.juz);
+      expect(ayah.page).toBe(entry.page);
+
+      if (entry.juz > 1) {
+        const previous =
+          entry.ayah > 1
+            ? surah.ayahs[entry.ayah - 2]
+            : (() => {
+                const prevSurah = quran.data.surahs.find((s) => s.number === entry.surah - 1);
+                const ayahs = prevSurah?.ayahs ?? [];
+                return ayahs[ayahs.length - 1];
+              })();
+        expect(previous?.juz, `juz ${entry.juz} — ${entry.surah}:${entry.ayah} is not a true boundary`).toBe(
+          entry.juz - 1,
+        );
+      }
+    }
+    expect(seenJuz.size).toBe(JUZ_COUNT);
   });
 });
