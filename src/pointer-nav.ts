@@ -62,6 +62,23 @@ function centerPos(): PointerPos {
   return { x: Math.round(window.innerWidth / 2), y: Math.round(window.innerHeight / 2) };
 }
 
+/**
+ * Bring an initial point inside the reachable band, giving the first arrow
+ * press at least BASE_STEP of headroom in any direction. Starting exactly on
+ * an edge clamp (a toolbar control hugging a viewport corner) would make the
+ * first press toward that edge a no-op and the cursor look visually stuck —
+ * the layout the long-press flow hits on webkit.
+ */
+function clampStartingPos(pos: PointerPos): PointerPos {
+  const hiX = window.innerWidth - 1 - EDGE_MARGIN - BASE_STEP;
+  const hiY = window.innerHeight - 1 - EDGE_MARGIN - BASE_STEP;
+  const lo = EDGE_MARGIN + BASE_STEP;
+  return {
+    x: Math.min(Math.max(pos.x, lo), hiX),
+    y: Math.min(Math.max(pos.y, lo), hiY),
+  };
+}
+
 function readPos(): PointerPos {
   const el = cursorEl();
   if (el && el.dataset['x'] !== undefined) {
@@ -92,12 +109,12 @@ export function setPointerMode(on: boolean): void {
     if (active && active !== document.body) {
       const r = active.getBoundingClientRect();
       if (r.width >= 2 && r.height >= 2) {
-        writePos({ x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) });
+        writePos(clampStartingPos({ x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) }));
       } else {
-        writePos(centerPos());
+        writePos(clampStartingPos(centerPos()));
       }
     } else {
-      writePos(centerPos());
+      writePos(clampStartingPos(centerPos()));
     }
     if (!storage.get<boolean>(POINTER_HINT_KEY)) {
       storage.set(POINTER_HINT_KEY, true);
