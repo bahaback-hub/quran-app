@@ -8,8 +8,9 @@
  *   - public/data/surah-list.json     — 114 surah metadata with numberOfAyahs
  *   - public/data/muyassar-tafsir.json — Muyassar tafsir for every ayah
  *   - public/data/surah-1.json        — bundled first-surah payload
- *   - scripts/quran-canons.json       — canonical reference ayahs (text, page, juz,
- *                                       global position) anchored to the standard
+ *   - scripts/quran-canons.json       — canonical reference: anchor ayahs (text, page, juz,
+ *                                       global position), the 114 per-surah ayah counts and
+ *                                       the 30 juz boundaries, all anchored to the standard
  *                                       Madani 604-page Hafs mushaf
  *
  * Usage:
@@ -36,6 +37,7 @@ const JUZ_COUNT = 30;
 
 const MANIFEST_FILE = 'integrity-manifest.json';
 const SOURCE_FILES = ['quran-uthmani.json', 'surah-list.json', 'muyassar-tafsir.json', 'surah-1.json'];
+const CANON_FILE = 'quran-canons.json';
 
 const GENERATE = process.argv.includes('--generate');
 const problems = [];
@@ -214,8 +216,11 @@ async function verifyFirstSurahPayload(quranSurahs) {
   }
 }
 
-async function verifyCanonicalAyahs(quranSurahs) {
-  const canon = JSON.parse(await readFile(resolve(projectRoot, 'scripts/quran-canons.json'), 'utf8'));
+async function loadCanon() {
+  return JSON.parse(await readFile(resolve(projectRoot, 'scripts', CANON_FILE), 'utf8'));
+}
+
+async function verifyCanonicalAyahs(canon, quranSurahs) {
   const entries = canon?.ayahs;
   check(Array.isArray(entries) && entries.length > 0, 'canonical reference file empty or missing', 'quran-canons.json');
   if (!Array.isArray(entries)) {
@@ -240,6 +245,64 @@ async function verifyCanonicalAyahs(quranSurahs) {
     check(ayah.juz === entry.juz, `${label} — juz ${ayah.juz}, expected ${entry.juz}`, 'quran-uthmani.json');
     check(ayah.page === entry.page, `${label} — page ${ayah.page}, expected ${entry.page}`, 'quran-uthmani.json');
     check(cleanText(ayah.text) === cleanText(entry.text), `${label} — text differs from the canonical reference`, 'quran-uthmani.json');
+  }
+}
+
+async function verifyCanonicalSurahCounts(canon, surahList, quranSurahs) {
+  const counts = canon?.surahAyahCounts;
+  check(Array.isArray(counts) && counts.length === SURAH_COUNT, `canonical surah counts must have exactly ${SURAH_COUNT} entries`, 'quran-canons.json');
+  if (!Array.isArray(counts)) {
+    return;
+  }
+
+  check(counts.reduce((sum, n) => sum + (Number.isInteger(n) ? n : 0), 0) === TOTAL_AYAHS, `canonical surah counts sum to a non-${TOTAL_AYAHS} value`, 'quran-canons.json');
+
+  for (let i = 0; i < SURAH_COUNT; i++) {
+    const expected = counts[i];
+    const listed = surahList?.[i];
+    const ayahsInText = quranSurahs?.[i]?.ayahs?.length;
+    check(listed?.numberOfAyahs === expected, `surah ${i + 1} listed ayah count ${listed?.numberOfAyahs} != canonical ${expected}`, 'surah-list.json');
+    check(ayahsInText === expected, `surah ${i + 1} text ayah count ${ayahsInText} != canonical ${expected}`, 'quran-uthmani.json');
+  }
+}
+
+async function verifyJuzBoundaries(canon, quranSurahs) {
+  const starts = canon?.juzStarts;
+  check(Array.isArray(starts) && starts.length === JUZ_COUNT, `canonical juz boundaries must have exactly ${JUZ_COUNT} entries`, 'quran-canons.json');
+  if (!Array.isArray(starts)) {
+    return;
+  }
+
+  const seenJuz = new Set();
+  for (const entry of starts) {
+    const label = `canon juz ${entry.juz} boundary`;
+    check(Number.isInteger(entry.juz) && entry.juz >= 1 && entry.juz <= JUZ_COUNT, `${label} — invalid juz value`, 'quran-canons.json');
+    check(!seenJuz.has(entry.juz), `${label} — duplicate juz`, 'quran-canons.json');
+    seenJuz.add(entry.juz);
+
+    const surah = quranSurahs?.find((s) => s.number === entry.surah);
+    check(surah, `${label} — surah ${entry.surah} not found`, 'quran-uthmani.json');
+    if (!surah) {
+      continue;
+    }
+
+    const ayah = surah.ayahs?.[entry.ayah - 1];
+    check(ayah && ayah.numberInSurah === entry.ayah, `${label} — ayah ${entry.surah}:${entry.ayah} missing`, 'quran-uthmani.json');
+    if (!ayah) {
+      continue;
+    }
+
+    check(ayah.juz === entry.juz, `${label} — ayah juz ${ayah.juz}, expected ${entry.juz}`, 'quran-uthmani.json');
+    check(ayah.page === entry.page, `${label} — ayah page ${ayah.page}, expected ${entry.page}`, 'quran-uthmani.json');
+    check(ayah.number === entry.globalNumber, `${label} — global number ${ayah.number}, expected ${entry.globalNumber}`, 'quran-uthmani.json');
+
+    if (entry.juz > 1) {
+      const previous =
+        entry.ayah > 1
+          ? surah.ayahs?.[entry.ayah - 2]
+          : quranSurahs?.[entry.surah - 2]?.ayahs?.[quranSurahs[entry.surah - 2]?.ayahs?.length - 1];
+      check(previous && previous.juz === entry.juz - 1, `${label} — previous ayah juz ${previous?.juz}, expected ${entry.juz - 1} (not a true boundary)`, 'quran-uthmani.json');
+    }
   }
 }
 
@@ -275,11 +338,14 @@ async function verifyManifest() {
 }
 
 async function main() {
+  const canon = await loadCanon();
   const surahList = await verifySurahList();
   const { surahs, seenAyahKeys } = await verifyQuranText(surahList);
   await verifyTafsir(surahList, seenAyahKeys);
   await verifyFirstSurahPayload(surahs);
-  await verifyCanonicalAyahs(surahs);
+  await verifyCanonicalAyahs(canon, surahs);
+  await verifyCanonicalSurahCounts(canon, surahList, surahs);
+  await verifyJuzBoundaries(canon, surahs);
   await verifyManifest();
 
   if (problems.length > 0) {
@@ -290,7 +356,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('✅ Quran data integrity verified: 114 surahs, 6236 ayahs, 604 pages, 30 juz, full tafsir coverage, canonical ayahs.');
+  console.log('✅ Quran data integrity verified: 114 surahs, 6236 ayahs, 604 pages, 30 juz, full tafsir coverage, canonical ayahs + per-surah counts + juz boundaries.');
 }
 
 main().catch((error) => {
