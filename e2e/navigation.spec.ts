@@ -66,28 +66,31 @@ test.describe('Quran App — Theme Switching', () => {
     await page.waitForSelector('.ayah[data-surah="1"]', { timeout: 30000 });
   });
 
-  test('should apply night mode via theme toggle', async ({ page }) => {
-    // The theme picker is rendered inline (all theme buttons visible, no menu
-    // to expand). Click the night-mode button directly.
-    const nightBtn = page.locator('.theme-btn[data-theme="night"]');
-    await expect(nightBtn).toBeVisible();
-    await nightBtn.click();
+  /** Open the theme dropdown and wait for the menu items to be visible. */
+  async function openThemeDropdown(page: import('@playwright/test').Page): Promise<void> {
+    await page.locator('#themeMenuBtn').click();
+    await page.waitForSelector('#themeDropdownMenu .theme-btn', { state: 'visible', timeout: 5000 });
+  }
 
+  test('should apply night mode via theme dropdown', async ({ page }) => {
+    await openThemeDropdown(page);
+    await page.locator('#themeNight').click();
+    await page.waitForTimeout(400); // allow theme transition
     const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
     expect(bodyClass).toBe(true);
+    // Close the dropdown again so subsequent tests start from a clean state.
+    await page.locator('#themeMenuBtn').click();
   });
 
-  test('should toggle night mode off when clicked again', async ({ page }) => {
-    // Click the night button, then the light button to revert.
-    const nightBtn = page.locator('.theme-btn[data-theme="night"]');
-    const lightBtn = page.locator('.theme-btn[data-theme="light"]');
-    await expect(nightBtn).toBeVisible();
-    await nightBtn.click(); // Night mode on
-    await expect(lightBtn).toBeVisible();
-    await lightBtn.click(); // Back to light
-
+  test('should toggle night mode off when switched back to light', async ({ page }) => {
+    await openThemeDropdown(page);
+    await page.locator('#themeNight').click();
+    await page.waitForTimeout(400);
+    await page.locator('#themeLight').click();
+    await page.waitForTimeout(400);
     const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
     expect(bodyClass).toBe(false);
+    await page.locator('#themeMenuBtn').click();
   });
 });
 
