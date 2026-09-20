@@ -147,6 +147,16 @@ function createDomElements() {
   dom.surahSelect = el('select') as HTMLSelectElement;
   dom.reciterSelect = el('select') as HTMLSelectElement;
   dom.themeToggle = el('div');
+  dom.themeToggle.id = 'themeToggle';
+  dom.themeMenuBtn = el('button');
+  dom.themeMenuBtn.id = 'themeMenuBtn';
+  dom.themeIcon = el('span');
+  dom.themeIcon.id = 'themeIcon';
+  dom.themeDropdownMenu = el('div');
+  dom.themeDropdownMenu.id = 'themeDropdownMenu';
+  dom.themeDropdownMenu.className = 'theme-dropdown-menu';
+  document.body.appendChild(dom.themeMenuBtn);
+  document.body.appendChild(dom.themeDropdownMenu);
   dom.settingsToggleBtn = el('button');
   dom.readerSurfaceControl = el('div');
   dom.readerSurfaceToggle = el('button');
@@ -409,17 +419,13 @@ describe('app-events', () => {
     });
 
     it('should open and close the compact theme menu from its moon trigger', async () => {
-      dom.themeToggle!.id = 'themeToggle';
-      document.body.appendChild(dom.themeToggle!);
-      const themeMenuButton = document.createElement('button');
-      themeMenuButton.id = 'themeMenuBtn';
-      document.body.appendChild(themeMenuButton);
+      // dom.themeToggle and dom.themeMenuBtn are created in createDomElements()
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
-      themeMenuButton.click();
+      dom.themeMenuBtn!.click();
       expect(dom.themeToggle!.classList.contains('open')).toBe(true);
-      expect(themeMenuButton.getAttribute('aria-expanded')).toBe('true');
-      themeMenuButton.click();
+      expect(dom.themeMenuBtn!.getAttribute('aria-expanded')).toBe('true');
+      dom.themeMenuBtn!.click();
       expect(dom.themeToggle!.classList.contains('open')).toBe(false);
     });
 
