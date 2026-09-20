@@ -66,8 +66,14 @@ test.describe('Quran App — Theme Switching', () => {
     await page.waitForSelector('.ayah[data-surah="1"]', { timeout: 30000 });
   });
 
-  /** Open the theme dropdown and wait for the menu items to be visible. */
+  /** Open the theme dropdown and wait for the menu items to be visible.
+   * If the dropdown is already open, close it first then reopen. */
   async function openThemeDropdown(page: import('@playwright/test').Page): Promise<void> {
+    const isOpen = await page.evaluate(() => document.querySelector('.theme-dropdown-menu')?.classList.contains('open') ?? false);
+    if (isOpen) {
+      await page.locator('#themeMenuBtn').click();
+      await page.waitForTimeout(200);
+    }
     await page.locator('#themeMenuBtn').click();
     await page.waitForSelector('#themeDropdownMenu .theme-btn', { state: 'visible', timeout: 5000 });
   }
@@ -75,17 +81,19 @@ test.describe('Quran App — Theme Switching', () => {
   test('should apply night mode via theme dropdown', async ({ page }) => {
     await openThemeDropdown(page);
     await page.locator('#themeNight').click();
-    await page.waitForTimeout(400); // allow theme transition
+    // Dropdown auto-closes after a theme selection — nothing more to do.
+    await page.waitForTimeout(400);
     const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
     expect(bodyClass).toBe(true);
-    // Close the dropdown again so subsequent tests start from a clean state.
-    await page.locator('#themeMenuBtn').click();
   });
 
   test('should toggle night mode off when switched back to light', async ({ page }) => {
     await openThemeDropdown(page);
     await page.locator('#themeNight').click();
     await page.waitForTimeout(400);
+    // Re-open the dropdown (it auto-closes after a theme selection).
+    await page.locator('#themeMenuBtn').click();
+    await page.waitForSelector('#themeDropdownMenu .theme-btn', { state: 'visible', timeout: 5000 });
     await page.locator('#themeLight').click();
     await page.waitForTimeout(400);
     const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
