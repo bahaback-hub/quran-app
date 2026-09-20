@@ -220,7 +220,9 @@ const themeIconMap: Readonly<Record<string, string>> = {
  */
 export function updateThemeTriggerIcon(): void {
   const iconEl = dom.themeIcon;
-  if (!iconEl) return;
+  if (!iconEl) {
+    return;
+  }
   let active = 'light';
   if (state.nightMode && !document.body.classList.contains('deep-night-mode')) {
     active = 'night';

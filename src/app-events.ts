@@ -16,7 +16,6 @@ import {
   applyReaderSurfaceTransparency,
   changeReaderZoom,
   updateReaderZoomControl,
-  toggleNightMode,
   applyTheme,
   updateThemeTriggerIcon,
   applyFontType,
@@ -209,10 +208,6 @@ export function bindNavigationEvents(): void {
 export function bindHeaderAndSettingsEvents(): void {
   initReaderToolbarPin();
   initReaderSurfaceControl();
-  dom.bookmarkBtn?.addEventListener('click', setBookmark);
-  dom.bookmarkBtn?.addEventListener('dblclick', gotoBookmark);
-  dom.favoriteBtn?.addEventListener('click', toggleFavorite);
-  dom.shareBtn?.addEventListener('click', () => toggleShareMenu());
 
   // ── Theme dropdown ──────────────────────────────────────────────────────
   // Trigger button opens/closes the dropdown; clicking a theme-btn inside
@@ -272,13 +267,16 @@ export function bindHeaderAndSettingsEvents(): void {
       e.preventDefault();
       e.stopPropagation();
       const buttons = Array.from(dom.themeDropdownMenu?.querySelectorAll<HTMLButtonElement>('.theme-btn') ?? []);
-      if (buttons.length === 0) return;
+      if (buttons.length === 0) {
+        return;
+      }
       const currentFocused = buttons.findIndex((b) => b === document.activeElement);
-      const nextIndex = e.key === 'ArrowDown'
-        ? Math.min(currentFocused + 1, buttons.length - 1)
-        : Math.max(currentFocused - 1, 0);
+      const nextIndex =
+        e.key === 'ArrowDown' ? Math.min(currentFocused + 1, buttons.length - 1) : Math.max(currentFocused - 1, 0);
       const nextBtn = buttons[nextIndex];
-      if (nextBtn) nextBtn.focus();
+      if (nextBtn) {
+        nextBtn.focus();
+      }
     }
   });
 
