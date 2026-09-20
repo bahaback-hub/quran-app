@@ -161,12 +161,28 @@
                 </button>
                 <div class="lang-dropdown hidden" id="langDropdown" role="listbox" aria-label="اختيار اللغة"></div>
               </div>
-              <div class="theme-switcher theme-menu theme-visible-grid" id="themeToggle" role="group" aria-label="تبديل المظهر">
-                <div class="theme-dropdown-menu" id="themeDropdownMenu" role="group" aria-label="أوضاع القراءة">
-                  <button class="theme-btn active" data-theme="light" title="الوضع النهاري" aria-label="الوضع النهاري" aria-pressed="true"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-label" data-i18n="theme_light_short">نهاري</span></button>
-                  <button class="theme-btn" data-theme="sepia" title="وضع السيبيا" aria-label="وضع السيبيا" aria-pressed="false"><span class="theme-icon" aria-hidden="true">📜</span><span class="theme-label" data-i18n="theme_sepia_short">سيبيا</span></button>
-                  <button class="theme-btn" data-theme="night" title="الوضع الليلي" aria-label="الوضع الليلي" aria-pressed="false"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-label" data-i18n="theme_night_short">ليلي</span></button>
-                  <button class="theme-btn" data-theme="deep-night" data-i18n-title="theme_deep_night" data-i18n-aria-label="theme_deep_night" title="الوضع الليلي القاتم" aria-label="الوضع الليلي القاتم" aria-pressed="false"><span class="theme-icon" aria-hidden="true">🌑</span><span class="theme-label" data-i18n="theme_deep_night_short">ليلي قاتم</span></button>
+              <div class="theme-switcher theme-menu" id="themeToggle" role="combobox" aria-expanded="false" aria-haspopup="menu" aria-label="تبديل المظهر">
+                <button class="theme-menu-trigger" id="themeMenuBtn" type="button" aria-label="تبديل المظهر" aria-expanded="false" aria-haspopup="true">
+                  <span class="theme-icon" id="themeIcon" aria-hidden="true">☀️</span>
+                  <span class="theme-menu-caret" aria-hidden="true">▼</span>
+                </button>
+                <div class="theme-dropdown-menu" id="themeDropdownMenu" role="menu" aria-label="أوضاع القراءة">
+                  <button class="theme-btn active" data-theme="light" id="themeLight" role="menuitemradio" aria-checked="true" tabindex="-1">
+                    <span class="theme-icon" aria-hidden="true">☀️</span>
+                    <span class="theme-label" data-i18n="theme_light_short">نهاري</span>
+                  </button>
+                  <button class="theme-btn" data-theme="sepia" id="themeSepia" role="menuitemradio" aria-checked="false" tabindex="-1">
+                    <span class="theme-icon" aria-hidden="true">📜</span>
+                    <span class="theme-label" data-i18n="theme_sepia_short">سيبيا</span>
+                  </button>
+                  <button class="theme-btn" data-theme="night" id="themeNight" role="menuitemradio" aria-checked="false" tabindex="-1">
+                    <span class="theme-icon" aria-hidden="true">🌙</span>
+                    <span class="theme-label" data-i18n="theme_night_short">ليلي</span>
+                  </button>
+                  <button class="theme-btn" data-theme="deep-night" id="themeDeepNight" role="menuitemradio" aria-checked="false" tabindex="-1">
+                    <span class="theme-icon" aria-hidden="true">🌑</span>
+                    <span class="theme-label" data-i18n="theme_deep_night_short">ليلي قاتم</span>
+                  </button>
                 </div>
               </div>
             </div>

@@ -186,6 +186,11 @@ interface DomMap {
 
   searchToggleBtn: HTMLElement | null;
   searchInputGroup: HTMLElement | null;
+  themeMenuBtn: HTMLElement | null;
+  themeIcon: HTMLElement | null;
+  themeDropdownMenu: HTMLElement | null;
+  playerMoreBtn: HTMLElement | null;
+  playerMoreRow: HTMLElement | null;
   fontTypeSelect: HTMLSelectElement | null;
   lineSpacingSelect: HTMLSelectElement | null;
   tajweedToggle: HTMLInputElement | null;
@@ -224,6 +229,9 @@ const DOM_IDS: (keyof DomMap)[] = [
   'settingsCloseBtn',
   'settingsToggleBtn',
   'themeToggle',
+  'themeMenuBtn',
+  'themeIcon',
+  'themeDropdownMenu',
   'readerSurfaceControl',
   // readerSurfaceToggle/Popover removed with the header icon; the transparency
   // slider now lives inline in the reader command bar.

@@ -123,6 +123,7 @@ export function applyNightMode(enabled: boolean): void {
     storage.set('sepia_mode', false);
   }
   updateThemeButtons();
+  updateThemeTriggerIcon();
   if (state.mushafMode && state.currentPage) {
     import('./features/mushaf/mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
@@ -133,6 +134,7 @@ export function applyNightMode(enabled: boolean): void {
 
 export function toggleNightMode(): void {
   applyNightMode(!state.nightMode);
+  updateThemeTriggerIcon();
 }
 
 /* ===================== SEPIA MODE ===================== */
@@ -154,6 +156,7 @@ export function applySepiaMode(enabled: boolean): void {
     storage.set('deep_night_mode', false);
   }
   updateThemeButtons();
+  updateThemeTriggerIcon();
   if (state.mushafMode && state.currentPage) {
     import('./features/mushaf/mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
@@ -178,6 +181,7 @@ export function applyDeepNightMode(enabled: boolean): void {
     storage.set('sepia_mode', false);
   }
   updateThemeButtons();
+  updateThemeTriggerIcon();
   if (state.mushafMode && state.currentPage) {
     import('./features/mushaf/mushaf.js').then(
       (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
@@ -198,6 +202,34 @@ export function applyTheme(theme: 'light' | 'sepia' | 'night' | 'deep-night'): v
     applyNightMode(false);
     applySepiaMode(false);
   }
+}
+
+/**
+ * Map of theme name to the emoji icon shown on the trigger button.
+ */
+const themeIconMap: Readonly<Record<string, string>> = {
+  light: '\u2600\uFE0F',
+  sepia: '\uD83D\uDCC3',
+  night: '\uD83C\uDF19',
+  'deep-night': '\uD83C\uDF11',
+};
+
+/**
+ * Update the emoji icon on the theme trigger button to reflect the currently
+ * active theme. Called after applyTheme() and after settings restore.
+ */
+export function updateThemeTriggerIcon(): void {
+  const iconEl = dom.themeIcon;
+  if (!iconEl) return;
+  let active = 'light';
+  if (state.nightMode && !document.body.classList.contains('deep-night-mode')) {
+    active = 'night';
+  } else if (document.body.classList.contains('deep-night-mode')) {
+    active = 'deep-night';
+  } else if (state.sepiaMode) {
+    active = 'sepia';
+  }
+  iconEl.textContent = themeIconMap[active] ?? '\u2600\uFE0F';
 }
 
 /** Update the active state of theme buttons in the header */
@@ -996,4 +1028,7 @@ export function restoreSettings(): void {
     dom.prayerBar.classList.add('expanded');
     dom.expandBarBtn?.setAttribute('aria-expanded', 'true');
   }
+
+  // Sync the theme trigger icon with the restored theme
+  updateThemeTriggerIcon();
 }

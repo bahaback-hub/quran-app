@@ -494,32 +494,24 @@
 .theme-menu.open .theme-dropdown-menu {
   display: grid;
 }
-.theme-visible-grid .theme-dropdown-menu {
-  position: static;
-  display: grid;
-  width: 82px;
-  min-width: 82px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  direction: rtl;
+
+.theme-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  display: none;
+  min-width: 164px;
+  grid-template-columns: repeat(2, minmax(72px, 1fr));
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--border-soft);
+  border-radius: 13px;
+  background: var(--card-bg);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  z-index: 30;
+  direction: ltr;
 }
-.theme-visible-grid .theme-btn {
-  width: 40px;
-  height: 30px;
-  min-height: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 8px;
-  font-size: 12px;
-  gap: 0;
-}
-.theme-visible-grid .theme-label {
-  font-size: 7px;
-}
+
 .theme-btn {
   width: auto;
   height: 48px;

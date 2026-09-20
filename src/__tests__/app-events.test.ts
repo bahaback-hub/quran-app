@@ -16,6 +16,7 @@ vi.mock('../settings.js', () => ({
   updateReaderZoomControl: vi.fn(),
   toggleNightMode: vi.fn(),
   applyTheme: vi.fn(),
+  updateThemeTriggerIcon: vi.fn(),
   applyFontType: vi.fn(),
   applyLineSpacing: vi.fn(),
   applyPresBgMode: vi.fn(),
@@ -422,12 +423,82 @@ describe('app-events', () => {
       expect(dom.themeToggle!.classList.contains('open')).toBe(false);
     });
 
-    it('should toggle night mode on Enter/Space without a theme-btn', async () => {
+    it('should toggle the theme dropdown on Enter/Space on the trigger button', async () => {
+      dom.themeToggle!.id = 'themeToggle';
+      document.body.appendChild(dom.themeToggle!);
+      const themeMenuButton = document.createElement('button');
+      themeMenuButton.id = 'themeMenuBtn';
+      document.body.appendChild(themeMenuButton);
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
-      dom.themeToggle!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-      const { toggleNightMode } = await import('../settings.js');
-      expect(toggleNightMode).toHaveBeenCalled();
+      // Enter on the trigger opens the dropdown
+      themeMenuButton.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      expect(dom.themeToggle!.classList.contains('open')).toBe(true);
+      expect(themeMenuButton.getAttribute('aria-expanded')).toBe('true');
+      // Enter again closes it
+      themeMenuButton.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      expect(dom.themeToggle!.classList.contains('open')).toBe(false);
+      expect(themeMenuButton.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('should close the dropdown and return focus on Escape', async () => {
+      dom.themeToggle!.id = 'themeToggle';
+      document.body.appendChild(dom.themeToggle!);
+      const themeMenuButton = document.createElement('button');
+      themeMenuButton.id = 'themeMenuBtn';
+      document.body.appendChild(themeMenuButton);
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      // Open the dropdown first
+      dom.themeToggle!.classList.add('open');
+      themeMenuButton.setAttribute('aria-expanded', 'true');
+      // Escape should close it
+      dom.themeToggle!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      expect(dom.themeToggle!.classList.contains('open')).toBe(false);
+      expect(themeMenuButton.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('should apply theme and close dropdown when clicking a theme-btn inside the menu', async () => {
+      dom.themeToggle!.id = 'themeToggle';
+      document.body.appendChild(dom.themeToggle!);
+      const dropdownMenu = document.createElement('div');
+      dropdownMenu.className = 'theme-dropdown-menu';
+      dropdownMenu.id = 'themeDropdownMenu';
+      dom.themeToggle!.appendChild(dropdownMenu);
+      const themeBtn = document.createElement('button');
+      themeBtn.className = 'theme-btn';
+      themeBtn.dataset['theme'] = 'sepia';
+      dropdownMenu.appendChild(themeBtn);
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      themeBtn.click();
+      const { applyTheme } = await import('../settings.js');
+      expect(applyTheme).toHaveBeenCalledWith('sepia');
+      expect(dom.themeToggle!.classList.contains('open')).toBe(false);
+    });
+
+    it('should update the trigger icon after applying a theme', async () => {
+      dom.themeToggle!.id = 'themeToggle';
+      document.body.appendChild(dom.themeToggle!);
+      const themeMenuButton = document.createElement('button');
+      themeMenuButton.id = 'themeMenuBtn';
+      document.body.appendChild(themeMenuButton);
+      const iconSpan = document.createElement('span');
+      iconSpan.id = 'themeIcon';
+      themeMenuButton.appendChild(iconSpan);
+      const dropdownMenu = document.createElement('div');
+      dropdownMenu.className = 'theme-dropdown-menu';
+      dropdownMenu.id = 'themeDropdownMenu';
+      dom.themeToggle!.appendChild(dropdownMenu);
+      const themeBtn = document.createElement('button');
+      themeBtn.className = 'theme-btn';
+      themeBtn.dataset['theme'] = 'night';
+      dropdownMenu.appendChild(themeBtn);
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      themeBtn.click();
+      const { updateThemeTriggerIcon } = await import('../settings.js');
+      expect(iconSpan.textContent).toBe('\uD83C\uDF19');
     });
   });
 

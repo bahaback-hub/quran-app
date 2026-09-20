@@ -18,6 +18,7 @@ import {
   updateReaderZoomControl,
   toggleNightMode,
   applyTheme,
+  updateThemeTriggerIcon,
   applyFontType,
   applyLineSpacing,
   applyPresBgMode,
@@ -208,32 +209,80 @@ export function bindNavigationEvents(): void {
 export function bindHeaderAndSettingsEvents(): void {
   initReaderToolbarPin();
   initReaderSurfaceControl();
+  dom.bookmarkBtn?.addEventListener('click', setBookmark);
+  dom.bookmarkBtn?.addEventListener('dblclick', gotoBookmark);
+  dom.favoriteBtn?.addEventListener('click', toggleFavorite);
+  dom.shareBtn?.addEventListener('click', () => toggleShareMenu());
+
+  // ── Theme dropdown ──────────────────────────────────────────────────────
+  // Trigger button opens/closes the dropdown; clicking a theme-btn inside
+  // applies the theme and closes the dropdown. Keyboard: Enter/Space on the
+  // trigger toggles the menu; Escape closes it; ArrowUp/ArrowDown move focus
+  // between the four theme options.
+  dom.themeMenuBtn?.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    const expanded = dom.themeToggle?.classList.toggle('open') ?? false;
+    dom.themeMenuBtn!.setAttribute('aria-expanded', String(expanded));
+  });
+
+  dom.themeMenuBtn?.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      e.stopPropagation();
+      const expanded = dom.themeToggle?.classList.contains('open');
+      if (expanded) {
+        dom.themeToggle?.classList.remove('open');
+        dom.themeMenuBtn!.setAttribute('aria-expanded', 'false');
+      } else {
+        dom.themeToggle?.classList.add('open');
+        dom.themeMenuBtn!.setAttribute('aria-expanded', 'true');
+        // Focus the first theme button inside the dropdown
+        const firstBtn = dom.themeDropdownMenu?.querySelector<HTMLButtonElement>('.theme-btn');
+        firstBtn?.focus();
+      }
+    }
+  });
+
   dom.themeToggle?.addEventListener('click', (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const btn = target.closest('.theme-btn') as HTMLElement | null;
     if (btn?.dataset['theme']) {
       e.preventDefault();
+      e.stopPropagation();
       applyTheme(btn.dataset['theme'] as 'light' | 'sepia' | 'night' | 'deep-night');
-      document.getElementById('themeToggle')?.classList.remove('open');
-      document.getElementById('themeMenuBtn')?.setAttribute('aria-expanded', 'false');
+      dom.themeToggle?.classList.remove('open');
+      dom.themeMenuBtn?.setAttribute('aria-expanded', 'false');
+      // Update the trigger icon to reflect the newly selected theme
+      updateThemeTriggerIcon();
     }
   });
+
   dom.themeToggle?.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    // Escape closes the dropdown and returns focus to the trigger button
+    if (e.key === 'Escape') {
       e.preventDefault();
-      const btn = (e.target as HTMLElement).closest('.theme-btn') as HTMLElement | null;
-      if (btn?.dataset['theme']) {
-        applyTheme(btn.dataset['theme'] as 'light' | 'sepia' | 'night' | 'deep-night');
-      } else {
-        toggleNightMode();
-      }
+      e.stopPropagation();
+      dom.themeToggle?.classList.remove('open');
+      dom.themeMenuBtn?.setAttribute('aria-expanded', 'false');
+      dom.themeMenuBtn?.focus();
+      return;
+    }
+    // Arrow keys move focus between the four theme-btn options inside the menu
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      e.stopPropagation();
+      const buttons = Array.from(dom.themeDropdownMenu?.querySelectorAll<HTMLButtonElement>('.theme-btn') ?? []);
+      if (buttons.length === 0) return;
+      const currentFocused = buttons.findIndex((b) => b === document.activeElement);
+      const nextIndex = e.key === 'ArrowDown'
+        ? Math.min(currentFocused + 1, buttons.length - 1)
+        : Math.max(currentFocused - 1, 0);
+      const nextBtn = buttons[nextIndex];
+      if (nextBtn) nextBtn.focus();
     }
   });
-  const themeMenuButton = document.getElementById('themeMenuBtn');
-  themeMenuButton?.addEventListener('click', () => {
-    const expanded = dom.themeToggle?.classList.toggle('open') ?? false;
-    themeMenuButton.setAttribute('aria-expanded', String(expanded));
-  });
+
+  // ── Settings button ─────────────────────────────────────────────────────
   dom.settingsToggleBtn?.addEventListener('click', () => {
     if (dom.settingsPanel?.classList.contains('open')) {
       closeSettings();
@@ -966,7 +1015,7 @@ export function bindGlobalClickHandler(): void {
     const settingsTarget = e.target as HTMLElement;
     if (!dom.themeToggle?.contains(settingsTarget)) {
       dom.themeToggle?.classList.remove('open');
-      document.getElementById('themeMenuBtn')?.setAttribute('aria-expanded', 'false');
+      dom.themeMenuBtn?.setAttribute('aria-expanded', 'false');
     }
     const isSettingsTrigger =
       settingsTarget === dom.settingsToggleBtn || settingsTarget.closest?.('#settingsToggleBtn') !== null;
