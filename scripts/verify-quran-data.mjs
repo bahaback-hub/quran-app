@@ -53,9 +53,21 @@ function fail(message) {
   problems.push(`integrity: ${message}`);
 }
 
+/**
+ * Canonicalize text before hashing: drop a leading BOM and normalize CRLF to LF.
+ *
+ * The digest therefore describes the dataset itself, not the line endings the
+ * local checkout happens to use — a Windows work tree (CRLF) and a Linux CI
+ * runner (LF) must produce the same hash, otherwise the integrity gate fails
+ * on one platform and passes on the other.
+ */
+function canonicalText(text) {
+  return String(text).replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
+}
+
 /** Compute the SHA-256 digest of the given file as a lower-case hex string. */
 async function sha256File(filePath) {
-  const bytes = await readFile(filePath);
+  const bytes = Buffer.from(canonicalText(await readFile(filePath, 'utf8')), 'utf8');
   return createHash('sha256').update(bytes).digest('hex');
 }
 
@@ -329,8 +341,9 @@ async function verifyManifest() {
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
     for (const file of SOURCE_FILES) {
       const expected = manifest?.files?.[file]?.sha256;
+      const actual = entries[file].sha256;
       check(typeof expected === 'string' && expected.length === 64, `manifest has no sha256 for ${file}`, 'integrity-manifest.json');
-      check(expected === entries[file].sha256, `sha256 mismatch for ${file}`, 'integrity-manifest.json');
+      check(expected === actual, `sha256 mismatch for ${file} (expected ${expected}, got ${actual})`, 'integrity-manifest.json');
     }
   } catch {
     check(false, `manifest ${MANIFEST_FILE} missing — run with --generate first`, 'integrity-manifest.json');

@@ -4,17 +4,20 @@
 * text=auto eol=lf
 
 # Source code
-*.ts text diff=typescript
-*.js text diff=javascript
-*.css text diff=css
-*.html text diff=html
-*.json text
-*.yml text diff=yaml
-*.yaml text diff=yaml
+# Every text rule repeats `eol=lf`: a later rule that only sets `text` would
+# otherwise let core.autocrlf/core.eol decide the checkout bytes, and hashed
+# datasets (public/data/*.json) must be byte-identical on every platform.
+*.ts text eol=lf diff=typescript
+*.js text eol=lf diff=javascript
+*.css text eol=lf diff=css
+*.html text eol=lf diff=html
+*.json text eol=lf
+*.yml text eol=lf diff=yaml
+*.yaml text eol=lf diff=yaml
 
 # Documentation
-*.md text diff=markdown
-*.txt text
+*.md text eol=lf diff=markdown
+*.txt text eol=lf
 
 # Shell scripts
 *.sh text eol=lf
