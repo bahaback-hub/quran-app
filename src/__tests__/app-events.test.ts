@@ -432,36 +432,31 @@ describe('app-events', () => {
     it('should toggle the theme dropdown on Enter/Space on the trigger button', async () => {
       dom.themeToggle!.id = 'themeToggle';
       document.body.appendChild(dom.themeToggle!);
-      const themeMenuButton = document.createElement('button');
-      themeMenuButton.id = 'themeMenuBtn';
-      document.body.appendChild(themeMenuButton);
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
       // Enter on the trigger opens the dropdown
-      themeMenuButton.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      dom.themeMenuBtn!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
       expect(dom.themeToggle!.classList.contains('open')).toBe(true);
-      expect(themeMenuButton.getAttribute('aria-expanded')).toBe('true');
+      expect(dom.themeMenuBtn!.getAttribute('aria-expanded')).toBe('true');
       // Enter again closes it
-      themeMenuButton.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      dom.themeMenuBtn!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
       expect(dom.themeToggle!.classList.contains('open')).toBe(false);
-      expect(themeMenuButton.getAttribute('aria-expanded')).toBe('false');
+      expect(dom.themeMenuBtn!.getAttribute('aria-expanded')).toBe('false');
     });
 
     it('should close the dropdown and return focus on Escape', async () => {
       dom.themeToggle!.id = 'themeToggle';
       document.body.appendChild(dom.themeToggle!);
-      const themeMenuButton = document.createElement('button');
-      themeMenuButton.id = 'themeMenuBtn';
-      document.body.appendChild(themeMenuButton);
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
       // Open the dropdown first
       dom.themeToggle!.classList.add('open');
-      themeMenuButton.setAttribute('aria-expanded', 'true');
-      // Escape should close it
+      dom.themeMenuBtn!.setAttribute('aria-expanded', 'true');
+      // Escape should close it, collapse aria-expanded and return focus to the trigger
       dom.themeToggle!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       expect(dom.themeToggle!.classList.contains('open')).toBe(false);
-      expect(themeMenuButton.getAttribute('aria-expanded')).toBe('false');
+      expect(dom.themeMenuBtn!.getAttribute('aria-expanded')).toBe('false');
+      expect(document.activeElement).toBe(dom.themeMenuBtn);
     });
 
     it('should apply theme and close dropdown when clicking a theme-btn inside the menu', async () => {
@@ -486,12 +481,6 @@ describe('app-events', () => {
     it('should update the trigger icon after applying a theme', async () => {
       dom.themeToggle!.id = 'themeToggle';
       document.body.appendChild(dom.themeToggle!);
-      const themeMenuButton = document.createElement('button');
-      themeMenuButton.id = 'themeMenuBtn';
-      document.body.appendChild(themeMenuButton);
-      const iconSpan = document.createElement('span');
-      iconSpan.id = 'themeIcon';
-      themeMenuButton.appendChild(iconSpan);
       const dropdownMenu = document.createElement('div');
       dropdownMenu.className = 'theme-dropdown-menu';
       dropdownMenu.id = 'themeDropdownMenu';
@@ -502,9 +491,10 @@ describe('app-events', () => {
       dropdownMenu.appendChild(themeBtn);
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
-      themeBtn.click();
       const { updateThemeTriggerIcon } = await import('../settings.js');
-      expect(iconSpan.textContent).toBe('\uD83C\uDF19');
+      themeBtn.click();
+      // settings.ts owns the icon markup, so the binding must ask it to refresh the trigger
+      expect(updateThemeTriggerIcon).toHaveBeenCalled();
     });
   });
 
