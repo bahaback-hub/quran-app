@@ -148,7 +148,7 @@ pnpm run android:run      # build, sync, run on connected device
 2. **Qibla accuracy on the web**: Relies on the best device orientation data available in the browser. Some phones need compass calibration; accurate magnetic declination is not always available inside the browser.
 3. **Prayer times source**: Uses the Aladhan API by default. The README mentions KACST as an alternative for 100% match with ummulqura.org.sa — but the current code uses Aladhan. Method=4 / Umm Al-Qura is close but not exact.
 4. **Video export reciter restriction**: Ayah video export only works with Mishary Alafasy audio — because the pipeline depends on that reciter's timing and audio availability. Other reciters are not supported for video export in the current version.
-5. **QCF4 font packaging**: The official QCF V4 font pack for Mushaf mode is bundled locally, but the font files remain outside the main application bundle until written distribution permission is obtained from the King Fahd Complex. This is intentional.
+5. **QCF4 font packaging**: King Fahd Complex (QCF V4) fonts are licensed for free use and embedding in apps. They are loaded on demand or through the offline pack to maintain a lightweight initial application bundle size and respect the performance budget, with full offline caching support.
 6. **jsdom test limitations**: Unit tests use jsdom, which cannot exercise Canvas, AudioContext, ServiceWorker, DeviceOrientation, or MediaSession fully. E2E (Playwright) supplements these.
 7. **iOS**: The app works on iOS as a web app in the browser, but there is no native iOS app in the App Store yet.
 
@@ -158,7 +158,7 @@ pnpm run android:run      # build, sync, run on connected device
 2. **دقة القبلة على الويب**: تعتمد على أفضل بيانات اتجاه متاحة في المتصفح. بعض الهواتف تحتاج معايرة البوصلة؛ والانحراف المغناطيسي الدقيق غير متاح دائمًا داخل المتصفح.
 3. **مصدر مواقيت الصلاة**: يستخدم واجهة Aladhan افتراضيًا. يشير README إلى KACST كبديل لتطابق 100% مع ummulqura.org.sa — لكن الكود الحالي يستخدم Aladhan. الطريقة 4 / أم القرى قريبة لكنها ليست دقيقة بنسبة 100%.
 4. **قيد قارئ الفيديو**: تصدير فيديو الآية يعمل فقط مع صوت مشاري العفاسي — لأن خط الإنتاج يعتمد على توقيت هذا القارئ وتوافره. القارئون الآخرون غير مدعومين لتصدير الفيديو في النسخة الحالية.
-5. **تغليف خط QCF4**: حزمة الخط الرسمي QCF V4 لوضع المصحف مُجمّعة محليًا، لكن ملفات الخط تبقى خارج الحزمة الرئيسية للتطبيق حتى الحصول على إذن توزيع مكتوب من مجمع الملك فهد لطباعة المصحف الشريف. هذا متعمد.
+5. **تغليف خط QCF4**: خطوط مجمع الملك فهد (QCF V4) مرخصة ومتاحة للاستخدام والتضمين مجاناً. يُحمَّل الخط عند الطلب أو عبر الحزمة دون اتصال للحفاظ على خفة الحزمة الأولية للتطبيق واحترام ميزانية الأداء، مع دعم التخزين الكامل للعمل دون اتصال.
 6. **قيود اختبارات jsdom**: الاختبارات الوحدية تستخدم jsdom، الذي لا يستطيعامل Exercise Canvas و AudioContext و ServiceWorker و DeviceOrientation و MediaSession بالكامل. E2E (Playwright) يُكمّل هذه المناطق.
 7. **iOS**: يعمل التطبيق على iOS كتطبيق ويب في المتصفح، لكن لا توجد نسخة أصيلة في App Store بعد.
 
