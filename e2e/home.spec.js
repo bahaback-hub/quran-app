@@ -60,11 +60,12 @@ test.describe('home launcher', () => {
     await expect(moreActions).toBeHidden();
     await page.locator('#homeMoreToggle').click();
     await expect(moreActions).toBeVisible();
-    await expect(moreActions.locator('.home-action-btn')).toHaveCount(5);
+    await expect(moreActions.locator('.home-action-btn')).toHaveCount(6);
     await expect(moreActions.locator('[data-action="qibla"]')).toHaveCount(1);
     await expect(moreActions.locator('[data-action="prayer"]')).toHaveCount(1);
     await expect(moreActions.locator('[data-action="adhkar"]')).toHaveCount(1);
     await expect(moreActions.locator('[data-action="favorites"]')).toHaveCount(1);
+    await expect(moreActions.locator('[data-action="reading-plans"]')).toHaveCount(1);
     await expect(moreActions.locator('[data-action="settings"]')).toHaveCount(1);
   });
 

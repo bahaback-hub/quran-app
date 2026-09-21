@@ -5,6 +5,7 @@ import { stopClock, startClock } from './features/prayer/prayer.js';
 import { checkAdhkarNotifications } from './adhkar.js';
 import { __, getLang } from './i18n.js';
 import { getAdhkarIntervalId, setAdhkarIntervalId } from './internal-state.js';
+import { recordReading } from './reading-plans.js';
 // Static import of announceToScreenReader (was dynamic, but a11y.ts is
 // already statically imported by app.ts, app-events.ts, and
 // sleep-timer-modal.ts — the dynamic import produced an
@@ -218,5 +219,6 @@ export function updateReadingProgress(): void {
     const progress = Math.min(1, (state.currentAyahIndex + 1) / total);
     progressBar.style.transform = `scaleX(${progress})`;
     progressBar.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
+    recordReading(state.currentSurah, state.currentAyahIndex + 1);
   });
 }

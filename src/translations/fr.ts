@@ -725,4 +725,22 @@ export default {
   home_read: 'Lecture',
   home_listen: 'Écoute',
   home_more: 'Plus',
+
+  // === Plans de lecture (khatma) ===
+  reading_plans: 'Plan de lecture',
+  reading_plan_title: 'Plan de lecture (khatma)',
+  reading_plan_intro:
+    "Fixez une durée pour terminer tout le Coran (6236 versets). La progression est suivie automatiquement pendant la lecture.",
+  reading_plan_pick: 'Choisissez en combien de temps terminer le Coran :',
+  reading_plan_whole_quran: 'lire tout le Coran',
+  reading_plan_days: '{0} jours',
+  reading_plan_progress: 'Terminé',
+  reading_plan_today_target: "Versets d'aujourd'hui",
+  reading_plan_remaining: 'Versets restants',
+  reading_plan_ayahs_range: "Versets d'aujourd'hui : {0}",
+  reading_plan_day: 'Jour {0} sur {1}',
+  reading_plan_on_track: 'Sur la bonne voie — continuez',
+  reading_plan_behind: 'Un peu en retard — lisez davantage aujourd\u2019hui',
+  reading_plan_done: 'Louange à Dieu — la khatma est terminée !',
+  reading_plan_reset: 'Annuler le plan',
 };
