@@ -730,7 +730,7 @@ export default {
   reading_plans: 'Plan de lecture',
   reading_plan_title: 'Plan de lecture (khatma)',
   reading_plan_intro:
-    "Fixez une durée pour terminer tout le Coran (6236 versets). La progression est suivie automatiquement pendant la lecture.",
+    'Fixez une durée pour terminer tout le Coran (6236 versets). La progression est suivie automatiquement pendant la lecture.',
   reading_plan_pick: 'Choisissez en combien de temps terminer le Coran :',
   reading_plan_whole_quran: 'lire tout le Coran',
   reading_plan_days: '{0} jours',

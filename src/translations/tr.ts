@@ -725,9 +725,9 @@ export default {
   reading_plans: 'Okuma planı',
   reading_plan_title: 'Okuma planı (hatim)',
   reading_plan_intro:
-    'Kur\'an\'ın tamamını (6236 ayet) bitirmek için bir süre belirleyin. İlerleme okurken otomatik olarak takip edilir.',
-  reading_plan_pick: 'Kur\'an\'ı ne kadar sürede bitirmek istersiniz:',
-  reading_plan_whole_quran: 'Kur\'an\'ın tamamını okumak',
+    "Kur'an'ın tamamını (6236 ayet) bitirmek için bir süre belirleyin. İlerleme okurken otomatik olarak takip edilir.",
+  reading_plan_pick: "Kur'an'ı ne kadar sürede bitirmek istersiniz:",
+  reading_plan_whole_quran: "Kur'an'ın tamamını okumak",
   reading_plan_days: '{0} gün',
   reading_plan_progress: 'Tamamlanan',
   reading_plan_today_target: 'Bugünün ayetleri',

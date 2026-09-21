@@ -725,9 +725,9 @@ export default {
   reading_plans: 'Rencana bacaan',
   reading_plan_title: 'Rencana bacaan (khatam)',
   reading_plan_intro:
-    'Tetapkan durasi untuk menyelesaikan seluruh Al-Qur\'an (6236 ayat). Progres dipantau otomatis saat Anda membaca.',
-  reading_plan_pick: 'Pilih berapa lama Anda ingin khatam Al-Qur\'an:',
-  reading_plan_whole_quran: 'baca seluruh Al-Qur\'an',
+    "Tetapkan durasi untuk menyelesaikan seluruh Al-Qur'an (6236 ayat). Progres dipantau otomatis saat Anda membaca.",
+  reading_plan_pick: "Pilih berapa lama Anda ingin khatam Al-Qur'an:",
+  reading_plan_whole_quran: "baca seluruh Al-Qur'an",
   reading_plan_days: '{0} hari',
   reading_plan_progress: 'Selesai',
   reading_plan_today_target: 'Ayat hari ini',
