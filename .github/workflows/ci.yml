@@ -22,6 +22,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm run lint:zero-style
       - run: npm run typecheck
       - run: npm run format:check
       - name: Dead code detection (knip) — mandatory
