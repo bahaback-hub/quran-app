@@ -69,7 +69,9 @@ test.describe('Quran App — Theme Switching', () => {
   /** Open the theme dropdown and wait for the menu items to be visible.
    * If the dropdown is already open, close it first then reopen. */
   async function openThemeDropdown(page: import('@playwright/test').Page): Promise<void> {
-    const isOpen = await page.evaluate(() => document.querySelector('.theme-dropdown-menu')?.classList.contains('open') ?? false);
+    const isOpen = await page.evaluate(
+      () => document.getElementById('themeToggle')?.classList.contains('open') ?? false,
+    );
     if (isOpen) {
       await page.locator('#themeMenuBtn').click();
       await page.waitForTimeout(200);
