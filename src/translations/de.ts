@@ -724,4 +724,22 @@ export default {
   home_read: 'Lesen',
   home_listen: 'Anhören',
   home_more: 'Mehr',
+
+  // === Lesepläne (Khatma) ===
+  reading_plans: 'Leseplan',
+  reading_plan_title: 'Leseplan (Khatma)',
+  reading_plan_intro:
+    'Lege einen Zeitplan fest, um den gesamten Koran (6236 Verse) zu beenden. Der Fortschritt wird beim Lesen automatisch erfasst.',
+  reading_plan_pick: 'Wähle, in welcher Zeit du den Koran abschließen möchtest:',
+  reading_plan_whole_quran: 'den ganzen Koran lesen',
+  reading_plan_days: '{0} Tage',
+  reading_plan_progress: 'Abgeschlossen',
+  reading_plan_today_target: 'Verse heute',
+  reading_plan_remaining: 'Verbleibende Verse',
+  reading_plan_ayahs_range: 'Verse heute: {0}',
+  reading_plan_day: 'Tag {0} von {1}',
+  reading_plan_on_track: 'Im Plan — weiter so',
+  reading_plan_behind: 'Etwas im Rückstand — lies heute mehr',
+  reading_plan_done: 'Gelobt sei Gott — die Khatma ist geschafft!',
+  reading_plan_reset: 'Plan abbrechen',
 };

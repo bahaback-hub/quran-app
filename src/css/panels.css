@@ -1026,3 +1026,167 @@ body.night-mode .adhkar-header h2 {
 .adhkar-setting-toggle {
   flex-shrink: 0;
 }
+
+/* ========== لوحة خطة الختمة ========== */
+.reading-plan-panel {
+  position: fixed;
+  top: 0;
+  right: -460px;
+  width: 440px;
+  max-width: 92vw;
+  height: 100vh;
+  background: var(--container-bg);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.35);
+  z-index: 1002;
+  transition: right 0.35s ease;
+  overflow-y: auto;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+}
+.reading-plan-panel.open {
+  right: 0;
+}
+.reading-plan-header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 56px;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+.reading-plan-header h2 {
+  font-size: 20px;
+  color: var(--primary);
+}
+body.night-mode .reading-plan-header h2 {
+  color: var(--accent);
+}
+.reading-plan-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 20px;
+  transition: transform 0.2s;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reading-plan-close:hover {
+  transform: rotate(90deg);
+}
+.reading-plan-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.reading-plan-intro {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 14px;
+  line-height: 1.7;
+}
+.reading-plan-label {
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+.reading-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.reading-plan-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--controls-bg);
+  border: 1.5px solid var(--border-soft);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+.reading-plan-option:hover {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
+.reading-plan-option-days {
+  font-size: 16px;
+  font-weight: bold;
+}
+.reading-plan-option-note {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.reading-plan-progress-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--controls-bg);
+  border: 1px solid var(--border-soft);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.reading-plan-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+.reading-plan-status {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 14px;
+  font-size: 15px;
+}
+.reading-plan-status.on-track {
+  color: #1e7e34;
+}
+.reading-plan-status.behind {
+  color: var(--error-text, #b91c1c);
+}
+.reading-plan-status.done {
+  color: var(--accent, #d97706);
+}
+.reading-plan-range {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 14px 0;
+}
+.reading-plan-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.reading-plan-reset {
+  position: static;
+  border-radius: 22px;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 10px 22px;
+  font-size: 14px;
+}
+@media (max-width: 480px) {
+  .reading-plan-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -49,6 +49,7 @@ import { loadFullQuranText } from './features/search/search-ui.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { refreshRecentExternalData } from './external-data-cache.js';
 import { initLangSwitcher } from './lang-switcher.js';
+import { initCspReporting } from './csp-report.js';
 
 export {
   loadSurah,
@@ -81,6 +82,7 @@ function initState(): void {
 export async function initApp(): Promise<void> {
   // ========== PHASE 1: CRITICAL PATH ==========
   initState();
+  initCspReporting(); // CSP violation monitoring — before any dynamic content injects
   setLoadSurah(loadSurah);
   injectOverlays(); // Must run before cacheDom — injects overlay HTML into DOM
   cacheDom();

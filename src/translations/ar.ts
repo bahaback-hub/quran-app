@@ -720,4 +720,22 @@ export default {
   home_read: 'القراءة',
   home_listen: 'الاستماع',
   home_more: 'المزيد',
+
+  // === خطط الختمة ===
+  reading_plans: 'خطة الختمة',
+  reading_plan_title: 'خطة الختمة',
+  reading_plan_intro:
+    'حدّد موعدًا لإتمام قراءة القرآن كاملًا (6236 آية)، ويتقدّم المقياس تلقائيًا مع تقدّمك في القراءة.',
+  reading_plan_pick: 'اختر المدة المطلوبة لإتمام الختمة:',
+  reading_plan_whole_quran: 'لقراءة القرآن كاملًا',
+  reading_plan_days: '{0} يوم',
+  reading_plan_progress: 'النسبة المكتملة',
+  reading_plan_today_target: 'آيات اليوم',
+  reading_plan_remaining: 'الآيات المتبقية',
+  reading_plan_ayahs_range: 'آيات اليوم من {0}',
+  reading_plan_day: 'اليوم {0} من {1}',
+  reading_plan_on_track: 'أنت على المسار الصحيح — أكمل',
+  reading_plan_behind: 'أنت متأخر قليلًا — اقرأ المزيد اليوم',
+  reading_plan_done: 'الحمد لله، اكتملت الختمة!',
+  reading_plan_reset: 'إلغاء الخطة',
 };

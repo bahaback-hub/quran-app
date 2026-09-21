@@ -7,10 +7,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const loadSurahMock = vi.fn();
+const openReadingPlanPanelMock = vi.fn();
 
 vi.mock('../surah-loader.js', () => ({
   loadSurah: (...args: unknown[]) => loadSurahMock(...args),
   loadSurahList: vi.fn(),
+}));
+
+vi.mock('../reading-plans.js', () => ({
+  openReadingPlanPanel: () => openReadingPlanPanelMock(),
 }));
 
 import { dom } from '../dom.js';
@@ -45,6 +50,8 @@ beforeEach(() => {
   dom.favoritesOpenBtn = null;
   dom.settingsToggleBtn = null;
   state.surahList = [];
+  dom.readingPlanPanel = null;
+  openReadingPlanPanelMock.mockClear();
 });
 
 describe('home launcher', () => {
@@ -136,6 +143,18 @@ describe('home launcher', () => {
     content.querySelector<HTMLElement>('.home-action-btn[data-action="mushaf"]')?.click();
 
     expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the reading plans panel from the more-menu action', () => {
+    state.surahList = [...SURAHS];
+    const content = setupDom();
+    showHome();
+
+    const moreToggle = content.querySelector<HTMLElement>('#homeMoreToggle');
+    moreToggle?.click();
+    content.querySelector<HTMLElement>('.home-action-btn[data-action="reading-plans"]')?.click();
+
+    expect(openReadingPlanPanelMock).toHaveBeenCalledTimes(1);
   });
 });
 

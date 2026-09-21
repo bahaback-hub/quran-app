@@ -31,6 +31,12 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self' data: blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' https: blob: data:; connect-src 'self' https://api.alquran.cloud https://api.quran.com https://cdn.jsdelivr.net https://api.aladhan.com https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https: blob: data:; frame-src 'none'; base-uri 'self'; form-action 'self'; object-src 'none';"
     />
+    <!--
+      CSP violations are collected client-side by src/csp-report.ts (this is a
+      static host, so Report-To headers are unavailable): the securitypolicyviolation
+      events feed a bounded in-memory buffer and, when VITE_CSP_REPORT_ENDPOINT is
+      configured at build time, are forwarded to that collector via sendBeacon.
+    -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>القرآن الكريم - عائلة السليماني</title>

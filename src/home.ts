@@ -12,6 +12,7 @@ import { __ } from './i18n.js';
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { loadSurah } from './surah-loader.js';
+import { openReadingPlanPanel } from './reading-plans.js';
 import { toArabicNumeral, escapeHtml } from './utils.js';
 import type { SurahInfo } from './state.js';
 
@@ -54,6 +55,7 @@ export function showHome(): void {
           <button type="button" class="home-action-btn" data-action="prayer" data-i18n="prayer_times"><span class="home-action-icon" aria-hidden="true">🕌</span><span data-i18n="prayer_times">${escapeHtml(__('prayer_times'))}</span></button>
           <button type="button" class="home-action-btn" data-action="qibla" data-i18n="qibla"><span class="home-action-icon" aria-hidden="true">🧭</span><span data-i18n="qibla">${escapeHtml(__('qibla'))}</span></button>
           <button type="button" class="home-action-btn" data-action="favorites" data-i18n="favorites"><span class="home-action-icon" aria-hidden="true">❤️</span><span data-i18n="favorites">${escapeHtml(__('favorites'))}</span></button>
+          <button type="button" class="home-action-btn" data-action="reading-plans" data-i18n="reading_plans"><span class="home-action-icon" aria-hidden="true">📅</span><span data-i18n="reading_plans">${escapeHtml(__('reading_plans'))}</span></button>
           <button type="button" class="home-action-btn" data-action="settings" data-i18n="settings"><span class="home-action-icon" aria-hidden="true">⚙️</span><span data-i18n="settings">${escapeHtml(__('settings'))}</span></button>
         </div>
       </div>
@@ -122,6 +124,9 @@ function handleQuickAction(action: string | undefined): void {
       break;
     case 'favorites':
       dom.favoritesOpenBtn?.click();
+      break;
+    case 'reading-plans':
+      openReadingPlanPanel();
       break;
     case 'settings':
       dom.settingsToggleBtn?.click();

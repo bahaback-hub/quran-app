@@ -721,4 +721,22 @@ export default {
   home_read: 'Membaca',
   home_listen: 'Mendengar',
   home_more: 'Lebih banyak',
+
+  // === Pelan bacaan (khatam) ===
+  reading_plans: 'Pelan bacaan',
+  reading_plan_title: 'Pelan bacaan (khatam)',
+  reading_plan_intro:
+    'Tetapkan tempoh untuk menamatkan keseluruhan al-Quran (6236 ayat). Kemajuan dijejaki secara automatik semasa anda membaca.',
+  reading_plan_pick: 'Pilih tempoh untuk menamatkan al-Quran:',
+  reading_plan_whole_quran: 'baca keseluruhan al-Quran',
+  reading_plan_days: '{0} hari',
+  reading_plan_progress: 'Selesai',
+  reading_plan_today_target: 'Ayat hari ini',
+  reading_plan_remaining: 'Ayat berbaki',
+  reading_plan_ayahs_range: 'Ayat hari ini: {0}',
+  reading_plan_day: 'Hari {0} daripada {1}',
+  reading_plan_on_track: 'Berada di landasan — teruskan',
+  reading_plan_behind: 'Sedikit ketinggalan — baca lebih hari ini',
+  reading_plan_done: 'Alhamdulillah, khatam selesai!',
+  reading_plan_reset: 'Batal pelan',
 };

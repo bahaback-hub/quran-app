@@ -718,4 +718,22 @@ export default {
   home_read: 'Reading',
   home_listen: 'Listening',
   home_more: 'More',
+
+  // === Reading plans ===
+  reading_plans: 'Reading plan',
+  reading_plan_title: 'Reading plan (khatma)',
+  reading_plan_intro:
+    'Set a schedule to finish the whole Quran (6236 ayahs). Progress is tracked automatically as you read.',
+  reading_plan_pick: 'Choose how long you want to take to complete the Quran:',
+  reading_plan_whole_quran: 'read the whole Quran',
+  reading_plan_days: '{0} days',
+  reading_plan_progress: 'Completed',
+  reading_plan_today_target: "Today's ayahs",
+  reading_plan_remaining: 'Ayahs left',
+  reading_plan_ayahs_range: "Today's ayahs: {0}",
+  reading_plan_day: 'Day {0} of {1}',
+  reading_plan_on_track: 'On track — keep going',
+  reading_plan_behind: 'A little behind — read more today',
+  reading_plan_done: 'Praise be to God — khatma completed!',
+  reading_plan_reset: 'Cancel plan',
 };

@@ -6,6 +6,7 @@ export interface AppConfig {
   TAFSIR_API: string;
   PRAYER_API: string;
   AZAN_FILE: string;
+  CSP_REPORT_ENDPOINT: string;
   SURAH_COUNT: number;
   STORAGE_PREFIX: string;
   DEFAULT_RECITER: string;
@@ -37,6 +38,7 @@ export const CONFIG: AppConfig = {
   TAFSIR_API: env('VITE_TAFSIR_API', 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir'),
   PRAYER_API: env('VITE_PRAYER_API', 'https://api.aladhan.com/v1/timingsByCity'),
   AZAN_FILE: `${import.meta.env.BASE_URL}azan.mp3`,
+  CSP_REPORT_ENDPOINT: env('VITE_CSP_REPORT_ENDPOINT', ''),
   SURAH_COUNT: 114,
   STORAGE_PREFIX: 'quran_app_',
   DEFAULT_RECITER: 'ar.alafasy',

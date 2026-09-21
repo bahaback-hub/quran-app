@@ -15,6 +15,7 @@
  */
 
 import { settingsPanelHTML, floatingPlayerHTML, arabicKeyboardHTML, helpPanelHTML } from './templates.js';
+import { readingPlansPanelHTML } from './templates-reading-plans.js';
 
 /* ===================== ADHKAR NOTIFICATION ===================== */
 
@@ -307,7 +308,7 @@ export function injectOverlays(): void {
   // Inject the floating player, tafsir curtain, settings panel, and
   // other body-level panels BEFORE the overlay wrapper so they appear
   // in the correct DOM order relative to the static HTML elements.
-  const bodyFragments = [floatingPlayerHTML(), settingsPanelHTML(), helpPanelHTML()];
+  const bodyFragments = [floatingPlayerHTML(), settingsPanelHTML(), helpPanelHTML(), readingPlansPanelHTML()];
 
   const bodyWrapper = document.createElement('div');
   bodyWrapper.id = 'injected-panels';

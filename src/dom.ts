@@ -183,6 +183,9 @@ interface DomMap {
   readingStatsPanel: HTMLElement | null;
   readingStatsContent: HTMLElement | null;
   readingStatsCloseBtn: HTMLElement | null;
+  readingPlanPanel: HTMLElement | null;
+  readingPlanContent: HTMLElement | null;
+  readingPlanCloseBtn: HTMLElement | null;
 
   searchToggleBtn: HTMLElement | null;
   searchInputGroup: HTMLElement | null;
@@ -381,6 +384,9 @@ const DOM_IDS: (keyof DomMap)[] = [
   'qiblaDirection',
   'qiblaStatus',
   'qiblaCloseBtn',
+  'readingPlanCloseBtn',
+  'readingPlanContent',
+  'readingPlanPanel',
   'readingStatsPanel',
   'readingStatsContent',
   'readingStatsCloseBtn',

@@ -1,0 +1,60 @@
+name: Android Release
+
+# Builds a SIGNED Android AAB + APK. Manual only — never runs on push/PR.
+#
+# Repository secrets required (see docs at ANDROID_RELEASE.md):
+#   QURANAPP_KEYSTORE_B64   base64 of the release .jks keystore
+#   QURANAPP_STORE_PASS, QURANAPP_KEY_ALIAS, QURANAPP_KEY_PASS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build signed APK + AAB
+    runs-on: ubuntu-latest
+    env:
+      QURANAPP_STORE_PASS: ${{ secrets.QURANAPP_STORE_PASS }}
+      QURANAPP_KEY_ALIAS: ${{ secrets.QURANAPP_KEY_ALIAS }}
+      QURANAPP_KEY_PASS: ${{ secrets.QURANAPP_KEY_PASS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: npm ci
+
+      - name: Materialize keystore from secret
+        if: env.QURANAPP_KEYSTORE_B64 != ''
+        env:
+          QURANAPP_KEYSTORE_B64: ${{ secrets.QURANAPP_KEYSTORE_B64 }}
+        run: |
+          echo "${{ secrets.QURANAPP_KEYSTORE_B64 }}" | base64 --decode > "$RUNNER_TEMP/quranapp-release.jks"
+          echo "QURANAPP_KEYSTORE=$RUNNER_TEMP/quranapp-release.jks" >> "$GITHUB_ENV"
+
+      - name: Build signed release
+        run: node scripts/build-release.mjs --ci
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: quranapp-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: quranapp-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
