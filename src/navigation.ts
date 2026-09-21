@@ -46,7 +46,8 @@ export function initNavigation(): void {
     collapsePlayer();
   });
   dom.collapsedContent?.addEventListener('click', (e: MouseEvent) => {
-    if ((e.target as HTMLElement).closest('#collapsedPlayBtn')) {
+    const target = e.target as HTMLElement | SVGElement | null;
+    if (target?.closest('#collapsedPlayBtn, .floating-play-btn, .collapsed-controls, .collapsed-nav-btn')) {
       return;
     }
     expandPlayer();
@@ -55,7 +56,8 @@ export function initNavigation(): void {
     togglePlayPause();
     updatePlayPauseBtn();
   });
-  dom.collapsedPlayBtn?.addEventListener('click', () => {
+  dom.collapsedPlayBtn?.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
     togglePlayPause();
     updatePlayPauseBtn();
   });
