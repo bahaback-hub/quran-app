@@ -38,6 +38,13 @@
   flex-direction: column;
   gap: 6px;
 }
+
+.sleep-timer-badge {
+  display: none;
+  font-size: 11px;
+  color: var(--accent);
+  margin: 0 8px;
+}
 .player.collapsed .expanded-content {
   display: none;
 }

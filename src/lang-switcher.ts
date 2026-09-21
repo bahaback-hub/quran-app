@@ -42,7 +42,7 @@ const FLAGS: Record<LangCode, string> = {
 function flagMarkup(lang: LangCode): string {
   const src = `flags/${COUNTRY_CODES[lang]}.svg`;
   const emoji = FLAGS[lang] ?? '🌐';
-  return `<img class="lang-flag-img" src="${src}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span class="lang-flag-emoji" style="display:none">${emoji}</span>`;
+  return `<img class="lang-flag-img" src="${src}" alt="" loading="lazy" onerror="this.classList.add('is-hidden')"><span class="lang-flag-emoji">${emoji}</span>`;
 }
 
 let dropdownOpen = false;

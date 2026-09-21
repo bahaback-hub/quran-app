@@ -738,4 +738,23 @@ export default {
   reading_plan_behind: 'أنت متأخر قليلًا — اقرأ المزيد اليوم',
   reading_plan_done: 'الحمد لله، اكتملت الختمة!',
   reading_plan_reset: 'إلغاء الخطة',
+
+  // === عناصر المشغل والإعدادات ===
+  prayer_times_loading: '⏳ جاري تحميل المواقيت...',
+  city_placeholder: 'مكة',
+  country_placeholder: 'SA',
+  collapse_player: 'إغلاق المشغل',
+  prev_surah: 'السورة السابقة',
+  prev_ayah: 'الآية السابقة',
+  next_ayah: 'الآية التالية',
+  next_surah: 'السورة التالية',
+  recitation_speed: 'سرعة التلاوة',
+  reference_frequency: 'التردد المرجعي',
+  pitch_tuning: 'ضبط التردد',
+  play_pause: 'تشغيل/إيقاف',
+  hifz_mode: 'وضع الحفظ',
+  repeat_mode: 'التكرار',
+  sleep_timer: 'مؤقت النوم',
+  download_surah_audio: 'تحميل السورة للعمل بدون إنترنت',
+  autoplay_next_hint: 'التشغيل المتصل — ينتقل تلقائياً للسورة التالية',
 };

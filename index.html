@@ -58,40 +58,6 @@
     <link rel="dns-prefetch" href="https://server8.mp3quran.net" />
     <link rel="dns-prefetch" href="https://server9.mp3quran.net" />
     <link rel="stylesheet" href="styles.css" />
-    <style>
-      /* Reduced motion: disable animations and transitions for users who need it */
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-          scroll-behavior: auto !important;
-        }
-      }
-      /* Focus-visible: show focus ring only for keyboard navigation */
-      :focus-visible {
-        outline: 3px solid #5c2e2e;
-        outline-offset: 2px;
-        border-radius: 4px;
-      }
-      :focus:not(:focus-visible) {
-        outline: none;
-      }
-      /* Screen reader only utility class */
-      .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-      }
-    </style>
     <!-- Structured data: WebApplication (rich search results for PWA install prompts) -->
     <script type="application/ld+json">
       {
@@ -124,7 +90,7 @@
     ></div>
 
     <noscript>
-      <div style="background: #fee; color: #c33; padding: 20px; text-align: center; font-size: 18px">
+      <div class="noscript-banner">
         ⚠️ هذا التطبيق يحتاج إلى تفعيل JavaScript في المتصفح ليعمل.
       </div>
     </noscript>

@@ -736,4 +736,23 @@ export default {
   reading_plan_behind: 'A little behind — read more today',
   reading_plan_done: 'Praise be to God — khatma completed!',
   reading_plan_reset: 'Cancel plan',
+
+  // === Player and Settings UI Elements ===
+  prayer_times_loading: '⏳ Loading prayer times...',
+  city_placeholder: 'Makkah',
+  country_placeholder: 'SA',
+  collapse_player: 'Close player',
+  prev_surah: 'Previous Surah',
+  prev_ayah: 'Previous Ayah',
+  next_ayah: 'Next Ayah',
+  next_surah: 'Next Surah',
+  recitation_speed: 'Recitation speed',
+  reference_frequency: 'Reference frequency',
+  pitch_tuning: 'Pitch tuning',
+  play_pause: 'Play/Pause',
+  hifz_mode: 'Hifz mode',
+  repeat_mode: 'Repeat mode',
+  sleep_timer: 'Sleep timer',
+  download_surah_audio: 'Download Surah audio for offline use',
+  autoplay_next_hint: 'Continuous playback — automatically advances to the next Surah',
 };

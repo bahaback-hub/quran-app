@@ -53,25 +53,25 @@ export function settingsPanelHTML(): string {
       <div class="settings-tab-content active" data-tab="prayer">
         <div class="settings-section">
           <div class="prayer-times-list" id="settingsPrayerTimesRows" aria-live="polite">
-            <p class="centered-muted">⏳ جاري تحميل المواقيت...</p>
+            <p class="centered-muted" data-i18n="prayer_times_loading">⏳ جاري تحميل المواقيت...</p>
           </div>
         </div>
         <div class="settings-section">
           <div class="settings-section-title">📍 <span data-i18n="location_calculation">الموقع وطريقة الحساب</span></div>
           <div class="settings-row">
             <label for="cityInput" data-i18n="city">المدينة:</label>
-            <input type="text" id="cityInput" placeholder="مكة" />
+            <input type="text" id="cityInput" placeholder="مكة" data-i18n-placeholder="city_placeholder" />
           </div>
-          <div class="settings-row" style="gap:8px;">
+          <div class="settings-row">
             <button class="btn" id="useLocationBtn" data-i18n="use_my_location">📍 استخدم موقعي</button>
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:normal;">
+            <label class="settings-checkbox-label">
               <input type="checkbox" id="autoLocationToggle" />
               <span data-i18n="auto_location">تلقائي</span>
             </label>
           </div>
           <div class="settings-row">
             <label for="countryInput" data-i18n="country">الدولة:</label>
-            <input type="text" id="countryInput" placeholder="SA" />
+            <input type="text" id="countryInput" placeholder="SA" data-i18n-placeholder="country_placeholder" />
           </div>
           <div class="settings-row">
             <label for="cityQuickSelect" data-i18n="quick_select">اختيار سريع:</label>
@@ -350,19 +350,19 @@ export function floatingPlayerHTML(): string {
         <div class="expanded-header">
           <span id="playerReciterName">—</span>
           <span id="playerSurahName">—</span>
-          <button class="collapse-btn" id="collapsePlayerBtn" aria-label="إغلاق المشغل">✖</button>
+          <button class="collapse-btn" id="collapsePlayerBtn" aria-label="إغلاق المشغل" data-i18n-aria-label="collapse_player">✖</button>
         </div>
         <div class="current-ayah" id="playerCurrentAyah">—</div>
-        <span id="sleepTimerDisplay" style="display:none;font-size:11px;color:var(--accent);margin:0 8px;"></span>
+        <span id="sleepTimerDisplay" class="sleep-timer-badge"></span>
         <div class="player-row">
           <audio id="audioPlayer" controls preload="metadata"></audio>
         </div>
         <div class="player-buttons">
-          <button class="btn" id="prevSurahBtn" aria-label="السورة السابقة" title="السورة السابقة">⏮</button>
-          <button class="btn" id="prevAyahBtn" aria-label="الآية السابقة" title="الآية السابقة">◀</button>
+          <button class="btn" id="prevSurahBtn" aria-label="السورة السابقة" title="السورة السابقة" data-i18n-aria-label="prev_surah" data-i18n-title="prev_surah">⏮</button>
+          <button class="btn" id="prevAyahBtn" aria-label="الآية السابقة" title="الآية السابقة" data-i18n-aria-label="prev_ayah" data-i18n-title="prev_ayah">◀</button>
           <span class="speed-control" id="speedControl">
             <span class="speed-icon" aria-hidden="true">⏩</span>
-            <select id="speedSelect" aria-label="سرعة التلاوة" title="سرعة التلاوة" class="speed-select">
+            <select id="speedSelect" aria-label="سرعة التلاوة" title="سرعة التلاوة" data-i18n-aria-label="recitation_speed" data-i18n-title="recitation_speed" class="speed-select">
               <option value="0.5">0.5x</option>
               <option value="0.75">0.75x</option>
               <option value="1" selected>1x</option>
@@ -373,24 +373,24 @@ export function floatingPlayerHTML(): string {
           </span>
           <span class="pitch-control" id="pitchControl">
             <span class="pitch-icon" aria-hidden="true">🎵</span>
-            <select id="pitchSelect" aria-label="التردد المرجعي" title="التردد المرجعي" class="pitch-select">
+            <select id="pitchSelect" aria-label="التردد المرجعي" title="التردد المرجعي" data-i18n-aria-label="reference_frequency" data-i18n-title="reference_frequency" class="pitch-select">
               <option value="440" selected>440Hz</option>
               <option value="432">432Hz</option>
               <option value="528">528Hz</option>
               <option value="550">550Hz</option>
             </select>
-            <input type="range" id="pitchRange" min="400" max="600" step="1" value="440" aria-label="ضبط التردد" title="ضبط التردد (400-600Hz)" class="pitch-range" />
+            <input type="range" id="pitchRange" min="400" max="600" step="1" value="440" aria-label="ضبط التردد" title="ضبط التردد (400-600Hz)" data-i18n-aria-label="pitch_tuning" data-i18n-title="pitch_tuning" class="pitch-range" />
           </span>
-          <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف">⏯</button>
-          <button class="btn" id="nextAyahBtn" aria-label="الآية التالية" title="الآية التالية">▶</button>
-          <button class="btn" id="nextSurahBtn" aria-label="السورة التالية" title="السورة التالية">⏭</button>
+          <button class="btn btn-gold" id="playPauseBtn" aria-label="تشغيل/إيقاف" data-i18n-aria-label="play_pause">⏯</button>
+          <button class="btn" id="nextAyahBtn" aria-label="الآية التالية" title="الآية التالية" data-i18n-aria-label="next_ayah" data-i18n-title="next_ayah">▶</button>
+          <button class="btn" id="nextSurahBtn" aria-label="السورة التالية" title="السورة التالية" data-i18n-aria-label="next_surah" data-i18n-title="next_surah">⏭</button>
         </div>
         <div class="player-grid">
-          <button class="btn btn-hifdh grid-btn" id="hifdhBtn" aria-label="وضع الحفظ">🕋 حفظ</button>
-          <button class="btn btn-repeat grid-btn" id="repeatBtn" aria-label="التكرار">🔁 تكرار</button>
-          <button class="btn btn-autoplay grid-btn" id="autoPlayNextBtn" data-i18n="autoplay_next" aria-label="التشغيل المتصل" title="التشغيل المتصل — ينتقل تلقائياً للسورة التالية">🔗 متصل</button>
-          <button class="btn btn-sleep grid-btn" id="sleepTimerBtn" aria-label="مؤقت النوم" title="مؤقت النوم">😴 نوم</button>
-          <button class="btn btn-download grid-btn" id="downloadAudioBtn" data-i18n="download_audio" aria-label="تحميل السورة للعمل بدون إنترنت" title="تحميل السورة للعمل بدون إنترنت">📥 تحميل</button>
+          <button class="btn btn-hifdh grid-btn" id="hifdhBtn" aria-label="وضع الحفظ" data-i18n-aria-label="hifz_mode">🕋 حفظ</button>
+          <button class="btn btn-repeat grid-btn" id="repeatBtn" aria-label="التكرار" data-i18n-aria-label="repeat_mode">🔁 تكرار</button>
+          <button class="btn btn-autoplay grid-btn" id="autoPlayNextBtn" data-i18n="autoplay_next" aria-label="التشغيل المتصل" title="التشغيل المتصل — ينتقل تلقائياً للسورة التالية" data-i18n-aria-label="autoplay_next" data-i18n-title="autoplay_next_hint">🔗 متصل</button>
+          <button class="btn btn-sleep grid-btn" id="sleepTimerBtn" aria-label="مؤقت النوم" title="مؤقت النوم" data-i18n-aria-label="sleep_timer" data-i18n-title="sleep_timer">😴 نوم</button>
+          <button class="btn btn-download grid-btn" id="downloadAudioBtn" data-i18n="download_audio" aria-label="تحميل السورة للعمل بدون إنترنت" title="تحميل السورة للعمل بدون إنترنت" data-i18n-aria-label="download_surah_audio" data-i18n-title="download_surah_audio">📥 تحميل</button>
         </div>
         <div class="repeat-controls hidden" id="repeatControls">
           <label

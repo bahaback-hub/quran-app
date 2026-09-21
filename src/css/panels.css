@@ -602,6 +602,13 @@ body.night-mode .settings-section-title {
   flex: 1;
   min-width: 150px;
 }
+.settings-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: normal;
+}
 
 /* ========== زر الإعدادات (شفاف) ========== */
 .settings-toggle-btn {

@@ -1317,9 +1317,16 @@ html {
   display: block;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
 }
+.lang-flag-img.is-hidden {
+  display: none !important;
+}
 .lang-flag-emoji {
+  display: none;
   font-size: 24px;
   line-height: 1;
+}
+.lang-flag-img.is-hidden + .lang-flag-emoji {
+  display: inline !important;
 }
 .lang-option-flag .lang-flag-img {
   width: 24px;
