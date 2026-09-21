@@ -13,7 +13,7 @@ import {
   surahSecretsBody,
 } from '../../templates.js';
 import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from '../../surahs-data.js';
-import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from '../../app.js';
+import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from '../../surah-loader.js';
 import { prepareAudioForNewSurah, playCurrentAyah, setStoppedState, updatePlayPauseBtn } from '../audio/audio.js';
 import { handlePageClick, getAyahHighlightRects } from '../../ayah-click.js';
 import { renderPage, loadPageData, releaseCanvas, getCanvas, computeMushafPageGeometry } from './mushaf-renderer.js';

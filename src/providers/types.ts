@@ -9,7 +9,7 @@
  * pure metadata + URL building and avoids any import cycle.
  */
 
-import type { FetchOptions } from '../api-client.js';
+import type { FetchOptions } from '../types/api-options.js';
 
 /**
  * The network call used to materialize a provider. It resolves a fully

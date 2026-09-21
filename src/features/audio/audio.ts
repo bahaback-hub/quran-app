@@ -19,7 +19,6 @@ import { dom } from '../../dom.js';
 import { storage } from '../../storage.js';
 import { showToast } from '../../ui.js';
 import { hapticFeedback } from '../../utils.js';
-import { highlightCurrentAyah, reloadCurrentSurahAudio } from '../../surah-loader.js';
 import { __ } from '../../i18n.js';
 import { getCachedAudioUrl } from './audio-cache.js';
 import type { SurahData } from '../../types.js';

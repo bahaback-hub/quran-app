@@ -35,21 +35,8 @@ import { PRAYER_PROVIDER_ID, createPrayerProvider } from './providers/prayer.js'
 
 /* ===================== TYPES ===================== */
 
-export interface FetchOptions {
-  timeout?: number;
-  signal?: AbortSignal;
-  silent?: boolean;
-  errorMsg?: string;
-  expectJSON?: boolean;
-  /** Number of retry attempts for transient failures (5xx, 429 rate-limit, network errors). Default: 1. Set to 0 to disable. */
-  retries?: number;
-  /** Delay in ms between retries. Default: 1000. */
-  retryDelay?: number;
-  /** Skip request deduplication for this call. Default: false. */
-  noDedup?: boolean;
-  /** Use the bounded IndexedDB fallback for public JSON endpoints. Default: true. */
-  offlineCache?: boolean;
-}
+import type { FetchOptions } from './types/api-options.js';
+export type { FetchOptions };
 
 interface TimeoutController {
   controller: AbortController;

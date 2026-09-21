@@ -73,7 +73,7 @@ jobs:
           node -e '
             const summary = require("./coverage/coverage-summary.json");
             const failures = [];
-            const THRESHOLD = 50;
+            const THRESHOLD = 60;
             const BARREL_FILES = ["src/state.ts", "src/templates/index.ts"];
             for (const [file, data] of Object.entries(summary)) {
               if (file === "total") continue;

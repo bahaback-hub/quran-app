@@ -10,6 +10,9 @@ import { resolve } from 'node:path';
 const filesToCheck = [
   'index.html',
   'src/templates-panels.ts',
+  'src/templates/panels/settings-panel.ts',
+  'src/templates/panels/player-panel.ts',
+  'src/templates/panels/help-keyboard-panel.ts',
   'src/lang-switcher.ts',
   'src/overlays.ts'
 ];

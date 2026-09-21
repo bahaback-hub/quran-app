@@ -32,7 +32,7 @@ import {
   searchAutocompleteItem,
   escapeHtml,
 } from '../../templates.js';
-import { loadSurah, highlightCurrentAyah } from '../../app.js';
+import { loadSurah, highlightCurrentAyah } from '../../surah-loader.js';
 import { playCurrentAyah } from '../audio/audio.js';
 import {
   SEARCH_PAGE_SIZE,

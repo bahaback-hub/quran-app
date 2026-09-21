@@ -6,7 +6,7 @@
  * Each variable has a getter and setter for controlled access.
  */
 
-import type { SelectedAyah, QuranTextEntry } from './state.js';
+import type { SelectedAyah, QuranTextEntry } from './state/types.js';
 
 /* ===================== INTERNAL STATE VARIABLES ===================== */
 

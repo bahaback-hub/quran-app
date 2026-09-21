@@ -3,7 +3,7 @@ import { showToast } from './ui.js';
 import { stripTashkeel, copyToClipboard } from './utils.js';
 import { qariOption, tafsirLoading, tafsirContent, tafsirErrorMessage } from './templates.js';
 import { CONFIG } from './config.js';
-import { loadSurah } from './app.js';
+import { loadSurah } from './surah-loader.js';
 import { storage } from './storage.js';
 import { RECITERS, getReciterById, buildAudioUrl, getReciterDisplayName } from './reciters.js';
 import { fetchTafsirText } from './tafsir.js';
