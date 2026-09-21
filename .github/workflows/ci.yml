@@ -28,6 +28,14 @@ jobs:
         run: npx knip --no-progress
         # Knip checks for unused exports, dependencies, and files.
         # Mandatory — fails the build if dead code is detected.
+      - name: Circular dependency detection (madge)
+        run: npm run check:circular
+        continue-on-error: true
+        # Madge detects circular imports in the TypeScript source tree.
+        # Currently informational — 16 circular dependencies exist in the
+        # codebase (see docs/adr/circular-dependency-report.md for details).
+        # Once these are resolved, remove `continue-on-error: true` to make
+        # this check mandatory and prevent new circular imports from landing.
 
   test:
     name: Unit Tests

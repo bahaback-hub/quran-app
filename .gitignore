@@ -55,7 +55,8 @@ quran-app/
 # AI agent worklog
 agent-ctx/
 a11y-results.json
-docs/
+docs/*
+!docs/adr/
 
 # Local content-generation inputs and resumable workspaces
 .content-source/

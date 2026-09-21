@@ -31,6 +31,7 @@
     "lighthouse:badge": "node scripts/update-lighthouse-badge.mjs",
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "knip": "knip --no-progress",
+    "check:circular": "madge --circular --extensions ts src/",
     "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "engines": {
@@ -79,6 +80,7 @@
     "globals": "^15.0.0",
     "jsdom": "^29.1.1",
     "knip": "6.17.1",
+    "madge": "^8.0.0",
     "lightningcss": "^1.32.0",
     "prettier": "^3.0.0",
     "serve": "^14.2.6",
