@@ -21,7 +21,7 @@ vi.mock('@capacitor/core', () => ({
 vi.mock('@capacitor/share', () => ({
   Share: {
     canShare: () => mockCanShare(),
-    share: (...args: unknown[]) => mockNativeShare(...args),
+    share: (...args: unknown[]) => (mockNativeShare as (...a: unknown[]) => unknown)(...args),
   },
 }));
 

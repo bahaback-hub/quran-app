@@ -23,7 +23,7 @@ vi.mock('../surah-loader.js', () => ({
 
 // Mock types fullscreen functions
 vi.mock('../types.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     getFullscreenElement: vi.fn(() => null),
@@ -319,8 +319,8 @@ describe('presentation', () => {
     it('loads the adjacent surah from the presentation controls', async () => {
       state.presentationMode = true;
       state.surahList = [
-        { number: 1, name: 'الفاتحة', numberOfAyahs: 7 },
-        { number: 2, name: 'البقرة', numberOfAyahs: 286 },
+        { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 },
+        { number: 2, name: 'البقرة', englishName: 'Al-Baqarah', numberOfAyahs: 286 },
       ];
       const { initPresentation } = await import('../features/presentation/presentation.js');
       initPresentation();

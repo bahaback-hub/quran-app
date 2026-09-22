@@ -5,7 +5,7 @@ import { storage } from '../storage.js';
 
 // Mock internal-state to include all exports needed by adhkar modules
 vi.mock('../internal-state.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     getAdhkarNotificationTimer: vi.fn(() => null),

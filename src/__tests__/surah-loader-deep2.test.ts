@@ -167,14 +167,14 @@ function setupDom() {
   opt1.value = 'ar.alafasy';
   opt1.textContent = 'Alafasy';
   dom.reciterSelect.appendChild(opt1);
-  dom.playerInfo = document.createElement('div');
+  (dom as unknown as Record<string, HTMLElement | null>).playerInfo = document.createElement('div');
   dom.playerCurrentAyah = document.createElement('div');
-  dom.playerCurrentSurah = document.createElement('div');
+  (dom as unknown as Record<string, HTMLElement | null>).playerCurrentSurah = document.createElement('div');
   dom.playerSurahName = document.createElement('div');
   dom.playerReciterName = document.createElement('div');
   dom.collapsedInfo = document.createElement('div');
-  dom.collapsedPlayerInfo = document.createElement('div');
-  dom.ayahContainer = document.createElement('div');
+  (dom as unknown as Record<string, HTMLElement | null>).collapsedPlayerInfo = document.createElement('div');
+  (dom as unknown as Record<string, HTMLElement | null>).ayahContainer = document.createElement('div');
   dom.tafsirCurtain = document.createElement('div');
   dom.translationSelect = document.createElement('select') as HTMLSelectElement;
   const transOpt = document.createElement('option');
@@ -432,7 +432,7 @@ describe('surah-loader deep2 coverage', () => {
   describe('loadSurah — API fetchAyahTimings', () => {
     it('should try to fetch ayah timings when reciter has timingApiId', async () => {
       const { getTimingApiId } = await import('../reciters.js');
-      vi.mocked(getTimingApiId).mockReturnValue('7');
+      vi.mocked(getTimingApiId).mockReturnValue(7);
       vi.mocked(jsonFetch).mockResolvedValue({
         audio_file: {
           timestamps: [
@@ -453,7 +453,7 @@ describe('surah-loader deep2 coverage', () => {
 
     it('should handle jsonFetch returning null for timings', async () => {
       const { getTimingApiId } = await import('../reciters.js');
-      vi.mocked(getTimingApiId).mockReturnValue('7');
+      vi.mocked(getTimingApiId).mockReturnValue(7);
       vi.mocked(jsonFetch).mockResolvedValue(null);
 
       vi.mocked(apiFetch).mockResolvedValue({ data: SAMPLE_SURAH });

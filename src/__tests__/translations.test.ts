@@ -232,7 +232,16 @@ describe('Translation bundle consistency', () => {
       import('../translations/ru'),
     ]);
 
-    const bundles = [ar.default, en.default, tr.default, ms.default, id.default, fr.default, de.default, ru.default];
+    const bundles = [
+      ar.default,
+      en.default,
+      tr.default,
+      ms.default,
+      id.default,
+      fr.default,
+      de.default,
+      ru.default,
+    ] as unknown as Record<string, string>[];
     const names = ['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru'];
 
     // All should have weekdays
@@ -275,7 +284,16 @@ describe('Translation bundle consistency', () => {
     ]);
 
     const prayerKeys = ['prayer_fajr', 'prayer_sunrise', 'prayer_dhuhr', 'prayer_asr', 'prayer_maghrib', 'prayer_isha'];
-    const bundles = [ar.default, en.default, tr.default, ms.default, id.default, fr.default, de.default, ru.default];
+    const bundles = [
+      ar.default,
+      en.default,
+      tr.default,
+      ms.default,
+      id.default,
+      fr.default,
+      de.default,
+      ru.default,
+    ] as unknown as Record<string, string>[];
     const names = ['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru'];
 
     for (let i = 0; i < bundles.length; i++) {
@@ -308,7 +326,16 @@ describe('Translation bundle consistency', () => {
       'a11y_reading_progress',
       'reduced_motion_enabled',
     ];
-    const bundles = [ar.default, en.default, tr.default, ms.default, id.default, fr.default, de.default, ru.default];
+    const bundles = [
+      ar.default,
+      en.default,
+      tr.default,
+      ms.default,
+      id.default,
+      fr.default,
+      de.default,
+      ru.default,
+    ] as unknown as Record<string, string>[];
     const names = ['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru'];
 
     for (let i = 0; i < bundles.length; i++) {

@@ -31,7 +31,7 @@
   --content-bg: #ffffff;
   --text-primary: #1a1410;
   --text-secondary: #3d3028;
-  --text-muted: #8a7b6d;
+  --text-muted: #6e6150;
   --accent: #c47a12;
   --accent-dark: #9a5e08;
   --primary: #9a7b4f;
@@ -132,7 +132,7 @@ body.sepia-mode {
   --content-bg: #f8f0e0;
   --text-primary: #2c1e0e;
   --text-secondary: #4a3828;
-  --text-muted: #8a7a66;
+  --text-muted: #6e6150;
   --primary: #7a5e38;
   --primary-light: #9a7e52;
   --border: #8a6840;

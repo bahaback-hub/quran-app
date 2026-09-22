@@ -3,7 +3,7 @@ import { escapeRegExp, normalizeExactText } from '../utils.js';
 
 // Mock internal-state with search-related exports
 vi.mock('../internal-state.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     setAllSearchMatches: vi.fn(),

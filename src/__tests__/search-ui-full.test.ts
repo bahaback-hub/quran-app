@@ -170,8 +170,8 @@ import { playCurrentAyah } from '../features/audio/audio.js';
 describe('performExactSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).fullQuranLoaded = true;
-    (state as Record<string, unknown>).fullQuranText = [];
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranText = [];
   });
 
   it('should show error toast for empty query', () => {
@@ -206,7 +206,7 @@ describe('performExactSearch', () => {
   });
 
   it('should show error toast when Quran is not loaded', () => {
-    (state as Record<string, unknown>).fullQuranLoaded = false;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = false;
     performExactSearch('الله');
     expect(showToast).toHaveBeenCalledWith('quran_db_loading', 'error');
   });
@@ -228,13 +228,13 @@ describe('performExactSearch', () => {
   });
 
   it('should not throw when searchResults DOM is null', () => {
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
     expect(() => performExactSearch('الله')).not.toThrow();
   });
 
   it('should render results into searchResults element', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     performExactSearch('الله');
     expect(el.style.display).toBe('block');
   });
@@ -246,7 +246,7 @@ describe('performExactSearch', () => {
 
   it('should render empty results when no matches found', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     vi.mocked(performSearch).mockReturnValue([]);
     performExactSearch('xyz');
     expect(el.innerHTML).toContain('search-empty');
@@ -254,9 +254,9 @@ describe('performExactSearch', () => {
 
   it('should render match cards when results found', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     const matches = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
-    (state as Record<string, unknown>).fullQuranText = matches;
+    (state as unknown as Record<string, unknown>).fullQuranText = matches;
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);
     performExactSearch('الله');
@@ -265,7 +265,7 @@ describe('performExactSearch', () => {
 
   it('should show load more button when results exceed page size', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     const manyMatches = Array.from({ length: 15 }, (_, i) => ({
       surah: 1,
       surahName: 'الفاتحة',
@@ -273,7 +273,7 @@ describe('performExactSearch', () => {
       text: `آية ${i}`,
       normalized: `آية ${i}`,
     }));
-    (state as Record<string, unknown>).fullQuranText = manyMatches;
+    (state as unknown as Record<string, unknown>).fullQuranText = manyMatches;
     vi.mocked(performSearch).mockReturnValue(manyMatches);
     vi.mocked(getAllSearchMatches).mockReturnValue(manyMatches);
     performExactSearch('آية');
@@ -296,17 +296,17 @@ describe('initSearchAutocomplete', () => {
     dropdown.id = 'searchAutocomplete';
     document.body.appendChild(input);
     document.body.appendChild(dropdown);
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
   });
 
   afterEach(() => {
     input.remove();
     dropdown.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should not throw when input or dropdown is missing', () => {
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
     expect(() => initSearchAutocomplete()).not.toThrow();
   });
 
@@ -350,11 +350,11 @@ describe('initSearchAutocomplete', () => {
 
   it('should show autocomplete suggestions on input', () => {
     vi.useFakeTimers();
-    (state as Record<string, unknown>).searchWords = [
+    (state as unknown as Record<string, unknown>).searchWords = [
       { word: 'الله', count: 100 },
       { word: 'الرحمن', count: 50 },
     ];
-    (state as Record<string, unknown>).searchPrefixMap = new Map([['ال', [{ word: 'الله', count: 100 }]]]);
+    (state as unknown as Record<string, unknown>).searchPrefixMap = new Map([['ال', [{ word: 'الله', count: 100 }]]]);
     initSearchAutocomplete();
     input.value = 'ال';
     input.dispatchEvent(new Event('input'));
@@ -366,7 +366,7 @@ describe('initSearchAutocomplete', () => {
 
   it('should hide dropdown when input is empty after typing', () => {
     vi.useFakeTimers();
-    (state as Record<string, unknown>).searchWords = [];
+    (state as unknown as Record<string, unknown>).searchWords = [];
     initSearchAutocomplete();
     input.value = '';
     input.dispatchEvent(new Event('input'));
@@ -377,7 +377,7 @@ describe('initSearchAutocomplete', () => {
 
   it('should hide dropdown when searchWords is empty', () => {
     vi.useFakeTimers();
-    (state as Record<string, unknown>).searchWords = [];
+    (state as unknown as Record<string, unknown>).searchWords = [];
     initSearchAutocomplete();
     input.value = 'test';
     input.dispatchEvent(new Event('input'));
@@ -467,8 +467,8 @@ describe('initSearchAutocomplete', () => {
 
   it('should fall back to linear scan for prefixes longer than 5', () => {
     vi.useFakeTimers();
-    (state as Record<string, unknown>).searchWords = [{ word: 'abcdefghij', count: 5 }];
-    (state as Record<string, unknown>).searchPrefixMap = new Map();
+    (state as unknown as Record<string, unknown>).searchWords = [{ word: 'abcdefghij', count: 5 }];
+    (state as unknown as Record<string, unknown>).searchPrefixMap = new Map();
     initSearchAutocomplete();
     input.value = 'abcdef';
     input.dispatchEvent(new Event('input'));
@@ -480,8 +480,8 @@ describe('initSearchAutocomplete', () => {
 
   it('should hide dropdown when no suggestions match for long prefix', () => {
     vi.useFakeTimers();
-    (state as Record<string, unknown>).searchWords = [{ word: 'xyz', count: 5 }];
-    (state as Record<string, unknown>).searchPrefixMap = new Map();
+    (state as unknown as Record<string, unknown>).searchWords = [{ word: 'xyz', count: 5 }];
+    (state as unknown as Record<string, unknown>).searchPrefixMap = new Map();
     initSearchAutocomplete();
     input.value = 'abcdef';
     input.dispatchEvent(new Event('input'));
@@ -503,17 +503,17 @@ describe('startVoiceSearch', () => {
     voiceBtn = document.createElement('button');
     voiceBtn.id = 'voiceSearchBtn';
     document.body.appendChild(voiceBtn);
-    (dom as Record<string, unknown>).voiceSearchBtn = voiceBtn;
+    (dom as unknown as Record<string, unknown>).voiceSearchBtn = voiceBtn;
     // Ensure no SpeechRecognition by default
-    delete (window as Record<string, unknown>).SpeechRecognition;
-    delete (window as Record<string, unknown>).webkitSpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).SpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
   });
 
   afterEach(() => {
     voiceBtn.remove();
-    (dom as Record<string, unknown>).voiceSearchBtn = null;
-    delete (window as Record<string, unknown>).SpeechRecognition;
-    delete (window as Record<string, unknown>).webkitSpeechRecognition;
+    (dom as unknown as Record<string, unknown>).voiceSearchBtn = null;
+    delete (window as unknown as Record<string, unknown>).SpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
   });
 
   it('should show error toast when SpeechRecognition is not available', () => {
@@ -543,7 +543,7 @@ describe('startVoiceSearch', () => {
       this.start = mockStart;
       this.stop = vi.fn();
     }
-    (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
     vi.mocked(getVoiceListening).mockReturnValue(true);
     startVoiceSearch();
     expect(mockStart).not.toHaveBeenCalled();
@@ -570,7 +570,7 @@ describe('startVoiceSearch', () => {
       this.start = mockStart;
       this.stop = vi.fn();
     }
-    (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
     vi.mocked(getVoiceListening).mockReturnValue(false);
     startVoiceSearch();
     expect(setVoiceListening).toHaveBeenCalledWith(true);
@@ -597,7 +597,7 @@ describe('startVoiceSearch', () => {
       this.start = vi.fn();
       this.stop = vi.fn();
     }
-    (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
     vi.mocked(getVoiceListening).mockReturnValue(false);
     startVoiceSearch();
     expect(voiceBtn.classList.contains('listening')).toBe(true);
@@ -624,7 +624,7 @@ describe('startVoiceSearch', () => {
       this.start = mockStart;
       this.stop = vi.fn();
     }
-    (window as Record<string, unknown>).webkitSpeechRecognition = MockWebkitSpeechRecognition;
+    (window as unknown as Record<string, unknown>).webkitSpeechRecognition = MockWebkitSpeechRecognition;
     vi.mocked(getVoiceListening).mockReturnValue(false);
     startVoiceSearch();
     expect(mockStart).toHaveBeenCalled();
@@ -655,7 +655,7 @@ describe('startVoiceSearch', () => {
         capturedLang = this.lang;
       }, 0);
     }
-    (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
     vi.mocked(getVoiceListening).mockReturnValue(false);
     startVoiceSearch();
     // The recognition object is stored; verify via setVoiceRecognition
@@ -687,16 +687,16 @@ describe('startVoiceSearch', () => {
         onresultHandler = this.onresult;
       }, 0);
     }
-    (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
 
     const searchInput = document.createElement('input');
     searchInput.id = 'searchInput';
     document.body.appendChild(searchInput);
-    (dom as Record<string, unknown>).searchInput = searchInput;
+    (dom as unknown as Record<string, unknown>).searchInput = searchInput;
 
     const searchBtn = document.createElement('button');
     const clickSpy = vi.spyOn(searchBtn, 'click');
-    (dom as Record<string, unknown>).searchBtn = searchBtn;
+    (dom as unknown as Record<string, unknown>).searchBtn = searchBtn;
 
     vi.mocked(getVoiceListening).mockReturnValue(false);
     startVoiceSearch();
@@ -706,14 +706,14 @@ describe('startVoiceSearch', () => {
       onresult: ((e: { results: { 0: { 0: { transcript: string } } } }) => void) | null;
     };
     if (recognition && recognition.onresult) {
-      recognition.onresult({ results: { 0: { 0: { transcript: 'الله' } } } } as unknown as Event);
+      recognition.onresult({ results: { 0: { 0: { transcript: 'الله' } } } });
       expect(searchInput.value).toBe('الله');
     }
 
     searchInput.remove();
     searchBtn.remove();
-    (dom as Record<string, unknown>).searchInput = null;
-    (dom as Record<string, unknown>).searchBtn = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchBtn = null;
   });
 
   it('should handle onerror callback — show error toast', () => {
@@ -737,7 +737,7 @@ describe('startVoiceSearch', () => {
       this.start = vi.fn();
       this.stop = vi.fn();
     }
-    (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
     vi.mocked(getVoiceListening).mockReturnValue(false);
     startVoiceSearch();
 
@@ -771,7 +771,7 @@ describe('startVoiceSearch', () => {
       this.start = vi.fn();
       this.stop = vi.fn();
     }
-    (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
     vi.mocked(getVoiceListening).mockReturnValue(false);
     startVoiceSearch();
 
@@ -804,13 +804,13 @@ describe('initKeyboard', () => {
     keyBtn.textContent = 'ا';
     document.body.appendChild(toggleBtn);
     document.body.appendChild(keyBtn);
-    (dom as Record<string, unknown>).kbdToggleBtn = toggleBtn;
+    (dom as unknown as Record<string, unknown>).kbdToggleBtn = toggleBtn;
   });
 
   afterEach(() => {
     toggleBtn.remove();
     keyBtn.remove();
-    (dom as Record<string, unknown>).kbdToggleBtn = null;
+    (dom as unknown as Record<string, unknown>).kbdToggleBtn = null;
   });
 
   it('should find and set kbdToggleBtn in dom', () => {
@@ -819,7 +819,7 @@ describe('initKeyboard', () => {
   });
 
   it('should not throw when keyboard toggle button does not exist', () => {
-    (dom as Record<string, unknown>).kbdToggleBtn = null;
+    (dom as unknown as Record<string, unknown>).kbdToggleBtn = null;
     toggleBtn.remove();
     expect(() => initKeyboard()).not.toThrow();
   });
@@ -827,21 +827,21 @@ describe('initKeyboard', () => {
   it('should type a key character into the search input', () => {
     const input = document.createElement('input');
     input.type = 'text';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     keyBtn.click();
     expect(input.value).toContain('ا');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should handle clear key', () => {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = 'test';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     keyBtn.dataset['key'] = 'clear';
@@ -849,14 +849,14 @@ describe('initKeyboard', () => {
     expect(input.value).toBe('');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should handle space key', () => {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = 'hello';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     keyBtn.dataset['key'] = 'space';
@@ -864,14 +864,14 @@ describe('initKeyboard', () => {
     expect(input.value).toBe('hello ');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should handle backspace key when cursor at end', () => {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = 'abc';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     keyBtn.dataset['key'] = 'backspace';
@@ -882,14 +882,14 @@ describe('initKeyboard', () => {
     expect(input.value).toBe('ab');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should handle backspace key with selection range', () => {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = 'abcdef';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     keyBtn.dataset['key'] = 'backspace';
@@ -899,7 +899,7 @@ describe('initKeyboard', () => {
     expect(input.value).toBe('abef');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should handle backspace key when selectionStart is 0 (falls back to value.length)', () => {
@@ -908,7 +908,7 @@ describe('initKeyboard', () => {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = 'abc';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     keyBtn.dataset['key'] = 'backspace';
@@ -919,11 +919,11 @@ describe('initKeyboard', () => {
     expect(input.value).toBe('ab');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should not throw when searchInput is null and a key is clicked', () => {
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
     initKeyboard();
     expect(() => keyBtn.click()).not.toThrow();
   });
@@ -986,7 +986,7 @@ describe('initKeyboard', () => {
   it('should handle shift key toggle', () => {
     const input = document.createElement('input');
     input.type = 'text';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     // Create a shift-mappable key
@@ -1011,13 +1011,13 @@ describe('initKeyboard', () => {
 
     shiftKey.remove();
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should handle shift for number keys', () => {
     const input = document.createElement('input');
     input.type = 'text';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     const numKey = document.createElement('button');
@@ -1040,14 +1040,14 @@ describe('initKeyboard', () => {
 
     numKey.remove();
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should insert regular character at cursor position', () => {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = 'ab';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     input.selectionStart = 1;
@@ -1057,7 +1057,7 @@ describe('initKeyboard', () => {
     expect(input.value).toBe('aXb');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 });
 
@@ -1071,9 +1071,9 @@ describe('search result click delegation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resultsEl = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = resultsEl;
-    (state as Record<string, unknown>).fullQuranLoaded = true;
-    (state as Record<string, unknown>).fullQuranText = [
+    (dom as unknown as Record<string, unknown>).searchResults = resultsEl;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' },
     ];
     document.body.appendChild(resultsEl);
@@ -1081,7 +1081,7 @@ describe('search result click delegation', () => {
 
   afterEach(() => {
     resultsEl.remove();
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
   });
 
   it('should close results on close button click', () => {
@@ -1102,7 +1102,7 @@ describe('search result click delegation', () => {
     const matches = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);
-    (state as Record<string, unknown>).currentSurah = 2; // Different surah
+    (state as unknown as Record<string, unknown>).currentSurah = 2; // Different surah
 
     performExactSearch('الله');
 
@@ -1120,8 +1120,8 @@ describe('search result click delegation', () => {
     const matches = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);
-    (state as Record<string, unknown>).currentSurah = 1;
-    (state as Record<string, unknown>).surahData = {
+    (state as unknown as Record<string, unknown>).currentSurah = 1;
+    (state as unknown as Record<string, unknown>).surahData = {
       ayahs: [{ numberInSurah: 1 }, { numberInSurah: 2 }],
     };
 
@@ -1142,8 +1142,8 @@ describe('search result click delegation', () => {
     const matches = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);
-    (state as Record<string, unknown>).fullQuranLoaded = true;
-    (state as Record<string, unknown>).fullQuranText = matches;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranText = matches;
 
     performExactSearch('الله');
 
@@ -1169,7 +1169,7 @@ describe('search result click delegation', () => {
     opt.value = '1';
     opt.textContent = '1';
     surahSelect.appendChild(opt);
-    (dom as Record<string, unknown>).surahSelect = surahSelect;
+    (dom as unknown as Record<string, unknown>).surahSelect = surahSelect;
 
     performExactSearch('الله');
 
@@ -1184,14 +1184,14 @@ describe('search result click delegation', () => {
     expect(surahSelect.value).toBe('1');
 
     surahSelect.remove();
-    (dom as Record<string, unknown>).surahSelect = null;
+    (dom as unknown as Record<string, unknown>).surahSelect = null;
   });
 
   it('should handle clicking on a result item to open ayah modal', () => {
     const matches = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);
-    (state as Record<string, unknown>).fullQuranText = matches;
+    (state as unknown as Record<string, unknown>).fullQuranText = matches;
 
     performExactSearch('الله');
 
@@ -1211,7 +1211,7 @@ describe('search result click delegation', () => {
       text: `آية ${i}`,
       normalized: `آية ${i}`,
     }));
-    (state as Record<string, unknown>).fullQuranText = manyMatches;
+    (state as unknown as Record<string, unknown>).fullQuranText = manyMatches;
     vi.mocked(performSearch).mockReturnValue(manyMatches);
     vi.mocked(getAllSearchMatches).mockReturnValue(manyMatches);
 
@@ -1240,13 +1240,13 @@ describe('search history display', () => {
     dropdown.id = 'searchAutocomplete';
     document.body.appendChild(input);
     document.body.appendChild(dropdown);
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
   });
 
   afterEach(() => {
     input.remove();
     dropdown.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should render history items with delete buttons', () => {
@@ -1297,9 +1297,9 @@ describe('share functionality', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resultsEl = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = resultsEl;
-    (state as Record<string, unknown>).fullQuranLoaded = true;
-    (state as Record<string, unknown>).fullQuranText = [
+    (dom as unknown as Record<string, unknown>).searchResults = resultsEl;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' },
     ];
     document.body.appendChild(resultsEl);
@@ -1307,7 +1307,7 @@ describe('share functionality', () => {
 
   afterEach(() => {
     resultsEl.remove();
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
   });
 
   it('should handle share button click with text', async () => {
@@ -1347,20 +1347,20 @@ describe('search highlight caching', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resultsEl = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = resultsEl;
-    (state as Record<string, unknown>).fullQuranLoaded = true;
+    (dom as unknown as Record<string, unknown>).searchResults = resultsEl;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
     document.body.appendChild(resultsEl);
   });
 
   afterEach(() => {
     resultsEl.remove();
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
   });
 
   it('should cache highlight for no-match text (escaped text)', () => {
     // When no match, the escaped text should still be cached
     const matches = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
-    (state as Record<string, unknown>).fullQuranText = matches;
+    (state as unknown as Record<string, unknown>).fullQuranText = matches;
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);
 
@@ -1372,7 +1372,7 @@ describe('search highlight caching', () => {
 
   it('should produce highlight markup when matches found', () => {
     const matches = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' }];
-    (state as Record<string, unknown>).fullQuranText = matches;
+    (state as unknown as Record<string, unknown>).fullQuranText = matches;
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);
 
@@ -1391,7 +1391,7 @@ describe('search highlight caching', () => {
         normalized: 'بسم الله الرحمن الرحيم',
       },
     ];
-    (state as Record<string, unknown>).fullQuranText = matches;
+    (state as unknown as Record<string, unknown>).fullQuranText = matches;
     vi.mocked(performSearch).mockReturnValue(matches);
     vi.mocked(getAllSearchMatches).mockReturnValue(matches);
 

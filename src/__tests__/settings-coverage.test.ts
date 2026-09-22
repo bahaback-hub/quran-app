@@ -326,8 +326,9 @@ describe('settings — additional coverage', () => {
 
       storage.set('night_mode', false);
 
-      if (changeHandler) {
-        changeHandler({ matches: true } as MediaQueryListEvent);
+      const changeHandlerLocal = changeHandler as ((e: MediaQueryListEvent) => void) | null;
+      if (changeHandlerLocal) {
+        changeHandlerLocal({ matches: true } as MediaQueryListEvent);
         expect(state.nightMode).toBe(false);
       }
     });
@@ -348,8 +349,9 @@ describe('settings — additional coverage', () => {
       const { initSystemThemeDetection } = await import('../settings.js');
       initSystemThemeDetection();
 
-      if (changeHandler) {
-        changeHandler({ matches: true } as MediaQueryListEvent);
+      const changeHandlerLocal = changeHandler as ((e: MediaQueryListEvent) => void) | null;
+      if (changeHandlerLocal) {
+        changeHandlerLocal({ matches: true } as MediaQueryListEvent);
         expect(state.nightMode).toBe(true);
       }
     });
@@ -381,8 +383,9 @@ describe('settings — additional coverage', () => {
       expect(document.body.classList.contains('night-mode')).toBe(true);
 
       // Now simulate system switching to light
-      if (changeHandler) {
-        changeHandler({ matches: false } as MediaQueryListEvent);
+      const changeHandlerLocal = changeHandler as ((e: MediaQueryListEvent) => void) | null;
+      if (changeHandlerLocal) {
+        changeHandlerLocal({ matches: false } as MediaQueryListEvent);
         expect(state.nightMode).toBe(false);
       }
     });
@@ -410,8 +413,9 @@ describe('settings — additional coverage', () => {
       const { initSystemThemeDetection } = await import('../settings.js');
       initSystemThemeDetection();
 
-      if (changeHandler) {
-        changeHandler({ matches: true } as MediaQueryListEvent);
+      const changeHandlerLocal = changeHandler as ((e: MediaQueryListEvent) => void) | null;
+      if (changeHandlerLocal) {
+        changeHandlerLocal({ matches: true } as MediaQueryListEvent);
         expect(checkbox.checked).toBe(true);
         // aria-checked is NOT set on #themeToggle (role="group" doesn't allow it);
         // the individual theme-btn buttons use aria-pressed instead.

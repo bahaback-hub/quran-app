@@ -370,8 +370,8 @@ describe('tafsir coverage', () => {
   describe('Local Muyassar tafsir', () => {
     it('should load local Muyassar tafsir when available', async () => {
       // Mock fetch to return local Muyassar data
-      vi.spyOn(globalThis, 'fetch').mockImplementation((url: string) => {
-        if (url.includes('muyassar-tafsir')) {
+      vi.spyOn(globalThis, 'fetch').mockImplementation((input: string | URL | Request) => {
+        if (String(input).includes('muyassar-tafsir')) {
           return Promise.resolve({
             ok: true,
             json: () =>
@@ -391,8 +391,8 @@ describe('tafsir coverage', () => {
     });
 
     it('should handle local Muyassar fetch failure', async () => {
-      vi.spyOn(globalThis, 'fetch').mockImplementation((url: string) => {
-        if (url.includes('muyassar-tafsir')) {
+      vi.spyOn(globalThis, 'fetch').mockImplementation((input: string | URL | Request) => {
+        if (String(input).includes('muyassar-tafsir')) {
           return Promise.resolve({ ok: false } as Response);
         }
         return Promise.resolve({
@@ -457,8 +457,8 @@ describe('tafsir coverage', () => {
     });
 
     it('should handle local Muyassar with missing surah', async () => {
-      vi.spyOn(globalThis, 'fetch').mockImplementation((url: string) => {
-        if (url.includes('muyassar-tafsir')) {
+      vi.spyOn(globalThis, 'fetch').mockImplementation((input: string | URL | Request) => {
+        if (String(input).includes('muyassar-tafsir')) {
           return Promise.resolve({
             ok: true,
             json: () =>

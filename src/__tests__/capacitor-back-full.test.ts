@@ -58,7 +58,7 @@ describe('capacitor-back-full', () => {
   });
 
   afterEach(() => {
-    delete (globalThis as Record<string, unknown>).Capacitor;
+    delete (globalThis as unknown as Record<string, unknown>).Capacitor;
   });
 
   /** Helper to create a back button listener via initCapacitorBackButton */
@@ -87,7 +87,7 @@ describe('capacitor-back-full', () => {
 
   it('should fall back to global Capacitor when no plugins param', () => {
     const addListener = vi.fn();
-    (globalThis as Record<string, unknown>).Capacitor = { Plugins: { App: { addListener } } };
+    (globalThis as unknown as Record<string, unknown>).Capacitor = { Plugins: { App: { addListener } } };
     (getCapacitor as ReturnType<typeof vi.fn>).mockReturnValue({ Plugins: { App: { addListener } } });
     initCapacitorBackButton();
     expect(addListener).toHaveBeenCalledWith('backButton', expect.any(Function));
@@ -103,7 +103,9 @@ describe('capacitor-back-full', () => {
   it('should prefer plugins param over global Capacitor', () => {
     const globalAddListener = vi.fn();
     const pluginAddListener = vi.fn();
-    (globalThis as Record<string, unknown>).Capacitor = { Plugins: { App: { addListener: globalAddListener } } };
+    (globalThis as unknown as Record<string, unknown>).Capacitor = {
+      Plugins: { App: { addListener: globalAddListener } },
+    };
     (getCapacitor as ReturnType<typeof vi.fn>).mockReturnValue({
       Plugins: { App: { addListener: globalAddListener } },
     });
@@ -114,7 +116,9 @@ describe('capacitor-back-full', () => {
 
   it('should use global Capacitor when plugins.App is not provided', () => {
     const globalAddListener = vi.fn();
-    (globalThis as Record<string, unknown>).Capacitor = { Plugins: { App: { addListener: globalAddListener } } };
+    (globalThis as unknown as Record<string, unknown>).Capacitor = {
+      Plugins: { App: { addListener: globalAddListener } },
+    };
     (getCapacitor as ReturnType<typeof vi.fn>).mockReturnValue({
       Plugins: { App: { addListener: globalAddListener } },
     });

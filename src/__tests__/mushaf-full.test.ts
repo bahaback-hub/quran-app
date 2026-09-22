@@ -115,7 +115,7 @@ vi.mock('../ui.js', () => ({
 }));
 
 vi.mock('../utils.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     toArabicNumeral: (n: number) => String(n),
@@ -645,8 +645,8 @@ describe('mushaf.ts', () => {
 
     it('should populate surah overlay with surah list', () => {
       mockState.surahList = [
-        { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 },
-        { number: 2, name: 'البقرة', englishName: 'Al-Baqarah', numberOfAyahs: 286 },
+        { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha' },
+        { number: 2, name: 'البقرة', englishName: 'Al-Baqarah' },
       ];
 
       populateSurahOverlay();
@@ -658,7 +658,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should add secret button for surahs with secrets', () => {
-      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha' }];
 
       populateSurahOverlay();
 
@@ -667,7 +667,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should not add secret button for surahs without secrets', () => {
-      mockState.surahList = [{ number: 3, name: 'آل عمران', englishName: 'Aal-Imran', numberOfAyahs: 200 }];
+      mockState.surahList = [{ number: 3, name: 'آل عمران', englishName: 'Aal-Imran' }];
 
       populateSurahOverlay();
 
@@ -676,7 +676,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should set surah data attributes on buttons', () => {
-      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha' }];
 
       populateSurahOverlay();
 
@@ -686,7 +686,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should handle click on surah overlay button', async () => {
-      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha' }];
       vi.mocked(renderPage).mockResolvedValue({ canvas: null, layout: null });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
 
@@ -713,7 +713,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should handle click on secret button', () => {
-      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha' }];
 
       populateSurahOverlay();
 
@@ -726,7 +726,7 @@ describe('mushaf.ts', () => {
     });
 
     it('should only bind delegation once (_delegationBound)', () => {
-      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', numberOfAyahs: 7 }];
+      mockState.surahList = [{ number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha' }];
 
       populateSurahOverlay();
       populateSurahOverlay();
@@ -875,7 +875,7 @@ describe('mushaf.ts', () => {
         bottom: 700,
         x: 0,
         y: 0,
-      }));
+      })) as unknown as () => DOMRect;
       wrapper.getBoundingClientRect = vi.fn(() => ({
         left: 0,
         top: 0,
@@ -885,7 +885,7 @@ describe('mushaf.ts', () => {
         bottom: 700,
         x: 0,
         y: 0,
-      }));
+      })) as unknown as () => DOMRect;
 
       vi.mocked(getAyahHighlightRects).mockResolvedValue([{ left: 10, top: 20, width: 100, height: 30 }]);
 
@@ -928,7 +928,7 @@ describe('mushaf.ts', () => {
         bottom: 700,
         x: 0,
         y: 0,
-      }));
+      })) as unknown as () => DOMRect;
 
       vi.mocked(getAyahHighlightRects).mockResolvedValue([]);
 
@@ -971,7 +971,7 @@ describe('mushaf.ts', () => {
         bottom: 700,
         x: 0,
         y: 0,
-      }));
+      })) as unknown as () => DOMRect;
 
       vi.mocked(renderPage).mockResolvedValue({ canvas: null, layout: null });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
@@ -1026,7 +1026,7 @@ describe('mushaf.ts', () => {
         bottom: 700,
         x: 0,
         y: 0,
-      }));
+      })) as unknown as () => DOMRect;
       wrapper.getBoundingClientRect = vi.fn(() => ({
         left: 0,
         top: 0,
@@ -1036,7 +1036,7 @@ describe('mushaf.ts', () => {
         bottom: 700,
         x: 0,
         y: 0,
-      }));
+      })) as unknown as () => DOMRect;
 
       vi.mocked(getAyahHighlightRects).mockResolvedValue([{ left: 50, top: 60, width: 200, height: 40 }]);
 
@@ -1080,7 +1080,7 @@ describe('mushaf.ts', () => {
         bottom: 700,
         x: 0,
         y: 0,
-      }));
+      })) as unknown as () => DOMRect;
       wrapper.getBoundingClientRect = vi.fn(() => ({
         left: 0,
         top: 0,
@@ -1090,7 +1090,7 @@ describe('mushaf.ts', () => {
         bottom: 700,
         x: 0,
         y: 0,
-      }));
+      })) as unknown as () => DOMRect;
 
       vi.mocked(getAyahHighlightRects).mockResolvedValue([
         { left: 10, top: 20, width: 100, height: 30 },

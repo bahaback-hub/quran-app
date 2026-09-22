@@ -340,7 +340,7 @@ describe('presentation image sharing', () => {
 
   function installVideoExportMocks(timeoutMillis = 1200): VideoExportMocks {
     const realCreateElement = document.createElement.bind(document);
-    let lastAudio: { fire: (type: string) => void; currentTime: number; set currentTime(v: number) } | null = null;
+    let lastAudio: { fire: (type: string) => void; set currentTime(v: number) } | null = null;
 
     class FakeAudio {
       private listeners: Record<string, Array<(ev: Event) => void>> = {};
@@ -576,7 +576,7 @@ describe('presentation image sharing', () => {
 
     expect(document.getElementById('presentationSharePreview')?.style.display).toBe('flex');
     expect(focusSpy).toHaveBeenCalledWith();
-    expect(focusSpy.mock.instances.some((el) => el.id === 'presentationShareVideoBtn')).toBe(true);
+    expect(focusSpy.mock.instances.some((el) => (el as HTMLElement).id === 'presentationShareVideoBtn')).toBe(true);
   });
 
   it('draws whichever background source the overlay exposes onto the share image', async () => {

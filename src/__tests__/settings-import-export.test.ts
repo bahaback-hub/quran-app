@@ -86,16 +86,16 @@ vi.mock('../dom.js', () => ({
 
 vi.mock('../storage.js', () => ({
   storage: {
-    _data: {} as Record<string, unknown>,
+    _data: {} as unknown as Record<string, unknown>,
     get(key: string) {
-      return (this._data as Record<string, unknown>)[key] ?? null;
+      return (this._data as unknown as Record<string, unknown>)[key] ?? null;
     },
     set(key: string, val: unknown) {
-      (this._data as Record<string, unknown>)[key] = val;
+      (this._data as unknown as Record<string, unknown>)[key] = val;
       return true;
     },
     remove(key: string) {
-      delete (this._data as Record<string, unknown>)[key];
+      delete (this._data as unknown as Record<string, unknown>)[key];
     },
   },
 }));

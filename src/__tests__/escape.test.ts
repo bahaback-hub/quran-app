@@ -26,7 +26,7 @@ describe('escapeHtml', () => {
 
   it('handles empty strings and non-string truthy values', () => {
     expect(escapeHtml('')).toBe('');
-    expect(escapeHtml(42)).toBe('42');
+    expect(escapeHtml(42 as unknown as string)).toBe('42');
   });
 
   it('returns an empty string for null and undefined', () => {

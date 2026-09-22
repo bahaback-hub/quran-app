@@ -21,6 +21,7 @@ import {
   type SurahInfo,
   type FavoriteEntry,
 } from '../state.js';
+import type { CachedSurahEntry } from '../surah-cache.js';
 
 describe('createDefaultState', () => {
   it('should create a state with all default values', () => {
@@ -328,28 +329,36 @@ describe('Immutable helpers', () => {
 
   describe('immutableMapSet', () => {
     it('should add entry to map immutably', () => {
-      const mockSurahData = { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] };
-      immutableMapSet(state, 'surahCache', 1, mockSurahData as any);
-      expect(state.surahCache.get(1)).toBe(mockSurahData);
+      const mockCachedEntry = {
+        text: { number: 1, name: 'x', englishName: 'x', ayahs: [] },
+        translation: null,
+      } as CachedSurahEntry;
+      immutableMapSet(state, 'surahCache', '1', mockCachedEntry);
+      expect(state.surahCache.get('1')).toBe(mockCachedEntry);
     });
   });
 
   describe('immutableMapDelete', () => {
     it('should remove entry from map immutably', () => {
-      state.surahCache = new Map([[1, { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] }]]);
-      immutableMapDelete(state, 'surahCache', 1);
-      expect(state.surahCache.has(1)).toBe(false);
+      state.surahCache = new Map([
+        ['1', { text: { number: 1, name: 'x', englishName: 'x', ayahs: [] }, translation: null } as CachedSurahEntry],
+      ]);
+      immutableMapDelete(state, 'surahCache', '1');
+      expect(state.surahCache.has('1')).toBe(false);
     });
   });
 });
 
 describe('SurahCache type safety', () => {
-  it('surahCache should be typed as Map<number, SurahData>', () => {
+  it('surahCache should be typed as Map<string, CachedSurahEntry>', () => {
     expect(state.surahCache).toBeInstanceOf(Map);
     // This test verifies the type at compile time
-    state.surahCache.set(1, { number: 1, name: 'الفاتحة', englishName: 'Al-Fatiha', ayahs: [] });
-    const cached = state.surahCache.get(1);
+    state.surahCache.set('1', {
+      text: { number: 1, name: 'x', englishName: 'x', ayahs: [] },
+      translation: null,
+    } as CachedSurahEntry);
+    const cached = state.surahCache.get('1');
     expect(cached).toBeDefined();
-    expect(cached!.number).toBe(1);
+    expect(cached!.text).toBeDefined();
   });
 });

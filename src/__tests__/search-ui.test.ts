@@ -145,8 +145,8 @@ import { setAllSearchMatches, setSearchResultsPage, getVoiceListening, setVoiceL
 describe('performExactSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).fullQuranLoaded = true;
-    (state as Record<string, unknown>).fullQuranText = [];
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranText = [];
   });
 
   it('should show error toast for empty query', () => {
@@ -170,7 +170,7 @@ describe('performExactSearch', () => {
   });
 
   it('should show error toast when Quran is not loaded', () => {
-    (state as Record<string, unknown>).fullQuranLoaded = false;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = false;
     performExactSearch('الله');
     expect(showToast).toHaveBeenCalledWith('quran_db_loading', 'error');
   });
@@ -192,13 +192,13 @@ describe('performExactSearch', () => {
   });
 
   it('should not throw when searchResults DOM is null', () => {
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
     expect(() => performExactSearch('الله')).not.toThrow();
   });
 
   it('should render results into searchResults element', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     performExactSearch('الله');
     expect(el.style.display).toBe('block');
   });
@@ -220,17 +220,17 @@ describe('initSearchAutocomplete', () => {
     dropdown.id = 'searchAutocomplete';
     document.body.appendChild(input);
     document.body.appendChild(dropdown);
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
   });
 
   afterEach(() => {
     input.remove();
     dropdown.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should not throw when input or dropdown is missing', () => {
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
     expect(() => initSearchAutocomplete()).not.toThrow();
   });
 
@@ -272,13 +272,13 @@ describe('startVoiceSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Ensure no SpeechRecognition by default
-    delete (window as Record<string, unknown>).SpeechRecognition;
-    delete (window as Record<string, unknown>).webkitSpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).SpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
   });
 
   afterEach(() => {
-    delete (window as Record<string, unknown>).SpeechRecognition;
-    delete (window as Record<string, unknown>).webkitSpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).SpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
   });
 
   it('should show error toast when SpeechRecognition is not available', () => {
@@ -309,7 +309,7 @@ describe('startVoiceSearch', () => {
       this.start = mockStart;
       this.stop = vi.fn();
     }
-    (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
 
     vi.mocked(getVoiceListening).mockReturnValue(true);
     startVoiceSearch();
@@ -339,7 +339,7 @@ describe('startVoiceSearch', () => {
       this.start = mockStart;
       this.stop = vi.fn();
     }
-    (window as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
 
     vi.mocked(getVoiceListening).mockReturnValue(false);
     startVoiceSearch();
@@ -365,13 +365,13 @@ describe('initKeyboard', () => {
     keyBtn.textContent = 'ا';
     document.body.appendChild(toggleBtn);
     document.body.appendChild(keyBtn);
-    (dom as Record<string, unknown>).kbdToggleBtn = toggleBtn;
+    (dom as unknown as Record<string, unknown>).kbdToggleBtn = toggleBtn;
   });
 
   afterEach(() => {
     toggleBtn.remove();
     keyBtn.remove();
-    (dom as Record<string, unknown>).kbdToggleBtn = null;
+    (dom as unknown as Record<string, unknown>).kbdToggleBtn = null;
   });
 
   it('should find and set kbdToggleBtn in dom', () => {
@@ -380,7 +380,7 @@ describe('initKeyboard', () => {
   });
 
   it('should not throw when keyboard toggle button does not exist', () => {
-    (dom as Record<string, unknown>).kbdToggleBtn = null;
+    (dom as unknown as Record<string, unknown>).kbdToggleBtn = null;
     toggleBtn.remove();
     expect(() => initKeyboard()).not.toThrow();
   });
@@ -388,7 +388,7 @@ describe('initKeyboard', () => {
   it('should type a key character into the search input', () => {
     const input = document.createElement('input');
     input.type = 'text';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     keyBtn.click();
@@ -396,14 +396,14 @@ describe('initKeyboard', () => {
     expect(input.value).toContain('ا');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should handle clear key', () => {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = 'test';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     keyBtn.dataset['key'] = 'clear';
@@ -412,14 +412,14 @@ describe('initKeyboard', () => {
     expect(input.value).toBe('');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should handle space key', () => {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = 'hello';
-    (dom as Record<string, unknown>).searchInput = input;
+    (dom as unknown as Record<string, unknown>).searchInput = input;
     initKeyboard();
 
     keyBtn.dataset['key'] = 'space';
@@ -428,11 +428,11 @@ describe('initKeyboard', () => {
     expect(input.value).toBe('hello ');
 
     input.remove();
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
   });
 
   it('should not throw when searchInput is null and a key is clicked', () => {
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
     initKeyboard();
     expect(() => keyBtn.click()).not.toThrow();
   });

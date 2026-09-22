@@ -29,7 +29,7 @@ const {
   mockPopulateReciterSelect,
   mockShowHome,
 } = vi.hoisted(() => ({
-  mockStorageGet: vi.fn(() => null),
+  mockStorageGet: vi.fn<(key: string) => unknown>(() => null),
   mockStorageSet: vi.fn(),
   mockDom: {
     langSelect: null as HTMLSelectElement | null,
@@ -48,7 +48,7 @@ const {
 
 vi.mock('../storage.js', () => ({
   storage: {
-    get: (...args: unknown[]) => mockStorageGet(...args),
+    get: (...args: unknown[]) => mockStorageGet(...(args as [string])),
     set: (...args: unknown[]) => mockStorageSet(...args),
     remove: vi.fn(),
   },
@@ -143,8 +143,8 @@ vi.mock('../a11y.js', () => ({
 }));
 
 vi.mock('../surah-loader.js', () => ({
-  loadSurah: (...args: unknown[]) => mockLoadSurah(...args),
-  loadSurahList: (...args: unknown[]) => mockLoadSurahList(...args),
+  loadSurah: (...args: unknown[]) => mockLoadSurah(...(args as [])),
+  loadSurahList: (...args: unknown[]) => mockLoadSurahList(...(args as [])),
   buildSurahOffsets: (...args: unknown[]) => mockBuildSurahOffsets(...args),
   populateReciterSelect: (...args: unknown[]) => mockPopulateReciterSelect(...args),
   renderSurah: vi.fn(),
@@ -226,8 +226,8 @@ describe('app.ts — initApp', () => {
 
       await initApp();
 
-      const injectOrder = injectOverlays.mock.invocationCallOrder[0];
-      const cacheOrder = cacheDom.mock.invocationCallOrder[0];
+      const injectOrder = (injectOverlays as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0];
+      const cacheOrder = (cacheDom as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0];
       expect(injectOrder).toBeLessThan(cacheOrder);
     });
 

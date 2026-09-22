@@ -20,7 +20,7 @@ vi.mock('../i18n.js', () => ({
 
 // Mock ui — use importOriginal to preserve other exports if needed
 vi.mock('../ui.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     showToast: vi.fn(),

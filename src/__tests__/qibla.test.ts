@@ -43,7 +43,7 @@ describe('Qibla heading normalization', () => {
   });
 
   it('prefers the explicit iOS compass heading', () => {
-    const heading = getWebQiblaHeading({ webkitCompassHeading: 90 } as DeviceOrientationEvent);
+    const heading = getWebQiblaHeading({ webkitCompassHeading: 90 } as unknown as DeviceOrientationEvent);
     expect(heading).toBe(90);
   });
 

@@ -210,7 +210,7 @@ describe('Placeholder substitution with Arabic digits', () => {
 describe('Arabic translation bundle has all plural forms', () => {
   // Direct import — verifies the actual ar.ts file content
   it('should have all 6 plural forms for ayah_count', async () => {
-    const ar = (await import('../translations/ar.js')).default as Record<string, unknown>;
+    const ar = (await import('../translations/ar.js')).default as unknown as Record<string, unknown>;
     const ayahCount = ar['ayah_count'] as Record<string, string>;
     expect(ayahCount).toBeDefined();
     expect(ayahCount.zero).toBeDefined();
@@ -222,7 +222,7 @@ describe('Arabic translation bundle has all plural forms', () => {
   });
 
   it('should have all 6 plural forms for favorite_count', async () => {
-    const ar = (await import('../translations/ar.js')).default as Record<string, unknown>;
+    const ar = (await import('../translations/ar.js')).default as unknown as Record<string, unknown>;
     const favoriteCount = ar['favorite_count'] as Record<string, string>;
     expect(favoriteCount.zero).toBe('لا توجد مفضلات');
     expect(favoriteCount.one).toBe('مفضلة واحدة');
@@ -230,7 +230,7 @@ describe('Arabic translation bundle has all plural forms', () => {
   });
 
   it('should have plural forms for all 11 count-related keys', async () => {
-    const ar = (await import('../translations/ar.js')).default as Record<string, unknown>;
+    const ar = (await import('../translations/ar.js')).default as unknown as Record<string, unknown>;
     const keysWithPlurals = [
       'ayah_count',
       'favorite_count',

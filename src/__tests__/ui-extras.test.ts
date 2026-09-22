@@ -160,9 +160,9 @@ describe('updateReadingProgress', () => {
   });
 
   it('should update progress bar transform based on current ayah', async () => {
-    (state as Record<string, unknown>).mushafMode = false;
-    (state as Record<string, unknown>).currentAyahIndex = 5;
-    (state as Record<string, unknown>).surahData = { ayahs: new Array(10) };
+    (state as unknown as Record<string, unknown>).mushafMode = false;
+    (state as unknown as Record<string, unknown>).currentAyahIndex = 5;
+    (state as unknown as Record<string, unknown>).surahData = { ayahs: new Array(10) };
 
     updateReadingProgress();
     await new Promise((r) => setTimeout(r, 50));
@@ -172,8 +172,8 @@ describe('updateReadingProgress', () => {
   });
 
   it('should handle mushaf mode progress', async () => {
-    (state as Record<string, unknown>).mushafMode = true;
-    (state as Record<string, unknown>).currentPage = 100;
+    (state as unknown as Record<string, unknown>).mushafMode = true;
+    (state as unknown as Record<string, unknown>).currentPage = 100;
 
     updateReadingProgress();
     await new Promise((r) => setTimeout(r, 50));
@@ -183,25 +183,25 @@ describe('updateReadingProgress', () => {
 
   it('should not throw when surahContent is null', async () => {
     (dom as unknown as Record<string, HTMLElement | null>).surahContent = null;
-    (state as Record<string, unknown>).mushafMode = false;
-    (state as Record<string, unknown>).surahData = { ayahs: [] };
+    (state as unknown as Record<string, unknown>).mushafMode = false;
+    (state as unknown as Record<string, unknown>).surahData = { ayahs: [] };
 
     updateReadingProgress();
     await new Promise((r) => setTimeout(r, 50));
   });
 
   it('should not throw when surahData is null', async () => {
-    (state as Record<string, unknown>).mushafMode = false;
-    (state as Record<string, unknown>).surahData = null;
+    (state as unknown as Record<string, unknown>).mushafMode = false;
+    (state as unknown as Record<string, unknown>).surahData = null;
 
     updateReadingProgress();
     await new Promise((r) => setTimeout(r, 50));
   });
 
   it('should cap progress at 1 for last ayah', async () => {
-    (state as Record<string, unknown>).mushafMode = false;
-    (state as Record<string, unknown>).currentAyahIndex = 9;
-    (state as Record<string, unknown>).surahData = { ayahs: new Array(10) };
+    (state as unknown as Record<string, unknown>).mushafMode = false;
+    (state as unknown as Record<string, unknown>).currentAyahIndex = 9;
+    (state as unknown as Record<string, unknown>).surahData = { ayahs: new Array(10) };
 
     updateReadingProgress();
     await new Promise((r) => setTimeout(r, 50));
@@ -211,9 +211,9 @@ describe('updateReadingProgress', () => {
   });
 
   it('should handle zero ayahs gracefully', async () => {
-    (state as Record<string, unknown>).mushafMode = false;
-    (state as Record<string, unknown>).currentAyahIndex = 0;
-    (state as Record<string, unknown>).surahData = { ayahs: [] };
+    (state as unknown as Record<string, unknown>).mushafMode = false;
+    (state as unknown as Record<string, unknown>).currentAyahIndex = 0;
+    (state as unknown as Record<string, unknown>).surahData = { ayahs: [] };
 
     updateReadingProgress();
     await new Promise((r) => setTimeout(r, 50));

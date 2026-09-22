@@ -1,0 +1,10 @@
+﻿{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": false
+  },
+  "include": ["src/__tests__/**/*.ts", "src/**/*.d.ts"],
+  "exclude": ["node_modules", "dist", "app.bundle.js"]
+}

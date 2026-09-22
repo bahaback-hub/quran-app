@@ -70,7 +70,7 @@ vi.mock('../adhkar-data.js', () => {
 
 // Mock internal-state with all getters/setters used
 vi.mock('../internal-state.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     getAdhkarNotificationTimer: vi.fn(() => null),
@@ -1078,7 +1078,7 @@ describe('savePersonalAdhkar (via DOM)', () => {
   it('should initialize personal_adhkar array if undefined', () => {
     const settings = createTestSettings();
     // Remove personal_adhkar
-    delete (settings as Record<string, unknown>).personal_adhkar;
+    delete (settings as unknown as Record<string, unknown>).personal_adhkar;
     state.adhkarSettings = settings;
     wireAdhkarEvents();
     dom.adhkarAddText!.value = 'New dhikr';
@@ -1216,7 +1216,7 @@ describe('deletePersonalAdhkar (via DOM)', () => {
       // Find confirm button in the modal (it's the one with red background)
       const confirmBtn = document.querySelector('#adhkarDeleteModal button') as HTMLElement;
       // The first button is cancel, second is confirm - let's click the confirm
-      const allBtns = document.querySelectorAll('#adhkarDeleteModal button');
+      const allBtns = document.querySelectorAll<HTMLButtonElement>('#adhkarDeleteModal button');
       // Confirm button is the second one (last child in the button row)
       if (allBtns.length >= 2) {
         allBtns[1]!.click();
@@ -1240,7 +1240,7 @@ describe('deletePersonalAdhkar (via DOM)', () => {
     ) as HTMLElement;
     if (deleteBtn) {
       deleteBtn.click();
-      const allBtns = document.querySelectorAll('#adhkarDeleteModal button');
+      const allBtns = document.querySelectorAll<HTMLButtonElement>('#adhkarDeleteModal button');
       // Cancel is the first button
       allBtns[0]!.click();
       const modal = document.getElementById('adhkarDeleteModal');
@@ -1435,13 +1435,13 @@ describe('edge cases', () => {
     // This tests the cloneAdhkarSettings fallback when structuredClone is not available
     const originalStructuredClone = globalThis.structuredClone;
     // Temporarily remove structuredClone
-    (globalThis as Record<string, unknown>).structuredClone = undefined;
+    (globalThis as unknown as Record<string, unknown>).structuredClone = undefined;
     state.adhkarSettings = createTestSettings({ item_m1: 5 });
     // Load settings should still work with JSON fallback
     (storage.get as ReturnType<typeof vi.fn>).mockReturnValue(createTestSettings({ item_m1: 5 }));
     expect(() => loadAdhkarSettings()).not.toThrow();
     // Restore
-    (globalThis as Record<string, unknown>).structuredClone = originalStructuredClone;
+    (globalThis as unknown as Record<string, unknown>).structuredClone = originalStructuredClone;
   });
 
   it('should handle duration defaulting to 1 when NaN in settings list', () => {
@@ -1500,7 +1500,7 @@ describe('edge cases', () => {
 
   it('should handle category toggle creating new settings when catId has no entry', () => {
     state.adhkarSettings = createTestSettings();
-    delete (state.adhkarSettings as Record<string, unknown>)['morning'];
+    delete (state.adhkarSettings as unknown as Record<string, unknown>)['morning'];
     toggleAdhkarPanel();
     // Click the morning category toggle - should create new entry
     const toggle = dom.adhkarContent!.querySelector('.adhkar-cat-toggle[data-category="morning"]') as HTMLElement;
@@ -1512,7 +1512,7 @@ describe('edge cases', () => {
 
   it('should handle time change creating new settings when catId has no entry', () => {
     state.adhkarSettings = createTestSettings();
-    delete (state.adhkarSettings as Record<string, unknown>)['morning'];
+    delete (state.adhkarSettings as unknown as Record<string, unknown>)['morning'];
     toggleAdhkarPanel();
     const timeInput = dom.adhkarContent!.querySelector('.adhkar-cat-time[data-category="morning"]') as HTMLInputElement;
     if (timeInput) {
@@ -1524,7 +1524,7 @@ describe('edge cases', () => {
 
   it('should handle duration change creating new settings when catId has no entry', () => {
     state.adhkarSettings = createTestSettings();
-    delete (state.adhkarSettings as Record<string, unknown>)['morning'];
+    delete (state.adhkarSettings as unknown as Record<string, unknown>)['morning'];
     toggleAdhkarPanel();
     const durInput = dom.adhkarContent!.querySelector(
       '.adhkar-cat-duration[data-category="morning"]',
@@ -1538,7 +1538,7 @@ describe('edge cases', () => {
 
   it('should handle settings list toggle creating new settings when catId has no entry', () => {
     state.adhkarSettings = createTestSettings();
-    delete (state.adhkarSettings as Record<string, unknown>)['morning'];
+    delete (state.adhkarSettings as unknown as Record<string, unknown>)['morning'];
     renderAdhkarSettingsList();
     const toggle = dom.adhkarSettingsList!.querySelector('[data-adhkar-toggle="morning"]') as HTMLElement;
     if (toggle) {
@@ -1549,7 +1549,7 @@ describe('edge cases', () => {
 
   it('should handle settings list time change creating new settings when catId has no entry', () => {
     state.adhkarSettings = createTestSettings();
-    delete (state.adhkarSettings as Record<string, unknown>)['morning'];
+    delete (state.adhkarSettings as unknown as Record<string, unknown>)['morning'];
     renderAdhkarSettingsList();
     const timeInput = dom.adhkarSettingsList!.querySelector('[data-adhkar-time="morning"]') as HTMLInputElement;
     if (timeInput) {
@@ -1561,7 +1561,7 @@ describe('edge cases', () => {
 
   it('should handle settings list duration change creating new settings when catId has no entry', () => {
     state.adhkarSettings = createTestSettings();
-    delete (state.adhkarSettings as Record<string, unknown>)['morning'];
+    delete (state.adhkarSettings as unknown as Record<string, unknown>)['morning'];
     renderAdhkarSettingsList();
     const durInput = dom.adhkarSettingsList!.querySelector('[data-adhkar-duration="morning"]') as HTMLInputElement;
     if (durInput) {

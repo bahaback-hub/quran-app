@@ -8,8 +8,8 @@ import { CONFIG } from '../config.js';
 import type { JsonFetch } from '../providers/types.js';
 import { createPrayerProvider, PRAYER_PROVIDER_ID, PRAYER_DEFAULT_TIMEOUT_MS } from '../providers/prayer.js';
 
-function makeFetch() {
-  return vi.fn<JsonFetch>((_url: unknown) => Promise.resolve({ data: {} } as never));
+function makeFetch(): JsonFetch {
+  return vi.fn<JsonFetch>((_url: unknown) => Promise.resolve({ data: {} } as never)) as unknown as JsonFetch;
 }
 
 describe('PrayerProvider', () => {
@@ -50,7 +50,7 @@ describe('PrayerProvider', () => {
 
   it('should resolve the fetched payload', async () => {
     const payload = { data: { timings: { Fajr: '05:12' } } };
-    const fetchJson = vi.fn<JsonFetch>(() => Promise.resolve(payload) as never);
+    const fetchJson: JsonFetch = vi.fn<JsonFetch>(() => Promise.resolve(payload) as never) as unknown as JsonFetch;
     const provider = createPrayerProvider(fetchJson);
     await expect(provider.fetch('?city=Makkah')).resolves.toBe(payload);
   });

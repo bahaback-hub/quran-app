@@ -24,15 +24,15 @@ When the project was initiated, the team evaluated three approaches:
 
 ### Driving Forces
 
-| Factor | Framework | Vanilla TS |
-|--------|-----------|------------|
-| Initial bundle size | 40–60 KB+ runtime (React DOM) | 0 KB runtime overhead |
-| Performance budget | Must keep gzip < 300 KB | Easier to stay under budget |
-| First Contentful Paint | Framework hydration adds latency | Direct DOM render is immediate |
-| Offline-first / PWA | Extra weight in precache | Smaller precache (17 MB → 0.56 MB in v2.1.0) |
-| Capacitor WebView | Framework runtime consumes memory on low-end devices | Minimal memory footprint |
-| Full control over render timing | Frameworks schedule renders | Direct control via `requestIdleCallback` |
-| Dependency surface | React + ReactDOM + potential ecosystem deps | Zero framework dependencies |
+| Factor                          | Framework                                            | Vanilla TS                                   |
+| ------------------------------- | ---------------------------------------------------- | -------------------------------------------- |
+| Initial bundle size             | 40–60 KB+ runtime (React DOM)                        | 0 KB runtime overhead                        |
+| Performance budget              | Must keep gzip < 300 KB                              | Easier to stay under budget                  |
+| First Contentful Paint          | Framework hydration adds latency                     | Direct DOM render is immediate               |
+| Offline-first / PWA             | Extra weight in precache                             | Smaller precache (17 MB → 0.56 MB in v2.1.0) |
+| Capacitor WebView               | Framework runtime consumes memory on low-end devices | Minimal memory footprint                     |
+| Full control over render timing | Frameworks schedule renders                          | Direct control via `requestIdleCallback`     |
+| Dependency surface              | React + ReactDOM + potential ecosystem deps          | Zero framework dependencies                  |
 
 ### Constraints
 
@@ -53,7 +53,7 @@ When the project was initiated, the team evaluated three approaches:
 
 The application is built entirely with:
 
-- **TypeScript 6.0** in strict mode (`strict: true`, `noImplicitAny`,
+- **TypeScript 5.9** in strict mode (`strict: true`, `noImplicitAny`,
   `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature`).
 - **Direct DOM manipulation** — elements are cached in a `dom` object via
   `cacheDom()` (see `src/dom.ts`). No virtual DOM diffing.
@@ -69,14 +69,14 @@ The application is built entirely with:
 
 ### What We Gave Up
 
-| Framework Feature | Our Replacement |
-|-------------------|-----------------|
-| JSX / template syntax | Template literal strings + `escapeHtml()` |
-| Virtual DOM diffing | Direct DOM updates via `subscribe()` callbacks |
-| Component lifecycle hooks | Explicit init functions in 3-phase bootstrap |
-| React.lazy / Suspense | Dynamic `import()` + `requestIdleCallback` |
-| React DevTools | Custom `state/devtools.ts` with `window.__quranState` |
-| Ecosystem (React Router, etc.) | Custom navigation, keyboard, a11y modules |
+| Framework Feature              | Our Replacement                                       |
+| ------------------------------ | ----------------------------------------------------- |
+| JSX / template syntax          | Template literal strings + `escapeHtml()`             |
+| Virtual DOM diffing            | Direct DOM updates via `subscribe()` callbacks        |
+| Component lifecycle hooks      | Explicit init functions in 3-phase bootstrap          |
+| React.lazy / Suspense          | Dynamic `import()` + `requestIdleCallback`            |
+| React DevTools                 | Custom `state/devtools.ts` with `window.__quranState` |
+| Ecosystem (React Router, etc.) | Custom navigation, keyboard, a11y modules             |
 
 ### Build Configuration
 

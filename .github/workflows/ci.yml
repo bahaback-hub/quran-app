@@ -24,6 +24,7 @@ jobs:
       - run: npm run lint
       - run: npm run lint:zero-style
       - run: npm run typecheck
+      - run: npm run typecheck:tests
       - run: npm run format:check
       - name: Dead code detection (knip) — mandatory
         run: npx knip --no-progress

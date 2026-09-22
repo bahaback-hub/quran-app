@@ -294,7 +294,7 @@ describe('openAyahModal', () => {
   });
 
   it('should look up index from fullQuranText when index is -1', () => {
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بِسْمِ اللَّهِ' },
       { surah: 1, surahName: 'الفاتحة', ayah: 2, text: 'الْحَمْدُ لِلَّهِ' },
     ];
@@ -442,7 +442,7 @@ describe('Favorite functionality', () => {
   beforeEach(() => {
     createModalDOM();
     vi.clearAllMocks();
-    (state as Record<string, unknown>).favorites = [];
+    (state as unknown as Record<string, unknown>).favorites = [];
     initAyahModal();
     openAyahModal({
       surah: 1,

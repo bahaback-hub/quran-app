@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Use vi.hoisted for mock function used in vi.mock factory
 const { mockGetAyahAnnotations } = vi.hoisted(() => ({
-  mockGetAyahAnnotations: vi.fn(() => []),
+  mockGetAyahAnnotations: vi.fn<() => Array<{ rule: string; start: number; end: number }>>(() => []),
 }));
 
 // Mock tajweed module

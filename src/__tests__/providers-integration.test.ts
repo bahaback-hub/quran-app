@@ -17,7 +17,7 @@ function stubProvider(id: string, payload: unknown): JsonProvider {
     id,
     displayName: `stub-${id}`,
     baseUrl: 'https://stub.example',
-    fetch: vi.fn<JsonProvider['fetch']>(() => Promise.resolve(payload) as never),
+    fetch: vi.fn<JsonProvider['fetch']>(() => Promise.resolve(payload) as never) as unknown as JsonProvider['fetch'],
     isAvailable: () => true,
   };
 }

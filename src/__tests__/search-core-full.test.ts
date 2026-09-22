@@ -114,7 +114,7 @@ describe('SEARCH_PAGE_SIZE', () => {
 describe('performSearch', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       makeEntry(1, 1, 'بسم الله الرحمن الرحيم'),
       makeEntry(1, 2, 'الحمد لله رب العلمين'),
       makeEntry(2, 1, 'الم ذلك الكتاب لا ريب فيه'),
@@ -123,7 +123,7 @@ describe('performSearch', () => {
   });
 
   it('should return empty array when fullQuranText is null', () => {
-    (state as Record<string, unknown>).fullQuranText = null;
+    (state as unknown as Record<string, unknown>).fullQuranText = null;
     expect(performSearch('الله')).toEqual([]);
   });
 
@@ -165,10 +165,10 @@ describe('performSearch', () => {
 
   it('should fall back to relaxed normalization when exact yields no results', () => {
     // Set up text where only relaxed normalization would match
-    (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'الكتاب')];
+    (state as unknown as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'الكتاب')];
     // Searching for 'الكتيب' — in relaxed, ى→ي, so 'الكتيب' won't match 'الكتاب'
     // Let's test with ة→ه relaxed matching
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'الصلاة', normalized: 'الصلاة' },
     ];
     // 'الصلوه' in relaxed would normalize ة→ه, so 'الصلوه' → 'الصلوه' relaxed
@@ -184,7 +184,7 @@ describe('performSearch', () => {
   });
 
   it('should handle Arabic text with diacritics', () => {
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       {
         surah: 1,
         surahName: 'الفاتحة',
@@ -198,7 +198,7 @@ describe('performSearch', () => {
   });
 
   it('should handle query that starts with ال and generate variant without it', () => {
-    (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'رحمن')];
+    (state as unknown as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'رحمن')];
     // 'الرحمن' should match 'رحمن' via the variant path
     const result = performSearch('الرحمن');
     expect(result.length).toBeGreaterThanOrEqual(1);
@@ -206,14 +206,14 @@ describe('performSearch', () => {
 
   it('should not strip ال when the remaining word is too short (الله → له false positive)', () => {
     // Stripping ال from الله would produce له, which matches nearly every ayah.
-    (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'له')];
+    (state as unknown as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'له')];
     const result = performSearch('الله');
     expect(result).toEqual([]);
   });
 
   it('should not generate variant for ال prefix when query is short (length ≤ 3)', () => {
     // 'ال' itself has length 2, the variant slice would be '' (empty), which is guarded
-    (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'الله')];
+    (state as unknown as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'الله')];
     // ال itself normalized is ال, length 2, so > 3 check fails, no variant
     // But 'الله' length is 4 (اللّه normalized → الله length 4), so > 3, variant generated
     const result = performSearch('الله');
@@ -228,27 +228,27 @@ describe('performSearch', () => {
 describe('buildSearchWords', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).searchWords = [];
-    (state as Record<string, unknown>).searchPrefixMap = null;
+    (state as unknown as Record<string, unknown>).searchWords = [];
+    (state as unknown as Record<string, unknown>).searchPrefixMap = null;
   });
 
   it('should be no-op when fullQuranText is null', () => {
-    (state as Record<string, unknown>).fullQuranText = null;
+    (state as unknown as Record<string, unknown>).fullQuranText = null;
     buildSearchWords();
     expect(state.searchWords).toEqual([]);
     expect(state.searchPrefixMap).toBeNull();
   });
 
   it('should be no-op when searchWords already populated', () => {
-    (state as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'بسم الله')];
-    (state as Record<string, unknown>).searchWords = [{ word: 'الله', count: 1 }];
+    (state as unknown as Record<string, unknown>).fullQuranText = [makeEntry(1, 1, 'بسم الله')];
+    (state as unknown as Record<string, unknown>).searchWords = [{ word: 'الله', count: 1 }];
     buildSearchWords();
     // Should not rebuild since searchWords already has entries
     expect(state.searchWords).toEqual([{ word: 'الله', count: 1 }]);
   });
 
   it('should build word frequency index from Quran text', () => {
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       makeEntry(1, 1, 'الله الله الله الرحمن'),
       makeEntry(1, 2, 'الله الرحمن'),
     ];
@@ -260,7 +260,7 @@ describe('buildSearchWords', () => {
   });
 
   it('should skip words shorter than 2 characters', () => {
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'ا ب ت', normalized: 'ا ب ت' },
     ];
     buildSearchWords();
@@ -269,7 +269,7 @@ describe('buildSearchWords', () => {
   });
 
   it('should sort words by count descending, then alphabetically', () => {
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       { surah: 1, surahName: 'T', ayah: 1, text: 'beta alpha alpha', normalized: 'beta alpha alpha' },
     ];
     buildSearchWords();
@@ -281,7 +281,7 @@ describe('buildSearchWords', () => {
 
   it('should build prefix map with max 8 suggestions per prefix', () => {
     const words = Array.from({ length: 12 }, (_, i) => `aa${i}`);
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       {
         surah: 1,
         surahName: 'T',
@@ -299,7 +299,7 @@ describe('buildSearchWords', () => {
   });
 
   it('should build prefix map for prefixes up to length 5', () => {
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       { surah: 1, surahName: 'T', ayah: 1, text: 'abcdefgh', normalized: 'abcdefgh' },
     ];
     buildSearchWords();
@@ -314,7 +314,7 @@ describe('buildSearchWords', () => {
   });
 
   it('should handle empty normalized text gracefully', () => {
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       { surah: 1, surahName: 'T', ayah: 1, text: '', normalized: '' },
     ];
     buildSearchWords();
@@ -434,21 +434,21 @@ describe('clearSearchHistory', () => {
 describe('loadFullQuranText', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).fullQuranLoaded = false;
-    (state as Record<string, unknown>).fullQuranText = null;
-    (state as Record<string, unknown>).searchWords = [];
-    (state as Record<string, unknown>).searchPrefixMap = null;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = false;
+    (state as unknown as Record<string, unknown>).fullQuranText = null;
+    (state as unknown as Record<string, unknown>).searchWords = [];
+    (state as unknown as Record<string, unknown>).searchPrefixMap = null;
   });
 
   it('should be no-op if fullQuranLoaded is already true', async () => {
-    (state as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
     await loadFullQuranText();
     // Should not try to open IndexedDB or fetch
     expect(state.fullQuranText).toBeNull();
   });
 
   it('should be no-op on second call when already loaded', async () => {
-    (state as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
     await loadFullQuranText();
     await loadFullQuranText();
     // No error thrown
@@ -462,7 +462,7 @@ describe('loadFullQuranText', () => {
 describe('performSearch — integration scenarios', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       {
         surah: 1,
         surahName: 'الفاتحة',

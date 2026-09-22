@@ -30,7 +30,7 @@ vi.mock('../storage.js', () => ({
 }));
 
 vi.mock('../utils.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     hapticFeedback: vi.fn(),

@@ -133,11 +133,11 @@ describe('initCapacitorBackButton', () => {
 
   it('should fall back to global Capacitor when no plugins param', async () => {
     const addListener = vi.fn();
-    (globalThis as Record<string, unknown>).Capacitor = { Plugins: { App: { addListener } } };
+    (globalThis as unknown as Record<string, unknown>).Capacitor = { Plugins: { App: { addListener } } };
     const { initCapacitorBackButton } = await import('../capacitor-back.js');
     initCapacitorBackButton();
     expect(addListener).toHaveBeenCalledWith('backButton', expect.any(Function));
-    delete (globalThis as Record<string, unknown>).Capacitor;
+    delete (globalThis as unknown as Record<string, unknown>).Capacitor;
   });
 
   it('should handle addListener errors gracefully', async () => {

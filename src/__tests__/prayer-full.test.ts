@@ -2,6 +2,7 @@
  * Comprehensive tests for prayer.ts — covers all exported functions and major code paths.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { Mock } from 'vitest';
 import { state } from '../state.js';
 
 // ─── Use vi.hoisted for ALL variables used inside vi.mock factories ───
@@ -25,11 +26,11 @@ const {
   }
 
   // Helper: create a mock audio element with vitest fns
-  function createMockAudioElement(): HTMLAudioElement {
-    const el = document.createElement('audio') as HTMLAudioElement;
+  function createMockAudioElement(): HTMLAudioElement & { play: Mock<() => Promise<void>> } {
+    const el = document.createElement('audio') as HTMLAudioElement & { play: Mock<() => Promise<void>> };
     el.pause = vi.fn();
     el.load = vi.fn();
-    el.play = vi.fn(() => Promise.resolve());
+    el.play = vi.fn<() => Promise<void>>(() => Promise.resolve());
     el.removeAttribute = vi.fn();
     return el;
   }
@@ -44,7 +45,6 @@ const {
     methodSelect: Object.assign(createMockElement(), { value: '4' }) as unknown as HTMLSelectElement,
     prayerTimesRows: createMockElement(),
     prayerNextCountdown: Object.assign(createMockElement(), { id: 'prayerNextCountdown' }),
-    prayerTimesRows: createMockElement(),
     nextPrayerName: createMockElement(),
     nextPrayerTime: createMockElement(),
     azanNotification: createMockElement(),
@@ -59,7 +59,7 @@ const {
   return {
     mockGetPrayerName: vi.fn((key: string) => key),
     mockGetWeekday: vi.fn((day: number) => `day-${day}`),
-    mockStorageGet: vi.fn(() => null),
+    mockStorageGet: vi.fn<(key: string) => unknown>(() => null),
     mockStorageSet: vi.fn(),
     mockPrayerFetch: vi.fn(),
     mockCalculatePrayerTimesLocally: vi.fn(),
@@ -117,7 +117,7 @@ vi.mock('../i18n.js', () => ({
 
 vi.mock('../storage.js', () => ({
   storage: {
-    get: (...args: unknown[]) => mockStorageGet(...args),
+    get: (...args: unknown[]) => (mockStorageGet as (...a: unknown[]) => unknown)(...args),
     set: (...args: unknown[]) => mockStorageSet(...args),
     remove: vi.fn(),
   },
@@ -778,7 +778,7 @@ describe('prayer.ts', () => {
   describe('stopAzan', () => {
     it('should pause azan player and reset state', () => {
       state.azanPlaying = true;
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
 
       stopAzan();
 
@@ -818,7 +818,7 @@ describe('prayer.ts', () => {
 
     it('should play azan when not playing', async () => {
       state.azanPlaying = false;
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       testAzan();
@@ -831,9 +831,9 @@ describe('prayer.ts', () => {
     it('should pause Quran audio if playing when starting azan', async () => {
       state.azanPlaying = false;
       state.isPlaying = true;
-      const audioPlayer = mockDom.audioPlayer as HTMLAudioElement;
+      const audioPlayer = mockDom.audioPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       Object.defineProperty(audioPlayer, 'paused', { value: false, configurable: true });
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       testAzan();
@@ -854,7 +854,7 @@ describe('prayer.ts', () => {
 
     it('should show error toast when play fails', async () => {
       state.azanPlaying = false;
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockRejectedValue(new Error('NotAllowedError'));
 
       testAzan();
@@ -880,7 +880,7 @@ describe('prayer.ts', () => {
     it('should do nothing when azanEnabled is false', () => {
       state.prayerTimes = { ...SAMPLE_PRAYER_TIMES };
       state.azanEnabled = false;
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       checkAzanTime();
       expect(azanPlayer.play).not.toHaveBeenCalled();
     });
@@ -892,7 +892,7 @@ describe('prayer.ts', () => {
       state.lastAzanFired = null;
       setNowToTime(12, 15); // Dhuhr time
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();
@@ -907,7 +907,7 @@ describe('prayer.ts', () => {
       state.lastAzanFired = null;
       setNowToTime(12, 19); // 4 minutes after Dhuhr (12:15) — within the 5-min grace
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();
@@ -922,7 +922,7 @@ describe('prayer.ts', () => {
       state.lastAzanFired = null;
       setNowToTime(12, 45); // 30 minutes after Dhuhr — far outside the grace window
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       checkAzanTime();
 
       expect(azanPlayer.play).not.toHaveBeenCalled();
@@ -935,7 +935,7 @@ describe('prayer.ts', () => {
       state.lastAzanFired = null;
       setNowToTime(4, 30); // Fajr time
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       checkAzanTime();
       // Fajr is skipped, no other prayer is at 4:30, so play should not be called
       expect(azanPlayer.play).not.toHaveBeenCalled();
@@ -949,7 +949,7 @@ describe('prayer.ts', () => {
       const now = new Date();
       state.lastAzanFired = `Dhuhr_${now.toDateString()}_12:15`;
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       checkAzanTime();
       expect(azanPlayer.play).not.toHaveBeenCalled();
     });
@@ -970,7 +970,7 @@ describe('prayer.ts', () => {
       const now = new Date();
       state.lastAzanFired = `Dhuhr_${now.toDateString()}_12:15`;
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();
@@ -998,7 +998,7 @@ describe('prayer.ts', () => {
       state.lastAzanFired = null;
       setNowToTime(12, 15);
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();
@@ -1486,7 +1486,7 @@ describe('prayer.ts', () => {
       const saved = mockDom.azanNotification;
       mockDom.azanNotification = null;
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();
@@ -1510,7 +1510,7 @@ describe('prayer.ts', () => {
       const saved = mockDom.azanNotifPrayer;
       mockDom.azanNotifPrayer = null;
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();
@@ -1535,7 +1535,7 @@ describe('prayer.ts', () => {
         writable: true,
       });
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();
@@ -1786,7 +1786,7 @@ describe('prayer.ts', () => {
       state.lastAzanFired = null;
       setNowToTime(12, 15);
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();
@@ -1835,7 +1835,7 @@ describe('prayer.ts', () => {
         configurable: true,
       });
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();
@@ -1868,7 +1868,7 @@ describe('prayer.ts', () => {
         writable: true,
       });
 
-      const azanPlayer = mockDom.azanPlayer as HTMLAudioElement;
+      const azanPlayer = mockDom.azanPlayer as unknown as HTMLAudioElement & { play: Mock<() => Promise<void>> };
       azanPlayer.play.mockResolvedValue(undefined);
 
       checkAzanTime();

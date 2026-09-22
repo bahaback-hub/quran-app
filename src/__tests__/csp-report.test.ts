@@ -96,7 +96,7 @@ describe('csp-report', () => {
     window.dispatchEvent(makeViolationEvent({ blockedURI: 'https://evil.example/script.js' }));
 
     expect(beacon).toHaveBeenCalledTimes(1);
-    const [url, body] = beacon.mock.calls[0] as [string, Blob];
+    const [url, body] = beacon.mock.calls[0] as unknown as [string, Blob];
     expect(url).toBe('https://collector.example/reports');
     expect(body.type).toBe('application/reports+json');
     void body;

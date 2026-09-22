@@ -48,15 +48,17 @@ function generateHashes() {
   console.log(`   Found ${scriptHashes.length} inline scripts, ${styleHashes.length} inline styles`);
 
   // Generate CSP string
-  const scriptSrc = scriptHashes.length > 0
-    ? `script-src 'self' ${scriptHashes.map(h => `'${h}'`).join(' ')} blob:;`
-    : "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:;";
+  const scriptSrc =
+    scriptHashes.length > 0
+      ? `script-src 'self' ${scriptHashes.map((h) => `'${h}'`).join(' ')} blob:;`
+      : "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:;";
 
-  const styleSrc = styleHashes.length > 0
-    ? `style-src 'self' ${styleHashes.map(h => `'${h}'`).join(' ')};`
-    : "style-src 'self' 'unsafe-inline';";
+  const styleSrc =
+    styleHashes.length > 0
+      ? `style-src 'self' ${styleHashes.map((h) => `'${h}'`).join(' ')};`
+      : "style-src 'self' 'unsafe-inline';";
 
-  const csp = `default-src 'self' data: blob:; ${scriptSrc} ${styleSrc} font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' https: blob: data:; connect-src 'self' https://api.alquran.cloud https://api.quran.com https://cdn.jsdelivr.net https://api.aladhan.com https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https: blob: data:; frame-src 'none';`;
+  const csp = `default-src 'self' data: blob:; ${scriptSrc} ${styleSrc} font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' https://cdn.islamic.network https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https://server13.mp3quran.net blob: data:; connect-src 'self' https://api.alquran.cloud https://api.quran.com https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://gcore.jsdelivr.net https://raw.githubusercontent.com https://api.aladhan.com https://cdn.islamic.network https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https://server13.mp3quran.net blob: data:; frame-src 'none';`;
 
   // Write the CSP to a file for reference
   const output = {

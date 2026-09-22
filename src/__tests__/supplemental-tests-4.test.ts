@@ -206,11 +206,11 @@ describe('keyboard.ts — keydown branches', () => {
 
   beforeEach(() => {
     // DOM stubs
-    (dom as Record<string, unknown>).searchInput = document.createElement('input');
-    (dom as Record<string, unknown>).searchResults = document.createElement('div');
-    (dom as Record<string, unknown>).surahSecretsOverlay = document.createElement('div');
-    (dom as Record<string, unknown>).shareMenu = document.createElement('div');
-    (dom as Record<string, unknown>).player = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).searchInput = document.createElement('input');
+    (dom as unknown as Record<string, unknown>).searchResults = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).surahSecretsOverlay = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).shareMenu = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).player = document.createElement('div');
 
     state.azanPlaying = false;
     state.presentationMode = false;

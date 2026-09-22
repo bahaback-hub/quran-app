@@ -185,7 +185,7 @@ describe('surah-loader — toggleTranslation', () => {
 
   it('no-ops gracefully when state.currentSurah is null (no reload)', async () => {
     const { toggleTranslation } = await import('../surah-loader.js');
-    state.currentSurah = null;
+    state.currentSurah = null as unknown as number;
     expect(() => toggleTranslation()).not.toThrow();
   });
 });

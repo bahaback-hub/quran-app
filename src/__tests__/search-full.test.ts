@@ -227,8 +227,8 @@ describe('clearSearchHistory via barrel', () => {
 describe('performExactSearch via barrel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).fullQuranLoaded = true;
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       {
         surah: 1,
         surahName: 'الفاتحة',
@@ -257,40 +257,40 @@ describe('performExactSearch via barrel', () => {
   });
 
   it('should reject when Quran not loaded', () => {
-    (state as Record<string, unknown>).fullQuranLoaded = false;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = false;
     performExactSearch('الله');
     expect(showToast).toHaveBeenCalledWith('quran_db_loading', 'error');
   });
 
   it('should accept Arabic single char query', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     performExactSearch('ر');
     expect(showToast).not.toHaveBeenCalledWith('min_chars', 'error');
     el.remove();
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
   });
 
   it('should accept valid Arabic query and render results', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     performExactSearch('الله');
     expect(el.style.display).toBe('block');
     el.remove();
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
   });
 
   it('should handle no results gracefully', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     performExactSearch('xyznomatch');
     expect(el.innerHTML).toContain('search-empty');
     el.remove();
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
   });
 
   it('should not crash when searchResults DOM element is null', () => {
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
     expect(() => performExactSearch('الله')).not.toThrow();
   });
 });
@@ -301,7 +301,7 @@ describe('performExactSearch via barrel', () => {
 
 describe('initSearchAutocomplete via barrel', () => {
   it('should not throw when DOM elements are missing', () => {
-    (dom as Record<string, unknown>).searchInput = null;
+    (dom as unknown as Record<string, unknown>).searchInput = null;
     expect(() => initSearchAutocomplete()).not.toThrow();
   });
 });
@@ -313,8 +313,8 @@ describe('initSearchAutocomplete via barrel', () => {
 describe('startVoiceSearch via barrel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    delete (window as Record<string, unknown>).SpeechRecognition;
-    delete (window as Record<string, unknown>).webkitSpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).SpeechRecognition;
+    delete (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
   });
 
   it('should show error when SpeechRecognition is unavailable', () => {
@@ -340,12 +340,12 @@ describe('initKeyboard via barrel', () => {
 describe('loadFullQuranText via barrel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).fullQuranLoaded = false;
-    (state as Record<string, unknown>).fullQuranText = null;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = false;
+    (state as unknown as Record<string, unknown>).fullQuranText = null;
   });
 
   it('should be no-op when fullQuranLoaded is already true', async () => {
-    (state as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
     await loadFullQuranText();
     // Should not modify state
     expect(state.fullQuranLoaded).toBe(true);
@@ -359,8 +359,8 @@ describe('loadFullQuranText via barrel', () => {
 describe('edge cases through barrel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).fullQuranLoaded = true;
-    (state as Record<string, unknown>).fullQuranText = [
+    (state as unknown as Record<string, unknown>).fullQuranLoaded = true;
+    (state as unknown as Record<string, unknown>).fullQuranText = [
       { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بسم الله', normalized: 'بسم الله' },
     ];
   });
@@ -372,20 +372,20 @@ describe('edge cases through barrel', () => {
 
   it('should handle very long query', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     const longQuery = 'الله'.repeat(100);
     expect(() => performExactSearch(longQuery)).not.toThrow();
     el.remove();
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
   });
 
   it('should handle mixed Arabic and non-Arabic query', () => {
     const el = document.createElement('div');
-    (dom as Record<string, unknown>).searchResults = el;
+    (dom as unknown as Record<string, unknown>).searchResults = el;
     // This has Arabic chars so it passes the min-length check
     performExactSearch('الله test');
     expect(el.style.display).toBe('block');
     el.remove();
-    (dom as Record<string, unknown>).searchResults = null;
+    (dom as unknown as Record<string, unknown>).searchResults = null;
   });
 });

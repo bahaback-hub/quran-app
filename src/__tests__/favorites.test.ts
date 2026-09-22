@@ -131,6 +131,8 @@ describe('favorites', () => {
   describe('toggleFavorite', () => {
     beforeEach(() => {
       state.surahData = {
+        number: 1,
+        englishName: 'Al-Fatihah',
         name: 'الفاتحة',
         ayahs: [{ numberInSurah: 1, text: 'بسم الله الرحمن الرحيم' }],
       };
@@ -233,6 +235,8 @@ describe('favorites', () => {
   describe('setBookmark', () => {
     it('should call hapticFeedback', () => {
       state.surahData = {
+        number: 1,
+        englishName: 'Al-Fatihah',
         name: 'الفاتحة',
         ayahs: [{ numberInSurah: 1, text: 'بسم الله' }],
       };
@@ -242,6 +246,8 @@ describe('favorites', () => {
 
     it('should set bookmark with surah data', () => {
       state.surahData = {
+        number: 1,
+        englishName: 'Al-Fatihah',
         name: 'الفاتحة',
         ayahs: [{ numberInSurah: 1, text: 'بسم الله' }],
       };
@@ -257,6 +263,8 @@ describe('favorites', () => {
 
     it('should save bookmark to storage', () => {
       state.surahData = {
+        number: 1,
+        englishName: 'Al-Fatihah',
         name: 'الفاتحة',
         ayahs: [{ numberInSurah: 1, text: 'بسم الله' }],
       };
@@ -266,6 +274,8 @@ describe('favorites', () => {
 
     it('should show success toast', () => {
       state.surahData = {
+        number: 1,
+        englishName: 'Al-Fatihah',
         name: 'الفاتحة',
         ayahs: [{ numberInSurah: 1, text: 'بسم الله' }],
       };

@@ -10,7 +10,7 @@ function stubServiceWorker(value: unknown): void {
 }
 
 function clearServiceWorkerStub(): void {
-  const nav = window.navigator as Navigator & { serviceWorker?: unknown };
+  const nav = window.navigator as unknown as { serviceWorker?: unknown };
   if ('serviceWorker' in nav) {
     // jsdom has no serviceWorker by default; remove our stub to restore that.
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete

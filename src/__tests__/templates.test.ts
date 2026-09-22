@@ -417,7 +417,7 @@ describe('Search templates', () => {
   });
 
   it('searchLoadMoreButton should contain load more text', () => {
-    expect(searchLoadMoreButton()).toContain('load_more');
+    expect(searchLoadMoreButton(0)).toContain('load_more');
   });
 
   it('searchLoadMoreButton with remaining count', () => {

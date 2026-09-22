@@ -260,12 +260,12 @@ describe('restoreFocusOnPanelClose', () => {
 
 describe('addKeyboardDismiss', () => {
   let element: HTMLElement;
-  let callback: ReturnType<typeof vi.fn>;
+  let callback: ReturnType<typeof vi.fn> & (() => void);
 
   beforeEach(() => {
     element = document.createElement('div');
     document.body.appendChild(element);
-    callback = vi.fn();
+    callback = vi.fn<() => void>();
   });
 
   afterEach(() => {
@@ -396,7 +396,7 @@ describe('initReducedMotionDetection', () => {
 
 describe('initDialogAccessibility', () => {
   let dialog: HTMLElement;
-  let closeCallback: ReturnType<typeof vi.fn>;
+  let closeCallback: ReturnType<typeof vi.fn> & (() => void);
 
   beforeEach(() => {
     dialog = document.createElement('div');
@@ -406,7 +406,7 @@ describe('initDialogAccessibility', () => {
     btn.textContent = 'Close';
     dialog.appendChild(btn);
     document.body.appendChild(dialog);
-    closeCallback = vi.fn();
+    closeCallback = vi.fn<() => void>();
   });
 
   afterEach(() => {

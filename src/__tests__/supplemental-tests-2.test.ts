@@ -76,25 +76,21 @@ describe('surah-loader.ts — non-network functions', () => {
         number: 1,
         name: 'الفاتحة',
         englishName: 'Al-Fatiha',
-        englishNameTranslation: 'The Opening',
         numberOfAyahs: 7,
-        revelationType: 'meccan',
       },
       {
         number: 2,
         name: 'البقرة',
         englishName: 'Al-Baqara',
-        englishNameTranslation: 'The Cow',
         numberOfAyahs: 286,
-        revelationType: 'medinan',
       },
     ];
     const mod = await import('../surah-loader.js');
     mod.buildSurahOffsets();
-    expect(state.surahOffsets).not.toBeNull();
-    expect(state.surahOffsets?.length).toBe(2);
-    expect(state.surahOffsets?.[0]?.startAbs).toBe(1);
-    expect(state.surahOffsets?.[1]?.startAbs).toBe(8);
+    const offsets = state.surahOffsets as { startAbs: number }[] | null;
+    expect(offsets?.length).toBe(2);
+    expect(offsets?.[0]?.startAbs).toBe(1);
+    expect(offsets?.[1]?.startAbs).toBe(8);
     state.surahList = [];
     state.surahOffsets = null;
   });
@@ -122,21 +118,13 @@ describe('surah-loader.ts — non-network functions', () => {
       name: 'الفاتحة',
       englishName: 'Al-Fatiha',
       englishNameTranslation: 'The Opening',
-      revelationType: 'meccan',
       numberOfAyahs: 7,
       ayahs: [
         {
           number: 1,
           text: 'بسم الله الرحمن الرحيم',
           numberInSurah: 1,
-          juz: 1,
-          manzil: 1,
-          page: 1,
-          ruku: 1,
-          hizbQuarter: 1,
-          sajda: false,
           audio: 'https://example.com/001.mp3',
-          audioSecondary: [],
         },
       ],
     };
@@ -178,7 +166,7 @@ describe('surah-loader.ts — non-network functions', () => {
 
 describe('presentation.ts — defensive branches', () => {
   it('exported functions should not throw with empty state', async () => {
-    const mod = (await import('../features/presentation/presentation.js')) as Record<string, unknown>;
+    const mod = (await import('../features/presentation/presentation.js')) as unknown as Record<string, unknown>;
     for (const [name, fn] of Object.entries(mod)) {
       if (typeof fn === 'function') {
         try {
@@ -202,7 +190,7 @@ describe('presentation.ts — defensive branches', () => {
 
 describe('settings.ts — defensive branches', () => {
   it('exported functions should not throw when DOM is missing', async () => {
-    const mod = (await import('../settings.js')) as Record<string, unknown>;
+    const mod = (await import('../settings.js')) as unknown as Record<string, unknown>;
     for (const [name, fn] of Object.entries(mod)) {
       if (typeof fn === 'function' && !name.startsWith('_')) {
         try {
@@ -333,7 +321,7 @@ describe('surah-cache.ts — defensive branches', () => {
       throw new Error('fail');
     }) as unknown as typeof indexedDB.open;
     const mod = await import('../surah-cache.js');
-    const result = await mod.getCachedSurahFromIDB(1);
+    const result = await mod.getCachedSurahFromIDB('1');
     expect(result).toBeNull();
     indexedDB.open = original;
   });
@@ -345,15 +333,7 @@ describe('surah-cache.ts — defensive branches', () => {
     }) as unknown as typeof indexedDB.open;
     const mod = await import('../surah-cache.js');
     await expect(
-      mod.cacheSurahToIDB(1, {
-        number: 1,
-        name: 'test',
-        englishName: 'test',
-        englishNameTranslation: 'test',
-        revelationType: 'meccan',
-        numberOfAyahs: 7,
-        ayahs: [],
-      }),
+      mod.cacheSurahToIDB('1', { text: { number: 0, name: '', englishName: '', ayahs: [] }, translation: null }),
     ).resolves.not.toThrow();
     indexedDB.open = original;
   });

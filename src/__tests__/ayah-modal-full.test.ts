@@ -213,10 +213,10 @@ function removeModalDOM(): void {
 describe('ayah-modal-full', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (state as Record<string, unknown>).fullQuranText = null;
-    (state as Record<string, unknown>).favorites = [];
-    (state as Record<string, unknown>).surahData = null;
-    (state as Record<string, unknown>).ayahsAudios = [];
+    (state as unknown as Record<string, unknown>).fullQuranText = null;
+    (state as unknown as Record<string, unknown>).favorites = [];
+    (state as unknown as Record<string, unknown>).surahData = null;
+    (state as unknown as Record<string, unknown>).ayahsAudios = [];
   });
 
   /* ===================== initAyahModal ===================== */
@@ -331,7 +331,7 @@ describe('ayah-modal-full', () => {
     });
 
     it('should look up index from fullQuranText when index is -1', () => {
-      (state as Record<string, unknown>).fullQuranText = [
+      (state as unknown as Record<string, unknown>).fullQuranText = [
         { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بِسْمِ اللَّهِ' },
         { surah: 1, surahName: 'الفاتحة', ayah: 2, text: 'الْحَمْدُ لِلَّهِ' },
       ];
@@ -348,7 +348,7 @@ describe('ayah-modal-full', () => {
     });
 
     it('should keep index as -1 when fullQuranText is null and index is -1', () => {
-      (state as Record<string, unknown>).fullQuranText = null;
+      (state as unknown as Record<string, unknown>).fullQuranText = null;
       initAyahModal();
       // Should not throw
       expect(() =>
@@ -402,7 +402,7 @@ describe('ayah-modal-full', () => {
     });
 
     it('should show next ayah navigation when not at last ayah', () => {
-      (state as Record<string, unknown>).fullQuranText = [
+      (state as unknown as Record<string, unknown>).fullQuranText = [
         { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'Text 1' },
         { surah: 1, surahName: 'الفاتحة', ayah: 2, text: 'Text 2' },
       ];
@@ -419,7 +419,9 @@ describe('ayah-modal-full', () => {
     });
 
     it('should hide next ayah navigation when at last ayah', () => {
-      (state as Record<string, unknown>).fullQuranText = [{ surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'Text 1' }];
+      (state as unknown as Record<string, unknown>).fullQuranText = [
+        { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'Text 1' },
+      ];
       initAyahModal();
       openAyahModal({
         surah: 1,
@@ -529,7 +531,7 @@ describe('ayah-modal-full', () => {
     beforeEach(() => {
       createModalDOM();
       vi.clearAllMocks();
-      (state as Record<string, unknown>).fullQuranText = [
+      (state as unknown as Record<string, unknown>).fullQuranText = [
         { surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'بِسْمِ اللَّهِ' },
         { surah: 1, surahName: 'الفاتحة', ayah: 2, text: 'الْحَمْدُ لِلَّهِ' },
         { surah: 1, surahName: 'الفاتحة', ayah: 3, text: 'الرَّحْمَٰنِ الرَّحِيمِ' },
@@ -567,7 +569,7 @@ describe('ayah-modal-full', () => {
     });
 
     it('should not navigate when fullQuranText is null', () => {
-      (state as Record<string, unknown>).fullQuranText = null;
+      (state as unknown as Record<string, unknown>).fullQuranText = null;
       initAyahModal();
       openAyahModal({
         surah: 1,
@@ -619,7 +621,7 @@ describe('ayah-modal-full', () => {
     beforeEach(() => {
       createModalDOM();
       vi.clearAllMocks();
-      (state as Record<string, unknown>).favorites = [];
+      (state as unknown as Record<string, unknown>).favorites = [];
     });
     afterEach(removeModalDOM);
 
@@ -638,7 +640,7 @@ describe('ayah-modal-full', () => {
     });
 
     it('should remove favorite when fav button is clicked and already favorited', () => {
-      (state as Record<string, unknown>).favorites = [
+      (state as unknown as Record<string, unknown>).favorites = [
         { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'Test', timestamp: 1000 },
       ];
       initAyahModal();
@@ -655,7 +657,7 @@ describe('ayah-modal-full', () => {
     });
 
     it('should update fav button text based on favorite status', () => {
-      (state as Record<string, unknown>).favorites = [];
+      (state as unknown as Record<string, unknown>).favorites = [];
       initAyahModal();
       openAyahModal({
         surah: 1,
@@ -669,7 +671,7 @@ describe('ayah-modal-full', () => {
     });
 
     it('should show in_favorites text when already favorited', () => {
-      (state as Record<string, unknown>).favorites = [
+      (state as unknown as Record<string, unknown>).favorites = [
         { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'Test', timestamp: 1000 },
       ];
       initAyahModal();
@@ -685,7 +687,7 @@ describe('ayah-modal-full', () => {
     });
 
     it('should toggle active class on fav button', () => {
-      (state as Record<string, unknown>).favorites = [
+      (state as unknown as Record<string, unknown>).favorites = [
         { key: '1:1', surah: 1, surahName: 'الفاتحة', ayah: 1, text: 'Test', timestamp: 1000 },
       ];
       initAyahModal();

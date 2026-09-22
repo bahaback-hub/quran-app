@@ -83,9 +83,10 @@ const origCreateElement = document.createElement.bind(document);
 vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
   const el = origCreateElement(tag);
   if (tag === 'canvas') {
-    el.getContext = () => mockCtx as unknown as CanvasRenderingContext2D;
-    el.width = 1080;
-    el.height = 1540;
+    (el as HTMLCanvasElement).getContext = (() =>
+      mockCtx as unknown as CanvasRenderingContext2D) as unknown as HTMLCanvasElement['getContext'];
+    (el as HTMLCanvasElement).width = 1080;
+    (el as HTMLCanvasElement).height = 1540;
   }
   return el;
 });
@@ -133,9 +134,10 @@ describe('mushaf-renderer deep2 — renderPage with full font mocking', () => {
     mockFontFace.mockClear();
 
     canvas = origCreateElement('canvas');
-    canvas.width = CANVAS_W;
-    canvas.height = CANVAS_H;
-    canvas.getContext = () => mockCtx as unknown as CanvasRenderingContext2D;
+    (canvas as HTMLCanvasElement).width = CANVAS_W;
+    (canvas as HTMLCanvasElement).height = CANVAS_H;
+    (canvas as HTMLCanvasElement).getContext = (() =>
+      mockCtx as unknown as CanvasRenderingContext2D) as unknown as HTMLCanvasElement['getContext'];
   });
 
   it('should render a simple page with one word line', async () => {
@@ -254,9 +256,10 @@ describe('mushaf-renderer deep2 — tajweed rendering', () => {
     mockFontFace.mockClear();
 
     canvas = origCreateElement('canvas');
-    canvas.width = CANVAS_W;
-    canvas.height = CANVAS_H;
-    canvas.getContext = () => mockCtx as unknown as CanvasRenderingContext2D;
+    (canvas as HTMLCanvasElement).width = CANVAS_W;
+    (canvas as HTMLCanvasElement).height = CANVAS_H;
+    (canvas as HTMLCanvasElement).getContext = (() =>
+      mockCtx as unknown as CanvasRenderingContext2D) as unknown as HTMLCanvasElement['getContext'];
   });
 
   it('should render with tajweed annotations', async () => {
@@ -337,9 +340,10 @@ describe('mushaf-renderer deep2 — Capacitor renderPage path', () => {
     mockFontFace.mockClear();
 
     canvas = origCreateElement('canvas');
-    canvas.width = CANVAS_W;
-    canvas.height = CANVAS_H;
-    canvas.getContext = () => mockCtx as unknown as CanvasRenderingContext2D;
+    (canvas as HTMLCanvasElement).width = CANVAS_W;
+    (canvas as HTMLCanvasElement).height = CANVAS_H;
+    (canvas as HTMLCanvasElement).getContext = (() =>
+      mockCtx as unknown as CanvasRenderingContext2D) as unknown as HTMLCanvasElement['getContext'];
   });
 
   afterEach(() => {

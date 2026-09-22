@@ -3,7 +3,7 @@ import { state } from '../state.js';
 
 // Mock config with the constants the test needs
 vi.mock('../config.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     CONFIG: {

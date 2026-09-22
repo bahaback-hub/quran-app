@@ -49,11 +49,11 @@ vi.mock('../ui.js', () => ({
 }));
 
 vi.mock('../utils.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
-    stripTashkeel: (...args: unknown[]) => mockStripTashkeel(...args),
-    copyToClipboard: (...args: unknown[]) => mockCopyToClipboard(...args),
+    stripTashkeel: (...args: unknown[]) => (mockStripTashkeel as (...a: unknown[]) => unknown)(...args),
+    copyToClipboard: (...args: unknown[]) => (mockCopyToClipboard as (...a: unknown[]) => unknown)(...args),
   };
 });
 

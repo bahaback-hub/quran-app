@@ -1,4 +1,5 @@
 # Quran App — AI & Human Reviewer Guide
+
 # دليل مراجعة الذكاء الاصطناعي والم human — تطبيق القرآن الكريم
 
 > **For AI reviewers, engineers, and contributors:**
@@ -97,45 +98,45 @@ On startup the app runs `restoreSettings()` in `src/settings.ts`, which re-appli
 
 ## 3. Commands to run / الأوامر التي يجب تشغيلها
 
-**EN**: Run these from the repository root. All commands use `pnpm` in the project, but `npm` equivalents are noted.
+**EN**: Run these from the repository root. All commands use `npm`.
 
-**AR**: شغّل هذه الأوامر من جذر المستودع. جميع الأوامر تستخدم `pnpm` في المشروع، لكن ما يلي يذكر البدائل بـ `npm`.
+**AR**: شغّل هذه الأوامر من جذر المستودع. جميع الأوامر تستخدم `npm`.
 
 ```bash
 # Code quality / جودة الكود
-pnpm run lint            # ESLint
-pnpm run lint:fix        # ESLint auto-fix
-pnpm run format          # Prettier format
-pnpm run format:check    # Prettier check
-pnpm run typecheck       # TypeScript strict type-check (tsc --noEmit -p tsconfig.ci.json)
+npm run lint            # ESLint
+npm run lint:fix        # ESLint auto-fix
+npm run format          # Prettier format
+npm run format:check    # Prettier check
+npm run typecheck       # TypeScript strict type-check (tsc --noEmit -p tsconfig.ci.json)
 
 # Tests / الاختبارات
-pnpm vitest run --silent=true --maxWorkers=1   # full unit test suite, single worker
-pnpm vitest run --coverage                      # with coverage report
-pnpm run test:e2e                 # Playwright E2E (chromium by default)
-pnpm run test:e2e --project=firefox           # Firefox E2E
-pnpm run test:e2e --project=webkit           # WebKit E2E
-pnpm run test:e2e --project=mobile-chrome    # mobile-chrome E2E
-pnpm run test:a11y              # axe-core accessibility audit (builds + serves + scans)
+npx vitest run --silent=true --maxWorkers=1   # full unit test suite, single worker
+npx vitest run --coverage                      # with coverage report
+npm run test:e2e                 # Playwright E2E (chromium by default)
+npm run test:e2e --project=firefox           # Firefox E2E
+npm run test:e2e --project=webkit           # WebKit E2E
+npm run test:e2e --project=mobile-chrome    # mobile-chrome E2E
+npm run test:a11y              # axe-core accessibility audit (builds + serves + scans)
 
 # Build / البناء
-pnpm run build            # Vite production build (output in dist/)
-pnpm run preview          # preview the production build locally
-pnpm run dev             # Vite dev server (for manual inspection)
+npm run build            # Vite production build (output in dist/)
+npm run preview          # preview the production build locally
+npm run dev             # Vite dev server (for manual inspection)
 
 # Security & dependencies / الأمان والتبعيات
-pnpm audit --prod        # known vulnerabilities in production deps
-pnpm audit --dev         # known vulnerabilities in dev deps
+npm audit --prod        # known vulnerabilities in production deps
+npm audit --dev         # known vulnerabilities in dev deps
 npm audit --omit=dev     # same, npm-based
 npm ci --ignore-scripts --dry-run   # validate lockfile + install plan
 
 # Documentation / التوثيق
-pnpm run docs            # TypeDoc → deployed to /api/ on GitHub Pages
+npm run docs            # TypeDoc → deployed to /api/ on GitHub Pages
 
 # Android (optional) / أندرويد (اختياري)
-pnpm run android:build   # web build + Capacitor sync
-pnpm run android:open     # open in Android Studio
-pnpm run android:run      # build, sync, run on connected device
+npm run android:build   # web build + Capacitor sync
+npm run android:open     # open in Android Studio
+npm run android:run      # build, sync, run on connected device
 ```
 
 ---
@@ -168,25 +169,25 @@ pnpm run android:run      # build, sync, run on connected device
 
 **EN**:
 
-| Topic | Correct understanding |
-|---|---|
-| Published APK | **Debug** build for field testing, not a Release build for public distribution |
-| Qibla accuracy on web | Uses best available device data; may need calibration on some phones; not a bug |
-| Video exports | User-created videos are generated locally on the device and not uploaded anywhere |
-| Test counts | The number of tests changes with each commit; always run `pnpm vitest run --silent=true --maxWorkers=1` instead of relying on a number from an older report |
-| Offline text fallback | `public/data/quran-uthmani.json` (1.7 MB) works fully offline after first download |
-| Theme trigger icon | The emoji on the theme button updates via `updateThemeTriggerIcon()` — called from restore, night/sepia/deep-night toggles, and after every click-based theme change |
+| Topic                 | Correct understanding                                                                                                                                                |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Published APK         | **Debug** build for field testing, not a Release build for public distribution                                                                                       |
+| Qibla accuracy on web | Uses best available device data; may need calibration on some phones; not a bug                                                                                      |
+| Video exports         | User-created videos are generated locally on the device and not uploaded anywhere                                                                                    |
+| Test counts           | The number of tests changes with each commit; always run `npx vitest run --silent=true --maxWorkers=1` instead of relying on a number from an older report           |
+| Offline text fallback | `public/data/quran-uthmani.json` (1.7 MB) works fully offline after first download                                                                                   |
+| Theme trigger icon    | The emoji on the theme button updates via `updateThemeTriggerIcon()` — called from restore, night/sepia/deep-night toggles, and after every click-based theme change |
 
 **AR**:
 
-| الموضوع | الفهم الصحيح |
-|---|---|
-| APK المنشور | بناء **Debug** للتجربة الميدانية، وليست بناء Release للنشر العام |
-| دقة القبلة على الويب | تستخدم أفضل البيانات المتاحة من الجهاز؛ قد تحتاج معايرة على بعض الهواتف؛ ليست عطلًا |
-| تصدير الفيديو | الفيديوهات التي ينشئها المستخدم تُصنع محليًا على الجهاز ولا تُرفع إلى أي مكان |
-| أعداد الاختبارات | عدد الاختبارات يتغيّر مع كل commit؛ شغّل دائمًا `pnpm vitest run --silent=true --maxWorkers=1` بدلًا من الاعتماد على رقم من تقرير أقدم |
-| النص الاحتياطي دون اتصال | `public/data/quran-uthmani.json` (1.7 ميجابايت) يعمل دون اتصال بالكامل بعد التحميل الأول |
-| أيقونة زر الثيم | الإيموجي على زر الثيم يُحدَّث عبر `updateThemeTriggerIcon()` — يُستدعى من الاستعادة، وتبديلات الليل/السيبيا/الليلي القاتم، وبعد كل تغيير للثيم بالضغط |
+| الموضوع                  | الفهم الصحيح                                                                                                                                          |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| APK المنشور              | بناء **Debug** للتجربة الميدانية، وليست بناء Release للنشر العام                                                                                      |
+| دقة القبلة على الويب     | تستخدم أفضل البيانات المتاحة من الجهاز؛ قد تحتاج معايرة على بعض الهواتف؛ ليست عطلًا                                                                   |
+| تصدير الفيديو            | الفيديوهات التي ينشئها المستخدم تُصنع محليًا على الجهاز ولا تُرفع إلى أي مكان                                                                         |
+| أعداد الاختبارات         | عدد الاختبارات يتغيّر مع كل commit؛ شغّل دائمًا `npx vitest run --silent=true --maxWorkers=1` بدلًا من الاعتماد على رقم من تقرير أقدم                 |
+| النص الاحتياطي دون اتصال | `public/data/quran-uthmani.json` (1.7 ميجابايت) يعمل دون اتصال بالكامل بعد التحميل الأول                                                              |
+| أيقونة زر الثيم          | الإيموجي على زر الثيم يُحدَّث عبر `updateThemeTriggerIcon()` — يُستدعى من الاستعادة، وتبديلات الليل/السيبيا/الليلي القاتم، وبعد كل تغيير للثيم بالضغط |
 
 ---
 
@@ -218,40 +219,40 @@ Do **not** count the Debug APK or browser compass behaviour as a web-app bug —
 
 ### Entry points / نقاط الدخول
 
-| English | العربية | File |
-|---|---|---|
-| App bootstrap (3-phase) | bootstrapping التطبيق (3 مراحل) | `src/app.ts` |
-| Event bindings | ربط الأحداث | `src/app-events.ts` |
-| DOM cache | ذاكرة DOM المخبّأة | `src/dom.ts` |
-| Settings + themes | الإعدادات والثيمات | `src/settings.ts` |
-| Reactive state | الحالة التفاعلية | `src/state.ts` |
-| Audio player | مشغل الصوت | `src/audio.ts` |
-| Surah loading | تحميل السور | `src/surah-loader.ts` |
-| Offline pack | الحزمة دون اتصال | `src/offline-pack.ts` |
-| Audio cache | ذاكرة الصوت | `src/audio-cache.ts` |
-| Hifdh room | غرفة الحفظ | `src/hifz-room.ts` |
-| Presentation + share | العرض ومشاركة الآية | `src/presentation.ts` + `src/presentation-share.ts` |
-| Local video export | تصدير الفيديو المحلي | `src/pres-video.ts` |
-| Search engine | محرك البحث | `src/search-core.ts` |
-| Tafsir | التفاسير | `src/tafsir.ts` |
-| Prayer times + qibla | مواقيت الصلاة والقبلة | `src/prayer.ts` |
-| Adhkar | الأذكار | `src/adhkar.ts` |
+| English                 | العربية                         | File                                                |
+| ----------------------- | ------------------------------- | --------------------------------------------------- |
+| App bootstrap (3-phase) | bootstrapping التطبيق (3 مراحل) | `src/app.ts`                                        |
+| Event bindings          | ربط الأحداث                     | `src/app-events.ts`                                 |
+| DOM cache               | ذاكرة DOM المخبّأة              | `src/dom.ts`                                        |
+| Settings + themes       | الإعدادات والثيمات              | `src/settings.ts`                                   |
+| Reactive state          | الحالة التفاعلية                | `src/state.ts`                                      |
+| Audio player            | مشغل الصوت                      | `src/audio.ts`                                      |
+| Surah loading           | تحميل السور                     | `src/surah-loader.ts`                               |
+| Offline pack            | الحزمة دون اتصال                | `src/offline-pack.ts`                               |
+| Audio cache             | ذاكرة الصوت                     | `src/audio-cache.ts`                                |
+| Hifdh room              | غرفة الحفظ                      | `src/hifz-room.ts`                                  |
+| Presentation + share    | العرض ومشاركة الآية             | `src/presentation.ts` + `src/presentation-share.ts` |
+| Local video export      | تصدير الفيديو المحلي            | `src/pres-video.ts`                                 |
+| Search engine           | محرك البحث                      | `src/search-core.ts`                                |
+| Tafsir                  | التفاسير                        | `src/tafsir.ts`                                     |
+| Prayer times + qibla    | مواقيت الصلاة والقبلة           | `src/prayer.ts`                                     |
+| Adhkar                  | الأذكار                         | `src/adhkar.ts`                                     |
 
 ### Frameworks and tools / الأطر والأدوات
 
-| English | العربية |
-|---|---|
-| Language: TypeScript 6.0 (strict) | اللغة: TypeScript 6.0 (صارم) |
-| Build: Vite 8 + LightningCSS | البناء: Vite 8 + LightningCSS |
-| PWA: vite-plugin-pwa (Workbox) | PWA: vite-plugin-pwa (Workbox) |
-| Android: Capacitor 8 | أندرويد: Capacitor 8 |
-| Tests: Vitest 4 + Playwright 1.60 | الاختبارات: Vitest 4 + Playwright 1.60 |
-| Lint: ESLint 9 + typescript-eslint | الفحص: ESLint 9 + typescript-eslint |
-| Format: Prettier 3 | التنسيق: Prettier 3 |
-| State: custom Proxy (no framework) | الحالة: Proxy مخصص (بدون أطار) |
+| English                                 | العربية                                   |
+| --------------------------------------- | ----------------------------------------- |
+| Language: TypeScript 5.9 (strict)       | اللغة: TypeScript 5.9 (صارم)              |
+| Build: Vite 8 + LightningCSS            | البناء: Vite 8 + LightningCSS             |
+| PWA: vite-plugin-pwa (Workbox)          | PWA: vite-plugin-pwa (Workbox)            |
+| Android: Capacitor 8                    | أندرويد: Capacitor 8                      |
+| Tests: Vitest 4 + Playwright 1.62       | الاختبارات: Vitest 4 + Playwright 1.62    |
+| Lint: ESLint 9 + typescript-eslint      | الفحص: ESLint 9 + typescript-eslint       |
+| Format: Prettier 3                      | التنسيق: Prettier 3                       |
+| State: custom Proxy (no framework)      | الحالة: Proxy مخصص (بدون أطار)            |
 | Storage: localStorage + 3 IndexedDB DBs | التخزين: localStorage + 3 قواعد IndexedDB |
-| CI: GitHub Actions (11 workflows) | CI: GitHub Actions (11 سير عمل) |
-| Docs: TypeDoc → GitHub Pages /api/ | التوثيق: TypeDoc → GitHub Pages /api/ |
+| CI: GitHub Actions (15 workflows)       | CI: GitHub Actions (15 سير عمل)           |
+| Docs: TypeDoc → GitHub Pages /api/      | التوثيق: TypeDoc → GitHub Pages /api/     |
 
 ### Key directories / أهم المجلدات
 
@@ -291,7 +292,7 @@ quran-app/
 ├── vitest.config.ts            # Vitest config
 ├── performance-budget.json     # Lighthouse performance budget
 ├── lighthouserc.json           # Lighthouse CI config
-├── pnpm-lock.yaml              # pnpm lockfile
+├── package-lock.json            # npm lockfile
 └── package.json                # project manifest
 ```
 
@@ -327,17 +328,17 @@ quran-app/
 
 ## 8. Repository metadata / بيانات تعريف المستودع
 
-| Field | Value |
-|---|---|
-| Repository | `bahaback-hub/quran-app` |
-| Default branch | `main` |
-| License | MIT |
-| PWA URL | `https://bahaback-hub.github.io/quran-app/` |
-| Android APK (latest) | `https://github.com/bahaback-hub/quran-app/releases/latest` |
-| Language | Arabic (primary UI) + 7 additional languages |
-| Data sources | AlQuran.cloud API, Tafsir API (spa5k/tafsir_api), Aladhan API, mp3quran.net, quran.com |
+| Field                | Value                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| Repository           | `bahaback-hub/quran-app`                                                               |
+| Default branch       | `main`                                                                                 |
+| License              | MIT                                                                                    |
+| PWA URL              | `https://bahaback-hub.github.io/quran-app/`                                            |
+| Android APK (latest) | `https://github.com/bahaback-hub/quran-app/releases/latest`                            |
+| Language             | Arabic (primary UI) + 7 additional languages                                           |
+| Data sources         | AlQuran.cloud API, Tafsir API (spa5k/tafsir_api), Aladhan API, mp3quran.net, quran.com |
 
 ---
 
-*Last updated: 2026-09-04 — with theme dropdown commit (f7ca8a1)*
-*آخر تحديث: 2026-09-04 — مع commit قائمة الثيمات المنسدلة (f7ca8a1)*
+_Last updated: 2026-09-04 — with theme dropdown commit (f7ca8a1)_
+_آخر تحديث: 2026-09-04 — مع commit قائمة الثيمات المنسدلة (f7ca8a1)_

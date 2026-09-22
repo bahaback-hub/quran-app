@@ -42,7 +42,7 @@ const mockDB = {
           getAll: vi.fn(() => ({
             onsuccess: null as (() => void) | null,
             onerror: null as (() => void) | null,
-            result: Array.from(s.values()),
+            result: Array.from((s as Map<string, { url: string; blob?: Blob }>).values()),
           })),
           delete: vi.fn((key: string) => {
             s.delete(key);

@@ -146,11 +146,11 @@ function setupDom() {
   dom.surahContent = document.createElement('div');
   dom.surahSelect = document.createElement('select') as HTMLSelectElement;
   dom.reciterSelect = document.createElement('select') as HTMLSelectElement;
-  dom.playerInfo = document.createElement('div');
+  (dom as unknown as Record<string, HTMLElement | null>).playerInfo = document.createElement('div');
   dom.playerCurrentAyah = document.createElement('div');
-  dom.playerCurrentSurah = document.createElement('div');
-  dom.collapsedPlayerInfo = document.createElement('div');
-  dom.ayahContainer = document.createElement('div');
+  (dom as unknown as Record<string, HTMLElement | null>).playerCurrentSurah = document.createElement('div');
+  (dom as unknown as Record<string, HTMLElement | null>).collapsedPlayerInfo = document.createElement('div');
+  (dom as unknown as Record<string, HTMLElement | null>).ayahContainer = document.createElement('div');
 }
 
 describe('surah-loader deep coverage', () => {

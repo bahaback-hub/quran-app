@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Use importOriginal to get loadingBar from the actual module
 vi.mock('../ui.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     showToast: vi.fn(actual.showToast as (...args: unknown[]) => void),

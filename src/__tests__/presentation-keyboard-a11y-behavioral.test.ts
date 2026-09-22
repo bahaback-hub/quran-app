@@ -261,7 +261,7 @@ describe('a11y — focus management', () => {
   it('can blur an element', () => {
     const btn = document.getElementById('btn1') as HTMLButtonElement;
     btn.focus();
-    btn.blur();
+    btn.blur!();
     expect(document.activeElement).not.toBe(btn);
   });
 });

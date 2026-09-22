@@ -66,8 +66,8 @@ const {
   const mockShowToast = vi.fn();
   const mockHapticFeedback = vi.fn();
   const mockHighlightCurrentAyah = vi.fn();
-  const mockGetCachedAudioUrl = vi.fn(() => Promise.resolve(null));
-  const mockStorageGet = vi.fn(() => null);
+  const mockGetCachedAudioUrl = vi.fn<() => Promise<string | null>>(() => Promise.resolve(null));
+  const mockStorageGet = vi.fn<(key: string) => unknown>(() => null);
   const mockStorageSet = vi.fn();
 
   return {

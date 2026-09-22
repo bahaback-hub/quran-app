@@ -29,7 +29,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self' data: blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' https: blob: data:; connect-src 'self' https://api.alquran.cloud https://api.quran.com https://cdn.jsdelivr.net https://api.aladhan.com https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https: blob: data:; frame-src 'none'; base-uri 'self'; form-action 'self'; object-src 'none';"
+      content="default-src 'self' data: blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' https://cdn.islamic.network https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https://server13.mp3quran.net blob: data:; connect-src 'self' https://api.alquran.cloud https://api.quran.com https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://gcore.jsdelivr.net https://raw.githubusercontent.com https://api.aladhan.com https://cdn.islamic.network https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https://server13.mp3quran.net blob: data:; frame-src 'none'; base-uri 'self'; form-action 'self'; object-src 'none';"
     />
     <!--
       CSP violations are collected client-side by src/csp-report.ts (this is a
@@ -90,9 +90,7 @@
     ></div>
 
     <noscript>
-      <div class="noscript-banner">
-        ⚠️ هذا التطبيق يحتاج إلى تفعيل JavaScript في المتصفح ليعمل.
-      </div>
+      <div class="noscript-banner">⚠️ هذا التطبيق يحتاج إلى تفعيل JavaScript في المتصفح ليعمل.</div>
     </noscript>
 
     <a href="#surahContent" class="skip-link">تخطّي إلى المحتوى</a>
@@ -762,7 +760,6 @@
           <option value="ar-tafsir-ibn-kathir">تفسير ابن كثير</option>
           <option value="ar-tafsir-as-saadi">تفسير السعدي</option>
           <option value="ar-tafsir-al-baghawi">تفسير البغوي</option>
-          <option value="ar-tafsir-al-qurtubi">تفسير القرطبي</option>
         </select>
       </div>
       <div class="tafsir-curtain-body" id="tafsirCurtainBody">

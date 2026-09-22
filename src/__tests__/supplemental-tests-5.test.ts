@@ -32,7 +32,7 @@ vi.mock('../ui.js', () => ({
   loadingBar: { show: vi.fn(), hide: vi.fn() },
 }));
 vi.mock('../features/audio/audio.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     prepareAudioForNewSurah: vi.fn(),
@@ -48,7 +48,7 @@ vi.mock('../features/audio/audio.js', async (importOriginal) => {
   };
 });
 vi.mock('../reading-stats.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     recordReadingSession: vi.fn(),
@@ -64,7 +64,7 @@ vi.mock('../surah-cache.js', () => ({
   getCachedSurahFromIDB: vi.fn(() => Promise.resolve(null)),
 }));
 vi.mock('../features/presentation/presentation.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     syncPresentation: vi.fn(),
@@ -96,19 +96,19 @@ describe('surah-loader.ts — public exports', () => {
     state.fontSize = 28;
 
     // Set up minimal DOM
-    (dom as Record<string, unknown>).reciterSelect = document.createElement('select');
-    (dom as Record<string, unknown>).surahSelect = document.createElement('select');
-    (dom as Record<string, unknown>).mushafContainer = null;
-    (dom as Record<string, unknown>).surahContent = document.createElement('div');
-    (dom as Record<string, unknown>).playerSurahName = document.createElement('span');
-    (dom as Record<string, unknown>).playerReciterName = document.createElement('span');
-    (dom as Record<string, unknown>).playerCurrentAyah = document.createElement('span');
-    (dom as Record<string, unknown>).collapsedInfo = document.createElement('span');
-    (dom as Record<string, unknown>).tafsirCurtain = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).reciterSelect = document.createElement('select');
+    (dom as unknown as Record<string, unknown>).surahSelect = document.createElement('select');
+    (dom as unknown as Record<string, unknown>).mushafContainer = null;
+    (dom as unknown as Record<string, unknown>).surahContent = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).playerSurahName = document.createElement('span');
+    (dom as unknown as Record<string, unknown>).playerReciterName = document.createElement('span');
+    (dom as unknown as Record<string, unknown>).playerCurrentAyah = document.createElement('span');
+    (dom as unknown as Record<string, unknown>).collapsedInfo = document.createElement('span');
+    (dom as unknown as Record<string, unknown>).tafsirCurtain = document.createElement('div');
   });
 
   it('populateReciterSelect no-ops when dom.reciterSelect is null', () => {
-    (dom as Record<string, unknown>).reciterSelect = null;
+    (dom as unknown as Record<string, unknown>).reciterSelect = null;
     expect(() => populateReciterSelect()).not.toThrow();
   });
 
@@ -135,18 +135,14 @@ describe('surah-loader.ts — public exports', () => {
       {
         number: 1,
         name: 'الفاتحة',
-        englishName: 'Al-Fatihah',
-        englishNameTranslation: 'The Opening',
+        englishName: 'Al-Fatiha',
         numberOfAyahs: 7,
-        revelationType: 'Meccan',
       },
       {
         number: 2,
         name: 'البقرة',
-        englishName: 'Al-Baqarah',
-        englishNameTranslation: 'The Cow',
+        englishName: 'Al-Baqara',
         numberOfAyahs: 286,
-        revelationType: 'Medinan',
       },
     ];
     state.surahOffsets = null;
@@ -158,7 +154,7 @@ describe('surah-loader.ts — public exports', () => {
   });
 
   it('loadSurahList handles missing surahSelect gracefully', async () => {
-    (dom as Record<string, unknown>).surahSelect = null;
+    (dom as unknown as Record<string, unknown>).surahSelect = null;
     state.surahList = [];
     state.surahOffsets = null;
     await expect(loadSurahList()).resolves.not.toThrow();
@@ -201,10 +197,10 @@ import { syncPresentation, openPresentation, closePresentation } from '../featur
 
 describe('presentation.ts — public exports', () => {
   beforeEach(() => {
-    (dom as Record<string, unknown>).presentationOverlay = null;
-    (dom as Record<string, unknown>).presentationAyah = null;
-    (dom as Record<string, unknown>).presentationAyahNumber = null;
-    (dom as Record<string, unknown>).presentationSurahName = null;
+    (dom as unknown as Record<string, unknown>).presentationOverlay = null;
+    (dom as unknown as Record<string, unknown>).presentationAyah = null;
+    (dom as unknown as Record<string, unknown>).presentationAyahNumber = null;
+    (dom as unknown as Record<string, unknown>).presentationSurahName = null;
     state.presentationMode = false;
     state.currentSurah = 1;
     state.currentAyahIndex = 0;
@@ -246,52 +242,52 @@ import {
 describe('app-events.ts — exported functions', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
-    (dom as Record<string, unknown>).settingsPanel = document.createElement('div');
-    (dom as Record<string, unknown>).favoritesPanel = document.createElement('div');
-    (dom as Record<string, unknown>).adhkarPanel = document.createElement('div');
-    (dom as Record<string, unknown>).settingsToggleBtn = document.createElement('button');
-    (dom as Record<string, unknown>).favoritesOpenBtn = document.createElement('button');
-    (dom as Record<string, unknown>).adhkarBtn = document.createElement('button');
-    (dom as Record<string, unknown>).helpPanel = document.createElement('div');
-    (dom as Record<string, unknown>).helpToggleBtn = document.createElement('button');
-    (dom as Record<string, unknown>).helpCloseBtn = document.createElement('button');
-    (dom as Record<string, unknown>).searchToggleBtn = document.createElement('button');
-    (dom as Record<string, unknown>).searchInputGroup = document.createElement('div');
-    (dom as Record<string, unknown>).searchInput = document.createElement('input');
-    (dom as Record<string, unknown>).mushafSurahOverlay = document.createElement('div');
-    (dom as Record<string, unknown>).mushafSurahOverlayClose = document.createElement('button');
-    (dom as Record<string, unknown>).surahSecretsOverlay = document.createElement('div');
-    (dom as Record<string, unknown>).surahSecretsCloseBtn = document.createElement('button');
-    (dom as Record<string, unknown>).qiblaOverlay = document.createElement('div');
-    (dom as Record<string, unknown>).qiblaCloseBtn = document.createElement('button');
-    (dom as Record<string, unknown>).readingStatsPanel = document.createElement('div');
-    (dom as Record<string, unknown>).readingStatsCloseBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).settingsPanel = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).favoritesPanel = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).adhkarPanel = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).settingsToggleBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).favoritesOpenBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).adhkarBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).helpPanel = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).helpToggleBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).helpCloseBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).searchToggleBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).searchInputGroup = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).searchInput = document.createElement('input');
+    (dom as unknown as Record<string, unknown>).mushafSurahOverlay = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).mushafSurahOverlayClose = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).surahSecretsOverlay = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).surahSecretsCloseBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).qiblaOverlay = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).qiblaCloseBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).readingStatsPanel = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).readingStatsCloseBtn = document.createElement('button');
     // Navigation
-    (dom as Record<string, unknown>).surahSelect = document.createElement('select');
-    (dom as Record<string, unknown>).prevSurahBtn = document.createElement('button');
-    (dom as Record<string, unknown>).nextSurahBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).surahSelect = document.createElement('select');
+    (dom as unknown as Record<string, unknown>).prevSurahBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).nextSurahBtn = document.createElement('button');
     // Audio
-    (dom as Record<string, unknown>).audioPlayer = document.createElement('audio');
-    (dom as Record<string, unknown>).playPauseBtn = document.createElement('button');
-    (dom as Record<string, unknown>).nextAyahBtn = document.createElement('button');
-    (dom as Record<string, unknown>).prevAyahBtn = document.createElement('button');
-    (dom as Record<string, unknown>).repeatBtn = document.createElement('button');
-    (dom as Record<string, unknown>).hifdhBtn = document.createElement('button');
-    (dom as Record<string, unknown>).repeatControls = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).audioPlayer = document.createElement('audio');
+    (dom as unknown as Record<string, unknown>).playPauseBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).nextAyahBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).prevAyahBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).repeatBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).hifdhBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).repeatControls = document.createElement('div');
     // Tafsir
-    (dom as Record<string, unknown>).tafsirCurtain = document.createElement('div');
-    (dom as Record<string, unknown>).tafsirCloseBtn = document.createElement('button');
-    (dom as Record<string, unknown>).tafsirToggleBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).tafsirCurtain = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).tafsirCloseBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).tafsirToggleBtn = document.createElement('button');
     // Settings
-    (dom as Record<string, unknown>).settingsCloseBtn = document.createElement('button');
-    (dom as Record<string, unknown>).resetSettingsBtn = document.createElement('button');
-    (dom as Record<string, unknown>).exportSettingsBtn = document.createElement('button');
-    (dom as Record<string, unknown>).importSettingsBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).settingsCloseBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).resetSettingsBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).exportSettingsBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).importSettingsBtn = document.createElement('button');
     // Favorites
-    (dom as Record<string, unknown>).favoritesCloseBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).favoritesCloseBtn = document.createElement('button');
     // Search
-    (dom as Record<string, unknown>).searchResults = document.createElement('div');
-    (dom as Record<string, unknown>).searchInput = document.createElement('input');
+    (dom as unknown as Record<string, unknown>).searchResults = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).searchInput = document.createElement('input');
   });
 
   it('bindGlobalClickHandler registers without throwing', () => {
@@ -386,7 +382,7 @@ import {
 
 describe('mushaf-renderer.ts — exported functions', () => {
   beforeEach(() => {
-    (dom as Record<string, unknown>).mushafContainer = null;
+    (dom as unknown as Record<string, unknown>).mushafContainer = null;
   });
 
   it('exports expected canvas constants', () => {
@@ -421,7 +417,7 @@ describe('mushaf-renderer.ts — exported functions', () => {
   });
 
   it('renderPage returns a result object or throws gracefully for missing canvas', async () => {
-    (dom as Record<string, unknown>).mushafContainer = null;
+    (dom as unknown as Record<string, unknown>).mushafContainer = null;
     try {
       const result = await renderPage(1);
       expect(result === null || typeof result === 'object').toBe(true);
@@ -451,12 +447,12 @@ import {
 
 describe('audio.ts — exported utility functions', () => {
   beforeEach(() => {
-    (dom as Record<string, unknown>).repeatBtn = document.createElement('button');
-    (dom as Record<string, unknown>).repeatControls = document.createElement('div');
-    (dom as Record<string, unknown>).playPauseBtn = document.createElement('button');
-    (dom as Record<string, unknown>).player = document.createElement('div');
-    (dom as Record<string, unknown>).hifdhBtn = document.createElement('button');
-    (dom as Record<string, unknown>).audioPlayer = document.createElement('audio');
+    (dom as unknown as Record<string, unknown>).repeatBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).repeatControls = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).playPauseBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).player = document.createElement('div');
+    (dom as unknown as Record<string, unknown>).hifdhBtn = document.createElement('button');
+    (dom as unknown as Record<string, unknown>).audioPlayer = document.createElement('audio');
     state.surahData = null;
     state.currentSurah = 1;
     state.currentAyahIndex = 0;

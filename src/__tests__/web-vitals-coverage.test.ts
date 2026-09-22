@@ -155,7 +155,7 @@ describe('web-vitals — additional coverage', () => {
           return [{ responseStart: 100, requestStart: 50, type: 'navigate' }];
         }
         return [];
-      }) as typeof performance.getEntriesByType;
+      }) as unknown as typeof performance.getEntriesByType;
 
       initWebVitalsMonitoring();
       MockPerformanceObserver.triggerEntries([]);

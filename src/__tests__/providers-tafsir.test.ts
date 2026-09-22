@@ -8,8 +8,8 @@ import { CONFIG } from '../config.js';
 import type { JsonFetch } from '../providers/types.js';
 import { createTafsirProvider, TAFSIR_PROVIDER_ID, TAFSIR_DEFAULT_TIMEOUT_MS } from '../providers/tafsir.js';
 
-function makeFetch() {
-  return vi.fn<JsonFetch>((_url: unknown) => Promise.resolve({ ok: true } as never));
+function makeFetch(): JsonFetch {
+  return vi.fn<JsonFetch>((_url: unknown) => Promise.resolve({ ok: true } as never)) as unknown as JsonFetch;
 }
 
 describe('TafsirProvider', () => {
@@ -63,7 +63,7 @@ describe('TafsirProvider', () => {
 
   it('should resolve the fetched payload', async () => {
     const payload = { text: 'تفسير' };
-    const fetchJson = vi.fn<JsonFetch>(() => Promise.resolve(payload) as never);
+    const fetchJson: JsonFetch = vi.fn<JsonFetch>(() => Promise.resolve(payload) as never) as unknown as JsonFetch;
     const provider = createTafsirProvider(fetchJson);
     await expect(provider.fetch('/x/1/1.json')).resolves.toBe(payload);
   });

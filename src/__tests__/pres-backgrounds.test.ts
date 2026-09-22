@@ -42,7 +42,7 @@ class MockIntersectionObserver {
 
 // Install mock before importing the module
 (globalThis as unknown as { IntersectionObserver: typeof MockIntersectionObserver }).IntersectionObserver =
-  MockIntersectionObserver as unknown as typeof IntersectionObserver;
+  MockIntersectionObserver as unknown as typeof MockIntersectionObserver;
 
 import {
   NATURE_BACKGROUNDS,

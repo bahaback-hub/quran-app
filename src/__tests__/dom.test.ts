@@ -13,7 +13,7 @@ import { dom, cacheDom } from '../dom.js';
 function resetDom(): void {
   const keys = Object.keys(dom);
   for (const key of keys) {
-    (dom as Record<string, HTMLElement | null>)[key] = null;
+    (dom as unknown as Record<string, HTMLElement | null>)[key] = null;
   }
 }
 
@@ -63,14 +63,14 @@ describe('createEmptyDomMap (via dom export)', () => {
   it('should initialize every property to null (no undefined values)', () => {
     const keys = Object.keys(dom);
     for (const key of keys) {
-      expect((dom as Record<string, unknown>)[key]).toBeNull();
+      expect((dom as unknown as Record<string, unknown>)[key]).toBeNull();
     }
   });
 
   it('should have no undefined properties', () => {
     const keys = Object.keys(dom);
     for (const key of keys) {
-      expect((dom as Record<string, unknown>)[key]).not.toBeUndefined();
+      expect((dom as unknown as Record<string, unknown>)[key]).not.toBeUndefined();
     }
   });
 });

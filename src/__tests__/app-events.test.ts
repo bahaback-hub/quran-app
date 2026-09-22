@@ -166,7 +166,7 @@ vi.mock('../a11y.js', () => ({
 
 // Mock i18n additional exports
 vi.mock('../i18n.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     AVAILABLE_LANGUAGES: [
@@ -247,10 +247,10 @@ function createDomElements() {
   dom.presBgSelect = el('select') as HTMLSelectElement;
   dom.presBgSceneSelect = el('select') as HTMLSelectElement;
   dom.presBgNatureSelect = el('select') as HTMLSelectElement;
-  dom.tajweedToggle = el('button');
-  dom.azanToggle = el('button');
-  dom.azanFajrToggle = el('button');
-  dom.autoSaveToggle = el('button');
+  dom.tajweedToggle = el('button') as HTMLInputElement;
+  dom.azanToggle = el('button') as HTMLInputElement;
+  dom.azanFajrToggle = el('button') as HTMLInputElement;
+  dom.autoSaveToggle = el('button') as HTMLInputElement;
   dom.langSelect = el('select') as HTMLSelectElement;
   dom.cityQuickSelect = el('select') as HTMLSelectElement;
   dom.cityInput = el('input') as HTMLInputElement;
@@ -1459,6 +1459,12 @@ describe('app-events', () => {
         installed: true,
         fontsIncluded: true,
         totalBytes: 2048,
+        packId: 'test-pack',
+        version: '1.0.0',
+        sourceCommit: 'test-commit',
+        pageCount: 604,
+        fileCount: 1,
+        installedAt: '2026-01-01T00:00:00.000Z',
       });
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
@@ -1474,6 +1480,12 @@ describe('app-events', () => {
         installed: false,
         fontsIncluded: false,
         totalBytes: 0,
+        packId: null,
+        version: null,
+        sourceCommit: null,
+        pageCount: 0,
+        fileCount: 0,
+        installedAt: null,
       });
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
@@ -1486,6 +1498,17 @@ describe('app-events', () => {
       const { downloadMushafDataPack } = await import('../features/mushaf/mushaf-data-pack.js');
       vi.mocked(downloadMushafDataPack).mockImplementation(async (cb: any) => {
         cb({ completed: 1, total: 10 });
+        return {
+          installed: true,
+          fontsIncluded: true,
+          totalBytes: 1024,
+          packId: 'test-pack',
+          version: '1.0.0',
+          sourceCommit: 'test-commit',
+          pageCount: 604,
+          fileCount: 1,
+          installedAt: '2026-01-01T00:00:00.000Z',
+        };
       });
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
@@ -1539,6 +1562,12 @@ describe('app-events', () => {
         installed: false,
         fontsIncluded: false,
         totalBytes: 0,
+        packId: null,
+        version: null,
+        sourceCommit: null,
+        pageCount: 0,
+        fileCount: 0,
+        installedAt: null,
       });
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();

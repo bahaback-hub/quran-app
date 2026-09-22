@@ -94,7 +94,7 @@ describe('surah-cache', () => {
           ayahs: [{ numberInSurah: 1, text: 'الم', number: 1 }],
         },
         audio: {
-          ayahs: [{ numberInSurah: 1, audio: 'https://example.com/2-1.mp3' }],
+          ayahs: [{ numberInSurah: 1, text: '', audio: 'https://example.com/2-1.mp3' }],
         },
         translation: null,
       };
@@ -350,7 +350,7 @@ describe('surah-cache', () => {
         audios: ['https://example.com/audio.mp3'],
         timings: [3000, 4000],
         audio: {
-          ayahs: [{ numberInSurah: 1, audio: 'https://example.com/audio.mp3' }],
+          ayahs: [{ numberInSurah: 1, text: '', audio: 'https://example.com/audio.mp3' }],
         },
         translation: { id: 'en.sahih', name: 'Sahih International' },
       };
@@ -479,7 +479,7 @@ describe('surah-cache', () => {
           ayahs: [{ numberInSurah: 1, text: 'بسم الله', number: 1 }],
         },
         audio: {
-          ayahs: [{ numberInSurah: 1, audio: 'https://example.com/1-1.mp3' }],
+          ayahs: [{ numberInSurah: 1, text: '', audio: 'https://example.com/1-1.mp3' }],
         },
         translation: null,
       };

@@ -104,8 +104,8 @@ vi.mock('../i18n.js', () => ({
 
 vi.mock('../storage.js', () => ({
   storage: {
-    get: (...args: unknown[]) => mockStorageGet(...args),
-    set: (...args: unknown[]) => mockStorageSet(...args),
+    get: (...args: unknown[]) => (mockStorageGet as (...a: unknown[]) => unknown)(...args),
+    set: (...args: unknown[]) => (mockStorageSet as (...a: unknown[]) => unknown)(...args),
     remove: vi.fn(),
   },
 }));
@@ -134,7 +134,8 @@ vi.mock('../api-client.js', () => ({
 }));
 
 vi.mock('../features/prayer/prayer-local.js', () => ({
-  calculatePrayerTimesLocally: (...args: unknown[]) => mockCalculatePrayerTimesLocally(...args),
+  calculatePrayerTimesLocally: (...args: unknown[]) =>
+    (mockCalculatePrayerTimesLocally as (...a: unknown[]) => unknown)(...args),
 }));
 
 vi.mock('../dom.js', () => ({

@@ -70,7 +70,7 @@ const {
     mockHapticFeedback: vi.fn(),
     mockHighlightCurrentAyah: vi.fn(),
     mockGetCachedAudioUrl: vi.fn(),
-    mockStorageGet: vi.fn(() => null),
+    mockStorageGet: vi.fn<(key: string) => unknown>(() => null),
     mockStorageSet: vi.fn(),
   };
 });
@@ -90,7 +90,7 @@ vi.mock('../dom.js', () => ({
 
 vi.mock('../storage.js', () => ({
   storage: {
-    get: (...args: unknown[]) => mockStorageGet(...args),
+    get: (...args: unknown[]) => (mockStorageGet as (...a: unknown[]) => unknown)(...args),
     set: (...args: unknown[]) => mockStorageSet(...args),
     remove: vi.fn(),
   },
@@ -102,7 +102,7 @@ vi.mock('../ui.js', () => ({
 }));
 
 vi.mock('../utils.js', async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual = (await importOriginal()) as unknown as Record<string, unknown>;
   return {
     ...actual,
     hapticFeedback: (...args: unknown[]) => mockHapticFeedback(...args),

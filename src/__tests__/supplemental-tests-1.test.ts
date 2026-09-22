@@ -90,9 +90,10 @@ describe('ui.ts — showToast + loadingBar', () => {
     const { loadingBar } = await import('../ui.js');
     loadingBar.el = null;
     loadingBar.init();
-    expect(loadingBar.el).not.toBeNull();
-    expect(loadingBar.el?.id).toBe('loadingProgress');
-    loadingBar.el?.remove();
+    const elAfterInit = loadingBar.el as HTMLElement | null;
+    expect(elAfterInit).not.toBeNull();
+    expect(elAfterInit?.id).toBe('loadingProgress');
+    elAfterInit?.remove();
     loadingBar.el = null;
     loadingBar.timer = null;
   });
@@ -102,10 +103,11 @@ describe('ui.ts — showToast + loadingBar', () => {
     const { loadingBar } = await import('../ui.js');
     loadingBar.el = null;
     loadingBar.show('Loading…');
-    expect(loadingBar.el).not.toBeNull();
-    expect(loadingBar.el?.classList.contains('active')).toBe(true);
-    expect(loadingBar.el?.textContent).toBe('Loading…');
-    loadingBar.el?.remove();
+    const elAfterShow = loadingBar.el as HTMLElement | null;
+    expect(elAfterShow).not.toBeNull();
+    expect(elAfterShow?.classList.contains('active')).toBe(true);
+    expect(elAfterShow?.textContent).toBe('Loading…');
+    elAfterShow?.remove();
     loadingBar.el = null;
     loadingBar.timer = null;
   });
@@ -553,7 +555,7 @@ describe('audio.ts — defensive branches', () => {
 
   it('populateRepeatUI should not throw when DOM is missing', async () => {
     const mod = await import('../features/audio/audio.js');
-    expect(() => mod.populateRepeatUI({ start: 1, end: 7 })).not.toThrow();
+    expect(() => mod.populateRepeatUI({ from: 1, to: 7, times: 3 })).not.toThrow();
   });
 
   it('playCurrentAyah should not throw when audio element is missing', async () => {
