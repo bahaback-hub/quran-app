@@ -86,6 +86,10 @@ export async function initApp(): Promise<void> {
   initCspReporting(); // CSP violation monitoring — before any dynamic content injects
   setLoadSurah(loadSurah);
   setReloadAudio(reloadCurrentSurahAudio);
+  // audio.ts references highlightCurrentAyah as a global (import removed to break a
+  // circular dependency), so publish it here during the critical path.
+  (globalThis as unknown as { highlightCurrentAyah: typeof highlightCurrentAyah }).highlightCurrentAyah =
+    highlightCurrentAyah;
   injectOverlays(); // Must run before cacheDom — injects overlay HTML into DOM
   cacheDom();
   // initI18n runs before panel injection; apply once more so newly injected

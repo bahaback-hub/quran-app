@@ -117,6 +117,7 @@ vi.mock('../adhkar.js', () => ({
 vi.mock('../features/audio/audio.js', () => ({
   bindAudioEvents: vi.fn(),
   setLoadSurah: vi.fn(),
+  setReloadAudio: vi.fn(),
 }));
 
 vi.mock('../features/search/search-ui.js', () => ({
@@ -149,6 +150,7 @@ vi.mock('../surah-loader.js', () => ({
   highlightCurrentAyah: vi.fn(),
   updatePlayerInfo: vi.fn(),
   updateCurrentSurahLocale: vi.fn(),
+  reloadCurrentSurahAudio: vi.fn(),
 }));
 
 vi.mock('../tajweed-data.js', () => ({

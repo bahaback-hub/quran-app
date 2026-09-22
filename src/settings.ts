@@ -30,6 +30,26 @@ import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from './a
 const SURAH_FONT_SIZES = [20, 24, 28, 32, 36, 40, 44];
 const MUSHAF_ZOOM_LEVELS = [100, 125, 150, 175, 200];
 export const DEFAULT_READER_SURFACE_TRANSPARENCY = 65;
+
+/**
+ * Presentation sync hook — registered by features/presentation/presentation.ts to
+ * break the settings ⇄ presentation import cycle.
+ */
+let _syncPresentation: (() => void) | null = null;
+
+export function registerSyncPresentation(fn: () => void): void {
+  _syncPresentation = fn;
+}
+
+/**
+ * Mushaf page reload hook on theme change — registered by
+ * features/mushaf/mushaf.ts to avoid a settings ⇄ mushaf import cycle.
+ */
+let _reloadMushafPage: (() => void) | null = null;
+
+export function registerMushafPageReload(fn: () => void): void {
+  _reloadMushafPage = fn;
+}
 const MIN_READER_SURFACE_TRANSPARENCY = 0;
 const MAX_READER_SURFACE_TRANSPARENCY = 100;
 
@@ -124,12 +144,7 @@ export function applyNightMode(enabled: boolean): void {
   }
   updateThemeButtons();
   updateThemeTriggerIcon();
-  if (state.mushafMode && state.currentPage) {
-    import('./features/mushaf/mushaf.js').then(
-      (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
-        m.loadPage(state.currentPage, true, true),
-    );
-  }
+  _reloadMushafPage?.();
 }
 
 export function toggleNightMode(): void {
@@ -157,12 +172,7 @@ export function applySepiaMode(enabled: boolean): void {
   }
   updateThemeButtons();
   updateThemeTriggerIcon();
-  if (state.mushafMode && state.currentPage) {
-    import('./features/mushaf/mushaf.js').then(
-      (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
-        m.loadPage(state.currentPage, true, true),
-    );
-  }
+  _reloadMushafPage?.();
 }
 
 /** Enable or disable the darkest reading theme while keeping night-mode compatibility. */
@@ -182,12 +192,7 @@ export function applyDeepNightMode(enabled: boolean): void {
   }
   updateThemeButtons();
   updateThemeTriggerIcon();
-  if (state.mushafMode && state.currentPage) {
-    import('./features/mushaf/mushaf.js').then(
-      (m: { loadPage: (page: number, force?: boolean, isRefresh?: boolean) => Promise<void> }) =>
-        m.loadPage(state.currentPage, true, true),
-    );
-  }
+  _reloadMushafPage?.();
 }
 
 /** Apply a specific theme by name: 'light', 'sepia', 'night', or 'deep-night'. */
@@ -361,9 +366,7 @@ export function applyPresBgMode(
   }
   // Update presentation display if active
   if (state.presentationMode) {
-    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) =>
-      p.syncPresentation(),
-    );
+    _syncPresentation?.();
   }
 }
 
@@ -376,9 +379,7 @@ export function applyPresBgScene(scene: string): void {
   }
   // Update presentation display if currently in scene mode
   if (state.presentationMode && state.presBgMode === 'scene') {
-    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) =>
-      p.syncPresentation(),
-    );
+    _syncPresentation?.();
   }
 }
 
@@ -391,9 +392,7 @@ export function applyPresBgNature(nature: string): void {
   }
   // Update presentation display if currently in singleNature mode
   if (state.presentationMode && state.presBgMode === 'singleNature') {
-    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) =>
-      p.syncPresentation(),
-    );
+    _syncPresentation?.();
   }
 }
 
@@ -406,9 +405,7 @@ export function applyPresBgVideo(video: string): void {
     dom.presBgVideoSelect.value = state.presBgVideo;
   }
   if (state.presentationMode && state.presBgMode === 'video') {
-    import('./features/presentation/presentation.js').then((p: { syncPresentation: () => void }) =>
-      p.syncPresentation(),
-    );
+    _syncPresentation?.();
   }
 }
 

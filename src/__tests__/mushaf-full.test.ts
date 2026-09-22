@@ -8,7 +8,17 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 /* ===================== HOISTED MOCKS ===================== */
 
-const { mockState, mockStorage, mockShowToast, mockLoadingBar, mockDom } = vi.hoisted(() => {
+const {
+  mockState,
+  mockStorage,
+  mockShowToast,
+  mockLoadingBar,
+  mockDom,
+  mockLoadSurahSurah,
+  mockRenderSurahSurah,
+  mockUpdatePlayerInfoSurah,
+  mockHighlightCurrentAyahSurah,
+} = vi.hoisted(() => {
   const state = {
     isPlaying: false,
     mushafMode: false,
@@ -34,13 +44,24 @@ const { mockState, mockStorage, mockShowToast, mockLoadingBar, mockDom } = vi.ho
 
   const dom: Record<string, HTMLElement | null> = {};
 
-  return { mockState: state, mockStorage: storage, mockShowToast: showToast, mockLoadingBar: loadingBar, mockDom: dom };
+  return {
+    mockState: state,
+    mockStorage: storage,
+    mockShowToast: showToast,
+    mockLoadingBar: loadingBar,
+    mockDom: dom,
+    mockLoadSurahSurah: vi.fn(),
+    mockRenderSurahSurah: vi.fn(),
+    mockUpdatePlayerInfoSurah: vi.fn(),
+    mockHighlightCurrentAyahSurah: vi.fn(),
+  };
 });
 
 /* ===================== MOCK MODULES ===================== */
 
 vi.mock('../state.js', () => ({
   state: mockState,
+  batch: (fn: () => void) => fn(),
 }));
 
 vi.mock('../config.js', () => ({
@@ -84,6 +105,7 @@ vi.mock('../i18n.js', () => ({
   },
   setLocale: vi.fn(),
   getCurrentLocale: vi.fn(() => 'ar'),
+  getLang: vi.fn(() => 'ar'),
   loadLocale: vi.fn(() => Promise.resolve()),
 }));
 
@@ -125,11 +147,18 @@ vi.mock('../surahs-data.js', () => ({
   },
 }));
 
+vi.mock('../surah-loader.js', () => ({
+  loadSurah: mockLoadSurahSurah,
+  renderSurah: mockRenderSurahSurah,
+  updatePlayerInfo: mockUpdatePlayerInfoSurah,
+  highlightCurrentAyah: mockHighlightCurrentAyahSurah,
+}));
+
 vi.mock('../app.js', () => ({
-  loadSurah: vi.fn(),
-  renderSurah: vi.fn(),
-  updatePlayerInfo: vi.fn(),
-  highlightCurrentAyah: vi.fn(),
+  loadSurah: mockLoadSurahSurah,
+  renderSurah: mockRenderSurahSurah,
+  updatePlayerInfo: mockUpdatePlayerInfoSurah,
+  highlightCurrentAyah: mockHighlightCurrentAyahSurah,
 }));
 
 vi.mock('../features/audio/audio.js', () => ({

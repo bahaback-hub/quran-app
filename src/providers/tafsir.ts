@@ -8,7 +8,7 @@
  */
 
 import { CONFIG } from '../config.js';
-import type { FetchOptions } from '../api-client.js';
+import type { FetchOptions } from '../types/api-options.js';
 import type { JsonFetch, JsonProvider } from './types.js';
 
 export const TAFSIR_PROVIDER_ID = 'tafsir-jsdelivr' as const;

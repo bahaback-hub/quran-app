@@ -6,7 +6,8 @@
  */
 
 import type { SurahData, PrayerTimes, AdhkarSettings } from '../types.js';
-import type { PageLayoutData } from '../features/mushaf/mushaf-renderer.js';
+// Imported from the neutral layout module (never from mushaf-renderer) to avoid a state→mushaf cycle.
+import type { PageLayoutData } from '../features/mushaf/mushaf-layout-data.js';
 import { CONFIG } from '../config.js';
 
 /* ===================== DOMAIN ENTRY INTERFACES ===================== */

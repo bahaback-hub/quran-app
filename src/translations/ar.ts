@@ -746,7 +746,6 @@ export default {
   collapse_player: 'إغلاق المشغل',
   prev_surah: 'السورة السابقة',
   prev_ayah: 'الآية السابقة',
-  next_ayah: 'الآية التالية',
   next_surah: 'السورة التالية',
   recitation_speed: 'سرعة التلاوة',
   reference_frequency: 'التردد المرجعي',

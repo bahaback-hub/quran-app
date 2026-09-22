@@ -743,4 +743,22 @@ export default {
   reading_plan_behind: 'Un peu en retard — lisez davantage aujourd\u2019hui',
   reading_plan_done: 'Louange à Dieu — la khatma est terminée !',
   reading_plan_reset: 'Annuler le plan',
+
+  // === Player and Settings UI Elements ===
+  prayer_times_loading: '⏳ Chargement des horaires de prière...',
+  city_placeholder: 'La Mecque',
+  country_placeholder: 'SA',
+  collapse_player: 'Fermer le lecteur',
+  prev_surah: 'Sourate précédente',
+  prev_ayah: 'Verset précédent',
+  next_surah: 'Sourate suivante',
+  recitation_speed: 'Vitesse de récitation',
+  reference_frequency: 'Fréquence de référence',
+  pitch_tuning: 'Réglage de la tonalité',
+  play_pause: 'Lecture/Pause',
+  hifz_mode: 'Mode Hifz',
+  repeat_mode: 'Mode répétition',
+  sleep_timer: 'Minuteur de sommeil',
+  download_surah_audio: 'Télécharger la sourate pour une utilisation hors ligne',
+  autoplay_next_hint: 'Lecture continue — passe automatiquement à la sourate suivante',
 };

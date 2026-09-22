@@ -742,4 +742,22 @@ export default {
   reading_plan_behind: 'Etwas im Rückstand — lies heute mehr',
   reading_plan_done: 'Gelobt sei Gott — die Khatma ist geschafft!',
   reading_plan_reset: 'Plan abbrechen',
+
+  // === Player and Settings UI Elements ===
+  prayer_times_loading: '⏳ Laden der Gebetszeiten...',
+  city_placeholder: 'Mekka',
+  country_placeholder: 'SA',
+  collapse_player: 'Player schließen',
+  prev_surah: 'Vorherige Sure',
+  prev_ayah: 'Vorheriger Vers',
+  next_surah: 'Nächste Sure',
+  recitation_speed: 'Rezitationsgeschwindigkeit',
+  reference_frequency: 'Referenzfrequenz',
+  pitch_tuning: 'Tonhöhenabstimmung',
+  play_pause: 'Abspielen/Pause',
+  hifz_mode: 'Hifz-Modus',
+  repeat_mode: 'Wiederholungsmodus',
+  sleep_timer: 'Schlaftimer',
+  download_surah_audio: 'Sure für die Offline-Nutzung herunterladen',
+  autoplay_next_hint: 'Fortlaufende Wiedergabe — wechselt automatisch zur nächsten Sure',
 };

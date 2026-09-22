@@ -20,30 +20,10 @@ import { isCapacitorNative } from '../../types.js';
 import { getMushafPageLayout } from './mushaf-data-pack.js';
 import { qcf4FontUrl } from './qcf4-font-pack.js';
 import { mushafPageLayoutUrls } from '../../external-sources.js';
+import type { PageLayoutData, PageWord } from './mushaf-layout-data.js';
+export type { PageLayoutData, PageLine, PageWord } from './mushaf-layout-data.js';
 
 /* ===================== INTERFACES ===================== */
-
-/** A single word in a mushaf page line. */
-export interface PageWord {
-  char: string;
-  font?: string;
-  type?: string;
-  verse_key?: string;
-  location?: string;
-  word?: string;
-  text?: string;
-}
-
-/** A single line in a mushaf page layout. */
-export interface PageLine {
-  words: PageWord[];
-}
-
-/** Full layout data for a mushaf page (from QCF4 JSON). */
-export interface PageLayoutData {
-  font?: string;
-  lines: PageLine[];
-}
 
 /** A single word laid out on a mushaf line with its measured geometry (canvas px). */
 export interface PageWordBox {

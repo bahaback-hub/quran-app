@@ -55,6 +55,7 @@ vi.mock('../features/presentation/pres-styles.js', () => ({
 vi.mock('../settings.js', () => ({
   applyPresBgMode: vi.fn(),
   applyPresBgScene: vi.fn(),
+  registerSyncPresentation: vi.fn(),
 }));
 
 // Mock app.js for the dynamic import in openPresentation

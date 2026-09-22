@@ -57,6 +57,40 @@ const VISIBLE_WINDOW_CHUNKS = 2; // chunks to keep visible above and below viewp
 let _ayahsReadyCount = 0;
 let _virtualObserver: IntersectionObserver | null = null;
 
+/**
+ * Mushaf actions injected by features/mushaf/mushaf.ts to break the
+ * surah-render → mushaf import cycle (lazy-load requirement of the mushaf panel).
+ */
+let _showSurahSecret: ((surahNum: number, surahName?: string) => void) | null = null;
+let _highlightMushafAyah: (() => void) | null = null;
+
+export function setMushafAdapters(adapters: {
+  showSurahSecret: (surahNum: number, surahName?: string) => void;
+  highlightMushafAyah: () => void;
+}): void {
+  _showSurahSecret = adapters.showSurahSecret;
+  _highlightMushafAyah = adapters.highlightMushafAyah;
+}
+
+/**
+ * Presentation + ayah-modal hooks injected by our own modules. Replaces dynamic
+ * imports that used to create import cycles between renderer/presentation/modal.
+ */
+let _syncPresentation: (() => void) | null = null;
+
+export function setPresentationSyncAdapter(fn: (() => void) | null): void {
+  _syncPresentation = fn;
+}
+
+let _openAyahModal:
+  ((opts: { surah: number; ayah: number; text: string; surahName: string; index: number }) => void) | null = null;
+
+export function setAyahModalAdapter(
+  fn: ((opts: { surah: number; ayah: number; text: string; surahName: string; index: number }) => void) | null,
+): void {
+  _openAyahModal = fn ?? null;
+}
+
 /** Cached heights of rendered chunks for accurate spacer sizing. */
 const _chunkHeightCache = new Map<string, number>();
 
@@ -412,12 +446,9 @@ export function renderSurah(textData: SurahTextData): void {
   if (secretBtn) {
     (secretBtn as HTMLElement).addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
-      import('./features/mushaf/mushaf.js').then(
-        (m: { showSurahSecret: (surahNum: number, surahName?: string) => void }) =>
-          m.showSurahSecret(
-            parseInt((secretBtn as HTMLElement).dataset['surah'] || '0', 10),
-            (secretBtn as HTMLElement).dataset['surahname'],
-          ),
+      _showSurahSecret?.(
+        parseInt((secretBtn as HTMLElement).dataset['surah'] || '0', 10),
+        (secretBtn as HTMLElement).dataset['surahname'],
       );
     });
   }
@@ -483,11 +514,7 @@ function initAyahDelegation(): void {
     }
 
     // Default: click on ayah text opens the modal
-    import('./ayah-modal.js').then(
-      (m: {
-        openAyahModal: (opts: { surah: number; ayah: number; text: string; surahName: string; index: number }) => void;
-      }) => m.openAyahModal({ surah, ayah, text: a.text, surahName: surahData.name, index: idx }),
-    );
+    _openAyahModal?.({ surah, ayah, text: a.text, surahName: surahData.name, index: idx });
   });
 }
 
@@ -569,16 +596,12 @@ export function highlightCurrentAyah(): void {
     dom.surahSelect.value = String(state.currentSurah);
   }
   updatePlayerInfo();
-  import('./features/presentation/presentation.js')
-    .then((m: { syncPresentation: () => void }) => m.syncPresentation())
-    .catch(() => {
-      /* noop */
-    });
+  _syncPresentation?.();
   if (dom.tafsirCurtain && dom.tafsirCurtain.classList.contains('open')) {
     loadTafsirForCurrentAyah();
   }
   if (state.mushafMode) {
-    import('./features/mushaf/mushaf.js').then((m: { highlightMushafAyah: () => void }) => m.highlightMushafAyah());
+    _highlightMushafAyah?.();
   }
 }
 

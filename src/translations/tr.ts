@@ -738,4 +738,22 @@ export default {
   reading_plan_behind: 'Biraz geridesiniz — bugün daha çok okuyun',
   reading_plan_done: 'Elhamdülillah, hatim tamamlandı!',
   reading_plan_reset: 'Planı iptal et',
+
+  // === Player and Settings UI Elements ===
+  prayer_times_loading: '⏳ Namaz vakitleri yükleniyor...',
+  city_placeholder: 'Mekke',
+  country_placeholder: 'SA',
+  collapse_player: 'Çaları kapat',
+  prev_surah: 'Önceki sure',
+  prev_ayah: 'Önceki ayet',
+  next_surah: 'Sonraki sure',
+  recitation_speed: 'Tilavet hızı',
+  reference_frequency: 'Referans frekansı',
+  pitch_tuning: 'Ses perdesi ayarı',
+  play_pause: 'Oynat/Duraklat',
+  hifz_mode: 'Ezber modu',
+  repeat_mode: 'Tekrar modu',
+  sleep_timer: 'Uyku zamanlayıcı',
+  download_surah_audio: 'Çevrimdışı kullanım için sure sesini indir',
+  autoplay_next_hint: 'Kesintisiz çalma — otomatik olarak sonraki sureye geçer',
 };

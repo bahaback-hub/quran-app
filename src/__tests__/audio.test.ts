@@ -193,6 +193,7 @@ beforeEach(() => {
 
   vi.clearAllMocks();
   setReloadAudio(mockReloadCurrentSurahAudio);
+  vi.stubGlobal('highlightCurrentAyah', highlightCurrentAyah);
 });
 
 /* ===================== getDefaultRepeatRange ===================== */

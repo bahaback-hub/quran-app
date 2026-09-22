@@ -12,6 +12,7 @@ import { __ } from './i18n.js';
 import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from './a11y.js';
 import { shareText } from './share.js';
 import { initContemplation, openContemplation, syncContemplationAction } from './contemplation.js';
+import { setAyahModalAdapter } from './surah-render.js';
 
 /* ===================== TYPES ===================== */
 
@@ -651,3 +652,6 @@ function activateTab(edition: string): void {
     t.classList.toggle('active', t.dataset['edition'] === edition);
   });
 }
+
+// Register the ayah modal handler so surah-render can open it without importing this module.
+setAyahModalAdapter(openAyahModal);

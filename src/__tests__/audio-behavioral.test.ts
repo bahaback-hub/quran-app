@@ -9,6 +9,9 @@ vi.unmock('../features/audio/audio.js');
 
 import { state, resetState } from '../state.js';
 
+// audio.ts calls highlightCurrentAyah as a global (circular-import workaround).
+vi.stubGlobal('highlightCurrentAyah', vi.fn());
+
 describe('audio — sleep timer state', () => {
   beforeEach(() => {
     resetState();
