@@ -739,4 +739,22 @@ export default {
   reading_plan_behind: 'Sedikit ketinggalan — baca lebih hari ini',
   reading_plan_done: 'Alhamdulillah, khatam selesai!',
   reading_plan_reset: 'Batal pelan',
+
+  // === Player and Settings UI Elements ===
+  prayer_times_loading: '⏳ Memuat waktu solat...',
+  city_placeholder: 'Mekah',
+  country_placeholder: 'SA',
+  collapse_player: 'Tutup pemain',
+  prev_surah: 'Surah sebelumnya',
+  prev_ayah: 'Ayat sebelumnya',
+  next_surah: 'Surah seterusnya',
+  recitation_speed: 'Kelajuan bacaan',
+  reference_frequency: 'Frekuensi rujukan',
+  pitch_tuning: 'Pelarasan nada',
+  play_pause: 'Main/Jeda',
+  hifz_mode: 'Mod hifz',
+  repeat_mode: 'Mod ulang',
+  sleep_timer: 'Pemasa tidur',
+  download_surah_audio: 'Muat turun audio surah untuk luar talian',
+  autoplay_next_hint: 'Pemutaran berterusan — bergerak automatik ke surah seterusnya',
 };

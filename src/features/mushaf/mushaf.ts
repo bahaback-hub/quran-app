@@ -20,7 +20,8 @@ import { renderPage, loadPageData, releaseCanvas, getCanvas, computeMushafPageGe
 import type { PageLayoutData, MushafLineLayout } from './mushaf-renderer.js';
 import { loadTafsirForSurahAyah } from '../../tafsir.js';
 import { __ } from '../../i18n.js';
-import { updateReaderZoomControl } from '../../settings.js';
+import { setMushafAdapters } from '../../surah-render.js';
+import { registerMushafPageReload } from '../../settings.js';
 import type { SurahData } from '../../types.js';
 
 /* ===================== INTERFACES ===================== */
@@ -168,7 +169,7 @@ export async function toggleMushafMode(): Promise<void> {
     }
   }
   storage.set('mushaf_mode', state.mushafMode);
-  updateReaderZoomControl();
+  import('../../settings.js').then(({ updateReaderZoomControl }) => updateReaderZoomControl());
 }
 
 /* ===================== PAGE SELECT ===================== */
@@ -724,3 +725,15 @@ function buildTajweedLegend(): HTMLElement {
   legend.appendChild(grid);
   return legend;
 }
+
+// Register mushaf actions for surah-render (avoids an import cycle).
+setMushafAdapters({ showSurahSecret, highlightMushafAyah });
+
+// Register mushaf actions for surah-render (avoids an import cycle).
+setMushafAdapters({ showSurahSecret, highlightMushafAyah });
+// Refresh the mushaf page when a theme change lands from settings.ts.
+registerMushafPageReload(() => {
+  if (state.mushafMode && state.currentPage) {
+    void loadPage(state.currentPage, true, true);
+  }
+});

@@ -120,6 +120,8 @@ vi.mock('../surah-loader.js', () => ({
   updatePlayerInfo: vi.fn(),
 }));
 
+vi.stubGlobal('highlightCurrentAyah', mockHighlightCurrentAyah);
+
 vi.mock('../i18n.js', () => ({
   __: (key: string, ...args: string[]) => {
     let val = key;

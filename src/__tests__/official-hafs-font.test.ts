@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 const root = resolve(import.meta.dirname, '../..');
 const fontPath = resolve(root, 'public/fonts/official/UthmanicHafs_V22.ttf');
 const fontCssPath = resolve(root, 'public/fonts/fonts.css');
-const templatePath = resolve(root, 'src/templates-panels.ts');
+const templatePath = resolve(root, 'src/templates/panels/settings-panel.ts');
 const noticePath = resolve(root, 'NOTICE.md');
 const rightsPath = resolve(root, 'public/fonts/official/UTHMANIC-HAFS-USAGE-RIGHTS.ar.md');
 const OFFICIAL_HAFS_SHA256 = 'aa68bffce289b4c0ebac68e90502eb69e42356abcd1603cb2b8e99c2c723f145';

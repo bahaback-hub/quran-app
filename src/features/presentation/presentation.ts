@@ -28,8 +28,14 @@ import {
   initPresentationShare,
   preparePresentationShareImage,
 } from './presentation-share.js';
-import { applyPresBgMode, applyPresBgScene, applyPresBgVideo } from '../../settings.js';
 import { isTvNavActive } from '../../tv-nav.js';
+import { applyPresBgMode, applyPresBgScene, applyPresBgVideo, registerSyncPresentation } from '../../settings.js';
+import { setPresentationSyncAdapter } from '../../surah-render.js';
+
+// Register the presentation sync hook so settings.ts and surah-render.ts can
+// refresh the presentation without importing this module (breaks import cycles).
+registerSyncPresentation(syncPresentation);
+setPresentationSyncAdapter(syncPresentation);
 
 let _prevHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -433,7 +439,7 @@ export function openPresentation(): void {
       }
     });
     // Re-render the surah content in the background (async, non-blocking)
-    import('../../app.js')
+    import('../../surah-loader.js')
       .then(({ renderSurah }) => {
         const surahData = state.surahData;
         if (surahData && surahData.number === state.currentSurah) {

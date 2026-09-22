@@ -277,4 +277,59 @@ describe('presentation image sharing', () => {
     initPresentationShare();
     expect(mockDom.presShareBtn.dataset['presentationShareBound']).toBe('true');
   });
+
+  it('exports the non-Arabic surah name and night-mode background on the portrait share', async () => {
+    document.documentElement.lang = 'en';
+    document.body.classList.add('night-mode');
+    const { openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
+
+    await openPresentationSharePreview();
+
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('ready');
+    expect(fillText.mock.calls.some((call) => String(call[0]).includes('Al-Faatiha'))).toBe(true);
+  });
+
+  it('falls back to the nature background image when the overlay holds no source', async () => {
+    mockDom.presentationOverlay = document.createElement('div');
+    mockState.presBgMode = 'nature';
+    const { openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
+
+    await openPresentationSharePreview();
+
+    expect(document.getElementById('presentationSharePreview')?.style.display).toBe('flex');
+    expect(renderedCanvasSize).toEqual([1080, 1920]);
+  });
+
+  it('copies the live scene canvas onto the exported portrait share', async () => {
+    const overlay = document.createElement('div');
+    const sceneCanvas = document.createElement('canvas');
+    sceneCanvas.className = 'pres-canvas-bg';
+    overlay.appendChild(sceneCanvas);
+    mockDom.presentationOverlay = overlay;
+    mockState.presBgMode = 'scene';
+    const { openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
+
+    await openPresentationSharePreview();
+
+    expect(renderedCanvasSize).toEqual([1080, 1920]);
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('ready');
+  });
+
+  it('degrades to a failed state when the share image cannot be produced', async () => {
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
+    Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+      configurable: true,
+      value: function (_callback: BlobCallback) {
+        _callback(null);
+      },
+    });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    initPresentationShare();
+
+    mockDom.presShareBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('failed');
+    expect(warn).toHaveBeenCalled();
+  });
 });

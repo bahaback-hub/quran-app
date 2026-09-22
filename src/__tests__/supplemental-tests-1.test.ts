@@ -9,6 +9,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 
+// audio.ts calls highlightCurrentAyah as a global (circular-import workaround).
+vi.stubGlobal('highlightCurrentAyah', vi.fn());
+
 // Unmock modules that are mocked globally in setup-i18n.ts so we can test real implementations
 vi.unmock('../ui.js');
 vi.unmock('../dom.js');

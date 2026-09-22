@@ -14,6 +14,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // ─── Mock all dependencies ─────────────────────────────────────
 
+const { mockSearchLoadSurah, mockSearchHighlight } = vi.hoisted(() => ({
+  mockSearchLoadSurah: vi.fn(),
+  mockSearchHighlight: vi.fn(),
+}));
+
 vi.mock('../state.js', () => ({
   state: {
     fullQuranLoaded: false,
@@ -82,8 +87,13 @@ vi.mock('../templates.js', () => ({
 }));
 
 vi.mock('../app.js', () => ({
-  loadSurah: vi.fn(),
-  highlightCurrentAyah: vi.fn(),
+  loadSurah: mockSearchLoadSurah,
+  highlightCurrentAyah: mockSearchHighlight,
+}));
+
+vi.mock('../surah-loader.js', () => ({
+  loadSurah: mockSearchLoadSurah,
+  highlightCurrentAyah: mockSearchHighlight,
 }));
 
 vi.mock('../features/audio/audio.js', () => ({

@@ -105,6 +105,8 @@ vi.mock('../surah-loader.js', () => ({
   reloadCurrentSurahAudio: vi.fn(() => Promise.resolve(false)),
 }));
 
+vi.stubGlobal('highlightCurrentAyah', mockHighlightCurrentAyah);
+
 vi.mock('../i18n.js', () => ({
   __: vi.fn((key: string) => key),
 }));
