@@ -27,6 +27,7 @@ import {
   setSleepTimer,
   prepareAudioForNewSurah,
   setLoadSurah,
+  setReloadAudio,
   togglePlayPause,
   expandPlayer,
   bindAudioEvents,
@@ -191,6 +192,7 @@ beforeEach(() => {
   dom.player = null;
 
   vi.clearAllMocks();
+  setReloadAudio(mockReloadCurrentSurahAudio);
 });
 
 /* ===================== getDefaultRepeatRange ===================== */

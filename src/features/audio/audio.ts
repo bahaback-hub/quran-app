@@ -34,6 +34,9 @@ interface LoadSurahOptions {
 /** Type for the loadSurah callback injected via setLoadSurah. */
 type LoadSurahFn = (surahNum: number, opts?: LoadSurahOptions) => void;
 
+/** Type for the reloadCurrentSurahAudio callback injected via setReloadAudio. */
+type ReloadAudioFn = () => Promise<boolean>;
+
 /** Cached word-weight data for word-by-word tracking. */
 interface WordWeightsResult {
   wordCount: number;
@@ -52,6 +55,9 @@ export interface RepeatRange {
 /** Inject the loadSurah callback from app.ts (avoids circular import). */
 let _loadSurah: LoadSurahFn | null = null;
 
+/** Inject the reloadCurrentSurahAudio callback from app.ts (avoids circular import). */
+let _reloadSurahAudio: ReloadAudioFn | null = null;
+
 /**
  * Inject the loadSurah callback from app.ts.
  * Required to avoid circular imports — app.ts calls this during initialization.
@@ -60,6 +66,16 @@ let _loadSurah: LoadSurahFn | null = null;
  */
 export function setLoadSurah(fn: LoadSurahFn): void {
   _loadSurah = fn;
+}
+
+/**
+ * Inject the reloadCurrentSurahAudio callback from app.ts.
+ * Required to avoid circular imports — app.ts calls this during initialization.
+ *
+ * @param fn The function to call when reloading current surah audio
+ */
+export function setReloadAudio(fn: ReloadAudioFn): void {
+  _reloadSurahAudio = fn;
 }
 
 let _mp3quranUrl: string | null = null;
@@ -372,7 +388,9 @@ export async function playCurrentAyah(): Promise<void> {
       _audioReloading = true;
       try {
         showToast(__('loading_surah'), 'info');
-        await reloadCurrentSurahAudio();
+        if (_reloadSurahAudio) {
+          await _reloadSurahAudio();
+        }
       } finally {
         _audioReloading = false;
       }
