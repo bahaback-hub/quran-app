@@ -332,4 +332,274 @@ describe('presentation image sharing', () => {
     expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('failed');
     expect(warn).toHaveBeenCalled();
   });
+
+  interface VideoExportMocks {
+    getAudio: () => { fire: (type: string) => void; currentTime: number } | null;
+    driveToReady: () => Promise<void>;
+  }
+
+  function installVideoExportMocks(timeoutMillis = 1200): VideoExportMocks {
+    const realCreateElement = document.createElement.bind(document);
+    let lastAudio: { fire: (type: string) => void; currentTime: number; set currentTime(v: number) } | null = null;
+
+    class FakeAudio {
+      private listeners: Record<string, Array<(ev: Event) => void>> = {};
+      currentTime = 0;
+      duration = 10;
+      src = '';
+      crossOrigin = '';
+      preload = '';
+      muted = false;
+      addEventListener(type: string, cb: (ev: Event) => void): void {
+        (this.listeners[type] ??= []).push(cb);
+        if (type === 'loadedmetadata' || type === 'seeked' || type === 'canplay') {
+          queueMicrotask(() => this.fire(type));
+        }
+      }
+      removeEventListener(type: string, cb: (ev: Event) => void): void {
+        this.listeners[type] = (this.listeners[type] ?? []).filter((handler) => handler !== cb);
+      }
+      fire(type: string): void {
+        (this.listeners[type] ?? []).slice().forEach((cb) => cb({} as Event));
+      }
+      load(): void {}
+      pause(): void {}
+      removeAttribute(_name: string): void {}
+      play(): Promise<void> {
+        return Promise.resolve();
+      }
+    }
+
+    class FakeMediaStream {
+      constructor(private tracks: Array<{ stop: () => void }>) {}
+      getTracks(): Array<{ stop: () => void }> {
+        return this.tracks;
+      }
+    }
+
+    class FakeImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      naturalWidth = 200;
+      naturalHeight = 200;
+      width = 200;
+      height = 200;
+      crossOrigin = '';
+      set src(value: string) {
+        this._src = value;
+        queueMicrotask(() => this.onload?.());
+      }
+      get src(): string {
+        return this._src;
+      }
+      private _src = '';
+    }
+
+    class FakeRecorder {
+      static isTypeSupported = (type: string) => type === 'video/webm;codecs=vp9,opus';
+      state = 'inactive';
+      private listeners: Record<string, Array<(ev: Event) => void>> = {};
+      addEventListener(type: string, cb: (ev: Event) => void): void {
+        (this.listeners[type] ??= []).push(cb);
+      }
+      private fire(type: string, ev: unknown): void {
+        (this.listeners[type] ?? []).slice().forEach((cb) => cb(ev as Event));
+      }
+      start(): void {
+        this.state = 'recording';
+      }
+      stop(): void {
+        if (this.state === 'inactive') {
+          return;
+        }
+        this.state = 'inactive';
+        this.fire('dataavailable', { data: new Blob(['frame']) });
+        this.fire('stop', {});
+      }
+    }
+
+    class FakeAudioContext {
+      destination = {};
+      resume = (): Promise<void> => Promise.resolve();
+      close = (): Promise<void> => Promise.resolve();
+      createMediaElementSource(): { connect: () => void; disconnect: () => void } {
+        return { connect: () => {}, disconnect: () => {} };
+      }
+      createMediaStreamDestination(): {
+        stream: { getAudioTracks: () => Array<{ stop: () => void }> };
+        disconnect: () => void;
+      } {
+        return { stream: { getAudioTracks: () => [{ stop: () => {} }] }, disconnect: () => {} };
+      }
+    }
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: async () => ({
+            audio_file: {
+              audio_url: 'https://media.example.com/alafasy/1.mp3',
+              timestamps: [{ verse_key: '1:1', timestamp_from: 1000, timestamp_to: 3000 }],
+            },
+          }),
+        }),
+      ),
+    );
+    vi.stubGlobal('MediaRecorder', FakeRecorder);
+    vi.stubGlobal('AudioContext', FakeAudioContext);
+    vi.stubGlobal('MediaStream', FakeMediaStream);
+    vi.stubGlobal('Image', FakeImage);
+    vi.stubGlobal('requestAnimationFrame', () => 0);
+    vi.stubGlobal('cancelAnimationFrame', () => {});
+    Object.defineProperty(HTMLCanvasElement.prototype, 'captureStream', {
+      configurable: true,
+      value: () => ({ getVideoTracks: () => [{ stop: () => {} }] }),
+    });
+    vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+      if (tag === 'audio') {
+        lastAudio = new FakeAudio();
+        return lastAudio as unknown as HTMLElement;
+      }
+      return realCreateElement(tag);
+    });
+
+    return {
+      getAudio: () => lastAudio as unknown as { fire: (type: string) => void; currentTime: number } | null,
+      driveToReady: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        const audio = lastAudio as unknown as { fire: (type: string) => void; currentTime: number } | null;
+        if (audio) {
+          audio.currentTime = 999;
+          audio.fire('timeupdate');
+        }
+        await new Promise((resolve) => setTimeout(resolve, timeoutMillis));
+        await vi.waitFor(
+          () => {
+            expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('video-ready');
+          },
+          { timeout: 3000 },
+        );
+      },
+    };
+  }
+
+  it('records and exports an HD video for a Mishary Alafasy verse', async () => {
+    (mockDom as { presentationOverlay: HTMLElement | null }).presentationOverlay = null;
+    const mocks = installVideoExportMocks();
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
+
+    initPresentationShare();
+    document.getElementById('presentationShareVideoBtn')?.click();
+    await mocks.driveToReady();
+
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('video-ready');
+    expect(document.getElementById('presentationShareStatus')?.textContent).toContain('presentation_share_video_ready');
+    expect(document.getElementById('presentationShareVideoBtn')?.classList.contains('hidden')).toBe(true);
+    expect(document.getElementById('presentationShareVideoDownloadBtn')?.classList.contains('hidden')).toBe(false);
+    expect(fillText.mock.calls.some((call) => String(call[0]).includes('بِسْمِ'))).toBe(true);
+  });
+
+  it('shares and downloads the ready HD video through the Capacitor bridge', async () => {
+    capacitorShareMock.share.mockClear();
+    filesystemMock.writeFile.mockClear();
+    capacitorMock.isNativePlatform.mockImplementation(() => true);
+    capacitorShareMock.canShare.mockImplementation(() => Promise.resolve({ value: true }));
+    mockDom.presentationOverlay = document.createElement('div');
+    const mocks = installVideoExportMocks();
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
+
+    initPresentationShare();
+    document.getElementById('presentationShareVideoBtn')?.click();
+    await mocks.driveToReady();
+
+    document.getElementById('presentationShareNativeBtn')?.click();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(filesystemMock.writeFile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: 'shared/quran-1-1-alafasy-hd.webm',
+        directory: 'CACHE',
+        recursive: true,
+      }),
+    );
+    expect(capacitorShareMock.share).toHaveBeenCalledWith(expect.objectContaining({ files: [expect.any(String)] }));
+  });
+
+  it('downloads the ready HD video when native sharing is unavailable', async () => {
+    capacitorShareMock.share.mockClear();
+    filesystemMock.writeFile.mockClear();
+    capacitorMock.isNativePlatform.mockImplementation(() => true);
+    capacitorShareMock.canShare.mockImplementation(() => Promise.resolve({ value: false }));
+    mockDom.presentationOverlay = document.createElement('div');
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const mocks = installVideoExportMocks();
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
+
+    initPresentationShare();
+    document.getElementById('presentationShareVideoBtn')?.click();
+    await mocks.driveToReady();
+
+    document.getElementById('presentationShareNativeBtn')?.click();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('video-download');
+    expect(filesystemMock.writeFile).not.toHaveBeenCalled();
+    expect(anchorClick).toHaveBeenCalled();
+  });
+
+  it('downloads the ready HD video locally when the overlay holds no source', async () => {
+    mockDom.presentationOverlay = document.createElement('div');
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const mocks = installVideoExportMocks();
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
+
+    initPresentationShare();
+    const videoDownload = document.getElementById('presentationShareVideoDownloadBtn') as HTMLButtonElement;
+    document.getElementById('presentationShareVideoBtn')?.click();
+    await mocks.driveToReady();
+
+    videoDownload.click();
+
+    expect(anchorClick).toHaveBeenCalled();
+    expect(URL.createObjectURL).toHaveBeenCalled();
+  });
+
+  it('opens the preview from the video trigger and focuses the video button', async () => {
+    const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus').mockImplementation(() => {});
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
+    initPresentationShare();
+
+    mockDom.presVideoShareBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    expect(document.getElementById('presentationSharePreview')?.style.display).toBe('flex');
+    expect(focusSpy).toHaveBeenCalledWith();
+    expect(focusSpy.mock.instances.some((el) => el.id === 'presentationShareVideoBtn')).toBe(true);
+  });
+
+  it('draws whichever background source the overlay exposes onto the share image', async () => {
+    const overlay = document.createElement('div');
+    const layer = document.createElement('div');
+    layer.className = 'pres-bg-layer';
+    layer.style.backgroundImage = 'url(backgrounds/dawn.jpg)';
+    overlay.appendChild(layer);
+    mockDom.presentationOverlay = overlay;
+    const { openPresentationSharePreview } = await import('../features/presentation/presentation-share.js');
+
+    await openPresentationSharePreview();
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('ready');
+  });
+
+  it('treats a non-object share rejection as a plain failure', async () => {
+    const { initPresentationShare } = await import('../features/presentation/presentation-share.js');
+    vi.mocked(navigator.share).mockRejectedValue('network error');
+    initPresentationShare();
+
+    mockDom.presShareBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('download');
+  });
 });
