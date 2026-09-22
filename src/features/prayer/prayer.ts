@@ -296,9 +296,10 @@ function updatePrayerCurtainContext(now: Date): void {
 /* ===================== PRAYER TIMES ===================== */
 
 /* Official Umm Al-Qura (رئاسة الحرمين) times for major Saudi cities.
- * Loaded once from public/data/prayer-times-underwritten.json and used as the
- * HIGHEST-priority source so the app matches ummulqura.org.sa exactly, instead
- * of the approximate astronomical calculation returned by Aladhan. */
+ * Loaded once from public/data/prayer-times-underwritten.json. It is a date-less
+ * static snapshot, so it is only a last-resort fallback (Strategy 0.5) for dates
+ * the date-aware prayer-times-1448.json does not cover — never the primary source,
+ * which would freeze summer values onto the whole year. */
 let underwrittenTable: Record<string, Record<string, string>> | null = null;
 let underwrittenLoaded = false;
 
@@ -342,11 +343,13 @@ export async function loadPrayerTimes(): Promise<void> {
   const country = dom.countryInput?.value.trim() || state.country;
   const method = dom.methodSelect?.value || state.method;
 
-  // ── Strategy 0: Official underwritten table (رئاسة الحرمين) for major Saudi cities ──
-  // Highest priority: matches ummulqura.org.sa exactly, no network round-trip.
-  const underwritten = getUnderwrittenPrayerTimes(city);
-  if (underwritten) {
-    state.prayerTimes = underwritten as import('../../types.js').PrayerTimes;
+  // ── Strategy 0: Local offline JSON (prayer-times-1448.json) for 10 Saudi cities ──
+  // PRIMARY source: instant, fully offline, per-date Umm Al-Qura calendar (method=4),
+  // synced daily. Because each entry carries a Gregorian date, today's row is a true
+  // seasonal match — never a fixed year-round snapshot.
+  const localTimes = await loadPrayerTimesFromLocalJSON(city);
+  if (localTimes) {
+    state.prayerTimes = localTimes as import('../../types.js').PrayerTimes;
     storage.set('cached_prayer_times', {
       date: new Date().toISOString(),
       timings: state.prayerTimes,
@@ -360,11 +363,13 @@ export async function loadPrayerTimes(): Promise<void> {
     return;
   }
 
-  // ── Strategy 0.5: Local offline JSON (prayer-times-1448.json) for 10 Saudi cities ──
-  // Instant (no network), works fully offline, uses Umm Al-Qura calendar (method=4).
-  const localTimes = await loadPrayerTimesFromLocalJSON(city);
-  if (localTimes) {
-    state.prayerTimes = localTimes as import('../../types.js').PrayerTimes;
+  // ── Strategy 0.5: Official underwritten table (رئاسة الحرمين) — last-resort fallback ──
+  // A single date-less snapshot. It used to be the FIRST source, overriding the
+  // date-aware 1448 table and skewing winter days by up to ~104 minutes (Dammam 2026-11-27).
+  // Safe to use only when the date-aware table has no entry for today.
+  const underwritten = getUnderwrittenPrayerTimes(city);
+  if (underwritten) {
+    state.prayerTimes = underwritten as import('../../types.js').PrayerTimes;
     storage.set('cached_prayer_times', {
       date: new Date().toISOString(),
       timings: state.prayerTimes,
