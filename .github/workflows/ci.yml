@@ -74,7 +74,7 @@ jobs:
             const summary = require("./coverage/coverage-summary.json");
             const failures = [];
             const THRESHOLD = 60;
-            const BARREL_FILES = ["src/state.ts", "src/templates/index.ts"];
+            const BARREL_FILES = ["src/state.ts", "src/templates/index.ts", "src/templates-panels.ts"];
             for (const [file, data] of Object.entries(summary)) {
               if (file === "total") continue;
               if (!file.includes("/src/") || file.includes("__tests__")) continue;

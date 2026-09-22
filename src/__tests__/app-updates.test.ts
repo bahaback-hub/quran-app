@@ -75,4 +75,56 @@ describe('app-updates', () => {
     expect(result).toBe('up-to-date');
     expect(status.textContent).toBeTruthy();
   });
+
+  it('reports updated when the installing worker is already installed', async () => {
+    const dispatch = vi.spyOn(window, 'dispatchEvent');
+    stubServiceWorker({
+      getRegistration: vi.fn().mockResolvedValue({ waiting: {}, update: vi.fn(), installing: { state: 'installed' } }),
+    });
+    const result = await checkForAppUpdates(document.createElement('p'));
+    expect(result).toBe('updated');
+    const names = dispatch.mock.calls.map((call) => (call[0] as Event).type);
+    expect(names).toContain(UPDATE_AVAILABLE_EVENT);
+  });
+
+  it('reports updated once a downloading worker transitions to installed', async () => {
+    const dispatch = vi.spyOn(window, 'dispatchEvent');
+    const handlers: Record<string, () => void> = {};
+    const installer = {
+      state: 'installing',
+      addEventListener: (type: string, cb: () => void) => {
+        handlers[type] = cb;
+      },
+    };
+    const registration = { waiting: null, update: vi.fn(), installing: installer };
+    stubServiceWorker({ getRegistration: vi.fn().mockResolvedValue(registration) });
+    const pending = checkForAppUpdates(document.createElement('p'));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    (registration as { waiting: unknown }).waiting = {};
+    installer.state = 'installed';
+    handlers.statechange();
+    const result = await pending;
+    expect(result).toBe('updated');
+    const names = dispatch.mock.calls.map((call) => (call[0] as Event).type);
+    expect(names).toContain(UPDATE_AVAILABLE_EVENT);
+  });
+
+  it('reports up-to-date when the installing worker becomes redundant', async () => {
+    const handlers: Record<string, () => void> = {};
+    const installer = {
+      state: 'installing',
+      addEventListener: (type: string, cb: () => void) => {
+        handlers[type] = cb;
+      },
+    };
+    stubServiceWorker({
+      getRegistration: vi.fn().mockResolvedValue({ waiting: null, update: vi.fn(), installing: installer }),
+    });
+    const pending = checkForAppUpdates(document.createElement('p'));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    installer.state = 'redundant';
+    handlers.statechange();
+    const result = await pending;
+    expect(result).toBe('up-to-date');
+  });
 });
