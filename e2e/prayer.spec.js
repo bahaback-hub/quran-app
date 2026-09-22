@@ -60,9 +60,11 @@ test.describe('مواقيت الصلاة', () => {
 
     const clock = page.locator('#bigClockTime');
     await expect(clock).toBeVisible();
-    const text = await clock.textContent();
-    // MUST show real time — do NOT accept --:--
-    expect(text).toMatch(/^\d{2}:\d{2}$/);
+    // MUST show real time — do NOT accept --:--. The app redraws the clock
+    // roughly every second (sometimes with Arabic-Indic digits), so assert
+    // with auto-retry until a stable HH:MM (Latin or Arabic-Indic digits)
+    // is on screen instead of racing a single read.
+    await expect(clock).toHaveText(/^[\d٠-٩]{2}:[٠-٩\d]{2}$/, { timeout: 8000 });
   });
 
   test('فتح الإعدادات واختيار مدينة', async ({ page }) => {

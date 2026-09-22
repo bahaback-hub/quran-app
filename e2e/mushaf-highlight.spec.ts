@@ -106,24 +106,29 @@ test('mushaf highlight bars follow measured ayah bounds (desktop)', async ({ pag
   const box = (await canvas.boundingBox())!;
 
   // Click word positions across the page; the first hit paints the ayah bars.
-  const xs = [0.86, 0.72, 0.55, 0.62, 0.4];
-  const ys = [0.06, 0.14, 0.22, 0.3, 0.38];
+  // Fixed fractional points shift slightly per browser (webkit renders the
+  // mushaf geometry a bit differently), so probe a grid of rows/columns
+  // instead of five hard-coded points to stay deterministic in CI.
+  const xs = [0.35, 0.45, 0.55, 0.65, 0.75, 0.85];
+  const ys = [0.08, 0.16, 0.24, 0.32, 0.4, 0.48];
   let bars = 0;
-  for (let round = 0; round < 2 && bars === 0; round++) {
-    for (let i = 0; i < xs.length; i++) {
-      await page.mouse.click(box.x + box.width * xs[i]!, box.y + box.height * ys[i]!);
-      try {
-        await page.waitForSelector('.mushaf-highlight-overlay .mushaf-ayah-highlight', { timeout: 3000 });
-        bars = await page.locator('.mushaf-highlight-overlay .mushaf-ayah-highlight').count();
-        if (bars > 0) {
-          break;
+  probe: for (let round = 0; round < 2 && bars === 0; round++) {
+    for (const y of ys) {
+      for (const x of xs) {
+        await page.mouse.click(box.x + box.width * x, box.y + box.height * y);
+        try {
+          await page.waitForSelector('.mushaf-highlight-overlay .mushaf-ayah-highlight', { timeout: 1500 });
+          bars = await page.locator('.mushaf-highlight-overlay .mushaf-ayah-highlight').count();
+          if (bars > 0) {
+            break probe;
+          }
+        } catch {
+          /* keep probing */
         }
-      } catch {
-        /* keep probing */
       }
-      if (round === 0) {
-        await page.waitForTimeout(900);
-      }
+    }
+    if (round === 0) {
+      await page.waitForTimeout(700);
     }
   }
   expect(bars).toBeGreaterThan(0);
