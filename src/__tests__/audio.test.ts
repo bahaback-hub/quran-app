@@ -5,8 +5,9 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const { mockReloadCurrentSurahAudio } = vi.hoisted(() => ({
+const { mockReloadCurrentSurahAudio, mockHighlightCurrentAyah } = vi.hoisted(() => ({
   mockReloadCurrentSurahAudio: vi.fn(() => Promise.resolve(false)),
+  mockHighlightCurrentAyah: vi.fn(),
 }));
 
 /** Flush pending microtasks (promises) so async effects propagate. */
@@ -28,6 +29,7 @@ import {
   prepareAudioForNewSurah,
   setLoadSurah,
   setReloadAudio,
+  setHighlightAyah,
   togglePlayPause,
   expandPlayer,
   bindAudioEvents,
@@ -104,11 +106,6 @@ vi.mock('../utils.js', () => ({
   hapticFeedback: vi.fn(),
 }));
 
-vi.mock('../surah-loader.js', () => ({
-  highlightCurrentAyah: vi.fn(),
-  reloadCurrentSurahAudio: mockReloadCurrentSurahAudio,
-}));
-
 vi.mock('../i18n.js', () => ({
   __: (key: string) => key,
 }));
@@ -122,7 +119,6 @@ import { dom } from '../dom.js';
 import { storage } from '../storage.js';
 import { showToast } from '../ui.js';
 import { hapticFeedback } from '../utils.js';
-import { highlightCurrentAyah } from '../surah-loader.js';
 
 // Helper to create a mock audio element
 function createMockAudio(overrides: Record<string, unknown> = {}): HTMLAudioElement {
@@ -193,7 +189,7 @@ beforeEach(() => {
 
   vi.clearAllMocks();
   setReloadAudio(mockReloadCurrentSurahAudio);
-  vi.stubGlobal('highlightCurrentAyah', highlightCurrentAyah);
+setHighlightAyah(mockHighlightCurrentAyah);
 });
 
 /* ===================== getDefaultRepeatRange ===================== */
@@ -498,7 +494,7 @@ describe('togglePlayPause', () => {
     dom.audioPlayer = mockPlayer;
 
     togglePlayPause();
-    expect(highlightCurrentAyah).toHaveBeenCalled();
+    expect(mockHighlightCurrentAyah).toHaveBeenCalled();
   });
 
   it('should call play when paused with existing src', () => {
@@ -526,7 +522,7 @@ describe('togglePlayPause', () => {
     dom.audioPlayer = mockPlayer;
 
     togglePlayPause();
-    expect(highlightCurrentAyah).toHaveBeenCalled();
+    expect(mockHighlightCurrentAyah).toHaveBeenCalled();
   });
 });
 
@@ -741,7 +737,7 @@ describe('toggleHifdh', () => {
   it('should call highlightCurrentAyah when enabling', () => {
     state.hifdhMode = false;
     toggleHifdh();
-    expect(highlightCurrentAyah).toHaveBeenCalled();
+    expect(mockHighlightCurrentAyah).toHaveBeenCalled();
   });
 });
 
@@ -978,7 +974,7 @@ describe('nextAyah', () => {
     state.currentAyahIndex = 0;
 
     nextAyah(false);
-    expect(highlightCurrentAyah).toHaveBeenCalled();
+    expect(mockHighlightCurrentAyah).toHaveBeenCalled();
   });
 
   it('should play current ayah when auto from repeat', async () => {
@@ -1070,7 +1066,7 @@ describe('prevAyah', () => {
     state.currentAyahIndex = 3;
 
     prevAyah();
-    expect(highlightCurrentAyah).toHaveBeenCalled();
+    expect(mockHighlightCurrentAyah).toHaveBeenCalled();
   });
 
   it('should play when isPlaying is true', async () => {

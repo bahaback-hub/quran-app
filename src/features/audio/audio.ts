@@ -78,6 +78,24 @@ export function setReloadAudio(fn: ReloadAudioFn): void {
   _reloadSurahAudio = fn;
 }
 
+/** Injectable highlightCurrentAyah callback (avoids circular import). */
+let _highlightAyah: (() => void) | null = null;
+
+/**
+ * Inject the highlightCurrentAyah callback from app.ts.
+ * Required to avoid circular imports — app.ts calls this during initialization.
+ *
+ * @param fn The function to call to highlight the current ayah in the reader
+ */
+export function setHighlightAyah(fn: () => void): void {
+  _highlightAyah = fn;
+}
+
+/** Highlight the current ayah via the injected reader callback (safe no-op). */
+function highlightCurrentAyah(): void {
+  _highlightAyah?.();
+}
+
 let _mp3quranUrl: string | null = null;
 let _autoAdvancing = false;
 let _sleepTimer: ReturnType<typeof setTimeout> | null = null;
@@ -381,98 +399,118 @@ export async function playCurrentAyah(): Promise<void> {
     showToast(__('no_audio'), 'error');
     return;
   }
-  if (!state.ayahsAudios?.length) {
-    // The boot-time audio fetch may have failed (API rate-limit burst on page
-    // load): retry on demand so pressing play recovers instead of silence.
-    if (!_audioReloading) {
-      _audioReloading = true;
-      try {
-        showToast(__('loading_surah'), 'info');
-        if (_reloadSurahAudio) {
-          await _reloadSurahAudio();
+  try {
+    if (!state.ayahsAudios?.length) {
+      // The boot-time audio fetch may have failed (API rate-limit burst on page
+      // load): retry on demand so pressing play recovers instead of silence.
+      if (!_audioReloading) {
+        _audioReloading = true;
+        try {
+          showToast(__('loading_surah'), 'info');
+          if (_reloadSurahAudio) {
+            await _reloadSurahAudio();
+          }
+        } finally {
+          _audioReloading = false;
         }
-      } finally {
-        _audioReloading = false;
+      }
+      if (!state.ayahsAudios?.length) {
+        // A reload in flight empties the audio list momentarily: tell the truth
+        // (still loading) instead of the misleading "no audio" error.
+        showToast(state.loadingSurah ? __('loading_surah') : __('no_audio'), state.loadingSurah ? 'info' : 'error');
+        return;
       }
     }
-    if (!state.ayahsAudios?.length) {
-      // A reload in flight empties the audio list momentarily: tell the truth
-      // (still loading) instead of the misleading "no audio" error.
-      showToast(state.loadingSurah ? __('loading_surah') : __('no_audio'), state.loadingSurah ? 'info' : 'error');
+
+    // تأكد من صلاحية فهرس الآية حتى وإن لم يقم المستخدم بتحديد آية معينة
+    if (
+      typeof state.currentAyahIndex !== 'number' ||
+      state.currentAyahIndex < 0 ||
+      state.currentAyahIndex >= state.ayahsAudios.length
+    ) {
+      state.currentAyahIndex = 0;
+    }
+
+    const url = state.ayahsAudios[state.currentAyahIndex];
+    if (!url) {
+      showToast(__('no_audio_ayah'), 'error');
       return;
     }
-  }
-  const url = state.ayahsAudios[state.currentAyahIndex];
-  if (!url) {
-    showToast(__('no_audio_ayah'), 'error');
-    return;
-  }
-  if (!dom.audioPlayer) {
-    return;
-  }
+    if (!dom.audioPlayer) {
+      return;
+    }
 
-  const isMp3quran = state.ayahTimings?.length > 0;
+    const isMp3quran = state.ayahTimings?.length > 0;
 
-  if (isMp3quran && _mp3quranUrl === url && dom.audioPlayer.readyState >= 2) {
-    dom.audioPlayer.currentTime = _getAyahStartTime();
+    if (isMp3quran && _mp3quranUrl === url && dom.audioPlayer.readyState >= 2) {
+      dom.audioPlayer.currentTime = _getAyahStartTime();
+      setPlayingState();
+      dom.audioPlayer.play().catch((e: unknown) => {
+        console.warn(e);
+        // Rejected (e.g. autoplay policy) — don't leave the button stuck on pause.
+        setStoppedState();
+      });
+      startWordTracking();
+      return;
+    }
+
+    _mp3quranUrl = isMp3quran ? url : null;
+
+    // Resolve the audio URL — check offline cache first
+    const resolvedUrl = await resolveAudioUrl(url);
+
+    // Match CORS mode / graph routing to the host BEFORE src is assigned
+    // (crossOrigin only takes effect on the fetch that starts after it).
+    await prepareElementForUrl(resolvedUrl);
+
+    // أوقف أي تشغيل سابق ونظّف الحالة قبل تغيير المصدر
+    const oldSrc = dom.audioPlayer.src;
+    if (oldSrc && oldSrc.startsWith('blob:')) {
+      URL.revokeObjectURL(oldSrc);
+    }
+    // أوقف التشغيل الحالي بأمان لتجنب أي استثناء أو رفض غير معالج
+    try {
+      if (!dom.audioPlayer.paused) {
+        dom.audioPlayer.pause();
+      }
+    } catch {
+      /* ignore pause errors */
+    }
+
+    if (isMp3quran) {
+      dom.audioPlayer.src = resolvedUrl;
+      dom.audioPlayer.addEventListener(
+        'loadedmetadata',
+        function onMeta(): void {
+          dom.audioPlayer!.removeEventListener('loadedmetadata', onMeta);
+          dom.audioPlayer!.currentTime = _getAyahStartTime();
+          dom.audioPlayer!.play().catch((e: unknown) => {
+            console.warn(e);
+            setStoppedState();
+          });
+        },
+        { once: true },
+      );
+    } else {
+      dom.audioPlayer.src = resolvedUrl;
+      dom.audioPlayer.play().catch((e: unknown) => {
+        console.warn(e);
+        setStoppedState();
+      });
+    }
+
+    // Apply saved playback speed × pitch reference when starting a new source
+    applyPlaybackRate();
+
     setPlayingState();
-    dom.audioPlayer.play().catch((e: unknown) => {
-      console.warn(e);
-      // Rejected (e.g. autoplay policy) — don't leave the button stuck on pause.
-      setStoppedState();
-    });
     startWordTracking();
-    return;
-  }
-
-  _mp3quranUrl = isMp3quran ? url : null;
-
-  // Resolve the audio URL — check offline cache first
-  const resolvedUrl = await resolveAudioUrl(url);
-
-  // Match CORS mode / graph routing to the host BEFORE src is assigned
-  // (crossOrigin only takes effect on the fetch that starts after it).
-  await prepareElementForUrl(resolvedUrl);
-
-  // أوقف أي تشغيل سابق ونظّف الحالة قبل تغيير المصدر
-  const oldSrc = dom.audioPlayer.src;
-  if (oldSrc && oldSrc.startsWith('blob:')) {
-    URL.revokeObjectURL(oldSrc);
-  }
-  // أوقف التشغيل الحالي لتجنب رفض الوعد غير المعالج
-  if (!dom.audioPlayer.paused) {
-    dom.audioPlayer.pause();
-  }
-
-  if (isMp3quran) {
-    dom.audioPlayer.src = resolvedUrl;
-    dom.audioPlayer.addEventListener(
-      'loadedmetadata',
-      function onMeta(): void {
-        dom.audioPlayer!.removeEventListener('loadedmetadata', onMeta);
-        dom.audioPlayer!.currentTime = _getAyahStartTime();
-        dom.audioPlayer!.play().catch((e: unknown) => {
-          console.warn(e);
-          setStoppedState();
-        });
-      },
-      { once: true },
-    );
-  } else {
-    dom.audioPlayer.src = resolvedUrl;
-    dom.audioPlayer.play().catch((e: unknown) => {
-      console.warn(e);
-      setStoppedState();
-    });
-  }
-
-  // Apply saved playback speed × pitch reference when starting a new source
-  applyPlaybackRate();
-
-  setPlayingState();
-  startWordTracking();
-  if (!isMp3quran) {
-    preloadNextAyah();
+    if (!isMp3quran) {
+      preloadNextAyah();
+    }
+  } catch (err) {
+    console.warn('[Audio] playCurrentAyah error:', err);
+    setStoppedState();
+    showToast(__('audio_error'), 'error');
   }
 }
 
@@ -700,7 +738,10 @@ export function togglePlayPause(): void {
   if (dom.audioPlayer.paused) {
     if (!dom.audioPlayer.src || dom.audioPlayer.ended) {
       highlightCurrentAyah();
-      playCurrentAyah();
+      playCurrentAyah().catch((e: unknown) => {
+        console.warn('[Audio] togglePlayPause error:', e);
+        setStoppedState();
+      });
     } else {
       // Optimistic: flip the button now; the play event confirms it, and a
       // rejection (e.g. autoplay policy) flips it back — never stuck on play.
