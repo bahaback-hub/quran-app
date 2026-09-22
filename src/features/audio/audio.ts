@@ -78,6 +78,24 @@ export function setReloadAudio(fn: ReloadAudioFn): void {
   _reloadSurahAudio = fn;
 }
 
+/** Injectable highlightCurrentAyah callback (avoids circular import). */
+let _highlightAyah: (() => void) | null = null;
+
+/**
+ * Inject the highlightCurrentAyah callback from app.ts.
+ * Required to avoid circular imports — app.ts calls this during initialization.
+ *
+ * @param fn The function to call to highlight the current ayah in the reader
+ */
+export function setHighlightAyah(fn: () => void): void {
+  _highlightAyah = fn;
+}
+
+/** Highlight the current ayah via the injected reader callback (safe no-op). */
+function highlightCurrentAyah(): void {
+  _highlightAyah?.();
+}
+
 let _mp3quranUrl: string | null = null;
 let _autoAdvancing = false;
 let _sleepTimer: ReturnType<typeof setTimeout> | null = null;

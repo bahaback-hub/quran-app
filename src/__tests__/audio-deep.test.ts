@@ -129,6 +129,7 @@ vi.spyOn(console, 'log').mockImplementation(() => {});
 import {
   prepareAudioForNewSurah,
   setLoadSurah,
+  setHighlightAyah,
   playCurrentAyah,
   togglePlayPause,
   bindAudioEvents,
@@ -211,6 +212,7 @@ describe('audio — deep coverage', () => {
     mockState.autoPlayNext = false;
 
     setupPlayerDom();
+    setHighlightAyah(mockHighlightCurrentAyah);
   });
 
   afterEach(() => {

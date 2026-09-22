@@ -148,6 +148,7 @@ import {
   bindAudioEvents,
   updatePlayPauseBtn,
   setLoadSurah,
+  setHighlightAyah,
   prepareAudioForNewSurah,
   resetAudioElement,
   resetAudioPlayerUI,
@@ -266,6 +267,7 @@ describe('audio — full coverage', () => {
     // Reset mocks
     mockGetCachedAudioUrl.mockResolvedValue(null);
     mockStorageGet.mockReturnValue(null);
+    setHighlightAyah(mockHighlightCurrentAyah);
 
     // Clear timers
     cleanupSleepTimerInterval();

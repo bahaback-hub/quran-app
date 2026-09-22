@@ -26,7 +26,7 @@ import {
 } from './features/prayer/prayer.js';
 import { loadFavorites } from './favorites.js';
 import { initAdhkarState, loadAdhkarSettings, startAdhkarNotificationScheduler } from './adhkar.js';
-import { bindAudioEvents, setLoadSurah, setReloadAudio } from './features/audio/audio.js';
+import { bindAudioEvents, setLoadSurah, setReloadAudio, setHighlightAyah } from './features/audio/audio.js';
 import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
 import { initNavigation } from './navigation.js';
@@ -86,6 +86,7 @@ export async function initApp(): Promise<void> {
   initCspReporting(); // CSP violation monitoring — before any dynamic content injects
   setLoadSurah(loadSurah);
   setReloadAudio(reloadCurrentSurahAudio);
+  setHighlightAyah(highlightCurrentAyah);
   injectOverlays(); // Must run before cacheDom — injects overlay HTML into DOM
   cacheDom();
   // initI18n runs before panel injection; apply once more so newly injected
