@@ -118,6 +118,7 @@ vi.mock('../features/audio/audio.js', () => ({
   bindAudioEvents: vi.fn(),
   setLoadSurah: vi.fn(),
   setReloadAudio: vi.fn(),
+  setHighlightAyah: vi.fn(),
 }));
 
 vi.mock('../features/search/search-ui.js', () => ({

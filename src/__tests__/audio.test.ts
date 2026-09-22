@@ -189,7 +189,7 @@ beforeEach(() => {
 
   vi.clearAllMocks();
   setReloadAudio(mockReloadCurrentSurahAudio);
-setHighlightAyah(mockHighlightCurrentAyah);
+  setHighlightAyah(mockHighlightCurrentAyah);
 });
 
 /* ===================== getDefaultRepeatRange ===================== */

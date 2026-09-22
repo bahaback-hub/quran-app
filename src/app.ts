@@ -86,7 +86,7 @@ export async function initApp(): Promise<void> {
   initCspReporting(); // CSP violation monitoring — before any dynamic content injects
   setLoadSurah(loadSurah);
   setReloadAudio(reloadCurrentSurahAudio);
-setHighlightAyah(highlightCurrentAyah);
+  setHighlightAyah(highlightCurrentAyah);
   injectOverlays(); // Must run before cacheDom — injects overlay HTML into DOM
   cacheDom();
   // initI18n runs before panel injection; apply once more so newly injected
