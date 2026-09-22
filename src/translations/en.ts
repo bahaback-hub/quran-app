@@ -744,7 +744,6 @@ export default {
   collapse_player: 'Close player',
   prev_surah: 'Previous Surah',
   prev_ayah: 'Previous Ayah',
-  next_ayah: 'Next Ayah',
   next_surah: 'Next Surah',
   recitation_speed: 'Recitation speed',
   reference_frequency: 'Reference frequency',
