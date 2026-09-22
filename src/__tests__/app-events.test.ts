@@ -22,6 +22,7 @@ vi.mock('../settings.js', () => ({
   applyPresBgMode: vi.fn(),
   applyPresBgScene: vi.fn(),
   applyPresBgNature: vi.fn(),
+  applyPresBgVideo: vi.fn(),
   openSettings: vi.fn(),
   closeSettings: vi.fn(),
   saveLocationSettings: vi.fn(),
@@ -68,6 +69,7 @@ vi.mock('../adhkar.js', () => ({
 // Mock surah-loader
 vi.mock('../surah-loader.js', () => ({
   loadSurah: vi.fn(),
+  toggleTranslation: vi.fn(),
 }));
 
 // Mock search-ui
@@ -77,6 +79,40 @@ vi.mock('../features/search/search-ui.js', () => ({
   initKeyboard: vi.fn(),
   initSearchAutocomplete: vi.fn(),
   startVoiceSearch: vi.fn(),
+}));
+
+// Mock mushaf data-pack
+vi.mock('../features/mushaf/mushaf-data-pack.js', () => ({
+  getMushafDataPackStatus: vi.fn(async () => ({ installed: false, fontsIncluded: false, totalBytes: 0 })),
+  downloadMushafDataPack: vi.fn(async () => {}),
+  verifyMushafDataPack: vi.fn(async () => true),
+  deleteMushafDataPack: vi.fn(async () => {}),
+  formatMushafDataBytes: vi.fn(() => '1 KB'),
+}));
+
+// Mock lazy mushaf page loader
+vi.mock('../features/mushaf/mushaf.js', () => ({
+  loadPage: vi.fn(async () => {}),
+}));
+
+// Mock ayah modal (lazy-loaded from the compact player)
+vi.mock('../ayah-modal.js', () => ({
+  openAyahModal: vi.fn(),
+}));
+
+// Mock GPS geolocation helper (lazy-loaded by useMyLocation)
+vi.mock('../features/prayer/prayer-local.js', () => ({
+  getCoordinates: vi.fn(async () => null),
+  nearestCityToCoords: vi.fn(() => null),
+}));
+
+// Mock navigation modes
+vi.mock('../tv-nav.js', () => ({
+  setTvMode: vi.fn(),
+}));
+
+vi.mock('../pointer-nav.js', () => ({
+  setPointerMode: vi.fn(),
 }));
 
 // Mock sleep-timer-modal
@@ -158,6 +194,27 @@ function createDomElements() {
   document.body.appendChild(dom.themeMenuBtn);
   document.body.appendChild(dom.themeDropdownMenu);
   dom.settingsToggleBtn = el('button');
+  document.body.appendChild(dom.settingsToggleBtn);
+  dom.favoritesOpenBtn = el('button');
+  document.body.appendChild(dom.favoritesOpenBtn);
+  dom.adhkarBtn = el('button');
+  document.body.appendChild(dom.adhkarBtn);
+  dom.readerToolbarPinBtn = el('button');
+  const readerToolbarShell = el('div');
+  readerToolbarShell.id = 'readerToolbarShell';
+  document.body.appendChild(readerToolbarShell);
+  dom.playerCurrentAyah = el('button');
+  dom.translationToggle = el('button');
+  dom.readerZoomOutBtn = el('button');
+  dom.readerZoomInBtn = el('button');
+  dom.presBgVideoSelect = el('select') as HTMLSelectElement;
+  dom.tajweedInlineBtn = el('button');
+  dom.tvModeToggle = el('button');
+  dom.pointerModeToggle = el('button');
+  dom.kbdToggleBtn = el('button');
+  dom.useLocationBtn = el('button');
+  dom.autoLocationToggle = el('input') as HTMLInputElement;
+  dom.autoLocationToggle.type = 'checkbox';
   dom.readerSurfaceControl = el('div');
   dom.readerSurfaceToggle = el('button');
   dom.readerSurfacePopover = el('div');
@@ -1216,6 +1273,674 @@ describe('app-events', () => {
       bindSearchEvents();
       dom.autoPlayNextBtn!.click();
       expect(dom.autoPlayNextBtn!.classList.contains('active')).toBe(true);
+    });
+  });
+
+  /* ==================== bindNavigationEvents — mushaf mode + compact player ==================== */
+
+  describe('bindNavigationEvents — mushaf mode and compact player', () => {
+    it('should jump to the resolved ayah page in mushaf mode', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: async () => ({ data: { page: 12 } }) }));
+      state.mushafMode = true;
+      const { bindNavigationEvents } = await import('../app-events.js');
+      bindNavigationEvents();
+      const pageOption = document.createElement('option');
+      pageOption.value = '12';
+      dom.pageSelect!.appendChild(pageOption);
+      const opt = document.createElement('option');
+      opt.value = '3';
+      dom.surahSelect!.appendChild(opt);
+      dom.surahSelect!.value = '3';
+      dom.surahSelect!.dispatchEvent(new Event('change'));
+      const { loadPage } = await import('../features/mushaf/mushaf.js');
+      await vi.waitFor(() => expect(loadPage).toHaveBeenCalledWith(12, true));
+      expect(dom.pageSelect!.value).toBe('12');
+      expect(dom.pageSlider!.value).toBe('12');
+      vi.unstubAllGlobals();
+    });
+
+    it('should toast when the ayah lookup fails in mushaf mode', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network')));
+      state.mushafMode = true;
+      const { bindNavigationEvents } = await import('../app-events.js');
+      bindNavigationEvents();
+      const opt = document.createElement('option');
+      opt.value = '3';
+      dom.surahSelect!.appendChild(opt);
+      dom.surahSelect!.value = '3';
+      dom.surahSelect!.dispatchEvent(new Event('change'));
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_page_not_found', 'error'));
+      vi.unstubAllGlobals();
+    });
+
+    it('should open the ayah modal when the compact player ayah is tapped', async () => {
+      state.surahData = { number: 1, name: 'الفاتحة', ayahs: [{ text: 'بسم الله الرحمن الرحيم' }] } as any;
+      state.currentAyahIndex = 0;
+      state.currentSurah = 1;
+      const { bindNavigationEvents } = await import('../app-events.js');
+      bindNavigationEvents();
+      dom.playerCurrentAyah!.click();
+      const { openAyahModal } = await import('../ayah-modal.js');
+      expect(openAyahModal).toHaveBeenCalledWith({
+        surah: 1,
+        ayah: 1,
+        text: 'بسم الله الرحمن الرحيم',
+        surahName: 'الفاتحة',
+        index: 0,
+      });
+    });
+
+    it('should ignore a tap on the compact player ayah without data', async () => {
+      state.surahData = null;
+      state.currentAyahIndex = -1;
+      const { bindNavigationEvents } = await import('../app-events.js');
+      bindNavigationEvents();
+      dom.playerCurrentAyah!.click();
+      const { openAyahModal } = await import('../ayah-modal.js');
+      expect(openAyahModal).not.toHaveBeenCalled();
+    });
+  });
+
+  /* ==================== bindHeaderAndSettingsEvents — extra surfaces ==================== */
+
+  describe('bindHeaderAndSettingsEvents — reader surfaces, toolbar pin, location, data pack', () => {
+    it('should close the reader surface popover when clicking outside it', async () => {
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      dom.readerSurfaceToggle!.click();
+      expect(dom.readerSurfacePopover!.classList.contains('hidden')).toBe(false);
+      document.body.click();
+      expect(dom.readerSurfacePopover!.classList.contains('hidden')).toBe(true);
+      expect(dom.readerSurfaceToggle!.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('should close the reader surface popover and refocus its trigger on Escape', async () => {
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      dom.readerSurfaceToggle!.click();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      expect(dom.readerSurfacePopover!.classList.contains('hidden')).toBe(true);
+      expect(document.activeElement).toBe(dom.readerSurfaceToggle);
+    });
+
+    it('should pin the reading toolbar and persist, then unpin on the next click', async () => {
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      const shell = document.getElementById('readerToolbarShell')!;
+      dom.readerToolbarPinBtn!.click();
+      expect(shell.classList.contains('is-pinned')).toBe(true);
+      expect(dom.readerToolbarPinBtn!.getAttribute('aria-pressed')).toBe('true');
+      expect(storage.set).toHaveBeenCalledWith('reader_toolbar_pinned', true);
+      dom.readerToolbarPinBtn!.click();
+      expect(shell.classList.contains('is-pinned')).toBe(false);
+      expect(dom.readerToolbarPinBtn!.getAttribute('aria-pressed')).toBe('false');
+      expect(storage.set).toHaveBeenCalledWith('reader_toolbar_pinned', false);
+    });
+
+    it('should toast location_not_supported when geolocation is unavailable', async () => {
+      delete (navigator as any).geolocation;
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      dom.useLocationBtn!.click();
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('location_not_supported', 'error'));
+    });
+
+    it('should fill the city from GPS and persist it', async () => {
+      Object.defineProperty(navigator, 'geolocation', { configurable: true, value: {} });
+      dom.cityInput!.value = '';
+      const { getCoordinates, nearestCityToCoords } = await import('../features/prayer/prayer-local.js');
+      vi.mocked(getCoordinates).mockResolvedValue({ latitude: 21.4, longitude: 39.8 } as any);
+      vi.mocked(nearestCityToCoords).mockReturnValue('مكة المكرمة');
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      dom.useLocationBtn!.click();
+      await vi.waitFor(() => expect(dom.cityInput!.value).toBe('مكة المكرمة'));
+      expect(state.city).toBe('مكة المكرمة');
+      expect(storage.set).toHaveBeenCalledWith('city', 'مكة المكرمة');
+      const { showToast } = await import('../ui.js');
+      expect(showToast).toHaveBeenCalledWith('location_detected', 'success');
+    });
+
+    it('should toast location_denied when coordinates are refused', async () => {
+      Object.defineProperty(navigator, 'geolocation', { configurable: true, value: {} });
+      const { getCoordinates } = await import('../features/prayer/prayer-local.js');
+      vi.mocked(getCoordinates).mockResolvedValue(null as any);
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      dom.useLocationBtn!.click();
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('location_denied', 'error'));
+    });
+
+    it('should toast location_no_city when GPS is too far from a supported city', async () => {
+      Object.defineProperty(navigator, 'geolocation', { configurable: true, value: {} });
+      const { getCoordinates, nearestCityToCoords } = await import('../features/prayer/prayer-local.js');
+      vi.mocked(getCoordinates).mockResolvedValue({ latitude: 1, longitude: 1 } as any);
+      vi.mocked(nearestCityToCoords).mockReturnValue(null);
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      dom.useLocationBtn!.click();
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('location_no_city', 'error'));
+    });
+
+    it('should sync the auto-location toggle with state', async () => {
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      dom.autoLocationToggle!.checked = true;
+      dom.autoLocationToggle!.dispatchEvent(new Event('change'));
+      expect(state.autoLocation).toBe(true);
+      expect(storage.set).toHaveBeenCalledWith('auto_location', true);
+    });
+  });
+
+  /* ==================== bindMushafDataPackEvents ==================== */
+
+  describe('bindMushafDataPackEvents', () => {
+    function mountDataPack() {
+      const status = document.createElement('span');
+      status.id = 'mushafDataPackStatus';
+      const downloadButton = document.createElement('button');
+      downloadButton.id = 'downloadMushafDataPackBtn';
+      const verifyButton = document.createElement('button');
+      verifyButton.id = 'verifyMushafDataPackBtn';
+      const deleteButton = document.createElement('button');
+      deleteButton.id = 'deleteMushafDataPackBtn';
+      document.body.append(status, downloadButton, verifyButton, deleteButton);
+      return { status, downloadButton, verifyButton, deleteButton };
+    }
+
+    it('should show the installed state and enable verify/delete', async () => {
+      const { status, verifyButton, deleteButton } = mountDataPack();
+      const { getMushafDataPackStatus } = await import('../features/mushaf/mushaf-data-pack.js');
+      vi.mocked(getMushafDataPackStatus).mockResolvedValue({
+        installed: true,
+        fontsIncluded: true,
+        totalBytes: 2048,
+      });
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      await vi.waitFor(() => expect(status.textContent).toContain('mushaf_data_pack_installed'));
+      expect(verifyButton.disabled).toBe(false);
+      expect(deleteButton.disabled).toBe(false);
+    });
+
+    it('should report not-installed and disable verify when the pack is incomplete', async () => {
+      const { status, verifyButton } = mountDataPack();
+      const { getMushafDataPackStatus } = await import('../features/mushaf/mushaf-data-pack.js');
+      vi.mocked(getMushafDataPackStatus).mockResolvedValue({
+        installed: false,
+        fontsIncluded: false,
+        totalBytes: 0,
+      });
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      await vi.waitFor(() => expect(status.textContent).toContain('mushaf_data_pack_not_installed'));
+      expect(verifyButton.disabled).toBe(true);
+    });
+
+    it('should download the pack, report progress and finish', async () => {
+      const { downloadButton } = mountDataPack();
+      const { downloadMushafDataPack } = await import('../features/mushaf/mushaf-data-pack.js');
+      vi.mocked(downloadMushafDataPack).mockImplementation(async (cb: any) => {
+        cb({ completed: 1, total: 10 });
+      });
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      downloadButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_verified', 'success'));
+      expect(downloadButton.disabled).toBe(false);
+    });
+
+    it('should toast an error when the pack download fails', async () => {
+      mountDataPack();
+      const { downloadMushafDataPack } = await import('../features/mushaf/mushaf-data-pack.js');
+      vi.mocked(downloadMushafDataPack).mockRejectedValue(new Error('no space'));
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      (document.getElementById('downloadMushafDataPackBtn') as HTMLButtonElement).click();
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_failed', 'error'));
+    });
+
+    it('should report a valid pack after verification', async () => {
+      mountDataPack();
+      const { verifyMushafDataPack } = await import('../features/mushaf/mushaf-data-pack.js');
+      vi.mocked(verifyMushafDataPack).mockImplementation(async (cb: any) => {
+        cb({ completed: 2, total: 2 });
+        return true;
+      });
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      (document.getElementById('verifyMushafDataPackBtn') as HTMLButtonElement).click();
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_verified', 'success'));
+    });
+
+    it('should report corrupt data after a failed verification', async () => {
+      mountDataPack();
+      const { verifyMushafDataPack } = await import('../features/mushaf/mushaf-data-pack.js');
+      vi.mocked(verifyMushafDataPack).mockResolvedValue(false);
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      (document.getElementById('verifyMushafDataPackBtn') as HTMLButtonElement).click();
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_failed', 'error'));
+    });
+
+    it('should delete the installed pack', async () => {
+      const { status } = mountDataPack();
+      const { deleteMushafDataPack, getMushafDataPackStatus } = await import('../features/mushaf/mushaf-data-pack.js');
+      vi.mocked(deleteMushafDataPack).mockResolvedValue(undefined);
+      vi.mocked(getMushafDataPackStatus).mockResolvedValue({
+        installed: false,
+        fontsIncluded: false,
+        totalBytes: 0,
+      });
+      const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
+      bindHeaderAndSettingsEvents();
+      (document.getElementById('deleteMushafDataPackBtn') as HTMLButtonElement).click();
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_deleted', 'success'));
+      await vi.waitFor(() => expect(status.textContent).toContain('mushaf_data_pack_not_installed'));
+    });
+  });
+
+  /* ==================== bindAzanEvents — extra label ==================== */
+
+  describe('bindAzanEvents — test label reset', () => {
+    it('should reset the azan test button label when the azan audio ends', async () => {
+      const { bindAzanEvents } = await import('../app-events.js');
+      bindAzanEvents();
+      dom.testAzanBtn!.textContent = 'X';
+      dom.azanPlayer!.dispatchEvent(new Event('ended'));
+      expect(dom.testAzanBtn!.textContent).toBe('test_azan');
+    });
+  });
+
+  /* ==================== bindTafsirEvents — toggle + curtain layout ==================== */
+
+  describe('bindTafsirEvents — inline toggle and mobile sheet layout', () => {
+    it('should toggle translation from the inline toggle', async () => {
+      const { bindTafsirEvents } = await import('../app-events.js');
+      bindTafsirEvents();
+      dom.translationToggle!.click();
+      const { toggleTranslation } = await import('../surah-loader.js');
+      expect(toggleTranslation).toHaveBeenCalled();
+    });
+
+    it('should clamp and persist the sheet height while dragging its grip', async () => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn((q: string) => ({ matches: q.includes('max-width: 600px') }) as any),
+      );
+      const before = window.innerHeight;
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: 700 });
+      const { bindTafsirEvents } = await import('../app-events.js');
+      bindTafsirEvents();
+      dom.tafsirCurtain!.classList.add('open');
+      const grip = dom.tafsirCurtainGrip!;
+      grip.dispatchEvent(new PointerEvent('pointerdown', { pointerId: 1, clientY: 100, bubbles: true }));
+      grip.dispatchEvent(new PointerEvent('pointermove', { pointerId: 1, clientY: 150, bubbles: true }));
+      grip.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, clientY: 150, bubbles: true }));
+      expect(storage.set).toHaveBeenCalledWith('tafsir_sheet_height', expect.any(Number));
+      expect(document.documentElement.style.getPropertyValue('--tafsir-sheet-height')).toMatch(/px$/);
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: before });
+      vi.unstubAllGlobals();
+    });
+
+    it('should resize the sheet from the grip keyboard', async () => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn((q: string) => ({ matches: q.includes('max-width: 600px') }) as any),
+      );
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: 700 });
+      const { bindTafsirEvents } = await import('../app-events.js');
+      bindTafsirEvents();
+      const grip = dom.tafsirCurtainGrip!;
+      grip.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+      expect(document.documentElement.style.getPropertyValue('--tafsir-sheet-height')).toBe('588px');
+      grip.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+      expect(document.documentElement.style.getPropertyValue('--tafsir-sheet-height')).toBe('245px');
+      vi.unstubAllGlobals();
+    });
+
+    it('should reset the tafsir text size from its reset button', async () => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn((q: string) => ({ matches: q.includes('max-width: 600px') }) as any),
+      );
+      const { bindTafsirEvents } = await import('../app-events.js');
+      bindTafsirEvents();
+      dom.tafsirCurtainResetBtn!.click();
+      expect(document.documentElement.style.getPropertyValue('--tafsir-text-size')).toBe('16px');
+      expect(storage.remove).toHaveBeenCalledWith('tafsir_text_size');
+      vi.unstubAllGlobals();
+    });
+
+    it('should prevent over-scrolling the curtain body with the wheel at the edges', async () => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn((q: string) => ({ matches: q.includes('max-width: 600px') }) as any),
+      );
+      const { bindTafsirEvents } = await import('../app-events.js');
+      bindTafsirEvents();
+      const body = dom.tafsirCurtainBody!;
+      const wheel = new WheelEvent('wheel', { deltaY: -100, cancelable: true });
+      body.dispatchEvent(wheel);
+      expect(wheel.defaultPrevented).toBe(true);
+      vi.unstubAllGlobals();
+    });
+  });
+
+  /* ==================== bindDisplaySettingsEvents — zoom, backgrounds, extras ==================== */
+
+  describe('bindDisplaySettingsEvents — zoom, backgrounds and extra toggles', () => {
+    it('should zoom the reader out and in from its buttons', async () => {
+      const { bindDisplaySettingsEvents } = await import('../app-events.js');
+      bindDisplaySettingsEvents();
+      dom.readerZoomOutBtn!.click();
+      dom.readerZoomInBtn!.click();
+      const { changeReaderZoom } = await import('../settings.js');
+      expect(changeReaderZoom).toHaveBeenCalledWith(-1);
+      expect(changeReaderZoom).toHaveBeenCalledWith(1);
+    });
+
+    it('should apply background scene, nature and video presets', async () => {
+      const { bindDisplaySettingsEvents } = await import('../app-events.js');
+      bindDisplaySettingsEvents();
+      const setOption = (select: HTMLSelectElement, value: string) => {
+        const opt = document.createElement('option');
+        opt.value = value;
+        select.appendChild(opt);
+        select.value = value;
+        select.dispatchEvent(new Event('change'));
+      };
+      setOption(dom.presBgSceneSelect!, 'evening');
+      setOption(dom.presBgNatureSelect!, 'forest');
+      setOption(dom.presBgVideoSelect!, 'meadow');
+      const { applyPresBgScene, applyPresBgNature, applyPresBgVideo } = await import('../settings.js');
+      expect(applyPresBgScene).toHaveBeenCalledWith('evening');
+      expect(applyPresBgNature).toHaveBeenCalledWith('forest');
+      expect(applyPresBgVideo).toHaveBeenCalledWith('meadow');
+    });
+
+    it('should toggle tajweed from the inline header button and reload the surah', async () => {
+      state.tajweedEnabled = false;
+      state.currentSurah = 2;
+      const { bindDisplaySettingsEvents } = await import('../app-events.js');
+      bindDisplaySettingsEvents();
+      dom.tajweedInlineBtn!.click();
+      const { loadTajweedAnnotationsForSurah } = await import('../tajweed-data.js');
+      await vi.waitFor(() => expect(loadTajweedAnnotationsForSurah).toHaveBeenCalledWith(2));
+      const { loadSurah } = await import('../surah-loader.js');
+      expect(loadSurah).toHaveBeenCalledWith(2);
+    });
+
+    it('should reload the mushaf page when tajweed toggles in mushaf mode', async () => {
+      state.mushafMode = true;
+      state.currentPage = 3;
+      state.currentSurah = 4;
+      const { bindDisplaySettingsEvents } = await import('../app-events.js');
+      bindDisplaySettingsEvents();
+      dom.tajweedInlineBtn!.click();
+      const { loadPage } = await import('../features/mushaf/mushaf.js');
+      await vi.waitFor(() => expect(loadPage).toHaveBeenCalledWith(3, true, true));
+    });
+
+    it('should toggle tv and pointer navigation modes', async () => {
+      const { bindDisplaySettingsEvents } = await import('../app-events.js');
+      bindDisplaySettingsEvents();
+      dom.tvModeToggle!.click();
+      dom.pointerModeToggle!.click();
+      const { setTvMode } = await import('../tv-nav.js');
+      const { setPointerMode } = await import('../pointer-nav.js');
+      expect(setTvMode).toHaveBeenCalledWith(true);
+      expect(setPointerMode).toHaveBeenCalledWith(true);
+    });
+
+    it('should schedule the next azan check when azan toggles change', async () => {
+      const { bindDisplaySettingsEvents } = await import('../app-events.js');
+      bindDisplaySettingsEvents();
+      dom.azanToggle!.click();
+      dom.azanFajrToggle!.click();
+      const { scheduleNextAzanCheck } = await import('../features/prayer/prayer.js');
+      expect(scheduleNextAzanCheck).toHaveBeenCalledTimes(2);
+    });
+
+    it('should toast the new interface language after switching', async () => {
+      const { bindDisplaySettingsEvents } = await import('../app-events.js');
+      bindDisplaySettingsEvents();
+      const opt = document.createElement('option');
+      opt.value = 'en';
+      dom.langSelect!.appendChild(opt);
+      dom.langSelect!.value = 'en';
+      dom.langSelect!.dispatchEvent(new Event('change'));
+      const { setLang } = await import('../i18n.js');
+      expect(setLang).toHaveBeenCalledWith('en');
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('language: English', 'success'));
+    });
+  });
+
+  /* ==================== bindSearchEvents — db load, install, downloads ==================== */
+
+  describe('bindSearchEvents — db loading, PWA install and audio downloads', () => {
+    it("should lazily load the full Qur'an text before the first search", async () => {
+      state.fullQuranLoaded = false;
+      dom.searchInput!.value = 'نور';
+      const { bindSearchEvents } = await import('../app-events.js');
+      bindSearchEvents();
+      dom.searchBtn!.click();
+      const { loadFullQuranText, performExactSearch } = await import('../features/search/search-ui.js');
+      await vi.waitFor(() => expect(loadFullQuranText).toHaveBeenCalled());
+      const { showToast } = await import('../ui.js');
+      expect(showToast).toHaveBeenCalledWith('quran_db_loading');
+      await vi.waitFor(() => expect(performExactSearch).toHaveBeenCalledWith('نور'));
+    });
+
+    it('should invoke the install prompt when the app exposes it', async () => {
+      const installPWA = vi.fn();
+      vi.stubGlobal('installPWA', installPWA);
+      const { bindSearchEvents } = await import('../app-events.js');
+      bindSearchEvents();
+      dom.installBtn!.click();
+      expect(installPWA).toHaveBeenCalled();
+      vi.unstubAllGlobals();
+    });
+
+    it('should offer to delete audio when the surah is already cached', async () => {
+      state.surahData = { number: 1, name: 'test' } as any;
+      state.ayahsAudios = ['https://example.com/a.mp3'];
+      state.currentSurah = 1;
+      state.currentReciter = 'ar.alafasy';
+      const { isSurahCached, deleteSurahCache } = await import('../features/audio/audio-cache.js');
+      vi.mocked(isSurahCached).mockResolvedValue(true);
+      vi.mocked(deleteSurahCache).mockResolvedValue(2);
+      const { bindSearchEvents } = await import('../app-events.js');
+      bindSearchEvents();
+      dom.downloadAudioBtn!.click();
+      await vi.waitFor(() => expect(deleteSurahCache).toHaveBeenCalledWith(1, 'ar.alafasy'));
+      const { showToast } = await import('../ui.js');
+      expect(showToast).toHaveBeenCalledWith('download_audio_deleted', 'success');
+      expect(dom.downloadAudioBtn!.textContent).toBe('download_audio');
+    });
+
+    it('should download the full surah audio, mark the button done, then reset it', async () => {
+      state.surahData = { number: 2, name: 'البقرة' } as any;
+      state.ayahsAudios = ['https://example.com/b.mp3'];
+      state.currentSurah = 2;
+      state.currentReciter = 'ar.alafasy';
+      const { isSurahCached, cacheSurahAudio } = await import('../features/audio/audio-cache.js');
+      vi.mocked(isSurahCached).mockResolvedValue(false);
+      vi.mocked(cacheSurahAudio).mockImplementation(async (...args: unknown[]) => {
+        const cb = args[3] as (s: number, r: string, c: number, t: number) => void;
+        cb(2, 'ar.alafasy', 3, 5);
+      });
+      const { bindSearchEvents } = await import('../app-events.js');
+      bindSearchEvents();
+      dom.downloadAudioBtn!.click();
+      await vi.waitFor(() => expect(cacheSurahAudio).toHaveBeenCalled());
+      const { showToast } = await import('../ui.js');
+      expect(showToast).toHaveBeenCalledWith('download_audio_done', 'success');
+      expect(dom.downloadAudioBtn!.classList.contains('active')).toBe(true);
+      expect(dom.downloadAudioBtn!.textContent).toBe('✅');
+      await new Promise((resolve) => setTimeout(resolve, 2100));
+      expect(dom.downloadAudioBtn!.textContent).toBe('download_audio');
+    });
+
+    it('should toast and reset the button when the download fails', async () => {
+      state.surahData = { number: 3, name: 'آل عمران' } as any;
+      state.ayahsAudios = ['https://example.com/c.mp3'];
+      state.currentSurah = 3;
+      state.currentReciter = 'ar.alafasy';
+      const { isSurahCached, cacheSurahAudio } = await import('../features/audio/audio-cache.js');
+      vi.mocked(isSurahCached).mockResolvedValue(false);
+      vi.mocked(cacheSurahAudio).mockRejectedValue(new Error('offline'));
+      const { bindSearchEvents } = await import('../app-events.js');
+      bindSearchEvents();
+      dom.downloadAudioBtn!.click();
+      const { showToast } = await import('../ui.js');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('download_audio_error', 'error'));
+      expect(dom.downloadAudioBtn!.textContent).toBe('download_audio');
+    });
+  });
+
+  /* ==================== bindGlobalClickHandler — theme menu + triggers ==================== */
+
+  describe('bindGlobalClickHandler — theme menu and trigger exceptions', () => {
+    it('should close the theme dropdown on an outside click', async () => {
+      dom.themeToggle!.classList.add('open');
+      dom.themeMenuBtn!.setAttribute('aria-expanded', 'true');
+      const { bindGlobalClickHandler } = await import('../app-events.js');
+      bindGlobalClickHandler();
+      document.body.click();
+      expect(dom.themeToggle!.classList.contains('open')).toBe(false);
+      expect(dom.themeMenuBtn!.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('should not close settings when its own trigger is clicked', async () => {
+      dom.settingsPanel!.classList.add('open');
+      const { bindGlobalClickHandler } = await import('../app-events.js');
+      bindGlobalClickHandler();
+      dom.settingsToggleBtn!.click();
+      const { closeSettings } = await import('../settings.js');
+      expect(closeSettings).not.toHaveBeenCalled();
+    });
+
+    it('should not close the adhkar panel when its own trigger is clicked', async () => {
+      dom.adhkarPanel!.classList.add('open');
+      const { bindGlobalClickHandler } = await import('../app-events.js');
+      bindGlobalClickHandler();
+      dom.adhkarBtn!.click();
+      const { closeAdhkarPanel } = await import('../adhkar.js');
+      expect(closeAdhkarPanel).not.toHaveBeenCalled();
+    });
+  });
+
+  /* ==================== bindMiscEvents — search expand + overlay backdrops ==================== */
+
+  describe('bindMiscEvents — keyboard expand and overlay backdrops', () => {
+    it('should expand search and toggle the Arabic keyboard on desktop', async () => {
+      const headerSearch = document.createElement('div');
+      headerSearch.id = 'headerSearch';
+      const closeButton = document.createElement('button');
+      closeButton.id = 'headerSearchCloseBtn';
+      document.body.append(headerSearch, closeButton);
+      const kbdSpy = vi.spyOn(dom.kbdToggleBtn!, 'click');
+      const { bindMiscEvents } = await import('../app-events.js');
+      bindMiscEvents();
+      dom.searchToggleBtn!.click();
+      expect(headerSearch.classList.contains('is-expanded')).toBe(true);
+      expect(dom.searchInputGroup!.classList.contains('hidden')).toBe(false);
+      expect(kbdSpy).toHaveBeenCalled();
+      closeButton.click();
+      expect(headerSearch.classList.contains('is-expanded')).toBe(false);
+      expect(dom.searchToggleBtn!.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('should close the mushaf surah overlay when its backdrop is clicked', async () => {
+      dom.mushafSurahOverlay!.style.display = 'flex';
+      dom.mushafSurahOverlay!.classList.remove('hidden');
+      const { bindMiscEvents } = await import('../app-events.js');
+      bindMiscEvents();
+      const ev = new MouseEvent('click', { bubbles: true });
+      Object.defineProperty(ev, 'target', { value: dom.mushafSurahOverlay });
+      dom.mushafSurahOverlay!.dispatchEvent(ev);
+      expect(dom.mushafSurahOverlay!.classList.contains('hidden')).toBe(true);
+      expect(dom.mushafSurahOverlay!.style.display).toBe('none');
+    });
+
+    it('should close the surah secrets overlay when its backdrop is clicked', async () => {
+      dom.surahSecretsOverlay!.style.display = 'flex';
+      dom.surahSecretsOverlay!.classList.remove('hidden');
+      const { bindMiscEvents } = await import('../app-events.js');
+      bindMiscEvents();
+      const ev = new MouseEvent('click', { bubbles: true });
+      Object.defineProperty(ev, 'target', { value: dom.surahSecretsOverlay });
+      dom.surahSecretsOverlay!.dispatchEvent(ev);
+      expect(dom.surahSecretsOverlay!.classList.contains('hidden')).toBe(true);
+      expect(dom.surahSecretsOverlay!.style.display).toBe('none');
+    });
+
+    it('should hide the qibla compass when its backdrop is clicked', async () => {
+      dom.qiblaOverlay!.classList.remove('hidden');
+      const { bindMiscEvents } = await import('../app-events.js');
+      bindMiscEvents();
+      const ev = new MouseEvent('click', { bubbles: true });
+      Object.defineProperty(ev, 'target', { value: dom.qiblaOverlay });
+      dom.qiblaOverlay!.dispatchEvent(ev);
+      const { hideQiblaCompass } = await import('../features/prayer/prayer.js');
+      expect(hideQiblaCompass).toHaveBeenCalled();
+    });
+  });
+
+  /* ==================== bindHelpEvents — accordion + language refresh ==================== */
+
+  describe('bindHelpEvents — accordion sections and language refresh', () => {
+    it('should expand and collapse help sections and flip their icons', async () => {
+      const panel = document.createElement('div');
+      panel.innerHTML = `
+        <button class="help-section-toggle" data-section="playback"><span>Playback</span><span class="help-toggle-icon">▼</span></button>
+        <div class="help-section-content" data-section="playback"></div>`;
+      document.body.appendChild(panel);
+      dom.helpPanel = panel;
+      const { bindHelpEvents } = await import('../app-events.js');
+      bindHelpEvents();
+      const toggle = panel.querySelector('.help-section-toggle') as HTMLElement;
+      toggle.click();
+      const content = panel.querySelector('.help-section-content') as HTMLElement;
+      expect(content.classList.contains('open')).toBe(true);
+      expect(panel.querySelector('.help-toggle-icon')!.textContent).toBe('▲');
+      toggle.click();
+      expect(content.classList.contains('open')).toBe(false);
+      expect(panel.querySelector('.help-toggle-icon')!.textContent).toBe('▼');
+    });
+
+    it('should re-render the help panel on language change, preserving open sections', async () => {
+      const panel = document.createElement('div');
+      panel.innerHTML = `
+        <button class="help-section-toggle" data-section="playback"><span>Playback</span><span class="help-toggle-icon">▼</span></button>
+        <div class="help-section-content open" data-section="playback"></div>`;
+      document.body.appendChild(panel);
+      dom.helpPanel = panel;
+      const { bindHelpEvents } = await import('../app-events.js');
+      bindHelpEvents();
+      window.dispatchEvent(new Event('app:langchange'));
+      await Promise.resolve();
+      const next = dom.helpPanel!;
+      expect(next).not.toBe(panel);
+      const section = next.querySelector('.help-section-content[data-section="playback"]');
+      expect(section?.classList.contains('open')).toBe(true);
+      const icon = next.querySelector('.help-section-toggle[data-section="playback"] .help-toggle-icon');
+      expect(icon?.textContent).toBe('▲');
+      next.classList.add('open');
+      const closeBtn = next.querySelector('#helpCloseBtn') as HTMLElement;
+      closeBtn.click();
+      expect(next.classList.contains('open')).toBe(false);
     });
   });
 });
