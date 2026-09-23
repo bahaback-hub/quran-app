@@ -33,6 +33,7 @@
     "docs": "typedoc",
     "lighthouse:badge": "node scripts/update-lighthouse-badge.mjs",
     "perf:budget": "node scripts/check-performance-budget.mjs",
+    "measure:surah": "node scripts/measure-surah-render.mjs",
     "knip": "knip --no-progress",
     "check:circular": "madge --circular --extensions ts src/",
     "prepublishOnly": "npm run lint && npm run lint:zero-style && npm run typecheck && npm test && npm run build"
