@@ -128,7 +128,7 @@ export function savePlan(plan: HifzPlan): void {
   storage.set(PLAN_STORAGE_KEY, { ...plan, updatedAt: Date.now() });
 }
 
-export function sessionDownloadKey(plan: HifzPlan): string {
+function sessionDownloadKey(plan: HifzPlan): string {
   return `${plan.surah}:${plan.from}:${plan.to}:${plan.reciter}`;
 }
 
