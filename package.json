@@ -35,6 +35,7 @@
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "measure:surah": "node scripts/measure-surah-render.mjs",
     "knip": "knip --no-progress",
+    "check:silent-catches": "node scripts/check-silent-catches.mjs",
     "check:circular": "madge --circular --extensions ts src/",
     "prepublishOnly": "npm run lint && npm run lint:zero-style && npm run typecheck && npm test && npm run build"
   },

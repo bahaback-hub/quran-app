@@ -1,0 +1,401 @@
+{
+  "//": "Allowlist of intentional silent catch handlers in src (non-test). Every entry must exist and match a detected silent shape, documented with a reason. Adding a new silent catch without a reason entry here fails the guard.",
+  "entries": [
+    {
+      "file": "src/adhkar.ts",
+      "line": 1121,
+      "kind": "catch-empty-block",
+      "reason": "some browsers throw if requestPermission is called twice — ignore; adhkar is non-critical"
+    },
+    {
+      "file": "src/api-fallback.ts",
+      "line": 79,
+      "kind": "catch-empty-block",
+      "reason": "local file not available — should not happen in production; API path is used instead"
+    },
+    {
+      "file": "src/api-fallback.ts",
+      "line": 142,
+      "kind": "catch-empty-block",
+      "reason": "local file not available; API fallback continues"
+    },
+    {
+      "file": "src/api-fallback.ts",
+      "line": 179,
+      "kind": "catch-return-null",
+      "reason": "local surah-info read fails → null → caller falls through to API / error display"
+    },
+    {
+      "file": "src/ayah-modal.ts",
+      "line": 600,
+      "kind": "catch-empty-block",
+      "reason": "repeat-loop autoplay resume rejection → stop looping silently; user can tap play again"
+    },
+    {
+      "file": "src/csp-report.ts",
+      "line": 79,
+      "kind": "catch-empty-block",
+      "reason": "telemetry must never take down the reader (CSP violation reporting best-effort)"
+    },
+    {
+      "file": "src/error-boundary.ts",
+      "line": 111,
+      "kind": "catch-empty-block",
+      "reason": "persisting the error log to localStorage is best-effort — storage full/unavailable is non-critical"
+    },
+    {
+      "file": "src/error-boundary.ts",
+      "line": 133,
+      "kind": "catch-empty-block",
+      "reason": "clearing the persisted error log is best-effort — noop on failure"
+    },
+    {
+      "file": "src/error-boundary.ts",
+      "line": 240,
+      "kind": "catch-empty-block",
+      "reason": "clipboard write is optional-chained best-effort — failure skips the error_copied label only"
+    },
+    {
+      "file": "src/external-data-cache.ts",
+      "line": 124,
+      "kind": "catch-return-null",
+      "reason": "URL parse failure → null → caller falls back to the default path"
+    },
+    {
+      "file": "src/external-data-cache.ts",
+      "line": 253,
+      "kind": "catch-empty-block",
+      "reason": "keep the previously reliable response — a later connection can retry"
+    },
+    {
+      "file": "src/features/audio/audio-cache.ts",
+      "line": 379,
+      "kind": "catch-return-null",
+      "reason": "IDB audio read fails → null → caller falls back to Cache API / network"
+    },
+    {
+      "file": "src/features/audio/audio-cache.ts",
+      "line": 413,
+      "kind": "catch-empty-block",
+      "reason": "access-time update is non-critical — silently ignore"
+    },
+    {
+      "file": "src/features/audio/audio.ts",
+      "line": 141,
+      "kind": "catch-empty-block",
+      "reason": "some engines reject rate writes on an unloaded element — UI still syncs below"
+    },
+    {
+      "file": "src/features/audio/audio.ts",
+      "line": 150,
+      "kind": "catch-empty-block",
+      "reason": "older engines ignore playbackRate — best-effort, the rate still applies"
+    },
+    {
+      "file": "src/features/audio/audio.ts",
+      "line": 254,
+      "kind": "catch-empty-block",
+      "reason": "keep the direct playback path — deliberate no-op"
+    },
+    {
+      "file": "src/features/audio/audio.ts",
+      "line": 362,
+      "kind": "catch-empty-block",
+      "reason": "cache lookup failed — fall through to the original URL"
+    },
+    {
+      "file": "src/features/audio/audio.ts",
+      "line": 454,
+      "kind": "catch-empty-block",
+      "reason": "ignore pause errors — the element may already be reset"
+    },
+    {
+      "file": "src/features/mushaf/mushaf-data-pack.ts",
+      "line": 481,
+      "kind": "catch-return-null",
+      "reason": "stored pack JSON unreadable → null → treated as not downloaded; the re-download flow recovers"
+    },
+    {
+      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "line": 221,
+      "kind": "catch-empty-block",
+      "reason": "layout cache is best-effort — fall through to the network"
+    },
+    {
+      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "line": 248,
+      "kind": "catch-empty-block",
+      "reason": "persistent caching is best-effort"
+    },
+    {
+      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "line": 571,
+      "kind": "catch-empty-block",
+      "reason": "some browsers don't support the text param — the sprite is drawn regardless"
+    },
+    {
+      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "line": 764,
+      "kind": "catch-empty-block",
+      "reason": "Reem Kufi font preload is best-effort — the later fonts.ready wait renders correctly"
+    },
+    {
+      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "line": 771,
+      "kind": "catch-empty-block",
+      "reason": "fonts.ready wait is best-effort — the canvas paints when fonts are ready anyway"
+    },
+    {
+      "file": "src/features/mushaf/mushaf.ts",
+      "line": 446,
+      "kind": "catch-empty-block",
+      "reason": "page-data preload is best-effort — the real page load fetches on demand"
+    },
+    {
+      "file": "src/features/prayer/prayer.ts",
+      "line": 166,
+      "kind": "catch-return-null",
+      "reason": "local prayer-timetable lookup fails → null → caller falls back to cached/API timings"
+    },
+    {
+      "file": "src/features/prayer/prayer.ts",
+      "line": 414,
+      "kind": "catch-empty-block",
+      "reason": "local refresh failure — fall through to the cache below"
+    },
+    {
+      "file": "src/features/presentation/pres-backgrounds.ts",
+      "line": 102,
+      "kind": "catch-empty-block",
+      "reason": "background paint is best-effort — the surface is decorative only"
+    },
+    {
+      "file": "src/features/presentation/presentation-share.ts",
+      "line": 416,
+      "kind": "catch-empty-block",
+      "reason": "keep the fallback if an animated source changes while the video is exporting"
+    },
+    {
+      "file": "src/features/presentation/presentation-share.ts",
+      "line": 509,
+      "kind": "catch-empty-block",
+      "reason": "refined fallback background keeps sharing available when an image cannot be read"
+    },
+    {
+      "file": "src/features/presentation/presentation.ts",
+      "line": 449,
+      "kind": "catch-empty-block",
+      "reason": "lazy background surah re-render is best-effort — the standalone surface stays as-is"
+    },
+    {
+      "file": "src/features/presentation/presentation.ts",
+      "line": 518,
+      "kind": "catch-empty-block",
+      "reason": "exiting fullscreen may reject — the close flow continues regardless"
+    },
+    {
+      "file": "src/features/presentation/presentation.ts",
+      "line": 582,
+      "kind": "catch-empty-block",
+      "reason": "Escape key exits fullscreen as best-effort"
+    },
+    {
+      "file": "src/features/search/search-ui.ts",
+      "line": 662,
+      "kind": "catch-empty-block",
+      "reason": "SpeechRecognition.stop() may fail when recognition already ended after a final match"
+    },
+    {
+      "file": "src/features/search/search-ui.ts",
+      "line": 669,
+      "kind": "catch-empty-block",
+      "reason": "stop() cleanup is an idle noop"
+    },
+    {
+      "file": "src/i18n.ts",
+      "line": 139,
+      "kind": "catch-empty-block",
+      "reason": "preload failures are silently ignored — the user didn't request that language"
+    },
+    {
+      "file": "src/internal-state.ts",
+      "line": 346,
+      "kind": "catch-empty-block",
+      "reason": "AudioContext may already be closed — ignore"
+    },
+    {
+      "file": "src/main.ts",
+      "line": 75,
+      "kind": "catch-empty-block",
+      "reason": "native SplashScreen hide is best-effort"
+    },
+    {
+      "file": "src/memory-manager.ts",
+      "line": 193,
+      "kind": "catch-empty-block",
+      "reason": "the listener was already removed — ignore"
+    },
+    {
+      "file": "src/offline-pack.ts",
+      "line": 114,
+      "kind": "catch-empty-block",
+      "reason": "metadata is only written after audio persistence succeeds; a later download can restore it"
+    },
+    {
+      "file": "src/pointer-nav.ts",
+      "line": 192,
+      "kind": "catch-empty-block",
+      "reason": "cursor-based navigation fallback — falls through to the click fallback below"
+    },
+    {
+      "file": "src/surah-cache.ts",
+      "line": 132,
+      "kind": "catch-return-null",
+      "reason": "IDB read failure → null → cache-miss path"
+    },
+    {
+      "file": "src/surah-list.ts",
+      "line": 81,
+      "kind": "catch-empty-block",
+      "reason": "no local fallback — fall through to the API"
+    },
+    {
+      "file": "src/surah-list.ts",
+      "line": 96,
+      "kind": "catch-empty-block",
+      "reason": "last-resort error state — the UI is already degraded"
+    },
+    {
+      "file": "src/surah-list.ts",
+      "line": 119,
+      "kind": "catch-empty-block",
+      "reason": "non-critical — keep the local list"
+    },
+    {
+      "file": "src/surah-loader.ts",
+      "line": 86,
+      "kind": "catch-return-null",
+      "reason": "optional audio timings ratio fails → null → the caller falls back"
+    },
+    {
+      "file": "src/surah-loader.ts",
+      "line": 484,
+      "kind": "catch-empty-block",
+      "reason": "no local text bundle — fall back to the API text"
+    },
+    {
+      "file": "src/surah-loader.ts",
+      "line": 620,
+      "kind": "catch-empty-block",
+      "reason": "the local fallback also failed — fall through to the error display"
+    },
+    {
+      "file": "src/surah-loader.ts",
+      "line": 716,
+      "kind": "catch-empty-block",
+      "reason": "background refresh failure is silent — the cached data is still displayed"
+    },
+    {
+      "file": "src/tafsir.ts",
+      "line": 48,
+      "kind": "catch-return-null",
+      "reason": "local Muyassar bundle read fails → null → API tafsir path"
+    },
+    {
+      "file": "src/tafsir.ts",
+      "line": 109,
+      "kind": "catch-return-null",
+      "reason": "IDB tafsir read fails → null → API tafsir path"
+    },
+    {
+      "file": "src/tafsir.ts",
+      "line": 153,
+      "kind": "catch-return-null",
+      "reason": "API tafsir fetch fails → null → the 'no tafsir available' message"
+    },
+    {
+      "file": "src/tajweed-data.ts",
+      "line": 52,
+      "kind": "catch-empty-block",
+      "reason": "preserve the original network error if Cache Storage is unavailable"
+    },
+    {
+      "file": "src/ui-extras.ts",
+      "line": 186,
+      "kind": "catch-empty-block",
+      "reason": "a11y live-announce failed — non-critical"
+    },
+    {
+      "file": "src/utils.ts",
+      "line": 218,
+      "kind": "catch-empty-block",
+      "reason": "legacy document.execCommand('copy') fallback — best-effort noop"
+    },
+    {
+      "file": "src/web-vitals.ts",
+      "line": 80,
+      "kind": "catch-empty-block",
+      "reason": "PerformanceNavigationTiming may not be available"
+    },
+    {
+      "file": "src/web-vitals.ts",
+      "line": 119,
+      "kind": "catch-empty-block",
+      "reason": "LCP not supported"
+    },
+    {
+      "file": "src/web-vitals.ts",
+      "line": 139,
+      "kind": "catch-empty-block",
+      "reason": "CLS not supported"
+    },
+    {
+      "file": "src/web-vitals.ts",
+      "line": 166,
+      "kind": "catch-empty-block",
+      "reason": "event timing not supported (older browsers)"
+    },
+    {
+      "file": "src/web-vitals.ts",
+      "line": 170,
+      "kind": "catch-empty-block",
+      "reason": "FID not supported"
+    },
+    {
+      "file": "src/web-vitals.ts",
+      "line": 187,
+      "kind": "catch-empty-block",
+      "reason": "paint timing not supported"
+    },
+    {
+      "file": "src/web-vitals.ts",
+      "line": 201,
+      "kind": "catch-empty-block",
+      "reason": "navigation timing not supported"
+    },
+    {
+      "file": "src/web-vitals.ts",
+      "line": 279,
+      "kind": "catch-empty-block",
+      "reason": "observer already disconnected — cleanup noop"
+    },
+    {
+      "file": "src/features/search/search-core.ts",
+      "line": 60,
+      "kind": "expression-arrow-null",
+      "reason": "local quran-uthmani.json is a best-effort warm/first source; on failure the API endpoint covers; if both fail res.json() throws and propagates"
+    },
+    {
+      "file": "src/surah-loader.ts",
+      "line": 520,
+      "kind": "expression-arrow-null",
+      "reason": "optional translation fetch: absence simply renders the surah without translation; the main Quran text render is independent (apiFetch passed silent:true)"
+    },
+    {
+      "file": "src/surah-loader.ts",
+      "line": 675,
+      "kind": "expression-arrow-null",
+      "reason": "optional translation refresh path: failure degrades to no-translation gracefully; core render already complete"
+    }
+  ]
+}

@@ -26,6 +26,11 @@ jobs:
       - run: npm run typecheck
       - run: npm run typecheck:tests
       - run: npm run format:check
+      - name: Silent catch audit — documented swallows only
+        run: npm run check:silent-catches
+        # Every silent catch/then-null handler in src must be documented in
+        # config/silent-catches.allowed.json with a reason. A new undocumented
+        # swallow (or a stale documented entry) fails the build.
       - name: Dead code detection (knip) — mandatory
         run: npx knip --no-progress
         # Knip checks for unused exports, dependencies, and files.
