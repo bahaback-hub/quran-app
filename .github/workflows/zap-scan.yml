@@ -46,21 +46,21 @@ jobs:
 
       - name: ZAP Baseline Scan
         id: zap
+        # The action's own internal artifact upload is unreliable on GitHub's
+        # backend (spurious "artifact name not valid" failures), so we ignore
+        # its exit code and enforce the gate ourselves in the next step by
+        # parsing report_json.json against .github/zap-rules.tsv.
+        continue-on-error: true
         uses: zaproxy/action-baseline@v0.13.0
         with:
           target: 'http://127.0.0.1:4173/'
           cmd_options: '-a -j -T 5'
           rules_file_name: '.github/zap-rules.tsv'
           allow_issue_writing: false
-          # Blocking gate: any alert at Medium or above (unless triaged in
-          # zap-rules.tsv) fails this job. WARN/INFO remain non-blocking.
-          fail_action: true
+          fail_action: false
 
-      - name: ZAP Scan Result
-        if: always()
-        run: |
-          echo "ZAP scan completed — blocking on Medium+ findings."
-          echo "Known/accepted items are triaged in .github/zap-rules.tsv."
+      - name: Enforce ZAP gate (Medium+ unless triaged)
+        run: node .github/scripts/zap-gate.mjs report_json.json .github/zap-rules.tsv
 
       - name: Stop preview server
         if: always()
