@@ -29,7 +29,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self' data: blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' https://cdn.islamic.network https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https://server13.mp3quran.net blob: data:; connect-src 'self' https://api.alquran.cloud https://api.quran.com https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://gcore.jsdelivr.net https://raw.githubusercontent.com https://api.aladhan.com https://cdn.islamic.network https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https://server13.mp3quran.net blob: data:; frame-src 'none'; base-uri 'self'; form-action 'self'; object-src 'none';"
+      content="default-src 'self' data: blob:; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: blob: https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://gcore.jsdelivr.net https://raw.githubusercontent.com; media-src 'self' https://cdn.islamic.network https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https://server13.mp3quran.net blob: data:; connect-src 'self' https://api.alquran.cloud https://api.quran.com https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://gcore.jsdelivr.net https://raw.githubusercontent.com https://api.aladhan.com https://cdn.islamic.network https://server6.mp3quran.net https://server7.mp3quran.net https://server8.mp3quran.net https://server9.mp3quran.net https://server10.mp3quran.net https://server11.mp3quran.net https://server12.mp3quran.net https://server13.mp3quran.net blob: data:; frame-src 'none'; base-uri 'self'; form-action 'self'; object-src 'none';"
     />
     <!--
       CSP violations are collected client-side by src/csp-report.ts (this is a
@@ -105,7 +105,7 @@
         <header class="header">
           <div class="header-menu-container">
             <div class="header-actions">
-              <div class="header-primary-actions" aria-label="إجراءات التطبيق">
+              <div class="header-primary-actions">
                 <button
                   class="header-action-btn"
                   id="settingsToggleBtn"
@@ -219,7 +219,7 @@
         <!-- ========== أدوات التحكم ========== -->
         <section class="controls" id="controls" aria-label="أدوات التحكم">
           <div class="controls-row">
-            <div class="control-card reader-command-bar control-card-persistent" aria-label="أنماط العرض">
+            <div class="control-card reader-command-bar control-card-persistent" role="toolbar" aria-label="أنماط العرض">
               <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">
                 📲
               </button>
@@ -335,7 +335,7 @@
                 >
                   🎨
                 </button>
-                <div class="view-mode-group" data-i18n-aria-label="reading_mode_label" aria-label="طريقة القراءة">
+                <div class="view-mode-group" role="group" data-i18n-aria-label="reading_mode_label" aria-label="طريقة القراءة">
                   <button
                     class="view-mode-btn active"
                     id="viewSurahBtn"

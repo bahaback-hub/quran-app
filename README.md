@@ -42,10 +42,10 @@
 
 | السير / Workflow            | الوصف / Description                                                                                                                 |
 | :-------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`                    | lint + typecheck + unit tests + coverage (≥ 80%)                                                                                    |
+| `ci.yml`                    | lint + typecheck (+ `typecheck:tests`) + unit tests + coverage (≥ 80%) + madge (منع الدورات الدائرية) |
 | `e2e.yml`                   | Playwright E2E إلزامي على **4 مشاريع**: chromium + firefox + webkit + mobile-chrome؛ يختبر الجوال تدفقات اللمس والاستجابة الخاصة به |
 | `codeql.yml`                | تحليل أمني عميق من GitHub                                                                                                           |
-| `zap-scan.yml`              | **OWASP ZAP baseline scan** أسبوعي + عند PR                                                                                         |
+| `zap-scan.yml`              | **OWASP ZAP baseline scan** أسبوعي + عند PR؛ **حاجز** على نتائج Medium+ غير مذمومة (قائمة `.github/zap-rules.tsv`) |
 | `lighthouse.yml`            | Lighthouse CI إلزامي + تعليق على PR بالنتائج + رفع artifact                                                                         |
 | `a11y.yml`                  | axe-core على البناء النهائي (0 WCAG violations)                                                                                     |
 | `bundle-size.yml`           | تحليل حجم الحزمة + **Performance Budget** مُلزِم                                                                                    |
@@ -64,7 +64,7 @@
 
 | Audit context                      | Performance | Accessibility | Best Practices | SEO |  FCP |  LCP | TBT |   CLS |
 | :--------------------------------- | ----------: | ------------: | -------------: | --: | ---: | ---: | --: | ----: |
-| Local production build, 2026-08-19 |          93 |           100 |             96 |  91 | 0.7s | 1.7s | 0ms | 0.003 |
+| Local production build, 2026-09-23 |          96 |            99 |             100 | 100 | 0.6s | 1.4s | 0ms | 0.007 |
 
 > تُطبّق بوابة Lighthouse الآن الحدود نفسها المعرّفة في `performance-budget.json`. أزيل فحص فئة PWA من Lighthouse لأن الإصدارات الحديثة لم تعد تنشر هذه الفئة، بينما تستمر اختبارات PWA وE2E المنفصلة في تغطية سلوك التطبيق.
 > Lighthouse now enforces the same thresholds defined in `performance-budget.json`. The obsolete Lighthouse PWA-category assertion was removed; dedicated PWA and E2E coverage remains in place.
