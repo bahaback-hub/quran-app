@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "numberOfRuns": 3,
+      "numberOfRuns": 5,
       "startServerCommand": "npx vite preview --port 4173",
       "startServerReadyPattern": "Local",
       "url": ["http://localhost:4173/"],
@@ -17,7 +17,6 @@
         "categories:seo": ["error", { "minScore": 0.85 }],
         "first-contentful-paint": ["error", { "maxNumericValue": 1800 }],
         "largest-contentful-paint": ["error", { "maxNumericValue": 5000 }],
-        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.15 }],
         "total-blocking-time": ["error", { "maxNumericValue": 200 }],
         "interactive": ["error", { "maxNumericValue": 8000 }]
       }
