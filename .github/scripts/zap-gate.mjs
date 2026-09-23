@@ -47,30 +47,37 @@ const defaultAction = (risk) => {
 
 const rows = [];
 let parsed = 0;
+let unknownShape = false;
 for (const site of report.site ?? []) {
-  const alerts = Array.isArray(site.alerts) ? site.alerts : [];
-  for (const alert of alerts) {
-    rows.push({
-      ruleId: String(alert.pluginid),
-      alert: alert.alert,
-      risk: riskOf(alert),
-      count: Number(alert.count ?? 0),
-      action: triage.get(String(alert.pluginid)) ?? defaultAction(riskOf(alert)),
-    });
-    parsed += 1;
+  const raw = site.alerts;
+  if (raw === undefined || raw === null) { continue; }
+  if (Array.isArray(raw)) {
+    for (const alert of raw) {
+      rows.push({
+        ruleId: String(alert.pluginid),
+        alert: alert.alert,
+        risk: riskOf(alert),
+        count: Number(alert.count ?? 0),
+        action: triage.get(String(alert.pluginid)) ?? defaultAction(riskOf(alert)),
+      });
+      parsed += 1;
+    }
+  } else if (typeof raw === 'string' && raw.trim() !== '') {
+    unknownShape = true;
+  } else if (typeof raw === 'object') {
+    unknownShape = true;
   }
 }
 
+if (unknownShape) {
+  console.error('🚨 ZAP gate failed: site.alerts is present in an unknown shape (schema changed?) — refusing to pass silently.');
+  process.exit(2);
+}
 if (parsed === 0) {
-  const hasAny = (report.site ?? []).some((s) => Array.isArray(s.alerts) && s.alerts.length > 0);
-  if (hasAny) {
-    console.error('🚨 ZAP gate failed: report contains alerts but none could be parsed (schema changed?).');
-    process.exit(2);
-  }
   console.info('ℹ️  ZAP report contains zero alerts.');
 }
 
-const failing = rows.filter((r) => r.action === 'FAIL' && r.count > 0);
+const failing = rows.filter((r) => r.action === 'FAIL');
 
 for (const r of rows) {
   console.info(`  [${r.action.padEnd(4)}] ${r.ruleId}  ${r.alert}  (${r.count})`);
