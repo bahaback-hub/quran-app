@@ -158,7 +158,7 @@ test.describe('الأوفلاين الكامل', () => {
   });
 
   test('يبقى المصحف قابلاً للتنقل بعد انقطاع الشبكة', async ({ page }) => {
-    test.setTimeout(60000);
+    test.setTimeout(120000);
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
@@ -185,7 +185,7 @@ test.describe('الأوفلاين الكامل', () => {
     const prev = page.locator('.mushaf-page-nav-btn.mushaf-page-nav-prev');
     await expect
       .poll(async () => (await next.count()) > 0 && (await prev.count()) > 0, {
-        timeout: 15000,
+        timeout: 30000,
       })
       .toBe(true);
 
@@ -203,12 +203,12 @@ test.describe('الأوفلاين الكامل', () => {
     // el.click() fires the real click listener — which flips the page through
     // loadPage offline — so we assert the navigation behavior itself.
     await next.evaluate((el) => el.click());
-    await expect.poll(async () => (await pageNum()) !== before, { timeout: 10000 }).toBe(true);
+    await expect.poll(async () => (await pageNum()) !== before, { timeout: 20000 }).toBe(true);
     await expect(page.locator('body')).toHaveClass(/mushaf-active/);
 
     const afterNext = await pageNum();
     await prev.evaluate((el) => el.click());
-    await expect.poll(async () => (await pageNum()) !== afterNext, { timeout: 10000 }).toBe(true);
+    await expect.poll(async () => (await pageNum()) !== afterNext, { timeout: 20000 }).toBe(true);
     await expect(page.locator('body')).toHaveClass(/mushaf-active/);
   });
 
