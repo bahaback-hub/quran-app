@@ -4,6 +4,7 @@
  */
 
 import { CONFIG } from './config.js';
+import { warnRecoverable } from './error-boundary.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { state } from './state.js';
@@ -771,8 +772,8 @@ export function bindDisplaySettingsEvents(): void {
           .then((m: { loadPage: (p: number, skipNav?: boolean, force?: boolean) => Promise<void> }) =>
             m.loadPage(state.currentPage, true, true),
           )
-          .catch(() => {
-            /* noop */
+          .catch((err) => {
+            warnRecoverable('mushaf page reload after tajweed toggle failed', err);
           });
       if (enabled && state.currentSurah) {
         loadTajweedAnnotationsForSurah(state.currentSurah).then(reloadPage);

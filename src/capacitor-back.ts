@@ -9,6 +9,7 @@
  */
 
 import { closeSettings } from './settings.js';
+import { warnRecoverable } from './error-boundary.js';
 import { state } from './state.js';
 import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
@@ -55,8 +56,8 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
       if (state.presentationMode) {
         import('./features/presentation/presentation.js')
           .then((m) => m.closePresentation())
-          .catch(() => {
-            /* noop */
+          .catch((err) => {
+            warnRecoverable('presentation.closePresentation (back button) failed', err);
           });
         return;
       }
