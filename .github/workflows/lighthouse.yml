@@ -10,6 +10,13 @@ jobs:
   lighthouse:
     name: Lighthouse Audit
     runs-on: ubuntu-latest
+    # Pin the image to the @playwright/test version: the deterministic
+    # rendering environment avoids the viewport-emulation race on fast local
+    # pages that produces a spurious whole-viewport CLS (~1.0, no attributable
+    # nodes) on default runners while the app's own CLS is ~0.007.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.0-noble
+      options: --user 1001
     timeout-minutes: 15
     permissions:
       contents: read
@@ -26,6 +33,8 @@ jobs:
       - name: Lighthouse CI
         run: |
           npm install -g @lhci/cli
+          export CHROME_PATH=$(ls -d /ms-playwright/chromium-*/chrome-linux/chrome 2>/dev/null | head -1)
+          echo "Using Chrome: ${CHROME_PATH}"
           lhci autorun
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
