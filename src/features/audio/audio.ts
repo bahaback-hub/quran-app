@@ -25,30 +25,8 @@ import type { SurahData } from '../../types.js';
 
 /* ===================== INTERFACES ===================== */
 
-/** Options for loading a surah (used by setLoadSurah callback). */
-interface LoadSurahOptions {
-  startAyah?: number;
-  autoPlay?: boolean;
-}
-
-/** Type for the loadSurah callback injected via setLoadSurah. */
-type LoadSurahFn = (surahNum: number, opts?: LoadSurahOptions) => void;
-
-/** Type for the reloadCurrentSurahAudio callback injected via setReloadAudio. */
-type ReloadAudioFn = () => Promise<boolean>;
-
-/** Cached word-weight data for word-by-word tracking. */
-interface WordWeightsResult {
-  wordCount: number;
-  startTimes: number[];
-}
-
-/** Repeat range configuration — extracted from toggleRepeat for clarity. */
-export interface RepeatRange {
-  from: number;
-  to: number;
-  times: number;
-}
+import type { LoadSurahFn, ReloadAudioFn, RepeatRange, WordWeightsResult } from './audio-types.js';
+export type { RepeatRange } from './audio-types.js';
 
 /* ===================== MODULE STATE ===================== */
 
