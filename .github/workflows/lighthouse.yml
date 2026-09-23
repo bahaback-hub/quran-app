@@ -33,7 +33,7 @@ jobs:
       - name: Lighthouse CI
         run: |
           npm install -g @lhci/cli
-          export CHROME_PATH=$(ls -d /ms-playwright/chromium-*/chrome-linux/chrome 2>/dev/null | head -1)
+          export CHROME_PATH=$(ls /ms-playwright/chromium_headless_shell-*/chrome-linux/headless_shell /ms-playwright/chromium-*/chrome-linux/chrome 2>/dev/null | head -1)
           echo "Using Chrome: ${CHROME_PATH}"
           lhci autorun
         env:
