@@ -47,8 +47,10 @@
     <!-- LCP: Preload the primary body font to speed up first paint -->
     <link rel="preload" href="%BASE_URL%fonts/amiri-regular-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="%BASE_URL%fonts/official/UthmanicHafs_V22.ttf" as="font" type="font/ttf" crossorigin />
-    <!-- CLS: preload night background to avoid late repaint shift -->
-    <link rel="preload" href="%BASE_URL%backgrounds/mosque-night.jpg" as="image" />
+    <!-- The themed page background (mosque.*.jpg) is preloaded at runtime for
+         the *active* theme only — see ensureActiveThemeBackgroundPreload() in
+         src/settings.ts. A static preload would fetch the night background for
+         every visitor even though light is the default theme. -->
     <link rel="stylesheet" href="%BASE_URL%fonts/fonts.css" fetchpriority="high" />
     <link rel="preconnect" href="https://api.alquran.cloud" />
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
