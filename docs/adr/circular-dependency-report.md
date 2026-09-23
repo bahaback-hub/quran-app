@@ -1,5 +1,7 @@
 # Circular Dependency Report — quran-app
 
+> **Status: RESOLVED** — as of 2026-09-23, `npm run check:circular` reports **0 circular dependencies** (madge gate in CI is blocking). The analysis below documents how the 16 historical cycles were found and removed.
+
 **Generated:** 2026-09-21
 **Tool:** madge 8.0.0
 **Command:** `npm run check:circular`

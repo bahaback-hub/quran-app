@@ -138,9 +138,9 @@ Tree-shaking is maximized via `"sideEffects": false` in `package.json` and
 - `ESLint` enforces `eqeqeq`, `curly: all`, `no-cond-assign`,
   `default-case`.
 - `knip` detects dead code and unused exports.
-- 4,005 Vitest cases across 149 files guard against regressions, backed by a
-  cross-browser Playwright E2E suite (chromium / firefox / webkit /
-  mobile-chrome).
+- 4,018 Vitest cases across 149 files guard against regressions, backed by a
+  cross-browser Playwright E2E suite — 441 cases across 28 spec files
+  (chromium / firefox / webkit / mobile-chrome).
 - `escapeHtml()` is mandatory and enforced by code review.
 
 ---

@@ -19,39 +19,68 @@ const report = JSON.parse(readFileSync(reportPath, 'utf-8'));
 const triage = new Map();
 for (const line of readFileSync(rulesPath, 'utf-8').split('\n')) {
   const trimmed = line.trim();
-  if (!trimmed || trimmed.startsWith('#')) continue;
+  if (!trimmed || trimmed.startsWith('#')) { continue; }
   const [ruleId, action] = trimmed.split('\t');
-  if (/^\d+$/.test(ruleId) && action) triage.set(ruleId, action.toUpperCase());
+  if (/^\d+$/.test(ruleId) && action) { triage.set(ruleId, action.toUpperCase()); }
 }
 
+const RISK_FROM_CODE = { '3': 'High', '2': 'Medium', '1': 'Low', '0': 'Informational' };
+
+const riskOf = (alert) => {
+  const code = alert.riskcode;
+  if (code !== undefined && code !== null && code !== '') {
+    const mapped = RISK_FROM_CODE[String(code)];
+    if (mapped) { return mapped; }
+  }
+  const desc = String(alert.riskdesc ?? '');
+  if (/High/.test(desc)) { return 'High'; }
+  if (/Medium/.test(desc)) { return 'Medium'; }
+  if (/Low/.test(desc)) { return 'Low'; }
+  return 'Informational';
+};
+
 const defaultAction = (risk) => {
-  if (risk === 'High' || risk === 'Medium') return 'FAIL';
-  if (risk === 'Low') return 'WARN';
+  if (risk === 'High' || risk === 'Medium') { return 'FAIL'; }
+  if (risk === 'Low') { return 'WARN'; }
   return 'IGNORE';
 };
 
 const rows = [];
+let parsed = 0;
 for (const site of report.site ?? []) {
-  for (const alert of site.alerts ?? []) {
+  const alerts = Array.isArray(site.alerts) ? site.alerts : [];
+  for (const alert of alerts) {
     rows.push({
       ruleId: String(alert.pluginid),
       alert: alert.alert,
-      risk: alert.risk,
-      count: alert.count ?? 0,
-      action: triage.get(String(alert.pluginid)) ?? defaultAction(alert.risk),
+      risk: riskOf(alert),
+      count: Number(alert.count ?? 0),
+      action: triage.get(String(alert.pluginid)) ?? defaultAction(riskOf(alert)),
     });
+    parsed += 1;
   }
+}
+
+if (parsed === 0) {
+  const hasAny = (report.site ?? []).some((s) => Array.isArray(s.alerts) && s.alerts.length > 0);
+  if (hasAny) {
+    console.error('🚨 ZAP gate failed: report contains alerts but none could be parsed (schema changed?).');
+    process.exit(2);
+  }
+  console.info('ℹ️  ZAP report contains zero alerts.');
 }
 
 const failing = rows.filter((r) => r.action === 'FAIL' && r.count > 0);
 
 for (const r of rows) {
-  console.log(`  [${r.action.padEnd(4)}] ${r.ruleId}  ${r.alert}  (${r.count})`);
+  console.info(`  [${r.action.padEnd(4)}] ${r.ruleId}  ${r.alert}  (${r.count})`);
 }
 
 if (failing.length > 0) {
   console.error(`\n🚨 ZAP gate failed: ${failing.length} untriaged Medium+ alert(s):`);
-  for (const f of failing) console.error(`   • ${f.ruleId} ${f.alert} (${f.count} instances)`);
+  for (const f of failing) {
+    console.error(`   • ${f.ruleId} ${f.alert} (${f.count} instances)`);
+  }
   process.exit(1);
 }
-console.log('\n✅ ZAP gate passed — no untriaged Medium+ alerts.');
+console.info('\n✅ ZAP gate passed — no untriaged Medium+ alerts.');
