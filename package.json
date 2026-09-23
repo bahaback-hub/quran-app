@@ -28,7 +28,7 @@
     "lint:zero-style": "node scripts/check-zero-styles.mjs",
     "release": "npm run lint && npm run lint:zero-style && npm run typecheck && npm test && npm run build",
     "build:analyze": "vite build && node scripts/generate-csp-hashes.mjs",
-    "test:a11y": "npm run build && npx serve dist -p 4173 & sleep 3 && node scripts/a11y-audit.mjs",
+    "test:a11y": "vite build --base=/ --outDir dist-a11y && (npx serve dist-a11y -p 4173 &) && sleep 3 && node scripts/a11y-audit.mjs",
     "test:all": "npm run lint && npm run lint:zero-style && npm run typecheck && npm test && npm run test:e2e",
     "docs": "typedoc",
     "lighthouse:badge": "node scripts/update-lighthouse-badge.mjs",

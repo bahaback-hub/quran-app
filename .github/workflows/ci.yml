@@ -32,12 +32,10 @@ jobs:
         # Mandatory — fails the build if dead code is detected.
       - name: Circular dependency detection (madge)
         run: npm run check:circular
-        continue-on-error: true
         # Madge detects circular imports in the TypeScript source tree.
-        # Currently informational — 16 circular dependencies exist in the
-        # codebase (see docs/adr/circular-dependency-report.md for details).
-        # Once these are resolved, remove `continue-on-error: true` to make
-        # this check mandatory and prevent new circular imports from landing.
+        # Mandatory — the Phase C cleanup resolved all 16 previously
+        # documented cycles (currently 0 over 266 files), so this now
+        # prevents new circular imports from landing.
 
   test:
     name: Unit Tests

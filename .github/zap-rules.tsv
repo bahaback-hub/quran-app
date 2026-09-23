@@ -1,12 +1,17 @@
 # OWASP ZAP Baseline Rules Configuration
 # Format: <rule-id>	<action>	<justification>
 # Actions: IGNORE | WARN | FAIL
+# fail_action: true — any Medium+ alert NOT triaged here fails CI.
 
-10020	IGNORE	Local preview server, out-of-range not applicable
-10021	WARN	Reviewed: assets served with correct Content-Type
-10038	IGNORE	SPA app, no framing intended
-10036	IGNORE	Vite preview server header in dev/CI only
-10037	IGNORE	Vite preview header in dev/CI only
-10041	IGNORE	Set explicitly in public/_headers
-10055	WARN	Strict CSP present, monitor for weakening
-10096	WARN	Informational only
+10020	IGNORE	SPA with strict CSP; app has no framing need
+10021	WARN	X-Content-Type-Options not emitted by vite preview in CI; packaged host handles MIME
+10038	IGNORE	Vite preview in CI serves without headers; production site sets CSP via public/_headers
+10049	IGNORE	SPA caching is by-design (sw-cache); offline-first app
+10055	WARN	Strict CSP present; wildcard img-src https: and inline styles are intentional, monitor for weakening
+10063	WARN	Permissions-Policy not set; informational, revisit later
+10094	WARN	Compressed asset noise; informational
+10109	IGNORE	Modern SPA by design (single index route)
+120000	IGNORE	Reading position/keyboard state stored in localStorage by design
+90003	IGNORE	All assets self-hosted and relative — SRI inapplicable
+90004	IGNORE	COEP/COOP/CORP not supported by static host (GitHub Pages)
+90005	IGNORE	Sec-Fetch-* signals not required for same-origin static app

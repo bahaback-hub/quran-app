@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+dist-a11y/
 
 # IDE
 .vscode/
