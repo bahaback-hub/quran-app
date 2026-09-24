@@ -36,6 +36,8 @@
     "measure:surah": "node scripts/measure-surah-render.mjs",
     "knip": "knip --no-progress",
     "check:silent-catches": "node scripts/check-silent-catches.mjs",
+    "check:i18n-parity": "node scripts/check-i18n-parity.mjs",
+    "check:file-size": "node scripts/check-file-size-budget.mjs",
     "check:circular": "madge --circular --extensions ts src/",
     "prepublishOnly": "npm run lint && npm run lint:zero-style && npm run typecheck && npm test && npm run build"
   },
