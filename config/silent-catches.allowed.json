@@ -183,19 +183,19 @@
     },
     {
       "file": "src/features/presentation/presentation.ts",
-      "line": 449,
+      "line": 457,
       "kind": "catch-empty-block",
       "reason": "lazy background surah re-render is best-effort — the standalone surface stays as-is"
     },
     {
       "file": "src/features/presentation/presentation.ts",
-      "line": 518,
+      "line": 532,
       "kind": "catch-empty-block",
       "reason": "exiting fullscreen may reject — the close flow continues regardless"
     },
     {
       "file": "src/features/presentation/presentation.ts",
-      "line": 582,
+      "line": 596,
       "kind": "catch-empty-block",
       "reason": "Escape key exits fullscreen as best-effort"
     },
