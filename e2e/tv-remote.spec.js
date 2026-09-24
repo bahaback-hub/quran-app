@@ -34,6 +34,28 @@ test.describe('TV remote control', () => {
     });
   }
 
+  /**
+   * Open the presentation overlay and wait until it can actually navigate.
+   * The overlay becomes visible immediately, but navigateAyah() returns early
+   * while state.surahData is still loading (src/features/presentation/
+   * presentation.ts:374), so pressing OK during that window is a silent no-op
+   * and the ayah counter never changes. Wait for a rendered ayah instead.
+   */
+  async function openPresentationReady(page) {
+    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    await page.waitForFunction(
+      () => {
+        const text = document.getElementById('presentationAyahText');
+        const counter = document.getElementById('presentationCounter');
+        return !!text && text.textContent.trim().length > 0 && !!counter && !/^\s*٠\s*\/\s*٠\s*$/.test(counter.textContent || '');
+      },
+      undefined,
+      { timeout: 15000 }
+    );
+  }
+
   test('arrows move focus between controls instead of flipping ayahs', async ({ page }) => {
     await page.keyboard.press('ArrowDown');
     const first = await focusedId(page);
@@ -190,9 +212,7 @@ test.describe('TV remote control', () => {
   });
 
   test('remote arrows move focus (not ayahs) in featured-ayah mode', async ({ page }) => {
-    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
-    await page.keyboard.press('Enter');
-    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    await openPresentationReady(page);
     const counter = page.locator('#presentationCounter');
     const before = await counter.textContent();
     // Focus a neutral control, then push arrows: the ayah must not flip.
@@ -206,14 +226,19 @@ test.describe('TV remote control', () => {
   });
 
   test('OK on the featured-ayah next button flips the ayah', async ({ page }) => {
-    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
-    await page.keyboard.press('Enter');
-    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    await openPresentationReady(page);
     const counter = page.locator('#presentationCounter');
     const before = await counter.textContent();
-    await page.locator('#presentationNextBtn').evaluate((el) => el.focus());
-    await page.keyboard.press('Enter');
-    await expect(counter).not.toHaveText(before ?? '', { timeout: 10000 });
+    // The overlay markup exists in the static HTML, but the ayah-navigation
+    // listeners are attached by initPresentation(), which app.ts runs in a
+    // deferred safeLoad task (retries + 800 ms backoff). An OK press that lands
+    // before that task finishes hits an unwired button and does nothing, so
+    // retry the press until the handler is live instead of racing it.
+    await expect(async () => {
+      await page.locator('#presentationNextBtn').evaluate((el) => el.focus());
+      await page.keyboard.press('Enter');
+      await expect(counter).not.toHaveText(before ?? '', { timeout: 2000 });
+    }).toPass({ timeout: 20000 });
   });
 
   test('featured-ayah text uses the official Hafs font once loaded', async ({ page }) => {
