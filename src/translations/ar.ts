@@ -11,7 +11,7 @@ export default {
   error_details: 'تفاصيل الخطأ',
 
   // === عام ===
-  app_title: 'القرآن الكريم',
+  app_title: 'المصحف السليماني',
   hifz_room: 'غرفة الحفظ',
   hifz_room_eyebrow: 'مساحتك الهادئة',
   hifz_room_tagline: 'احفظ القرآن بوضع الآيات وضبط تكرارها حتى تحفظها.',
