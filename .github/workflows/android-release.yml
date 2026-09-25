@@ -47,6 +47,21 @@ jobs:
       - name: Build signed release
         run: node scripts/build-release.mjs --ci
 
+      - name: Verify signature is the RELEASE key (not debug)
+        run: |
+          set -euo pipefail
+          APKSIGNER="$(ls "$ANDROID_HOME"/build-tools/*/apksigner | tail -1)"
+          echo "Using: $APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs \
+            android/app/build/outputs/apk/release/app-release.apk | tee /tmp/apk-verify.txt
+          # A debug-signed build is unusable for any store. Fail loudly instead of
+          # shipping an artifact nobody can update later.
+          if grep -qi "CN=Android Debug" /tmp/apk-verify.txt; then
+            echo "::error::APK is signed with the DEBUG key — cannot be published to a store"
+            exit 1
+          fi
+          echo "✅ Release signature verified (v2/v3), signer is not the debug key"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
