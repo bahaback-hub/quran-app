@@ -5,6 +5,15 @@
  */
 
 import {
+  getDownloadButtons,
+  hydrateDownloadedSessionAudio,
+  resolveSessionAudioUrls,
+  setSessionDownloadBusy,
+  setSessionDownloadStatus,
+  setSessionReadyStatus,
+} from './hifz-room-download.js';
+
+import {
   fillAyahOptions,
   fillReciterOptions,
   fillSpeedOptions,
@@ -34,7 +43,7 @@ import {
 } from './hifz-room-plan.js';
 import { playCurrentAyah, togglePlayPause } from './features/audio/audio.js';
 import { cacheSurahAudio, isSurahCached } from './features/audio/audio-cache.js';
-import { highlightCurrentAyah, loadAudioUrlsForSession, loadSurah } from './surah-loader.js';
+import { highlightCurrentAyah, loadSurah } from './surah-loader.js';
 import { state } from './state.js';
 import { storage } from './storage.js';
 import { closeTafsir } from './tafsir.js';
@@ -171,53 +180,6 @@ function readSessionPlan(room: HTMLElement): HifzPlan | null {
   });
 }
 
-function getDownloadButtons(room: HTMLElement): HTMLButtonElement[] {
-  return [
-    room.querySelector<HTMLButtonElement>('#hifzRoomDownload'),
-    room.querySelector<HTMLButtonElement>('#hifzRoomFocusDownload'),
-  ].filter((button): button is HTMLButtonElement => button !== null);
-}
-
-function setSessionDownloadStatus(room: HTMLElement, key: string, stateName = 'idle', ...args: string[]): void {
-  room.querySelectorAll<HTMLElement>('#hifzRoomDownloadStatus, #hifzRoomFocusDownloadStatus').forEach((status) => {
-    status.textContent = label(key, ...args);
-    status.dataset['state'] = stateName;
-  });
-}
-
-function setSessionReadyStatus(room: HTMLElement, plan: HifzPlan, alreadySaved = false): void {
-  const primary = label(alreadySaved ? 'hifz_room_download_cached' : 'hifz_room_download_ready');
-  const detail = label('hifz_room_download_ready_detail', getSurahName(plan.surah), String(plan.from), String(plan.to));
-  setSessionDownloadStatus(room, `${primary} ${detail}`, 'ready');
-}
-
-function setSessionDownloadBusy(room: HTMLElement, busy: boolean): void {
-  getDownloadButtons(room).forEach((button) => {
-    button.disabled = busy;
-    button.textContent = label(busy ? 'hifz_room_download_working' : 'hifz_room_download');
-  });
-}
-
-async function resolveSessionAudioUrls(plan: HifzPlan): Promise<string[]> {
-  const expectedCount = plan.to - plan.from + 1;
-  if (
-    state.currentSurah === plan.surah &&
-    state.currentReciter === plan.reciter &&
-    state.ayahsAudios.length >= plan.to
-  ) {
-    const currentUrls = state.ayahsAudios.slice(plan.from - 1, plan.to).filter((url): url is string => Boolean(url));
-    if (currentUrls.length === expectedCount) {
-      return currentUrls;
-    }
-  }
-  const allUrls = await loadAudioUrlsForSession(plan.surah, plan.reciter, getAyahCount(plan.surah));
-  const rangeUrls = allUrls.slice(plan.from - 1, plan.to).filter((url): url is string => Boolean(url));
-  if (rangeUrls.length !== expectedCount) {
-    throw new Error('Session audio URLs are unavailable');
-  }
-  return rangeUrls;
-}
-
 async function refreshSessionDownloadStatus(room: HTMLElement, plan = readSessionPlan(room)): Promise<void> {
   if (!plan) {
     return;
@@ -233,18 +195,6 @@ async function refreshSessionDownloadStatus(room: HTMLElement, plan = readSessio
     return;
   }
   setSessionReadyStatus(room, plan, true);
-}
-
-async function hydrateDownloadedSessionAudio(plan: HifzPlan): Promise<void> {
-  const record = getSavedSessionDownload(plan);
-  if (!record || !state.surahData || state.currentSurah !== plan.surah || !(await isSurahCached(record.urls))) {
-    return;
-  }
-  const hydrated = Array.from({ length: state.surahData.ayahs.length }, (_, index) => state.ayahsAudios[index] || '');
-  record.urls.forEach((url, index) => {
-    hydrated[plan.from - 1 + index] = url;
-  });
-  state.ayahsAudios = hydrated;
 }
 
 async function downloadSessionAudio(room: HTMLElement): Promise<void> {
