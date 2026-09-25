@@ -4,6 +4,16 @@
  * explicit user action, without changing the reader layout or Android.
  */
 
+import {
+  fillAyahOptions,
+  fillReciterOptions,
+  fillSpeedOptions,
+  fillSurahOptions,
+  getControls,
+  selectSurahFromSearch,
+  syncSurahSearch,
+} from './hifz-room-form.js';
+
 import { toLatinDigits } from './i18n.js';
 import {
   currentPlanAyah,
@@ -17,7 +27,6 @@ import {
   normalizePlan,
   normalizeRepeatCount,
   normalizeReviewAt,
-  PLAYBACK_SPEEDS,
   savePlan,
   saveSessionDownload,
   type HifzPlan,
@@ -25,7 +34,6 @@ import {
 } from './hifz-room-plan.js';
 import { playCurrentAyah, togglePlayPause } from './features/audio/audio.js';
 import { cacheSurahAudio, isSurahCached } from './features/audio/audio-cache.js';
-import { getReciterDisplayName, RECITERS } from './reciters.js';
 import { highlightCurrentAyah, loadAudioUrlsForSession, loadSurah } from './surah-loader.js';
 import { state } from './state.js';
 import { storage } from './storage.js';
@@ -40,20 +48,6 @@ const ROOM_ID = 'hifzRoom';
 const TOGGLE_ID = 'hifzRoomToggle';
 const STAGE_ID = 'hifzRoomStage';
 const CURTAIN_REVEAL_STORAGE_KEY = 'hifz_curtain_reveal';
-
-interface HifzRoomControls {
-  surah: HTMLSelectElement;
-  surahSearch: HTMLInputElement;
-  from: HTMLSelectElement;
-  to: HTMLSelectElement;
-  repeat: HTMLInputElement;
-  reviewAt: HTMLInputElement;
-  summary: HTMLElement;
-  status: HTMLElement;
-  start: HTMLButtonElement;
-  download: HTMLButtonElement;
-  downloadStatus: HTMLElement;
-}
 
 interface FocusedSessionControls {
   stage: HTMLElement;
@@ -76,156 +70,6 @@ function isEditableTarget(target: EventTarget | null): boolean {
     target instanceof HTMLElement &&
     (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName))
   );
-}
-
-function getControls(room: HTMLElement): HifzRoomControls | null {
-  const surah = room.querySelector<HTMLSelectElement>('#hifzRoomSurah');
-  const surahSearch = room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch');
-  const from = room.querySelector<HTMLSelectElement>('#hifzRoomFrom');
-  const to = room.querySelector<HTMLSelectElement>('#hifzRoomTo');
-  const repeat = room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat');
-  const reviewAt = room.querySelector<HTMLInputElement>('#hifzRoomReviewAt');
-  const summary = room.querySelector<HTMLElement>('#hifzRoomSummary');
-  const status = room.querySelector<HTMLElement>('#hifzRoomStatus');
-  const start = room.querySelector<HTMLButtonElement>('#hifzRoomStart');
-  const download = room.querySelector<HTMLButtonElement>('#hifzRoomDownload');
-  const downloadStatus = room.querySelector<HTMLElement>('#hifzRoomDownloadStatus');
-  return surah &&
-    surahSearch &&
-    from &&
-    to &&
-    repeat &&
-    reviewAt &&
-    summary &&
-    status &&
-    start &&
-    download &&
-    downloadStatus
-    ? { surah, surahSearch, from, to, repeat, reviewAt, summary, status, start, download, downloadStatus }
-    : null;
-}
-
-interface SurahEntry {
-  value: number;
-  label: string;
-}
-
-function getSurahEntries(selected: number): SurahEntry[] {
-  const entries = state.surahList.map((item) => ({ value: item.number, label: getSurahName(item.number) }));
-  if (!entries.length) {
-    const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
-    entries.push(
-      ...(mainSelect
-        ? Array.from(mainSelect.options)
-            .map((option) => ({ value: parseInt(option.value, 10), label: option.textContent || option.value }))
-            .filter((option) => Number.isInteger(option.value) && option.value > 0)
-        : [{ value: selected, label: getSurahName(selected) }]),
-    );
-  }
-  if (!entries.some((entry) => entry.value === selected)) {
-    entries.push({ value: selected, label: getSurahName(selected) });
-  }
-  return entries;
-}
-
-function fillSurahOptions(select: HTMLSelectElement, selected: number): void {
-  const entries = getSurahEntries(selected);
-  select.replaceChildren(
-    ...entries.map((entry) => {
-      const option = document.createElement('option');
-      option.value = String(entry.value);
-      option.textContent = entry.label;
-      return option;
-    }),
-  );
-  select.value = String(selected);
-}
-
-function normalizeSurahSearch(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[\u064B-\u065F\u0670]/g, '')
-    .replace(/[أإآٱ]/g, 'ا')
-    .replace(/ى/g, 'ي')
-    .replace(/ة/g, 'ه')
-    .trim()
-    .toLocaleLowerCase();
-}
-
-function syncSurahSearch(room: HTMLElement, selected: number): void {
-  const controls = getControls(room);
-  const list = room.querySelector<HTMLDataListElement>('#hifzRoomSurahOptions');
-  if (!controls || !list) {
-    return;
-  }
-  const entries = getSurahEntries(selected);
-  list.replaceChildren(
-    ...entries.map((entry) => {
-      const option = document.createElement('option');
-      option.value = entry.label;
-      option.label = `${entry.value}. ${entry.label}`;
-      return option;
-    }),
-  );
-  controls.surahSearch.value = entries.find((entry) => entry.value === selected)?.label || getSurahName(selected);
-}
-
-function selectSurahFromSearch(room: HTMLElement): void {
-  const controls = getControls(room);
-  if (!controls) {
-    return;
-  }
-  const query = normalizeSurahSearch(controls.surahSearch.value);
-  if (!query) {
-    return;
-  }
-  const matches = getSurahEntries(parseInt(controls.surah.value, 10)).filter((entry) => {
-    const normalizedName = normalizeSurahSearch(entry.label);
-    return normalizedName === query || normalizedName.startsWith(query) || String(entry.value) === query;
-  });
-  const exact = matches.find((entry) => normalizeSurahSearch(entry.label) === query || String(entry.value) === query);
-  const selected = exact || (matches.length === 1 ? matches[0] : null);
-  if (!selected || controls.surah.value === String(selected.value)) {
-    return;
-  }
-  controls.surah.value = String(selected.value);
-  controls.surah.dispatchEvent(new Event('change', { bubbles: true }));
-}
-
-function fillAyahOptions(select: HTMLSelectElement, count: number, selected: number): void {
-  select.replaceChildren(
-    ...Array.from({ length: count }, (_, index) => {
-      const option = document.createElement('option');
-      option.value = String(index + 1);
-      option.textContent = String(index + 1);
-      return option;
-    }),
-  );
-  select.value = String(Math.min(Math.max(1, selected), count));
-}
-
-function fillReciterOptions(select: HTMLSelectElement, selected: string): void {
-  select.replaceChildren(
-    ...RECITERS.map((reciter) => {
-      const option = document.createElement('option');
-      option.value = reciter.id;
-      option.textContent = getReciterDisplayName(reciter);
-      return option;
-    }),
-  );
-  select.value = RECITERS.some((reciter) => reciter.id === selected) ? selected : RECITERS[0]!.id;
-}
-
-function fillSpeedOptions(select: HTMLSelectElement, selected: number): void {
-  select.replaceChildren(
-    ...PLAYBACK_SPEEDS.map((speed) => {
-      const option = document.createElement('option');
-      option.value = String(speed);
-      option.textContent = `${speed}×`;
-      return option;
-    }),
-  );
-  select.value = String(PLAYBACK_SPEEDS.includes(selected) ? selected : 1);
 }
 
 function getFocusedControls(room: HTMLElement): FocusedSessionControls | null {
