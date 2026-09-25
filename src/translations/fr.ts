@@ -415,6 +415,18 @@ export default {
   mushaf_retry_reload: 'Réessayer',
   mushaf_sources: 'Sources',
   mushaf_surah_info: 'Informations sur la sourate',
+  save: 'Enregistrer',
+  mushaf_page_info: 'Info de la page',
+  mushaf_loading_page: 'Chargement de la page',
+  surah_info_for: 'Infos de la sourate {0}',
+  qibla_direction: 'Direction de la Qibla',
+  select_hint: 'Choisir',
+  pray_fajr: 'Fajr',
+  stats_hours_mins: '{0} h {1} min',
+  stats_mins: '{0} min',
+  minutes_abbr: 'min',
+  offline_mode: 'Mode hors ligne',
+  mushaf_juz: 'Jouz {0}',
   quran_db_loading: 'Chargement de la base de données du Coran…',
 
   // === Qibla ===

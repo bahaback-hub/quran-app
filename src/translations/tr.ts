@@ -433,6 +433,18 @@ export default {
   mushaf_retry_reload: 'Tekrar dene',
   mushaf_sources: 'Kaynaklar',
   mushaf_surah_info: 'Sure Bilgisi',
+  save: 'Kaydet',
+  mushaf_page_info: 'Sayfa Bilgisi',
+  mushaf_loading_page: 'Sayfa yükleniyor',
+  surah_info_for: '{0} suresi bilgisi',
+  qibla_direction: 'Kıble yönü',
+  select_hint: 'Seç',
+  pray_fajr: 'Fecr',
+  stats_hours_mins: '{0} sa {1} dk',
+  stats_mins: '{0} dakika',
+  minutes_abbr: 'dk',
+  offline_mode: 'Çevrimdışı mod',
+  mushaf_juz: 'Cüz {0}',
   quran_db_loading: "Kur'an veritabanı yükleniyor...",
 
   // === Kıble ===

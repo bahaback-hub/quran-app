@@ -433,6 +433,18 @@ export default {
   mushaf_retry_reload: 'Coba lagi',
   mushaf_sources: 'Sumber',
   mushaf_surah_info: 'Info Surah',
+  save: 'Simpan',
+  mushaf_page_info: 'Info Halaman',
+  mushaf_loading_page: 'Memuat halaman',
+  surah_info_for: 'Info surah {0}',
+  qibla_direction: 'Arah kiblat',
+  select_hint: 'Pilih',
+  pray_fajr: 'Subuh',
+  stats_hours_mins: '{0} j {1} m',
+  stats_mins: '{0} menit',
+  minutes_abbr: 'm',
+  offline_mode: 'Mode luring',
+  mushaf_juz: 'Juz {0}',
   quran_db_loading: 'Memuat database Al-Quran...',
 
   // === Kiblat ===
