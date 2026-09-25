@@ -34,6 +34,7 @@
     "lighthouse:badge": "node scripts/update-lighthouse-badge.mjs",
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "measure:surah": "node scripts/measure-surah-render.mjs",
+    "shots:store": "node scripts/capture-store-screenshots.mjs",
     "knip": "knip --no-progress",
     "check:silent-catches": "node scripts/check-silent-catches.mjs",
     "check:i18n-parity": "node scripts/check-i18n-parity.mjs",
