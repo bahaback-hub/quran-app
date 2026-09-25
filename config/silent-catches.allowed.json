@@ -93,21 +93,21 @@
       "reason": "access-time update is non-critical — silently ignore"
     },
     {
-      "file": "src/features/audio/audio.ts",
+      "file": "src/features/audio/audio-pitch.ts",
       "fn": "applyPlaybackRate",
       "anchor": "/* some engines reject rate writes on an unloaded element — UI still syncs below */",
       "kind": "catch-empty-block",
       "reason": "some engines reject rate writes on an unloaded element — UI still syncs below"
     },
     {
-      "file": "src/features/audio/audio.ts",
+      "file": "src/features/audio/audio-pitch.ts",
       "fn": "applyPlaybackRate",
       "anchor": "/* older engines ignore it — rate still applies */",
       "kind": "catch-empty-block",
       "reason": "older engines ignore playbackRate — best-effort, the rate still applies"
     },
     {
-      "file": "src/features/audio/audio.ts",
+      "file": "src/features/audio/audio-pitch.ts",
       "fn": "prepareElementForUrl",
       "anchor": "/* keep direct playback */",
       "kind": "catch-empty-block",
