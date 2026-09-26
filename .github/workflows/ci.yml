@@ -87,6 +87,10 @@ jobs:
           # Prevent coverage gaming: every source file must have at least 65% line coverage.
           # Files with very low coverage indicate untested modules (real tests needed, not boosters).
           # Barrel files (state.ts, templates/index.ts, templates-panels.ts) are excluded — they only re-export.
+          # Files with 0 total lines (pure data re-exports loaded via JSON imports) are also skipped:
+          # v8 coverage in Vitest 5 does not always track module-level re-exports,
+          # so a 0/0 reading does not indicate untested logic — it indicates the file
+          # has no executable statements the instrumenter could observe.
           node -e '
             const summary = require("./coverage/coverage-summary.json");
             const failures = [];
@@ -98,6 +102,9 @@ jobs:
               const normalized = file.replace(/\\/g, "/").split("/src/")[1];
               const srcPath = "src/" + (normalized || "");
               if (BARREL_FILES.some((b) => srcPath.endsWith(b))) continue;
+              // Skip files the instrumenter observed as empty (0 statements) —
+              // these are pure data re-exports with no logic to test.
+              if (typeof data.statements.total === "number" && data.statements.total === 0) continue;
               const pct = data.lines.pct;
               if (typeof pct === "number" && pct < THRESHOLD) {
                 failures.push(`  ${file}: ${pct}% (lines)`);
