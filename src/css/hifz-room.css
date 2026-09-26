@@ -1760,30 +1760,33 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
      (several rules set their own min-heights). */
   @media (max-height: 620px) {
     #readerSideTools {
-      top: max(72px, calc(env(safe-area-inset-top, 0px) + 56px));
-      max-height: calc(100vh - 80px);
+      top: max(56px, calc(env(safe-area-inset-top, 0px) + 40px));
+      /* Must subtract the same inset the anchor adds, or the rail's own box
+         starts below the space its max-height assumes and the last row hangs
+         off the bottom edge. */
+      max-height: calc(100vh - 56px - env(safe-area-inset-top, 0px) - 6px);
     }
     #readerSideTools .reader-side-tool,
     #readerSideTools .hifz-room-toggle,
     #readerSideTools .tafsir-curtain-handle,
     #readerSideTools .reader-side-prayer .prayer-bar-toggle {
-      flex: 0 0 48px;
-      min-height: 48px;
-      max-height: 48px;
-      height: 48px;
+      flex: 0 0 44px;
+      min-height: 44px;
+      max-height: 44px;
+      height: 44px;
       padding: 3px 2px;
       gap: 1px;
     }
     #readerSideTools .reader-side-tool-icon,
     #readerSideTools .reader-side-tool svg {
-      width: 16px;
-      height: 16px;
-      font-size: 16px;
+      width: 15px;
+      height: 15px;
+      font-size: 15px;
     }
     #readerSideTools .reader-side-tool-label,
     #readerSideTools .hifz-room-toggle [data-hifz-toggle-label] {
-      font-size: 8px;
-      line-height: 1.02;
+      font-size: 7px;
+      line-height: 1;
     }
   }
 
