@@ -1331,6 +1331,9 @@ body.hifz-room-active .hifz-room.is-open {
   top: 50%;
   left: 0;
   width: 78px;
+  /* Never taller than the viewport. Combined with the shrinkable rows below,
+     this is what keeps the last tools on screen — see the note further down. */
+  max-height: calc(100vh - 12px);
   margin: 0;
   padding: 0;
   display: flex;
@@ -1348,15 +1351,39 @@ body.hifz-room-active .hifz-room.is-open {
   -webkit-backdrop-filter: blur(14px) saturate(120%);
 }
 
+/* Short viewports: the rail must never be taller than the screen.
+ *
+ * A phone held sideways reported a CSS viewport far taller than its physical
+ * pixels suggest (the WebView applies its own page scale), so a
+ * `max-height: 700px` media query silently did not match and the fix never
+ * took effect on the real device - while passing in a desktop browser. Six
+ * fixed 72px rows also cannot fit a short screen, and `top: 50%` with
+ * `translateY(-50%)` cannot centre a rail taller than the viewport, so qibla,
+ * favourites and hifz room were laid out below the fold with no way to reach
+ * them.
+ *
+ * So this is deliberately not a media query. `flex: 0 1 72px` lets the rows
+ * shrink only when the container is actually height-constrained, which the
+ * `max-height` above guarantees, and `min-height` keeps every row a usable
+ * touch target. It adapts at whatever CSS height the device reports.
+ *
+ * No `overflow: auto` here: the prayer panel pops out of this rail and would
+ * be clipped. */
+#readerSideTools > * {
+  flex: 0 1 72px;
+  min-height: 40px;
+}
+
 #readerSideTools .reader-side-tool,
 #readerSideTools .hifz-room-toggle,
 #readerSideTools .tafsir-curtain-handle {
   box-sizing: border-box;
-  flex: 0 0 72px;
+  flex: 0 1 72px;
   width: 78px;
   min-width: 78px;
-  min-height: 72px;
-  height: 72px;
+  min-height: 40px;
+  max-height: 72px;
+  height: auto;
   margin: 0;
   padding: 8px 5px;
   display: flex;
@@ -1435,46 +1462,7 @@ body.hifz-room-active .hifz-room.is-open {
 #readerSideTools #qiblaBtn { order: 5; }
 #readerSideTools #favoritesOpenBtn { order: 6; }
 
-/* Short viewports (a phone held sideways is ~400 CSS px tall): six fixed 72px
-   rows are taller than the screen, so the rail overflowed and the last tools —
-   qibla, favourites, hifz room — were laid out below the fold with no way to
-   scroll to them (verified on a real 1080x2392 device, where those three
-   reported zero-size boxes). `top: 50%` + `translateY(-50%)` also cannot centre
-   a rail taller than the viewport, so the overflow was asymmetric.
-
-   Top-align the rail and let the rows shrink instead: every tool then fits
-   without scrolling and without clipping the prayer panel that pops out of
-   this rail (which is why `overflow: auto` is not an option here). This block
-   must stay *after* the 72px row definitions above — same specificity, so
-   source order is what makes the shrink win. */
-@media (max-height: 700px) {
-  #readerSideTools {
-    top: 6px;
-    transform: none;
-  }
-  #readerSideTools .reader-side-tool,
-  #readerSideTools .hifz-room-toggle,
-  #readerSideTools .tafsir-curtain-handle {
-    flex: 0 0 auto;
-    height: auto;
-    min-height: 44px;
-    padding: 4px 3px;
-    gap: 2px;
-    font-size: 9px;
-    line-height: 1.1;
-  }
-  #readerSideTools .reader-side-tool-icon,
-  #readerSideTools .reader-side-tool svg {
-    width: 17px;
-    height: 17px;
-    font-size: 17px;
-  }
-  #readerSideTools .reader-side-tool-label,
-  #readerSideTools .hifz-room-toggle [data-hifz-toggle-label] {
-    font-size: 8px;
-    line-height: 1.04;
-  }
-  #readerSideTools .reader-side-prayer .prayer-bar-toggle {
+#readerSideTools .reader-side-prayer .prayer-bar-toggle {
     min-height: 44px;
     padding: 4px 3px;
   }
