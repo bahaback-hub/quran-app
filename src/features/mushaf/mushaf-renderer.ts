@@ -12,6 +12,22 @@
  * - A re-render is scheduled 2.5s after first render to handle WebView
  *   font processing delays.
  */
+import {
+  BOTTOM_OFFSET,
+  CANVAS_H,
+  CANVAS_W,
+  PAD_H,
+  PAD_V,
+  STD_LINES,
+  TOP_OFFSET,
+  isMobileDevice,
+  type MushafLineLayout,
+  type PageLineBox,
+  type PageWordBox,
+} from './mushaf-geometry.js';
+export type { MushafLineLayout, PageLineBox, PageWordBox } from './mushaf-geometry.js';
+export { BOTTOM_OFFSET, CANVAS_H, CANVAS_W, PAD_H, PAD_V, STD_LINES, TOP_OFFSET, getLineY } from './mushaf-geometry.js';
+
 import { state } from '../../state.js';
 import { buildColorMap, getTajweedColor, pickTajweedRule } from '../../tajweed.js';
 import { getAyahAnnotations } from '../../tajweed-data.js';
@@ -26,43 +42,6 @@ export type { PageLayoutData, PageLine, PageWord } from './mushaf-layout-data.js
 /* ===================== INTERFACES ===================== */
 
 /** A single word laid out on a mushaf line with its measured geometry (canvas px). */
-export interface PageWordBox {
-  /** Right edge of the word box (text is right-aligned at this x). */
-  x: number;
-  /** Measured glyph width in canvas pixels. */
-  width: number;
-  char?: string;
-  font: string;
-  type?: string;
-  verse_key?: string;
-  location?: string;
-  word?: string;
-}
-
-/** A single laid-out mushaf line (canvas px coordinates). */
-export interface PageLineBox {
-  y: number;
-  lineHeight: number;
-  gap: number;
-  totalWidth: number;
-  words: PageWordBox[];
-  /** Glyph ink that rises ABOVE the line's vertical center (canvas px). Text is painted with textBaseline 'middle'. */
-  inkAscent?: number;
-  /** Glyph ink that hangs BELOW the line's vertical center (canvas px). */
-  inkDescent?: number;
-}
-
-/** Full measured layout of a mushaf page — mirrors exactly how the page is painted. */
-export interface MushafLineLayout {
-  lines: PageLineBox[];
-  isOpeningPage: boolean;
-  isShortPage: boolean;
-  stdLineHeight: number;
-  pageFontSize: number;
-  availableW: number;
-  textRight: number;
-}
-
 /** Result of rendering a mushaf page. */
 export interface RenderPageResult {
   canvas: HTMLCanvasElement | null;
@@ -79,44 +58,6 @@ interface PageColors {
 
 /* ===================== CONSTANTS ===================== */
 const BSML_FONT = 'QCF4_QBSML';
-
-// Canvas dimensions — scaled based on device capabilities to reduce memory usage
-// Full HD (1080×1540) uses 6.6MB per canvas — too much for low-end mobile
-// We scale down on mobile devices to save memory while keeping quality acceptable
-const MOBILE_CANVAS_W = 720;
-const MOBILE_CANVAS_H = 1028; // Maintains 7:10 aspect ratio
-const DESKTOP_CANVAS_W = 1080;
-const DESKTOP_CANVAS_H = 1540;
-
-/** Detect if device is mobile (low memory).
- *  Only genuinely phone-sized viewports get the reduced canvas. A large
- *  Android display (tablet / TV) must render at full resolution instead of
- *  being classified as mobile just because the user agent contains "Android". */
-function isMobileDevice(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-  const width = window.innerWidth;
-  return (
-    width <= 600 ||
-    (navigator.maxTouchPoints > 1 && width <= 900) ||
-    (/Mobi|iPhone|iPod/i.test(navigator.userAgent) && width <= 700)
-  );
-}
-
-/** Get optimal canvas dimensions based on device */
-function getCanvasDimensions(): { width: number; height: number } {
-  return isMobileDevice()
-    ? { width: MOBILE_CANVAS_W, height: MOBILE_CANVAS_H }
-    : { width: DESKTOP_CANVAS_W, height: DESKTOP_CANVAS_H };
-}
-
-export const CANVAS_W = getCanvasDimensions().width;
-export const CANVAS_H = getCanvasDimensions().height;
-export const PAD_H = 30;
-export const PAD_V = 30;
-export const TOP_OFFSET = 30;
-export const BOTTOM_OFFSET = 50;
 
 /** Canvas pool — reuse canvases to avoid GC pressure and memory allocation.
  * On mobile, keep pool size small (1) to save memory.
@@ -153,7 +94,6 @@ export function releaseCanvas(canvas: HTMLCanvasElement): void {
 export function clearCanvasPool(): void {
   canvasPool.length = 0;
 }
-export const STD_LINES = 15;
 
 /** The Fatiha page and opening of Al-Baqarah use the compact Madinah Mushaf text block. */
 const OPENING_PAGE_TEXT_SCALE = 0.82;
@@ -857,21 +797,6 @@ function measureLine(
       descent: typeof m.actualBoundingBoxDescent === 'number' ? m.actualBoundingBoxDescent : 0,
     };
   });
-}
-
-export function getLineY(lineIndex: number, lineCount: number, imgHeight: number): number {
-  if (lineIndex <= 0) {
-    return 0;
-  }
-  if (lineIndex >= lineCount) {
-    return imgHeight;
-  }
-  const usableHeight = CANVAS_H - TOP_OFFSET - BOTTOM_OFFSET - PAD_V;
-  const stdLineHeight = usableHeight / STD_LINES;
-  const isShortPage = lineCount < STD_LINES;
-  const lineSpacing = isShortPage ? (usableHeight - stdLineHeight) / Math.max(1, lineCount - 1) : stdLineHeight;
-  const y = TOP_OFFSET + lineIndex * lineSpacing + (isShortPage ? 0 : stdLineHeight / 2);
-  return (y / CANVAS_H) * imgHeight;
 }
 
 /**

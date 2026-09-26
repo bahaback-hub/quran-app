@@ -4,13 +4,14 @@
  */
 
 import { CONFIG } from './config.js';
+import { warnRecoverable } from './error-boundary.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { state } from './state.js';
 import { showToast } from './ui.js';
 import { __, AVAILABLE_LANGUAGES, getLang, setLang } from './i18n.js';
 import type { LangCode } from './i18n.js';
-import { helpPanelHTML } from './templates.js';
+import { bindHelpEvents, openHelp } from './events/help-events.js';
 import {
   applyFontSize,
   applyReaderSurfaceTransparency,
@@ -67,6 +68,9 @@ import { showSleepTimerModal } from './sleep-timer-modal.js';
 import { loadTajweedAnnotationsForSurah } from './tajweed-data.js';
 import { toggleTafsir, openTafsir, closeTafsir, loadTafsirForCurrentAyah } from './tafsir.js';
 import * as audioModule from './features/audio/audio.js';
+
+/** Keep the bindHelpEvents export available from the app-events barrel. */
+export { bindHelpEvents };
 
 /** API response shape for ayah page lookup. */
 interface AyahPageResponse {
@@ -348,18 +352,28 @@ function bindMushafDataPackEvents(): void {
 
   downloadButton.addEventListener('click', async () => {
     setBusy(true);
+    let failed = false;
     try {
       await downloadMushafDataPack((progress) => {
         status.textContent = `${__('mushaf_data_pack_downloading')} ${progress.completed}/${progress.total}`;
       });
       status.textContent = __('mushaf_data_pack_verified');
       showToast(__('mushaf_data_pack_verified'), 'success');
-    } catch {
+    } catch (err: unknown) {
+      // Surface the reason. The download aborts on the first failed file (a
+      // stale manifest digest, a CDN HTTP error, a per-file hash mismatch), and
+      // without this the user only ever saw the button spring back with no clue.
+      warnRecoverable('mushaf data pack download failed', err);
+      failed = true;
       status.textContent = __('mushaf_data_pack_failed');
       showToast(__('mushaf_data_pack_failed'), 'error');
     } finally {
       setBusy(false);
-      await refresh();
+      // refresh() rewrites the status from stored state, so only let it run on
+      // success — otherwise it erases the failure message set just above.
+      if (!failed) {
+        await refresh();
+      }
     }
   });
 
@@ -771,8 +785,8 @@ export function bindDisplaySettingsEvents(): void {
           .then((m: { loadPage: (p: number, skipNav?: boolean, force?: boolean) => Promise<void> }) =>
             m.loadPage(state.currentPage, true, true),
           )
-          .catch(() => {
-            /* noop */
+          .catch((err) => {
+            warnRecoverable('mushaf page reload after tajweed toggle failed', err);
           });
       if (enabled && state.currentSurah) {
         loadTajweedAnnotationsForSurah(state.currentSurah).then(reloadPage);
@@ -1123,113 +1137,6 @@ export function bindMiscEvents(): void {
 /**
  * Open the help/guide panel.
  */
-function openHelp(): void {
-  if (dom.helpPanel) {
-    dom.helpPanel.classList.add('open');
-  }
-}
-
-/**
- * Close the help/guide panel.
- */
-function closeHelp(): void {
-  if (dom.helpPanel) {
-    dom.helpPanel.classList.remove('open');
-  }
-}
-
-function bindHelpPanelInteractions(panel: HTMLElement): void {
-  panel.addEventListener('click', (e: MouseEvent) => {
-    const toggle = (e.target as HTMLElement).closest('.help-section-toggle') as HTMLElement | null;
-    if (!toggle) {
-      return;
-    }
-    const section = toggle.dataset['section'];
-    if (!section) {
-      return;
-    }
-    const content = panel.querySelector(`.help-section-content[data-section="${section}"]`);
-    if (content) {
-      content.classList.toggle('open');
-    }
-    const icon = toggle.querySelector('.help-toggle-icon');
-    if (icon) {
-      icon.textContent = content?.classList.contains('open') ? '▲' : '▼';
-    }
-  });
-}
-
-function refreshHelpPanelForLanguage(): void {
-  const previous = dom.helpPanel;
-  if (!previous) {
-    return;
-  }
-  const wasOpen = previous.classList.contains('open');
-  const expanded = [...previous.querySelectorAll('.help-section-content.open')]
-    .map((item) => item.getAttribute('data-section'))
-    .filter((section): section is string => Boolean(section));
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = helpPanelHTML();
-  const next = wrapper.firstElementChild as HTMLElement | null;
-  if (!next) {
-    return;
-  }
-  previous.replaceWith(next);
-  dom.helpPanel = next;
-  dom.helpCloseBtn = next.querySelector('#helpCloseBtn');
-  if (wasOpen) {
-    next.classList.add('open');
-  }
-  for (const section of expanded) {
-    const content = next.querySelector(`.help-section-content[data-section="${section}"]`);
-    const icon = next.querySelector(`.help-section-toggle[data-section="${section}"] .help-toggle-icon`);
-    content?.classList.add('open');
-    if (icon) {
-      icon.textContent = '▲';
-    }
-  }
-  dom.helpCloseBtn?.addEventListener('click', closeHelp);
-  bindHelpPanelInteractions(next);
-}
-
-/**
- * Bind help panel events: open/close toggle, accordion sections, first-use auto-open.
- */
-export function bindHelpEvents(): void {
-  dom.helpToggleBtn?.addEventListener('click', () => {
-    if (dom.helpPanel?.classList.contains('open')) {
-      closeHelp();
-      return;
-    }
-    openHelp();
-  });
-  dom.helpCloseBtn?.addEventListener('click', closeHelp);
-
-  // Close help when clicking outside
-  document.addEventListener('click', (e: MouseEvent) => {
-    const helpTarget = e.target as HTMLElement;
-    const isHelpTrigger =
-      helpTarget === dom.helpToggleBtn ||
-      helpTarget.closest?.('#helpToggleBtn') !== null ||
-      helpTarget.closest?.('#helpFromSettingsBtn') !== null;
-    if (dom.helpPanel?.classList.contains('open') && !dom.helpPanel.contains(e.target as Node) && !isHelpTrigger) {
-      closeHelp();
-    }
-  });
-
-  if (dom.helpPanel) {
-    bindHelpPanelInteractions(dom.helpPanel);
-  }
-  window.addEventListener('app:langchange', refreshHelpPanelForLanguage);
-
-  // Auto-open help on first use
-  const seen = storage.get<boolean>('help_seen', false);
-  if (!seen) {
-    storage.set('help_seen', true);
-    openHelp();
-  }
-}
-
 /**
  * Use the device's GPS to detect the nearest supported city and fill the
  * city input. Requires the user's permission (browser will prompt).

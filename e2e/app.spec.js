@@ -8,12 +8,12 @@ test.describe('التطبيق — الصفحة الرئيسية', () => {
   });
 
   test('يعرض عنوان الصفحة بالعربية', async ({ page }) => {
-    await expect(page).toHaveTitle(/القرآن الكريم/);
+    await expect(page).toHaveTitle(/المصحف السليماني/);
   });
 
   test('يعرض المحتوى الرئيسي', async ({ page }) => {
     await expect(page.locator('#surahContent')).toBeVisible();
-    await expect(page.locator('.header h1')).toContainText('القرآن الكريم');
+    await expect(page.locator('.header h1')).toContainText('المصحف السليماني');
   });
 
   test('قائمة السور موجودة في الصفحة', async ({ page }) => {

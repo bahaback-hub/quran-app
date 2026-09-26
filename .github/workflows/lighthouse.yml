@@ -10,6 +10,11 @@ jobs:
   lighthouse:
     name: Lighthouse Audit
     runs-on: ubuntu-latest
+    # NOTE: CLS is NOT asserted here — the lhci viewport-emulation race on
+    # fast local pages produces a spurious whole-viewport shift (~1.0, no
+    # attributable nodes; confirmed across commits incl. this workflow's own
+    # clean runs). True CLS is gated deterministically by the Playwright-based
+    # `CLS guard` job in e2e.yml, which sets the viewport before navigation.
     timeout-minutes: 15
     permissions:
       contents: read

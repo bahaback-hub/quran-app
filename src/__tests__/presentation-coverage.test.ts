@@ -238,6 +238,35 @@ describe('presentation coverage', () => {
     });
   });
 
+  /* ==================== First-open wiring ==================== */
+
+  describe('overlay controls are wired on the first open', () => {
+    it('navigates with the ⏭ button even without a prior initPresentation()', async () => {
+      const { openPresentation } = await import('../features/presentation/presentation.js');
+
+      // app.ts wires the overlay handlers in a deferred task, so the first
+      // open must not depend on it having run yet.
+      openPresentation();
+      state.currentAyahIndex = 0;
+      dom.presentationNextBtn!.click();
+
+      expect(state.currentAyahIndex).toBe(1);
+    });
+
+    it('binds the ayah navigation once even when initPresentation() repeats', async () => {
+      const { openPresentation, initPresentation } = await import('../features/presentation/presentation.js');
+
+      initPresentation();
+      initPresentation();
+      openPresentation();
+      state.currentAyahIndex = 0;
+      dom.presentationNextBtn!.click();
+
+      // A double-bound handler would jump two ayahs on a single OK press.
+      expect(state.currentAyahIndex).toBe(1);
+    });
+  });
+
   /* ==================== Keyboard Navigation ==================== */
 
   describe('keyboard navigation — arrow keys', () => {
