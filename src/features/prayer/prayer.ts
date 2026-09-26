@@ -719,7 +719,7 @@ let azanTimer: ReturnType<typeof setTimeout> | null = null;
  * alert was invisible whenever the app was closed. Native notifications are
  * scheduled by the OS instead, which fires regardless.
  */
-export function syncAzanNotifications(): void {
+function syncAzanNotifications(): void {
   if (!state.azanEnabled || !state.prayerTimes) {
     void cancelAzanNotifications();
     return;
