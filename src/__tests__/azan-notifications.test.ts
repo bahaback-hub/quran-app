@@ -10,7 +10,7 @@
  * honouring the independent Fajr opt-out, and never touching the web build.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const isNativePlatform = vi.fn(() => true);
 const checkPermissions = vi.fn();
@@ -61,6 +61,12 @@ async function load() {
 }
 
 describe('azan notifications', () => {
+  // Fake timers are opt-in per test; make sure a failing assertion can never
+  // leave them installed for the rest of the file.
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     // The module memoises "channel created" and "permission already asked"
@@ -85,7 +91,6 @@ describe('azan notifications', () => {
       title: 'Prayer time',
       includeFajr: true,
     });
-    vi.useRealTimers();
 
     const queued = scheduledFrom(schedule);
     // Sunrise is not a prayer and must never be scheduled.
@@ -98,7 +103,12 @@ describe('azan notifications', () => {
 
   it('rolls a prayer that already passed today over to tomorrow', async () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-09-26T20:00:00'));
+    // Anchored to a fixed instant so the expectations below cannot drift with
+    // the wall clock. An earlier version restored real timers *before*
+    // computing "tomorrow", which made the assertion depend on today's real
+    // date and only passed by coincidence.
+    const now = new Date('2026-09-26T20:00:00');
+    vi.setSystemTime(now);
     const mod = await load();
 
     await mod.scheduleAzanNotifications({
@@ -107,14 +117,13 @@ describe('azan notifications', () => {
       title: 't',
       includeFajr: true,
     });
-    vi.useRealTimers();
 
     const queued = scheduledFrom(schedule);
     for (const n of queued) {
-      expect(n.schedule?.at.getTime()).toBeGreaterThan(Date.now());
+      expect(n.schedule?.at.getTime(), `${n.body} must be scheduled in the future`).toBeGreaterThan(now.getTime());
     }
-    // Isha (19:45) has passed at 20:00, so every remaining prayer is tomorrow.
-    const tomorrow = new Date();
+    // Isha (19:45) has already passed at 20:00, so it must land on the next day.
+    const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
     expect(queued.find((n) => n.body === 'Isha')?.schedule?.at.getDate()).toBe(tomorrow.getDate());
   });
@@ -144,7 +153,6 @@ describe('azan notifications', () => {
       title: 't',
       includeFajr: true,
     });
-    vi.useRealTimers();
 
     const fajr = scheduledFrom(schedule).find((n) => n.body === 'Fajr');
     expect(fajr?.schedule?.at.getHours()).toBe(4);
