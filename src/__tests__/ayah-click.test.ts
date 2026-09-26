@@ -4,8 +4,9 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock mushaf-renderer's getLineY to return predictable values
-vi.mock('../features/mushaf/mushaf-renderer.js', () => ({
+// Mock the mushaf geometry module (ayah-click imports it directly so the
+// first-paint graph never reaches the Canvas renderer).
+vi.mock('../features/mushaf/mushaf-geometry.js', () => ({
   getLineY: vi.fn((lineIndex: number, _lineCount: number, imgHeight: number) => {
     // Simple uniform line height calculation
     const lineHeight = imgHeight / _lineCount;

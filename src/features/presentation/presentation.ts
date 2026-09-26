@@ -55,6 +55,14 @@ let _presFullscreenRequested = false;
 /** Whether the in-presentation background picker is open. */
 let _backgroundPickerOpen = false;
 
+/**
+ * The overlay element the presentation listeners are currently bound to.
+ * Element identity (not a boolean) guards re-entry: a second call on the same
+ * overlay is a no-op, so handlers can never be bound twice, while a replaced
+ * overlay element is rebound instead of silently losing its controls.
+ */
+let _presentationBoundOverlay: HTMLElement | null = null;
+
 function setBackgroundPickerOpen(open: boolean, restoreFocus = false): void {
   const picker = dom.presBackgroundPicker;
   const button = dom.presBackgroundBtn;
@@ -460,6 +468,12 @@ export function openPresentation(): void {
   // Sync presentation tajweed with global setting on open
   _presTajweedEnabled = state.tajweedEnabled;
   injectStyles();
+  // Wire the overlay controls before the first paint. app.ts also calls
+  // initPresentation() from a deferred task (safeLoad with retries), so without
+  // this an OK press landing in that window would hit an unwired ⏭/⏮ button
+  // and silently do nothing. initPresentation() is idempotent per overlay
+  // element, so calling it on every open is safe.
+  initPresentation();
   if (dom.presentationOverlay) {
     // CRITICAL: For Android WebView (Capacitor), we use a special CSS class
     // `presentation-visible` that overrides `.hidden { display: none !important }`
@@ -665,15 +679,18 @@ export function syncPresentation(): void {
 }
 
 export function initPresentation(): void {
-  console.warn('[Presentation] initPresentation() called');
-  injectStyles();
-
   // Verify the presentation overlay exists in the DOM
   const overlay = document.getElementById('presentationOverlay');
   if (!overlay) {
     console.error('[Presentation] ERROR: presentationOverlay element not found in DOM!');
     return;
   }
+  if (_presentationBoundOverlay === overlay) {
+    return;
+  }
+  console.warn('[Presentation] initPresentation() called');
+  injectStyles();
+
   initPresentationShare();
   bindPresentationVideoVisibility();
   console.warn('[Presentation] Overlay element found, binding event handlers...');
@@ -774,5 +791,6 @@ export function initPresentation(): void {
   document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
   window.addEventListener('resize', handlePresentationResize);
 
+  _presentationBoundOverlay = overlay;
   console.warn('[Presentation] initPresentation() completed successfully');
 }

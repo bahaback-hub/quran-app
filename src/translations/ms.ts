@@ -281,6 +281,9 @@ export default {
   },
   tafsir_loading: 'Memuatkan tafsir...',
   tafsir_error: 'Ralat memuatkan tafsir',
+  azan_enable: 'Peringatan azan:',
+  azan_fajr: 'Azan Subuh:',
+  tafsir_no_ayah: '📖 Pilih surah dan ayat untuk membaca tafsir',
   no_tafsir_available: 'Tiada tafsir tersedia',
 
   // === Bandar ===
@@ -433,6 +436,18 @@ export default {
   mushaf_retry_reload: 'Cuba semula',
   mushaf_sources: 'Sumber',
   mushaf_surah_info: 'Maklumat Surah',
+  save: 'Simpan',
+  mushaf_page_info: 'Maklumat Halaman',
+  mushaf_loading_page: 'Memuatkan halaman',
+  surah_info_for: 'Maklumat surah {0}',
+  qibla_direction: 'Arah kiblat',
+  select_hint: 'Pilih',
+  pray_fajr: 'Subuh',
+  stats_hours_mins: '{0} j {1} m',
+  stats_mins: '{0} minit',
+  minutes_abbr: 'm',
+  offline_mode: 'Mod luar talian',
+  mushaf_juz: 'Juz {0}',
   quran_db_loading: 'Memuatkan pangkalan data Al-Quran...',
 
   // === Kiblat ===

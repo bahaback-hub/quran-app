@@ -13,7 +13,15 @@
  * Every detected site must be documented in config/silent-catches.allowed.json
  * with a reason. The guard fails when:
  *   1. a silent catch appears that is NOT allowlisted (a new swallow), or
- *   2. an allowlist entry no longer matches any detected site (stale entry).
+ *   2. an allowlist entry no longer matches any detected site (stale entry), or
+ *   3. a documented entry's shape changed (kind mismatch).
+ *
+ * Entries are keyed by a LOCATION-STABLE identity, never by line number:
+ *   file :: enclosing function :: anchor
+ * where anchor is the catch's own comment (the human intent marker) or, for
+ * comment-less catches, a per-function occurrence index. Inserting or removing
+ * lines above a documented catch therefore never breaks the build; adding a
+ * new silent catch, or rewording a documented one, still does.
  *
  * Scan directory can be overridden with SILENT_SCAN_DIR for testing.
  */
@@ -106,15 +114,42 @@ function classifyArrowHandler(fn) {
 }
 
 function classifyHandler(fn) {
-  if (ts.isArrowFunction(fn) || ts.isFunctionExpression(fn) || ts.isFunctionDeclaration(fn)) {
-    if (ts.isArrowFunction(fn)) {
-      return classifyArrowHandler(fn);
-    }
-    if (ts.isBlock(fn.body)) {
-      return classifyBlock(fn.body.statements);
-    }
+  if (ts.isArrowFunction(fn)) {
+    return classifyArrowHandler(fn);
+  }
+  if (ts.isFunctionExpression(fn) && ts.isBlock(fn.body)) {
+    return classifyBlock(fn.body.statements);
   }
   return null;
+}
+
+/** Name of the function/method a node sits in — the stable part of the key. */
+function enclosingName(node) {
+  let cur = node.parent;
+  while (cur) {
+    if (ts.isFunctionDeclaration(cur) && cur.name) {
+      return cur.name.text;
+    }
+    if (ts.isMethodDeclaration(cur) && cur.name) {
+      return cur.name.getText();
+    }
+    if (ts.isFunctionExpression(cur) || ts.isArrowFunction(cur)) {
+      const p = cur.parent;
+      if (p && ts.isVariableDeclaration(p) && ts.isIdentifier(p.name)) {
+        return p.name.text;
+      }
+      if (p && ts.isPropertyAssignment(p) && ts.isIdentifier(p.name)) {
+        return p.name.text;
+      }
+      if (p && ts.isCallExpression(p)) {
+        const method = p.expression.getText().replace(/^.*\./, '').slice(0, 24);
+        return `callback:${method}`;
+      }
+      return 'anonymous-fn';
+    }
+    cur = cur.parent;
+  }
+  return 'module-scope';
 }
 
 function walk(dir, files = []) {
@@ -137,7 +172,7 @@ function collectFiles() {
     .sort();
 }
 
-const found = new Map();
+const found = [];
 
 for (const relFile of collectFiles()) {
   const content = readFileSync(join(ROOT, relFile), 'utf8');
@@ -145,11 +180,17 @@ for (const relFile of collectFiles()) {
 
   const record = (node, kind) => {
     const { line } = sf.getLineAndCharacterOfPosition(node.getStart(sf));
-    const comment =
-      kind === 'catch-empty-block' && ts.isCatchClause(node)
-        ? (node.block.getText(sf).match(/(?:\/\/[^\n]+|\/\*[^*]*\*\/)/g) || []).join(' | ')
-        : '';
-    found.set(`${relFile}:${line + 1}`, { file: relFile, line: line + 1, kind, comment });
+    const comment = (node.getText(sf).match(/\/\/[^\n]+|\/\*[\s\S]*?\*\//g) || [])
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    found.push({
+      file: relFile,
+      line: line + 1,
+      kind,
+      fn: enclosingName(node),
+      comment,
+    });
   };
 
   const visit = (node) => {
@@ -167,7 +208,7 @@ for (const relFile of collectFiles()) {
     ) {
       const res = classifyHandler(node.arguments[0]);
       if (res) {
-        record(node.expression.name, res.kind);
+        record(node, res.kind);
       }
     }
     ts.forEachChild(node, visit);
@@ -175,25 +216,49 @@ for (const relFile of collectFiles()) {
   visit(sf);
 }
 
-const allowlist = JSON.parse(readFileSync(ALLOWLIST_PATH, 'utf8')).entries || [];
-const allowedKeys = new Map(allowlist.map((e) => [`${e.file}:${e.line}`, e]));
+// Build location-stable keys: comment anchor when present, otherwise a
+// per-function occurrence index. Duplicate anchors inside one function get an
+// index suffix so every site keeps a unique identity.
+const perFnCommentCount = new Map();
+const perFnSiteCount = new Map();
+for (const site of found) {
+  const fnKey = `${site.file}::${site.fn}`;
+  const fnTotal = (perFnSiteCount.get(fnKey) || 0) + 1;
+  perFnSiteCount.set(fnKey, fnTotal);
+  if (site.comment) {
+    const cKey = `${fnKey}::${site.comment}`;
+    const n = (perFnCommentCount.get(cKey) || 0) + 1;
+    perFnCommentCount.set(cKey, n);
+    site.anchor = n > 1 ? `${site.comment}#${n}` : site.comment;
+  } else {
+    site.anchor = `#${fnTotal}`;
+  }
+  site.key = `${fnKey}::${site.anchor}`;
+}
 
-for (const [key, site] of found) {
-  const entry = allowedKeys.get(key);
+const allowlist = JSON.parse(readFileSync(ALLOWLIST_PATH, 'utf8')).entries || [];
+const allowedKeys = new Map(allowlist.map((e) => [`${e.file}::${e.fn}::${e.anchor}`, e]));
+const realKeys = new Set();
+
+for (const site of found) {
+  realKeys.add(site.key);
+  const entry = allowedKeys.get(site.key);
   if (!entry) {
     console.error(
-      `❌ [SilentCatch] Undocumented silent catch at ${key} (${site.kind})${site.comment ? ' — ' + site.comment : ''}`,
+      `❌ [SilentCatch] Undocumented silent catch at ${site.file}:${site.line} in ${site.fn} (${site.kind})${site.comment ? ' — ' + site.comment : ''}`,
     );
-    console.error('    Add it to config/silent-catches.allowed.json with a reason, or give it feedback.');
+    console.error('    Document it in config/silent-catches.allowed.json with a reason, or give it feedback.');
     hasErrors = true;
   } else if (entry.kind !== site.kind) {
-    console.error(`❌ [SilentCatch] Kind mismatch at ${key}: allowlist says "${entry.kind}", code is "${site.kind}"`);
+    console.error(
+      `❌ [SilentCatch] Kind mismatch in ${site.fn} (${site.file}:${site.line}): allowlist says "${entry.kind}", code is "${site.kind}"`,
+    );
     hasErrors = true;
   }
 }
 
 for (const [key, entry] of allowedKeys) {
-  if (!found.has(key)) {
+  if (!realKeys.has(key)) {
     console.error(
       `❌ [SilentCatch] Stale allowlist entry ${key} ("${entry.reason}") no longer matches any silent catch`,
     );
@@ -203,9 +268,9 @@ for (const [key, entry] of allowedKeys) {
 
 if (hasErrors) {
   console.error(
-    `\n[SilentCatch] Detected ${found.size} silent catch site(s), allowlist has ${allowedKeys.size} entrie(s).`,
+    `\n[SilentCatch] Detected ${found.length} silent catch site(s), allowlist has ${allowedKeys.size} entrie(s).`,
   );
   process.exit(1);
 } else {
-  console.log(`✅ [SilentCatch] Passed: ${found.size} documented silent catch site(s); no undocumented swallows.`);
+  console.log(`✅ [SilentCatch] Passed: ${found.length} documented silent catch site(s); no undocumented swallows.`);
 }

@@ -263,6 +263,9 @@ export default {
   },
   tafsir_loading: 'Tafsir wird geladen…',
   tafsir_error: 'Fehler beim Laden des Tafsir',
+  azan_enable: 'Adhan-Hinweis:',
+  azan_fajr: 'Fajr-Adhan:',
+  tafsir_no_ayah: '📖 Wähle Sure und Ayat, um den Tafsir zu lesen',
   no_tafsir_available: 'Kein Tafsir verfügbar',
 
   // === Cities & Methods ===
@@ -416,6 +419,18 @@ export default {
   mushaf_retry_reload: 'Erneut versuchen',
   mushaf_sources: 'Quellen',
   mushaf_surah_info: 'Sure-Info',
+  save: 'Speichern',
+  mushaf_page_info: 'Seiteninfo',
+  mushaf_loading_page: 'Seite wird geladen',
+  surah_info_for: 'Sureen-Info für {0}',
+  qibla_direction: 'Qibla-Richtung',
+  select_hint: 'Auswählen',
+  pray_fajr: 'Fadschr',
+  stats_hours_mins: '{0} Std {1} Min',
+  stats_mins: '{0} Min',
+  minutes_abbr: 'Min',
+  offline_mode: 'Offline-Modus',
+  mushaf_juz: 'Dschuz {0}',
   quran_db_loading: 'Quran-Datenbank wird geladen...',
 
   // === Qibla ===

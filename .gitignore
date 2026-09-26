@@ -66,3 +66,8 @@ scripts/__pycache__/
 
 # Playwright MCP snapshots (temp)
 .playwright-mcp/
+
+# Visual-regression baselines are generated in CI (Linux). A local Windows run
+# writes its own *-chromium-win32.png baselines on first use; those are local
+# artifacts and must never be committed.
+e2e/visual-regression.spec.ts-snapshots/*-win32.png

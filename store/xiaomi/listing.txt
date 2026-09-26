@@ -1,0 +1,130 @@
+================================================================================
+MUSHAF AS-SULAIMANI — XIAOMI (Mi Developer / GetApps) STORE LISTING COPY
+================================================================================
+Prepared: 2026-09-25  |  App ID (package): com.sulaimani.quranapp
+Privacy policy URL: https://bahaback-hub.github.io/quran-app/privacy-policy.html
+Website:            https://bahaback-hub.github.io/quran-app/
+Source code:        https://github.com/bahaback-hub/quran-app  (MIT)
+Support contact:    https://github.com/bahaback-hub/quran-app/issues
+================================================================================
+
+--------------------------------------------------------------------------------
+1) APP NAME
+--------------------------------------------------------------------------------
+Arabic : المصحف السليماني
+English : Al-Mushaf As-Sulaimani
+
+--------------------------------------------------------------------------------
+2) ONE-LINE DESCRIPTION  (short, for the store header — keep under ~60 chars)
+--------------------------------------------------------------------------------
+Arabic : مصحف كامل بلا إنترنت، مع تلاوة وتفسير ومواقيت صلاة — بدون إعلانات
+English: A complete offline Mushaf with recitation, tafsir and prayer times — no ads.
+
+--------------------------------------------------------------------------------
+3) CATEGORY / TAGS
+--------------------------------------------------------------------------------
+Category     : Books & Reference  (الكتاب والمراجع)
+Secondary    : Education         (التعليم)
+Keywords (ar): قرآن, مصحف, تلاوة, تفسير, تجويد, أذكار, مواقيت صلاة, قبلة, فوازب,
+               قراءة بدون إنترنت, Quran, Mushaf
+Keywords (en): Quran, Mushaf, recitation, tafsir, tajweed, adhkar, prayer times,
+               qibla, offline Quran
+
+--------------------------------------------------------------------------------
+4) FULL DESCRIPTION — ARABIC  (paste as-is)
+--------------------------------------------------------------------------------
+المصحف السليماني تطبيق قرآن كريم متكامل يعمل بلا إنترنت، بلا إعلانات وبلا تتبّع.
+
+• المصحف بالرسم العثماني: الصفحات كاملة بخط المصحف الرسمي، مع وضع ليلي مريح للعين.
+• التلاوة: أكثر من 30 قارئًا، مع تظليل الكلمات كلمةً كلمة أثناء الاستماع.
+• التفسير: تفسير الميسّر متاح مع فصوله، مع مصادر تفسير إضافية عبر الإنترنت.
+• التجويد: تشكيل ملوّن يوضّح أحكام التجويد داخل الآيات.
+• المواقيت والقبلة: مواقيت دقيقة حسب مدينتك، مع بوصلة القبلة.
+• الأذكار: أذكار الصباح والمساء وال النوم بعد الصلاة، مع تذكير يومي اختياري.
+• غرفة الحفظ: خطة يومية لحفظ القرآن، مع تكرار الآيات ووضع التركيز.
+• وضع العرض: شاشة بآيات متتابعة وخلفيات هادئة مناسبة للعرض أمام الآخرين.
+• العمل دون اتصال: نزّل حزمة المصحف والتلاوات مرة واحدة واستخدمها بلا إنترنت.
+• البحث: بحث سريع في النص الكامل للقرآن.
+• 8 لغات: العربية، الإنجليزية، التركية، الفرنسية، الألمانية، الروسية، الملايوية، الإندونيسية.
+
+خصوصيتك أولاً: لا يجمع التطبيق أي بيانات شخصية، ولا يحتوي على إعلانات ولا أدوات تتبّع.
+كل ما تحفظه (المفضلة، الخطط، إحصاءات القراءة) يبقى على جهازك فقط.
+تفاصيل التفسير والبيانات من مصادرها المفتوحة المذكورة في التطبيق.
+
+--------------------------------------------------------------------------------
+5) FULL DESCRIPTION — ENGLISH  (paste as-is)
+--------------------------------------------------------------------------------
+Al-Mushaf As-Sulaimani is a complete offline Quran app with no ads and no tracking.
+
+• Uthmani Mushaf: all 604 pages in the official Mushaf font, with a comfortable dark mode.
+• Recitation: 30+ reciters, with word-by-word highlighting while you listen.
+• Tafsir: Al-Muyassar included, plus additional tafsir sources online.
+• Tajweed: colour-coded marks that show the tajweed rules inside every ayah.
+• Prayer times & Qibla: accurate times for your city, with a Qibla compass.
+• Adhkar: morning/evening and post-prayer adhkar, with optional daily reminders.
+• Hifz room: a daily memorisation plan with ayah repeat and a focus mode.
+• Presentation: a calm full-screen ayah display for sharing in a gathering.
+• Works offline: download the mushaf and recitations once, then use them anywhere.
+• Search: fast full-text search across the whole Quran.
+• 8 languages: Arabic, English, Turkish, French, German, Russian, Malay, Indonesian.
+
+Privacy first: the app collects no personal data, contains no ads and no trackers.
+Everything you save (favourites, plans, reading statistics) stays on your device.
+Tafsir and content come from the open sources credited inside the app.
+
+--------------------------------------------------------------------------------
+6) PERMISSIONS DISCLOSURE  (Xiaomi asks why each permission is needed)
+--------------------------------------------------------------------------------
+INTERNET              Fetch Quran text, tafsir, recitations and prayer times.
+ACCESS_COARSE_LOCATION Prayer times by approximate city (user-initiated).
+ACCESS_FINE_LOCATION   Prayer times and Qibla direction (user-initiated).
+RECORD_AUDIO           Optional voice search — only when the user starts it.
+Optional feature: android.software.leanback (Android TV support, not required).
+
+Note for the reviewer: location is used locally to compute prayer times and Qibla,
+and is never transmitted to the developer or any third party.
+
+--------------------------------------------------------------------------------
+7) DATA SAFETY DECLARATION  (as supported by the app's behaviour)
+--------------------------------------------------------------------------------
+Data collected          : None
+Data shared with others : None
+Data used for tracking  : None
+Location                : Collected locally on-device, not transmitted
+This is a NO-DATA-COLLECTION app. All user data stays in on-device storage.
+
+--------------------------------------------------------------------------------
+8) ASSETS REQUIRED BY THE STORE
+--------------------------------------------------------------------------------
+App icon               : public/icon-512.png                (512x512 PNG)  [READY]
+Feature graphic        : store/xiaomi/feature-graphic.png  (1024x500 PNG) [BUILD]
+Screenshots (portrait) : store/xiaomi/screenshots/01..07.png (1080x1920)   [BUILD]
+Privacy policy page    : public/privacy-policy.html  -> deployed with the site [READY]
+
+Minimum 3 screenshots are required; 5-7 is recommended. Capture in this order:
+  01  Reading mode (Uthmani text + audio player)
+  02  Word-by-word highlighting during recitation
+  03  Ayah detail with tafsir
+  04  Mushaf page mode
+  05  Presentation mode
+  06  Prayer times + Qibla
+  07  Hifz room / daily plan
+
+--------------------------------------------------------------------------------
+9) BEFORE YOU SUBMIT — CHECKLIST
+--------------------------------------------------------------------------------
+[ ] Mi Developer account created and email verified (free)
+[ ] Signed RELEASE apk downloaded from the Android Release workflow run
+    (https://github.com/bahaback-hub/quran-app/actions/workflows/android-release.yml)
+[ ] versionName in the store matches the APK (3.1.26 unless re-bumped)
+[ ] Privacy policy URL opens correctly in a browser
+[ ] Icon, feature graphic and 5+ portrait screenshots uploaded
+[ ] Descriptions pasted from sections 4 and 5
+[ ] Support contact = the GitHub issues link
+[ ] Review notes (optional): "Quran app; offline Mushaf; no ads; no tracking;
+    tafsir and Quran text from the open sources credited in the app footer."
+
+NOTE ON GOOGLE PLAY SYNC: the "import from Google Play" option only works if the app is
+already published on Google Play. It is not, so submit the signed APK directly to Mi
+Developer. The same signed APK can be submitted to F-Droid, Huawei AppGallery and
+Samsung Galaxy Store without modification.

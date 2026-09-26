@@ -71,4 +71,13 @@
     <!-- Location is requested only when the reader opens the Qibla compass. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Prayer-time alerts. POST_NOTIFICATIONS is runtime-requested on Android
+         13+; without it the OS drops every scheduled prayer notification. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Prayer times are wall-clock exact, so allow exact alarms. Without this
+         the OS batches the notification and it can arrive minutes late. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- Re-arm the alarm after a reboot, otherwise no prayer alert survives one. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 </manifest>

@@ -31,6 +31,19 @@ jobs:
         # Every silent catch/then-null handler in src must be documented in
         # config/silent-catches.allowed.json with a reason. A new undocumented
         # swallow (or a stale documented entry) fails the build.
+      - name: Translation parity audit — all locales share the ar key set
+        run: npm run check:i18n-parity
+        # A key added to the source locale but forgotten in another locale
+        # makes the UI show the raw key for that language.
+      - name: Source file size budget
+        run: npm run check:file-size
+        # Keeps the known 40-50 KB modules from growing and blocks new giants.
+        # Ratchet FILE_SIZE_BUDGET_KB down as the giants get split.
+      - name: Release version consistency
+        run: npm run check:version
+        # package.json feeds the in-app version label; build.gradle ships the
+        # package. They drifted (3.1.20 vs 3.1.26) and both were "valid", so
+        # the settings screen lied about which build was installed.
       - name: Dead code detection (knip) — mandatory
         run: npx knip --no-progress
         # Knip checks for unused exports, dependencies, and files.
