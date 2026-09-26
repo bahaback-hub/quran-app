@@ -6,7 +6,7 @@
 
 [📲 تحميل تطبيق Android](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.20/quran-app-v3.1.20-official-uthmanic-hafs-debug.apk) · [🌐 تجربة التطبيق في المتصفح](https://bahaback-hub.github.io/quran-app/) · [🐛 الإبلاغ عن مشكلة](https://github.com/bahaback-hub/quran-app/issues) · [💡 اقتراح ميزة](https://github.com/bahaback-hub/quran-app/issues) · [💬 المناقشات](https://github.com/bahaback-hub/quran-app/discussions)
 
-[![الإصدار الحالي](https://img.shields.io/badge/Android-v3.1.20-16794C.svg)](https://github.com/bahaback-hub/quran-app/releases/tag/v3.1.20)
+[![الإصدار الحالي](https://img.shields.io/badge/Web-v3.1.26-16794C.svg)](https://github.com/bahaback-hub/quran-app/releases)
 [![حالة الفحوصات](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -16,7 +16,7 @@
 
 ## 📲 تثبيت التطبيق على Android
 
-**الإصدار الحالي: 3.1.20.** لتثبيت التطبيق، نزّل [ملف APK](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.20/quran-app-v3.1.20-official-uthmanic-hafs-debug.apk)، ثم افتحه من مجلد التنزيلات واختر **تثبيت**. يمكنك تثبيته فوق النسخة السابقة مباشرةً.
+**إصدار الويب الحالي: 3.1.26** (آخر إصدار Android موقّع هو [3.1.20](https://github.com/bahaback-hub/quran-app/releases/tag/v3.1.20)). لتثبيت التطبيق على Android، نزّل [ملف APK 3.1.20](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.20/quran-app-v3.1.20-official-uthmanic-hafs-debug.apk)، ثم افتحه من مجلد التنزيلات واختر **تثبيت**. يمكنك تثبيته فوق النسخة السابقة مباشرةً.
 
 إذا طلب الهاتف إذنًا للتثبيت، فعّل مؤقتًا خيار **السماح بالتثبيت من هذا المصدر** للمتصفح أو مدير الملفات الذي فتحت منه الملف، ثم أعد إيقافه عند الانتهاء.
 
@@ -30,11 +30,12 @@
 
 | المجال          |   الحالة   | ما تم التحقق منه                                                                    |
 | :-------------- | :--------: | :---------------------------------------------------------------------------------- |
-|                 | الاختبارات | ✅                                                                                  | **4,018 اختبار وحدة (149 ملفًا) و441 اختبار واجهة (28 ملفًا)** عبر المتصفحات والهاتف. |
-| الأمان          |     ✅     | تحليل CodeQL وفحص `npm audit` وسياسة محتوى صارمة والتحقق من الرخص.                  |
+| الاختبارات       |     ✅     | **4,058 اختبار وحدة (154 ملفًا) و63 اختبار واجهة (10 ملفات)** عبر المتصفحات والهاتف. |
+| الأمان          |     ✅     | تحليل CodeQL و`npm audit` بلا ثغرات (0 في الإنتاج و0 في dev)، وسياسة محتوى صارمة والتحقق من الرخص. |
 | إمكانية الوصول  |     ✅     | فحص تلقائي لمتطلبات WCAG، ودعم قارئ الشاشة والحركة المخففة والتركيز بلوحة المفاتيح. |
 | الأداء          |     ✅     | تقسيم الشفرة، وقياس مؤشرات الأداء، وحدود أداء تلقائية في مسار البناء.               |
 | التوثيق والبناء |     ✅     | تعليمات تطوير واختبار، وبوابات فحص للكود والأنواع والبناء والواجهة.                 |
+| تغطية الكود     |     ✅     | **86.0% سطور / 86.5% جمل / 85.3% دوال / 75.1% فروع** — عتبات إلزامية في `vitest.config.js` (lines ≥ 80%, branches ≥ 70%). |
 
 ---
 

@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security & Quality Gates (v3.1.27 pre-release)
+- **Vitest upgraded from 4.1.7 to 5.0.2** to eliminate the moderate-severity
+  path-traversal advisory in `@vitest/mocker` (GHSA-82fw-gwwq-j7x9).
+  `npm audit` now reports **0 vulnerabilities** across production and dev deps.
+- **Coverage thresholds enforced in `vitest.config.js`** (lines ≥ 80%,
+  branches ≥ 70%, functions ≥ 70%, statements ≥ 80%). Previously the CI only
+  checked the 80% lines gate via `coverage-summary.json`; now any regression
+  in branches or functions also fails locally before push.
+- **`security.yml` tightened**: production deps are now audited at
+  `--audit-level=moderate` (was `high`), so a moderate advisory in a prod
+  dependency is a hard CI failure, not just informational.
+- **6 test files migrated to `Object.defineProperty(globalThis, ...)`**
+  because Vitest 5 makes `globalThis.localStorage` and `globalThis.indexedDB`
+  read-only getters on the jsdom window (matches real browser semantics).
+- **README updated** to reflect 4,058 unit tests (154 files) + 63 E2E tests
+  (10 files), 0 audit vulnerabilities, and the new coverage row in the
+  quality table.
+
 ## [3.1.26] (2026-09-26) — صيانة ما بعد الاختبار الميداني على جهاز حقيقي
 
 اختُبر الإصدار 3.1.20 المنشور على هاتف أندرويد 16 فعلياً، وظهرت أربعة أعطال حقيقية

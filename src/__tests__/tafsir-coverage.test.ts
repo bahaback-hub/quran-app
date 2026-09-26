@@ -64,18 +64,22 @@ vi.mock('../api-client.js', () => ({
 const localStorageStore: Record<string, string> = {};
 beforeEach(() => {
   Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]);
-  globalThis.localStorage = {
-    getItem: (key: string) => (localStorageStore[key] === undefined ? null : localStorageStore[key]),
-    setItem: (key: string, val: string) => {
-      localStorageStore[key] = String(val);
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: {
+      getItem: (key: string) => (localStorageStore[key] === undefined ? null : localStorageStore[key]),
+      setItem: (key: string, val: string) => {
+        localStorageStore[key] = String(val);
+      },
+      removeItem: (key: string) => {
+        delete localStorageStore[key];
+      },
+      clear: () => {
+        Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]);
+      },
     },
-    removeItem: (key: string) => {
-      delete localStorageStore[key];
-    },
-    clear: () => {
-      Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]);
-    },
-  } as Storage;
+    configurable: true,
+    writable: true,
+  });
 });
 
 // Mock IDB

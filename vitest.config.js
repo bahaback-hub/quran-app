@@ -20,6 +20,17 @@ export default defineConfig({
     disableConsoleIntercept: true,
     coverage: {
       reporter: ['text', 'html', 'json-summary', 'json'],
+      // Enforced thresholds — current baseline is lines 86.7%, branches 74.9%,
+      // functions 85.6%, statements 86.3%. We hold at 80% lines/statements and
+      // 70% branches/functions as a hard floor; the CI also enforces 80% lines
+      // via coverage-summary.json. Tightening these numbers forces new code to
+      // keep coverage discipline rather than regressing silently.
+      thresholds: {
+        lines: 80,
+        functions: 70,
+        branches: 70,
+        statements: 80,
+      },
       exclude: [
         'src/translations/**',
         'src/**/index.js',

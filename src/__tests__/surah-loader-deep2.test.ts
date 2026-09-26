@@ -23,18 +23,22 @@ import { storage } from '../storage.js';
 const store: Record<string, string> = {};
 beforeEach(() => {
   Object.keys(store).forEach((k) => delete store[k]);
-  globalThis.localStorage = {
-    getItem: (key: string) => (store[key] === undefined ? null : store[key]),
-    setItem: (key: string, val: string) => {
-      store[key] = String(val);
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: {
+      getItem: (key: string) => (store[key] === undefined ? null : store[key]),
+      setItem: (key: string, val: string) => {
+        store[key] = String(val);
+      },
+      removeItem: (key: string) => {
+        delete store[key];
+      },
+      clear: () => {
+        Object.keys(store).forEach((k) => delete store[k]);
+      },
     },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-    clear: () => {
-      Object.keys(store).forEach((k) => delete store[k]);
-    },
-  } as Storage;
+    configurable: true,
+    writable: true,
+  });
 });
 
 vi.mock('../features/audio/audio.js', () => ({
