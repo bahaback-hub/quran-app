@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
     "src/main.ts",
     "src/features/prayer/prayer-local.ts",
@@ -20,7 +20,6 @@
     "scripts/**/*.mjs"
   ],
   "project": ["src/**/*.ts", "scripts/**/*.mjs"],
-  "ignoreBinaries": ["license-checker", "AGPL-3.0", "GPL-2.0"],
   "ignoreDependencies": [
     "@typescript-eslint/eslint-plugin",
     "@typescript-eslint/parser",
