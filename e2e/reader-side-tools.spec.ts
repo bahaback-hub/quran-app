@@ -2,15 +2,23 @@
  * E2E Tests — Reader Side Rail Layout.
  *
  * The rail holds six rows (tafsir, adhkar, prayer bar, hifz room, qibla,
- * favourites). When it is taller than the viewport, the tail of the rail falls
- * off the bottom with no way to scroll to it — verified on a real 1080x2392
- * phone in landscape, where qibla/favourites/hifz reported zero-size boxes.
+ * favourites). When it is taller than the space below its anchor, the tail of
+ * the rail falls off the bottom with no way to scroll to it — verified on a
+ * real 1080x2392 phone in landscape, where qibla/favourites/hifz reported
+ * zero-size boxes and could not be tapped.
  *
- * The first attempt fixed this with a `max-height: 700px` media query, which
- * passed in every desktop browser and still did nothing on the device: the
- * WebView reports a CSS viewport much taller than its pixel count suggests, so
- * the query never matched. Hence the range below — the rail has to fit at any
- * height, not just the ones a browser happens to report.
+ * Two earlier attempts both passed in a desktop browser and did nothing on the
+ * device:
+ *   1. a `max-height: 700px` media query — the WebView's CSS viewport does not
+ *      match what its pixel count suggests, so the query never fired;
+ *   2. a viewport-agnostic flex fix on the *desktop* rail rules — but on a
+ *      phone the layout is a different set of rules, top-anchored below the
+ *      header with fixed-height rows, and the desktop test viewport (900px
+ *      wide) never entered that branch.
+ *
+ * So the viewports below are deliberately phone-width, which is the branch that
+ * actually runs on a handset, and several heights, because the phone reports a
+ * CSS viewport that is neither its width nor its height in pixels.
  *
  * Nothing else guards this: the CSS is static, so only a rendered layout
  * assertion catches a rail that no longer fits.
@@ -20,8 +28,15 @@ import { test, expect } from './fixtures/mock-network';
 
 /** Upright phone. */
 const PORTRAIT_PHONE = { width: 393, height: 851 };
-/** Sideways phone, at the several CSS heights a WebView might report. */
-const LANDSCAPE_HEIGHTS = [393, 560, 750, 900] as const;
+/**
+ * Sideways phone at the several CSS heights a WebView might report. Width stays
+ * under 760px so the phone layout branch is the one under test.
+ */
+const LANDSCAPE_PHONES = [
+  { width: 700, height: 393 },
+  { width: 700, height: 560 },
+  { width: 700, height: 750 },
+] as const;
 
 const RAIL_TOOLS = [
   '#tafsirCurtainHandle',
@@ -62,18 +77,15 @@ test.describe('reader side rail', () => {
     await expect(page.locator('#readerSideTools')).toBeAttached();
     // The hifz room is wired up asynchronously, so wait for the full set before
     // measuring — otherwise a slow run reports a missing tool as a layout fault.
-    await page.waitForFunction(
-      (selectors) => selectors.every((s) => document.querySelector(s) !== null),
-      RAIL_TOOLS,
-      { timeout: 20_000 },
-    );
+    await page.waitForFunction((selectors) => selectors.every((s) => document.querySelector(s) !== null), RAIL_TOOLS, {
+      timeout: 20_000,
+    });
   });
 
   const viewports: Array<[string, { width: number; height: number }]> = [
     ['portrait phone', PORTRAIT_PHONE],
-    ...LANDSCAPE_HEIGHTS.map(
-      (h) =>
-        [`landscape phone at ${h}px tall`, { width: 900, height: h }] as [string, { width: number; height: number }],
+    ...LANDSCAPE_PHONES.map(
+      (v) => [`landscape phone ${v.width}x${v.height}`, v] as [string, { width: number; height: number }],
     ),
   ];
 
@@ -99,19 +111,25 @@ test.describe('reader side rail', () => {
     });
   }
 
-  test('the rail itself never exceeds the viewport height', async ({ page }) => {
-    for (const height of LANDSCAPE_HEIGHTS) {
-      await page.setViewportSize({ width: 900, height });
+  test('the rail itself never exceeds the space below its anchor', async ({ page }) => {
+    for (const viewport of LANDSCAPE_PHONES) {
+      await page.setViewportSize(viewport);
       await page.waitForTimeout(300);
 
-      const railHeight = await page.evaluate(() => {
-        const rail = document.querySelector('#readerSideTools');
-        return rail ? rail.getBoundingClientRect().height : Number.POSITIVE_INFINITY;
+      const rail = await page.evaluate(() => {
+        const el = document.querySelector('#readerSideTools');
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return { top: r.top, height: r.height, bottom: r.bottom };
       });
 
-      // Rows that shrink to fit must together stay under the viewport, otherwise
-      // the tail of the rail silently disappears.
-      expect(railHeight, `rail overflows a ${height}px-tall viewport`).toBeLessThanOrEqual(height);
+      expect(rail, 'rail must exist').not.toBeNull();
+      // Rows that shrink to fit must together stay inside the viewport,
+      // otherwise the tail of the rail silently disappears.
+      expect(rail!.bottom, `rail overflows a ${viewport.height}px-tall viewport`).toBeLessThanOrEqual(
+        viewport.height + 1,
+      );
+      expect(rail!.top, 'rail must not start above the viewport').toBeGreaterThanOrEqual(-1);
     }
   });
 });
