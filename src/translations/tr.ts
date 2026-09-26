@@ -281,6 +281,9 @@ export default {
   },
   tafsir_loading: 'Tefsir yükleniyor...',
   tafsir_error: 'Tefsir yükleme hatası',
+  azan_enable: 'Ezan uyarısı:',
+  azan_fajr: 'Fajr ezanı:',
+  tafsir_no_ayah: '📖 Tefsiri okumak için bir sure ve ayet seçin',
   no_tafsir_available: 'Tefsir mevcut değil',
 
   // === Şehirler ===

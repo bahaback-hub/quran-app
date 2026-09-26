@@ -262,6 +262,9 @@ export default {
   },
   tafsir_loading: 'جاري تحميل التفسير...',
   tafsir_error: 'خطأ في تحميل التفسير',
+  azan_enable: 'تنبيه الأذان:',
+  azan_fajr: 'أذان الفجر:',
+  tafsir_no_ayah: '📖 اختر سورة وآية لعرض التفسير',
   no_tafsir_available: 'لا يوجد تفسير متاح',
 
   // === المدن وطرق الحساب ===

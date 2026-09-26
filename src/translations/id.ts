@@ -281,6 +281,9 @@ export default {
   },
   tafsir_loading: 'Memuat tafsir...',
   tafsir_error: 'Kesalahan memuat tafsir',
+  azan_enable: 'Peringatan adzan:',
+  azan_fajr: 'Adzan Subuh:',
+  tafsir_no_ayah: '📖 Pilih surah dan ayat untuk membaca tafsir',
   no_tafsir_available: 'Tafsir tidak tersedia',
 
   // === Kota ===

@@ -262,6 +262,9 @@ export default {
   },
   tafsir_loading: 'Chargement du tafsir…',
   tafsir_error: 'Erreur de chargement du tafsir',
+  azan_enable: 'Alerte adhan :',
+  azan_fajr: 'Adhan du Fajr :',
+  tafsir_no_ayah: '📖 Choisissez une sourate et un verset pour lire le tafsir',
   no_tafsir_available: 'Aucun tafsir disponible',
 
   // === Cities & Methods ===

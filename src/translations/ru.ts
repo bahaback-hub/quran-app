@@ -262,6 +262,9 @@ export default {
   },
   tafsir_loading: 'Загрузка тафсира...',
   tafsir_error: 'Ошибка загрузки тафсира',
+  azan_enable: 'Напоминание об азане:',
+  azan_fajr: 'Азан на Фаджре:',
+  tafsir_no_ayah: '📖 Выберите суру и аят, чтобы прочитать тафсир',
   no_tafsir_available: 'Та́фсир недоступен',
 
   // === Cities & Methods ===

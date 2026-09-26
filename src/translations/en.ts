@@ -262,6 +262,9 @@ export default {
   },
   tafsir_loading: 'Loading tafsir...',
   tafsir_error: 'Tafsir loading error',
+  azan_enable: 'Azan alert:',
+  azan_fajr: 'Fajr azan:',
+  tafsir_no_ayah: '📖 Pick a surah and ayah to read its tafsir',
   no_tafsir_available: 'No tafsir available',
 
   // === Cities & Methods ===

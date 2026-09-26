@@ -3,10 +3,18 @@
  * locale bundle.
  *
  * A missing key is not a crash — `__()` returns the key itself — so it renders
- * as raw English snake_case in the Arabic UI (this actually shipped once:
- * `mushaf_juz` in the mushaf page header). The i18n parity guard only compares
- * locales against each other, so it cannot catch a key that is missing from ALL
- * of them. This test closes that gap.
+ * as raw English snake_case in the Arabic UI. The i18n parity guard only
+ * compares locales against each other, so it cannot catch a key that is missing
+ * from ALL of them. This test closes that gap.
+ *
+ * Two reference styles are checked, because they fail the same way:
+ *   - `__('key')` / `__n('key')` call sites in TypeScript
+ *   - `data-i18n`, `data-i18n-aria-label`, `data-i18n-title` and
+ *     `data-i18n-placeholder` attributes in the HTML and template strings
+ *
+ * The attribute form was the blind spot: `mushaf_juz` shipped as a raw key
+ * through `__()`, then `azan_enable`, `azan_fajr` and `tafsir_no_ayah` shipped
+ * the same way through `data-i18n` because only call sites were being scanned.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -43,13 +51,35 @@ for (const file of collectFiles(SRC)) {
   }
 }
 
+// Declarative references: data-i18n / data-i18n-aria-label / data-i18n-title /
+// data-i18n-placeholder. These live in index.html and inside the template
+// strings under src/templates, and are applied by applyTranslations() rather
+// than by __(), so a call-site scan cannot see them.
+const declarativeKeys = new Map<string, string>();
+for (const file of [...collectFiles(SRC), join(process.cwd(), 'index.html')]) {
+  const source = readFileSync(file, 'utf8');
+  const rel = file.slice(process.cwd().length + 1).replace(/\\/g, '/');
+  for (const m of source.matchAll(/data-i18n(?:-[a-z]+)?="([A-Za-z0-9_]+)"/g)) {
+    const key = m[1] as string;
+    if (!declarativeKeys.has(key)) declarativeKeys.set(key, rel);
+  }
+}
+
+const allUsed = new Map<string, string>([...usedKeys, ...declarativeKeys]);
+
 describe('translation keys used in the UI', () => {
   it('parses a non-trivial number of static keys', () => {
     expect(usedKeys.size).toBeGreaterThan(100);
   });
 
+  it('parses a non-trivial number of declarative data-i18n keys', () => {
+    // If this drops, the attribute scan broke and the guard is silently blind
+    // to the whole template layer again.
+    expect(declarativeKeys.size).toBeGreaterThan(50);
+  });
+
   it('has a definition in the Arabic bundle for every statically used key', () => {
-    const missing = [...usedKeys.entries()]
+    const missing = [...allUsed.entries()]
       .filter(([key]) => !definedKeys.has(key))
       .map(([key, file]) => `  ${key}  (used in ${file})`);
     expect(missing, `Missing Arabic translations:\n${missing.join('\n')}`).toEqual([]);

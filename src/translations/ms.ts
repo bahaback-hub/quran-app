@@ -281,6 +281,9 @@ export default {
   },
   tafsir_loading: 'Memuatkan tafsir...',
   tafsir_error: 'Ralat memuatkan tafsir',
+  azan_enable: 'Peringatan azan:',
+  azan_fajr: 'Azan Subuh:',
+  tafsir_no_ayah: '📖 Pilih surah dan ayat untuk membaca tafsir',
   no_tafsir_available: 'Tiada tafsir tersedia',
 
   // === Bandar ===
