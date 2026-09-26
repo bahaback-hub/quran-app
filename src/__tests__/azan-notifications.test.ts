@@ -50,7 +50,9 @@ type Notification = {
 };
 
 function scheduledFrom(mock: typeof schedule): Notification[] {
-  const arg = mock.mock.calls.at(-1)?.[0] as { notifications: Notification[] };
+  const calls = mock.mock.calls;
+  const arg = (calls.length > 0 ? calls[calls.length - 1][0] : undefined) as
+    { notifications: Notification[] } | undefined;
   return arg?.notifications ?? [];
 }
 
