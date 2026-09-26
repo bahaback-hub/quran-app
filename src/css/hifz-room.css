@@ -1331,6 +1331,9 @@ body.hifz-room-active .hifz-room.is-open {
   top: 50%;
   left: 0;
   width: 78px;
+  /* Never taller than the viewport. Combined with the shrinkable rows below,
+     this is what keeps the last tools on screen — see the note further down. */
+  max-height: calc(100vh - 12px);
   margin: 0;
   padding: 0;
   display: flex;
@@ -1348,15 +1351,39 @@ body.hifz-room-active .hifz-room.is-open {
   -webkit-backdrop-filter: blur(14px) saturate(120%);
 }
 
+/* Short viewports: the rail must never be taller than the screen.
+ *
+ * A phone held sideways reported a CSS viewport far taller than its physical
+ * pixels suggest (the WebView applies its own page scale), so a
+ * `max-height: 700px` media query silently did not match and the fix never
+ * took effect on the real device - while passing in a desktop browser. Six
+ * fixed 72px rows also cannot fit a short screen, and `top: 50%` with
+ * `translateY(-50%)` cannot centre a rail taller than the viewport, so qibla,
+ * favourites and hifz room were laid out below the fold with no way to reach
+ * them.
+ *
+ * So this is deliberately not a media query. `flex: 0 1 72px` lets the rows
+ * shrink only when the container is actually height-constrained, which the
+ * `max-height` above guarantees, and `min-height` keeps every row a usable
+ * touch target. It adapts at whatever CSS height the device reports.
+ *
+ * No `overflow: auto` here: the prayer panel pops out of this rail and would
+ * be clipped. */
+#readerSideTools > * {
+  flex: 0 1 72px;
+  min-height: 40px;
+}
+
 #readerSideTools .reader-side-tool,
 #readerSideTools .hifz-room-toggle,
 #readerSideTools .tafsir-curtain-handle {
   box-sizing: border-box;
-  flex: 0 0 72px;
+  flex: 0 1 72px;
   width: 78px;
   min-width: 78px;
-  min-height: 72px;
-  height: 72px;
+  min-height: 40px;
+  max-height: 72px;
+  height: auto;
   margin: 0;
   padding: 8px 5px;
   display: flex;
@@ -1679,6 +1706,9 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
     overflow: visible;
     transform: none;
     border-radius: 0 13px 13px 0;
+    /* The rail hangs below the header rather than being centred, so its usable
+       height is only what is left under that offset. */
+    max-height: calc(100vh - 172px);
   }
 
   #readerSideTools .reader-side-tool,
@@ -1714,6 +1744,50 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
   #readerSideTools .reader-side-prayer .prayer-bar-details {
     left: 72px;
     width: min(310px, calc(100vw - 82px));
+  }
+
+  /* A sideways phone is barely 400 CSS px tall, and the 164px anchor above
+     leaves too little room for six 60px rows: the tail of the rail (qibla,
+     favourites, hifz room) was laid out below the fold with no way to scroll to
+     it — verified on a real 1080x2392 device, where those three reported
+     zero-size boxes and could not be tapped.
+
+     This block MUST stay *after* the 60px row rules above. It has identical
+     specificity, so source order is the only thing that makes the compact
+     height win; an earlier attempt placed it above them and it silently did
+     nothing. Six 48px rows from a 72px anchor clear even a 393px viewport, and
+     a fixed height is deterministic where relying on flex-shrink is not
+     (several rules set their own min-heights). */
+  @media (max-height: 620px) {
+    #readerSideTools {
+      top: max(56px, calc(env(safe-area-inset-top, 0px) + 40px));
+      /* Must subtract the same inset the anchor adds, or the rail's own box
+         starts below the space its max-height assumes and the last row hangs
+         off the bottom edge. */
+      max-height: calc(100vh - 56px - env(safe-area-inset-top, 0px) - 6px);
+    }
+    #readerSideTools .reader-side-tool,
+    #readerSideTools .hifz-room-toggle,
+    #readerSideTools .tafsir-curtain-handle,
+    #readerSideTools .reader-side-prayer .prayer-bar-toggle {
+      flex: 0 0 44px;
+      min-height: 44px;
+      max-height: 44px;
+      height: 44px;
+      padding: 3px 2px;
+      gap: 1px;
+    }
+    #readerSideTools .reader-side-tool-icon,
+    #readerSideTools .reader-side-tool svg {
+      width: 15px;
+      height: 15px;
+      font-size: 15px;
+    }
+    #readerSideTools .reader-side-tool-label,
+    #readerSideTools .hifz-room-toggle [data-hifz-toggle-label] {
+      font-size: 7px;
+      line-height: 1;
+    }
   }
 
   #readerSideTools .reader-side-prayer .prayer-bar-summary strong,

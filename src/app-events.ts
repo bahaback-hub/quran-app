@@ -352,18 +352,28 @@ function bindMushafDataPackEvents(): void {
 
   downloadButton.addEventListener('click', async () => {
     setBusy(true);
+    let failed = false;
     try {
       await downloadMushafDataPack((progress) => {
         status.textContent = `${__('mushaf_data_pack_downloading')} ${progress.completed}/${progress.total}`;
       });
       status.textContent = __('mushaf_data_pack_verified');
       showToast(__('mushaf_data_pack_verified'), 'success');
-    } catch {
+    } catch (err: unknown) {
+      // Surface the reason. The download aborts on the first failed file (a
+      // stale manifest digest, a CDN HTTP error, a per-file hash mismatch), and
+      // without this the user only ever saw the button spring back with no clue.
+      warnRecoverable('mushaf data pack download failed', err);
+      failed = true;
       status.textContent = __('mushaf_data_pack_failed');
       showToast(__('mushaf_data_pack_failed'), 'error');
     } finally {
       setBusy(false);
-      await refresh();
+      // refresh() rewrites the status from stored state, so only let it run on
+      // success — otherwise it erases the failure message set just above.
+      if (!failed) {
+        await refresh();
+      }
     }
   });
 

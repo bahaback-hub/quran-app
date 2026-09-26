@@ -61,7 +61,7 @@ const ACTIVE_PACK_KEY = 'active-pack';
 const MANIFEST_URL = `${import.meta.env.BASE_URL}data/mushaf-pack/qcf4-hafs-layout-v1.manifest.json`;
 // This value is deliberately compiled into the app. A manifest that is changed
 // after the app release is rejected instead of becoming a new trust anchor.
-const EXPECTED_MANIFEST_SHA256 = 'f35eac867c1da0064076dca6676096ada8b1a8de4da363b405e14c7880d82231';
+const EXPECTED_MANIFEST_SHA256 = '4ece0affcfe1b8267ca143a95bddaf374b2b7db2f0f9f0ac8c9cf3c82d771c19';
 const EXPECTED_SOURCE_COMMIT = '5130511027e769f0a8f4eeb7f00f46bde3788d60';
 const MAX_CONCURRENT_DOWNLOADS = 6;
 
