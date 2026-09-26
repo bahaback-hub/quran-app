@@ -218,6 +218,31 @@ describe('manageFocusOnPanelOpen', () => {
     manageFocusOnPanelOpen(panel, trigger);
     expect(trigger.id).not.toBe('');
   });
+
+  it('should not steal focus that moved elsewhere before the frame ran', async () => {
+    const elsewhere = document.createElement('button');
+    document.body.appendChild(elsewhere);
+
+    manageFocusOnPanelOpen(panel, trigger);
+    // The user (or a TV remote) reaches another control before the deferred
+    // focus move lands — a late frame must not pull focus back into the panel.
+    elsewhere.focus();
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+
+    expect(document.activeElement).toBe(elsewhere);
+    elsewhere.remove();
+  });
+
+  it('should still move focus into the panel when focus has not moved', async () => {
+    const inside = document.createElement('button');
+    panel.appendChild(inside);
+    trigger.focus();
+
+    manageFocusOnPanelOpen(panel, trigger);
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+
+    expect(document.activeElement).toBe(inside);
+  });
 });
 
 describe('restoreFocusOnPanelClose', () => {
@@ -255,6 +280,33 @@ describe('restoreFocusOnPanelClose', () => {
   it('should find trigger by ID from panel dataset', () => {
     panel.dataset['a11yTriggerId'] = 'restoreTrigger';
     restoreFocusOnPanelClose(null, panel);
+  });
+
+  it('should not pull focus back once it has left the closing panel', async () => {
+    const inside = document.createElement('button');
+    panel.appendChild(inside);
+    const elsewhere = document.createElement('button');
+    document.body.appendChild(elsewhere);
+
+    inside.focus();
+    restoreFocusOnPanelClose(trigger, panel);
+    // Focus moved on while the close frame was pending.
+    elsewhere.focus();
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+
+    expect(document.activeElement).toBe(elsewhere);
+    elsewhere.remove();
+  });
+
+  it('should return focus to the trigger while focus is still inside', async () => {
+    const inside = document.createElement('button');
+    panel.appendChild(inside);
+    inside.focus();
+
+    restoreFocusOnPanelClose(trigger, panel);
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+
+    expect(document.activeElement).toBe(trigger);
   });
 });
 

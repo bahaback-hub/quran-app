@@ -7,6 +7,7 @@
  */
 
 import { state } from './state.js';
+import { warnRecoverable } from './error-boundary.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import {
@@ -85,8 +86,8 @@ export function initNavigation(): void {
   dom.viewSurahBtn?.addEventListener('click', () => {
     import('./features/presentation/presentation.js')
       .then((m) => m.closePresentation())
-      .catch(() => {
-        /* noop */
+      .catch((err) => {
+        warnRecoverable('presentation.closePresentation (view mode) failed', err);
       });
     if (state.mushafMode) {
       import('./features/mushaf/mushaf.js').then((m) => m.toggleMushafMode());
@@ -111,8 +112,8 @@ export function initNavigation(): void {
   dom.viewMushafBtn?.addEventListener('click', () => {
     import('./features/presentation/presentation.js')
       .then((m) => m.closePresentation())
-      .catch(() => {
-        /* noop */
+      .catch((err) => {
+        warnRecoverable('presentation.closePresentation (mushaf view) failed', err);
       });
     import('./features/mushaf/mushaf.js').then((m) => m.toggleMushafMode());
   });

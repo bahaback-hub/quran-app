@@ -4,11 +4,46 @@
  * explicit user action, without changing the reader layout or Android.
  */
 
-import { __, toLatinDigits } from './i18n.js';
+import {
+  getDownloadButtons,
+  hydrateDownloadedSessionAudio,
+  resolveSessionAudioUrls,
+  setSessionDownloadBusy,
+  setSessionDownloadStatus,
+  setSessionReadyStatus,
+} from './hifz-room-download.js';
+
+import {
+  fillAyahOptions,
+  fillReciterOptions,
+  fillSpeedOptions,
+  fillSurahOptions,
+  getControls,
+  selectSurahFromSearch,
+  syncSurahSearch,
+} from './hifz-room-form.js';
+
+import { toLatinDigits } from './i18n.js';
+import {
+  currentPlanAyah,
+  getAyahCount,
+  getCurrentAyah,
+  getDefaultPlan,
+  getPlanAyahs,
+  getSavedSessionDownload,
+  getSurahName,
+  label,
+  normalizePlan,
+  normalizeRepeatCount,
+  normalizeReviewAt,
+  savePlan,
+  saveSessionDownload,
+  type HifzPlan,
+  type ReviewChoice,
+} from './hifz-room-plan.js';
 import { playCurrentAyah, togglePlayPause } from './features/audio/audio.js';
 import { cacheSurahAudio, isSurahCached } from './features/audio/audio-cache.js';
-import { getReciterDisplayName, RECITERS } from './reciters.js';
-import { highlightCurrentAyah, loadAudioUrlsForSession, loadSurah } from './surah-loader.js';
+import { highlightCurrentAyah, loadSurah } from './surah-loader.js';
 import { state } from './state.js';
 import { storage } from './storage.js';
 import { closeTafsir } from './tafsir.js';
@@ -21,39 +56,7 @@ import { hideQiblaCompass, togglePrayerBar } from './features/prayer/prayer.js';
 const ROOM_ID = 'hifzRoom';
 const TOGGLE_ID = 'hifzRoomToggle';
 const STAGE_ID = 'hifzRoomStage';
-const PLAN_STORAGE_KEY = 'hifz_plan_v1';
 const CURTAIN_REVEAL_STORAGE_KEY = 'hifz_curtain_reveal';
-const DOWNLOAD_STORAGE_KEY = 'hifz_session_downloads_v1';
-const PLAYBACK_SPEEDS = [0.75, 1, 1.25, 1.5];
-
-type ReviewChoice = 'today' | 'tomorrow' | 'later' | 'custom';
-
-interface HifzPlan {
-  version: 1;
-  surah: number;
-  from: number;
-  to: number;
-  times: number;
-  review: ReviewChoice;
-  reviewAt?: string;
-  reciter: string;
-  speed: number;
-  updatedAt: number;
-}
-
-interface HifzRoomControls {
-  surah: HTMLSelectElement;
-  surahSearch: HTMLInputElement;
-  from: HTMLSelectElement;
-  to: HTMLSelectElement;
-  repeat: HTMLInputElement;
-  reviewAt: HTMLInputElement;
-  summary: HTMLElement;
-  status: HTMLElement;
-  start: HTMLButtonElement;
-  download: HTMLButtonElement;
-  downloadStatus: HTMLElement;
-}
 
 interface FocusedSessionControls {
   stage: HTMLElement;
@@ -71,260 +74,11 @@ interface FocusedSessionControls {
   end: HTMLButtonElement;
 }
 
-interface SessionDownloadRecord {
-  urls: string[];
-  downloadedAt: number;
-}
-
-function label(key: string, ...args: string[]): string {
-  return __(key, ...args);
-}
-
 function isEditableTarget(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLElement &&
     (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName))
   );
-}
-
-function getAyahCount(surah: number): number {
-  if (state.currentSurah === surah && state.surahData?.ayahs.length) {
-    return state.surahData.ayahs.length;
-  }
-  return state.surahList.find((item) => item.number === surah)?.numberOfAyahs || 1;
-}
-
-function getCurrentAyah(): number {
-  return state.surahData?.ayahs[state.currentAyahIndex]?.numberInSurah || Math.max(1, state.currentAyahIndex + 1);
-}
-
-function getSurahName(surah: number): string {
-  const item = state.surahList.find((entry) => entry.number === surah);
-  const isArabicInterface = document.documentElement.lang === 'ar' || !document.documentElement.lang;
-  const storedName = isArabicInterface ? item?.name : item?.englishName || item?.name;
-  if (storedName) {
-    return storedName;
-  }
-  if (state.currentSurah === surah && state.surahData?.name) {
-    return state.surahData.name;
-  }
-  const mainOption = (document.getElementById('surahSelect') as HTMLSelectElement | null)?.querySelector(
-    `option[value="${surah}"]`,
-  );
-  return mainOption?.textContent?.replace(/^\d+\.\s*/, '') || String(surah);
-}
-
-function normalizeRepeatCount(value: number): number {
-  return Number.isFinite(value) ? Math.min(100, Math.max(1, Math.trunc(value))) : 5;
-}
-
-function normalizeReviewAt(value?: string): string | undefined {
-  return value && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value) ? value : undefined;
-}
-
-function normalizePlan(
-  candidate: Omit<HifzPlan, 'updatedAt' | 'reciter' | 'speed'> &
-    Partial<Pick<HifzPlan, 'updatedAt' | 'reciter' | 'speed'>>,
-): HifzPlan {
-  const surah = Math.min(Math.max(1, candidate.surah), 114);
-  const count = getAyahCount(surah);
-  const from = Math.min(Math.max(1, candidate.from), count);
-  const to = Math.min(Math.max(from, candidate.to), count);
-  const reviewAt = normalizeReviewAt(candidate.reviewAt);
-  return {
-    version: 1,
-    surah,
-    from,
-    to,
-    times: normalizeRepeatCount(candidate.times),
-    review: reviewAt
-      ? 'custom'
-      : candidate.review === 'tomorrow' || candidate.review === 'later'
-        ? candidate.review
-        : 'today',
-    reviewAt,
-    reciter: RECITERS.some((reciter) => reciter.id === candidate.reciter) ? candidate.reciter! : state.currentReciter,
-    speed: PLAYBACK_SPEEDS.includes(candidate.speed || 1) ? candidate.speed || 1 : 1,
-    updatedAt: candidate.updatedAt || Date.now(),
-  };
-}
-
-function getDefaultPlan(): HifzPlan {
-  const stored = storage.get<HifzPlan>(PLAN_STORAGE_KEY);
-  if (
-    stored?.version === 1 &&
-    Number.isInteger(stored.surah) &&
-    Number.isInteger(stored.from) &&
-    Number.isInteger(stored.to)
-  ) {
-    return normalizePlan(stored);
-  }
-  const from = getCurrentAyah();
-  const savedSpeed = parseFloat(storage.get<string>('playback_speed') || '1');
-  return normalizePlan({
-    version: 1,
-    surah: state.currentSurah || 1,
-    from,
-    to: from + 4,
-    times: 5,
-    review: 'today',
-    reciter: state.currentReciter,
-    speed: PLAYBACK_SPEEDS.includes(savedSpeed) ? savedSpeed : 1,
-  });
-}
-
-function savePlan(plan: HifzPlan): void {
-  storage.set(PLAN_STORAGE_KEY, { ...plan, updatedAt: Date.now() });
-}
-
-function getControls(room: HTMLElement): HifzRoomControls | null {
-  const surah = room.querySelector<HTMLSelectElement>('#hifzRoomSurah');
-  const surahSearch = room.querySelector<HTMLInputElement>('#hifzRoomSurahSearch');
-  const from = room.querySelector<HTMLSelectElement>('#hifzRoomFrom');
-  const to = room.querySelector<HTMLSelectElement>('#hifzRoomTo');
-  const repeat = room.querySelector<HTMLInputElement>('#hifzRoomCustomRepeat');
-  const reviewAt = room.querySelector<HTMLInputElement>('#hifzRoomReviewAt');
-  const summary = room.querySelector<HTMLElement>('#hifzRoomSummary');
-  const status = room.querySelector<HTMLElement>('#hifzRoomStatus');
-  const start = room.querySelector<HTMLButtonElement>('#hifzRoomStart');
-  const download = room.querySelector<HTMLButtonElement>('#hifzRoomDownload');
-  const downloadStatus = room.querySelector<HTMLElement>('#hifzRoomDownloadStatus');
-  return surah &&
-    surahSearch &&
-    from &&
-    to &&
-    repeat &&
-    reviewAt &&
-    summary &&
-    status &&
-    start &&
-    download &&
-    downloadStatus
-    ? { surah, surahSearch, from, to, repeat, reviewAt, summary, status, start, download, downloadStatus }
-    : null;
-}
-
-interface SurahEntry {
-  value: number;
-  label: string;
-}
-
-function getSurahEntries(selected: number): SurahEntry[] {
-  const entries = state.surahList.map((item) => ({ value: item.number, label: getSurahName(item.number) }));
-  if (!entries.length) {
-    const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
-    entries.push(
-      ...(mainSelect
-        ? Array.from(mainSelect.options)
-            .map((option) => ({ value: parseInt(option.value, 10), label: option.textContent || option.value }))
-            .filter((option) => Number.isInteger(option.value) && option.value > 0)
-        : [{ value: selected, label: getSurahName(selected) }]),
-    );
-  }
-  if (!entries.some((entry) => entry.value === selected)) {
-    entries.push({ value: selected, label: getSurahName(selected) });
-  }
-  return entries;
-}
-
-function fillSurahOptions(select: HTMLSelectElement, selected: number): void {
-  const entries = getSurahEntries(selected);
-  select.replaceChildren(
-    ...entries.map((entry) => {
-      const option = document.createElement('option');
-      option.value = String(entry.value);
-      option.textContent = entry.label;
-      return option;
-    }),
-  );
-  select.value = String(selected);
-}
-
-function normalizeSurahSearch(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[\u064B-\u065F\u0670]/g, '')
-    .replace(/[أإآٱ]/g, 'ا')
-    .replace(/ى/g, 'ي')
-    .replace(/ة/g, 'ه')
-    .trim()
-    .toLocaleLowerCase();
-}
-
-function syncSurahSearch(room: HTMLElement, selected: number): void {
-  const controls = getControls(room);
-  const list = room.querySelector<HTMLDataListElement>('#hifzRoomSurahOptions');
-  if (!controls || !list) {
-    return;
-  }
-  const entries = getSurahEntries(selected);
-  list.replaceChildren(
-    ...entries.map((entry) => {
-      const option = document.createElement('option');
-      option.value = entry.label;
-      option.label = `${entry.value}. ${entry.label}`;
-      return option;
-    }),
-  );
-  controls.surahSearch.value = entries.find((entry) => entry.value === selected)?.label || getSurahName(selected);
-}
-
-function selectSurahFromSearch(room: HTMLElement): void {
-  const controls = getControls(room);
-  if (!controls) {
-    return;
-  }
-  const query = normalizeSurahSearch(controls.surahSearch.value);
-  if (!query) {
-    return;
-  }
-  const matches = getSurahEntries(parseInt(controls.surah.value, 10)).filter((entry) => {
-    const normalizedName = normalizeSurahSearch(entry.label);
-    return normalizedName === query || normalizedName.startsWith(query) || String(entry.value) === query;
-  });
-  const exact = matches.find((entry) => normalizeSurahSearch(entry.label) === query || String(entry.value) === query);
-  const selected = exact || (matches.length === 1 ? matches[0] : null);
-  if (!selected || controls.surah.value === String(selected.value)) {
-    return;
-  }
-  controls.surah.value = String(selected.value);
-  controls.surah.dispatchEvent(new Event('change', { bubbles: true }));
-}
-
-function fillAyahOptions(select: HTMLSelectElement, count: number, selected: number): void {
-  select.replaceChildren(
-    ...Array.from({ length: count }, (_, index) => {
-      const option = document.createElement('option');
-      option.value = String(index + 1);
-      option.textContent = String(index + 1);
-      return option;
-    }),
-  );
-  select.value = String(Math.min(Math.max(1, selected), count));
-}
-
-function fillReciterOptions(select: HTMLSelectElement, selected: string): void {
-  select.replaceChildren(
-    ...RECITERS.map((reciter) => {
-      const option = document.createElement('option');
-      option.value = reciter.id;
-      option.textContent = getReciterDisplayName(reciter);
-      return option;
-    }),
-  );
-  select.value = RECITERS.some((reciter) => reciter.id === selected) ? selected : RECITERS[0]!.id;
-}
-
-function fillSpeedOptions(select: HTMLSelectElement, selected: number): void {
-  select.replaceChildren(
-    ...PLAYBACK_SPEEDS.map((speed) => {
-      const option = document.createElement('option');
-      option.value = String(speed);
-      option.textContent = `${speed}×`;
-      return option;
-    }),
-  );
-  select.value = String(PLAYBACK_SPEEDS.includes(selected) ? selected : 1);
 }
 
 function getFocusedControls(room: HTMLElement): FocusedSessionControls | null {
@@ -426,69 +180,6 @@ function readSessionPlan(room: HTMLElement): HifzPlan | null {
   });
 }
 
-function sessionDownloadKey(plan: HifzPlan): string {
-  return `${plan.surah}:${plan.from}:${plan.to}:${plan.reciter}`;
-}
-
-function getSavedSessionDownload(plan: HifzPlan): SessionDownloadRecord | null {
-  const records = storage.get<Record<string, SessionDownloadRecord>>(DOWNLOAD_STORAGE_KEY);
-  const record = records?.[sessionDownloadKey(plan)];
-  return record && Array.isArray(record.urls) && record.urls.length === plan.to - plan.from + 1 ? record : null;
-}
-
-function saveSessionDownload(plan: HifzPlan, urls: string[]): void {
-  const records = storage.get<Record<string, SessionDownloadRecord>>(DOWNLOAD_STORAGE_KEY) || {};
-  records[sessionDownloadKey(plan)] = { urls, downloadedAt: Date.now() };
-  storage.set(DOWNLOAD_STORAGE_KEY, records);
-}
-
-function getDownloadButtons(room: HTMLElement): HTMLButtonElement[] {
-  return [
-    room.querySelector<HTMLButtonElement>('#hifzRoomDownload'),
-    room.querySelector<HTMLButtonElement>('#hifzRoomFocusDownload'),
-  ].filter((button): button is HTMLButtonElement => button !== null);
-}
-
-function setSessionDownloadStatus(room: HTMLElement, key: string, stateName = 'idle', ...args: string[]): void {
-  room.querySelectorAll<HTMLElement>('#hifzRoomDownloadStatus, #hifzRoomFocusDownloadStatus').forEach((status) => {
-    status.textContent = label(key, ...args);
-    status.dataset['state'] = stateName;
-  });
-}
-
-function setSessionReadyStatus(room: HTMLElement, plan: HifzPlan, alreadySaved = false): void {
-  const primary = label(alreadySaved ? 'hifz_room_download_cached' : 'hifz_room_download_ready');
-  const detail = label('hifz_room_download_ready_detail', getSurahName(plan.surah), String(plan.from), String(plan.to));
-  setSessionDownloadStatus(room, `${primary} ${detail}`, 'ready');
-}
-
-function setSessionDownloadBusy(room: HTMLElement, busy: boolean): void {
-  getDownloadButtons(room).forEach((button) => {
-    button.disabled = busy;
-    button.textContent = label(busy ? 'hifz_room_download_working' : 'hifz_room_download');
-  });
-}
-
-async function resolveSessionAudioUrls(plan: HifzPlan): Promise<string[]> {
-  const expectedCount = plan.to - plan.from + 1;
-  if (
-    state.currentSurah === plan.surah &&
-    state.currentReciter === plan.reciter &&
-    state.ayahsAudios.length >= plan.to
-  ) {
-    const currentUrls = state.ayahsAudios.slice(plan.from - 1, plan.to).filter((url): url is string => Boolean(url));
-    if (currentUrls.length === expectedCount) {
-      return currentUrls;
-    }
-  }
-  const allUrls = await loadAudioUrlsForSession(plan.surah, plan.reciter, getAyahCount(plan.surah));
-  const rangeUrls = allUrls.slice(plan.from - 1, plan.to).filter((url): url is string => Boolean(url));
-  if (rangeUrls.length !== expectedCount) {
-    throw new Error('Session audio URLs are unavailable');
-  }
-  return rangeUrls;
-}
-
 async function refreshSessionDownloadStatus(room: HTMLElement, plan = readSessionPlan(room)): Promise<void> {
   if (!plan) {
     return;
@@ -504,18 +195,6 @@ async function refreshSessionDownloadStatus(room: HTMLElement, plan = readSessio
     return;
   }
   setSessionReadyStatus(room, plan, true);
-}
-
-async function hydrateDownloadedSessionAudio(plan: HifzPlan): Promise<void> {
-  const record = getSavedSessionDownload(plan);
-  if (!record || !state.surahData || state.currentSurah !== plan.surah || !(await isSurahCached(record.urls))) {
-    return;
-  }
-  const hydrated = Array.from({ length: state.surahData.ayahs.length }, (_, index) => state.ayahsAudios[index] || '');
-  record.urls.forEach((url, index) => {
-    hydrated[plan.from - 1 + index] = url;
-  });
-  state.ayahsAudios = hydrated;
 }
 
 async function downloadSessionAudio(room: HTMLElement): Promise<void> {
@@ -546,21 +225,6 @@ async function downloadSessionAudio(room: HTMLElement): Promise<void> {
   } finally {
     setSessionDownloadBusy(room, false);
   }
-}
-
-function getPlanAyahs(plan: HifzPlan): { numberInSurah: number; text: string }[] {
-  if (state.currentSurah !== plan.surah || !state.surahData) {
-    return [];
-  }
-  return state.surahData.ayahs.filter((ayah) => ayah.numberInSurah >= plan.from && ayah.numberInSurah <= plan.to);
-}
-
-function currentPlanAyah(plan: HifzPlan): { numberInSurah: number; text: string } | null {
-  const ayahs = getPlanAyahs(plan);
-  if (!ayahs.length) {
-    return null;
-  }
-  return ayahs.find((ayah) => ayah.numberInSurah === getCurrentAyah()) || ayahs[0]!;
 }
 
 function updateFocusedSession(room: HTMLElement, plan: HifzPlan): void {

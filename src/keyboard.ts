@@ -7,6 +7,7 @@
  */
 
 import { state } from './state.js';
+import { warnRecoverable } from './error-boundary.js';
 import { dom } from './dom.js';
 import {
   togglePlayPause,
@@ -299,14 +300,14 @@ export function initKeyboardShortcuts(): void {
         if (state.presentationMode) {
           import('./features/presentation/presentation.js')
             .then((m: { closePresentation: () => void }) => m.closePresentation())
-            .catch(() => {
-              /* noop */
+            .catch((err) => {
+              warnRecoverable('presentation.closePresentation (keyboard shortcut) failed', err);
             });
         } else {
           import('./features/presentation/presentation.js')
             .then((m: { openPresentation: () => void }) => m.openPresentation())
-            .catch(() => {
-              /* noop */
+            .catch((err) => {
+              warnRecoverable('presentation.openPresentation (keyboard shortcut) failed', err);
             });
         }
         break;

@@ -58,6 +58,15 @@ let _recoveryVisible = false;
 /* ===================== LOGGING ===================== */
 
 /**
+ * Log a recoverable, best-effort failure without interrupting the user.
+ * Use for background tasks where the failure must be visible in diagnostics
+ * but should never surface a toast or block the flow.
+ */
+export function warnRecoverable(context: string, err?: unknown): void {
+  console.warn(`[Recoverable] ${context}`, err ?? '');
+}
+
+/**
  * Push a structured error entry and trim old entries.
  */
 function logError(entry: Omit<ErrorLogEntry, 'timestamp'>): void {

@@ -262,6 +262,9 @@ export default {
   },
   tafsir_loading: 'Загрузка тафсира...',
   tafsir_error: 'Ошибка загрузки тафсира',
+  azan_enable: 'Напоминание об азане:',
+  azan_fajr: 'Азан на Фаджре:',
+  tafsir_no_ayah: '📖 Выберите суру и аят, чтобы прочитать тафсир',
   no_tafsir_available: 'Та́фсир недоступен',
 
   // === Cities & Methods ===
@@ -414,6 +417,18 @@ export default {
   mushaf_retry_reload: 'Повторить',
   mushaf_sources: 'Источники',
   mushaf_surah_info: 'Информация о суре',
+  save: 'Сохранить',
+  mushaf_page_info: 'Информация о странице',
+  mushaf_loading_page: 'Загрузка страницы',
+  surah_info_for: 'Информация о суре {0}',
+  qibla_direction: 'Направление Каблы',
+  select_hint: 'Выберите',
+  pray_fajr: 'Фаджр',
+  stats_hours_mins: '{0} ч {1} мин',
+  stats_mins: '{0} мин',
+  minutes_abbr: 'мин',
+  offline_mode: 'Офлайн-режим',
+  mushaf_juz: 'Джуза {0}',
   quran_db_loading: 'Загрузка базы данных Корана...',
 
   // === Qibla ===

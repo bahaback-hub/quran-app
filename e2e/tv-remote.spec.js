@@ -34,6 +34,43 @@ test.describe('TV remote control', () => {
     });
   }
 
+  /**
+   * Focus a control for an OK press and confirm focus really landed on it.
+   * The settings panel can take focus back while its close transition settles
+   * (focus then sits on a button inside the already-hidden panel), so re-focus
+   * until the intended control owns focus instead of pressing blind.
+   */
+  async function focusForOk(page, selector, id) {
+    await expect(async () => {
+      await page.locator(selector).evaluate((el) => el.focus());
+      await page.waitForTimeout(50);
+      const focused = await page.evaluate((expected) => document.activeElement?.id === expected, id);
+      expect(focused).toBe(true);
+    }).toPass({ timeout: 5000 });
+  }
+
+  /**
+   * Open the presentation overlay and wait until it can actually navigate.
+   * The overlay becomes visible immediately, but navigateAyah() returns early
+   * while state.surahData is still loading (src/features/presentation/
+   * presentation.ts:374), so pressing OK during that window is a silent no-op
+   * and the ayah counter never changes. Wait for a rendered ayah instead.
+   */
+  async function openPresentationReady(page) {
+    await focusForOk(page, '#viewPresBtn', 'viewPresBtn');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    await page.waitForFunction(
+      () => {
+        const text = document.getElementById('presentationAyahText');
+        const counter = document.getElementById('presentationCounter');
+        return !!text && text.textContent.trim().length > 0 && !!counter && !/^\s*٠\s*\/\s*٠\s*$/.test(counter.textContent || '');
+      },
+      undefined,
+      { timeout: 15000 }
+    );
+  }
+
   test('arrows move focus between controls instead of flipping ayahs', async ({ page }) => {
     await page.keyboard.press('ArrowDown');
     const first = await focusedId(page);
@@ -190,9 +227,7 @@ test.describe('TV remote control', () => {
   });
 
   test('remote arrows move focus (not ayahs) in featured-ayah mode', async ({ page }) => {
-    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
-    await page.keyboard.press('Enter');
-    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    await openPresentationReady(page);
     const counter = page.locator('#presentationCounter');
     const before = await counter.textContent();
     // Focus a neutral control, then push arrows: the ayah must not flip.
@@ -206,12 +241,12 @@ test.describe('TV remote control', () => {
   });
 
   test('OK on the featured-ayah next button flips the ayah', async ({ page }) => {
-    await page.locator('#viewPresBtn').evaluate((el) => el.focus());
-    await page.keyboard.press('Enter');
-    await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
+    await openPresentationReady(page);
     const counter = page.locator('#presentationCounter');
     const before = await counter.textContent();
-    await page.locator('#presentationNextBtn').evaluate((el) => el.focus());
+    // openPresentation() now wires the overlay handlers itself, so the first OK
+    // press must work with no retry: a single Enter flips exactly one ayah.
+    await focusForOk(page, '#presentationNextBtn', 'presentationNextBtn');
     await page.keyboard.press('Enter');
     await expect(counter).not.toHaveText(before ?? '', { timeout: 10000 });
   });

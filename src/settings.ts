@@ -123,6 +123,44 @@ export function updateReaderZoomControl(): void {
   dom.readerZoomInBtn?.toggleAttribute('disabled', index >= levels.length - 1);
 }
 
+/* ===================== THEME BACKGROUND PRELOAD ===================== */
+/**
+ * The themed page background is theme-specific: light -> mosque.jpg,
+ * sepia -> mosque-sepia.jpg, night/deep-night -> mosque-night.jpg.
+ * Preload the image for whatever theme is actually active so the themed
+ * background paints early, without making every visitor fetch a background
+ * they will never see. (CSP note: this is not blocked — preloads are governed
+ * by img-src 'self', which mirrors the CSS url() paths.)
+ */
+const THEME_BACKGROUND_FILE: Readonly<Record<string, string>> = {
+  light: 'mosque.jpg',
+  sepia: 'mosque-sepia.jpg',
+  night: 'mosque-night.jpg',
+  'deep-night': 'mosque-night.jpg',
+};
+
+const _preloadedThemeBackgrounds = new Set<string>();
+
+function ensureActiveThemeBackgroundPreload(): void {
+  const theme: string = document.body.classList.contains('deep-night-mode')
+    ? 'deep-night'
+    : document.body.classList.contains('night-mode')
+      ? 'night'
+      : document.body.classList.contains('sepia-mode')
+        ? 'sepia'
+        : 'light';
+  const file = THEME_BACKGROUND_FILE[theme];
+  if (!file || _preloadedThemeBackgrounds.has(file)) {
+    return;
+  }
+  _preloadedThemeBackgrounds.add(file);
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'image';
+  link.href = `${import.meta.env.BASE_URL}backgrounds/${file}`;
+  document.head.appendChild(link);
+}
+
 /* ===================== NIGHT MODE ===================== */
 
 /** Enable or disable night mode and persist the preference. */
@@ -145,6 +183,7 @@ export function applyNightMode(enabled: boolean): void {
   updateThemeButtons();
   updateThemeTriggerIcon();
   _reloadMushafPage?.();
+  ensureActiveThemeBackgroundPreload();
 }
 
 export function toggleNightMode(): void {
@@ -173,6 +212,7 @@ export function applySepiaMode(enabled: boolean): void {
   updateThemeButtons();
   updateThemeTriggerIcon();
   _reloadMushafPage?.();
+  ensureActiveThemeBackgroundPreload();
 }
 
 /** Enable or disable the darkest reading theme while keeping night-mode compatibility. */
@@ -193,6 +233,7 @@ export function applyDeepNightMode(enabled: boolean): void {
   updateThemeButtons();
   updateThemeTriggerIcon();
   _reloadMushafPage?.();
+  ensureActiveThemeBackgroundPreload();
 }
 
 /** Apply a specific theme by name: 'light', 'sepia', 'night', or 'deep-night'. */
@@ -1030,4 +1071,6 @@ export function restoreSettings(): void {
 
   // Sync the theme trigger icon with the restored theme
   updateThemeTriggerIcon();
+  // Preload the themed background for the active theme (light by default).
+  ensureActiveThemeBackgroundPreload();
 }

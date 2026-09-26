@@ -173,8 +173,16 @@
 
 .home-surah-num {
   font-size: 0.8rem;
-  color: var(--accent);
+  /* Accent-dark passes 4.5:1 on the light/sepia surfaces (5.2:1/4.7:1);
+     the inherited #c47a12 accent is only 3.4:1 on those backgrounds. */
+  color: var(--accent-dark);
   font-weight: 700;
+}
+
+body.night-mode .home-surah-num {
+  /* On the near-black night surface accent-dark drops to ~3.3:1, so the
+     full accent (#c47a12, ~5:1) is the legible choice there. */
+  color: var(--accent);
 }
 
 .home-surah-name {

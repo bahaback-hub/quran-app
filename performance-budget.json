@@ -14,7 +14,7 @@
         { "resourceType": "total", "budget": 52000 }
       ],
       "resourceCounts": [
-        { "resourceType": "script", "budget": 20 },
+        { "resourceType": "script", "budget": 32 },
         { "resourceType": "stylesheet", "budget": 5 },
         { "resourceType": "image", "budget": 40 },
         { "resourceType": "font", "budget": 60 },
@@ -42,6 +42,7 @@
     "Deep-night preview PNGs (2560px) converted to JPG 1600px: 5.2MB -> 0.13MB; CSS reference updated.",
     "font budget reflects the bundled QCF v4 page-font corpus (48 woff2, ~36MB) required for offline mushaf rendering; not reducible in-dist.",
     "font/image counts reflect the required page-font corpus and the app's functional screenshots, flags, and brand assets.",
-    "These budgets are set just above today's gzip floor: any future asset growth still fails the check (script/stylesheet/data/other/total budgets also remain enforced)."
+    "These budgets are set just above today's gzip floor: any future asset growth still fails the check (script/stylesheet/data/other/total budgets also remain enforced).",
+    "script COUNT raised 20 -> 32 on 2026-09-25: the per-feature manualChunks were removed so rolldown splits by the real import graph. Naming a module in manualChunks made it a chunk ROOT and dragged its shared closure (storage/i18n/state/api/audio/prayer) into the named feature, which the entry then imported statically — 84 KB gzip of Canvas renderer was modulepreloaded for readers who never open the mushaf. Natural splitting raised the request count (more, smaller chunks) while cutting first-paint JS 146.2 -> 119.9 KB gzip. Size budgets are unchanged; only the count moved."
   ]
 }

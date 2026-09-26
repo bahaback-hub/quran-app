@@ -24,7 +24,7 @@
 :root {
   --bg-gradient: linear-gradient(135deg, #faf5ee 0%, #fdf6eb 100%);
   --container-bg: #fefdf8;
-  --header-bg: linear-gradient(135deg, #7a5c3a, #9a7b4f);
+  --header-bg: linear-gradient(135deg, #7a5c3a, #8a6840);
   --header-text: #ffffff;
   --controls-bg: #f7f2eb;
   --player-bg: #fefdf8;

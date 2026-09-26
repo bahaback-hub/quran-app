@@ -138,7 +138,9 @@ Tree-shaking is maximized via `"sideEffects": false` in `package.json` and
 - `ESLint` enforces `eqeqeq`, `curly: all`, `no-cond-assign`,
   `default-case`.
 - `knip` detects dead code and unused exports.
-- 3,812 unit tests + 324 E2E test cases guard against regressions.
+- 4,018 Vitest cases across 149 files guard against regressions, backed by a
+  cross-browser Playwright E2E suite — 441 cases across 28 spec files
+  (chromium / firefox / webkit / mobile-chrome).
 - `escapeHtml()` is mandatory and enforced by code review.
 
 ---
@@ -189,4 +191,5 @@ Tree-shaking is maximized via `"sideEffects": false` in `package.json` and
 - [`vite.config.js`](../../vite.config.js) — build configuration
 - [`AGENTS.md`](../../AGENTS.md) — AI agent guide
 - [`CONTRIBUTING.md`](../../CONTRIBUTING.md) — contributor guide
-- Lighthouse scores (v3.1.0, local build): Performance 93, Accessibility 100
+- Lighthouse CI (2026-09, GitHub Actions build): Performance 96,
+  Accessibility 99, Best Practices 100, SEO 100

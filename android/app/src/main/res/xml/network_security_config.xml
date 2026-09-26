@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-  <!-- Allow cleartext (HTTP) traffic for all domains -->
-  <base-config cleartextTrafficPermitted="true">
+  <!-- Hardened default: HTTPS only, system CA store only. User-supplied CA
+       certificates are deliberately NOT trusted so an installed MITM cert
+       cannot intercept app traffic on untrusted networks. -->
+  <base-config cleartextTrafficPermitted="false">
     <trust-anchors>
       <certificates src="system" />
-      <certificates src="user" />
     </trust-anchors>
   </base-config>
 
-  <!-- Specifically allow CDN domains used by the app -->
-  <domain-config cleartextTrafficPermitted="true">
-    <domain includeSubdomains="true">cdn.jsdelivr.net</domain>
-    <domain includeSubdomains="true">raw.githubusercontent.com</domain>
-    <domain includeSubdomains="true">api.alquran.cloud</domain>
-    <domain includeSubdomains="true">api.aladhan.com</domain>
-    <domain includeSubdomains="true">cdn.islamic.network</domain>
-    <domain includeSubdomains="true">mp3quran.net</domain>
-    <domain includeSubdomains="true">fonts.gstatic.com</domain>
-    <domain includeSubdomains="true">api.quran.com</domain>
-  </domain-config>
+  <!-- Every API/CDN the app talks to (AlQuran, Aladhan, Quran.com, Quran
+       Network, tafsir CDN, mushaf QCF, fonts, audio) is served over HTTPS,
+       so no per-domain cleartext exceptions are needed. -->
 
-  <!-- Allow localhost for Capacitor WebView -->
+  <!-- Capacitor dev servers (live reload / local preview) run plain HTTP on
+       the loopback interface only — harmless and never on a real network. -->
   <domain-config cleartextTrafficPermitted="true">
     <domain includeSubdomains="false">localhost</domain>
     <domain includeSubdomains="false">10.0.2.2</domain>
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
   </domain-config>
 </network-security-config>

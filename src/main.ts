@@ -1,4 +1,4 @@
-import { initErrorBoundary } from './error-boundary.js';
+import { initErrorBoundary, warnRecoverable } from './error-boundary.js';
 import { initApp } from './app.js';
 import { initI18n, __ } from './i18n.js';
 import { isCapacitorNative, getCapacitor } from './types.js';
@@ -15,13 +15,13 @@ function loadNonCriticalModules(): void {
   const load = (): void => {
     import('./web-vitals.js')
       .then(({ initWebVitalsMonitoring }) => initWebVitalsMonitoring())
-      .catch(() => {
-        /* non-critical */
+      .catch((err) => {
+        warnRecoverable('web-vitals module failed to load', err);
       });
     import('./memory-manager.js')
       .then(({ initMemoryManager }) => initMemoryManager())
-      .catch(() => {
-        /* non-critical */
+      .catch((err) => {
+        warnRecoverable('memory-manager module failed to load', err);
       });
   };
 
@@ -228,8 +228,8 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
         });
       });
     })
-    .catch(() => {
-      /* SW not available */
+    .catch((err) => {
+      warnRecoverable('service worker registration unavailable', err);
     });
 } else if (isCapNative || isAndroidWebView) {
   // Unregister any existing service worker in Capacitor
@@ -242,8 +242,8 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
           console.warn('[Capacitor] Unregistered service worker to prevent conflicts');
         }
       })
-      .catch(() => {
-        /* noop */
+      .catch((err) => {
+        warnRecoverable('service worker unregister failed', err);
       });
   }
 }
