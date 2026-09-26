@@ -1463,12 +1463,6 @@ body.hifz-room-active .hifz-room.is-open {
 #readerSideTools #favoritesOpenBtn { order: 6; }
 
 #readerSideTools .reader-side-prayer .prayer-bar-toggle {
-    min-height: 44px;
-    padding: 4px 3px;
-  }
-}
-
-#readerSideTools .reader-side-prayer .prayer-bar-toggle {
   width: 100%;
   min-height: 72px;
   padding: 7px 4px;
