@@ -46,6 +46,10 @@ jobs:
 
       - name: ZAP Baseline Scan
         id: zap
+        # The action's own internal artifact upload is unreliable on GitHub's
+        # backend (spurious "artifact name not valid" failures), so we ignore
+        # its exit code and enforce the gate ourselves in the next step by
+        # parsing report_json.json against .github/zap-rules.tsv.
         continue-on-error: true
         uses: zaproxy/action-baseline@v0.13.0
         with:
@@ -55,11 +59,8 @@ jobs:
           allow_issue_writing: false
           fail_action: false
 
-      - name: ZAP Scan Result
-        if: always()
-        run: |
-          echo "ZAP scan completed (may have findings — review artifacts)"
-          echo "ZAP is informational only, does not block CI"
+      - name: Enforce ZAP gate (Medium+ unless triaged)
+        run: node .github/scripts/zap-gate.mjs report_json.json .github/zap-rules.tsv
 
       - name: Stop preview server
         if: always()

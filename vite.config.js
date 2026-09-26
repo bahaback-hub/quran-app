@@ -32,283 +32,284 @@ export default defineConfig({
     reportCompressedSize: false,
     rollupOptions: {
       input: './index.html',
-        treeshake: {
-          moduleSideEffects: false,
-          propertyReadSideEffects: false,
-        },
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+      },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
         manualChunks(id) {
           if (id.includes('node_modules')) {
-              if (id.includes('ajv') || id.includes('json-schema')) return 'vendor-json';
+            if (id.includes('ajv') || id.includes('json-schema')) return 'vendor-json';
             return 'vendor';
           }
-          // Split translation bundles for lazy loading
-          if (id.includes('/translations/')) return 'i18n-translations';
-          // Split large feature modules for lazy loading
-          if (id.includes('/features/mushaf/') || id.includes('/mushaf-') || id.includes('/mushaf.js')) return 'feature-mushaf';
-          // Split presentation into smaller chunks (was 167KB, now ~3 chunks)
-          if (id.includes('/features/presentation/pres-backgrounds') || id.includes('/pres-backgrounds')) return 'feature-pres-backgrounds';
-          if (id.includes('/features/presentation/pres-styles') || id.includes('/pres-styles')) return 'feature-pres-styles';
-          if (id.includes('/presentation')) return 'feature-presentation';
-          if (id.includes('/audio-visualizer')) return 'feature-audio-visualizer';
-          if (id.includes('/tajweed')) return 'feature-tajweed';
-          if (id.includes('/search-')) return 'feature-search';
-          if (id.includes('adhan') || id.includes('/prayer-local')) return 'feature-prayer-local';
-        }
-      }
-    }
+          // Feature modules are intentionally NOT assigned manual chunks.
+          // With rolldown, naming a module in manualChunks makes it the ROOT of
+          // that chunk, which drags its whole shared dependency closure
+          // (storage, i18n, state, api-client, audio, prayer, surah-loader …)
+          // in with it. Because the entry chunk statically imports those shared
+          // modules, the named feature shipped as a first-paint dependency:
+          // measured 146.2 KB gzip on first paint, including an 84 KB mushaf
+          // renderer that only import() ever reaches. Natural splitting keeps
+          // every feature lazy and the shared core in the entry.
+        },
+      },
+    },
   },
   server: {
     port: 3000,
     open: false,
     hmr: {
-      overlay: true
-    }
+      overlay: true,
+    },
   },
   preview: {
     port: 4173,
-    strictPort: true
+    strictPort: true,
   },
   plugins: [
     // Disable PWA entirely for Capacitor builds — SW breaks Android WebView
-    ...(isCapacitorBuild ? [] : [VitePWA({
-      // 'autoUpdate' ensures the Service Worker updates automatically without
-      // waiting for user prompt. Combined with skipWaiting + clientsClaim below,
-      // users always get the latest version on next page load.
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      includeAssets: ['icon-192.png', 'icon-512.png', 'fonts/fonts.css'],
-      manifest: {
-        name: 'القرآن الكريم',
-        short_name: 'القرآن',
-        description: 'تطبيق ويب للقرآن الكريم مع الصوت والتفسير والمصحف',
-        theme_color: '#5c2e2e',
-        background_color: '#faf5f2',
-        display: 'standalone',
-        display_override: ['window-controls-overlay', 'standalone'],
-        orientation: 'portrait',
-        lang: 'ar',
-        dir: 'rtl',
-        categories: ['education', 'lifestyle'],
-        prefer_related_applications: false,
-          screenshots: [
-            {
-            src: 'screenshots/reading-mode.webp',
-            sizes: '1920x919',
-            type: 'image/webp',
-            form_factor: 'wide',
-            label: 'وضع قراءة القرآن'
-          },
-          {
-            src: 'screenshots/mushaf-mode.webp',
-            sizes: '1920x919',
-            type: 'image/webp',
-            form_factor: 'wide',
-            label: 'وضع المصحف'
-          },
-          {
-            src: 'screenshots/presentation-mode.webp',
-            sizes: '1920x919',
-            type: 'image/webp',
-            form_factor: 'wide',
-            label: 'وضع العرض'
-          }
-        ],
-        icons: [
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' }
-        ],
-        share_target: {
-          action: './',
-          method: 'GET',
-          enctype: 'application/x-www-form-urlencoded',
-          params: {
-            title: 'title',
-            text: 'text',
-            url: 'url'
-          }
-        },
-        shortcuts: [
-          {
-            name: 'مواقيت الصلاة',
-            short_name: 'الصلاة',
-            description: 'عرض مواقيت الصلاة القادمة والأذان',
-            url: './#prayer',
-            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
-          },
-          {
-            name: 'استماع',
-            short_name: 'استماع',
-            description: 'الاستماع إلى القرآن الكريم',
-            url: './#audio',
-            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
-          },
-          {
-            name: 'البحث',
-            short_name: 'بحث',
-            description: 'البحث في القرآن الكريم',
-            url: './#search',
-            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
-          },
-          {
-            name: 'المفضلة',
-            short_name: 'مفضلة',
-            description: 'عرض الآيات المفضلة',
-            url: './#favorites',
-            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
-          },
-          {
-            name: 'الأذكار',
-            short_name: 'أذكار',
-            description: 'أذكار الصباح والمساء',
-            url: './#adhkar',
-            icons: [{ src: 'icon-192.png', sizes: '192x192' }]
-          }
-        ]
-      },
-      workbox: {
-        maximumFileSizeToCacheInBytes: 2 * 1024 * 1024, // 2MB limit per file (was 10MB)
-        // Only precache small essential files — large data files are runtime-cached
-        globPatterns: ['**/*.{js,css,html,woff2,png,webp}'],
-        // Exclude large data files from precache — they're runtime-cached on demand
-        globIgnores: [
-          '**/data/*.json',      // Quran text, tafsir, tajweed chunks — loaded on demand
-          '**/quran/**',         // Pre-rendered SEO pages — duplicated SPA content, not precached
-          '**/screenshots/**',    // PWA screenshots — not needed for offline
-          '**/backgrounds/**',    // Background images — not essential
-          '**/*.mp3',             // Audio files — runtime cached
-          '**/*.ttf',             // Fonts — runtime cached via CacheFirst
-          '**/fonts/qcf4/**',     // Downloaded together only when the user enables offline Mushaf
-        ],
-        offlineGoogleAnalytics: false,
-        navigateFallback: 'index.html',
-        // Don't intercept same-origin requests — let Capacitor handle them
-        navigateFallbackDenylist: [/^\/assets\//],
-        // Force the new Service Worker to take over immediately, bypassing
-        // the normal "waiting" state. This ensures users get updates on
-        // the very next navigation rather than waiting for all tabs to close.
-        skipWaiting: true,
-        clientsClaim: true,
-        // Cache-bust runtime-cached responses after 24 hours so users
-        // get fresh API data instead of stale offline cache forever.
-        cleanupOutdatedCaches: true,
-        runtimeCaching: [
-          // Self-hosted fonts — CacheFirst (small, essential, never change)
-          {
-            urlPattern: /\/fonts\/.*\.(ttf|woff2|css)$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'app-fonts-v3',
-              expiration: { maxEntries: 60, maxAgeSeconds: 86400 * 365 }
-            }
-          },
-          // App data (Quran text, tafsir, tajweed) — StaleWhileRevalidate
-          // Large files loaded on demand, cached for offline use
-          {
-            urlPattern: /\/data\/.*\.json$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'app-data-v3',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 86400 * 30, // 30 days
-                purgeOnQuotaError: true,
+    ...(isCapacitorBuild
+      ? []
+      : [
+          VitePWA({
+            // 'autoUpdate' ensures the Service Worker updates automatically without
+            // waiting for user prompt. Combined with skipWaiting + clientsClaim below,
+            // users always get the latest version on next page load.
+            registerType: 'autoUpdate',
+            injectRegister: 'auto',
+            includeAssets: ['icon-192.png', 'icon-512.png', 'fonts/fonts.css'],
+            manifest: {
+              name: 'القرآن الكريم',
+              short_name: 'القرآن',
+              description: 'تطبيق ويب للقرآن الكريم مع الصوت والتفسير والمصحف',
+              theme_color: '#5c2e2e',
+              background_color: '#faf5f2',
+              display: 'standalone',
+              display_override: ['window-controls-overlay', 'standalone'],
+              orientation: 'portrait',
+              lang: 'ar',
+              dir: 'rtl',
+              categories: ['education', 'lifestyle'],
+              prefer_related_applications: false,
+              screenshots: [
+                {
+                  src: 'screenshots/reading-mode.webp',
+                  sizes: '1920x919',
+                  type: 'image/webp',
+                  form_factor: 'wide',
+                  label: 'وضع قراءة القرآن',
+                },
+                {
+                  src: 'screenshots/mushaf-mode.webp',
+                  sizes: '1920x919',
+                  type: 'image/webp',
+                  form_factor: 'wide',
+                  label: 'وضع المصحف',
+                },
+                {
+                  src: 'screenshots/presentation-mode.webp',
+                  sizes: '1920x919',
+                  type: 'image/webp',
+                  form_factor: 'wide',
+                  label: 'وضع العرض',
+                },
+              ],
+              icons: [
+                { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+                { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+                { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+                { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+              ],
+              share_target: {
+                action: './',
+                method: 'GET',
+                enctype: 'application/x-www-form-urlencoded',
+                params: {
+                  title: 'title',
+                  text: 'text',
+                  url: 'url',
+                },
               },
+              shortcuts: [
+                {
+                  name: 'مواقيت الصلاة',
+                  short_name: 'الصلاة',
+                  description: 'عرض مواقيت الصلاة القادمة والأذان',
+                  url: './#prayer',
+                  icons: [{ src: 'icon-192.png', sizes: '192x192' }],
+                },
+                {
+                  name: 'استماع',
+                  short_name: 'استماع',
+                  description: 'الاستماع إلى القرآن الكريم',
+                  url: './#audio',
+                  icons: [{ src: 'icon-192.png', sizes: '192x192' }],
+                },
+                {
+                  name: 'البحث',
+                  short_name: 'بحث',
+                  description: 'البحث في القرآن الكريم',
+                  url: './#search',
+                  icons: [{ src: 'icon-192.png', sizes: '192x192' }],
+                },
+                {
+                  name: 'المفضلة',
+                  short_name: 'مفضلة',
+                  description: 'عرض الآيات المفضلة',
+                  url: './#favorites',
+                  icons: [{ src: 'icon-192.png', sizes: '192x192' }],
+                },
+                {
+                  name: 'الأذكار',
+                  short_name: 'أذكار',
+                  description: 'أذكار الصباح والمساء',
+                  url: './#adhkar',
+                  icons: [{ src: 'icon-192.png', sizes: '192x192' }],
+                },
+              ],
             },
-          },
-          // Background images — CacheFirst (only when user selects them)
-          {
-            urlPattern: /\/backgrounds\/.*\.(jpg|png|webp)$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'app-backgrounds-v3',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 86400 * 30,
-                purgeOnQuotaError: true,
-              },
+            workbox: {
+              maximumFileSizeToCacheInBytes: 2 * 1024 * 1024, // 2MB limit per file (was 10MB)
+              // Only precache small essential files — large data files are runtime-cached
+              globPatterns: ['**/*.{js,css,html,woff2,png,webp}'],
+              // Exclude large data files from precache — they're runtime-cached on demand
+              globIgnores: [
+                '**/data/*.json', // Quran text, tafsir, tajweed chunks — loaded on demand
+                '**/quran/**', // Pre-rendered SEO pages — duplicated SPA content, not precached
+                '**/screenshots/**', // PWA screenshots — not needed for offline
+                '**/backgrounds/**', // Background images — not essential
+                '**/*.mp3', // Audio files — runtime cached
+                '**/*.ttf', // Fonts — runtime cached via CacheFirst
+                '**/fonts/qcf4/**', // Downloaded together only when the user enables offline Mushaf
+              ],
+              offlineGoogleAnalytics: false,
+              navigateFallback: 'index.html',
+              // Don't intercept same-origin requests — let Capacitor handle them
+              navigateFallbackDenylist: [/^\/assets\//],
+              // Force the new Service Worker to take over immediately, bypassing
+              // the normal "waiting" state. This ensures users get updates on
+              // the very next navigation rather than waiting for all tabs to close.
+              skipWaiting: true,
+              clientsClaim: true,
+              // Cache-bust runtime-cached responses after 24 hours so users
+              // get fresh API data instead of stale offline cache forever.
+              cleanupOutdatedCaches: true,
+              runtimeCaching: [
+                // Self-hosted fonts — CacheFirst (small, essential, never change)
+                {
+                  urlPattern: /\/fonts\/.*\.(ttf|woff2|css)$/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'app-fonts-v3',
+                    expiration: { maxEntries: 60, maxAgeSeconds: 86400 * 365 },
+                  },
+                },
+                // App data (Quran text, tafsir, tajweed) — StaleWhileRevalidate
+                // Large files loaded on demand, cached for offline use
+                {
+                  urlPattern: /\/data\/.*\.json$/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'app-data-v3',
+                    expiration: {
+                      maxEntries: 10,
+                      maxAgeSeconds: 86400 * 30, // 30 days
+                      purgeOnQuotaError: true,
+                    },
+                  },
+                },
+                // Background images — CacheFirst (only when user selects them)
+                {
+                  urlPattern: /\/backgrounds\/.*\.(jpg|png|webp)$/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'app-backgrounds-v3',
+                    expiration: {
+                      maxEntries: 10,
+                      maxAgeSeconds: 86400 * 30,
+                      purgeOnQuotaError: true,
+                    },
+                  },
+                },
+                // Azan audio — CacheFirst (loaded only when prayer time arrives)
+                {
+                  urlPattern: /\/azan\.mp3$/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'app-audio-azan-v3',
+                    expiration: { maxEntries: 1, maxAgeSeconds: 86400 * 365 },
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/quran\/quran-uthmani/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'quran-full-text-v3',
+                    expiration: { maxEntries: 2, maxAgeSeconds: 86400 * 365 },
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/api\.alquran\.cloud\/.*/i,
+                  handler: 'StaleWhileRevalidate',
+                  options: {
+                    cacheName: 'quran-api-v3',
+                    expiration: { maxEntries: 100, maxAgeSeconds: 86400 * 30 },
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/api\.aladhan\.com\/.*/i,
+                  handler: 'StaleWhileRevalidate',
+                  options: {
+                    cacheName: 'prayer-api-v3',
+                    expiration: { maxEntries: 10, maxAgeSeconds: 3600 },
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/spa5k\/tafsir_api/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'tafsir-api-v3',
+                    expiration: { maxEntries: 200, maxAgeSeconds: 86400 * 365 },
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/server\d+\.mp3quran\.net\/.*/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'quran-audio-v3',
+                    expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 },
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/cdn\.islamic\.network\/.*/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'islamic-cdn-v3',
+                    expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 },
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/raw\.githubusercontent\.com\/.*quran-qcf4\/.*\/pages\/.*\.json/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'mushaf-layout-v3',
+                    expiration: { maxEntries: 700, maxAgeSeconds: 86400 * 365 },
+                  },
+                },
+                {
+                  urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/MohamadHajjRabee\/quran-qcf4.*/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'mushaf-fonts-v3',
+                    expiration: { maxEntries: 50, maxAgeSeconds: 86400 * 365 },
+                  },
+                },
+              ],
             },
-          },
-          // Azan audio — CacheFirst (loaded only when prayer time arrives)
-          {
-            urlPattern: /\/azan\.mp3$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'app-audio-azan-v3',
-              expiration: { maxEntries: 1, maxAgeSeconds: 86400 * 365 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/api\.alquran\.cloud\/v1\/quran\/quran-uthmani/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'quran-full-text-v3',
-              expiration: { maxEntries: 2, maxAgeSeconds: 86400 * 365 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/api\.alquran\.cloud\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'quran-api-v3',
-              expiration: { maxEntries: 100, maxAgeSeconds: 86400 * 30 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/api\.aladhan\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'prayer-api-v3',
-              expiration: { maxEntries: 10, maxAgeSeconds: 3600 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/spa5k\/tafsir_api/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'tafsir-api-v3',
-              expiration: { maxEntries: 200, maxAgeSeconds: 86400 * 365 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/server\d+\.mp3quran\.net\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'quran-audio-v3',
-              expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/cdn\.islamic\.network\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'islamic-cdn-v3',
-              expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/raw\.githubusercontent\.com\/.*quran-qcf4\/.*\/pages\/.*\.json/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'mushaf-layout-v3',
-              expiration: { maxEntries: 700, maxAgeSeconds: 86400 * 365 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/MohamadHajjRabee\/quran-qcf4.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'mushaf-fonts-v3',
-              expiration: { maxEntries: 50, maxAgeSeconds: 86400 * 365 }
-            }
-          }
-        ]
-      }
-    })])
-  ]
+          }),
+        ]),
+  ],
 });

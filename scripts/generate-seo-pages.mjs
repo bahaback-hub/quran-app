@@ -122,8 +122,8 @@ function buildSurahPage(surah, slug, surahListEntry) {
   const revelation = REVELATION_AR[surahListEntry?.revelationType] || '';
   const translation = surahListEntry?.englishNameTranslation || '';
 
-  const title = `${name} - القرآن الكريم`;
-  const description = `سورة ${nameNoSurat} من القرآن الكريم (${arabicNumeral(ayahCount)} آية${revelation ? '، ' + revelation : ''}) — اقرأ واستمع لسورة ${nameNoSurat} كاملة بالرسم العثماني مع التفسير في تطبيق القرآن الكريم (مجاناً، ويعمل دون اتصال).`;
+  const title = `${name} - المصحف السليماني`;
+  const description = `سورة ${nameNoSurat} من القرآن الكريم (${arabicNumeral(ayahCount)} آية${revelation ? '، ' + revelation : ''}) — اقرأ واستمع لسورة ${nameNoSurat} كاملة بالرسم العثماني مع التفسير في المصحف السليماني (مجاناً، ويعمل دون اتصال).`;
   const ogUrl = `${BASE_URL}/quran/${slug}/`;
   const canonical = ogUrl;
 
@@ -145,7 +145,7 @@ function buildSurahPage(surah, slug, surahListEntry) {
       mainEntityOfPage: ogUrl,
       isPartOf: {
         '@type': 'WebApplication',
-        name: 'القرآن الكريم - عائلة السليماني',
+        name: 'المصحف السليماني',
         url: BASE_URL,
       },
       about: `سورة ${nameNoSurat} من القرآن الكريم`,

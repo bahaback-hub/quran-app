@@ -13,6 +13,7 @@ import { calculatePrayerTimesLocally } from './prayer-local.js';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { startNativeQiblaCompass } from './qibla-compass.js';
+import { cancelAzanNotifications, notifyAzanNow, scheduleAzanNotifications } from './azan-notifications.js';
 
 /* ===================== LOCAL OFFLINE PRAYER TIMES (1448 H) ===================== */
 
@@ -650,6 +651,10 @@ function showAzanNotification(prayerKey: string): void {
   } else if ('Notification' in window && Notification.permission !== 'denied') {
     Notification.requestPermission();
   }
+
+  // The Web Notification API is unavailable inside an Android WebView, so the
+  // phone relies on a real scheduled notification instead.
+  void notifyAzanNow(__('prayer_time_come'), `${__('prayer')} ${getPrayerName(prayerKey)}`);
 }
 
 export function checkAzanTime(): void {
@@ -707,7 +712,28 @@ export function checkAzanTime(): void {
 
 let azanTimer: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * Mirror the in-app azan schedule into the Android notification shade.
+ *
+ * The in-page timer below only runs while the app is alive, so on a phone the
+ * alert was invisible whenever the app was closed. Native notifications are
+ * scheduled by the OS instead, which fires regardless.
+ */
+function syncAzanNotifications(): void {
+  if (!state.azanEnabled || !state.prayerTimes) {
+    void cancelAzanNotifications();
+    return;
+  }
+  void scheduleAzanNotifications({
+    times: state.prayerTimes as unknown as Record<string, string | undefined>,
+    label: (key) => getPrayerName(key),
+    title: __('prayer_time_come'),
+    includeFajr: state.azanFajrEnabled,
+  });
+}
+
 export function scheduleNextAzanCheck(): void {
+  syncAzanNotifications();
   if (azanTimer) {
     clearTimeout(azanTimer);
   }

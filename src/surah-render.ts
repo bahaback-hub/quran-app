@@ -8,6 +8,7 @@
  */
 
 import { state } from './state.js';
+import { warnRecoverable } from './error-boundary.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { __, getLang, toArabicDigits } from './i18n.js';
@@ -274,8 +275,8 @@ function initAyahDelegation(): void {
       // حافظ على التفسير مفتوحاً واحمِه من الإغلاق عند فشل التحميل
       if (tafsirIsOpen && dom.tafsirCurtain) {
         dom.tafsirCurtain.classList.add('open');
-        loadTafsirForCurrentAyah().catch(() => {
-          /* لا تُغلق التفسير عند فشل التحميل */
+        loadTafsirForCurrentAyah().catch((err) => {
+          warnRecoverable('tafsir reload failed; keeping curtain open', err);
         });
       }
       return;

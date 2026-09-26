@@ -11,7 +11,7 @@ export default {
   error_details: 'تفاصيل الخطأ',
 
   // === عام ===
-  app_title: 'القرآن الكريم',
+  app_title: 'المصحف السليماني',
   hifz_room: 'غرفة الحفظ',
   hifz_room_eyebrow: 'مساحتك الهادئة',
   hifz_room_tagline: 'احفظ القرآن بوضع الآيات وضبط تكرارها حتى تحفظها.',
@@ -262,6 +262,9 @@ export default {
   },
   tafsir_loading: 'جاري تحميل التفسير...',
   tafsir_error: 'خطأ في تحميل التفسير',
+  azan_enable: 'تنبيه الأذان:',
+  azan_fajr: 'أذان الفجر:',
+  tafsir_no_ayah: '📖 اختر سورة وآية لعرض التفسير',
   no_tafsir_available: 'لا يوجد تفسير متاح',
 
   // === المدن وطرق الحساب ===
@@ -414,6 +417,18 @@ export default {
   mushaf_retry_reload: 'إعادة المحاولة',
   mushaf_sources: 'المصادر',
   mushaf_surah_info: 'معلومات السورة',
+  save: 'حفظ',
+  mushaf_page_info: 'معلومات الصفحة',
+  mushaf_loading_page: 'جارٍ تحميل الصفحة',
+  surah_info_for: 'معلومات سورة {0}',
+  qibla_direction: 'اتجاه القبلة',
+  select_hint: 'اختر',
+  pray_fajr: 'الفجر',
+  stats_hours_mins: '{0} س {1} د',
+  stats_mins: '{0} دقيقة',
+  minutes_abbr: 'د',
+  offline_mode: 'وضع عدم الاتصال',
+  mushaf_juz: 'الجزء {0}',
   quran_db_loading: 'جاري تحميل قاعدة بيانات القرآن...',
 
   // === Qibla ===

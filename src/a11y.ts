@@ -162,6 +162,16 @@ export function manageFocusOnPanelOpen(panelEl: HTMLElement, triggerEl?: HTMLEle
   }
   const first = panelEl.querySelector(FOCUSABLE_SELECTOR) as HTMLElement | null;
   requestAnimationFrame(() => {
+    // The frame can land late (busy main thread, slow device). If focus already
+    // moved somewhere else in the meantime, taking it now would yank the user
+    // away from whatever they just reached — only pull focus in while it is
+    // still on the trigger (or nowhere in particular).
+    const active = document.activeElement as HTMLElement | null;
+    const focusIsUnclaimed = !active || active === document.body;
+    const focusStillOnTrigger = !!active && (active === triggerEl || active === panelEl || panelEl.contains(active));
+    if (!focusIsUnclaimed && !focusStillOnTrigger) {
+      return;
+    }
     if (first) {
       first.focus();
     } else {
@@ -188,7 +198,18 @@ export function restoreFocusOnPanelClose(triggerEl?: HTMLElement | null, panelEl
     }
   }
   if (target && typeof target.focus === 'function') {
-    requestAnimationFrame(() => target.focus());
+    requestAnimationFrame(() => {
+      // Only pull focus back while it is still trapped in the closing panel.
+      // If it has already moved on (the user kept navigating, or another panel
+      // took over), returning it here would steal focus from the new context.
+      const active = document.activeElement as HTMLElement | null;
+      const focusIsUnclaimed = !active || active === document.body;
+      const focusInsidePanel = !!active && !!panelEl && panelEl.contains(active);
+      if (!focusIsUnclaimed && !focusInsidePanel) {
+        return;
+      }
+      target?.focus();
+    });
   }
   if (panelEl) {
     announceToScreenReader((panelEl.getAttribute('aria-label') || 'Panel') + ' closed');

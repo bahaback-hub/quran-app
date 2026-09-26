@@ -35,8 +35,14 @@ jobs:
         run: npm run build
 
       - name: Run accessibility audit
+        # The app is built with base=/quran-app/ for GitHub Pages, but
+        # `npx serve` mounts dist at the root. Auditing that layout would
+        # exercise only an empty shell (assets 404 -> "0 violations").
+        # Build a root-based variant (same code, no base prefix) so the audit
+        # runs against the REAL rendered app.
         run: |
-          npx serve dist -p 4173 &
+          npx vite build --base=/ --outDir dist-a11y
+          npx serve dist-a11y -p 4173 &
           sleep 3
           node scripts/a11y-audit.mjs
         env:

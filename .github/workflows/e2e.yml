@@ -69,6 +69,31 @@ jobs:
             playwright-report/
           retention-days: 7
 
+  cls-guard:
+    name: CLS guard
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.0-noble
+      options: --user 1001
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build
+
+      - name: Measure real CLS (Playwright, viewport set pre-navigation)
+        run: node scripts/measure-cls.mjs
+
   update-baselines:
     name: Update visual baselines
     if: github.event_name == 'workflow_dispatch' && inputs.update_snapshots
