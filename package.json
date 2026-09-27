@@ -40,6 +40,7 @@
     "check:i18n-parity": "node scripts/check-i18n-parity.mjs",
     "check:file-size": "node scripts/check-file-size-budget.mjs",
     "check:version": "node scripts/check-version-consistency.mjs",
+    "check:coverage": "node scripts/check-per-file-coverage.mjs",
     "check:circular": "madge --circular --extensions ts src/",
     "prepublishOnly": "npm run lint && npm run lint:zero-style && npm run typecheck && npm test && npm run build"
   },
