@@ -2,8 +2,17 @@
 
 /* ========== خلفية المسجد النبوي للوضع النهاري ========== */
 body:not(.night-mode):not(.sepia-mode) {
+  /* JPEG first as the fallback, then the ~59% smaller WebP wherever it is
+     supported. The image is decorative and sits behind a 72% opaque frosted
+     panel, so it carries almost no visible detail. */
   background: url('/backgrounds/mosque.jpg') center center / cover no-repeat fixed;
   position: relative;
+}
+
+@supports (background-image: webp('x')) {
+  body:not(.night-mode):not(.sepia-mode) {
+    background-image: url('/backgrounds/mosque.webp');
+  }
 }
 
 /* ========== عناصر زجاجية — Glass Morphism ========== */

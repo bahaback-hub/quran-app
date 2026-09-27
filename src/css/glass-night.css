@@ -2,7 +2,15 @@
 
 /* ========== خلفية المسجد النبوي ليلاً ========== */
 body.night-mode {
+  /* JPEG first as the fallback, then the ~43% smaller WebP wherever it is
+     supported. The image is decorative and sits behind a frosted panel. */
   background: url('/backgrounds/mosque-night.jpg') center center / cover no-repeat fixed;
+}
+
+@supports (background-image: webp('x')) {
+  body.night-mode {
+    background-image: url('/backgrounds/mosque-night.webp');
+  }
 }
 
 /* إزالة تراكب النجوم القديم لأن الخلفية الجديدة تحتوي على سماء ليلية */

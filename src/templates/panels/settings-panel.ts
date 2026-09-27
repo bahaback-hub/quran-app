@@ -4,7 +4,7 @@ import { __ } from '../../i18n.js';
  * Generate the complete settings panel HTML with all six tabs.
  */
 export function settingsPanelHTML(): string {
-  return `<aside class="settings-panel" id="settingsPanel" role="dialog" aria-modal="true" aria-label="لوحة الإعدادات">
+  return `<div class="settings-panel" id="settingsPanel" role="dialog" aria-modal="true" aria-label="لوحة الإعدادات">
       <div class="settings-header">
         <h2 data-i18n="settings">⚙️ الإعدادات</h2>
         <button class="settings-close" id="settingsCloseBtn" aria-label="إغلاق الإعدادات">✖</button>
@@ -290,5 +290,5 @@ export function settingsPanelHTML(): string {
           </div>
         </div>
       </div>
-    </aside>`;
+    </div>`;
 }

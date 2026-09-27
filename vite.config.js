@@ -79,7 +79,13 @@ export default defineConfig({
             // waiting for user prompt. Combined with skipWaiting + clientsClaim below,
             // users always get the latest version on next page load.
             registerType: 'autoUpdate',
-            injectRegister: 'auto',
+            // 'script-defer' rather than 'auto': the generated registration
+            // script sat in the critical path, so Lighthouse counted it as a
+            // render-blocking resource for a script whose only job is to
+            // register a service worker after the page is already interactive.
+            // Deferring it removes it from first paint with no behavioural
+            // change - the worker still registers on the same page load.
+            injectRegister: 'script-defer',
             includeAssets: ['icon-192.png', 'icon-512.png', 'fonts/fonts.css'],
             manifest: {
               name: 'القرآن الكريم',

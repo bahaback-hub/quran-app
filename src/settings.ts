@@ -125,19 +125,43 @@ export function updateReaderZoomControl(): void {
 
 /* ===================== THEME BACKGROUND PRELOAD ===================== */
 /**
- * The themed page background is theme-specific: light -> mosque.jpg,
- * sepia -> mosque-sepia.jpg, night/deep-night -> mosque-night.jpg.
+ * The themed page background is theme-specific: light -> mosque, sepia ->
+ * mosque-sepia, night/deep-night -> mosque-night.
  * Preload the image for whatever theme is actually active so the themed
  * background paints early, without making every visitor fetch a background
  * they will never see. (CSP note: this is not blocked — preloads are governed
  * by img-src 'self', which mirrors the CSS url() paths.)
+ *
+ * The two mosque backgrounds have a WebP twin that is roughly half the size and
+ * is what the stylesheet actually paints wherever the browser supports it (see
+ * glass-daytime.css / glass-night.css). Preloading the JPEG instead would fetch
+ * a file nothing displays, so the modern variant is preferred and the JPEG is
+ * only preloaded when WebP is not supported — mirroring the CSS @supports.
  */
 const THEME_BACKGROUND_FILE: Readonly<Record<string, string>> = {
-  light: 'mosque.jpg',
+  light: 'mosque.webp',
   sepia: 'mosque-sepia.jpg',
+  night: 'mosque-night.webp',
+  'deep-night': 'mosque-night.webp',
+};
+
+/** JPEG twin for the WebP backgrounds, for browsers without WebP support. */
+const THEME_BACKGROUND_FALLBACK: Readonly<Record<string, string>> = {
+  light: 'mosque.jpg',
   night: 'mosque-night.jpg',
   'deep-night': 'mosque-night.jpg',
 };
+
+function supportsWebp(): boolean {
+  try {
+    return CSS.supports(
+      'background-image',
+      'url("data:image/webp;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")',
+    );
+  } catch {
+    return false;
+  }
+}
 
 const _preloadedThemeBackgrounds = new Set<string>();
 
@@ -154,11 +178,20 @@ function ensureActiveThemeBackgroundPreload(): void {
     return;
   }
   _preloadedThemeBackgrounds.add(file);
-  const link = document.createElement('link');
-  link.rel = 'preload';
-  link.as = 'image';
-  link.href = `${import.meta.env.BASE_URL}backgrounds/${file}`;
-  document.head.appendChild(link);
+  const preload = (href: string): void => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = `${import.meta.env.BASE_URL}backgrounds/${href}`;
+    document.head.appendChild(link);
+  };
+  preload(file);
+  if (file.endsWith('.webp') && !supportsWebp()) {
+    const fallback = THEME_BACKGROUND_FALLBACK[theme];
+    if (fallback) {
+      preload(fallback);
+    }
+  }
 }
 
 /* ===================== NIGHT MODE ===================== */
