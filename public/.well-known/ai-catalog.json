@@ -1,0 +1,67 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "المصحف السليماني — القرآن الكريم",
+    "identifier": "did:web:bahaback-hub.github.io",
+    "documentationUrl": "https://bahaback-hub.github.io/quran-app/llms.txt",
+    "logoUrl": "https://bahaback-hub.github.io/quran-app/icon-512.png"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:bahaback-hub.github.io:quran-app:web-app",
+      "displayName": "المصحف السليماني — تطبيق قرآن كريم في المتصفح",
+      "type": "application/manifest+json",
+      "url": "https://bahaback-hub.github.io/quran-app/manifest.json",
+      "description": "تطبيق ويب للقرآن الكريم يقدّم تلاوة صوتية، ومصحفًا مصوّرًا، وتفاسير، وأذكارًا، ومواقيت صلاة، واتجاه القبلة. يعمل بدون إنترنت، وقابل للتثبيت كتطبيق (PWA)، ومتاح أيضًا كتطبيق أندرويد.",
+      "tags": ["quran", "islam", "tafsir", "adhkar", "prayer-times", "qibla", "pwa", "offline-first", "arabic"],
+      "capabilities": [
+        "QuranReadingTool",
+        "AudioRecitationTool",
+        "TafsirLookupTool",
+        "AdhkarRecallTool",
+        "PrayerTimesTool",
+        "QiblaDirectionTool"
+      ],
+      "representativeQueries": [
+        "ابحث عن تفسير آية في القرآن الكريم",
+        "افتح سورة البقرة وابدأ التلاوة من أول الصفحة",
+        "متى موعد صلاة المغرب اليوم",
+        "أعطني أذكار الصباح",
+        "في أي اتجاه القبلة من موقعي الحالي"
+      ],
+      "version": "3.1.27",
+      "updatedAt": "2026-09-27T00:00:00Z",
+      "metadata": {
+        "appUrl": "https://bahaback-hub.github.io/quran-app/",
+        "llmsTxt": "https://bahaback-hub.github.io/quran-app/llms.txt",
+        "sitemap": "https://bahaback-hub.github.io/quran-app/sitemap.xml",
+        "surahPages": "https://bahaback-hub.github.io/quran-app/quran/{slug}/",
+        "interfaceLanguages": "ar, en, de, fr, tr, id, ms, ru",
+        "quranTextLanguage": "ar",
+        "offlineCapable": "true",
+        "installable": "true",
+        "publicApi": "none"
+      }
+    },
+    {
+      "identifier": "urn:air:bahaback-hub.github.io:quran-app:surah-index",
+      "displayName": "فهرس صفحات السور الثابتة",
+      "type": "application/json",
+      "url": "https://bahaback-hub.github.io/quran-app/sitemap.xml",
+      "description": "خريطة موقع تضم 114 صفحة سورة ثابتة، كل منها صفحة HTML مستقلة تحتوي نص السورة كاملًا وتعمل بدون جافاسكربت، وهي المسار الموصى به للوكلاء الآليين عند الحاجة إلى قراءة نص قرآني دقيق.",
+      "tags": ["quran", "surah", "static-html", "no-javascript", "indexing"],
+      "capabilities": ["SurahTextRetrievalTool"],
+      "representativeQueries": [
+        "ما هو رابط صفحة سورة يس؟",
+        "قائمة روابط صفحات كل السور",
+        "اقرأ نص سورة الكهف"
+      ],
+      "version": "3.1.27",
+      "updatedAt": "2026-09-27T00:00:00Z",
+      "metadata": {
+        "pageCount": "114",
+        "urlPattern": "https://bahaback-hub.github.io/quran-app/quran/{slug}/"
+      }
+    }
+  ]
+}

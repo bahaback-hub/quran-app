@@ -41,6 +41,13 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>المصحف السليماني — القرآن الكريم | تلاوة، تفسير، مواقيت الصلاة</title>
     <link rel="canonical" href="https://bahaback-hub.github.io/quran-app/" />
+    <!-- Agent discovery. ARD v0.91 defines /.well-known/ard.json with rel="ard";
+         ai-catalog.json is its predecessor name, which conformant consumers may
+         still consult, so both are advertised and both files are served.
+         Purely additive: no effect on rendering, and the app has no public API. -->
+    <link rel="ard" href="%BASE_URL%.well-known/ard.json" type="application/json" />
+    <link rel="ai-catalog" href="%BASE_URL%.well-known/ai-catalog.json" type="application/json" />
+    <link rel="alternate" type="text/plain" href="%BASE_URL%llms.txt" title="llms.txt" />
     <link rel="icon" href="%BASE_URL%icon-192.png" />
     <link rel="apple-touch-icon" href="%BASE_URL%icon-192.png" />
     <!-- Self-hosted fonts (replaces Google Fonts CDN for offline support & privacy) -->
