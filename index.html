@@ -53,7 +53,15 @@
     <!-- Self-hosted fonts (replaces Google Fonts CDN for offline support & privacy) -->
     <!-- LCP: Preload the primary body font to speed up first paint -->
     <link rel="preload" href="%BASE_URL%fonts/amiri-regular-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="%BASE_URL%fonts/official/UthmanicHafs_V22.ttf" as="font" type="font/ttf" crossorigin />
+    <!-- The Quran-script TTF is deliberately NOT preloaded. 'KFGQPC HAFS Uthmanic
+         Script' is referenced only by src/css/hifz-room.css, and the room is
+         off-screen and closed on arrival, so no rule that uses it matches at
+         first paint. Preloading it anyway pulled 144KB down the critical path of
+         every single visit for glyphs nobody could see - nearly four times what
+         the entire stylesheet costs over the wire. The @font-face is left in
+         place, so the browser fetches the font when the room is actually built
+         at idle; font-display: swap covers the gap. The TTF itself is shipped
+         unconverted by design. -->
     <!-- The themed page background (mosque.*.jpg) is preloaded at runtime for
          the *active* theme only — see ensureActiveThemeBackgroundPreload() in
          src/settings.ts. A static preload would fetch the night background for

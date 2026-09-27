@@ -37,7 +37,41 @@ describe('official Uthmanic Hafs font', () => {
     const html = readFileSync(resolve(root, 'index.html'), 'utf8');
     expect(html).toContain('href="%BASE_URL%fonts/fonts.css"');
     expect(html).not.toContain('href="/fonts/fonts.css"');
-    expect(html).toContain('href="%BASE_URL%fonts/official/UthmanicHafs_V22.ttf"');
+    // Any reference to the font that does appear in the shell must be
+    // base-relative, because the Capacitor WebView serves from its own root.
+    for (const ref of html.match(/href="[^"]*UthmanicHafs[^"]*"/g) ?? []) {
+      expect(ref).toContain('%BASE_URL%');
+    }
+  });
+
+  it('keeps the Quran-script font off the critical path', () => {
+    // 'KFGQPC HAFS Uthmanic Script' is a 291KB TTF, and the only CSS that asks
+    // for it is src/css/hifz-room.css — a panel that sits off-screen at
+    // translateX(-110%) and is closed on arrival. Preloading it from index.html
+    // put 144KB on the critical path of every visit for glyphs nobody could
+    // see, which is nearly four times what the whole stylesheet costs on the
+    // wire. The @font-face stays, so the browser fetches it when the room is
+    // actually built, and font-display: swap covers the gap.
+    const html = readFileSync(resolve(root, 'index.html'), 'utf8');
+    expect(html).not.toMatch(/<link[^>]+UthmanicHafs[^>]*>/);
+    // The body font is used on the first screen, so it stays preloaded.
+    expect(html).toContain('href="%BASE_URL%fonts/amiri-regular-400.woff2"');
+  });
+
+  it('is the only family that needs the TTF, and it is the room', () => {
+    // If a second stylesheet starts asking for this family, the preload
+    // decision above no longer holds and this is the test that should say so.
+    const hifzRoom = readFileSync(resolve(root, 'src/css/hifz-room.css'), 'utf8');
+    expect(hifzRoom).toContain('KFGQPC HAFS Uthmanic Script');
+    for (const rel of [
+      'src/css/layout.css',
+      'src/css/surah.css',
+      'src/css/variables.css',
+      'src/css/panels.css',
+      'src/css/modals.css',
+    ]) {
+      expect(readFileSync(resolve(root, rel), 'utf8')).not.toContain('KFGQPC HAFS Uthmanic Script');
+    }
   });
 
   it('does not reference the dead Uthmanic Hafs Official alias', () => {
