@@ -11,6 +11,16 @@
 }
 .surah-content.is-loading {
   cursor: progress;
+  /* CLS: while the surah is still loading the reader holds only 55vh, so the
+     footer sits at roughly y=544 — inside the viewport on a phone. The verses
+     then stream in and push it thousands of pixels down, and a visible element
+     moving that far is a real layout shift (measured at 0.083 on a throttled
+     mid-range Android, against 0.002 on an unthrottled desktop run). Filling
+     the viewport while loading keeps the footer below the fold from the start,
+     so by the time the text arrives nothing on screen has moved. 100vh is the
+     fallback for engines without dynamic viewport units. */
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 .surah-loading-notice {
   display: flex;
