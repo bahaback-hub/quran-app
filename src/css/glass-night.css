@@ -2,15 +2,16 @@
 
 /* ========== خلفية المسجد النبوي ليلاً ========== */
 body.night-mode {
-  /* JPEG first as the fallback, then the ~43% smaller WebP wherever it is
-     supported. The image is decorative and sits behind a frosted panel. */
+  /* The image is decorative and sits behind a frosted panel. The JPEG stays as
+     the fallback and the ~43% smaller WebP is offered through image-set().
+     Deliberately not @supports (background-image: webp('x')): Chrome 151
+     parses that condition as false, so the override silently never applied and
+     the JPEG kept being fetched and painted. */
   background: url('/backgrounds/mosque-night.jpg') center center / cover no-repeat fixed;
-}
-
-@supports (background-image: webp('x')) {
-  body.night-mode {
-    background-image: url('/backgrounds/mosque-night.webp');
-  }
+  background-image: image-set(
+    url('/backgrounds/mosque-night.webp') type('image/webp') 1x,
+    url('/backgrounds/mosque-night.jpg') type('image/jpeg') 1x
+  );
 }
 
 /* إزالة تراكب النجوم القديم لأن الخلفية الجديدة تحتوي على سماء ليلية */

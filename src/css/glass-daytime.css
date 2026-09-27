@@ -2,17 +2,20 @@
 
 /* ========== خلفية المسجد النبوي للوضع النهاري ========== */
 body:not(.night-mode):not(.sepia-mode) {
-  /* JPEG first as the fallback, then the ~59% smaller WebP wherever it is
-     supported. The image is decorative and sits behind a 72% opaque frosted
-     panel, so it carries almost no visible detail. */
+  /* The image is decorative and sits behind a 72% opaque frosted panel, so it
+     carries almost no visible detail. The JPEG stays as the fallback and the
+     ~59% smaller WebP is offered through image-set(), which is how a modern
+     browser is meant to pick between representations. Deliberately not
+     @supports (background-image: webp('x')): Chrome 151 parses that condition
+     as false, so the override silently never applied and the JPEG kept being
+     fetched and painted. image-set() is understood by every browser that has
+     WebP, and the ones that do not drop the declaration and keep the JPEG. */
   background: url('/backgrounds/mosque.jpg') center center / cover no-repeat fixed;
+  background-image: image-set(
+    url('/backgrounds/mosque.webp') type('image/webp') 1x,
+    url('/backgrounds/mosque.jpg') type('image/jpeg') 1x
+  );
   position: relative;
-}
-
-@supports (background-image: webp('x')) {
-  body:not(.night-mode):not(.sepia-mode) {
-    background-image: url('/backgrounds/mosque.webp');
-  }
 }
 
 /* ========== عناصر زجاجية — Glass Morphism ========== */
