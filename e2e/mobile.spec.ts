@@ -1,4 +1,8 @@
 import { test, expect } from './fixtures/mock-network';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const CAPACITOR_CSS = fileURLToPath(new URL('../src/css/capacitor.css', import.meta.url));
 
 test.describe('Quran App — Mobile Controls', () => {
   test.beforeEach(async ({ page }) => {
@@ -33,6 +37,11 @@ test.describe('Quran App — Mobile Controls', () => {
     const readingProgress = page.locator('.reading-progress');
     await expect(skipLink).toBeVisible();
     await expect(readingProgress).toHaveCSS('display', 'block');
+    // The native wrapper is the body class AND the capacitor stylesheet, which
+    // the web build leaves out on purpose (every rule there is scoped to
+    // .capacitor-native). Inject it so the assertions below run against the
+    // styling Android actually ships, not web styling under a native class.
+    await page.addStyleTag({ content: readFileSync(CAPACITOR_CSS, 'utf8') });
     await page.locator('body').evaluate((body) => body.classList.add('capacitor-native'));
     await expect(skipLink).toBeHidden();
     await expect(readingProgress).toHaveCSS('display', 'none');
