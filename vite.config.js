@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { readFileSync } from 'node:fs';
+import { capacitorCssWebOnly } from './scripts/vite-plugin-capacitor-css-web-only.mjs';
 
 // Single source of truth for the app version shown in Settings ("App version")
 // and used by future "What's new" logic. Bumped via package.json only.
@@ -70,6 +71,7 @@ export default defineConfig({
     strictPort: true,
   },
   plugins: [
+    capacitorCssWebOnly(isCapacitorBuild),
     // Disable PWA entirely for Capacitor builds — SW breaks Android WebView
     ...(isCapacitorBuild
       ? []

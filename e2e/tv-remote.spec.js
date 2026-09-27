@@ -1,4 +1,8 @@
 import { test, expect } from './fixtures/mock-network';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const CAPACITOR_CSS = fileURLToPath(new URL('../src/css/capacitor.css', import.meta.url));
 
 test.describe('TV remote control', () => {
   test.beforeEach(async ({ page }) => {
@@ -195,6 +199,13 @@ test.describe('TV remote control', () => {
   });
 
   test('favorites panel opens from the left in the native wrapper', async ({ page }) => {
+    // The native wrapper is two things, not one: the body class AND the
+    // capacitor stylesheet, which the web build deliberately leaves out
+    // (every rule in it is scoped to .capacitor-native, so on the web it is
+    // inert weight in the render-blocking bundle). Simulating only the class
+    // would test a native layout against web styling, so the stylesheet is
+    // injected from source to make this a faithful simulation.
+    await page.addStyleTag({ content: readFileSync(CAPACITOR_CSS, 'utf8') });
     await page.evaluate(() => document.body.classList.add('capacitor-native'));
     await page.locator('#favoritesOpenBtn').evaluate((el) => el.click());
     await expect(page.locator('#favoritesPanel')).toHaveClass(/open/);
