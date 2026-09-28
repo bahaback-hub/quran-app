@@ -105,12 +105,15 @@ describe('surah pages are internally linked', () => {
   });
 
   it('resolves every relative link that stays inside the generated tree', () => {
-    // Links that climb out to the app shell are excluded: the app is written by
+    // The link up to the app shell is excluded: the app is written by
     // `vite build`, and this suite runs in CI where no build has happened, so
-    // that file legitimately does not exist yet. Asserting it existed made this
-    // test pass only on a machine that had just built, which is exactly the
-    // assumption that let it fail in CI. Those links are checked for shape in
-    // the next test instead.
+    // dist/index.html legitimately does not exist yet. It resolves *into* dist
+    // rather than above it, so the guard has to name that exact file - checking
+    // only for "escapes dist" misses it and reports 690 false positives.
+    // Asserting the file existed made this test pass only on a machine that had
+    // just built, which is what let it fail in CI. Those links are checked for
+    // depth in the next test instead.
+    const APP_SHELL = join(DIST, 'index.html');
     const broken: string[] = [];
     for (const { lang, dir } of LOCALE_ROOTS) {
       const slugs = slugsByLocale.get(lang) ?? [];
@@ -123,9 +126,9 @@ describe('surah pages are internally linked', () => {
           const path = href.split('#')[0];
           if (!path) continue;
           const target = resolve(from, path);
-          const inside = !relative(DIST, target).startsWith('..');
-          if (!inside) {
-            if (!path.endsWith('index.html')) broken.push(`${lang}: ${file} -> ${href} leaves dist`);
+          if (target === APP_SHELL) continue;
+          if (relative(DIST, target).startsWith('..')) {
+            broken.push(`${lang}: ${file} -> ${href} leaves dist`);
             continue;
           }
           const ok = path.endsWith('/') ? existsSync(join(target, 'index.html')) : existsSync(target);
