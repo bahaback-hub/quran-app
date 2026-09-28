@@ -63,6 +63,11 @@ function arabicNumeral(n) {
   return String(n).replace(/\d/g, (d) => ARABIC_DIGITS[Number(d)]);
 }
 
+/** In Arabic pages the ayah count keeps Arabic numerals; elsewhere Latin. */
+function numeral(n, locale) {
+  return locale === 'ar' ? arabicNumeral(n) : String(n);
+}
+
 function stripBom(text) {
   return text
     .replace(/^\uFEFF/, '')
@@ -75,34 +80,155 @@ function escapeHtml(text) {
 }
 
 const REVELATION_AR = { Meccan: 'مكية', Medinan: 'مدنية' };
+
+/**
+ * Arabic copy for the static pages, kept in its own UTF-8 JSON file.
+ *
+ * These strings used to be literals here, and every ad-hoc edit of this file
+ * re-encoded them as Windows-1252, which silently turned "سور مكية" into
+ * letter-shuffled mojibake across 18 lines - including ARABIC_DIGITS, the ayah
+ * ornament and the surah-prefix regex, so the pages rendered with broken numerals
+ * and un-stripped surah names. A build script has no business carrying text it
+ * only prints; the strings now live in scripts/seo-strings.ar.json, and
+ * src/__tests__/seo-locales-encoding.test.ts fails if either file is saved in
+ * the wrong encoding.
+ */
+const AR_STRINGS = readJson(join(ROOT, 'scripts', 'seo-strings.ar.json'));
+const { surahPrefix, ayahOpen, ayahClose } = AR_STRINGS;
+/** Matches the vocalised "سُورَةُ" that quran-uthmani.json prefixes onto names. */
+const SURAH_PREFIX_RE = new RegExp(`^${surahPrefix.trim()}\\s+`, 'u');
+
+/** Builds the Arabic locale entry from the JSON, including its templates. */
+function buildArLocale(s) {
+  const fill = (tpl, values) => tpl.replace(/\{(\w+)\}/g, (_, k) => values[k] ?? '');
+  return {
+    code: 'ar',
+    dir: 'rtl',
+    prefix: '',
+    lang: 'ar',
+    quran: s.quran,
+    surahs: s.surahs,
+    surahWord: s.surahWord,
+    ayahsWord: s.ayahsWord,
+    revelation: { Meccan: s.revelationMeccan, Medinan: s.revelationMedinan },
+    indexTitle: (n) => fill(s.indexTitle, { n }),
+    indexHeading: s.indexHeading,
+    indexSubtitle: (n) => fill(s.indexSubtitle, { n }),
+    indexIntro: (n) => fill(s.indexIntro, { n }),
+    meccanHeading: s.meccanHeading,
+    medinanHeading: s.medinanHeading,
+    surahTitle: (name) => fill(s.surahTitle, { name }),
+    surahDescription: (name, ayahs, revelation) =>
+      fill(s.descriptionStart, { name, ayahs }) +
+      (revelation ? fill(s.descriptionReveal, { revelation }) : '') +
+      fill(s.descriptionEnd, { name }),
+    h2Facts: s.h2Facts,
+    h2Text: s.h2Text,
+    h2Browse: s.h2Browse,
+    factAyahs: s.factAyahs,
+    factRevelation: s.factRevelation,
+    factOrder: s.factOrder,
+    factEnglish: s.factEnglish,
+    factPage: s.factPage,
+    previousSurah: s.previousSurah,
+    nextSurah: s.nextSurah,
+    allSurahs: (n) => fill(s.allSurahs, { n }),
+    openInApp: s.openInApp,
+    backHome: s.backHome,
+    breadcrumbLabel: s.breadcrumbLabel,
+    browseLabel: s.browseLabel,
+  };
+}
+
+const LOCALES = {
+  ar: buildArLocale(AR_STRINGS),
+  en: {
+    code: 'en',
+    dir: 'ltr',
+    prefix: '/en',
+    lang: 'en',
+    quran: 'Quran',
+    surahs: 'Surahs of the Quran',
+    surahWord: 'Surah',
+    ayahsWord: 'verses',
+    revelation: { Meccan: 'Meccan', Medinan: 'Medinan' },
+    indexTitle: (n) => `All ${n} Surahs of the Quran — complete index`,
+    indexHeading: 'Surahs of the Quran',
+    indexSubtitle: (n) => `An index of all ${n} surahs`,
+    indexIntro: (n) =>
+      `All ${n} surahs of the Quran, with the number of verses, where each was revealed, and its meaning. Select a surah to read it in full in Uthmani script, or open it in the app to listen with tafsir.`,
+    meccanHeading: 'Meccan surahs',
+    medinanHeading: 'Medinan surahs',
+    surahTitle: (name) => `Surah ${name} - Al-Mushaf As-Sulaymani`,
+    surahDescription: (name, ayahs, revelation) =>
+      `Surah ${name} of the Quran (${ayahs} verses${revelation ? ', ' + revelation : ''}) — read and listen to the full text in Uthmani script with tafsir in Al-Mushaf As-Sulaymani. Free, and works offline.`,
+    h2Facts: 'About this surah',
+    h2Text: 'Surah text',
+    h2Browse: 'Browse surahs',
+    factAyahs: 'Number of verses',
+    factRevelation: 'Revealed in',
+    factOrder: 'Position in the Quran',
+    factEnglish: 'English name',
+    factPage: 'Begins on mushaf page',
+    previousSurah: 'Previous surah',
+    nextSurah: 'Next surah',
+    allSurahs: (n) => `All ${n} surahs of the Quran`,
+    openInApp: 'Open in the app to listen with tafsir',
+    backHome: 'Quran — home page',
+    breadcrumbLabel: 'Breadcrumb',
+    browseLabel: 'Browse surahs',
+  },
+};
+
+const LOCALE_CODES = Object.keys(LOCALES);
+
+/**
+ * How many "../" a page needs to climb from its own directory back to the app
+ * root. Takes a locale code, not a locale object - passing the object silently
+ * returned the Arabic depth for every locale.
+ *
+ * A surah page lives at /{prefix?}/quran/{slug}/ and the index at
+ * /{prefix?}/quran/, so the index is one level shallower and its link to the app
+ * must be one "../" shorter. Getting that wrong made the index pages point
+ * above the app entirely, at the site root.
+ */
+function appDepth(localeCode, isIndex = false) {
+  const levels = (LOCALES[localeCode].prefix ? 3 : 2) - (isIndex ? 1 : 0);
+  return '../'.repeat(levels).replace(/\/$/, '');
+}
 const REVELATION_ORDER = { Meccan: 0, Medinan: 1 };
 
 /** Path of the all-surahs index, relative to a surah page directory. */
 const INDEX_FROM_SURAH = '../index.html';
-/** Path of the app root, relative to a surah page directory. */
-const APP_FROM_SURAH = '../../index.html';
+/** The separator between breadcrumb crumbs, taken from the Arabic strings file. */
+const CRUMB_SEP = AR_STRINGS.breadcrumbSep ?? '‹';
 
-function breadcrumbTrail(nameNoSurat) {
+function breadcrumbTrail(t, nameNoSurat, localeCode) {
   return [
-    { name: 'القرآن الكريم', href: APP_FROM_SURAH },
-    { name: 'سور القرآن', href: INDEX_FROM_SURAH },
-    { name: `سورة ${nameNoSurat}` },
+    { name: t.quran, href: `${appDepth(localeCode)}/index.html` },
+    { name: t.surahs, href: INDEX_FROM_SURAH },
+    { name: `${t.surahWord} ${nameNoSurat}`.trim() },
   ];
 }
 
 /** Visible breadcrumb trail. Google reads these words for the SERP breadcrumb too. */
-function breadcrumbMarkup(trail) {
+function breadcrumbMarkup(trail, label) {
   const parts = trail.map((crumb, i) => {
     const last = i === trail.length - 1;
-    const label = escapeHtml(crumb.name);
+    const text = escapeHtml(crumb.name);
     return last
-      ? `<span class="seo-crumb" aria-current="page">${label}</span>`
-      : `<a href="${crumb.href}">${label}</a><span class="seo-sep" aria-hidden="true">‹</span>`;
+      ? `<span class="seo-crumb" aria-current="page">${text}</span>`
+      : `<a href="${crumb.href}">${text}</a><span class="seo-sep" aria-hidden="true">${CRUMB_SEP}</span>`;
   });
-  return `    <nav class="seo-breadcrumb" aria-label="مسار التنقل">${parts.join('')}</nav>\n`;
+  return `    <nav class="seo-breadcrumb" aria-label="${escapeHtml(label)}">${parts.join('')}</nav>\n`;
 }
 
-function breadcrumbJsonLd(trail) {
+/**
+ * @param pageUrl absolute URL of the page being built, so a relative href
+ *   resolves against the real location rather than a guess. That is what makes
+ *   the three-level climb of a translated page come out right.
+ */
+function breadcrumbJsonLd(trail, pageUrl) {
   return {
     '@type': 'BreadcrumbList',
     itemListElement: trail.map((crumb, i) => ({
@@ -111,31 +237,54 @@ function breadcrumbJsonLd(trail) {
       name: crumb.name,
       ...(crumb.href
         ? {
-            // Resolved to an absolute URL, and stripped of the trailing
-            // "index.html" so a breadcrumb never advertises a second spelling
-            // of a URL the site already declares as a directory elsewhere.
-            item: new URL(crumb.href, `${BASE_URL}/quran/x/`).href.replace(/index\.html$/, ''),
+            // Absolute, and stripped of a trailing index.html so a breadcrumb
+            // never advertises a second spelling of a URL the site already
+            // declares as a directory.
+            item: new URL(crumb.href, pageUrl).href.replace(/index\.html$/, ''),
           }
         : {}),
     })),
   };
 }
 
-function buildHead({ title, description, ogUrl, jsonLd }) {
+/**
+ * Reciprocal hreflang set: every locale links to every other locale, including
+ * itself. Google ignores hreflang unless the declarations are reciprocal, so
+ * this is built once from the locale table and applied to every page.
+ */
+function hreflangLinks(urlFor) {
+  return LOCALE_CODES.map(
+    (code) =>
+      `    <link rel="alternate" hreflang="${LOCALES[code].lang}" href="${urlFor(code)}" />`,
+  ).join('\n');
+}
+
+/** Visible switcher between the locales of this page, for humans. */
+function languageBar(localeCode, selfUrlFor, label) {
+  const links = LOCALE_CODES.map((code) => {
+    const l = LOCALES[code];
+    const current = code === localeCode;
+    return `      <a href="${selfUrlFor(code)}"${current ? ' aria-current="true"' : ''} hreflang="${l.lang}" lang="${l.lang}">${escapeHtml(l.code.toUpperCase())}</a>`;
+  });
+  return `    <nav class="seo-langbar" aria-label="${escapeHtml(label)}">\n${links.join('\n')}\n    </nav>\n`;
+}
+
+function buildHead({ title, description, ogUrl, jsonLd, t, selfUrlFor }) {
   return `<!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="${t.lang}" dir="${t.dir}">
   <head>
     <meta charset="UTF-8" />${jsonLd ? `\n    <script type="application/ld+json">\n${jsonLd}\n    </script>` : ''}
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
     <link rel="canonical" href="${ogUrl}" />
+${hreflangLinks(selfUrlFor)}
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(description)}" />
     <meta property="og:type" content="article" />
     <meta property="og:url" content="${ogUrl}" />
     <meta property="og:image" content="${BASE_URL}/icon-512.png" />
-    <meta property="og:locale" content="ar_SA" />
+    <meta property="og:locale" content="${t.code === 'ar' ? 'ar_SA' : t.code}" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
     <meta name="twitter:description" content="${escapeHtml(description)}" />
@@ -148,16 +297,20 @@ function buildHead({ title, description, ogUrl, jsonLd }) {
       .seo-breadcrumb a { color: #5c2e2e; }
       .seo-crumb { color: #8a6a55; }
       .seo-sep { margin: 0 6px; color: #b59c8c; }
+      .seo-langbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; font-size: 15px; }
+      .seo-langbar a { background: #f1e6dd; color: #5c2e2e; text-decoration: none; padding: 5px 12px; border-radius: 999px; }
+      .seo-langbar a[aria-current="true"] { background: #5c2e2e; color: #fff; }
       .seo-header { text-align: center; border-bottom: 1px solid #e4d8cf; padding-bottom: 20px; margin-bottom: 26px; }
       .seo-header h1 { font-size: 30px; margin: 0 0 8px; color: #5c2e2e; }
       .seo-translation { margin: 0 0 8px; color: #8a6a55; font-size: 16px; }
+      .seo-intro { font-size: 17px; }
       .seo-meta { font-size: 15px; color: #8a6a55; }
       .seo-meta span + span::before { content: " • "; }
       .seo-h2 { font-size: 21px; color: #5c2e2e; margin: 34px 0 12px; padding-bottom: 8px; border-bottom: 1px solid #e4d8cf; }
       .seo-facts { margin: 0; padding: 0; list-style: none; }
       .seo-facts li { padding: 6px 0; border-bottom: 1px dashed #eadfd7; font-size: 16px; }
       .seo-facts b { color: #5c2e2e; font-weight: normal; }
-      .ayah { margin: 4px 0; font-size: 24px; text-align: right; }
+      .ayah { margin: 4px 0; font-size: 24px; text-align: right; direction: rtl; }
       .ayah-number { color: #9a5e08; font-size: 0.75em; margin: 0 6px; }
       .seo-siblings { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
       .seo-siblings a { flex: 1 1 180px; display: block; text-decoration: none; background: #f1e6dd; color: #5c2e2e; border-radius: 12px; padding: 12px 16px; }
@@ -181,26 +334,40 @@ function buildHead({ title, description, ogUrl, jsonLd }) {
   </head>`;
 }
 
-function buildSurahPage(surah, slug, surahListEntry, { prev, next }) {
+function buildSurahPage(surah, slug, surahListEntry, { prev, next }, localeCode) {
+  const t = LOCALES[localeCode];
   const name = stripBom(surah.name);
-  const nameNoSurat = name.replace(/^سُورَةُ\s+/, '');
+  const nameNoSurat = name.replace(SURAH_PREFIX_RE, '');
   const ayahCount = surah.ayahs.length;
-  const revelation = REVELATION_AR[surahListEntry?.revelationType] || '';
-  const translation = surahListEntry?.englishNameTranslation || '';
-  const englishName = surahListEntry?.englishName || '';
+  const revelation = t.revelation[surahListEntry?.revelationType] || '';
+  // The surah's own name and meaning are only translated in English so far. An
+  // English page leads with the transliteration an English speaker would search
+  // for and shows the Arabic script underneath, rather than putting Arabic alone
+  // in a <title>. A locale belongs here once its meanings are real: a German
+  // page carrying Arabic text behind translated labels would rank as thin
+  // duplicate content.
+  const englishName = localeCode === 'en' ? (surahListEntry?.englishName || '') : '';
+  const meaning = localeCode === 'en' ? (surahListEntry?.englishNameTranslation || '') : '';
+  const heading = localeCode === 'en' ? englishName || nameNoSurat : name;
+  const translation = localeCode === 'en' && meaning ? `${meaning} - ${nameNoSurat}` : meaning;
 
-  const title = `${name} - المصحف السليماني`;
-  const description = `سورة ${nameNoSurat} من القرآن الكريم (${arabicNumeral(ayahCount)} آية${revelation ? '، ' + revelation : ''}) — اقرأ واستمع لسورة ${nameNoSurat} كاملة بالرسم العثماني مع التفسير في المصحف السليماني (مجاناً، ويعمل دون اتصال).`;
-  const ogUrl = `${BASE_URL}/quran/${slug}/`;
+  const title = t.surahTitle(localeCode === 'en' ? heading : nameNoSurat);
+  const description = t.surahDescription(
+    localeCode === 'en' ? heading : nameNoSurat,
+    numeral(ayahCount, localeCode),
+    revelation,
+  );
+  const ogUrl = `${BASE_URL}${t.prefix}/quran/${slug}/`;
+  const selfUrlFor = (code) => `${BASE_URL}${LOCALES[code].prefix}/quran/${slug}/`;
 
   const ayahMarkup = surah.ayahs
     .map(
       (a) =>
-        `<div class="ayah">${escapeHtml(stripBom(a.text))}<span class="ayah-number">﴿${arabicNumeral(a.numberInSurah)}﴾</span></div>`,
+        `<div class="ayah">${escapeHtml(stripBom(a.text))}<span class="ayah-number">${ayahOpen}${arabicNumeral(a.numberInSurah)}${ayahClose}</span></div>`,
     )
     .join('\n');
 
-  const trail = breadcrumbTrail(nameNoSurat);
+  const trail = breadcrumbTrail(t, nameNoSurat, localeCode);
   const jsonLd = JSON.stringify(
     {
       '@context': 'https://schema.org',
@@ -209,17 +376,17 @@ function buildSurahPage(surah, slug, surahListEntry, { prev, next }) {
           '@type': 'Article',
           headline: title,
           name: name,
-          inLanguage: 'ar',
+          inLanguage: t.lang,
           url: ogUrl,
           isPartOf: {
             '@type': 'WebApplication',
             name: 'المصحف السليماني',
             url: BASE_URL,
           },
-          about: `سورة ${nameNoSurat} من القرآن الكريم`,
+          about: `${t.surahWord} ${nameNoSurat}`,
           description,
         },
-        breadcrumbJsonLd(trail),
+        breadcrumbJsonLd(trail, ogUrl),
       ],
     },
     null,
@@ -228,61 +395,62 @@ function buildSurahPage(surah, slug, surahListEntry, { prev, next }) {
 
   const translationLine = translation ? `<p class="seo-translation">${escapeHtml(translation)}</p>` : '';
   const firstPage = surah.ayahs[0]?.page;
+  const appHref = `${appDepth(localeCode)}/index.html`;
 
   // Every surah page was previously an island: the only outbound links were to
   // itself and to the app. Google discovers pages through links on pages it has
   // already crawled, so the 114 pages were effectively unreachable to it.
   // Siblings sit one directory up, so they are "../{slug}/" not "{slug}/".
   const facts = [
-    ['عدد الآيات', `${arabicNumeral(ayahCount)} آية`],
-    ['مكان النزول', revelation],
-    ['ترتيبها في المصحف', arabicNumeral(surah.number)],
-    englishName ? ['الاسم بالإنجليزية', englishName] : null,
-    firstPage ? ['تبدأ في صفحة المصحف', arabicNumeral(firstPage)] : null,
+    [t.factAyahs, `${numeral(ayahCount, localeCode)} ${t.ayahsWord}`],
+    revelation ? [t.factRevelation, revelation] : null,
+    [t.factOrder, numeral(surah.number, localeCode)],
+    englishName ? [t.factEnglish, englishName] : null,
+    firstPage ? [t.factPage, numeral(firstPage, localeCode)] : null,
   ].filter(Boolean);
 
   const siblings = [];
   if (prev) {
     siblings.push(
-      `<a href="../${prev.slug}/"><span class="seo-sib-label">السورة السابقة</span><span class="seo-sib-name">سورة ${escapeHtml(prev.nameNoSurat)}</span></a>`,
+      `<a href="../${prev.slug}/"><span class="seo-sib-label">${escapeHtml(t.previousSurah)}</span><span class="seo-sib-name">${escapeHtml(t.surahWord)} ${escapeHtml(prev.nameNoSurat)}</span></a>`,
     );
   }
   siblings.push(
-    `<a class="seo-sib-all" href="${INDEX_FROM_SURAH}">كل سور القرآن الكريم (${arabicNumeral(SURAH_COUNT)})</a>`,
+    `<a class="seo-sib-all" href="${INDEX_FROM_SURAH}">${escapeHtml(t.allSurahs(SURAH_COUNT))}</a>`,
   );
   if (next) {
     siblings.push(
-      `<a href="../${next.slug}/"><span class="seo-sib-label">السورة التالية</span><span class="seo-sib-name">سورة ${escapeHtml(next.nameNoSurat)}</span></a>`,
+      `<a href="../${next.slug}/"><span class="seo-sib-label">${escapeHtml(t.nextSurah)}</span><span class="seo-sib-name">${escapeHtml(t.surahWord)} ${escapeHtml(next.nameNoSurat)}</span></a>`,
     );
   }
 
   const body = `  <body>
     <div class="seo-wrap">
-${breadcrumbMarkup(trail)}      <header class="seo-header">
-        <h1>${escapeHtml(name)}</h1>
+${languageBar(localeCode, selfUrlFor, t.breadcrumbLabel)}${breadcrumbMarkup(trail, t.breadcrumbLabel)}      <header class="seo-header">
+        <h1>${escapeHtml(heading)}</h1>
         ${translationLine}
       </header>
-      <h2 class="seo-h2">معلومات السورة</h2>
+      <h2 class="seo-h2">${escapeHtml(t.h2Facts)}</h2>
       <ul class="seo-facts">
 ${facts.map(([k, v]) => `        <li><b>${escapeHtml(k)}:</b> ${escapeHtml(String(v))}</li>`).join('\n')}
       </ul>
-      <h2 class="seo-h2">نص السورة</h2>
+      <h2 class="seo-h2">${escapeHtml(t.h2Text)}</h2>
       <article lang="ar" dir="rtl">${ayahMarkup}</article>
-      <h2 class="seo-h2">تصفح السور</h2>
-      <nav class="seo-siblings" aria-label="التنقل بين السور">
+      <h2 class="seo-h2">${escapeHtml(t.h2Browse)}</h2>
+      <nav class="seo-siblings" aria-label="${escapeHtml(t.browseLabel)}">
         ${siblings.join('\n        ')}
       </nav>
       <div class="seo-app-link">
-        <a href="${APP_FROM_SURAH}#surah=${surah.number}">افتح في التطبيق للاستماع والتفسير</a>
+        <a href="${appHref}#surah=${surah.number}">${escapeHtml(t.openInApp)}</a>
       </div>
-      <p class="seo-back"><a href="${APP_FROM_SURAH}">القرآن الكريم — الصفحة الرئيسية</a></p>
+      <p class="seo-back"><a href="${appHref}">${escapeHtml(t.backHome)}</a></p>
     </div>
   </body>
 </html>
 `;
 
-  const html = buildHead({ title, description, ogUrl, jsonLd }) + body;
-  return `<!-- Generated by scripts/generate-seo-pages.mjs — https://bahaback-hub.github.io/quran-app/ -->\n${html.replace(/\n\s*\n/g, '\n')}`;
+  const html = buildHead({ title, description, ogUrl, jsonLd, t, selfUrlFor }) + body;
+  return `<!-- Generated by scripts/generate-seo-pages.mjs — ${BASE_URL}/ -->\n${html.replace(/\n\s*\n/g, '\n')}`;
 }
 
 /**
@@ -292,10 +460,16 @@ ${facts.map(([k, v]) => `        <li><b>${escapeHtml(k)}:</b> ${escapeHtml(Strin
  * surah from one crawlable, JavaScript-free page, which is what turns the set
  * from a pile of orphans into a structure Google can walk.
  */
-function buildIndexPage(entries) {
-  const title = `سور القرآن الكريم — فهرس ال${arabicNumeral(SURAH_COUNT)} سورة كاملة`;
-  const description = `فهرس شامل لسور القرآن الكريم: ${arabicNumeral(SURAH_COUNT)} سورة مع عدد آياتها ومكان نزولها ومعناها، وروابط مباشرة لقراءة كل سورة كاملة بالرسم العثماني — مجاناً ويعمل دون اتصال.`;
-  const ogUrl = `${BASE_URL}/quran/`;
+function buildIndexPage(entries, localeCode) {
+  const t = LOCALES[localeCode];
+  const title = t.indexTitle(SURAH_COUNT);
+  const description = t.indexIntro(SURAH_COUNT);
+  const ogUrl = `${BASE_URL}${t.prefix}/quran/`;
+  const selfUrlFor = (code) => `${BASE_URL}${LOCALES[code].prefix}/quran/`;
+  const trail = [
+    { name: t.quran, href: `${appDepth(localeCode, true)}/index.html` },
+    { name: t.surahs },
+  ];
 
   const jsonLd = JSON.stringify(
     {
@@ -306,25 +480,22 @@ function buildIndexPage(entries) {
           name: title,
           description,
           url: ogUrl,
-          inLanguage: 'ar',
+          inLanguage: t.lang,
           isPartOf: { '@type': 'WebApplication', name: 'المصحف السليماني', url: BASE_URL },
         },
         {
           '@type': 'ItemList',
-          name: 'سور القرآن الكريم',
+          name: t.indexHeading,
           numberOfItems: SURAH_COUNT,
           itemListOrder: 'https://schema.org/ItemListOrderAscending',
           itemListElement: entries.map((e, i) => ({
             '@type': 'ListItem',
             position: i + 1,
-            name: `سورة ${e.nameNoSurat}`,
-            url: `${BASE_URL}/quran/${e.slug}/`,
+            name: `${t.surahWord} ${e.nameNoSurat}`,
+            url: `${BASE_URL}${t.prefix}/quran/${e.slug}/`,
           })),
         },
-        breadcrumbJsonLd([
-          { name: 'القرآن الكريم', href: '../../index.html' },
-          { name: 'سور القرآن' },
-        ]),
+        breadcrumbJsonLd(trail, ogUrl),
       ],
     },
     null,
@@ -333,40 +504,42 @@ function buildIndexPage(entries) {
 
   const group = (revelation, heading) => {
     const items = entries.filter((e) => e.revelationKey === revelation);
+    // The meaning is only shown where it is real - English today.
+    const showMeaning = localeCode === 'en';
     const list = items
-      .map(
-        (e) =>
-          `        <li><a href="${e.slug}/"><span class="seo-index-num">${arabicNumeral(e.number)}</span>سورة ${escapeHtml(e.nameNoSurat)} <span class="seo-index-meaning">— ${arabicNumeral(e.numberOfAyahs)} آية${e.meaning ? '، ' + escapeHtml(e.meaning) : ''}</span></a></li>`,
-      )
+      .map((e) => {
+        const bits = [`${numeral(e.numberOfAyahs, localeCode)} ${t.ayahsWord}`];
+        if (showMeaning && e.meaning) bits.push(e.meaning);
+        return `        <li><a href="${e.slug}/"><span class="seo-index-num">${numeral(e.number, localeCode)}</span>${escapeHtml(t.surahWord)} ${escapeHtml(e.nameNoSurat)} <span class="seo-index-meaning">- ${escapeHtml(bits.join(', '))}</span></a></li>`;
+      })
       .join('\n');
-    return `      <h2 class="seo-h2">${heading} (${arabicNumeral(items.length)})</h2>
+    return `      <h2 class="seo-h2">${escapeHtml(heading)} (${numeral(items.length, localeCode)})</h2>
       <ul class="seo-index-list">
 ${list}
       </ul>
 `;
   };
 
+  const appHref = `${appDepth(localeCode, true)}/index.html`;
+
   const body = `  <body>
     <div class="seo-wrap">
-${breadcrumbMarkup([
-      { name: 'القرآن الكريم', href: '../../index.html' },
-      { name: 'سور القرآن' },
-    ])}      <header class="seo-header">
-        <h1>سور القرآن الكريم</h1>
-        <p class="seo-translation">فهرس ال${arabicNumeral(SURAH_COUNT)} سورة</p>
+${languageBar(localeCode, selfUrlFor, t.breadcrumbLabel)}${breadcrumbMarkup(trail, t.breadcrumbLabel)}      <header class="seo-header">
+        <h1>${escapeHtml(t.indexHeading)}</h1>
+        <p class="seo-translation">${escapeHtml(t.indexSubtitle(SURAH_COUNT))}</p>
       </header>
-      <p>كل سورة من سور القرآن الكريم ال${arabicNumeral(SURAH_COUNT)}، مع عدد آياتها ومكان نزولها ومعناها. اضغط اسم السورة لقراءة نصها كاملاً بالرسم العثماني، أو افتحها في التطبيق للاستماع مع التفسير.</p>
-${group('Meccan', 'سور مكية')}${group('Medinan', 'سور مدنية')}      <div class="seo-app-link">
-        <a href="../index.html">افتح التطبيق — Quran الكريم</a>
+      <p class="seo-intro">${escapeHtml(t.indexIntro(SURAH_COUNT))}</p>
+${group('Meccan', t.meccanHeading)}${group('Medinan', t.medinanHeading)}      <div class="seo-app-link">
+        <a href="${appHref}">${escapeHtml(t.openInApp)}</a>
       </div>
-      <p class="seo-back"><a href="../index.html">القرآن الكريم — الصفحة الرئيسية</a></p>
+      <p class="seo-back"><a href="${appHref}">${escapeHtml(t.backHome)}</a></p>
     </div>
   </body>
 </html>
 `;
 
-  const html = buildHead({ title, description, ogUrl, jsonLd }) + body;
-  return `<!-- Generated by scripts/generate-seo-pages.mjs — https://bahaback-hub.github.io/quran-app/ -->\n${html.replace(/\n\s*\n/g, '\n')}`;
+  const html = buildHead({ title, description, ogUrl, jsonLd, t, selfUrlFor }) + body;
+  return `<!-- Generated by scripts/generate-seo-pages.mjs — ${BASE_URL}/ -->\n${html.replace(/\n\s*\n/g, '\n')}`;
 }
 
 function readJson(path) {
@@ -392,15 +565,13 @@ function main() {
     slugByNumber.set(s.number, slug);
   }
 
-  const pageUrls = [];
-
   // One row per surah, in surah order, carrying everything the page and the
   // index both need. Built up front so a page can name its neighbours.
   const neighbour = (j) => {
     const n = surahs[j];
     return {
       slug: slugByNumber.get(n.number),
-      nameNoSurat: stripBom(n.name).replace(/^سُورَةُ\s+/, ''),
+      nameNoSurat: stripBom(n.name).replace(SURAH_PREFIX_RE, ''),
     };
   };
   const entries = surahs.map((s, i) => {
@@ -410,7 +581,7 @@ function main() {
       number: s.number,
       slug: slugByNumber.get(s.number),
       name: stripBom(s.name),
-      nameNoSurat: stripBom(s.name).replace(/^سُورَةُ\s+/, ''),
+      nameNoSurat: stripBom(s.name).replace(SURAH_PREFIX_RE, ''),
       numberOfAyahs: s.ayahs.length,
       meaning: meta?.englishNameTranslation || '',
       revelationKey: meta?.revelationType || '',
@@ -419,44 +590,84 @@ function main() {
     };
   });
 
-  for (const e of entries) {
-    const html = buildSurahPage(e.surah, e.slug, listByNumber.get(e.number) || null, {
-      prev: e.prev,
-      next: e.next,
-    });
-    const dir = join(DIST, 'quran', e.slug);
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, 'index.html'), html, 'utf8');
-    const url = `${BASE_URL}/quran/${e.slug}/`;
-    pageUrls.push(url);
-    console.log(`[seo] ${String(e.number).padStart(3)}  ${e.slug}  (${e.numberOfAyahs} ayahs)`);
+  for (const localeCode of LOCALE_CODES) {
+    const t = LOCALES[localeCode];
+    const root = join(DIST, t.prefix, 'quran');
+    for (const e of entries) {
+      const html = buildSurahPage(
+        e.surah,
+        e.slug,
+        listByNumber.get(e.number) || null,
+        { prev: e.prev, next: e.next },
+        localeCode,
+      );
+      const dir = join(root, e.slug);
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, 'index.html'), html, 'utf8');
+    }
+    // The index page: one crawlable page that links all 114, so none of them is
+    // an island reachable only through the sitemap.
+    mkdirSync(root, { recursive: true });
+    writeFileSync(join(root, 'index.html'), buildIndexPage(entries, localeCode), 'utf8');
+    console.log(`[seo] ${localeCode}  ${entries.length} surah pages + index`);
   }
 
-  // The index page: one crawlable page that links all 114, so none of them is
-  // an island reachable only through the sitemap.
-  const indexHtml = buildIndexPage(entries);
-  mkdirSync(join(DIST, 'quran'), { recursive: true });
-  writeFileSync(join(DIST, 'quran', 'index.html'), indexHtml, 'utf8');
-  const indexUrl = `${BASE_URL}/quran/`;
-  console.log(`[seo]   -  index  (/quran/ — ${entries.length} links)`);
-
   const today = new Date().toISOString().slice(0, 10);
-  const sitemapUrls = [indexUrl, ...pageUrls];
+
+  /**
+   * Each URL with the full set of its alternates. Google only honours hreflang
+   * when the declarations are reciprocal, so every entry carries every locale -
+   * including its own - in both the page markup and here. Each locale is also
+   * listed under its own <loc> rather than only as an alternate, so a
+   * translated page is discoverable from the sitemap on its own.
+   */
+  const urlEntry = (tail, localeCode) => {
+    const l = LOCALES[localeCode];
+    return {
+      loc: `${BASE_URL}${l.prefix}/quran/${tail}`,
+      alternates: LOCALE_CODES.map((c) => ({
+        hreflang: LOCALES[c].lang,
+        href: `${BASE_URL}${LOCALES[c].prefix}/quran/${tail}`,
+      })),
+    };
+  };
+
+  const pageEntries = [
+    ...LOCALE_CODES.map((c) => urlEntry('', c)),
+    ...entries.flatMap((e) => LOCALE_CODES.map((c) => urlEntry(`${e.slug}/`, c))),
+  ];
+
+  // Privacy policy is listed too: a real page people link to, published but
+  // never reachable from the sitemap.
+  const staticPages = ['privacy-policy.html'];
+
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
     `  <url><loc>${BASE_URL}/</loc><lastmod>${today}</lastmod></url>\n` +
-    sitemapUrls
-      .map((u) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod></url>`)
-      .join('\n') +
+    staticPages
+      .map((p) => `  <url><loc>${BASE_URL}/${p}</loc><lastmod>${today}</lastmod></url>\n`)
+      .join('') +
+    pageEntries
+      .map(
+        (u) =>
+          `  <url><loc>${u.loc}</loc><lastmod>${today}</lastmod>` +
+          u.alternates
+            .map((a) => `<xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.href}" />`)
+            .join('') +
+          `</url>\n`,
+      )
+      .join('') +
     `\n</urlset>\n`;
   writeFileSync(join(DIST, 'sitemap.xml'), sitemap, 'utf8');
 
   const robots = `User-agent: *\n` + `Allow: /\n` + `Sitemap: ${BASE_URL}/sitemap.xml\n`;
   writeFileSync(join(DIST, 'robots.txt'), robots, 'utf8');
 
-  console.log(`[seo] Wrote ${pageUrls.length} surah pages + 1 index → dist/quran/`);
-  console.log('[seo] Wrote dist/sitemap.xml and dist/robots.txt');
+  console.log(
+    `[seo] Wrote ${pageEntries.length} URLs across ${LOCALE_CODES.length} locales, plus ${staticPages.length} static page`,
+  );
+  console.log('[seo] Wrote dist/sitemap.xml (with hreflang alternates) and dist/robots.txt');
 }
 
 main();
