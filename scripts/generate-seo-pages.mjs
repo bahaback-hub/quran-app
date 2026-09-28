@@ -641,24 +641,25 @@ function main() {
   // published but previously unreachable from the sitemap.
   const staticPages = ['privacy-policy.html', 'faq/', 'en/faq/'];
 
+  // One tag per line. Still valid XML either way, but a browser's XML viewer
+  // drops the markup when you copy, so a one-line-per-URL file reads as a
+  // single run of text that looks like the sitemap is broken when it is not.
+  const sitemapUrl = (loc, alternates = []) =>
+    `  <url>\n` +
+    `    <loc>${loc}</loc>\n` +
+    `    <lastmod>${today}</lastmod>\n` +
+    alternates
+      .map((a) => `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.href}" />\n`)
+      .join('') +
+    `  </url>\n`;
+
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
-    `  <url><loc>${BASE_URL}/</loc><lastmod>${today}</lastmod></url>\n` +
-    staticPages
-      .map((p) => `  <url><loc>${BASE_URL}/${p}</loc><lastmod>${today}</lastmod></url>\n`)
-      .join('') +
-    pageEntries
-      .map(
-        (u) =>
-          `  <url><loc>${u.loc}</loc><lastmod>${today}</lastmod>` +
-          u.alternates
-            .map((a) => `<xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.href}" />`)
-            .join('') +
-          `</url>\n`,
-      )
-      .join('') +
-    `\n</urlset>\n`;
+    sitemapUrl(`${BASE_URL}/`) +
+    staticPages.map((p) => sitemapUrl(`${BASE_URL}/${p}`)).join('') +
+    pageEntries.map((u) => sitemapUrl(u.loc, u.alternates)).join('') +
+    `</urlset>\n`;
   writeFileSync(join(DIST, 'sitemap.xml'), sitemap, 'utf8');
 
   const robots = `User-agent: *\n` + `Allow: /\n` + `Sitemap: ${BASE_URL}/sitemap.xml\n`;

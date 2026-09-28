@@ -228,8 +228,14 @@ describe('surah pages are internally linked', () => {
       expect(sitemap).toContain(`<loc>${BASE_URL}/en/quran/${slug}/</loc>`);
     }
     // Every surah URL must carry both alternates, or hreflang is not reciprocal.
-    const enEntry = sitemap.split('\n').find((l) => l.includes(`/en/quran/${slugs[0]}/</loc>`));
+    // Read the whole <url> block rather than one line: the sitemap puts every
+    // tag on its own line so it stays readable when a browser drops the markup.
+    const blocks = sitemap.split('</url>');
+    const enEntry = blocks.find((b) => b.includes(`/en/quran/${slugs[0]}/</loc>`));
+    expect(enEntry).toBeDefined();
     expect(enEntry).toContain('hreflang="ar"');
     expect(enEntry).toContain('hreflang="en"');
+    // And the block must still be a well-formed pair.
+    expect(sitemap.match(/<url>/g) ?? []).toHaveLength((sitemap.match(/<\/url>/g) ?? []).length);
   });
 });
