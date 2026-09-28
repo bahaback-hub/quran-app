@@ -15,42 +15,41 @@
 
 import { describe, it, expect, beforeAll } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, existsSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 
 const ROOT = process.cwd();
 const GENERATOR = join(ROOT, 'scripts', 'generate-seo-pages.mjs');
+const QURAN_DIST = join(ROOT, 'dist', 'quran');
 const BASE_URL = 'https://bahaback-hub.github.io/quran-app';
+/** The one path that points out of the generated tree, at the app shell. */
+const APP_ROOT = '../../index.html';
+const APP_ROOT_FROM_INDEX = '../index.html';
+const INDEX_FROM_SURAH = '../index.html';
 
-let dist = '';
+const read = (p: string) => readFileSync(p, 'utf8');
+
 let slugs: string[] = [];
-let read = (p: string) => readFileSync(p, 'utf8');
 
 beforeAll(() => {
-  dist = mkdtempSync(join(tmpdir(), 'seo-pages-'));
-  // The generator writes into ./dist relative to cwd.
-  const prev = process.cwd();
-  try {
-    process.chdir(ROOT);
-    execFileSync(process.execPath, [GENERATOR], { encoding: 'utf8' });
-  } finally {
-    process.chdir(prev);
-  }
-  const quran = join(ROOT, 'dist', 'quran');
-  slugs = readdirSync(quran, { withFileTypes: true })
+  // The generator resolves its paths from its own location, so it does not need
+  // a particular cwd. It writes into ./dist alongside whatever `vite build`
+  // produced - and on CI there may be no build at all, which is why nothing
+  // below may assume dist/index.html exists.
+  execFileSync(process.execPath, [GENERATOR], { encoding: 'utf8' });
+  slugs = readdirSync(QURAN_DIST, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name);
-  return () => rmSync(dist, { recursive: true, force: true });
 }, 120_000);
 
-const surahHtml = (slug: string) => read(join(ROOT, 'dist', 'quran', slug, 'index.html'));
-const indexHtml = () => read(join(ROOT, 'dist', 'quran', 'index.html'));
+const surahHtml = (slug: string) => read(join(QURAN_DIST, slug, 'index.html'));
+const indexHtml = () => read(join(QURAN_DIST, 'index.html'));
+const pageFiles = () => [...slugs.map((s) => join(QURAN_DIST, s, 'index.html')), join(QURAN_DIST, 'index.html')];
 
 describe('surah pages are internally linked', () => {
   it('emits all 114 surah pages plus the index', () => {
     expect(slugs).toHaveLength(114);
-    expect(existsSync(join(ROOT, 'dist', 'quran', 'index.html'))).toBe(true);
+    expect(existsSync(join(QURAN_DIST, 'index.html'))).toBe(true);
   });
 
   it('has an index page linking every surah', () => {
@@ -79,24 +78,42 @@ describe('surah pages are internally linked', () => {
     }
   });
 
-  it('resolves every relative link on every page', () => {
-    const files = [
-      ...slugs.map((s) => join(ROOT, 'dist', 'quran', s, 'index.html')),
-      join(ROOT, 'dist', 'quran', 'index.html'),
-    ];
+  it('resolves every relative link that stays inside the generated tree', () => {
+    // Links that climb out to the app shell (../../index.html) are excluded:
+    // the app is written by `vite build`, and this suite runs in CI where no
+    // build has happened, so that file legitimately does not exist yet.
+    // Asserting it existed made this test pass only on a machine that had just
+    // built, which is exactly the assumption that let it fail in CI. Those links
+    // are checked for shape in the next test instead.
     const broken: string[] = [];
-    for (const file of files) {
+    for (const file of pageFiles()) {
       const html = read(file);
       const from = dirname(file);
       for (const m of html.matchAll(/href="([^"]+)"/g)) {
         const href = m[1];
         if (/^(https?:|mailto:|#)/.test(href)) continue;
-        const target = resolve(from, href.split('#')[0]);
-        const ok = href.endsWith('/') ? existsSync(join(target, 'index.html')) : existsSync(target);
-        if (!ok) broken.push(`${file.split(/[\\/]/).slice(-3, -1).join('/')} -> ${href}`);
+        const path = href.split('#')[0];
+        if (path === APP_ROOT || path === '../index.html') continue;
+        const target = resolve(from, path);
+        const ok = path.endsWith('/') ? existsSync(join(target, 'index.html')) : existsSync(target);
+        if (!ok) broken.push(`${file} -> ${href}`);
       }
     }
     expect(broken).toEqual([]);
+  });
+
+  it('climbs out to the app shell at the right depth from each page', () => {
+    // Two different index.html links exist and both are correct at their own
+    // depth: from dist/quran/{slug}/ the surah index is one level up and the
+    // app shell is two; from dist/quran/ the app shell is one.
+    for (const slug of slugs) {
+      const html = surahHtml(slug);
+      expect(html, `${slug} must link the surah index`).toContain(`href="${INDEX_FROM_SURAH}"`);
+      expect(html, `${slug} must link the app shell`).toContain(`href="${APP_ROOT}`);
+    }
+    const html = indexHtml();
+    expect(html).toContain(`href="${APP_ROOT_FROM_INDEX}"`);
+    expect(html).toContain('href="../index.html');
   });
 
   it('gives every page a breadcrumb in markup and in structured data', () => {
