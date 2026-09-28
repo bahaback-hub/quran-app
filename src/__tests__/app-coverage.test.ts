@@ -28,6 +28,7 @@ const {
   mockBuildSurahOffsets,
   mockPopulateReciterSelect,
   mockShowHome,
+  mockRefreshHomeGrid,
 } = vi.hoisted(() => ({
   mockStorageGet: vi.fn<(key: string) => unknown>(() => null),
   mockStorageSet: vi.fn(),
@@ -42,6 +43,7 @@ const {
   mockBuildSurahOffsets: vi.fn(),
   mockPopulateReciterSelect: vi.fn(),
   mockShowHome: vi.fn(),
+  mockRefreshHomeGrid: vi.fn(),
 }));
 
 // ─── Mock ALL dependencies ─────────────────────────────────────────
@@ -160,6 +162,7 @@ vi.mock('../tajweed-data.js', () => ({
 
 vi.mock('../home.js', () => ({
   showHome: () => mockShowHome(),
+  refreshHomeGrid: () => mockRefreshHomeGrid(),
 }));
 
 vi.mock('../ui-extras.js', () => ({
@@ -277,6 +280,7 @@ describe('app.ts — initApp', () => {
         return null;
       });
       mockShowHome.mockClear();
+      mockRefreshHomeGrid.mockClear();
       mockLoadSurah.mockClear();
 
       await initApp();
@@ -313,6 +317,7 @@ describe('app.ts — initApp', () => {
         return null;
       });
       mockShowHome.mockClear();
+      mockRefreshHomeGrid.mockClear();
       mockLoadSurah.mockClear();
 
       await initApp();

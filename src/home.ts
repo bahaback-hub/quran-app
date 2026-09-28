@@ -33,10 +33,41 @@ export function showHome(): void {
   if (!dom.surahContent || isHomeVisible()) {
     return;
   }
+  showHomeIn(dom.surahContent);
+}
 
+/**
+ * Fill in the 114-surah grid once the surah list has actually arrived.
+ *
+ * `showHome()` is deliberately called before `loadSurahList()` is awaited, so
+ * the launcher - and the bismillah that is the visitor's Largest Contentful
+ * Paint - can paint immediately instead of waiting on a network round trip. That
+ * means the grid is rendered from an empty list first, and this puts the real
+ * one in its place without disturbing the hero above it or the buttons, so
+ * nothing on screen moves.
+ *
+ * No-op once a surah is open, so a late-arriving list can never overwrite the
+ * reader's actual text.
+ */
+export function refreshHomeGrid(): void {
+  const container = dom.surahContent;
+  if (!container || !isHomeVisible() || state.surahList.length === 0) {
+    return;
+  }
+  const grid = container.querySelector('.home-surah-grid');
+  if (!grid || grid.dataset['filled'] === 'true') {
+    return;
+  }
+  grid.innerHTML = renderSurahGrid(state.surahList);
+  grid.dataset['filled'] = 'true';
+  bindHomeSurahCards(container);
+}
+
+/** The launcher markup, split out so both entry points share one source. */
+function showHomeIn(container: HTMLElement): void {
   const grid = state.surahList.length > 0 ? renderSurahGrid(state.surahList) : renderEmptyGrid();
 
-  dom.surahContent.innerHTML = `
+  container.innerHTML = `
     <section class="home-screen" id="${HOME_ID}" role="region" aria-label="${escapeHtml(__('home_welcome'))}">
       <div class="home-hero">
         <div class="home-bismillah" aria-hidden="true">بِسْمِ اللهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
@@ -60,20 +91,30 @@ export function showHome(): void {
         </div>
       </div>
       <h2 class="home-browse-title" data-i18n="home_browse">${escapeHtml(__('home_browse'))}</h2>
-      <ul class="home-surah-grid">${grid}</ul>
+      <ul class="home-surah-grid"${state.surahList.length > 0 ? ' data-filled="true"' : ''}>${grid}</ul>
     </section>`;
 
-  dom.surahContent.querySelectorAll<HTMLElement>('.home-surah-card').forEach((card) => {
+  bindHomeSurahCards(container);
+  container.querySelectorAll<HTMLElement>('.home-action-btn').forEach((btn) => {
+    btn.addEventListener('click', () => handleQuickAction(btn.dataset['action']));
+  });
+}
+
+/**
+ * Bind the surah cards under `root`.
+ *
+ * Extracted because `refreshHomeGrid()` swaps the cards in later, and freshly
+ * inserted buttons do not inherit listeners from markup that has already been
+ * wired. Without this the grid would render but be dead to the touch.
+ */
+function bindHomeSurahCards(root: HTMLElement): void {
+  root.querySelectorAll<HTMLElement>('.home-surah-card').forEach((card) => {
     card.addEventListener('click', () => {
       const number = parseInt(card.dataset['surah'] || '0', 10);
       if (number > 0 && number <= 114) {
         void loadSurah(number);
       }
     });
-  });
-
-  dom.surahContent.querySelectorAll<HTMLElement>('.home-action-btn').forEach((btn) => {
-    btn.addEventListener('click', () => handleQuickAction(btn.dataset['action']));
   });
 }
 
