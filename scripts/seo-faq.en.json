@@ -1,0 +1,71 @@
+{
+  "title": "Frequently asked questions about Al-Mushaf As-Sulaymani",
+  "subtitle": "Everything you need to know about the app",
+  "intro": "Direct answers to the questions we are asked most. The app is completely free and needs no account or sign-up.",
+  "questions": [
+    {
+      "q": "Is Al-Mushaf As-Sulaymani free?",
+      "a": "Yes, entirely. There is no subscription, no sign-up and no account. Every feature is available to everyone, including recitation, tafsir, adhkar, prayer times and the qibla."
+    },
+    {
+      "q": "Does it work offline?",
+      "a": "Yes. After the first visit the mushaf pages and recitations are stored on your device and the app keeps working without a connection. New files download by themselves once you are back online."
+    },
+    {
+      "q": "Where does the Quranic text come from?",
+      "a": "From the Madinah Mushaf in the Hafs narration from Asim, in Uthmani script. The text is stored inside the app rather than fetched from another site, and every surah is also published as a standalone page that works without JavaScript."
+    },
+    {
+      "q": "Is there tafsir for the verses?",
+      "a": "Yes. Open the tafsir curtain from the toolbar to read the tafsir of the current verse, and slide it away without closing it. Tafsir also appears when you tap a verse in mushaf mode."
+    },
+    {
+      "q": "How do I change surah?",
+      "a": "Use the surah menu in the reader toolbar, or a deep link that opens the surah you want straight away. The app remembers the last surah you read and reopens it next time."
+    },
+    {
+      "q": "How do I move between mushaf pages?",
+      "a": "In mushaf mode you can swipe between pages, pick a page from the page selector, or drag the page slider. The current page number is shown in the toolbar."
+    },
+    {
+      "q": "What is the difference between surah mode and mushaf mode?",
+      "a": "Surah mode shows the text as one continuous passage, which suits listening and following along with the recitation. Mushaf mode shows the printed pages of the mushaf as high-resolution images. Both show verse numbers and tafsir."
+    },
+    {
+      "q": "How do I choose a reciter?",
+      "a": "Use the reciter menu in the reader toolbar, which lists several reciters. Your choice is remembered between visits. Audio is fetched as it is needed, so it is never all downloaded at once."
+    },
+    {
+      "q": "How do I get an alert when a prayer time enters?",
+      "a": "Turn on the azan alert in the settings and grant the notification permission when asked. Alerts are scheduled at the system level, so they still arrive with the app closed. You can also choose which adhan plays."
+    },
+    {
+      "q": "How are prayer times calculated?",
+      "a": "From your device's coordinates, once you allow location access, using the calculation method chosen in the settings. You can switch methods at any time and the times update immediately."
+    },
+    {
+      "q": "How do I find the qibla direction?",
+      "a": "The app works out the angle from your location to the Masjid al-Haram and shows it with a guide arrow. All it needs is location permission, and your coordinates are never shared with anyone."
+    },
+    {
+      "q": "Can I save favourite verses and pages?",
+      "a": "Yes. Open the favourites list and add the verses or pages you want to come back to, then open them any time, or export them as plain text or JSON."
+    },
+    {
+      "q": "Can I share a verse or a page?",
+      "a": "Yes. The share button in the reader toolbar copies the verse text or hands it to any app on your device. The link opens that same surah in the app."
+    },
+    {
+      "q": "Which languages does the app speak?",
+      "a": "Eight interface languages: Arabic, English, German, French, Turkish, Indonesian, Malay and Russian. You pick the language in the settings and it is remembered. The Quranic text itself stays Arabic in all of them."
+    },
+    {
+      "q": "Does it work on phones and computers?",
+      "a": "Yes. The site works in any modern browser on a phone or a computer, and can be installed to the home screen as an app. There is also an Android build made from the same source."
+    },
+    {
+      "q": "Does the app collect any data about me?",
+      "a": "No. There are no logs, no analytics and no tracking. Your settings, your location and your favourites are stored on your device alone. The privacy policy page has the full details."
+    }
+  ]
+}

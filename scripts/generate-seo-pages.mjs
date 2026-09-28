@@ -637,9 +637,9 @@ function main() {
     ...entries.flatMap((e) => LOCALE_CODES.map((c) => urlEntry(`${e.slug}/`, c))),
   ];
 
-  // Privacy policy is listed too: a real page people link to, published but
-  // never reachable from the sitemap.
-  const staticPages = ['privacy-policy.html'];
+  // Privacy policy and the FAQ are listed too: real pages people link to,
+  // published but previously unreachable from the sitemap.
+  const staticPages = ['privacy-policy.html', 'faq/', 'en/faq/'];
 
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +

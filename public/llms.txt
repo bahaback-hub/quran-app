@@ -27,6 +27,8 @@
 
 ## ملفات مرجعية
 
+- [أسئلة شائعة](https://bahaback-hub.github.io/quran-app/faq/): إجابات مباشرة عن المجانية والعمل دون اتصال ومصدر النص وطريقة حساب المواقيت والخصوصية.
+- [أسئلة شائعة (English)](https://bahaback-hub.github.io/quran-app/en/faq/)
 - [خريطة الموقع (sitemap.xml)](https://bahaback-hub.github.io/quran-app/sitemap.xml): روابط كل الصفحات المنشورة.
 - [ملف robots.txt](https://bahaback-hub.github.io/quran-app/robots.txt)
 - [بيان التطبيق (manifest.json)](https://bahaback-hub.github.io/quran-app/manifest.json)
