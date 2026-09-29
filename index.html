@@ -7,13 +7,18 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content"
     />
     <meta name="theme-color" content="#5c2e2e" />
-    <meta name="description" content="المصحف السليماني — تطبيق القرآن الكريم: تلاوة صوتية، بحث، تفسير، مواقيت الصلاة، وأذكار، يعمل دون اتصال بالإنترنت" />
+    <meta
+      name="description"
+      content="المصحف السليماني — تطبيق القرآن الكريم: تلاوة صوتية، بحث، تفسير، مواقيت الصلاة، وأذكار، يعمل دون اتصال بالإنترنت"
+    />
     <!-- Open Graph / Social Sharing -->
     <meta property="og:title" content="المصحف السليماني — تطبيق القرآن الكريم" />
     <meta property="og:description" content="المصحف السليماني — تلاوة، استماع، بحث، تفسير، مواقيت الصلاة، وأذكار" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://bahaback-hub.github.io/quran-app/" />
-    <meta property="og:image" content="%BASE_URL%icon-512.png" />
+    <meta property="og:image" content="https://bahaback-hub.github.io/quran-app/icon-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
     <meta property="og:locale" content="ar_SA" />
     <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:locale:alternate" content="tr_TR" />
@@ -23,7 +28,7 @@
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="المصحف السليماني" />
     <meta name="twitter:description" content="المصحف السليماني — تلاوة، استماع، بحث، تفسير، مواقيت الصلاة، وأذكار" />
-    <meta name="twitter:image" content="%BASE_URL%icon-512.png" />
+    <meta name="twitter:image" content="https://bahaback-hub.github.io/quran-app/icon-512.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -41,6 +46,15 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>المصحف السليماني — القرآن الكريم | تلاوة، تفسير، مواقيت الصلاة</title>
     <link rel="canonical" href="https://bahaback-hub.github.io/quran-app/" />
+    <!-- Reciprocal hreflang. Google ignores hreflang unless every declaration
+         points back at the others, so each side names itself and the other.
+         /en/quran/ is the English equivalent of the Arabic surah index, and it
+         exists (generated, plus present in the sitemap). The app shell is one
+         URL with a locale switcher, so it does not get an English variant of
+         its own and is deliberately not declared here. -->
+    <link rel="alternate" hreflang="ar" href="https://bahaback-hub.github.io/quran-app/quran/" />
+    <link rel="alternate" hreflang="en" href="https://bahaback-hub.github.io/quran-app/en/quran/" />
+    <link rel="alternate" hreflang="x-default" href="https://bahaback-hub.github.io/quran-app/quran/" />
     <!-- Agent discovery. ARD v0.91 defines /.well-known/ard.json with rel="ard";
          ai-catalog.json is its predecessor name, which conformant consumers may
          still consult, so both are advertised and both files are served.
@@ -236,7 +250,11 @@
         <!-- ========== أدوات التحكم ========== -->
         <section class="controls" id="controls" aria-label="أدوات التحكم">
           <div class="controls-row">
-            <div class="control-card reader-command-bar control-card-persistent" role="toolbar" aria-label="أنماط العرض">
+            <div
+              class="control-card reader-command-bar control-card-persistent"
+              role="toolbar"
+              aria-label="أنماط العرض"
+            >
               <button class="btn-install hidden" id="installBtn" title="تثبيت التطبيق" aria-label="تثبيت التطبيق">
                 📲
               </button>
@@ -352,7 +370,12 @@
                 >
                   🎨
                 </button>
-                <div class="view-mode-group" role="group" data-i18n-aria-label="reading_mode_label" aria-label="طريقة القراءة">
+                <div
+                  class="view-mode-group"
+                  role="group"
+                  data-i18n-aria-label="reading_mode_label"
+                  aria-label="طريقة القراءة"
+                >
                   <button
                     class="view-mode-btn active"
                     id="viewSurahBtn"
@@ -411,7 +434,11 @@
                     aria-pressed="false"
                   >
                     <span class="reading-mode-preview reading-mode-preview-featured" aria-hidden="true"
-                      ><img class="reading-mode-preview-logo" src="/brand/reading-mode-featured-ayah-logo.webp" alt="" loading="lazy"
+                      ><img
+                        class="reading-mode-preview-logo"
+                        src="/brand/reading-mode-featured-ayah-logo.webp"
+                        alt=""
+                        loading="lazy"
                     /></span>
                     <span class="reading-mode-copy">
                       <span class="reading-mode-title" data-i18n="reading_mode_featured">آية مميزة</span>

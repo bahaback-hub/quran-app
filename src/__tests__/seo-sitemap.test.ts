@@ -122,6 +122,42 @@ describe('sitemap', () => {
     expect(robots).toMatch(/^Allow: \/$/m);
   });
 
+  it('declares the same alternates on the app shell as the sitemap does', () => {
+    // The shell is the one page Google reaches first, so its hreflang has to
+    // agree with the sitemap. Disagreeing sets are treated as conflicting
+    // signals and both get dropped, which is worse than declaring nothing.
+    const head = readFileSync(resolve(ROOT, 'dist', 'index.html'), 'utf8').split('</head>')[0]!;
+    const declared = [...head.matchAll(/<link\s+rel="alternate"[^>]*hreflang="([^"]+)"[^>]*>/g)].map((m) => m[1]!);
+    expect(declared.sort()).toEqual(['ar', 'en', 'x-default']);
+
+    // Every href must be a real page that the sitemap also lists, and the ar/en
+    // pair must point at each other.
+    const listed = new Set(locs());
+    const hrefOf = (lang: string) => head.match(new RegExp(`hreflang="${lang}"[^>]*href="([^"]+)"`))![1]!;
+    for (const lang of ['ar', 'en', 'x-default']) {
+      expect(listed.has(hrefOf(lang)), `${lang} href must be a listed page`).toBe(true);
+    }
+    const arEntry = locs().includes(hrefOf('ar'))
+      ? entries().find((c) => c.includes(`<loc>${hrefOf('ar')}</loc>`))!
+      : '';
+    expect(arEntry, 'ar page must declare en back').toContain(hrefOf('en'));
+  });
+
+  it('uses absolute social image URLs, not base-relative ones', () => {
+    // Facebook and WhatsApp resolve og:image against the deployment host. A
+    // relative path is the single most common reason a share preview is blank,
+    // and %BASE_URL% would be published literally if nothing substituted it.
+    const head = readFileSync(resolve(ROOT, 'dist', 'index.html'), 'utf8').split('</head>')[0]!;
+    for (const prop of ['og:image', 'twitter:image']) {
+      const content =
+        head.match(new RegExp(`property="${prop}"[^>]*content="([^"]*)"`))?.[1] ??
+        head.match(new RegExp(`name="${prop}"[^>]*content="([^"]*)"`))?.[1];
+      expect(content, prop).toBeDefined();
+      expect(content, `${prop} must be absolute`).toMatch(/^https:\/\//);
+      expect(content, `${prop} must not keep the build placeholder`).not.toContain('%');
+    }
+  });
+
   it('does not list itself, and advertises a single canonical host', () => {
     // A sitemap is not a page to index, so it should not list itself. What
     // matters instead is that one host is used throughout: a sitemap mixing
