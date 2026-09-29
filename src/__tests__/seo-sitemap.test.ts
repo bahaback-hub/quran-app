@@ -158,6 +158,24 @@ describe('sitemap', () => {
     }
   });
 
+  it('is advertised by the pages themselves, not only by robots.txt', () => {
+    // Search Console fills in "sitemaps discovered" from a rel="sitemap" in the
+    // markup. robots.txt alone still requires a manual submit, which is exactly
+    // the gap this closes, so every generated page has to carry it.
+    const pages = [
+      resolve(ROOT, 'dist', 'index.html'),
+      resolve(ROOT, 'dist', 'quran', 'index.html'),
+      resolve(ROOT, 'dist', 'en', 'quran', 'index.html'),
+      resolve(ROOT, 'dist', 'faq', 'index.html'),
+      resolve(ROOT, 'dist', 'en', 'faq', 'index.html'),
+      resolve(ROOT, 'dist', 'quran', 'al-fatihah', 'index.html'),
+    ];
+    for (const page of pages) {
+      const head = readFileSync(page, 'utf8').split('</head>')[0]!;
+      expect(head, page).toContain(`<link rel="sitemap" type="application/xml" href="${BASE_URL}/sitemap.xml" />`);
+    }
+  });
+
   it('does not list itself, and advertises a single canonical host', () => {
     // A sitemap is not a page to index, so it should not list itself. What
     // matters instead is that one host is used throughout: a sitemap mixing

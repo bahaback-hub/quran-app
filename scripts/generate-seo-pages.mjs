@@ -254,8 +254,7 @@ function breadcrumbJsonLd(trail, pageUrl) {
  */
 function hreflangLinks(urlFor) {
   return LOCALE_CODES.map(
-    (code) =>
-      `    <link rel="alternate" hreflang="${LOCALES[code].lang}" href="${urlFor(code)}" />`,
+    (code) => `    <link rel="alternate" hreflang="${LOCALES[code].lang}" href="${urlFor(code)}" />`,
   ).join('\n');
 }
 
@@ -278,6 +277,7 @@ function buildHead({ title, description, ogUrl, jsonLd, t, selfUrlFor }) {
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
     <link rel="canonical" href="${ogUrl}" />
+    <link rel="sitemap" type="application/xml" href="${BASE_URL}/sitemap.xml" />
 ${hreflangLinks(selfUrlFor)}
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(description)}" />
@@ -346,8 +346,8 @@ function buildSurahPage(surah, slug, surahListEntry, { prev, next }, localeCode)
   // in a <title>. A locale belongs here once its meanings are real: a German
   // page carrying Arabic text behind translated labels would rank as thin
   // duplicate content.
-  const englishName = localeCode === 'en' ? (surahListEntry?.englishName || '') : '';
-  const meaning = localeCode === 'en' ? (surahListEntry?.englishNameTranslation || '') : '';
+  const englishName = localeCode === 'en' ? surahListEntry?.englishName || '' : '';
+  const meaning = localeCode === 'en' ? surahListEntry?.englishNameTranslation || '' : '';
   const heading = localeCode === 'en' ? englishName || nameNoSurat : name;
   const translation = localeCode === 'en' && meaning ? `${meaning} - ${nameNoSurat}` : meaning;
 
@@ -415,9 +415,7 @@ function buildSurahPage(surah, slug, surahListEntry, { prev, next }, localeCode)
       `<a href="../${prev.slug}/"><span class="seo-sib-label">${escapeHtml(t.previousSurah)}</span><span class="seo-sib-name">${escapeHtml(t.surahWord)} ${escapeHtml(prev.nameNoSurat)}</span></a>`,
     );
   }
-  siblings.push(
-    `<a class="seo-sib-all" href="${INDEX_FROM_SURAH}">${escapeHtml(t.allSurahs(SURAH_COUNT))}</a>`,
-  );
+  siblings.push(`<a class="seo-sib-all" href="${INDEX_FROM_SURAH}">${escapeHtml(t.allSurahs(SURAH_COUNT))}</a>`);
   if (next) {
     siblings.push(
       `<a href="../${next.slug}/"><span class="seo-sib-label">${escapeHtml(t.nextSurah)}</span><span class="seo-sib-name">${escapeHtml(t.surahWord)} ${escapeHtml(next.nameNoSurat)}</span></a>`,
@@ -466,10 +464,7 @@ function buildIndexPage(entries, localeCode) {
   const description = t.indexIntro(SURAH_COUNT);
   const ogUrl = `${BASE_URL}${t.prefix}/quran/`;
   const selfUrlFor = (code) => `${BASE_URL}${LOCALES[code].prefix}/quran/`;
-  const trail = [
-    { name: t.quran, href: `${appDepth(localeCode, true)}/index.html` },
-    { name: t.surahs },
-  ];
+  const trail = [{ name: t.quran, href: `${appDepth(localeCode, true)}/index.html` }, { name: t.surahs }];
 
   const jsonLd = JSON.stringify(
     {
@@ -648,9 +643,7 @@ function main() {
     `  <url>\n` +
     `    <loc>${loc}</loc>\n` +
     `    <lastmod>${today}</lastmod>\n` +
-    alternates
-      .map((a) => `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.href}" />\n`)
-      .join('') +
+    alternates.map((a) => `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.href}" />\n`).join('') +
     `  </url>\n`;
 
   const sitemap =

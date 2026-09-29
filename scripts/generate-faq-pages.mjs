@@ -83,7 +83,12 @@ function buildPage(localeCode) {
         {
           '@type': 'BreadcrumbList',
           itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Al-Mushaf As-Sulaymani', item: new URL(app, 'https://x.invalid/').href },
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Al-Mushaf As-Sulaymani',
+              item: new URL(app, 'https://x.invalid/').href,
+            },
             { '@type': 'ListItem', position: 2, name: copy.title },
           ],
         },
@@ -122,6 +127,7 @@ ${jsonLd}
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
     <link rel="canonical" href="${selfUrl(localeCode)}" />
+    <link rel="sitemap" type="application/xml" href="${BASE_URL}/sitemap.xml" />
 ${alternates}
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(description)}" />
