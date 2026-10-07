@@ -94,7 +94,7 @@
     "knip": "6.37.0",
     "lightningcss": "^1.32.0",
     "madge": "^8.0.0",
-    "prettier": "^3.0.0",
+    "prettier": "^3.9.9",
     "sharp": "0.35.5",
     "typedoc": "^0.28.19",
     "typescript": "^5.9.3",
