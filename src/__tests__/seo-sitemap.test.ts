@@ -26,8 +26,16 @@ const LOCALES = ['ar', 'en'] as const;
 
 let xml = '';
 beforeAll(() => {
-  // Runs the real generator, so this checks what is actually published.
+  // Runs the real generators, so this checks what is actually published.
+  // Both of them: the surah pages come from generate-seo-pages and the FAQ pages
+  // from generate-faq-pages, and the assertions below read from both. Depending
+  // on which build steps ran before the tests would make this file pass or fail
+  // for reasons that have nothing to do with the sitemap, so it builds its own
+  // inputs. The one thing it cannot build is the app shell itself
+  // (dist/index.html) - that needs the full Vite build, which is why CI builds
+  // before running the unit tests.
   execFileSync(process.execPath, [join(ROOT, 'scripts', 'generate-seo-pages.mjs')], { encoding: 'utf8' });
+  execFileSync(process.execPath, [join(ROOT, 'scripts', 'generate-faq-pages.mjs')], { encoding: 'utf8' });
   xml = readFileSync(resolve(ROOT, 'dist', 'sitemap.xml'), 'utf8');
 }, 120_000);
 

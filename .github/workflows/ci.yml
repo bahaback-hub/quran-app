@@ -65,6 +65,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # The seo-sitemap unit test asserts against the built app shell
+      # (dist/index.html: substituted base URL, hreflang, social images).
+      # The generator it runs only writes the SEO pages, sitemap and robots -
+      # never the shell - so the build must come first or those tests fail
+      # with ENOENT on a fresh checkout.
+      - run: npm run build
       - run: npm test -- --run --coverage
       - name: Verify total coverage threshold (≥ 80% lines)
         run: |
