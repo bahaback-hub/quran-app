@@ -6,7 +6,7 @@
 
 [📲 تحميل تطبيق Android](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.20/quran-app-v3.1.20-official-uthmanic-hafs-debug.apk) · [🌐 تجربة التطبيق في المتصفح](https://bahaback-hub.github.io/quran-app/) · [🐛 الإبلاغ عن مشكلة](https://github.com/bahaback-hub/quran-app/issues) · [💡 اقتراح ميزة](https://github.com/bahaback-hub/quran-app/issues) · [💬 المناقشات](https://github.com/bahaback-hub/quran-app/discussions)
 
-[![الإصدار الحالي](https://img.shields.io/badge/Web-v3.1.26-16794C.svg)](https://github.com/bahaback-hub/quran-app/releases)
+[![الإصدار الحالي](https://img.shields.io/badge/Web-v3.1.27-16794C.svg)](https://github.com/bahaback-hub/quran-app/releases)
 [![حالة الفحوصات](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -16,7 +16,7 @@
 
 ## 📲 تثبيت التطبيق على Android
 
-**إصدار الويب الحالي: 3.1.26** (آخر إصدار Android موقّع هو [3.1.20](https://github.com/bahaback-hub/quran-app/releases/tag/v3.1.20)). لتثبيت التطبيق على Android، نزّل [ملف APK 3.1.20](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.20/quran-app-v3.1.20-official-uthmanic-hafs-debug.apk)، ثم افتحه من مجلد التنزيلات واختر **تثبيت**. يمكنك تثبيته فوق النسخة السابقة مباشرةً.
+**إصدار الويب الحالي: 3.1.27** (آخر إصدار Android موقّع هو [3.1.20](https://github.com/bahaback-hub/quran-app/releases/tag/v3.1.20)). لتثبيت التطبيق على Android، نزّل [ملف APK 3.1.20](https://github.com/bahaback-hub/quran-app/releases/download/v3.1.20/quran-app-v3.1.20-official-uthmanic-hafs-debug.apk)، ثم افتحه من مجلد التنزيلات واختر **تثبيت**. يمكنك تثبيته فوق النسخة السابقة مباشرةً.
 
 إذا طلب الهاتف إذنًا للتثبيت، فعّل مؤقتًا خيار **السماح بالتثبيت من هذا المصدر** للمتصفح أو مدير الملفات الذي فتحت منه الملف، ثم أعد إيقافه عند الانتهاء.
 

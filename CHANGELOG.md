@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- عُطّلت مهمة المزامنة اليومية لمواقيت الصلاة لأنها كانت تشغّل سكربتًا مهملًا قد يستبدل البيانات الرسمية؛ التشغيل اليدوي مرفوض الآن حتى توجد البنية الرسمية.
+- وُحّد رقم الإصدار `3.1.27` بين `package.json` و`package-lock.json` وشارة README ونص إصدار الويب.
+
 ### Security & Quality Gates (v3.1.27 pre-release)
 - **Vitest upgraded from 4.1.7 to 5.0.2** to eliminate the moderate-severity
   path-traversal advisory in `@vitest/mocker` (GHSA-82fw-gwwq-j7x9).

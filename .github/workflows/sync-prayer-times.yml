@@ -1,33 +1,21 @@
 name: Sync Prayer Times
 
+# Disabled: the legacy Aladhan sync script is deprecated and must not overwrite
+# the official prayer-times data. The daily schedule is removed, and manual runs
+# are refused until the official KACST pipeline exists in the repository.
 on:
-  schedule:
-    # Run daily at 1:00 AM UTC (4:00 AM Saudi time)
-    - cron: '0 1 * * *'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   sync:
-    name: Sync with Aladhan API
+    name: Sync with Aladhan API (disabled)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Sync prayer times
-        run: node scripts/sync-official-prayer-times.mjs
-
-      - name: Commit changes
+      - name: Refuse deprecated sync
         run: |
-          git config user.name "Prayer Times Bot"
-          git config user.email "bot@quran-app.local"
-          git add public/data/prayer-times-1448.json
-          git diff --staged --quiet || git commit -m "chore: sync prayer times for today"
-          git push
+          echo "::error::scripts/sync-official-prayer-times.mjs is deprecated and must not overwrite public/data/prayer-times-1448.json."
+          echo "Implement scripts/regenerate-prayer-times-official.mjs before re-enabling this workflow."
+          exit 1
