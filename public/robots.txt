@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bahaback-hub.github.io/quran-app/sitemap.xml
