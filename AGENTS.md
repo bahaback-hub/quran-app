@@ -1,6 +1,6 @@
 # Quran App — Project Guide for AI Agents
 
-> **Honest snapshot of the codebase as of v3.1.20.** Read this BEFORE making changes.
+> **Honest snapshot of the codebase as of v3.1.27.** Read this BEFORE making changes.
 
 ## Commands
 
@@ -23,8 +23,9 @@
 
 ### Build & Module System
 
-- **Vite 8 + LightningCSS** for production builds, with `manualChunks` code-splitting
-  (vendor, i18n, mushaf, presentation, tajweed, search, prayer).
+- **Vite 8 + LightningCSS** for production builds, with natural code-splitting
+  by the real import graph (the old per-feature `manualChunks` were removed:
+  naming a module made it a chunk root and dragged shared code into it).
 - **PWA**: `vite-plugin-pwa` (Workbox) with `registerType: 'prompt'`,
   CacheFirst for Quran/Tafsir/Audio/Fonts, StaleWhileRevalidate for APIs,
   `share_target`, `shortcuts`, `screenshots`.
@@ -87,7 +88,7 @@ Do NOT reassign `state`; mutate its properties.
 
 ## Module Files (`src/`)
 
-There are **~56 TypeScript source files** (excluding tests and translations).
+There are **~125 TypeScript source files** (excluding tests and translations).
 Key modules:
 
 | File                                                       | Purpose                                                                                                                                                                                                                                                                |
@@ -110,13 +111,13 @@ Key modules:
 | `overlays.ts`                                              | Lazy template injection before `cacheDom()`                                                                                                                                                                                                                            |
 | `surah-loader.ts`                                          | **Large file (~42KB)** — surah loading, rendering, caching, offsets                                                                                                                                                                                                    |
 | `surahs-data.ts`                                           | Static surah metadata (~50KB)                                                                                                                                                                                                                                          |
-| `audio.ts`                                                 | Advanced audio player (~29KB) — word tracking, hifdh, repeat, sleep timer                                                                                                                                                                                              |
-| `audio-cache.ts`                                           | IndexedDB audio cache with LRU eviction (200MB cap)                                                                                                                                                                                                                    |
+| `features/audio/audio.ts`                                    | Advanced audio player (~29KB) — word tracking, hifdh, repeat, sleep timer                                                                                                                                                                                              |
+| `features/audio/audio-cache.ts`                              | IndexedDB audio cache with LRU eviction (200MB cap)                                                                                                                                                                                                                    |
 | `audio-visualizer.ts`                                      | Canvas-based audio visualizer                                                                                                                                                                                                                                          |
-| `mushaf.ts` / `mushaf-renderer.ts`                         | Mushaf mode (QCF V4 Canvas, 604 pages)                                                                                                                                                                                                                                 |
-| `presentation.ts` / `pres-backgrounds.ts`                  | Presentation mode + Canvas backgrounds                                                                                                                                                                                                                                 |
-| `search-core.ts` / `search-ui.ts`                          | Trie-based search engine + UI                                                                                                                                                                                                                                          |
-| `prayer.ts` / `prayer-local.ts`                            | Prayer times (Aladhan API + local `adhan` lib) + Qibla compass                                                                                                                                                                                                         |
+| `features/mushaf/mushaf.ts` / `features/mushaf/mushaf-renderer.ts` | Mushaf mode (QCF V4 Canvas, 604 pages)                                                                                                                                                                                                                                 |
+| `features/presentation/presentation.ts` / `features/presentation/pres-backgrounds.ts` | Presentation mode + Canvas backgrounds                                                                                                                                                                                                  |
+| `features/search/search-core.ts` / `features/search/search-ui.ts` | Trie-based search engine + UI                                                                                                                                                                                               |
+| `features/prayer/prayer.ts` / `features/prayer/prayer-local.ts` | Prayer times (Aladhan API + local `adhan` lib) + Qibla compass                                                                                                                              |
 | `tafsir.ts`                                                | 6 tafsirs with 3-tier loading (local → IDB → API)                                                                                                                                                                                                                      |
 | `tajweed.ts` / `tajweed-data.ts`                           | 18 tajweed color rules                                                                                                                                                                                                                                                 |
 | `reciters.ts`                                              | +30 reciters catalog                                                                                                                                                                                                                                                   |
@@ -162,7 +163,7 @@ These files are large and would benefit from being split by feature:
 
 ### Unit Tests (`src/__tests__/`)
 
-- **Vitest 4** + `jsdom` + `fake-indexeddb`
+- **Vitest 5** + `jsdom` + `fake-indexeddb`
 - ~90 test files covering all modules
 - **Coverage threshold: ≥ 80% lines** (enforced in CI)
 - Per-file coverage gaps are tracked (not just the total)

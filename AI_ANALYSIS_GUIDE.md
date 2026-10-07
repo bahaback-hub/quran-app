@@ -19,7 +19,7 @@
 - **Web**: TypeScript + Vite + pure DOM (no React/Vue/Angular)
 - **Android**: Capacitor 8 wraps the same web app into a native APK (currently Debug-signed only)
 - **Offline**: Optional download of Quran text, translations, tajweed, and selected audio via IndexedDB
-- **Backend APIs**: AlQuran.cloud (text/audio), Aladhan (prayer times), mp3quran.net (full surah audio), quran.com (word-by-word timing), Tafsir API (tafsir), Google Fonts (Amiri, Scheherazade New, Reem Kufi)
+- **Backend APIs**: AlQuran.cloud (text/audio), Aladhan (prayer times), mp3quran.net (full surah audio), quran.com (word-by-word timing), Tafsir API (tafsir). Fonts (Amiri, Scheherazade New, Reem Kufi) are self-hosted, not served from Google Fonts.
 
 It is **free, open-source (MIT)**, ad-free, and does not track users.
 
@@ -30,7 +30,7 @@ It is **free, open-source (MIT)**, ad-free, and does not track users.
 - **الويب**: TypeScript + Vite + DOM مباشر (بدون React أو Vue أو Angular)
 - **أندرويد**: Capacitor 8 يغلف نفس تطبيق الويب في APK أصلي (حاليًا موقّع بـ Debug فقط)
 - **دون اتصال**: تنزيل اختياري لنص القرآن والترجمات والتجويد والصوت المختار عبر IndexedDB
-- **واجهات البرامج الخلفية**: AlQuran.cloud (النص/الصوت)، Aladhan (مواقيت الصلاة)، mp3quran.net (الصوت الكامل للسورة)، quran.com (توقيت كلمة بكلمة)، Tafsir API (التفسير)، Google Fonts (Amiri، Scheherazade New، Reem Kufi)
+- **واجهات البرامج الخلفية**: AlQuran.cloud (النص/الصوت)، Aladhan (مواقيت الصلاة)، mp3quran.net (الصوت الكامل للسورة)، quran.com (توقيت كلمة بكلمة)، Tafsir API (التفسير). الخطوط (Amiri، Scheherazade New، Reem Kufi) مستضافة محليًا، لا من Google Fonts.
 
 هو **مجاني ومفتوح المصدر (MIT)**، بلا إعلانات، ولا يتتبّع المستخدمين.
 
@@ -149,7 +149,7 @@ npm run android:run      # build, sync, run on connected device
 2. **Qibla accuracy on the web**: Relies on the best device orientation data available in the browser. Some phones need compass calibration; accurate magnetic declination is not always available inside the browser.
 3. **Prayer times source**: Uses the Aladhan API by default. The README mentions KACST as an alternative for 100% match with ummulqura.org.sa — but the current code uses Aladhan. Method=4 / Umm Al-Qura is close but not exact.
 4. **Video export reciter restriction**: Ayah video export only works with Mishary Alafasy audio — because the pipeline depends on that reciter's timing and audio availability. Other reciters are not supported for video export in the current version.
-5. **QCF4 font packaging**: King Fahd Complex (QCF V4) fonts are licensed for free use and embedding in apps. They are loaded on demand or through the offline pack to maintain a lightweight initial application bundle size and respect the performance budget, with full offline caching support.
+5. **QCF4 font packaging**: King Fahd Complex (QCF V4) fonts are licensed for free use and embedding in apps. They ship with the app bundle and are cached for offline use; the downloadable offline data pack carries page layouts (JSON) only, keeping the initial bundle light and respecting the performance budget.
 6. **jsdom test limitations**: Unit tests use jsdom, which cannot exercise Canvas, AudioContext, ServiceWorker, DeviceOrientation, or MediaSession fully. E2E (Playwright) supplements these.
 7. **iOS**: The app works on iOS as a web app in the browser, but there is no native iOS app in the App Store yet.
 
@@ -159,7 +159,7 @@ npm run android:run      # build, sync, run on connected device
 2. **دقة القبلة على الويب**: تعتمد على أفضل بيانات اتجاه متاحة في المتصفح. بعض الهواتف تحتاج معايرة البوصلة؛ والانحراف المغناطيسي الدقيق غير متاح دائمًا داخل المتصفح.
 3. **مصدر مواقيت الصلاة**: يستخدم واجهة Aladhan افتراضيًا. يشير README إلى KACST كبديل لتطابق 100% مع ummulqura.org.sa — لكن الكود الحالي يستخدم Aladhan. الطريقة 4 / أم القرى قريبة لكنها ليست دقيقة بنسبة 100%.
 4. **قيد قارئ الفيديو**: تصدير فيديو الآية يعمل فقط مع صوت مشاري العفاسي — لأن خط الإنتاج يعتمد على توقيت هذا القارئ وتوافره. القارئون الآخرون غير مدعومين لتصدير الفيديو في النسخة الحالية.
-5. **تغليف خط QCF4**: خطوط مجمع الملك فهد (QCF V4) مرخصة ومتاحة للاستخدام والتضمين مجاناً. يُحمَّل الخط عند الطلب أو عبر الحزمة دون اتصال للحفاظ على خفة الحزمة الأولية للتطبيق واحترام ميزانية الأداء، مع دعم التخزين الكامل للعمل دون اتصال.
+5. **تغليف خط QCF4**: خطوط مجمع الملك فهد (QCF V4) مرخصة ومتاحة للاستخدام والتضمين مجاناً. تُشحن مع حزمة التطبيق وتُخزَّن للعمل دون اتصال؛ أما حزمة البيانات القابلة للتنزيل فتحمل تخطيطات الصفحات (JSON) فقط.
 6. **قيود اختبارات jsdom**: الاختبارات الوحدية تستخدم jsdom، الذي لا يستطيعامل Exercise Canvas و AudioContext و ServiceWorker و DeviceOrientation و MediaSession بالكامل. E2E (Playwright) يُكمّل هذه المناطق.
 7. **iOS**: يعمل التطبيق على iOS كتطبيق ويب في المتصفح، لكن لا توجد نسخة أصيلة في App Store بعد.
 
@@ -246,7 +246,7 @@ Do **not** count the Debug APK or browser compass behaviour as a web-app bug —
 | Build: Vite 8 + LightningCSS            | البناء: Vite 8 + LightningCSS             |
 | PWA: vite-plugin-pwa (Workbox)          | PWA: vite-plugin-pwa (Workbox)            |
 | Android: Capacitor 8                    | أندرويد: Capacitor 8                      |
-| Tests: Vitest 4 + Playwright 1.62       | الاختبارات: Vitest 4 + Playwright 1.62    |
+| Tests: Vitest 5 + Playwright 1.62       | الاختبارات: Vitest 5 + Playwright 1.62    |
 | Lint: ESLint 9 + typescript-eslint      | الفحص: ESLint 9 + typescript-eslint       |
 | Format: Prettier 3                      | التنسيق: Prettier 3                       |
 | State: custom Proxy (no framework)      | الحالة: Proxy مخصص (بدون أطار)            |
