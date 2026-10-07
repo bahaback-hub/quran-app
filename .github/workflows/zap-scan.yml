@@ -51,7 +51,7 @@ jobs:
         # its exit code and enforce the gate ourselves in the next step by
         # parsing report_json.json against .github/zap-rules.tsv.
         continue-on-error: true
-        uses: zaproxy/action-baseline@v0.13.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://127.0.0.1:4173/'
           cmd_options: '-a -j -T 5'
