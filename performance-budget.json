@@ -9,7 +9,7 @@
         { "resourceType": "font", "budget": 40000 },
         { "resourceType": "media", "budget": 10000 },
         { "resourceType": "document", "budget": 50 },
-        { "resourceType": "data", "budget": 2150 },
+        { "resourceType": "data", "budget": 3750 },
         { "resourceType": "other", "budget": 2000 },
         { "resourceType": "total", "budget": 52000 }
       ],
@@ -43,7 +43,7 @@
     "font budget reflects the bundled QCF v4 page-font corpus (48 woff2, ~36MB) required for offline mushaf rendering; not reducible in-dist.",
     "font/image counts reflect the required page-font corpus and the app's functional screenshots, flags, and brand assets.",
     "These budgets are set just above today's gzip floor: any future asset growth still fails the check (script/stylesheet/data/other/total budgets also remain enforced).",
-    "data SIZE raised 2000 -> 2150 on 2026-10-08: the bundled Sahih International translation (public/data/translations/en.sahih.json, ~1.6MB raw / ~0.34MB gzip) is the offline fallback served when the edition endpoint is unreachable. Kept verbatim from the AlQuran.cloud endpoint so anyone can diff it against the source; the file is fetched on demand, never in first paint.",
+    "data SIZE raised 2000 -> 2150 on 2026-10-08, then 2150 -> 3750 the same day: all five supported translations are now bundled (public/data/translations/*.json, ~8.1MB raw / ~1.9MB gzip total) as the offline fallback served when an edition endpoint is unreachable. Kept verbatim from the AlQuran.cloud endpoints so anyone can diff them against the source; the files are fetched on demand, never in first paint.",
     "script COUNT raised 20 -> 32 on 2026-09-25: the per-feature manualChunks were removed so rolldown splits by the real import graph. Naming a module in manualChunks made it a chunk ROOT and dragged its shared closure (storage/i18n/state/api/audio/prayer) into the named feature, which the entry then imported statically — 84 KB gzip of Canvas renderer was modulepreloaded for readers who never open the mushaf. Natural splitting raised the request count (more, smaller chunks) while cutting first-paint JS 146.2 -> 119.9 KB gzip. Size budgets are unchanged; only the count moved."
   ]
 }

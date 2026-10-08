@@ -228,6 +228,19 @@ describe('api-fallback — loadLocalTranslation', () => {
     vi.resetModules();
   });
 
+  it('returns the surah translation for every bundled edition', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue(TRANSLATION_FIXTURE);
+    // Every edition the app offers must resolve locally: a bundled edition the
+    // map forgot would silently fall back to Arabic-only despite the file being
+    // right there in public/data/translations/.
+    for (const edition of ['en.sahih', 'en.pickthall', 'en.yusufali', 'fr.hamidullah', 'ur.jalandhry']) {
+      const result = await mod.loadLocalTranslation(1, edition);
+      expect(result, edition).not.toBeNull();
+      expect(result!.ayahs.length).toBe(2);
+    }
+  });
+
   it('returns the surah translation for a bundled edition', async () => {
     const { mod, jsonFetchMock } = await getModule();
     jsonFetchMock.mockResolvedValue(TRANSLATION_FIXTURE);
@@ -244,7 +257,7 @@ describe('api-fallback — loadLocalTranslation', () => {
   it('returns null for an edition with no bundled file — never another edition', async () => {
     const { mod, jsonFetchMock } = await getModule();
     jsonFetchMock.mockResolvedValue(TRANSLATION_FIXTURE);
-    const result = await mod.loadLocalTranslation(1, 'en.pickthall');
+    const result = await mod.loadLocalTranslation(1, 'de.bubenheim');
     expect(result).toBeNull();
     // The map is checked before any fetch: an unbundled edition must not even
     // attempt a download, let alone serve the wrong translation under its name.

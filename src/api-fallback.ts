@@ -10,8 +10,12 @@
  *   - muyassar-tafsir.json  — Tafsir Al-Muyassar (Arabic)
  *   - tajweed.json          — Tajweed annotation data
  *   - translations/en.sahih.json — Sahih International English translation
- *     (all 114 surahs), fetched verbatim from the same AlQuran.cloud endpoint
- *     the app uses at runtime
+ *   - translations/en.pickthall.json — Pickthall English translation
+ *   - translations/en.yusufali.json — Yusuf Ali English translation
+ *   - translations/fr.hamidullah.json — Hamidullah French translation
+ *   - translations/ur.jalandhry.json — Jalandhry Urdu translation
+ *     (all 114 surahs each, fetched verbatim from the same AlQuran.cloud
+ *     endpoints the app uses at runtime)
  *
  * The fallbacks are loaded via jsonFetch('data/...') which uses the
  * same safeFetch infrastructure (timeout, retry, dedup) as remote
@@ -194,6 +198,10 @@ export async function loadLocalTafsirMuyassar(surahNum: number): Promise<Record<
  */
 const BUNDLED_TRANSLATIONS: Record<string, string> = {
   'en.sahih': 'data/translations/en.sahih.json',
+  'en.pickthall': 'data/translations/en.pickthall.json',
+  'en.yusufali': 'data/translations/en.yusufali.json',
+  'fr.hamidullah': 'data/translations/fr.hamidullah.json',
+  'ur.jalandhry': 'data/translations/ur.jalandhry.json',
 };
 
 /** Shape of one surah inside a bundled full-edition translation file. */

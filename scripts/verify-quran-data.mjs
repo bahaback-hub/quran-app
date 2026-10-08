@@ -8,9 +8,9 @@
  *   - public/data/surah-list.json     — 114 surah metadata with numberOfAyahs
  *   - public/data/muyassar-tafsir.json — Muyassar tafsir for every ayah
  *   - public/data/surah-1.json        — bundled first-surah payload
- *   - public/data/translations/en.sahih.json — Sahih International English
- *     translation (114 surahs / 6236 ayahs), the offline fallback served when
- *     the edition endpoint is unreachable
+ *   - public/data/translations/*.json — one bundled translation per supported
+ *     edition (114 surahs / 6236 ayahs each), the offline fallbacks served when
+ *     an edition endpoint is unreachable
  *   - scripts/quran-canons.json       — canonical reference: anchor ayahs (text, page, juz,
  *                                       global position), the 114 per-surah ayah counts and
  *                                       the 30 juz boundaries, all anchored to the standard
@@ -39,7 +39,7 @@ const PAGE_COUNT = 604;
 const JUZ_COUNT = 30;
 
 const MANIFEST_FILE = 'integrity-manifest.json';
-const SOURCE_FILES = ['quran-uthmani.json', 'surah-list.json', 'muyassar-tafsir.json', 'surah-1.json', 'translations/en.sahih.json'];
+const SOURCE_FILES = ['quran-uthmani.json', 'surah-list.json', 'muyassar-tafsir.json', 'surah-1.json', 'translations/en.sahih.json', 'translations/en.pickthall.json', 'translations/en.yusufali.json', 'translations/fr.hamidullah.json', 'translations/ur.jalandhry.json'];
 const CANON_FILE = 'quran-canons.json';
 
 const GENERATE = process.argv.includes('--generate');
@@ -214,8 +214,22 @@ async function verifyTafsir(surahList, seenAyahKeys) {
  * verses translated and others blank with no explanation, so — like the tafsir
  * above — every surah must be complete and every ayah must carry real text.
  */
+const BUNDLED_TRANSLATION_EDITIONS = [
+  'en.sahih',
+  'en.pickthall',
+  'en.yusufali',
+  'fr.hamidullah',
+  'ur.jalandhry',
+];
+
 async function verifyTranslation(surahList) {
-  const FILE = 'translations/en.sahih.json';
+  for (const edition of BUNDLED_TRANSLATION_EDITIONS) {
+    await verifyTranslationEdition(surahList, edition);
+  }
+}
+
+async function verifyTranslationEdition(surahList, edition) {
+  const FILE = `translations/${edition}.json`;
   const payload = await loadJson(FILE);
   const surahs = payload?.data?.surahs;
   check(Array.isArray(surahs), 'file must hold data.surahs array', FILE);
