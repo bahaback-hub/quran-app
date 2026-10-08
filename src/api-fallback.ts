@@ -268,6 +268,7 @@ export async function loadLocalTranslation(
       ayahs,
     };
   } catch {
+    /* bundled translation file unreadable — fall through to null, caller renders without translation */
     return null;
   }
 }

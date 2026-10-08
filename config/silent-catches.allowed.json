@@ -30,6 +30,13 @@
       "reason": "local surah-info read fails → null → caller falls through to API / error display"
     },
     {
+      "file": "src/api-fallback.ts",
+      "fn": "loadLocalTranslation",
+      "anchor": "/* bundled translation file unreadable — fall through to null, caller renders without translation */",
+      "kind": "catch-return-null",
+      "reason": "bundled translation file unreadable → null → caller renders Arabic-only, same as before the bundled fallback existed"
+    },
+    {
       "file": "src/ayah-modal.ts",
       "fn": "onAudioEnded",
       "anchor": "/* noop */",
@@ -340,23 +347,9 @@
     {
       "file": "src/surah-loader.ts",
       "fn": "loadSurah",
-      "anchor": "#2",
-      "kind": "expression-arrow-null",
-      "reason": "optional translation fetch: absence simply renders the surah without translation; the main Quran text render is independent (apiFetch passed silent:true)"
-    },
-    {
-      "file": "src/surah-loader.ts",
-      "fn": "loadSurah",
       "anchor": "/* local fallback also failed — fall through to error display */",
       "kind": "catch-empty-block",
       "reason": "the local fallback also failed — fall through to the error display"
-    },
-    {
-      "file": "src/surah-loader.ts",
-      "fn": "_refreshSurahFromAPI",
-      "anchor": "#1",
-      "kind": "expression-arrow-null",
-      "reason": "optional translation refresh path: failure degrades to no-translation gracefully; core render already complete"
     },
     {
       "file": "src/surah-loader.ts",
