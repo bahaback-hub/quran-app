@@ -4,13 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.1.27] (2026-10-08) — أول إصدار موقع رسميًا
+
+أول نسخة Android موقعة بتوقيع نشر مستقل (versionCode 35)، بعد أن كانت كل النسخ السابقة بتوقيع Debug للتجربة فقط. من كان لديه النسخة التجريبية يجب أن يصدّر المفضلة والإعدادات أولًا، ثم يحذفها، ثم يثبت هذه النسخة — فالتوقيع مختلف ولا يمكن التثبيت فوقها.
 
 ### Fixed
 - عُطّلت مهمة المزامنة اليومية لمواقيت الصلاة لأنها كانت تشغّل سكربتًا مهملًا قد يستبدل البيانات الرسمية؛ التشغيل اليدوي مرفوض الآن حتى توجد البنية الرسمية.
 - وُحّد رقم الإصدار `3.1.27` بين `package.json` و`package-lock.json` وشارة README ونص إصدار الويب.
+- أُصلح فشل CI: اختبار خريطة الموقع كان يعمل قبل بناء الموقع فيفشل على نسخة جديدة؛ صار البناء أولًا ويبني الاختبار مدخلاته بنفسه.
+- أُزيلت ثغرات `npm audit` (تحديثات `brace-expansion`، و`sharp` إلى 0.35.5، واستبدال خادم `serve` بـ `vite preview`).
 
-### Security & Quality Gates (v3.1.27 pre-release)
+### Security & Quality Gates (v3.1.27 release)
 - **Vitest upgraded from 4.1.7 to 5.0.2** to eliminate the moderate-severity
   path-traversal advisory in `@vitest/mocker` (GHSA-82fw-gwwq-j7x9).
   `npm audit` now reports **0 vulnerabilities** across production and dev deps.
@@ -24,8 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **6 test files migrated to `Object.defineProperty(globalThis, ...)`**
   because Vitest 5 makes `globalThis.localStorage` and `globalThis.indexedDB`
   read-only getters on the jsdom window (matches real browser semantics).
-- **README updated** to reflect 4,058 unit tests (154 files) + 63 E2E tests
-  (10 files), 0 audit vulnerabilities, and the new coverage row in the
+- **README updated** to reflect 4,132 unit tests (163 files), the real Playwright project scope, 0 audit vulnerabilities, and the new coverage row in the
   quality table.
 
 ## [3.1.26] (2026-09-26) — صيانة ما بعد الاختبار الميداني على جهاز حقيقي
