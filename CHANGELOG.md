@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **ترجمة إنجليزية محلية للعمل دون اتصال**: حُزمت ترجمة Sahih International كاملة (`public/data/translations/en.sahih.json`) من نفس مصدر API الذي يستخدمه التطبيق، فصارت الترجمة تظهر حتى مع انقطاع الشبكة كليًا بدل السقوط الصامت إلى العربية وحدها. تُفحص سلامتها (114 سورة / 6236 آية / بلا نصوص فارغة) مع بصمة SHA-256 ضمن فحص `verify:data`.
+
 ## [3.1.27] (2026-10-08) — أول إصدار موقع رسميًا
 
 أول نسخة Android موقعة بتوقيع نشر مستقل (versionCode 35)، بعد أن كانت كل النسخ السابقة بتوقيع Debug للتجربة فقط. من كان لديه النسخة التجريبية يجب أن يصدّر المفضلة والإعدادات أولًا، ثم يحذفها، ثم يثبت هذه النسخة — فالتوقيع مختلف ولا يمكن التثبيت فوقها.

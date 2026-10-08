@@ -13,7 +13,7 @@ import { apiFetch, jsonFetch } from './api-client.js';
 import type { SurahData, AyahEntry } from './types.js';
 import { cacheSurahToIDB, getCachedSurahFromIDB } from './surah-cache.js';
 import type { CachedSurahEntry } from './surah-cache.js';
-import { loadLocalSurahText } from './api-fallback.js';
+import { loadLocalSurahText, loadLocalTranslation } from './api-fallback.js';
 import { getOfflinePackAudioUrls } from './offline-pack.js';
 import { QURAN_COM_API_BASE } from './external-sources.js';
 import { renderSurah, finalizeSurahLoad, highlightCurrentAyah } from './surah-render.js';
@@ -517,7 +517,9 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       state.translationEnabled && state.currentTranslation
         ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal, silent: true })
             .then((d: unknown) => (d as { data?: Record<string, unknown> })?.data || null)
-            .catch(() => null)
+            // When the edition endpoint is unreachable, serve the bundled
+            // translation file instead of dropping to Arabic-only silence.
+            .catch(() => loadLocalTranslation(surahNum, state.currentTranslation as string))
         : Promise.resolve(null);
 
     const [audioResult, transResult]: [AudioResult | null, Record<string, unknown> | null] = await Promise.all([
@@ -672,7 +674,9 @@ async function _refreshSurahFromAPI(
       state.translationEnabled && state.currentTranslation
         ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal, silent: true })
             .then((d: unknown) => (d as { data?: Record<string, unknown> })?.data || null)
-            .catch(() => null)
+            // When the edition endpoint is unreachable, serve the bundled
+            // translation file instead of dropping to Arabic-only silence.
+            .catch(() => loadLocalTranslation(surahNum, state.currentTranslation as string))
         : Promise.resolve(null);
 
     const [audioResult, transResult]: [AudioResult | null, Record<string, unknown> | null] = await Promise.all([

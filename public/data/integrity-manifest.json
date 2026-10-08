@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-20T23:43:21.269Z",
+  "generatedAt": "2026-10-08T15:59:53.816Z",
   "description": "SHA-256 digests of bundled Quran datasets enforced at build/verify time.",
   "files": {
     "quran-uthmani.json": {
@@ -14,6 +14,9 @@
     },
     "surah-1.json": {
       "sha256": "a2c2adb2a816683a407982e602a046f6fce2f22c7158ec01b05e33c39d6197b0"
+    },
+    "translations/en.sahih.json": {
+      "sha256": "496ff9f8f5cafa6619c6605e0f3d7a30138cabad9a71976c3f8308c082a96454"
     }
   }
 }

@@ -196,6 +196,108 @@ describe('api-fallback — loadLocalTafsirMuyassar', () => {
   });
 });
 
+const TRANSLATION_FIXTURE = {
+  data: {
+    surahs: [
+      {
+        number: 1,
+        name: 'الفاتحة',
+        englishName: 'Al-Fatiha',
+        ayahs: [
+          {
+            number: 1,
+            text: 'In the name of Allah, the Entirely Merciful, the Especially Merciful.',
+            numberInSurah: 1,
+          },
+          { number: 2, text: 'All praise is due to Allah, Lord of the worlds.', numberInSurah: 2 },
+        ],
+      },
+      {
+        number: 114,
+        name: 'الناس',
+        englishName: 'An-Nas',
+        ayahs: [{ number: 6231, text: 'Say, "I seek refuge in the Lord of mankind."', numberInSurah: 1 }],
+      },
+    ],
+  },
+};
+
+describe('api-fallback — loadLocalTranslation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.resetModules();
+  });
+
+  it('returns the surah translation for a bundled edition', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue(TRANSLATION_FIXTURE);
+    const result = await mod.loadLocalTranslation(1, 'en.sahih');
+    expect(result).not.toBeNull();
+    expect(result!.number).toBe(1);
+    expect(result!.ayahs.length).toBe(2);
+    expect(result!.ayahs[0].text).toContain('Entirely Merciful');
+    // The shape matches an AlQuran.cloud /surah/{n}/{edition} `.data` payload,
+    // so the caller uses it with no special-casing.
+    expect(result!.ayahs[0].numberInSurah).toBe(1);
+  });
+
+  it('returns null for an edition with no bundled file — never another edition', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue(TRANSLATION_FIXTURE);
+    const result = await mod.loadLocalTranslation(1, 'en.pickthall');
+    expect(result).toBeNull();
+    // The map is checked before any fetch: an unbundled edition must not even
+    // attempt a download, let alone serve the wrong translation under its name.
+    expect(jsonFetchMock).not.toHaveBeenCalled();
+  });
+
+  it('returns null when the surah is missing from the file', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue(TRANSLATION_FIXTURE);
+    const result = await mod.loadLocalTranslation(999, 'en.sahih');
+    expect(result).toBeNull();
+  });
+
+  it('returns null when any ayah text is empty — no half-translated surah', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue({
+      data: {
+        surahs: [
+          {
+            number: 1,
+            name: 'الفاتحة',
+            englishName: 'Al-Fatiha',
+            ayahs: [
+              { number: 1, text: 'In the name of Allah.', numberInSurah: 1 },
+              { number: 2, text: '   ', numberInSurah: 2 },
+            ],
+          },
+        ],
+      },
+    });
+    const result = await mod.loadLocalTranslation(1, 'en.sahih');
+    expect(result).toBeNull();
+  });
+
+  it('returns null when jsonFetch throws', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockRejectedValue(new Error('network error'));
+    const result = await mod.loadLocalTranslation(1, 'en.sahih');
+    expect(result).toBeNull();
+  });
+
+  it('caches per edition and clears with the rest of the fallback cache', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue(TRANSLATION_FIXTURE);
+    await mod.loadLocalTranslation(1, 'en.sahih');
+    await mod.loadLocalTranslation(114, 'en.sahih');
+    expect(jsonFetchMock).toHaveBeenCalledTimes(1);
+    mod.clearLocalFallbackCache();
+    await mod.loadLocalTranslation(1, 'en.sahih');
+    expect(jsonFetchMock).toHaveBeenCalledTimes(2);
+  });
+});
+
 describe('api-fallback — isLocalFallbackAvailable & cache', () => {
   beforeEach(() => {
     vi.clearAllMocks();

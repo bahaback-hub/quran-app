@@ -9,6 +9,9 @@
  *   - quran-uthmani.json    — full Quran text (all 114 surahs, Uthmani)
  *   - muyassar-tafsir.json  — Tafsir Al-Muyassar (Arabic)
  *   - tajweed.json          — Tajweed annotation data
+ *   - translations/en.sahih.json — Sahih International English translation
+ *     (all 114 surahs), fetched verbatim from the same AlQuran.cloud endpoint
+ *     the app uses at runtime
  *
  * The fallbacks are loaded via jsonFetch('data/...') which uses the
  * same safeFetch infrastructure (timeout, retry, dedup) as remote
@@ -182,6 +185,94 @@ export async function loadLocalTafsirMuyassar(surahNum: number): Promise<Record<
 }
 
 /**
+ * Translation editions with a bundled full-Quran file.
+ *
+ * Only editions listed here can be served without any network. An edition that
+ * is not listed has no local file, and asking for it returns null rather than
+ * guessing — serving another edition's text under the wrong name would be worse
+ * than serving Arabic alone.
+ */
+const BUNDLED_TRANSLATIONS: Record<string, string> = {
+  'en.sahih': 'data/translations/en.sahih.json',
+};
+
+/** Shape of one surah inside a bundled full-edition translation file. */
+interface LocalTranslationSurah {
+  number: number;
+  name: string;
+  englishName: string;
+  ayahs: Array<{ number: number; text: string; numberInSurah: number }>;
+}
+
+/** Cache for bundled translation files, one entry per edition. */
+const _localTranslationCache = new Map<string, LocalTranslationSurah[]>();
+
+/**
+ * Fallback: load one surah's translation from a local bundled file.
+ * Use this when the remote AlQuran.cloud edition endpoint is unreachable.
+ *
+ * The returned shape matches the `.data` of an AlQuran.cloud
+ * `/surah/{n}/{edition}` response, so callers use it exactly like the API
+ * result — no special-casing at the call site.
+ *
+ * @param surahNum Surah number (1..114)
+ * @param edition Translation edition id, e.g. 'en.sahih'
+ * @returns The surah's translation data, or null when the edition has no
+ *   bundled file, the surah is missing, or any ayah text is empty
+ */
+export async function loadLocalTranslation(
+  surahNum: number,
+  edition: string,
+): Promise<{
+  number: number;
+  name: string;
+  englishName: string;
+  ayahs: Array<{ number: number; text: string; numberInSurah: number }>;
+} | null> {
+  const path = BUNDLED_TRANSLATIONS[edition];
+  if (!path) {
+    return null;
+  }
+  try {
+    let surahs = _localTranslationCache.get(edition);
+    if (!surahs) {
+      const data = (await jsonFetch(path, {
+        silent: true,
+        timeout: 10000,
+      })) as { data?: { surahs?: LocalTranslationSurah[] } };
+      surahs = data?.data?.surahs;
+      if (!Array.isArray(surahs) || surahs.length === 0) {
+        return null;
+      }
+      _localTranslationCache.set(edition, surahs);
+    }
+    const surah = surahs.find((s) => s.number === surahNum);
+    if (!surah || !Array.isArray(surah.ayahs) || surah.ayahs.length === 0) {
+      return null;
+    }
+    // Every ayah must carry real text. A partially-present translation would
+    // render some verses translated and others blank with no explanation, so a
+    // gap anywhere in the surah disqualifies the whole surah.
+    const ayahs = surah.ayahs.map((a) => ({
+      number: a.number,
+      text: typeof a.text === 'string' ? a.text : '',
+      numberInSurah: a.numberInSurah,
+    }));
+    if (ayahs.some((a) => a.text.trim().length === 0)) {
+      return null;
+    }
+    return {
+      number: surah.number,
+      name: surah.name,
+      englishName: surah.englishName,
+      ayahs,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Check if the local fallback files are available.
  * Useful for displaying an "offline mode" indicator to the user.
  *
@@ -198,4 +289,5 @@ export async function isLocalFallbackAvailable(): Promise<boolean> {
  */
 export function clearLocalFallbackCache(): void {
   _localQuranCache = null;
+  _localTranslationCache.clear();
 }

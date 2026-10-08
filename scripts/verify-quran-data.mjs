@@ -8,6 +8,9 @@
  *   - public/data/surah-list.json     — 114 surah metadata with numberOfAyahs
  *   - public/data/muyassar-tafsir.json — Muyassar tafsir for every ayah
  *   - public/data/surah-1.json        — bundled first-surah payload
+ *   - public/data/translations/en.sahih.json — Sahih International English
+ *     translation (114 surahs / 6236 ayahs), the offline fallback served when
+ *     the edition endpoint is unreachable
  *   - scripts/quran-canons.json       — canonical reference: anchor ayahs (text, page, juz,
  *                                       global position), the 114 per-surah ayah counts and
  *                                       the 30 juz boundaries, all anchored to the standard
@@ -36,7 +39,7 @@ const PAGE_COUNT = 604;
 const JUZ_COUNT = 30;
 
 const MANIFEST_FILE = 'integrity-manifest.json';
-const SOURCE_FILES = ['quran-uthmani.json', 'surah-list.json', 'muyassar-tafsir.json', 'surah-1.json'];
+const SOURCE_FILES = ['quran-uthmani.json', 'surah-list.json', 'muyassar-tafsir.json', 'surah-1.json', 'translations/en.sahih.json'];
 const CANON_FILE = 'quran-canons.json';
 
 const GENERATE = process.argv.includes('--generate');
@@ -205,6 +208,45 @@ async function verifyTafsir(surahList, seenAyahKeys) {
   check(covered === TOTAL_AYAHS, `tafsir covers ${covered} ayahs, expected ${TOTAL_AYAHS}`, 'muyassar-tafsir.json');
 }
 
+/**
+ * The bundled English translation is the offline fallback served when the
+ * edition endpoint is unreachable. A gap anywhere in it would render some
+ * verses translated and others blank with no explanation, so — like the tafsir
+ * above — every surah must be complete and every ayah must carry real text.
+ */
+async function verifyTranslation(surahList) {
+  const FILE = 'translations/en.sahih.json';
+  const payload = await loadJson(FILE);
+  const surahs = payload?.data?.surahs;
+  check(Array.isArray(surahs), 'file must hold data.surahs array', FILE);
+  if (!Array.isArray(surahs)) {
+    return;
+  }
+
+  check(surahs.length === SURAH_COUNT, `has ${surahs.length} surahs, expected ${SURAH_COUNT}`, FILE);
+
+  let covered = 0;
+  for (let surahNum = 1; surahNum <= SURAH_COUNT; surahNum++) {
+    const surah = surahs.find((s) => s.number === surahNum);
+    check(!!surah, `surah ${surahNum} missing`, FILE);
+    if (!surah) {
+      continue;
+    }
+    const expectedCount = surahList?.[surahNum - 1]?.numberOfAyahs;
+    check(Array.isArray(surah.ayahs) && surah.ayahs.length === expectedCount, `surah ${surahNum} translation count ${surah.ayahs?.length} != expected ${expectedCount}`, FILE);
+    if (!Array.isArray(surah.ayahs)) {
+      continue;
+    }
+    for (const ayah of surah.ayahs) {
+      check(Number.isInteger(ayah?.numberInSurah) && ayah.numberInSurah >= 1 && ayah.numberInSurah <= (expectedCount ?? SURAH_COUNT), `surah ${surahNum} translation has invalid numberInSurah ${ayah?.numberInSurah}`, FILE);
+      check(cleanText(ayah?.text).length > 0, `surah ${surahNum} ayah ${ayah?.numberInSurah} has empty text`, FILE);
+      covered++;
+    }
+  }
+
+  check(covered === TOTAL_AYAHS, `translation covers ${covered} ayahs, expected ${TOTAL_AYAHS}`, FILE);
+}
+
 async function verifyFirstSurahPayload(quranSurahs) {
   const payload = await loadJson('surah-1.json');
   const data = payload?.data;
@@ -355,6 +397,7 @@ async function main() {
   const surahList = await verifySurahList();
   const { surahs, seenAyahKeys } = await verifyQuranText(surahList);
   await verifyTafsir(surahList, seenAyahKeys);
+  await verifyTranslation(surahList);
   await verifyFirstSurahPayload(surahs);
   await verifyCanonicalAyahs(canon, surahs);
   await verifyCanonicalSurahCounts(canon, surahList, surahs);
