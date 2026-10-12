@@ -131,16 +131,11 @@ export default defineConfig({
                 { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
                 { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
               ],
-              share_target: {
-                action: './',
-                method: 'GET',
-                enctype: 'application/x-www-form-urlencoded',
-                params: {
-                  title: 'title',
-                  text: 'text',
-                  url: 'url',
-                },
-              },
+              // NOTE: no share_target is declared. Receiving shared content
+              // requires reading the ?title=&text=&url= launch params, and no
+              // code does that today — declaring it would put this app in the
+              // OS share sheet only to silently drop whatever was shared.
+              // Re-add it together with a handler, never alone.
               shortcuts: [
                 {
                   name: 'مواقيت الصلاة',

@@ -209,7 +209,6 @@
                     <button
                       class="theme-btn"
                       data-theme="sepia"
-                      id="themeSepia"
                       role="menuitemradio"
                       aria-checked="false"
                       tabindex="-1"
@@ -231,7 +230,6 @@
                     <button
                       class="theme-btn"
                       data-theme="deep-night"
-                      id="themeDeepNight"
                       role="menuitemradio"
                       aria-checked="false"
                       tabindex="-1"
@@ -339,7 +337,6 @@
                         ✕
                       </button>
                     </div>
-                    <div class="search-history-dropdown hidden" id="searchHistoryDropdown"></div>
                     <div id="arabicKeyboardMount"></div>
                   </div>
                 </div>
@@ -528,7 +525,7 @@
 
       <!-- ========== محتوى السورة ========== -->
       <main class="surah-content" id="surahContent" role="main" aria-label="نص السورة">
-        <p class="loading" id="surahSelectHint" data-i18n="select_hint">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
+        <p class="loading" data-i18n="select_hint">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
       </main>
 
       <!-- ========== التذييل ========== -->
@@ -636,7 +633,6 @@
             <span class="reader-side-tool-label" data-i18n="prayer_times">المواقيت</span>
             <strong id="nextPrayerName">الصلاة</strong>
             <span class="prayer-bar-summary-time" id="nextPrayerTime">--:--</span>
-            <span class="sr-only prayer-bar-summary-countdown" id="prayerCountdown">---</span>
           </span>
           <svg
             class="icon prayer-bar-chevron"
@@ -682,7 +678,6 @@
           <div class="prayer-bar-items" id="prayerTimesRows" role="list"></div>
           <p class="prayer-bar-updated" id="prayerBarUpdated">◷</p>
           <span class="sr-only" id="bigClockTime">--:--</span>
-          <span class="sr-only" id="countdownDisplay">--:--:--</span>
           <span class="sr-only" id="collapsedClock">--:--</span>
         </div>
       </section>

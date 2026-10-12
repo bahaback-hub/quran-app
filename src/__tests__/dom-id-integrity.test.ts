@@ -35,7 +35,7 @@ vi.unmock('../dom.js');
 vi.unmock('../overlays.js');
 vi.unmock('../templates-panels.js');
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { JSDOM } from 'jsdom';
 
@@ -151,5 +151,86 @@ describe('DOM ID integrity — every DOM_ID must exist in real HTML', () => {
     const el = dom.controls;
     expect(el).not.toBeNull();
     expect(el?.classList.contains('controls')).toBe(true);
+  });
+});
+
+/**
+ * IDs in index.html that are intentionally unreferenced by code.
+ *
+ * Empty today: every static id is referenced somewhere (JS/TS, CSS, e2e, or a
+ * for/aria relationship in the markup itself). Add an entry here ONLY with a
+ * reason comment — e.g. an id reserved for external deep links or third-party
+ * CSS — because an unreferenced id is either dead markup confusing screen
+ * readers or a query the code forgot to write.
+ */
+const STATIC_ID_ALLOWLIST = new Set<string>([
+  // (none — keep it that way)
+]);
+
+/** All text files where an id reference can legitimately live. */
+function referenceSearchFiles(): string[] {
+  const out: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const p = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) {
+        if (!/node_modules|dist|\.git|snapshots/.test(p)) walk(p);
+      } else if (/\.(ts|js|mjs|css|html)$/.test(entry.name)) {
+        out.push(p);
+      }
+    }
+  };
+  const root = join(process.cwd());
+  walk(join(root, 'src'));
+  walk(join(root, 'e2e'));
+  walk(join(root, 'scripts'));
+  walk(join(root, 'public'));
+  out.push(join(root, 'index.html'));
+  out.push(join(root, 'vite.config.js'));
+  return out;
+}
+
+function countOccurrences(haystack: string, needle: string): number {
+  return haystack.split(needle).length - 1;
+}
+
+describe('DOM ID integrity — every static id must be referenced somewhere', () => {
+  it('has no orphan ids in index.html', () => {
+    const html = readFileSync(INDEX_HTML_PATH, 'utf-8');
+    const ids = [...new Set([...html.matchAll(/id="([^"]+)"/g)].map((m) => m[1]!))];
+    expect(ids.length).toBeGreaterThan(0);
+
+    const files = referenceSearchFiles();
+    const bodies = new Map<string, string>();
+    for (const file of files) {
+      bodies.set(file, readFileSync(file, 'utf-8'));
+    }
+
+    const orphans: string[] = [];
+    for (const id of ids) {
+      if (STATIC_ID_ALLOWLIST.has(id)) continue;
+      let uses = 0;
+      for (const [file, text] of bodies) {
+        const total = countOccurrences(text, id);
+        // An `id="x"` attribute is a definition, not a use — but only in the
+        // file that defines it. Any other mention (JS, CSS selector, for/aria
+        // attribute, e2e locator, template string) counts as a use.
+        const definitions = countOccurrences(text, `id="${id}"`);
+        uses += total - definitions;
+      }
+      if (uses === 0) orphans.push(id);
+    }
+
+    if (orphans.length > 0) {
+      throw new Error(
+        `${orphans.length} id(s) in index.html are never referenced by code, CSS, e2e or markup:\n` +
+          orphans.map((id) => `  - #${id}`).join('\n') +
+          `\n\nFix: delete the dead markup (or the dead id attribute if the element itself is live), ` +
+          `or document a real reason in STATIC_ID_ALLOWLIST. An unreferenced id is either dead code ` +
+          `confusing screen readers or a query the code forgot to write.`,
+      );
+    }
+
+    expect(orphans).toEqual([]);
   });
 });

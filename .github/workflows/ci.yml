@@ -52,7 +52,7 @@ jobs:
         run: npm run check:circular
         # Madge detects circular imports in the TypeScript source tree.
         # Mandatory — the Phase C cleanup resolved all 16 previously
-        # documented cycles (currently 0 over 266 files), so this now
+        # documented cycles (currently 0), so this now
         # prevents new circular imports from landing.
 
   test:
@@ -158,7 +158,8 @@ jobs:
       # Run only the chromium project here. The mobile-chrome project in
       # playwright.config.ts is intentionally excluded from CI — its tests
       # require mobile-specific UI adjustments that are tracked separately.
-      # The standalone e2e.yml workflow also runs only chromium.
+      # (The standalone e2e.yml workflow runs the full matrix: chromium,
+      # firefox, webkit and mobile-chrome.)
       - run: npx playwright test --project=chromium
       - name: Upload test results
         if: failure()

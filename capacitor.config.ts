@@ -13,20 +13,29 @@ const config: CapacitorConfig = {
       'fastly.jsdelivr.net',
       'gcore.jsdelivr.net',
       'cdn.islamic.network',
-      'server1.mp3quran.net',
-      'server2.mp3quran.net',
-      'server3.mp3quran.net',
-      'server4.mp3quran.net',
-      'server5.mp3quran.net',
+      // Audio hosts, mirroring the CSP media-src list: the per-reciter
+      // servers (server6..13, as configured in RECITERS) plus the CDN they
+      // 301-redirect audio to. server1..5 were listed but no reciter uses
+      // them; server9..13 and the CDN were missing.
       'server6.mp3quran.net',
       'server7.mp3quran.net',
       'server8.mp3quran.net',
+      'server9.mp3quran.net',
+      'server10.mp3quran.net',
+      'server11.mp3quran.net',
+      'server12.mp3quran.net',
+      'server13.mp3quran.net',
+      'cdn.mp3quran.net',
       'raw.githubusercontent.com',
       'api.quran.com',
     ],
   },
   android: {
     backgroundColor: '#1a1a2e',
+    // Deliberately left true pending on-device verification: the network
+    // security config already forbids cleartext traffic, so this only affects
+    // local dev servers. Flip it only after confirming dev live-reload still
+    // works on a real device.
     allowMixedContent: true,
   },
   plugins: {

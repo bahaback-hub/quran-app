@@ -2,11 +2,11 @@
  * Application Initialization Module.
  *
  * Orchestrates the 3-phase bootstrap sequence:
- *   Phase 1 â€” Critical path: state, DOM cache, settings, surah list, first surah load.
+ *   Phase 1 — Critical path: state, DOM cache, settings, surah list, first surah load.
  *             Toolbar/navigation/keyboard events bind before the first load so the
  *             reader is never blocked by (or racing) the initial network fetch.
- *   Phase 2 â€” Init helpers that depend on a rendered surah (tajweed preload, hash links).
- *   Phase 3 â€” Deferred: clock, prayer, adhkar, favorites, modals, search index
+ *   Phase 2 — Init helpers that depend on a rendered surah (tajweed preload, hash links).
+ *   Phase 3 — Deferred: clock, prayer, adhkar, favorites, modals, search index
  *
  * Re-exports core surah-loader functions for use by other modules.
  */
@@ -83,11 +83,11 @@ function initState(): void {
 export async function initApp(): Promise<void> {
   // ========== PHASE 1: CRITICAL PATH ==========
   initState();
-  initCspReporting(); // CSP violation monitoring â€” before any dynamic content injects
+  initCspReporting(); // CSP violation monitoring — before any dynamic content injects
   setLoadSurah(loadSurah);
   setReloadAudio(reloadCurrentSurahAudio);
   setHighlightAyah(highlightCurrentAyah);
-  injectOverlays(); // Must run before cacheDom â€” injects overlay HTML into DOM
+  injectOverlays(); // Must run before cacheDom — injects overlay HTML into DOM
   cacheDom();
   // initI18n runs before panel injection; apply once more so newly injected
   // settings, player, and help menus immediately use the selected language.
@@ -128,7 +128,7 @@ export async function initApp(): Promise<void> {
 
   // Bind toolbar, navigation, and keyboard events BEFORE the first surah load
   // resolves so a reader can start navigating as soon as the surah selector is
-  // populated â€” interaction is never blocked by the initial network fetch. This
+  // populated — interaction is never blocked by the initial network fetch. This
   // also keeps E2E deterministic on slower engines: a surah change high in the
   // boot sequence is still handled instead of racing the initial load.
   bindAudioEvents();
@@ -310,13 +310,13 @@ export async function initApp(): Promise<void> {
     startClock();
     scheduleNextAzanCheck();
 
-    // Group 3: Network-dependent (non-blocking) â€” defer to next idle period
+    // Group 3: Network-dependent (non-blocking) — defer to next idle period
     scheduleIdle(() => {
       startAdhkarNotificationScheduler();
       void loadUnderwrittenPrayerTable().then(() => loadPrayerTimes());
     });
 
-    // Group 4: Heavy feature modules â€” lazy-import, lowest priority
+    // Group 4: Heavy feature modules — lazy-import, lowest priority
     // Uses safeLoad() for retry + user-visible error UI (instead of silent console.error)
     scheduleIdle(() => {
       void (async () => {
@@ -324,7 +324,7 @@ export async function initApp(): Promise<void> {
           const { safeLoad } = await import('./error-boundary.js');
 
           const ayahModal = await safeLoad(() => import('./ayah-modal.js'), {
-            label: 'ظ†ط§ظپط°ط© ط§ظ„ط¢ظٹط©',
+            label: 'نافذة الآية',
             maxRetries: 2,
             baseDelay: 800,
           });
@@ -333,7 +333,7 @@ export async function initApp(): Promise<void> {
           }
 
           const presentation = await safeLoad(() => import('./features/presentation/presentation.js'), {
-            label: 'ظˆط¶ط¹ ط§ظ„ط¹ط±ط¶',
+            label: 'وضع العرض',
             maxRetries: 2,
             baseDelay: 800,
           });
@@ -342,7 +342,7 @@ export async function initApp(): Promise<void> {
           }
 
           const mushaf = await safeLoad(() => import('./features/mushaf/mushaf.js'), {
-            label: 'ظˆط¶ط¹ ط§ظ„ظ…طµط­ظپ',
+            label: 'وضع المصحف',
             maxRetries: 2,
             baseDelay: 800,
           });
