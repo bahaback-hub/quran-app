@@ -24,7 +24,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, readdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -39,7 +39,24 @@ const PAGE_COUNT = 604;
 const JUZ_COUNT = 30;
 
 const MANIFEST_FILE = 'integrity-manifest.json';
-const SOURCE_FILES = ['quran-uthmani.json', 'surah-list.json', 'muyassar-tafsir.json', 'surah-1.json', 'translations/en.sahih.json', 'translations/en.pickthall.json', 'translations/en.yusufali.json', 'translations/fr.hamidullah.json', 'translations/ur.jalandhry.json'];
+const CORE_FILES = ['quran-uthmani.json', 'surah-list.json', 'muyassar-tafsir.json', 'surah-1.json', 'translations/en.sahih.json', 'translations/en.pickthall.json', 'translations/en.yusufali.json', 'translations/fr.hamidullah.json', 'translations/ur.jalandhry.json'];
+/**
+ * Sharded per-surah datasets (tajweed annotations, contemplation questions).
+ * Every shard is hashed so the integrity gate fails if any bundled shard is
+ * added, removed, or modified without regenerating the manifest. Sorted for
+ * deterministic manifest output across platforms.
+ */
+async function listShardedFiles() {
+  const sharded = [];
+  for (const dir of ['tajweed', 'contemplation']) {
+    const names = (await readdir(resolve(dataDir, dir))).filter((name) => name.endsWith('.json')).sort();
+    for (const name of names) {
+      sharded.push(`${dir}/${name}`);
+    }
+  }
+  return sharded;
+}
+const SOURCE_FILES = [...CORE_FILES, ...(await listShardedFiles())];
 const CANON_FILE = 'quran-canons.json';
 
 const GENERATE = process.argv.includes('--generate');

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T17:48:59.144Z",
+  "generatedAt": "2026-10-13T17:12:00.767Z",
   "description": "SHA-256 digests of bundled Quran datasets enforced at build/verify time.",
   "files": {
     "quran-uthmani.json": {
@@ -29,6 +29,696 @@
     },
     "translations/ur.jalandhry.json": {
       "sha256": "0fb319f2f22931b9aa773221710d0c6e03ca078b24e6822591987a33147a67f7"
+    },
+    "tajweed/001.json": {
+      "sha256": "08d78e96a24c2203d4d32182f19669eef4669a441b9c4a5f2b6333f509d72bdc"
+    },
+    "tajweed/002.json": {
+      "sha256": "ba74e9a5abef8d0f6dde407070fde83bcd663428fbb688ca613db82ad45051ed"
+    },
+    "tajweed/003.json": {
+      "sha256": "02a52b2e89f4b6a80fedd54403776f4f976f21e9c532f8dd00fd675fb8fc57b3"
+    },
+    "tajweed/004.json": {
+      "sha256": "dc9e5bb924b87f5f14cde1f11823bfe85e5700e213f46d42f45932d2b0b9ae8b"
+    },
+    "tajweed/005.json": {
+      "sha256": "f6bdbcc12b1897efe36b870435e4b2cf668858eeb594305c95a8992771b561e5"
+    },
+    "tajweed/006.json": {
+      "sha256": "dcfe4483f253edb5214ad454b469cef69d34912706a50d3dc9b499b6b4adac82"
+    },
+    "tajweed/007.json": {
+      "sha256": "69d7c65538e82f72cbc2c869a2875724bfb52de293dcb5cfcabec8888877bd58"
+    },
+    "tajweed/008.json": {
+      "sha256": "90f5ba220da5072025e865ef06dc73812bc7a959eeaf5f6e578738d363683805"
+    },
+    "tajweed/009.json": {
+      "sha256": "a5e5e73ec0e3de06ce8130d56f2f25914dd38b8a976d428aa78971b005151e2b"
+    },
+    "tajweed/010.json": {
+      "sha256": "01829a201aecdec0323dfb5ef8a1225ef01511aa66f982ec0cbec02c88a5346e"
+    },
+    "tajweed/011.json": {
+      "sha256": "956b6c986ea3c6f955e5682b6672123092508f639df05a6c56fb0c9ecc9808e9"
+    },
+    "tajweed/012.json": {
+      "sha256": "144753e966ade2b5475b044b3b2e289561480c08eabd3cc6fc1a7b80a628f81c"
+    },
+    "tajweed/013.json": {
+      "sha256": "3037e8d780c6164dc8ff221d5e5e669032828c06ad8a1554f7930d4a78bb29e1"
+    },
+    "tajweed/014.json": {
+      "sha256": "6298120f560f8c12c243dc4f6a9a9661b194424f69660269d75f8bd2e88bce55"
+    },
+    "tajweed/015.json": {
+      "sha256": "9929c150226068984793a1ce656492e53a41f003a0cd83e213e1483d08e30c53"
+    },
+    "tajweed/016.json": {
+      "sha256": "918ed6dc0fb2aa56703ff7c0548ddbf3d0a52ffbaf13a850bcb9b85d123b755b"
+    },
+    "tajweed/017.json": {
+      "sha256": "66575157062073471956f1b07e8eb5338ade65d178230d7c0f34170fd0e3a39a"
+    },
+    "tajweed/018.json": {
+      "sha256": "d862104f6bfc111ba36edaf03935dedf1a4c5365ef521b5669fe6429fa756524"
+    },
+    "tajweed/019.json": {
+      "sha256": "1a81370f32b135ae0f319c2a891ff1c4de7ee9817571fb2ac39c9e66fb7a3ee8"
+    },
+    "tajweed/020.json": {
+      "sha256": "c78f1d56393e9d30f46040cd50ce86eaf544fa6a71ddb3162b484e6b458bfb88"
+    },
+    "tajweed/021.json": {
+      "sha256": "d80f0b4b764714395a3447ea1a9c860845066546316206537b692c37bf2ebaf6"
+    },
+    "tajweed/022.json": {
+      "sha256": "27796a0c9bdf28c0266c005e964b2cc151c1c499c0af631304bcef34fb744a8c"
+    },
+    "tajweed/023.json": {
+      "sha256": "57fdb859e35134f6e3245297df7967f6aab443cde587264cbb47e5e5e1104678"
+    },
+    "tajweed/024.json": {
+      "sha256": "58ae79454df123d44c037c929fb96052fc3151b66256b41f8b71b1afe340506d"
+    },
+    "tajweed/025.json": {
+      "sha256": "c84333e82e33a7928ae202bbb385231e96f30a7365f20c30ab101f07d50c1ca7"
+    },
+    "tajweed/026.json": {
+      "sha256": "215299766cca4b68b5f4e3093f3748482bc428c63c3d901284a2cecf253956ad"
+    },
+    "tajweed/027.json": {
+      "sha256": "89487f07dd9011908ae46e5c87a71d84267f80bb52b549770a054c97fa3b8dea"
+    },
+    "tajweed/028.json": {
+      "sha256": "e28c25e2a4c1aecaefad59c7a26930b52c8360bc915414d6a57c2265ed03b688"
+    },
+    "tajweed/029.json": {
+      "sha256": "332368d6c8d9adc673aa5980d193254c65dc6576fb5bece63e746b9d7f4be564"
+    },
+    "tajweed/030.json": {
+      "sha256": "f692a5f9894b12407cde9600798d94a4695f967f5e0f7c7a2efc705fbba2bfd4"
+    },
+    "tajweed/031.json": {
+      "sha256": "52bffa3417aa4c27faff98b7958ef7869a4d3ffcac74ae93087dcacef7d39723"
+    },
+    "tajweed/032.json": {
+      "sha256": "4eacf62fd0f21f2afd7e17fc4183f58bfddc2b638cc96ddaced640280f33f144"
+    },
+    "tajweed/033.json": {
+      "sha256": "3ae33ce963f2a2c8f0b64179e3bbb039f92e3bc6829b40018cac56292ef92111"
+    },
+    "tajweed/034.json": {
+      "sha256": "fbebf31825073a362fecabee7fcda3fe38ffa379c27d893e9f2466e8ce968e76"
+    },
+    "tajweed/035.json": {
+      "sha256": "0e551fb1bc9dd362c48deceab3d75fdea8d53dc963904d8e7961be976593d73c"
+    },
+    "tajweed/036.json": {
+      "sha256": "69248eb12a7205948b039a1b8d95a420727eff0b1cdc6a8b30afd3a4c0916ebf"
+    },
+    "tajweed/037.json": {
+      "sha256": "7de625d180a75b410145e195325018bafc9f83d8009f95e330d39a871738fb40"
+    },
+    "tajweed/038.json": {
+      "sha256": "4fe865f5b360779c885f3f31bd33b6693ee4d6cf4d0487d70b0cdaaa5ccc8f53"
+    },
+    "tajweed/039.json": {
+      "sha256": "372501fda781b39a01e91ffda990641764d2e7d1685c1dacdf53fb8dc589e812"
+    },
+    "tajweed/040.json": {
+      "sha256": "c69daa2b1366949393546a36cb67c69459971dfe15db260d55936da3e887afed"
+    },
+    "tajweed/041.json": {
+      "sha256": "e029965947ea4154f8b40ad844dd7c6eb600c84ebedc68f0b253e57384dd7e90"
+    },
+    "tajweed/042.json": {
+      "sha256": "e76b22e053f5f6b1104dff50d6dff2b19aad38f41039a0015a9d45e6c617cd9d"
+    },
+    "tajweed/043.json": {
+      "sha256": "4e07446bd391c6597dfda927401615d553c59b0e5b8fc8dd46b44d524b393a34"
+    },
+    "tajweed/044.json": {
+      "sha256": "714682a2bd7f7727b262b2950eb49739bc2b0f2224356480c9fa657fe84cf50f"
+    },
+    "tajweed/045.json": {
+      "sha256": "62b1fa7a22ef4810383147e4ad70ca75c216df535a47f6bbcf4f50480f098a62"
+    },
+    "tajweed/046.json": {
+      "sha256": "a1036b0e759877e4e7e05ee8366d20d75dd3295b5d90e08cbed88ae060c4ede2"
+    },
+    "tajweed/047.json": {
+      "sha256": "d499a4ad3867a099a6cb47692facfd06bab48f429180ec0e259682f1478d3ab3"
+    },
+    "tajweed/048.json": {
+      "sha256": "f84bd956471840655d391b473e8633634aff2a4d8622205b09e0d5c6c5b9ca8e"
+    },
+    "tajweed/049.json": {
+      "sha256": "98fef86e0091aee07a80c7a01b539fcbfd9d51eacda399fa7c9b24abc0efac13"
+    },
+    "tajweed/050.json": {
+      "sha256": "73a4cd5832012cc74d632536d2d0071501adb5e088d079c16d5310a4136e8eb7"
+    },
+    "tajweed/051.json": {
+      "sha256": "75ca3b241cf0feb843915a3d6e1269dd07b9a9dc150653bdf1f299041007c897"
+    },
+    "tajweed/052.json": {
+      "sha256": "614e4aba6c734ecebb623ead198aa9c2c9e03287771bc79980e887e48541d2f4"
+    },
+    "tajweed/053.json": {
+      "sha256": "b0e28abb8038401cde747d585eb3453556d7067164d121b47263f09b275e8416"
+    },
+    "tajweed/054.json": {
+      "sha256": "de9d5f2dd552d78f6098bd06da717eb5d67f4e9bb50395f93dd4fd3119ad8710"
+    },
+    "tajweed/055.json": {
+      "sha256": "42832628934be057c5335ca6a05cfba2742bc17556056c775473dab7b9b73dfe"
+    },
+    "tajweed/056.json": {
+      "sha256": "072e011a1a924e7e073c2518ffbe773b50baebdc50e3cde81e79cf5c8d8cba58"
+    },
+    "tajweed/057.json": {
+      "sha256": "650e6030b0d4f5795de855ec31651da9a779fda221ede33ab9b68b0fa163c608"
+    },
+    "tajweed/058.json": {
+      "sha256": "aa81cded01d821179bca79762f0749af15649cc47ffedb0fce8adb00bc4b7a6b"
+    },
+    "tajweed/059.json": {
+      "sha256": "b3b128db872b71e0e727d82a403ee8ce392a59186f2c1c0eaa288fbe91520422"
+    },
+    "tajweed/060.json": {
+      "sha256": "ff4f1b95c28f9122052d72937e242eac62c9cb000769b4a59e7bbbc41e7bacb4"
+    },
+    "tajweed/061.json": {
+      "sha256": "26a860985c7890d3b9d976650d9a096973163bb9b9d1b4ff9f0f2fd97ca95969"
+    },
+    "tajweed/062.json": {
+      "sha256": "48581883b807a5793a84a526e7b389f1ef6e95cf5f3ba0ed4da185161394ccc6"
+    },
+    "tajweed/063.json": {
+      "sha256": "98aae8b57d2f86093bfadaaaa75f02d0f113d7a4f71ed0ff0b171649dc3d7841"
+    },
+    "tajweed/064.json": {
+      "sha256": "c5b73db3b2a0178f3859cca68ffccac3e386abb7f4d8d752da5dbc920a7616a6"
+    },
+    "tajweed/065.json": {
+      "sha256": "3c33fae011d2fd8e5c37668f9b2003064a7f24e14b759d97be06fb444cfcaf24"
+    },
+    "tajweed/066.json": {
+      "sha256": "028f1823eb1f4a9388739d6e0f069e83ca0dd9e2845ab90ff16ee07a6d32958c"
+    },
+    "tajweed/067.json": {
+      "sha256": "269097908e626e6ad05937e9c28b313723e332483008e669ea97d947dd622a60"
+    },
+    "tajweed/068.json": {
+      "sha256": "d36839c2da2e46e31012d0ddba0c5d8168dbd8243582f09a5f75acfb277f9121"
+    },
+    "tajweed/069.json": {
+      "sha256": "d5171c69e009598bc786faf755c11dedc5566f68958c689b8f717c3819ccdf57"
+    },
+    "tajweed/070.json": {
+      "sha256": "6385497280cb2598dc105374d928eb794584756b6751446c9af3933d3c40bfc5"
+    },
+    "tajweed/071.json": {
+      "sha256": "6afc578f385ee6ab68e3daec048ae6c5a32a844b8e36f8fe66214d02d6a9ebd1"
+    },
+    "tajweed/072.json": {
+      "sha256": "33cca0ec672eeba85d6378a451bab738066e2e843242e7dd560943f07d61292b"
+    },
+    "tajweed/073.json": {
+      "sha256": "9aca4219f7fd66ccbe33b3fb6f327ef2a46739a484ffa8ac340599b3627b8190"
+    },
+    "tajweed/074.json": {
+      "sha256": "7dd9e0c9e6a5ec0ebf6a601d0a6f1a9f307c4de8860cbadbba3f148491f5b25a"
+    },
+    "tajweed/075.json": {
+      "sha256": "11d7511a6e89297a338bdc467e65bbf7e18eca783eb932b67e9832b01a82508a"
+    },
+    "tajweed/076.json": {
+      "sha256": "0e912e7cb46aff66a75c6c8d246e4eda84e2393dd3adb4b2380e9b1e2c8dc357"
+    },
+    "tajweed/077.json": {
+      "sha256": "c65e3484a7bffe9e4b074c00e9f9c9373eae7981a169704a9bc37b2f7442b989"
+    },
+    "tajweed/078.json": {
+      "sha256": "a37cf7b0ffb465c1e9605ea4c504471c1b6f26f0b864887d1eb350de7b80e69f"
+    },
+    "tajweed/079.json": {
+      "sha256": "2ec98d843d0aac0764d3cb0aeb790732832ae9d626dd54dccd93955daa85c9e4"
+    },
+    "tajweed/080.json": {
+      "sha256": "ffec9419da70f8118fdb32237f9a3f464358e503fc8f17d0afe4646646a0dfce"
+    },
+    "tajweed/081.json": {
+      "sha256": "5ad7a4ece178a6a3883bbb4740f4efe586cc7fc436dfacb33f6b00cc550fb651"
+    },
+    "tajweed/082.json": {
+      "sha256": "848ff290add13661a353247d850edc282bca202e0da29ce6b9c9039d034b31c5"
+    },
+    "tajweed/083.json": {
+      "sha256": "8fe46de487faddcb2edc8cb95752ec4660383e40739dce74479b8c62a47389cc"
+    },
+    "tajweed/084.json": {
+      "sha256": "0f77540ba1c50b53c36f65431f31715068d01110358b4ec62794b6645e809f66"
+    },
+    "tajweed/085.json": {
+      "sha256": "4fec7116912b0e98a4951067aa0c052bc86ec21f9e3e473db9fc612f91df01a8"
+    },
+    "tajweed/086.json": {
+      "sha256": "6fe6753a844f43e4a7d1cfa671fc9fff0d82a873a7e0ae132edaffd38791e1c1"
+    },
+    "tajweed/087.json": {
+      "sha256": "31ddd191ec0ed907883c3173312ba9c32d746fe85f462608147547848b473e5b"
+    },
+    "tajweed/088.json": {
+      "sha256": "d705f64be1f12f2dff42b8d70dc538261f212485953e7db1549d2ad558899011"
+    },
+    "tajweed/089.json": {
+      "sha256": "9bbc73f5494c9582a1f44bb6f11a2ca265dc8ac4e541e6d121290f7127dd5804"
+    },
+    "tajweed/090.json": {
+      "sha256": "b191bce7dca9fb2b4d949fe999b65d2a343ac14b73240d028525228f4cbcbf6a"
+    },
+    "tajweed/091.json": {
+      "sha256": "f37e6acb3594c84b2473469ea16fcbf96202a129ab28f2153c5cdb22beaf7357"
+    },
+    "tajweed/092.json": {
+      "sha256": "afc495ef870c304a719baa0f9b4d0886bb298d4453a7ecd6617bddf77df9d0c2"
+    },
+    "tajweed/093.json": {
+      "sha256": "43471936ee9bf9205f908c89e53bd7463dd5b5921a0e96eb1f758c37b0c55be2"
+    },
+    "tajweed/094.json": {
+      "sha256": "ad8acd59433167a9c99615e5b26e6d6033055af19add7b40770c0ba271d04dd7"
+    },
+    "tajweed/095.json": {
+      "sha256": "2e7d8f4cd21e121ee9ba2dd37a2959f9a295bdee59dd0b2a3c33264661873652"
+    },
+    "tajweed/096.json": {
+      "sha256": "c697c8143dac075bde880527f08629ea59fac71654679a6747616225292d3caf"
+    },
+    "tajweed/097.json": {
+      "sha256": "c1061f4d190df2aa41209f0dba500735fd5a72fbb60981762d2ded355c2c0621"
+    },
+    "tajweed/098.json": {
+      "sha256": "792d802b93480f67f577d320a6869eadadf4bb7ce4c72e5c1ef986e243b59cbc"
+    },
+    "tajweed/099.json": {
+      "sha256": "8c5712d45a5ea7718eaa31727939d9a859334c36b631655d4ceaa80578842d1d"
+    },
+    "tajweed/100.json": {
+      "sha256": "453920111107d4f45de7e9d76ffc893f4e6966b7893880c54b87a83a67628952"
+    },
+    "tajweed/101.json": {
+      "sha256": "3252d687a1433229c8f8de097269eebc709c1022d2e6221a34456c5f8dd556ff"
+    },
+    "tajweed/102.json": {
+      "sha256": "698bac8be5d904bef453447ae0fe40a20559696980cfa2029eaaaff53a28e63a"
+    },
+    "tajweed/103.json": {
+      "sha256": "592ed6f094843a56324314cc89851dd4d121cddc39634ffd5f636898d5a0778c"
+    },
+    "tajweed/104.json": {
+      "sha256": "265e2070b04dffba27ce90c158ec065637af5f51e91ba2293e53702a215bc32b"
+    },
+    "tajweed/105.json": {
+      "sha256": "14b89bba0264ab4e1af3b0c810c53cf3d1955c19df120166f0a0a512af2fcae6"
+    },
+    "tajweed/106.json": {
+      "sha256": "bceba54ead8a78640621a9dc5e0a5522e3e4ffd8c1efc455e7e224c469bbeabd"
+    },
+    "tajweed/107.json": {
+      "sha256": "398b7a4623a05e8af86f208cf906cea215b3c8ae9d50a94254bd778727d48496"
+    },
+    "tajweed/108.json": {
+      "sha256": "6f7fcdc7cc24100cc0332ca38e7d023d51748fb495603c8dd3c0773ca100d1f2"
+    },
+    "tajweed/109.json": {
+      "sha256": "8763fea7b601a142587ef6528875ea814fabe03bfd1f542eee44ca9dbf701232"
+    },
+    "tajweed/110.json": {
+      "sha256": "69edee1e59c61d90b6de465e203f149917a1018652e76f0e04ca7f702335fb7a"
+    },
+    "tajweed/111.json": {
+      "sha256": "312f99aab5833de60bdb274ded9c484e9a8ff7d1278bea6f5a4a96d832e0d18a"
+    },
+    "tajweed/112.json": {
+      "sha256": "7a08f986d8232a3c69abb3997c6fa1a0fdac1d803500960adf37763ff162f029"
+    },
+    "tajweed/113.json": {
+      "sha256": "d184dd5ae449433ed5d60008ce55db55affccc9b0d0f40ac465027700f7c2f71"
+    },
+    "tajweed/114.json": {
+      "sha256": "7f155aa98f47c3bc8e8fa66973b545c739f317e1d3291e0e106da50e7583791d"
+    },
+    "tajweed/manifest.json": {
+      "sha256": "3f382e028c0cf16b9bbf2684e5cab31916b61ea18c48490fc8b96ff48167b022"
+    },
+    "contemplation/manifest.json": {
+      "sha256": "84f17ef142e5ed42688d6c0a55594b7b6e5cf1640ea627e4593abc555cb4600c"
+    },
+    "contemplation/surah-001.json": {
+      "sha256": "0e5e64bfb204e16cb62f4dbef7930fd5ecff0033e0024fd9d2d8289a4aaf8998"
+    },
+    "contemplation/surah-002.json": {
+      "sha256": "da068718f24a0fe10773e1227c1d8c3b6e2d9a9f8b0698d28cc3f41058a725d5"
+    },
+    "contemplation/surah-003.json": {
+      "sha256": "e599c27bf5b06deb707ea22bda5b0b0af8445d058f8edece056ffded6d02e891"
+    },
+    "contemplation/surah-004.json": {
+      "sha256": "a26e454e63cfcfdead0a246bb715c020ff11f81ac93c2b2bde447c44a78772ca"
+    },
+    "contemplation/surah-005.json": {
+      "sha256": "459ff5df64324d1a3f65a5bc9d4b40f6841d768fd72117fd998f59bb2b424373"
+    },
+    "contemplation/surah-006.json": {
+      "sha256": "d8436afa42793e28c17ec6569dc181b2b06f725ee126922b62a2963e96a19834"
+    },
+    "contemplation/surah-007.json": {
+      "sha256": "989fd055497c3fcde4dafce3ad8c89723141b9ae34312fe34f0d5bd4160ca5d5"
+    },
+    "contemplation/surah-008.json": {
+      "sha256": "eeffde7830fc8c8e7b099222f7845887fe90ca15a62e6d6d4a348136439bc5bc"
+    },
+    "contemplation/surah-009.json": {
+      "sha256": "a2ebe55c437637eb3884c2a478ff597855850a971231193762a8df9724686bcc"
+    },
+    "contemplation/surah-010.json": {
+      "sha256": "7ca59338d33aee39b0773d062967abd93f4d5bfd5723bcf05b236ec0ff66a4a9"
+    },
+    "contemplation/surah-011.json": {
+      "sha256": "906af30314171895f5b5ca58d7cab7bf8f881b02a7f8eb25f98c610eba99b38d"
+    },
+    "contemplation/surah-012.json": {
+      "sha256": "f2f6840dd42b48b5e59e60792a5c931b375ff68e0400825fd91a74ba90676506"
+    },
+    "contemplation/surah-013.json": {
+      "sha256": "11b4c23190957f3e783ed29f81d7ec6ae9530157061ee3862eb4e42a493f3648"
+    },
+    "contemplation/surah-014.json": {
+      "sha256": "e28f414570eca65040a09608ebc75e559fd9f202b76ca42bab3ccf6acb2955c8"
+    },
+    "contemplation/surah-015.json": {
+      "sha256": "56221fa59937421db3381a0f078f0c9118582b1cb561139786d667fd78f1494f"
+    },
+    "contemplation/surah-016.json": {
+      "sha256": "a882804751ec3fb38480534809f1f7fbe4cc780568a68bfef1ed613a22580a72"
+    },
+    "contemplation/surah-017.json": {
+      "sha256": "010cb277ec9be5ff2bb90b14e24f0ac49a6c66e7c303aac751b21f8d48aa5044"
+    },
+    "contemplation/surah-018.json": {
+      "sha256": "eafdbbdb787b57acfd1ff13fdd8b40ebbfca880435ca11992109efb9ce6a09f5"
+    },
+    "contemplation/surah-019.json": {
+      "sha256": "d1a512c1abdde594016db8a6a82e67c52abf40b88e7c63dd950806b91ac23645"
+    },
+    "contemplation/surah-020.json": {
+      "sha256": "2d118b335a6a1cb458f0165a232d1ae9b6ea821fe00a41ab7d3bb21b773cb530"
+    },
+    "contemplation/surah-021.json": {
+      "sha256": "2a40bcd0eaa23c0018c83bbfa26b5a1326fb078b7eef5b76d8430160a774f332"
+    },
+    "contemplation/surah-022.json": {
+      "sha256": "130951b90f2902dc64e9a76e1d73a61d6fb6719e48c7793c0d9c6a486f0d22a7"
+    },
+    "contemplation/surah-023.json": {
+      "sha256": "579843cff5a165fa23c8d0e8d3eb0a8ee673dc427ebfccfb5819e592389e5c59"
+    },
+    "contemplation/surah-024.json": {
+      "sha256": "a5f3ff71e17b60a5c21d119cebcc7ccbbbbfa9daa8d2a287bfb12284b8677061"
+    },
+    "contemplation/surah-025.json": {
+      "sha256": "d4ab847fd8d953bcf31e272a627c241e563c0422072377b78c7c7687473f3e83"
+    },
+    "contemplation/surah-026.json": {
+      "sha256": "22105ac63a5249bef17ebf59e28ebaef85b5d6955d8a3b037ab4786bd992ac51"
+    },
+    "contemplation/surah-027.json": {
+      "sha256": "0490c2e62839265c546db65278040703a04071a4b71930bdffafc4785f290532"
+    },
+    "contemplation/surah-028.json": {
+      "sha256": "b5400f8c0808b848d5ec15cf2735eee98c556310b078f674906f7b0571373db8"
+    },
+    "contemplation/surah-029.json": {
+      "sha256": "d66c6ad00a78331dc152fe0bbff67fbbb6b87b921a85ff016e9be82fe53bfcea"
+    },
+    "contemplation/surah-030.json": {
+      "sha256": "6a5341ead92cf597614bc791588677769ae34246e78c1de92ce3667dacf7b3fe"
+    },
+    "contemplation/surah-031.json": {
+      "sha256": "57a09a73c2c4df7ac02e8d096218ce9f8d58e8789459907692bc1c50858c8347"
+    },
+    "contemplation/surah-032.json": {
+      "sha256": "65c9ec728b333b5845749d7e79643ac220ef65096ad62c53a078b630943fe4d7"
+    },
+    "contemplation/surah-033.json": {
+      "sha256": "ee34b9fec6166669ecc78063ede64a9da6062f6246b2edadd54b471a7a203bef"
+    },
+    "contemplation/surah-034.json": {
+      "sha256": "4665c9996cc9858fb694edf6c35a517fa9bc80058d79b0f9ad050c9e61d905ea"
+    },
+    "contemplation/surah-035.json": {
+      "sha256": "4556809e8d8505d085c88c2160b7fc95c3f65918c43d9cbcf89658f88fcbdaab"
+    },
+    "contemplation/surah-036.json": {
+      "sha256": "ea3f2a53868dc360eb6a66dac749f364e7f5ccfa17649aadc9759fa835861bf4"
+    },
+    "contemplation/surah-037.json": {
+      "sha256": "df536864f14f85ff8c6567519fe2fa185a9ff81a4141cc54d7d35b3c03329713"
+    },
+    "contemplation/surah-038.json": {
+      "sha256": "fa3912e3ba45d4c0df988d5ff895866cca290119cdf48e7f9f45a19075b7a160"
+    },
+    "contemplation/surah-039.json": {
+      "sha256": "4e8aee5793ba274a054ee401919ee89e29929b85463a878f28d328550969ef9f"
+    },
+    "contemplation/surah-040.json": {
+      "sha256": "304eac28d979fcbc3770e50a57765e9afe2dfc9ed305d6a2c09ffc88c278f64c"
+    },
+    "contemplation/surah-041.json": {
+      "sha256": "e06360d32499d635a697933d3b6bb66788747f41459564d1c62ac68834ad1382"
+    },
+    "contemplation/surah-042.json": {
+      "sha256": "d832d28ed8d66b1dfefe2d4b51170de47bd1ac3168049708d7e4a6d7c314e567"
+    },
+    "contemplation/surah-043.json": {
+      "sha256": "9c2b81b691c997f1b8131c719ea332803e761889b5972bc9b75cd1493bdb7247"
+    },
+    "contemplation/surah-044.json": {
+      "sha256": "af4f8a16cce32f2ac4026507603b5e51e0988c4519daf16f817d50f5c1ba6cda"
+    },
+    "contemplation/surah-045.json": {
+      "sha256": "83c5e750a4cbe6f02d0578eab2f3e8a97896f94cb9889e6079918ff7a7259159"
+    },
+    "contemplation/surah-046.json": {
+      "sha256": "63c12ec24e22c152a91feecbcbb3f441550c37c9ed4f874dd9c67f843fc37dd9"
+    },
+    "contemplation/surah-047.json": {
+      "sha256": "c8dc9879fdaaac260e32c67be999e45582c1101ff61886c59cbf8bd4a80361bd"
+    },
+    "contemplation/surah-048.json": {
+      "sha256": "110ba1c75313e53853ad7140c42b2ac55d1461eafcc9ec8c7247ca47a2cd19e7"
+    },
+    "contemplation/surah-049.json": {
+      "sha256": "e063ed00e58742b0a85ad4a8c95072c95f3374136394b09f28d4f9af6fd03d96"
+    },
+    "contemplation/surah-050.json": {
+      "sha256": "adc3c33e36c612039cdc6a1b4730bb7d678b0e00dd4e2419415916c27dddee2f"
+    },
+    "contemplation/surah-051.json": {
+      "sha256": "ec75cbd21d92a5e3aff5c7266fad4c9d2bc549636aba44fa94966686625099c9"
+    },
+    "contemplation/surah-052.json": {
+      "sha256": "e6decebc93b280386a290f699cd409047be6db082ba19cfd619722340e8497cd"
+    },
+    "contemplation/surah-053.json": {
+      "sha256": "452dee34f90ae8d4aec132c49af990fa54c0c627e6e912ec6932ae67e49586e8"
+    },
+    "contemplation/surah-054.json": {
+      "sha256": "e6b4b80df3f023c5d7e2bda28bb630c80f990c3d2c3d3a1de33fbbbbe86a8e10"
+    },
+    "contemplation/surah-055.json": {
+      "sha256": "10c369e5c89376b0a2b746fbc8c8fbafea98903c9049a8f96fa4aaf976c9667f"
+    },
+    "contemplation/surah-056.json": {
+      "sha256": "740153ec5a23e002908949503353f6ae4a06cbebc532fda8137cb94b108d3c1f"
+    },
+    "contemplation/surah-057.json": {
+      "sha256": "641cb7b78546441bd58e40249961e036e84889ea73bf37d6cc1eb555b416602e"
+    },
+    "contemplation/surah-058.json": {
+      "sha256": "c009cdc1a95658764d9b55a7d7ac2f21b0e3721925caf9e98ae9d1c99613fe76"
+    },
+    "contemplation/surah-059.json": {
+      "sha256": "6d02c57381d08d46ed7d3f41820d2183776f4b871fa7912a2122439e8179c38a"
+    },
+    "contemplation/surah-060.json": {
+      "sha256": "aa91888d073480940c213bdcddfd0067abd49105bd6d6198213275c1898a5d85"
+    },
+    "contemplation/surah-061.json": {
+      "sha256": "22beac9f555f24f77cacb27c8da1fa988c476e7e863bcbc3a90a7d50b914c1b8"
+    },
+    "contemplation/surah-062.json": {
+      "sha256": "240df1c73c2b5e38ff4915ba8e1d79202b934330fef73153b14f1829f00cd9aa"
+    },
+    "contemplation/surah-063.json": {
+      "sha256": "f4f77e77aa29185eae8330d17343832767bf03041e6db6f7491cc894a42c7a6d"
+    },
+    "contemplation/surah-064.json": {
+      "sha256": "020a5a3370e1dbaaf24a7c7738760cd5675d1f1945a4be7fb22f73618c86d06b"
+    },
+    "contemplation/surah-065.json": {
+      "sha256": "016c5f5af656626ad78281d4d16d130f3bcce4e4256a02dda329119be7b60588"
+    },
+    "contemplation/surah-066.json": {
+      "sha256": "884172bfedfcaee8d761dbaa74832471779708c2b24a48fd6012e15eca18d94e"
+    },
+    "contemplation/surah-067.json": {
+      "sha256": "e7daa5d89d0290a6d20cec6a9f064bbe177e6d477113c7c678a8a3f5eb1348d0"
+    },
+    "contemplation/surah-068.json": {
+      "sha256": "e6a2683f65171d661ca6b5a17906200546d1237ea13169b5f7ec00d15e89f6a7"
+    },
+    "contemplation/surah-069.json": {
+      "sha256": "3cbbc00634f227efa01ed697afe5c79be9d0bacd483f50988ce76b1382f82628"
+    },
+    "contemplation/surah-070.json": {
+      "sha256": "ab6e7c58b284ca5fcc02901bd9d7f8b8fd8ce8e17c01eda97030435b8fa0903e"
+    },
+    "contemplation/surah-071.json": {
+      "sha256": "a1b74b69a2181a9dd0556ead70a3e40e5731249681ccbb0cb0007d7774c63a97"
+    },
+    "contemplation/surah-072.json": {
+      "sha256": "3b63ff0ac672fa3c9665b7462995cec0467e5369f92e008215d96491b6af037f"
+    },
+    "contemplation/surah-073.json": {
+      "sha256": "b9e8a5a3937d0b64c4be8eb10c015c4b191979b235a6abeffa2e85d3ca4e0b30"
+    },
+    "contemplation/surah-074.json": {
+      "sha256": "65dd4e4e4c600822ca5e4edb982751c03680bfa4096c1b2cdac2ced037545b1c"
+    },
+    "contemplation/surah-075.json": {
+      "sha256": "40b1cc79c4b9ed3cd420ce500835142afa86cd93ad6b5dfaec61ebfbe6001680"
+    },
+    "contemplation/surah-076.json": {
+      "sha256": "6a4a11fb618bfd447f6034e8c966804ad1427660ca9ca8bbc626e04241507d8c"
+    },
+    "contemplation/surah-077.json": {
+      "sha256": "10c69cd9e7a0803dc061122f36d8c38390db55b09ac13e23ca284e7179ccb2b5"
+    },
+    "contemplation/surah-078.json": {
+      "sha256": "abd8b92ad240ed09b08076b07aaed5f0fbd415142e1601e8021f8e19936ab630"
+    },
+    "contemplation/surah-079.json": {
+      "sha256": "e59b8b6c398ae81faa46714e9692ea4e3c43e0ba6540026390c5e3a95185e3a4"
+    },
+    "contemplation/surah-080.json": {
+      "sha256": "627b2a49dfa4c738e0d471c1b115ca55a7f4a01d2d9763fa9eac6ec2f72f37b2"
+    },
+    "contemplation/surah-081.json": {
+      "sha256": "5ed355d9e3b3bce5866dbab07206525e4e13407651dc32044633e609d2b88c95"
+    },
+    "contemplation/surah-082.json": {
+      "sha256": "eb9298080fee53ec1eb5b23defceb868470356ae5998a6e0ddb3eb474405ca4a"
+    },
+    "contemplation/surah-083.json": {
+      "sha256": "625057d0dbd616c55cc05a078be36ee42549e5451ea6df89851f24fef8b33ba1"
+    },
+    "contemplation/surah-084.json": {
+      "sha256": "9d38ef5a558a70e3852677f56a2b2408476a5d82442597319fe3d906254a9557"
+    },
+    "contemplation/surah-085.json": {
+      "sha256": "0eecb4fa2231e7750332bf4a74b3744f7da4f39b630d5ff182d857491d2f1480"
+    },
+    "contemplation/surah-086.json": {
+      "sha256": "dddf17229760296bff14f3c2f86fc1b19a17ce897cb2cc44f07f4cc04500a01c"
+    },
+    "contemplation/surah-087.json": {
+      "sha256": "5710341b46cb6af5bc47981ceba5a663ff7c2df4bbb50b32fa69d920d9ee3d61"
+    },
+    "contemplation/surah-088.json": {
+      "sha256": "2d651dd36b3a2e8fa56c1a6a385e8f153567122335d03ef91fed27c41df82949"
+    },
+    "contemplation/surah-089.json": {
+      "sha256": "b550e78a97d4b3ae261bd8ed155bd38173178f158ca0b5c83f369561b00497d9"
+    },
+    "contemplation/surah-090.json": {
+      "sha256": "b64bc3ea32a4ac2474ef79c433d79121688748fd746fa30043fa234dc2e85c38"
+    },
+    "contemplation/surah-091.json": {
+      "sha256": "3d16846c2280ede501a83bc33d7201c57ff35a8eb481e64e2387e626b7cce2bc"
+    },
+    "contemplation/surah-092.json": {
+      "sha256": "d761082ff08b7379d82f65cde111d096320881b33c0e8a7a4cae82b9934ebe8f"
+    },
+    "contemplation/surah-093.json": {
+      "sha256": "08128aa8ba17c569d5850672d17b9c40444834b5628ea50fd2e66f8e8d813e9f"
+    },
+    "contemplation/surah-094.json": {
+      "sha256": "a8f938b9cd4957dfcf814b4ad366fe22513882544e0808fb6ffe705925b16642"
+    },
+    "contemplation/surah-095.json": {
+      "sha256": "51882326b748cd7029cda427a670b3a1b716211d01a1862961d82f333027ea4c"
+    },
+    "contemplation/surah-096.json": {
+      "sha256": "e750c168ef1123c54dccd2996c85e1b458dc3fefccfbdf48dbf0212b807cf45b"
+    },
+    "contemplation/surah-097.json": {
+      "sha256": "13eec5742ece38fe3eb9a790f86a5dbf812811599a232e7ecced6b9d84eb903e"
+    },
+    "contemplation/surah-098.json": {
+      "sha256": "31654c2f0ffaf3f4280d2a92507e2947f54c38664c99e976df6e732cae28c5b4"
+    },
+    "contemplation/surah-099.json": {
+      "sha256": "a8b23c379cffe642091ab84657f1715a320bf84888ba5ef145524fa5c3354ba4"
+    },
+    "contemplation/surah-100.json": {
+      "sha256": "cd40518e3128535338d43b1884ab98b1ba0e13a749637269fe168d2f9833d5cf"
+    },
+    "contemplation/surah-101.json": {
+      "sha256": "a9556a918e9dd5ac97c8ee536c37e6cad1ca8c5e966740338322f3bb77c63489"
+    },
+    "contemplation/surah-102.json": {
+      "sha256": "fc666a170750fd2f57e96cbdae846074f0d181a14e473e4aae3fc886194efc88"
+    },
+    "contemplation/surah-103.json": {
+      "sha256": "2a3a8d57faf1d7818e81c03ea25326edd127516492994e4dcdecd62c65105884"
+    },
+    "contemplation/surah-104.json": {
+      "sha256": "d7cc18b6b2d6938a94daac7dbe9932f8c3372ac2af2aa84bd16d91529dd3e78e"
+    },
+    "contemplation/surah-105.json": {
+      "sha256": "a0798f3a1147a4f0e545501de50d10b63c398f864252b604fa503518607ea46c"
+    },
+    "contemplation/surah-106.json": {
+      "sha256": "dbd7042dd3884cf5055b9bf01d990b500c8a77532e737f5122a4f9fdc967ff37"
+    },
+    "contemplation/surah-107.json": {
+      "sha256": "a29cb9bf95f5cfd86a3ad2255df10bc250f960c7d35e3f444f174c33912b2037"
+    },
+    "contemplation/surah-108.json": {
+      "sha256": "9b63b699d509e5ff3ae4cf27921756316447941145290d9809972064e24789ad"
+    },
+    "contemplation/surah-109.json": {
+      "sha256": "11745915f7ad1926c11ca7aa81e54a55dadac5c63f57815789ae90c016e38b65"
+    },
+    "contemplation/surah-110.json": {
+      "sha256": "aa839a7d2daf364a26a78a1d598cde48aeabbab702080f85a30e0d02ce4d45f0"
+    },
+    "contemplation/surah-111.json": {
+      "sha256": "3a1abb5ab38ef1b0a9d1d23ce26c2c53ef00ec91b8bb582f2529c8eaa7e210a6"
+    },
+    "contemplation/surah-112.json": {
+      "sha256": "61f5edfcd6321b41bc9d52b4460fc119737561c6dc86145714755ea1adad9fcb"
+    },
+    "contemplation/surah-113.json": {
+      "sha256": "cd02664ad02bb583e75fab5b85e57c546a43a66cffedca1a9e5665956ba8d935"
+    },
+    "contemplation/surah-114.json": {
+      "sha256": "75b6f07c4d22916649f43c2eb04a49d12ed71539d83a93e721fa57faaed94626"
     }
   }
 }
