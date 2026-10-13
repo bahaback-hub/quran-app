@@ -8,8 +8,6 @@
 import { __ } from './i18n.js';
 import { escapeHtml } from './templates/escape.js';
 
-const APP_BASE_URL = import.meta.env.BASE_URL;
-
 /* ===================== ERROR BOUNDARY TEMPLATE ===================== */
 
 /**
@@ -25,8 +23,8 @@ export function errorOverlay(errorMessage: string): string {
     `<h2>⚠️ ${__('error_title') || 'حدث خطأ'}</h2>` +
     `<p class="error-message">${escapeHtml(errorMessage)}</p>` +
     `<div class="error-actions">` +
-    `<button class="btn btn-gold" onclick="location.reload()">${__('reload') || 'إعادة تحميل'}</button>` +
-    `<button class="btn" onclick="location.href=${JSON.stringify(APP_BASE_URL)}">${__('home') || 'الرئيسية'}</button>` +
+    `<button class="btn btn-gold" data-action="reload">${__('reload') || 'إعادة تحميل'}</button>` +
+    `<button class="btn" data-action="home">${__('home') || 'الرئيسية'}</button>` +
     `<button class="btn btn-sm" id="errorCopyBtn">${__('copy_error') || 'نسخ الخطأ'}</button>` +
     `</div></div></div>`
   );
@@ -43,8 +41,8 @@ export function errorRecoveryOverlay(errorMessage: string, errorDetails: string)
     `<h3>${__('error_title') || 'حدث خطأ'}</h3>` +
     `<p class="error-overlay-desc">${escapeHtml(errorMessage)}</p>` +
     `<div class="error-overlay-actions">` +
-    `<button class="btn btn-gold" onclick="location.reload()">${__('reload') || 'إعادة تحميل'}</button>` +
-    `<button class="btn" onclick="location.href=${JSON.stringify(APP_BASE_URL)}">${__('home') || 'الرئيسية'}</button>` +
+    `<button class="btn btn-gold" data-action="reload">${__('reload') || 'إعادة تحميل'}</button>` +
+    `<button class="btn" data-action="home">${__('home') || 'الرئيسية'}</button>` +
     `<button class="btn btn-sm" id="errorCopyBtn">${__('copy_error') || 'نسخ الخطأ'}</button>` +
     `</div>` +
     `<details class="error-details"><summary>${__('error_details') || 'تفاصيل'}</summary>` +

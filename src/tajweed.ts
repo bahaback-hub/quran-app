@@ -194,7 +194,10 @@ function ruleToClassName(rule: TajweedRule): string {
  */
 export function tajweedColorWord(word: string, wordOffset: number, colorMap: Map<number, TajweedRule>): string {
   if (!colorMap || colorMap.size === 0) {
-    return word;
+    // No annotations → return the word escaped. Callers insert the result via
+    // innerHTML, so a raw return would be an injection sink if the word came
+    // from an untrusted (API/file) source.
+    return escapeHtml(word);
   }
 
   // Keep each Arabic base letter together with all following combining marks.

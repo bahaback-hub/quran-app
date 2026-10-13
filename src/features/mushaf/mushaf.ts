@@ -376,6 +376,10 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
         errorDiv.className = 'mushaf-error-fallback';
         errorDiv.innerHTML = mushafErrorFallback();
         canvasWrapper.appendChild(errorDiv);
+        // Inline onclick handlers are blocked by CSP; wire the retry button here.
+        errorDiv.querySelector<HTMLElement>('[data-action="reload"]')?.addEventListener('click', () => {
+          location.reload();
+        });
         loadingBar.hide();
       }
     })

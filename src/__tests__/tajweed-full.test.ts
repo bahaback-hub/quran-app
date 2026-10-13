@@ -204,6 +204,13 @@ describe('tajweedColorWord', () => {
     expect(result).toBe('بسم');
   });
 
+  it('should escape HTML when colorMap is empty (injection-sink guard)', () => {
+    const emptyMap = new Map<number, TajweedRule>();
+    const result = tajweedColorWord('<img src=x onerror=alert(1)>', 0, emptyMap);
+    expect(result).not.toContain('<img');
+    expect(result).toContain('&lt;img');
+  });
+
   it('should wrap annotated characters in spans with CSS classes', () => {
     const map = new Map<number, TajweedRule>();
     map.set(0, 'ghunnah');
@@ -253,9 +260,9 @@ describe('tajweedColorWord', () => {
 
   it('should escape HTML in word text when no colorMap', () => {
     const map = new Map<number, TajweedRule>();
-    // When colorMap is empty, the word is returned as-is (no escaping)
+    // When colorMap is empty the word is returned escaped (injection guard).
     const result = tajweedColorWord('a<b', 0, map);
-    expect(result).toBe('a<b');
+    expect(result).toBe('a&lt;b');
   });
 
   it('should escape HTML in un-annotated portions of a word', () => {

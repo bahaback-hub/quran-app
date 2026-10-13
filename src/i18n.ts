@@ -1,7 +1,7 @@
 /**
  * Internationalization (i18n) Module for Quran App.
  *
- * Provides a lightweight, lazy-loading translation system supporting 5 languages
+ * Provides a lightweight, lazy-loading translation system supporting 8 languages
  * (Arabic, English, Turkish, Malay, Indonesian, French, German, Russian). Key design decisions:
  *
  *   - Arabic is always loaded as the fallback language

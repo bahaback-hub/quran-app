@@ -227,6 +227,20 @@ function showRecoveryOverlay(errorMsg: string): void {
 
   document.body.appendChild(overlay);
 
+  // Bind reload/home actions. Inline `onclick` handlers are blocked by the
+  // app's CSP (script-src 'self' with no 'unsafe-inline'), so the buttons
+  // carry `data-action` and are wired here via addEventListener.
+  overlay.querySelectorAll<HTMLElement>('[data-action]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const action = btn.getAttribute('data-action');
+      if (action === 'reload') {
+        location.reload();
+      } else if (action === 'home') {
+        location.href = import.meta.env.BASE_URL;
+      }
+    });
+  });
+
   // Bind copy button
   const copyBtn = overlay.querySelector('#errorCopyBtn');
   if (copyBtn) {

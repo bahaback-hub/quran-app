@@ -53,7 +53,7 @@ export function mushafHeaderRow(juzLabel: string): string {
 export function mushafErrorFallback(): string {
   return `<p class="mushaf-error-title">⚠️ ${__('mushaf_load_failed')}</p>
         <p class="mushaf-error-subtitle">${__('mushaf_check_connection')}</p>
-        <button onclick="location.reload()" class="mushaf-error-retry-btn">${__('mushaf_retry_reload')}</button>`;
+        <button type="button" data-action="reload" class="mushaf-error-retry-btn">${__('mushaf_retry_reload')}</button>`;
 }
 
 /**

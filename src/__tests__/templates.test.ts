@@ -274,8 +274,20 @@ describe('ayahElement', () => {
   it('should handle tajweed text with <tajweed> tags', () => {
     const ayah = { numberInSurah: 1, text: '<tajweed class="hamza">بسم</tajweed> الله' };
     const result = ayahElement(ayah, 0, { includeWordSpans: true, tajweedEnabled: false });
-    // Tajweed text should be returned as-is (not split into word spans)
+    // Tajweed markup is preserved (not split into word spans)
     expect(result).toContain('<tajweed');
+    expect(result).toContain('</tajweed>');
+  });
+
+  it('should escape malicious HTML injected alongside tajweed markup', () => {
+    const ayah = {
+      numberInSurah: 1,
+      text: '<tajweed class="hamza"><img src=x onerror=alert(1)>بسم</tajweed>',
+    };
+    const result = ayahElement(ayah, 0, { includeWordSpans: true, tajweedEnabled: false });
+    expect(result).toContain('<tajweed');
+    expect(result).not.toContain('<img');
+    expect(result).toContain('&lt;img');
   });
 
   it('should escape text when includeWordSpans is false', () => {
@@ -512,10 +524,11 @@ describe('Error templates', () => {
     expect(result).toContain('error-overlay');
   });
 
-  it('errorOverlay should contain reload and home buttons', () => {
+  it('errorOverlay should contain reload and home buttons wired via data-action', () => {
     const result = errorOverlay('Test');
-    expect(result).toContain('location.reload()');
-    expect(result).toContain(`location.href=${JSON.stringify(import.meta.env.BASE_URL)}`);
+    expect(result).toContain('data-action="reload"');
+    expect(result).toContain('data-action="home"');
+    expect(result).not.toContain('onclick');
     expect(result).not.toContain("location.href='/'");
     expect(result).toContain('errorCopyBtn');
   });
@@ -529,11 +542,18 @@ describe('Error templates', () => {
   it('errorRecoveryOverlay should contain reload button', () => {
     const result = errorRecoveryOverlay('Test error', 'Stack trace here');
     expect(result).toContain('Test error');
-    expect(result).toContain('location.reload()');
-    expect(result).toContain(`location.href=${JSON.stringify(import.meta.env.BASE_URL)}`);
+    expect(result).toContain('data-action="reload"');
+    expect(result).toContain('data-action="home"');
+    expect(result).not.toContain('onclick');
     expect(result).not.toContain("location.href='/'");
     expect(result).toContain('errorCopyBtn');
     expect(result).toContain('Stack trace here');
+  });
+
+  it('error overlays must not use inline event handlers (CSP blocks them)', () => {
+    expect(errorOverlay('x')).not.toMatch(/on\w+=/);
+    expect(errorRecoveryOverlay('x', 'y')).not.toMatch(/on\w+=/);
+    expect(mushafErrorFallback()).not.toMatch(/on\w+=/);
   });
 
   it('errorRecoveryOverlay should have details section', () => {
@@ -638,11 +658,12 @@ describe('Mushaf templates', () => {
     expect(result).toContain('mushaf-surah-names');
   });
 
-  it('mushafErrorFallback should contain retry button', () => {
+  it('mushafErrorFallback should contain retry button wired via data-action', () => {
     const result = mushafErrorFallback();
     expect(result).toContain('mushaf-error-title');
     expect(result).toContain('mushaf-error-retry-btn');
-    expect(result).toContain('location.reload()');
+    expect(result).toContain('data-action="reload"');
+    expect(result).not.toContain('onclick');
   });
 
   it('mushafErrorFallback should contain error messages', () => {

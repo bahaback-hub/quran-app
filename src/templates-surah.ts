@@ -97,9 +97,15 @@ export function ayahElement(
  * @returns HTML string with each word wrapped in a span.word
  */
 function splitIntoWordSpans(text: string): string {
-  // For tajweed text, we need to handle <tajweed> tags specially
+  // For tajweed text we preserve the <tajweed> markup itself (word spans are
+  // skipped so the markup stays intact), but every non-markup segment must
+  // still be HTML-escaped — otherwise a malicious/tampered API or data file
+  // could inject arbitrary tags through this sink.
   if (text.includes('<tajweed')) {
-    return text;
+    return text
+      .split(/(<\/?tajweed\b[^>]*>)/g)
+      .map((segment) => (/^<\/?tajweed\b[^>]*>$/.test(segment) ? segment : escapeHtml(segment)))
+      .join('');
   }
   const words = text.split(/\s+/);
   return words.map((w) => `<span class="word">${escapeHtml(w)}</span>`).join(' ');
