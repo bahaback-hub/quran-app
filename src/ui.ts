@@ -35,6 +35,27 @@ export function showToast(msg: string, type: string = ''): void {
   _toastTimeout = setTimeout(() => dom.toast?.classList.remove('show'), 2500);
 }
 
+/**
+ * Apply pending progress-bar widths via CSSOM.
+ *
+ * Templates render progress fills as `<div class="…-fill" data-progress="42">`
+ * with no inline style attribute (which would require 'unsafe-inline' in
+ * the Content Security Policy). Call this right after
+ * inserting such HTML: it copies each data-progress value into the element's
+ * width through the CSSOM, which CSP allows.
+ */
+export function hydrateProgressFills(root: ParentNode): void {
+  const fills = root.querySelectorAll<HTMLElement>(
+    '.adhkar-progress-fill[data-progress], .reading-plan-progress-fill[data-progress]',
+  );
+  for (const fill of fills) {
+    const pct = fill.dataset['progress'];
+    if (pct !== undefined && pct !== '') {
+      fill.style.width = `${pct}%`;
+    }
+  }
+}
+
 /** Loading bar controller with show/hide methods. */
 export const loadingBar = {
   el: null as HTMLElement | null,

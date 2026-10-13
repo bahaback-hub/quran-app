@@ -198,7 +198,7 @@ export function renderSurah(textData: SurahTextData): void {
     html +=
       '<div class="bismillah-wrapper"><span class="bismillah-ornament">﴿</span><p class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p><span class="bismillah-ornament">﴾</span></div>';
   }
-  html += `<div class="ayahs-container" style="--ayah-font-size:${state.fontSize}px">`;
+  html += `<div class="ayahs-container">`;
 
   // Render ALL ayahs at once — no virtual scrolling, no chunks, no spacers.
   // Modern browsers handle 286 ayahs (surah Al-Baqarah) without performance issues.
@@ -209,6 +209,9 @@ export function renderSurah(textData: SurahTextData): void {
 
   html += `</div>`;
   dom.surahContent.innerHTML = html;
+  // CSP-safe: set the font-size variable through the CSSOM instead of an inline style attribute.
+  const ayahsContainer = dom.surahContent.querySelector('.ayahs-container') as HTMLElement | null;
+  ayahsContainer?.style.setProperty('--ayah-font-size', `${state.fontSize}px`);
   initAyahDelegation();
 
   const secretBtn = dom.surahContent.querySelector('.surah-secret-title-btn');

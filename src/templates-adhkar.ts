@@ -26,7 +26,7 @@ export function adhkarItem(text: string, count: number, target: number): string 
     `<div class="adhkar-item${completedClass}" data-count="${count}" data-target="${target}">` +
     `<div class="adhkar-text">${escapeHtml(text)}</div>` +
     `<div class="adhkar-progress-bar">` +
-    `<div class="adhkar-progress-fill" style="width:${progress}%"></div>` +
+    `<div class="adhkar-progress-fill" data-progress="${progress}"></div>` +
     `</div>` +
     `<div class="adhkar-counter">${count} / ${target}</div>` +
     `</div>`
@@ -58,7 +58,7 @@ export function adhkarItemCard(text: string, count: number, target: number, refe
     `<div class="adhkar-item${completedClass}">` +
     `<div class="adhkar-text">${escapeHtml(text)}</div>` +
     (reference ? `<div class="adhkar-ref">${escapeHtml(reference)}</div>` : '') +
-    `<div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${progress}%"></div></div>` +
+    `<div class="adhkar-progress-bar"><div class="adhkar-progress-fill" data-progress="${progress}"></div></div>` +
     `<div class="adhkar-counter">${count} / ${target}</div></div>`
   );
 }

@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
-import { showToast } from './ui.js';
+import { showToast, hydrateProgressFills } from './ui.js';
 import { adhkarTab, adhkarCategoryTitle, escapeHtml } from './templates.js';
 import {
   ADHKAR_DATA,
@@ -207,7 +207,7 @@ function renderAdhkarCategory(categoryId: string): void {
         </div>
       </div>
       <div class="adhkar-item-text">${escapeHtml(item.text)}</div>
-      <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
+      <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" data-progress="${pct}"></div></div>
       <div class="adhkar-item-meta">
         <span class="adhkar-item-count">🔄 ${item.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}</span>
         <span class="adhkar-item-reference">📚 ${escapeHtml(item.reference)}</span>
@@ -226,6 +226,8 @@ function renderAdhkarCategory(categoryId: string): void {
     <button class="adhkar-restore-btn" data-action="reset-custom" data-category="${categoryId}" title="${__('adhkar_reset_defaults_desc')}">🔄 ${__('adhkar_reset_defaults')}</button>
   </div>`;
   dom.adhkarContent.innerHTML = html;
+  // CSP-safe: apply progress widths through the CSSOM (no inline style attributes).
+  hydrateProgressFills(dom.adhkarContent);
 
   const contentEl = dom.adhkarContent as HTMLElement & { _delegationBound?: boolean };
   if (!contentEl._delegationBound) {
@@ -415,7 +417,7 @@ function renderPersonalAdhkar(): void {
       const pct = Math.min(100, (counter / p.count) * 100);
       html += `<div class="adhkar-item${completed ? ' completed' : ''}" data-item-id="personal_${p.id}">
         <div class="adhkar-item-text">${escapeHtml(p.text)}</div>
-        <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" style="width:${pct}%"></div></div>
+        <div class="adhkar-progress-bar"><div class="adhkar-progress-fill" data-progress="${pct}"></div></div>
         <div class="adhkar-item-meta">
           <span class="adhkar-item-count">🔄 ${p.count} ${__('adhkar_times')} — ${__('adhkar_remaining')} ${remaining}</span>
           <span class="adhkar-item-reference">${p.time ? '⏰ ' + escapeHtml(p.time) : ''}</span>
@@ -432,6 +434,8 @@ function renderPersonalAdhkar(): void {
     }
   }
   dom.adhkarContent.innerHTML = html;
+  // CSP-safe: apply progress widths through the CSSOM (no inline style attributes).
+  hydrateProgressFills(dom.adhkarContent);
 
   document.getElementById('openAddAdhkarBtn')?.addEventListener('click', openAdhkarAddDialog);
 

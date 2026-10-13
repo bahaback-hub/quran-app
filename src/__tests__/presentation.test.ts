@@ -44,9 +44,8 @@ vi.mock('../features/presentation/pres-backgrounds.js', () => ({
   startSceneAnimation: vi.fn(),
 }));
 
-// Mock pres-styles
+// Mock pres-styles (styles are a static sheet now — no runtime injection)
 vi.mock('../features/presentation/pres-styles.js', () => ({
-  injectStyles: vi.fn(),
   buildAyahHtml: vi.fn(
     (_text: string, _surah: number, _ayah: number, _tajweed: boolean) => '<span>mock ayah html</span>',
   ),
@@ -184,11 +183,12 @@ describe('presentation', () => {
       expect(storage.set).toHaveBeenCalledWith('mushaf_mode', false);
     });
 
-    it('should call injectStyles', async () => {
+    it('should not inject a style element on open (CSP-safe static sheet)', async () => {
       const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
-      const { injectStyles } = await import('../features/presentation/pres-styles.js');
-      expect(injectStyles).toHaveBeenCalled();
+      // Styles come from presentation.css via styles.css; runtime <style>
+      // injection would require 'unsafe-inline' in style-src.
+      expect(document.getElementById('pres-styles')).toBeNull();
     });
   });
 

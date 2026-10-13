@@ -1,0 +1,297 @@
+/**
+ * QCF4 Mushaf @font-face rules — static, CSP-safe.
+ *
+ * Loaded on demand via <link> by the mushaf renderer's font fallback strategy
+ * (strategy 3). @font-face only downloads a file when its family is used, so
+ * linking this sheet costs nothing until a Mushaf page needs the font.
+ * Covers every entry of QCF4_FONT_NAMES in qcf4-font-pack.ts — a unit test
+ * enforces the two stay in sync.
+ */
+
+@font-face {
+  font-family: 'QCF4_Hafs_01';
+  src: url('./QCF4_Hafs_01_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_02';
+  src: url('./QCF4_Hafs_02_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_03';
+  src: url('./QCF4_Hafs_03_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_04';
+  src: url('./QCF4_Hafs_04_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_05';
+  src: url('./QCF4_Hafs_05_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_06';
+  src: url('./QCF4_Hafs_06_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_07';
+  src: url('./QCF4_Hafs_07_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_08';
+  src: url('./QCF4_Hafs_08_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_09';
+  src: url('./QCF4_Hafs_09_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_10';
+  src: url('./QCF4_Hafs_10_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_11';
+  src: url('./QCF4_Hafs_11_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_12';
+  src: url('./QCF4_Hafs_12_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_13';
+  src: url('./QCF4_Hafs_13_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_14';
+  src: url('./QCF4_Hafs_14_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_15';
+  src: url('./QCF4_Hafs_15_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_16';
+  src: url('./QCF4_Hafs_16_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_17';
+  src: url('./QCF4_Hafs_17_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_18';
+  src: url('./QCF4_Hafs_18_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_19';
+  src: url('./QCF4_Hafs_19_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_20';
+  src: url('./QCF4_Hafs_20_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_21';
+  src: url('./QCF4_Hafs_21_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_22';
+  src: url('./QCF4_Hafs_22_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_23';
+  src: url('./QCF4_Hafs_23_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_24';
+  src: url('./QCF4_Hafs_24_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_25';
+  src: url('./QCF4_Hafs_25_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_26';
+  src: url('./QCF4_Hafs_26_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_27';
+  src: url('./QCF4_Hafs_27_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_28';
+  src: url('./QCF4_Hafs_28_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_29';
+  src: url('./QCF4_Hafs_29_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_30';
+  src: url('./QCF4_Hafs_30_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_31';
+  src: url('./QCF4_Hafs_31_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_32';
+  src: url('./QCF4_Hafs_32_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_33';
+  src: url('./QCF4_Hafs_33_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_34';
+  src: url('./QCF4_Hafs_34_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_35';
+  src: url('./QCF4_Hafs_35_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_36';
+  src: url('./QCF4_Hafs_36_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_37';
+  src: url('./QCF4_Hafs_37_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_38';
+  src: url('./QCF4_Hafs_38_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_39';
+  src: url('./QCF4_Hafs_39_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_40';
+  src: url('./QCF4_Hafs_40_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_41';
+  src: url('./QCF4_Hafs_41_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_42';
+  src: url('./QCF4_Hafs_42_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_43';
+  src: url('./QCF4_Hafs_43_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_44';
+  src: url('./QCF4_Hafs_44_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_45';
+  src: url('./QCF4_Hafs_45_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_46';
+  src: url('./QCF4_Hafs_46_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_Hafs_47';
+  src: url('./QCF4_Hafs_47_W.woff2') format('woff2');
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'QCF4_QBSML';
+  src: url('./QCF4_QBSML.woff2') format('woff2');
+  font-display: block;
+}

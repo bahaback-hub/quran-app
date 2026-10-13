@@ -262,15 +262,17 @@ describe('showContinueWidget', () => {
     expect(widget?.textContent).toContain('الفاتحة');
   });
 
-  it('should inject continue widget styles', () => {
+  it('should not inject widget styles (CSP-safe static sheet)', () => {
     showContinueWidget({
       surah: 2,
       surahName: 'البقرة',
       ayahNumberInSurah: 10,
     });
 
-    const styles = document.getElementById('continue-widget-styles');
-    expect(styles).not.toBeNull();
+    // Styles come from continue-widget.css via styles.css; runtime <style>
+    // injection would require 'unsafe-inline' in style-src.
+    expect(document.getElementById('continue-widget-styles')).toBeNull();
+    expect(document.getElementById('continueWidget')).not.toBeNull();
   });
 
   it('should replace existing widget if called again', () => {

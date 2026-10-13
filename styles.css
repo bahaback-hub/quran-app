@@ -6,8 +6,10 @@
 @import './src/css/player.css';
 @import './src/css/panels.css';
 @import './src/features/mushaf/mushaf.css';
+@import './src/features/presentation/presentation.css';
 @import './src/css/modals.css';
 @import './src/css/components.css';
+@import './src/css/continue-widget.css';
 @import './src/css/animations.css';
 @import './src/css/glass-daytime.css';
 @import './src/css/glass-night.css';

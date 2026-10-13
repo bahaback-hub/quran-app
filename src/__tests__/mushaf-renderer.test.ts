@@ -3,7 +3,10 @@
  * page data loading/caching, line position calculation, and canvas rendering.
  */
 
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { QCF4_FONT_NAMES } from '../features/mushaf/qcf4-font-pack.js';
 
 // Unmock the mushaf-renderer module (mocked as {} by setup-i18n.ts)
 vi.unmock('../features/mushaf/mushaf-renderer.js');
@@ -387,5 +390,30 @@ describe('Canvas Pool (getCanvas / releaseCanvas)', () => {
     expect(new Set([a, b, c]).size).toBe(3);
     // d is a fresh allocation not among the first three
     expect([a, b, c]).not.toContain(d);
+  });
+});
+
+describe('QCF4 static @font-face sheet (CSP-safe strategy 3)', () => {
+  const root = resolve(import.meta.dirname, '../..');
+  const sheet = readFileSync(resolve(root, 'public/fonts/qcf4/qcf4-font-face.css'), 'utf8');
+
+  it('covers every font in QCF4_FONT_NAMES', () => {
+    expect(QCF4_FONT_NAMES.length).toBe(48);
+    for (const name of QCF4_FONT_NAMES) {
+      expect(sheet, `missing @font-face for ${name}`).toContain(`font-family: '${name}'`);
+    }
+  });
+
+  it('references only same-origin relative font files', () => {
+    const urls = [...sheet.matchAll(/url\('([^']+)'\)/g)].map((m) => m[1]);
+    expect(urls.length).toBe(QCF4_FONT_NAMES.length);
+    for (const url of urls) {
+      expect(url.startsWith('./') && url.endsWith('.woff2')).toBe(true);
+    }
+  });
+
+  it('strategy 3 no longer injects a style element', () => {
+    const renderer = readFileSync(resolve(root, 'src/features/mushaf/mushaf-renderer.ts'), 'utf8');
+    expect(renderer).not.toContain("createElement('style')");
   });
 });

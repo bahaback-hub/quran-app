@@ -14,7 +14,8 @@ import { announceToScreenReader } from './a11y.js';
 
 /* ===================== CONTINUE WIDGET ===================== */
 
-const CONTINUE_WIDGET_STYLES_ID = 'continue-widget-styles';
+// NOTE: continue-widget styles are a static sheet (src/css/continue-widget.css
+// via styles.css) — no runtime injection (CSP: style-src 'self').
 
 interface ContinueInfo {
   surah: number;
@@ -25,51 +26,7 @@ interface ContinueInfo {
   restored?: boolean;
 }
 
-function injectContinueWidgetStyles(): void {
-  if (document.getElementById(CONTINUE_WIDGET_STYLES_ID)) {
-    return;
-  }
-  const style = document.createElement('style');
-  style.id = CONTINUE_WIDGET_STYLES_ID;
-  style.textContent = `
-    .continue-widget {
-      position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%);
-      background: linear-gradient(135deg, #8b6f5a, #a0846c);
-      color: #fff; padding: 12px 24px; border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3); z-index: 3000;
-      display: flex; align-items: center; gap: 12px;
-      font-family: 'Amiri', 'Traditional Arabic', serif;
-      text-align: start; cursor: pointer;
-      animation: slideUp 0.4s ease;
-      border: 1px solid rgba(255,255,255,0.2);
-      max-width: 90vw;
-    }
-    .continue-widget:hover { transform: translateX(-50%) translateY(-2px); }
-    .continue-widget-close {
-      background: rgba(255,255,255,0.2); border: none; color: #fff;
-      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-      font-size: 14px; display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: background 0.2s;
-    }
-    .continue-widget-close:hover { background: rgba(255,255,255,0.4); }
-    .continue-widget-text { font-size: 15px; line-height: 1.5; }
-    .continue-widget-text strong { color: #ffe066; }
-    .continue-widget-text small { display: inline-block; margin-top: 1px; }
-    .continue-widget-icon { font-size: 24px; flex-shrink: 0; }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateX(-50%) translateY(30px); }
-      to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-    body.night-mode .continue-widget {
-      background: linear-gradient(135deg, #1a1f2e, #232838);
-      border-color: #5a4a3a;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 export function showContinueWidget(info: ContinueInfo): void {
-  injectContinueWidgetStyles();
   const existing = document.getElementById('continueWidget');
   if (existing) {
     existing.remove();

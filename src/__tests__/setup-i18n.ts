@@ -57,6 +57,19 @@ vi.mock('../ui.js', () => ({
     show: vi.fn(),
     hide: vi.fn(),
   },
+  // Faithful mock of hydrateProgressFills: templates carry data-progress and
+  // the real helper applies widths through the CSSOM. Tests asserting
+  // fill.style.width after a render depend on this behavior.
+  hydrateProgressFills: (root: ParentNode) => {
+    root
+      .querySelectorAll('.adhkar-progress-fill[data-progress], .reading-plan-progress-fill[data-progress]')
+      .forEach((el) => {
+        const pct = (el as HTMLElement).dataset['progress'];
+        if (pct !== undefined && pct !== '') {
+          (el as HTMLElement).style.width = `${pct}%`;
+        }
+      });
+  },
 }));
 
 // Note: We do NOT mock ../utils.js here. Tests that need to mock it can

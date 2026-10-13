@@ -754,6 +754,12 @@ describe('Adhkar templates', () => {
     expect(result).toContain('adhkar-progress-fill');
   });
 
+  it('adhkarItemCard progress uses data-progress, not a style attribute (CSP)', () => {
+    const result = adhkarItemCard('سبحان الله', 10, 33);
+    expect(result).toContain('data-progress=');
+    expect(result).not.toContain('style=');
+  });
+
   it('adhkarItemCard when completed should have completed class', () => {
     const result = adhkarItemCard('سبحان الله', 33, 33);
     expect(result).toContain('adhkar-completed');

@@ -2,6 +2,7 @@ import { __ } from './i18n.js';
 import { getAbsNumber } from './surah-list.js';
 import { storage } from './storage.js';
 import { dom } from './dom.js';
+import { hydrateProgressFills } from './ui.js';
 import { toArabicNumeral, escapeHtml } from './utils.js';
 
 /**
@@ -200,7 +201,7 @@ export function renderReadingPlans(today: Date = new Date()): void {
   const statusKey = s.completed ? 'reading_plan_done' : s.onTrack ? 'reading_plan_on_track' : 'reading_plan_behind';
   const todayRange = `${toArabicNumeral(String(s.dueFrom))} - ${toArabicNumeral(String(s.dueTo))}`;
   container.innerHTML =
-    `<div class="reading-plan-progress-bar"><div class="reading-plan-progress-fill" style="width:${s.progressPercent}%"></div></div>` +
+    `<div class="reading-plan-progress-bar"><div class="reading-plan-progress-fill" data-progress="${s.progressPercent}"></div></div>` +
     `<p class="reading-plan-status ${statusKey === 'reading_plan_on_track' ? 'on-track' : statusKey === 'reading_plan_done' ? 'done' : 'behind'}">${escapeHtml(__(statusKey))}</p>` +
     `<div class="reading-stats-grid">` +
     `<div class="stat-card"><div class="stat-number">${toArabicNumeral(String(s.progressPercent))}%</div><div class="stat-label">${escapeHtml(__('reading_plan_progress'))}</div></div>` +
@@ -211,6 +212,8 @@ export function renderReadingPlans(today: Date = new Date()): void {
     `<div class="reading-plan-actions">` +
     `<button type="button" id="readingPlanResetBtn" class="adhkar-close reading-plan-reset">${escapeHtml(__('reading_plan_reset'))}</button>` +
     `</div>`;
+  // CSP-safe: apply the progress width through the CSSOM (no inline style attribute).
+  hydrateProgressFills(container);
   const resetBtn = document.getElementById('readingPlanResetBtn');
   resetBtn?.addEventListener('click', () => {
     resetPlan();

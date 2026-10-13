@@ -22,7 +22,7 @@ import {
   retryPresentationVideoPlayback,
   syncPresentationVideoPlayback,
 } from './pres-video.js';
-import { injectStyles, buildAyahHtml } from './pres-styles.js';
+import { buildAyahHtml } from './pres-styles.js';
 import {
   closePresentationSharePreview,
   initPresentationShare,
@@ -467,7 +467,8 @@ export function openPresentation(): void {
   setBackgroundPickerOpen(false);
   // Sync presentation tajweed with global setting on open
   _presTajweedEnabled = state.tajweedEnabled;
-  injectStyles();
+  // NOTE: presentation styles are a static sheet (presentation.css via
+  // styles.css) — no runtime injection needed (CSP: style-src 'self').
   // Wire the overlay controls before the first paint. app.ts also calls
   // initPresentation() from a deferred task (safeLoad with retries), so without
   // this an OK press landing in that window would hit an unwired ⏭/⏮ button
@@ -689,7 +690,6 @@ export function initPresentation(): void {
     return;
   }
   console.warn('[Presentation] initPresentation() called');
-  injectStyles();
 
   initPresentationShare();
   bindPresentationVideoVisibility();

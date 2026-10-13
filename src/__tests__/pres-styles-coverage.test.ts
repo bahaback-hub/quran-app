@@ -1,7 +1,13 @@
 /**
- * Coverage tests for pres-styles.ts — injectStyles and buildAyahHtml.
+ * Coverage tests for pres-styles.ts — static presentation.css sheet and buildAyahHtml.
+ *
+ * The overlay styles used to be injected at runtime via a <style> element
+ * (injectStyles). That requires 'unsafe-inline' in style-src, so the rules
+ * moved to the static presentation.css sheet linked from styles.css.
  */
 
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Use vi.hoisted for mock function used in vi.mock factory
@@ -26,75 +32,56 @@ vi.mock('../utils.js', () => ({
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
 }));
 
-import { injectStyles, buildAyahHtml } from '../features/presentation/pres-styles.js';
+import { buildAyahHtml } from '../features/presentation/pres-styles.js';
 import { buildColorMap, tajweedColorWord } from '../tajweed.js';
 
-describe('injectStyles', () => {
-  beforeEach(() => {
-    document.head.innerHTML = '';
+const sheet = readFileSync(resolve(import.meta.dirname, '../features/presentation/presentation.css'), 'utf8');
+
+describe('presentation.css static sheet (CSP-safe, no runtime <style> injection)', () => {
+  it('is linked from the global stylesheet', () => {
+    const styles = readFileSync(resolve(import.meta.dirname, '../../styles.css'), 'utf8');
+    expect(styles).toContain('presentation.css');
   });
 
-  it('should inject a style element with id pres-styles', () => {
-    injectStyles();
-    const styleEl = document.getElementById('pres-styles');
-    expect(styleEl).not.toBeNull();
-    expect(styleEl!.tagName).toBe('STYLE');
-  });
-
-  it('should be idempotent — not add duplicate style elements', () => {
-    injectStyles();
-    injectStyles();
-    const styleElements = document.querySelectorAll('#pres-styles');
-    expect(styleElements.length).toBe(1);
+  it('pres-styles.ts no longer injects a style element', () => {
+    const mod = readFileSync(resolve(import.meta.dirname, '../features/presentation/pres-styles.ts'), 'utf8');
+    expect(mod).not.toContain("createElement('style')");
+    expect(mod).not.toContain('injectStyles');
   });
 
   it('should contain presentation-overlay CSS', () => {
-    injectStyles();
-    const styleEl = document.getElementById('pres-styles')!;
-    expect(styleEl.textContent).toContain('.presentation-overlay');
+    expect(sheet).toContain('.presentation-overlay');
   });
 
   it('should contain keyframe animations', () => {
-    injectStyles();
-    const styleEl = document.getElementById('pres-styles')!;
-    expect(styleEl.textContent).toContain('@keyframes presFadeIn');
-    expect(styleEl.textContent).toContain('@keyframes kenBurns1');
-    expect(styleEl.textContent).toContain('@keyframes cloudDrift');
+    expect(sheet).toContain('@keyframes presFadeIn');
+    expect(sheet).toContain('@keyframes kenBurns1');
+    expect(sheet).toContain('@keyframes cloudDrift');
   });
 
   it('should contain scene mode styles', () => {
-    injectStyles();
-    const styleEl = document.getElementById('pres-styles')!;
-    expect(styleEl.textContent).toContain('.pres-scene');
+    expect(sheet).toContain('.pres-scene');
   });
 
   it('should contain light mode styles', () => {
-    injectStyles();
-    const styleEl = document.getElementById('pres-styles')!;
-    expect(styleEl.textContent).toContain('.pres-light');
+    expect(sheet).toContain('.pres-light');
   });
 
   it('should contain fullscreen styles', () => {
-    injectStyles();
-    const styleEl = document.getElementById('pres-styles')!;
-    expect(styleEl.textContent).toContain(':fullscreen');
-    expect(styleEl.textContent).toContain('word-break: normal');
-    expect(styleEl.textContent).not.toContain('word-break: break-word');
+    expect(sheet).toContain(':fullscreen');
+    expect(sheet).toContain('word-break: normal');
+    expect(sheet).not.toContain('word-break: break-word');
   });
 
   it('should contain mobile responsive styles', () => {
-    injectStyles();
-    const styleEl = document.getElementById('pres-styles')!;
-    expect(styleEl.textContent).toContain('@media (max-width: 600px)');
+    expect(sheet).toContain('@media (max-width: 600px)');
   });
 
   it('should keep selected backgrounds full-bleed in fullscreen on phones', () => {
-    injectStyles();
-    const styleEl = document.getElementById('pres-styles')!;
-    expect(styleEl.textContent).toContain('.presentation-overlay:fullscreen.pres-nature');
-    expect(styleEl.textContent).toContain('.presentation-overlay:fullscreen.pres-auto::after');
-    expect(styleEl.textContent).toContain('content: none');
-    expect(styleEl.textContent).toContain('.presentation-overlay:fullscreen.pres-animated .pres-bg-layer');
+    expect(sheet).toContain('.presentation-overlay:fullscreen.pres-nature');
+    expect(sheet).toContain('.presentation-overlay:fullscreen.pres-auto::after');
+    expect(sheet).toContain('content: none');
+    expect(sheet).toContain('.presentation-overlay:fullscreen.pres-animated .pres-bg-layer');
   });
 });
 

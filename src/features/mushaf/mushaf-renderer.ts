@@ -341,6 +341,24 @@ function verifyFontOnCanvas(fontName: string): boolean {
  * Some browsers (especially Android WebView) won't make fonts available
  * to Canvas unless they're used in the DOM first.
  */
+/**
+ * Ensure the static QCF4 @font-face sheet is linked once.
+ * A same-origin link-rel-stylesheet is allowed by style-src 'self',
+ * unlike a runtime-injected style element (which needs 'unsafe-inline').
+ * @font-face rules only download when the family is actually used.
+ */
+const QCF_FONT_FACE_SHEET_ID = 'qcf-font-face-sheet';
+function ensureQcfFontFaceSheet(): void {
+  if (document.getElementById(QCF_FONT_FACE_SHEET_ID)) {
+    return;
+  }
+  const link = document.createElement('link');
+  link.id = QCF_FONT_FACE_SHEET_ID;
+  link.rel = 'stylesheet';
+  link.href = `${import.meta.env.BASE_URL}fonts/qcf4/qcf4-font-face.css`;
+  document.head.appendChild(link);
+}
+
 function createFontPreloadElement(fontName: string): void {
   const id = `qcf-preload-${fontName}`;
   if (document.getElementById(id)) {
@@ -374,7 +392,7 @@ function createFontPreloadElement(fontName: string): void {
  * 1. XHR fetch as ArrayBuffer → FontFace from binary data
  *    (Bypasses CapacitorHttp which corrupts binary data)
  * 2. FontFace API with URL (browser handles download)
- * 3. CSS @font-face injection with DOM preload element
+ * 3. Static @font-face sheet (<link>) with DOM preload element
  *
  * In Capacitor: We skip pixel-level Canvas verification and trust
  * document.fonts API instead.
@@ -488,21 +506,14 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       console.warn(`[Mushaf] FontFace URL strategy failed for "${fontName}":`, e);
     }
 
-    // --- Strategy 3: CSS @font-face + DOM preload ---
+    // --- Strategy 3: static @font-face sheet + DOM preload ---
+    // CSP-safe: the @font-face rules live in the static same-origin sheet
+    // public/fonts/qcf4/qcf4-font-face.css (one rule per QCF4 font), loaded
+    // once via link. No style element injection, so this works with
+    // style-src 'self' and without 'unsafe-inline'.
     try {
-      console.warn(`[Mushaf] Strategy 3: CSS @font-face for "${fontName}"`);
-      const styleId = fontName === BSML_FONT ? 'qcf-basml' : `qcf-${fontName}`;
-      if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
-          @font-face {
-            font-family: '${fontName}';
-            src: url('${fontUrl}') format('woff2');
-            font-display: block;
-          }`;
-        document.head.appendChild(style);
-      }
+      console.warn(`[Mushaf] Strategy 3: static @font-face sheet for "${fontName}"`);
+      ensureQcfFontFaceSheet();
 
       createFontPreloadElement(fontName);
 

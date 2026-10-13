@@ -109,7 +109,11 @@ describe('renderSurah', () => {
   it('should set font size from state', () => {
     state.fontSize = 36;
     renderSurah(sampleSurah);
-    expect(dom.surahContent!.innerHTML).toContain('font-size:36px');
+    // CSP-safe: the size goes through the CSSOM, not a style attribute in the
+    // template source (jsdom re-serializes CSSOM state into style="" when
+    // reading innerHTML, but browsers do not re-run CSP on CSSOM writes).
+    const container = dom.surahContent!.querySelector('.ayahs-container') as HTMLElement | null;
+    expect(container?.style.getPropertyValue('--ayah-font-size')).toBe('36px');
   });
 
   it('should return early if surahContent is falsy', () => {
