@@ -11,7 +11,11 @@ export default defineConfig({
     teardownTimeout: 30000,
     pool: 'forks',
     isolate: true,
-    fileParallelism: false,
+    // Parallel test files for speed (was fileParallelism:false). Safe because
+    // every file runs in an isolated fork AND worker console output goes
+    // straight to stdout (disableConsoleIntercept), which removes the Vitest
+    // teardown race that originally forced sequential runs.
+    fileParallelism: true,
     // Vitest 4.x worker teardown can race with an in-flight console RPC call,
     // surfacing as "EnvironmentTeardownError ... onUserConsoleLog was pending"
     // and failing the run (exit 1) even though every test passes. Writing worker
