@@ -11,6 +11,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { showToast } from '../ui.js';
 
 const isNativePlatform = vi.fn(() => true);
 const checkPermissions = vi.fn();
@@ -19,6 +20,7 @@ const getPending = vi.fn();
 const schedule = vi.fn();
 const cancel = vi.fn();
 const createChannel = vi.fn();
+const checkExactNotificationSetting = vi.fn();
 
 vi.mock('@capacitor/core', () => ({
   Capacitor: { isNativePlatform: () => isNativePlatform() },
@@ -32,6 +34,7 @@ vi.mock('@capacitor/local-notifications', () => ({
     schedule: (opts: unknown) => schedule(opts),
     cancel: (opts: unknown) => cancel(opts),
     createChannel: (opts: unknown) => createChannel(opts),
+    checkExactNotificationSetting: () => checkExactNotificationSetting(),
   },
 }));
 
@@ -78,6 +81,7 @@ describe('azan notifications', () => {
     schedule.mockResolvedValue(undefined);
     cancel.mockResolvedValue(undefined);
     createChannel.mockResolvedValue('azan');
+    checkExactNotificationSetting.mockResolvedValue({ exact_alarm: 'granted' });
   });
 
   it('schedules one notification per upcoming prayer', async () => {
@@ -231,6 +235,38 @@ describe('azan notifications', () => {
     expect(createChannel).not.toHaveBeenCalled();
     expect(schedule).not.toHaveBeenCalled();
     expect(cancel).not.toHaveBeenCalled();
+  });
+
+  it('toasts a one-time hint when exact alarms are denied', async () => {
+    checkExactNotificationSetting.mockResolvedValue({ exact_alarm: 'denied' });
+    const mod = await load();
+    const input = {
+      times: { Dhuhr: '12:14' },
+      label: (k: string) => k,
+      title: 't',
+      includeFajr: false,
+    };
+
+    await mod.scheduleAzanNotifications(input);
+    expect(showToast).toHaveBeenCalledWith('azan_exact_alarm_hint', '');
+
+    // Second schedule in the same session must not nag again.
+    await mod.scheduleAzanNotifications(input);
+    expect(showToast).toHaveBeenCalledTimes(1);
+  });
+
+  it('stays silent when exact alarms are granted', async () => {
+    checkExactNotificationSetting.mockResolvedValue({ exact_alarm: 'granted' });
+    const mod = await load();
+
+    await mod.scheduleAzanNotifications({
+      times: { Dhuhr: '12:14' },
+      label: (k: string) => k,
+      title: 't',
+      includeFajr: false,
+    });
+
+    expect(showToast).not.toHaveBeenCalled();
   });
 
   it('swallows a scheduling failure instead of breaking the prayer timer', async () => {

@@ -74,10 +74,16 @@
     <!-- Prayer-time alerts. POST_NOTIFICATIONS is runtime-requested on Android
          13+; without it the OS drops every scheduled prayer notification. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- Prayer times are wall-clock exact, so allow exact alarms. Without this
-         the OS batches the notification and it can arrive minutes late. -->
+    <!-- Prayer times are wall-clock exact, so request exact alarms. The user
+         grants this in system settings ("Alarms & reminders"); without it
+         the OS batches the notification and it can arrive minutes late.
+         NOTE: only SCHEDULE_EXACT_ALARM is declared. USE_EXACT_ALARM was
+         deliberately removed: Google Play restricts it to clock/calendar
+         apps and rejects other apps that declare it. The local-notifications
+         plugin degrades gracefully to inexact alarms when the grant is
+         missing, and the app toasts a one-time hint (azan_exact_alarm_hint)
+         so the reader knows why an alert was late. -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <!-- Re-arm the alarm after a reboot, otherwise no prayer alert survives one. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 </manifest>

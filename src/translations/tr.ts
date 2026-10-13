@@ -283,6 +283,7 @@ export default {
   tafsir_error: 'Tefsir yükleme hatası',
   azan_enable: 'Ezan uyarısı:',
   azan_fajr: 'Fajr ezanı:',
+  azan_exact_alarm_hint: 'Ezan uyarıları biraz gecikebilir. Zamanında bildirim için sistem ayarlarından uygulamaya "Alarmlar ve hatırlatıcılar" izni verin.',
   tafsir_no_ayah: '📖 Tefsiri okumak için bir sure ve ayet seçin',
   no_tafsir_available: 'Tefsir mevcut değil',
 

@@ -264,6 +264,7 @@ export default {
   tafsir_error: 'Erreur de chargement du tafsir',
   azan_enable: 'Alerte adhan :',
   azan_fajr: 'Adhan du Fajr :',
+  azan_exact_alarm_hint: "Les alertes d'adhan peuvent arriver avec un léger retard. Activez « Alarmes et rappels » pour l'application dans les paramètres système.",
   tafsir_no_ayah: '📖 Choisissez une sourate et un verset pour lire le tafsir',
   no_tafsir_available: 'Aucun tafsir disponible',
 

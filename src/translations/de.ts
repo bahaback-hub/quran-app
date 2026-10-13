@@ -265,6 +265,7 @@ export default {
   tafsir_error: 'Fehler beim Laden des Tafsir',
   azan_enable: 'Adhan-Hinweis:',
   azan_fajr: 'Fajr-Adhan:',
+  azan_exact_alarm_hint: 'Azan-Hinweise können leicht verspätet eintreffen. Aktiviere „Wecker & Erinnerungen“ für die App in den Systemeinstellungen.',
   tafsir_no_ayah: '📖 Wähle Sure und Ayat, um den Tafsir zu lesen',
   no_tafsir_available: 'Kein Tafsir verfügbar',
 

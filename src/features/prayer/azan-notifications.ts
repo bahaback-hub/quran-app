@@ -15,11 +15,39 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { warnRecoverable } from '../../error-boundary.js';
+import { __ } from '../../i18n.js';
+import { showToast } from '../../ui.js';
 
 const PRAYER_ORDER = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
 
 /** Android 13+ requires an explicit runtime grant before any notification shows. */
 let permissionRequested = false;
+
+/**
+ * One-time per session hint when exact alarms are denied.
+ *
+ * Without the "Alarms & reminders" system grant the OS batches the azan and
+ * it can arrive minutes late (the plugin degrades to inexact alarms). The
+ * manifest deliberately declares only SCHEDULE_EXACT_ALARM (Play-compliant),
+ * so a denied grant is possible and the reader deserves to know why.
+ */
+let exactAlarmHintShown = false;
+
+async function checkExactAlarmGrant(): Promise<void> {
+  if (exactAlarmHintShown) {
+    return;
+  }
+  exactAlarmHintShown = true;
+  try {
+    const status = await LocalNotifications.checkExactNotificationSetting();
+    if (status?.exact_alarm === 'granted') {
+      return;
+    }
+    showToast(__('azan_exact_alarm_hint'), '');
+  } catch (err: unknown) {
+    warnRecoverable('azan exact-alarm check failed', err);
+  }
+}
 
 const CHANNEL_ID = 'azan';
 const SMALL_ICON = 'ic_stat_azan';
@@ -207,6 +235,7 @@ export async function scheduleAzanNotifications(input: AzanScheduleInput): Promi
         extra: { kind: 'azan', prayer: key },
       })),
     });
+    await checkExactAlarmGrant();
   } catch (err: unknown) {
     warnRecoverable('azan notification scheduling failed', err);
   }
