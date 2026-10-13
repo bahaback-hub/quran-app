@@ -400,10 +400,10 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   _surahNamesController = new AbortController();
   const surahNamesSignal = _surahNamesController.signal;
 
-  apiFetch<{ data?: { ayahs?: { surah: { number: number; name: string } }[] } }>(
-    `/page/${pageNum}/quran-uthmani`,
-    { signal: surahNamesSignal, silent: true },
-  )
+  apiFetch<{ data?: { ayahs?: { surah: { number: number; name: string } }[] } }>(`/page/${pageNum}/quran-uthmani`, {
+    signal: surahNamesSignal,
+    silent: true,
+  })
     .then((json) => {
       const ayahs = json?.data?.ayahs;
       if (!ayahs?.length) {
