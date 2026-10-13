@@ -23,7 +23,7 @@ import { apiFetch } from '../../api-client.js';
 import { __ } from '../../i18n.js';
 import { setMushafAdapters } from '../../surah-render.js';
 import { registerMushafPageReload } from '../../settings.js';
-import type { SurahData } from '../../types.js';
+import type { SurahData, AyahPageResponse } from '../../types.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -39,13 +39,6 @@ interface AyahHighlightRect {
   top: number;
   width: number;
   height: number;
-}
-
-/** Shape of the ayah API response (for page lookup). */
-interface AyahPageResponse {
-  data?: {
-    page?: number;
-  };
 }
 
 /** Shape of surah list entry (subset used in mushaf). */

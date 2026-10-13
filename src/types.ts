@@ -43,6 +43,13 @@ export interface SurahListResponse {
   data: SurahData[];
 }
 
+/** Ayah page lookup response from AlQuran.cloud (subset used for Mushaf navigation). */
+export interface AyahPageResponse {
+  data?: {
+    page?: number;
+  };
+}
+
 /** Prayer times response from Aladhan API. */
 export interface AladhanTimingsResponse {
   code: number;

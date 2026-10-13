@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-06-17 (v1.5.4 — offline fallback integration)
-- **Last reviewed:** 2026-09-21 (v3.1.20)
+- **Last reviewed:** 2026-10-13 (v3.1.27 — QCF4 bundling correction)
 - **Supersedes:** —
 - **Superseded by:** —
 
@@ -216,6 +216,10 @@ is pinned to a specific commit (`5130511...` of
 - **QCF4 fonts excluded** — the QCF4 font pack (for Mushaf mode) is not
   bundled due to redistribution restrictions. This means Mushaf mode
   requires a network connection on first use, then fonts are cached.
+  - *Correction (2026-10-13, v3.1.27): the above is outdated — the QCF4
+    pack is now bundled under `public/fonts/qcf4` (~36.5 MB total fonts),
+    so Mushaf mode works fully offline after install at the cost of a
+    larger initial download.*
 - **Test complexity** — the four-tier system requires extensive mocking in
   unit tests (`fake-indexeddb`) and E2E tests (`mock-network.ts`). The
   mock network fixture is 250+ lines.

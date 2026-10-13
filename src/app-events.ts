@@ -9,6 +9,7 @@ import { warnRecoverable } from './error-boundary.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { state } from './state.js';
+import type { AyahPageResponse } from './types.js';
 import { showToast } from './ui.js';
 import { __, AVAILABLE_LANGUAGES, getLang, setLang } from './i18n.js';
 import type { LangCode } from './i18n.js';
@@ -72,13 +73,6 @@ import * as audioModule from './features/audio/audio.js';
 
 /** Keep the bindHelpEvents export available from the app-events barrel. */
 export { bindHelpEvents };
-
-/** API response shape for ayah page lookup. */
-interface AyahPageResponse {
-  data?: {
-    page?: number;
-  };
-}
 
 const READER_TOOLBAR_PIN_KEY = 'reader_toolbar_pinned';
 
