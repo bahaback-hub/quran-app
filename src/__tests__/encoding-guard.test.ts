@@ -2,7 +2,7 @@
  * Guard: source files must not contain double-encoded text.
  *
  * A bad encoding round-trip once turned three user-visible Arabic labels in
- * src/app.ts into mojibake (and eight em dashes into â€”), which then shipped:
+ * src/app.ts into mojibake (plus eight corrupted em dashes), which then shipped:
  * the corrupted labels surface in error toasts exactly when the network fails.
  * Nothing caught it because no test looks at the bytes. This test does:
  * it pins the three correct labels and forbids the mojibake sequence
@@ -40,8 +40,11 @@ describe('source encoding guard', () => {
 
   it('contains no double-encoded em-dash sequence anywhere under src/', () => {
     // fromCodePoint on purpose: writing the sequence literally would make this
-    // very file trip the guard it implements.
-    const seq = String.fromCodePoint(0xe2, 0x2014);
+    // very file trip the guard it implements. The family prefix of the
+    // historical corruption is U+00E2 U+20AC (the misdecoded first two bytes
+    // of an em dash) — NOT U+00E2 U+2014, which appears in no file and would
+    // make this guard pass vacuously.
+    const seq = String.fromCodePoint(0xe2, 0x20ac);
     const bad: string[] = [];
     for (const file of sourceFiles(resolve(root, 'src'))) {
       if (readFileSync(file, 'utf8').includes(seq)) bad.push(file);

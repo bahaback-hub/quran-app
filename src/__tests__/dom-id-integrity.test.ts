@@ -191,7 +191,11 @@ function referenceSearchFiles(): string[] {
 }
 
 function countOccurrences(haystack: string, needle: string): number {
-  return haystack.split(needle).length - 1;
+  // Word boundaries, not substring search: an id `tab` must not match inside
+  // `table`, or a coincidental substring would acquit a truly orphan id.
+  // Safe because every id in index.html is word characters only (verified:
+  // none contains a hyphen or other non-word character).
+  return haystack.split(new RegExp(`\\b${needle}\\b`, 'g')).length - 1;
 }
 
 describe('DOM ID integrity — every static id must be referenced somewhere', () => {

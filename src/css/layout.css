@@ -55,15 +55,10 @@
 .prayer-bar-summary strong {
   font-weight: 800;
 }
-.prayer-bar-summary-time::before,
-.prayer-bar-summary-countdown::before {
+.prayer-bar-summary-time::before {
   content: '·';
   margin-inline-end: 6px;
   opacity: 0.7;
-}
-.prayer-bar-summary-countdown {
-  color: var(--accent);
-  font-weight: 700;
 }
 .prayer-bar-chevron {
   flex: 0 0 auto;
@@ -415,8 +410,7 @@
   line-height: 1.1;
 }
 .header-prayer-tile .prayer-bar-summary-label,
-.header-prayer-tile .prayer-bar-chevron,
-.header-prayer-tile .prayer-bar-summary-countdown {
+.header-prayer-tile .prayer-bar-chevron {
   display: none;
 }
 .header-prayer-tile .prayer-bar-summary strong {
@@ -765,8 +759,7 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
-.reader-side-prayer .prayer-bar-chevron,
-.reader-side-prayer .prayer-bar-summary-countdown { display: none; }
+.reader-side-prayer .prayer-bar-chevron { display: none; }
 .reader-side-prayer .prayer-bar-details {
   position: fixed;
   top: max(76px, calc(env(safe-area-inset-top, 0px) + 12px));
