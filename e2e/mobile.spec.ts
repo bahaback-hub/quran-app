@@ -4,6 +4,12 @@ import { fileURLToPath } from 'node:url';
 
 const CAPACITOR_CSS = fileURLToPath(new URL('../src/css/capacitor.css', import.meta.url));
 
+// The native-wrapper test injects the capacitor stylesheet at runtime, which
+// the page CSP (style-src without 'unsafe-inline') forbids by design. Bypass
+// CSP for this file's browser contexts only — production keeps the strict
+// policy, and every other spec still runs under it.
+test.use({ bypassCSP: true });
+
 test.describe('Quran App — Mobile Controls', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -38,9 +44,12 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(skipLink).toBeVisible();
     await expect(readingProgress).toHaveCSS('display', 'block');
     // The native wrapper is the body class AND the capacitor stylesheet, which
-    // the web build leaves out on purpose (every rule there is scoped to
-    // .capacitor-native). Inject it so the assertions below run against the
-    // styling Android actually ships, not web styling under a native class.
+    // the web build leaves out on purpose (vite-plugin-capacitor-css-web-only —
+    // every rule there is scoped to .capacitor-native). Inject it so the
+    // assertions below run against the styling Android actually ships. The
+    // injection is test-only scaffolding, permitted by test.use({ bypassCSP })
+    // at the top of this file; production code must never inject <style> at
+    // runtime (style-src has no 'unsafe-inline' by design).
     await page.addStyleTag({ content: readFileSync(CAPACITOR_CSS, 'utf8') });
     await page.locator('body').evaluate((body) => body.classList.add('capacitor-native'));
     await expect(skipLink).toBeHidden();

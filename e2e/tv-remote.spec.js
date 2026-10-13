@@ -4,6 +4,12 @@ import { fileURLToPath } from 'node:url';
 
 const CAPACITOR_CSS = fileURLToPath(new URL('../src/css/capacitor.css', import.meta.url));
 
+// The native-wrapper test injects the capacitor stylesheet at runtime, which
+// the page CSP (style-src without 'unsafe-inline') forbids by design. Bypass
+// CSP for this file's browser contexts only — production keeps the strict
+// policy, and every other spec still runs under it.
+test.use({ bypassCSP: true });
+
 test.describe('TV remote control', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -201,10 +207,11 @@ test.describe('TV remote control', () => {
   test('favorites panel opens from the left in the native wrapper', async ({ page }) => {
     // The native wrapper is two things, not one: the body class AND the
     // capacitor stylesheet, which the web build deliberately leaves out
-    // (every rule in it is scoped to .capacitor-native, so on the web it is
-    // inert weight in the render-blocking bundle). Simulating only the class
-    // would test a native layout against web styling, so the stylesheet is
-    // injected from source to make this a faithful simulation.
+    // (vite-plugin-capacitor-css-web-only strips it — every rule is scoped
+    // to .capacitor-native, so on the web it is inert weight). The injection
+    // below is test-only scaffolding, permitted by test.use({ bypassCSP })
+    // at the top of this file; production code must never inject <style> at
+    // runtime (style-src has no 'unsafe-inline' by design).
     await page.addStyleTag({ content: readFileSync(CAPACITOR_CSS, 'utf8') });
     await page.evaluate(() => document.body.classList.add('capacitor-native'));
     await page.locator('#favoritesOpenBtn').evaluate((el) => el.click());
