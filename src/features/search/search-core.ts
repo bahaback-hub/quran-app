@@ -7,11 +7,11 @@
  */
 
 import { state, QuranTextEntry, SearchWord } from '../../state.js';
-import { CONFIG } from '../../config.js';
 import { storage } from '../../storage.js';
 import { showToast } from '../../ui.js';
 import { normalizeExactText, normalizeRelaxed } from '../../utils.js';
 import { __, toLatinDigits } from '../../i18n.js';
+import { apiFetch, jsonFetch } from '../../api-client.js';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_SEARCH_HISTORY = 10;
@@ -57,11 +57,12 @@ async function loadFromIndexedDB(db: IDBDatabase): Promise<QuranTextEntry[] | nu
 }
 
 async function fetchQuranText(): Promise<QuranApiResponse> {
-  let res = await fetch('data/quran-uthmani.json').catch(() => null);
-  if (!res || !res.ok) {
-    res = await fetch(`${CONFIG.API_BASE}/quran/quran-uthmani`);
+  let data: QuranApiResponse;
+  try {
+    data = await jsonFetch<QuranApiResponse>('data/quran-uthmani.json', { silent: true });
+  } catch {
+    data = await apiFetch<QuranApiResponse>('/quran/quran-uthmani');
   }
-  const data: QuranApiResponse = await res.json();
   if (!data?.data?.surahs) {
     throw new Error(__('invalid_data'));
   }

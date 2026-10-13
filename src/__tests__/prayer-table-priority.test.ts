@@ -131,6 +131,13 @@ vi.mock('../features/audio/audio.js', () => ({
 
 vi.mock('../api-client.js', () => ({
   prayerFetch: (...args: unknown[]) => mockPrayerFetch(...args),
+  jsonFetch: vi.fn(async (url: string) => {
+    const r = await fetch(url);
+    if (!r.ok) {
+      throw new Error(`HTTP ${r.status}`);
+    }
+    return r.json();
+  }),
 }));
 
 vi.mock('../features/prayer/prayer-local.js', () => ({

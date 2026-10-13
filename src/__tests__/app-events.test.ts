@@ -1280,7 +1280,7 @@ describe('app-events', () => {
 
   describe('bindNavigationEvents — mushaf mode and compact player', () => {
     it('should jump to the resolved ayah page in mushaf mode', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: async () => ({ data: { page: 12 } }) }));
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: { page: 12 } }) }));
       state.mushafMode = true;
       const { bindNavigationEvents } = await import('../app-events.js');
       bindNavigationEvents();
@@ -1310,7 +1310,7 @@ describe('app-events', () => {
       dom.surahSelect!.value = '3';
       dom.surahSelect!.dispatchEvent(new Event('change'));
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_page_not_found', 'error'));
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_page_not_found', 'error'), { timeout: 5000 });
       vi.unstubAllGlobals();
     });
 

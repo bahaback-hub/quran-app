@@ -14,7 +14,7 @@ const mockState = vi.hoisted(() => ({
 vi.mock('../state.js', () => ({ state: mockState }));
 
 function jsonResponse(data: unknown): Response {
-  return { json: () => Promise.resolve(data) } as Response;
+  return { ok: true, status: 200, json: () => Promise.resolve(data) } as Response;
 }
 
 describe('lazy per-surah tajweed loader', () => {
@@ -60,9 +60,9 @@ describe('lazy per-surah tajweed loader', () => {
       { rule: 'madd_2', start: 8, end: 10 },
     ]);
     expect(getAyahAnnotations(2, 1)).toEqual(result.get('2:1'));
-    expect(fetchSpy).toHaveBeenCalledWith('data/tajweed/manifest.json');
-    expect(fetchSpy).toHaveBeenCalledWith('data/tajweed/002.json');
-    expect(fetchSpy).not.toHaveBeenCalledWith('data/tajweed/001.json');
+    expect(fetchSpy).toHaveBeenCalledWith('data/tajweed/manifest.json', expect.anything());
+    expect(fetchSpy).toHaveBeenCalledWith('data/tajweed/002.json', expect.anything());
+    expect(fetchSpy).not.toHaveBeenCalledWith('data/tajweed/001.json', expect.anything());
   });
 
   it('caches a compact surah map after its first request', async () => {
@@ -142,7 +142,8 @@ describe('lazy per-surah tajweed loader', () => {
 
     expect(first).toEqual(new Map());
     expect(second).toBe(first);
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    // jsonFetch retries a transient network failure once before giving up.
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
     expect(isTajweedDataLoaded()).toBe(true);
   });
 
@@ -160,6 +161,6 @@ describe('lazy per-surah tajweed loader', () => {
     await preloadTajweedIfNeeded();
 
     expect(getAyahAnnotations(36, 1)).toEqual([{ rule: 'ghunnah', start: 0, end: 1 }]);
-    expect(fetchSpy).toHaveBeenCalledWith('data/tajweed/036.json');
+    expect(fetchSpy).toHaveBeenCalledWith('data/tajweed/036.json', expect.anything());
   });
 });

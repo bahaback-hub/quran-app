@@ -4,6 +4,7 @@
  */
 
 import { __ } from './i18n.js';
+import { jsonFetch } from './api-client.js';
 import { AL_FATIHAH_CONTEMPLATION_SAMPLE } from './contemplation-questions.sample.js';
 
 interface ContemplationEntry {
@@ -77,13 +78,7 @@ async function getManifest(): Promise<ContemplationManifest> {
     return manifest;
   }
   if (!manifestLoading) {
-    manifestLoading = fetch('data/contemplation/manifest.json')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Contemplation manifest unavailable');
-        }
-        return response.json() as Promise<ContemplationManifest>;
-      })
+    manifestLoading = jsonFetch<ContemplationManifest>('data/contemplation/manifest.json', { silent: true })
       .then((loadedManifest) => {
         manifest = loadedManifest;
         return loadedManifest;
@@ -112,8 +107,10 @@ async function getSurahIndex(surah: number): Promise<Map<string, ContemplationEn
       if (!descriptor) {
         return new Map<string, ContemplationEntry>();
       }
-      const response = await fetch(`data/contemplation/${descriptor.file}`);
-      if (!response.ok) {
+      let entries: unknown[];
+      try {
+        entries = await jsonFetch<unknown[]>(`data/contemplation/${descriptor.file}`, { silent: true });
+      } catch {
         // The manifest may be stale (a new build changed file names). Drop the
         // cached manifest so the next call re-fetches it instead of reusing a
         // descriptor that no longer exists.
@@ -121,7 +118,6 @@ async function getSurahIndex(surah: number): Promise<Map<string, ContemplationEn
         manifestLoading = null;
         throw new Error('Contemplation surah data unavailable');
       }
-      const entries = (await response.json()) as unknown[];
       const index = new Map<string, ContemplationEntry>();
       for (const entry of entries) {
         if (isValidEntry(entry)) {

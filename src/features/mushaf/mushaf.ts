@@ -1,5 +1,5 @@
 import { state } from '../../state.js';
-import { CONFIG, JUZ_PAGES } from '../../config.js';
+import { JUZ_PAGES } from '../../config.js';
 import { dom } from '../../dom.js';
 import { storage } from '../../storage.js';
 import { showToast, loadingBar } from '../../ui.js';
@@ -19,6 +19,7 @@ import { handlePageClick, getAyahHighlightRects } from '../../ayah-click.js';
 import { renderPage, loadPageData, releaseCanvas, getCanvas, computeMushafPageGeometry } from './mushaf-renderer.js';
 import type { PageLayoutData, MushafLineLayout } from './mushaf-renderer.js';
 import { loadTafsirForSurahAyah } from '../../tafsir.js';
+import { apiFetch } from '../../api-client.js';
 import { __ } from '../../i18n.js';
 import { setMushafAdapters } from '../../surah-render.js';
 import { registerMushafPageReload } from '../../settings.js';
@@ -121,11 +122,9 @@ export async function toggleMushafMode(): Promise<void> {
       const currentAyah =
         (surahData?.number === state.currentSurah && surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah) || 1;
       try {
-        const res = await fetch(`${CONFIG.API_BASE}/ayah/${state.currentSurah}:${currentAyah}/quran-uthmani`);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-        const data = (await res.json()) as AyahPageResponse;
+        const data = await apiFetch<AyahPageResponse>(`/ayah/${state.currentSurah}:${currentAyah}/quran-uthmani`, {
+          silent: true,
+        });
         const page = data?.data?.page;
         if (page && page >= 1 && page <= 604) {
           state.currentPage = page;
@@ -401,14 +400,11 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   _surahNamesController = new AbortController();
   const surahNamesSignal = _surahNamesController.signal;
 
-  fetch(`${CONFIG.API_BASE}/page/${pageNum}/quran-uthmani`, { signal: surahNamesSignal })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-      return res.json();
-    })
-    .then((json: { data?: { ayahs?: { surah: { number: number; name: string } }[] } }) => {
+  apiFetch<{ data?: { ayahs?: { surah: { number: number; name: string } }[] } }>(
+    `/page/${pageNum}/quran-uthmani`,
+    { signal: surahNamesSignal, silent: true },
+  )
+    .then((json) => {
       const ayahs = json?.data?.ayahs;
       if (!ayahs?.length) {
         return;
@@ -497,11 +493,7 @@ export function populateSurahOverlay(): void {
         state.surahData = null;
         loadingBar.show(`⏳ ${__('loading_surah')} ${surahName}...`);
         try {
-          const res = await fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`);
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-          }
-          const data = (await res.json()) as AyahPageResponse;
+          const data = await apiFetch<AyahPageResponse>(`/ayah/${surahNum}:1`, { silent: true });
           const page = data?.data?.page || 1;
           if (dom.pageSelect) {
             dom.pageSelect.value = String(page);
@@ -604,11 +596,7 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
       );
       if (!isOnPage) {
         try {
-          const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-          }
-          const data = (await res.json()) as AyahPageResponse;
+          const data = await apiFetch<AyahPageResponse>(`/ayah/${surah}:${ayah}/quran-uthmani`, { silent: true });
           const page = data?.data?.page;
           if (page && page !== state.currentPage) {
             loadPage(page);

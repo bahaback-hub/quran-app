@@ -110,6 +110,7 @@ vi.mock('../tafsir.js', () => ({
 
 vi.mock('../api-client.js', () => ({
   apiFetch: vi.fn(() => Promise.resolve({ data: { page: 1, juz: 1 } })),
+  jsonFetch: vi.fn(() => Promise.resolve({})),
 }));
 
 vi.mock('../i18n.js', () => ({

@@ -51,9 +51,9 @@ describe('contemplation', () => {
 
     await expect(hasContemplation(2, 1)).resolves.toBe(true);
 
-    expect(fetch).toHaveBeenCalledWith('data/contemplation/manifest.json');
-    expect(fetch).toHaveBeenCalledWith('data/contemplation/surah-002.json');
-    expect(fetch).not.toHaveBeenCalledWith('data/contemplation-questions.partial.json');
+    expect(fetch).toHaveBeenCalledWith('data/contemplation/manifest.json', expect.anything());
+    expect(fetch).toHaveBeenCalledWith('data/contemplation/surah-002.json', expect.anything());
+    expect(fetch).not.toHaveBeenCalledWith('data/contemplation-questions.partial.json', expect.anything());
   });
 
   it('hides the action and explains gradual coverage when the ayah is not prepared', async () => {

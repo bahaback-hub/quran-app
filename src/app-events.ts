@@ -4,6 +4,7 @@
  */
 
 import { CONFIG } from './config.js';
+import { apiFetch } from './api-client.js';
 import { warnRecoverable } from './error-boundary.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
@@ -158,9 +159,8 @@ export function bindNavigationEvents(): void {
     dom.surahSelect?.blur?.();
     if (state.mushafMode) {
       state.currentSurah = surahNum;
-      fetch(`${CONFIG.API_BASE}/ayah/${surahNum}:1`)
-        .then((res) => res.json())
-        .then((data: AyahPageResponse) => {
+      apiFetch<AyahPageResponse>(`/ayah/${surahNum}:1`)
+        .then((data) => {
           const page = data?.data?.page || 1;
           if (dom.pageSelect) {
             dom.pageSelect.value = String(page);

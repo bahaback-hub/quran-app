@@ -33,6 +33,7 @@ import {
   escapeHtml,
 } from '../../templates.js';
 import { loadSurah, highlightCurrentAyah } from '../../surah-loader.js';
+import { apiFetch } from '../../api-client.js';
 import { playCurrentAyah } from '../audio/audio.js';
 import {
   SEARCH_PAGE_SIZE,
@@ -42,7 +43,6 @@ import {
   getSearchHistory,
   clearSearchHistory,
 } from './search-core.js';
-import { CONFIG } from '../../config.js';
 import { __ } from '../../i18n.js';
 import { shareText } from '../../share.js';
 import { isTvNavActive } from '../../tv-nav.js';
@@ -298,8 +298,7 @@ async function copySpecificAyah(surah: number, ayah: number): Promise<void> {
   }
   if (!text) {
     try {
-      const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
-      const data = await res.json();
+      const data = await apiFetch<{ data?: { text?: string } }>(`/ayah/${surah}:${ayah}/quran-uthmani`);
       text = data?.data?.text || '';
     } catch (err) {
       console.warn('Failed to fetch ayah for copy:', err);
@@ -325,8 +324,7 @@ async function shareSpecificAyah(surah: number, ayah: number): Promise<void> {
   }
   if (!text) {
     try {
-      const res = await fetch(`${CONFIG.API_BASE}/ayah/${surah}:${ayah}/quran-uthmani`);
-      const data = await res.json();
+      const data = await apiFetch<{ data?: { text?: string } }>(`/ayah/${surah}:${ayah}/quran-uthmani`);
       text = data?.data?.text || '';
     } catch (err) {
       console.warn('Failed to fetch ayah for share:', err);

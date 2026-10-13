@@ -240,13 +240,6 @@
       "reason": "Escape key exits fullscreen as best-effort"
     },
     {
-      "file": "src/features/search/search-core.ts",
-      "fn": "fetchQuranText",
-      "anchor": "#1",
-      "kind": "expression-arrow-null",
-      "reason": "local quran-uthmani.json is a best-effort warm/first source; on failure the API endpoint covers; if both fail res.json() throws and propagates"
-    },
-    {
       "file": "src/features/search/search-ui.ts",
       "fn": "stopVoiceSearch",
       "anchor": "// Recognition may already have ended after returning a final match.",

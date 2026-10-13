@@ -47,6 +47,13 @@ vi.mock('../templates.js', () => ({
 vi.mock('../api-client.js', () => ({
   apiFetch: vi.fn(),
   tafsirFetch: vi.fn(),
+  jsonFetch: vi.fn(async (url: string) => {
+    const r = await fetch(url);
+    if (!r.ok) {
+      throw new Error(`HTTP ${r.status}`);
+    }
+    return r.json();
+  }),
 }));
 
 // Mock localStorage

@@ -5,6 +5,7 @@
  */
 
 import { state } from './state.js';
+import { jsonFetch } from './api-client.js';
 
 export interface TajweedAnnotation {
   rule: string;
@@ -37,11 +38,7 @@ let _manifestPromise: Promise<TajweedManifest | TajweedJsonEntry[]> | null = nul
  */
 async function fetchCachedJson<T>(url: string): Promise<T> {
   try {
-    const response = await fetch(url);
-    if (response.ok === false) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    return (await response.json()) as T;
+    return await jsonFetch<T>(url, { silent: true });
   } catch (networkError) {
     if ('caches' in globalThis) {
       try {

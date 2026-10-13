@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { CONFIG } from './config.js';
 import { dom } from './dom.js';
 import { tafsirLoading, tafsirErrorMessage } from './templates.js';
-import { tafsirFetch } from './api-client.js';
+import { tafsirFetch, jsonFetch } from './api-client.js';
 import { __ } from './i18n.js';
 import { tryValidate } from './schemas-validate.js';
 import { TafsirApiResponseSchema } from './api-schemas.js';
@@ -39,11 +39,7 @@ async function loadLocalMuyassar(): Promise<LocalMuyassar> {
     return _localMuyassar;
   }
   try {
-    const res = await fetch('data/muyassar-tafsir.json');
-    if (!res.ok) {
-      return null;
-    }
-    _localMuyassar = (await res.json()) as LocalMuyassar;
+    _localMuyassar = await jsonFetch<LocalMuyassar>('data/muyassar-tafsir.json', { silent: true });
     return _localMuyassar;
   } catch {
     return null;

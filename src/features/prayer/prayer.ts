@@ -4,7 +4,7 @@ import { dom } from '../../dom.js';
 import { storage } from '../../storage.js';
 import { showToast } from '../../ui.js';
 import { pad2, formatTime12, timeStrToMinutes } from '../../utils.js';
-import { prayerFetch } from '../../api-client.js';
+import { prayerFetch, jsonFetch } from '../../api-client.js';
 import { __, getCityName, getPrayerName } from '../../i18n.js';
 import { prayerTimesRows, PRAYER_BAR_LOCATIONS, barCountryOptions, barCityOptions } from '../../templates.js';
 import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from '../../a11y.js';
@@ -105,11 +105,9 @@ export async function loadPrayerTimesFromLocalJSON(city: string): Promise<Record
     // requested city is covered, so we never load it for unsupported cities.
     if (!_localPrayerJSON) {
       const url = `${import.meta.env.BASE_URL}data/prayer-times-1448.json`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        return null;
-      }
-      _localPrayerJSON = (await response.json()) as Record<string, unknown>;
+      // Throws on failure → the outer catch returns null and the caller
+      // falls back to cached/API timings.
+      _localPrayerJSON = await jsonFetch<Record<string, unknown>>(url, { silent: true });
     }
 
     const cities = (_localPrayerJSON as Record<string, unknown>)['cities'] as Record<
@@ -310,12 +308,12 @@ export async function loadUnderwrittenPrayerTable(): Promise<void> {
   }
   underwrittenLoaded = true;
   try {
-    const res = await fetch(`${import.meta.env.BASE_URL}data/prayer-times-underwritten.json`);
-    if (res.ok) {
-      const json = (await res.json()) as Record<string, Record<string, string>>;
-      delete (json as Record<string, unknown>)['_comment'];
-      underwrittenTable = json;
-    }
+    const json = await jsonFetch<Record<string, Record<string, string>>>(
+      `${import.meta.env.BASE_URL}data/prayer-times-underwritten.json`,
+      { silent: true },
+    );
+    delete (json as Record<string, unknown>)['_comment'];
+    underwrittenTable = json;
   } catch {
     underwrittenTable = null;
   }

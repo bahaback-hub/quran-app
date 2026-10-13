@@ -97,6 +97,7 @@ vi.mock('../tafsir.js', () => ({
 // Mock api-client module
 vi.mock('../api-client.js', () => ({
   apiFetch: vi.fn(() => Promise.resolve({ data: { page: 1, juz: 1 } })),
+  jsonFetch: vi.fn(() => Promise.resolve({})),
 }));
 
 // Mock i18n module
