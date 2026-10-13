@@ -14,7 +14,6 @@ import { __ } from '../i18n.js';
 import { loadSurah } from '../surah-loader.js';
 import * as audioModule from '../features/audio/audio.js';
 
-
 /**
  * Bind surah/reciter selection and navigation controls.
  */

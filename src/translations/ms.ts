@@ -283,7 +283,8 @@ export default {
   tafsir_error: 'Ralat memuatkan tafsir',
   azan_enable: 'Peringatan azan:',
   azan_fajr: 'Azan Subuh:',
-  azan_exact_alarm_hint: 'Peringatan azan mungkin sedikit lewat. Dayakan "Penggera & peringatan" untuk aplikasi dalam tetapan sistem.',
+  azan_exact_alarm_hint:
+    'Peringatan azan mungkin sedikit lewat. Dayakan "Penggera & peringatan" untuk aplikasi dalam tetapan sistem.',
   tafsir_no_ayah: '📖 Pilih surah dan ayat untuk membaca tafsir',
   no_tafsir_available: 'Tiada tafsir tersedia',
 

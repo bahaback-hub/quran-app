@@ -264,7 +264,8 @@ export default {
   tafsir_error: 'Tafsir loading error',
   azan_enable: 'Azan alert:',
   azan_fajr: 'Fajr azan:',
-  azan_exact_alarm_hint: 'Azan alerts may arrive slightly late. Enable "Alarms & reminders" for the app in system settings for full punctuality.',
+  azan_exact_alarm_hint:
+    'Azan alerts may arrive slightly late. Enable "Alarms & reminders" for the app in system settings for full punctuality.',
   tafsir_no_ayah: '📖 Pick a surah and ayah to read its tafsir',
   no_tafsir_available: 'No tafsir available',
 

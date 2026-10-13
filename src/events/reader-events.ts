@@ -19,11 +19,7 @@ import {
   hideQiblaCompass,
   showQiblaCompass,
 } from '../features/prayer/prayer.js';
-import {
-  cacheSurahAudio,
-  isSurahCached,
-  deleteSurahCache,
-} from '../features/audio/audio-cache.js';
+import { cacheSurahAudio, isSurahCached, deleteSurahCache } from '../features/audio/audio-cache.js';
 import {
   performExactSearch,
   initKeyboard,

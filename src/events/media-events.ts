@@ -9,12 +9,7 @@ import { storage } from '../storage.js';
 import { state } from '../state.js';
 import { __ } from '../i18n.js';
 import { stopAzan, hideAzanNotification } from '../features/prayer/prayer.js';
-import {
-  toggleTafsir,
-  openTafsir,
-  closeTafsir,
-  loadTafsirForCurrentAyah,
-} from '../tafsir.js';
+import { toggleTafsir, openTafsir, closeTafsir, loadTafsirForCurrentAyah } from '../tafsir.js';
 import { loadSurah, toggleTranslation } from '../surah-loader.js';
 
 /**
