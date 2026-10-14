@@ -633,6 +633,20 @@ export default {
   help_keyboard_shortcuts: 'Pintasan Papan Kekunci',
   help_keyboard_shortcuts_desc:
     'Space = Main/Jeda ◀ ▶ = Ayat Sebelum/Seterusnya ▲ ▼ = Surah Sebelum/Seterusnya Ctrl+F = Buka Carian Escape = Tutup Tetingkap Terbuka',
+  credits_title: 'Kredit Terjemahan',
+  credits_intro:
+    'Terjemahan yang disertakan dan penyusunnya. Disimpan untuk kegunaan dakwah bukan komersial dengan atribusi.',
+  credits_sahih_name: 'Saheeh International (Inggeris)',
+  credits_sahih_desc:
+    'Oleh Umm Muhammad, Emily Assami dan Amatullah Bantley. Bebas untuk kegunaan dakwah bukan komersial dengan atribusi.',
+  credits_pickthall_name: 'Pickthall (Inggeris)',
+  credits_pickthall_desc: 'Oleh Marmaduke Pickthall.',
+  credits_yusufali_name: 'Yusuf Ali (Inggeris)',
+  credits_yusufali_desc: 'Oleh Abdullah Yusuf Ali.',
+  credits_hamidullah_name: 'Hamidullah (Perancis)',
+  credits_hamidullah_desc: 'Oleh Muhammad Hamidullah.',
+  credits_jalandhry_name: 'Jalandhry (Urdu)',
+  credits_jalandhry_desc: 'Oleh Fateh Muhammad Jalandhry.',
 
   // === Kebolehcapaian ===
   a11y_panel_opened: '{0} dibuka',

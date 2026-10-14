@@ -240,6 +240,38 @@ export function helpPanelHTML(): string {
           </div>
         </div>
 
+        <div class="help-section">
+          <button class="help-section-toggle" data-section="credits">
+            <span>📜 ${__('credits_title')}</span>
+            <span class="help-toggle-icon">▼</span>
+          </button>
+          <div class="help-section-content" data-section="credits">
+            <div class="help-item">
+              <div class="help-item-desc">${__('credits_intro')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('credits_sahih_name')}</div>
+              <div class="help-item-desc">${__('credits_sahih_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('credits_pickthall_name')}</div>
+              <div class="help-item-desc">${__('credits_pickthall_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('credits_yusufali_name')}</div>
+              <div class="help-item-desc">${__('credits_yusufali_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('credits_hamidullah_name')}</div>
+              <div class="help-item-desc">${__('credits_hamidullah_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('credits_jalandhry_name')}</div>
+              <div class="help-item-desc">${__('credits_jalandhry_desc')}</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </aside>`;
 }

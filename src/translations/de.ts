@@ -636,6 +636,20 @@ export default {
   help_keyboard_shortcuts: 'Tastenkürzel',
   help_keyboard_shortcuts_desc:
     'Space = Abspielen/Pause ◀ → = Vorherige/Nächste Ayah ▲ ▼ = Vorherige/Nächste Sure Ctrl+F = Suche öffnen Escape = Offene Panels schließen',
+  credits_title: 'Übersetzungsnachweise',
+  credits_intro:
+    'Die mitgelieferten Übersetzungen und ihre Autoren. Für den freien nicht-kommerziellen Gebrauch mit Namensnennung.',
+  credits_sahih_name: 'Saheeh International (Englisch)',
+  credits_sahih_desc:
+    'Von Umm Muhammad, Emily Assami und Amatullah Bantley. Frei für nicht-kommerziellen Gebrauch mit Namensnennung.',
+  credits_pickthall_name: 'Pickthall (Englisch)',
+  credits_pickthall_desc: 'Von Marmaduke Pickthall.',
+  credits_yusufali_name: 'Yusuf Ali (Englisch)',
+  credits_yusufali_desc: 'Von Abdullah Yusuf Ali.',
+  credits_hamidullah_name: 'Hamidullah (Französisch)',
+  credits_hamidullah_desc: 'Von Muhammad Hamidullah.',
+  credits_jalandhry_name: 'Jalandhry (Urdu)',
+  credits_jalandhry_desc: 'Von Fateh Muhammad Jalandhry.',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} geöffnet',

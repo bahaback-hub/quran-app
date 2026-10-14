@@ -58,6 +58,7 @@ import {
   arabicKeyboardHTML,
   ayahElement,
   mushafSurahItem,
+  helpPanelHTML,
 } from '../templates.js';
 
 describe('escapeHtml', () => {
@@ -1104,5 +1105,40 @@ describe('arabicKeyboardHTML', () => {
     const result = arabicKeyboardHTML();
     const matches = result.match(/class="kbd-key/g);
     expect(matches!.length).toBeGreaterThan(10);
+  });
+});
+
+describe('Help panel translation credits (UXS-03)', () => {
+  it('should include a credits accordion section', () => {
+    const result = helpPanelHTML();
+    expect(result).toContain('data-section="credits"');
+    expect(result).toContain('credits_title');
+    expect(result).toContain('credits_intro');
+  });
+
+  it('should name all five bundled translations', () => {
+    const result = helpPanelHTML();
+    for (const key of [
+      'credits_sahih_name',
+      'credits_pickthall_name',
+      'credits_yusufali_name',
+      'credits_hamidullah_name',
+      'credits_jalandhry_name',
+    ]) {
+      expect(result).toContain(key);
+    }
+  });
+
+  it('should describe each translation source', () => {
+    const result = helpPanelHTML();
+    for (const key of [
+      'credits_sahih_desc',
+      'credits_pickthall_desc',
+      'credits_yusufali_desc',
+      'credits_hamidullah_desc',
+      'credits_jalandhry_desc',
+    ]) {
+      expect(result).toContain(key);
+    }
   });
 });

@@ -632,6 +632,20 @@ export default {
   help_keyboard_shortcuts: 'Сочетания клавиш',
   help_keyboard_shortcuts_desc:
     'Пробел = Воспроизвести/Пауза ◀ → = Предыдущий/Следующий аят ▲ ▼ = Предыдущая/Следующая сура Ctrl+F = Открыть поиск Escape = Закрыть открытые панели',
+  credits_title: 'Авторы переводов',
+  credits_intro:
+    'Встроенные переводы и их авторы. Сохранены для бесплатного некоммерческого использования с указанием авторства.',
+  credits_sahih_name: 'Saheeh International (английский)',
+  credits_sahih_desc:
+    'Перевод Умм Мухаммад, Эмили Ассами и Аматуллы Бентли. Бесплатно для некоммерческого использования с указанием авторства.',
+  credits_pickthall_name: 'Пиктхолл (английский)',
+  credits_pickthall_desc: 'Перевод Мармадьюка Пиктхолла.',
+  credits_yusufali_name: 'Юсуф Али (английский)',
+  credits_yusufali_desc: 'Перевод Абдуллы Юсуфа Али.',
+  credits_hamidullah_name: 'Хамидулла (французский)',
+  credits_hamidullah_desc: 'Перевод Мухаммада Хамидуллы.',
+  credits_jalandhry_name: 'Джаландхри (урду)',
+  credits_jalandhry_desc: 'Перевод Фатеха Мухаммада Джаландхри.',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} открыто',

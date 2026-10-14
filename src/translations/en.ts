@@ -630,6 +630,20 @@ export default {
   help_keyboard_shortcuts: 'Keyboard Shortcuts',
   help_keyboard_shortcuts_desc:
     'Space = Play/Pause ◀ → = Previous/Next ayah ▲ ▼ = Previous/Next surah Ctrl+F = Open search Escape = Close open panels',
+  credits_title: 'Translation Credits',
+  credits_intro:
+    'The bundled translations and the people behind them. Kept for free non-commercial use with attribution.',
+  credits_sahih_name: 'Saheeh International (English)',
+  credits_sahih_desc:
+    'By Umm Muhammad, Emily Assami and Amatullah Bantley. Free for non-commercial dawah use with attribution.',
+  credits_pickthall_name: 'Pickthall (English)',
+  credits_pickthall_desc: 'By Marmaduke Pickthall.',
+  credits_yusufali_name: 'Yusuf Ali (English)',
+  credits_yusufali_desc: 'By Abdullah Yusuf Ali.',
+  credits_hamidullah_name: 'Hamidullah (French)',
+  credits_hamidullah_desc: 'By Muhammad Hamidullah.',
+  credits_jalandhry_name: 'Jalandhry (Urdu)',
+  credits_jalandhry_desc: 'By Fateh Muhammad Jalandhry.',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} opened',

@@ -632,6 +632,20 @@ export default {
   help_keyboard_shortcuts: 'Klavye Kısayolları',
   help_keyboard_shortcuts_desc:
     'Boşluk = Oynat/Duraklat ◀ ▶ = Önceki/Sonraki Ayet ▲ ▼ = Önceki/Sonraki Sure Ctrl+F = Aramayı Aç Escape = Açık Pencereleri Kapat',
+  credits_title: 'Çeviri Künyeleri',
+  credits_intro:
+    'Uygulamaya gömülü çeviriler ve sahipleri. Atıfla birlikte ücretsiz ticari olmayan kullanım için saklanır.',
+  credits_sahih_name: 'Saheeh International (İngilizce)',
+  credits_sahih_desc:
+    'Umm Muhammad, Emily Assami ve Amatullah Bantley çevirisi. Atıfla birlikte ücretsiz ticari olmayan kullanım içindir.',
+  credits_pickthall_name: 'Pickthall (İngilizce)',
+  credits_pickthall_desc: 'Marmaduke Pickthall çevirisi.',
+  credits_yusufali_name: 'Yusuf Ali (İngilizce)',
+  credits_yusufali_desc: 'Abdullah Yusuf Ali çevirisi.',
+  credits_hamidullah_name: 'Hamidullah (Fransızca)',
+  credits_hamidullah_desc: 'Muhammad Hamidullah çevirisi.',
+  credits_jalandhry_name: 'Jalandhry (Urduca)',
+  credits_jalandhry_desc: 'Fateh Muhammad Jalandhry çevirisi.',
 
   // === Erişilebilirlik ===
   a11y_panel_opened: '{0} açıldı',

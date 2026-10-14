@@ -637,6 +637,20 @@ export default {
   help_keyboard_shortcuts: 'Raccourcis clavier',
   help_keyboard_shortcuts_desc:
     'Espace = Lire/Pause ◀ → = Ayah précédente/suivante ▲ ▼ = Sourate précédente/suivante Ctrl+F = Ouvrir la recherche Échap = Fermer les panneaux ouverts',
+  credits_title: 'Crédits des traductions',
+  credits_intro:
+    'Les traductions incluses et leurs auteurs. Conservées pour un usage religieux non commercial avec attribution.',
+  credits_sahih_name: 'Saheeh International (anglais)',
+  credits_sahih_desc:
+    'Par Umm Muhammad, Emily Assami et Amatullah Bantley. Usage religieux non commercial libre avec attribution.',
+  credits_pickthall_name: 'Pickthall (anglais)',
+  credits_pickthall_desc: 'Par Marmaduke Pickthall.',
+  credits_yusufali_name: 'Yusuf Ali (anglais)',
+  credits_yusufali_desc: 'Par Abdullah Yusuf Ali.',
+  credits_hamidullah_name: 'Hamidullah (français)',
+  credits_hamidullah_desc: 'Par Muhammad Hamidullah.',
+  credits_jalandhry_name: 'Jalandhry (ourdou)',
+  credits_jalandhry_desc: 'Par Fateh Muhammad Jalandhry.',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} ouvert',

@@ -628,6 +628,18 @@ export default {
   help_keyboard_shortcuts: 'اختصارات لوحة المفاتيح',
   help_keyboard_shortcuts_desc:
     'مسافة = تشغيل/إيقاف ◀ → = آية سابقة/تالية ▲ ▼ = سورة سابقة/تالية Ctrl+F = فتح البحث Escape = إغلاق النوافذ المفتوحة',
+  credits_title: 'إسنادات الترجمات',
+  credits_intro: 'الترجمات المضمّنة وأصحابها. محفوظة للاستخدام الدعوي المجاني مع الإسناد.',
+  credits_sahih_name: 'Saheeh International (الإنجليزية)',
+  credits_sahih_desc: 'ترجمة أم محمد وإميلي أسامي وأمة الله بنتلي. للاستخدام الدعوي المجاني مع الإسناد.',
+  credits_pickthall_name: 'بيكتهول (الإنجليزية)',
+  credits_pickthall_desc: 'ترجمة محمد مارمادوك بيكتهول.',
+  credits_yusufali_name: 'يوسف علي (الإنجليزية)',
+  credits_yusufali_desc: 'ترجمة عبد الله يوسف علي.',
+  credits_hamidullah_name: 'حميد الله (الفرنسية)',
+  credits_hamidullah_desc: 'ترجمة محمد حميد الله.',
+  credits_jalandhry_name: 'جالندهري (الأردية)',
+  credits_jalandhry_desc: 'ترجمة فتح محمد جالندهري.',
 
   // === إمكانية الوصول ===
   a11y_panel_opened: 'تم فتح {0}',
