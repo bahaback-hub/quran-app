@@ -60,15 +60,31 @@ const DEFAULT_TIMEOUT = 15000;
 const DEFAULT_RETRIES = 1;
 const DEFAULT_RETRY_DELAY = 1000;
 
-/** Arabic error messages by category */
-const ERROR_MESSAGES: Record<string, string> = {
-  offline: __('error_no_connection'),
-  timeout: __('error_timeout'),
-  network: __('error_server_unreachable'),
-  server: __('error_server_error'),
-  parse: __('error_invalid_data'),
-  default: __('error_unexpected'),
-};
+/**
+ * Error message keys by category — keys only, NEVER translated text.
+ *
+ * A previous version called __() here at module evaluation, which runs before
+ * initI18n() (import chain: main → app → … → api-client). At that point no
+ * bundle is loaded, so __() returned the raw key and the const froze it
+ * forever: users saw "error_no_connection" in every language, permanently.
+ * Translating lazily at each use site (via errorMessage()) fixes both the
+ * early-evaluation bug and language switching.
+ */
+const ERROR_KEYS = {
+  offline: 'error_no_connection',
+  timeout: 'error_timeout',
+  network: 'error_server_unreachable',
+  server: 'error_server_error',
+  parse: 'error_invalid_data',
+  default: 'error_unexpected',
+} as const;
+
+type ErrorKind = keyof typeof ERROR_KEYS;
+
+/** Translate an error category in the CURRENT language, at display time. */
+function errorMessage(kind: ErrorKind): string {
+  return __(ERROR_KEYS[kind]);
+}
 
 /* ===================== HELPERS ===================== */
 
@@ -99,22 +115,22 @@ function classifyError(error: Error): string {
   const msg = (error.message || '').toLowerCase();
 
   if (!navigator.onLine) {
-    return ERROR_MESSAGES['offline']!;
+    return errorMessage('offline');
   }
   if (name === 'AbortError') {
     return '';
   } // Silently ignore aborted requests
   if (name === 'TimeoutError' || msg.includes('timeout') || msg.includes('aborted')) {
-    return ERROR_MESSAGES['timeout']!;
+    return errorMessage('timeout');
   }
   if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('net::err')) {
-    return ERROR_MESSAGES['network']!;
+    return errorMessage('network');
   }
   if (msg.includes('json') || msg.includes('parse') || msg.includes('unexpected token')) {
-    return ERROR_MESSAGES['parse']!;
+    return errorMessage('parse');
   }
 
-  return ERROR_MESSAGES['default']!;
+  return errorMessage('default');
 }
 
 /**
@@ -309,7 +325,8 @@ async function _singleFetch<T>(
       // final server error must remain visible.
       const willRetry = (response.status >= 500 || response.status === 429) && hasRetryRemaining;
       if (!opts.silent && !willRetry) {
-        const msg = response.status >= 500 ? ERROR_MESSAGES['server']! : opts.errorMsg || ERROR_MESSAGES['default']!;
+        const msg =
+          response.status >= 500 ? errorMessage('server') : opts.errorMsg || errorMessage('default');
         showToastMsg(msg);
       }
 
@@ -322,7 +339,7 @@ async function _singleFetch<T>(
         return (await response.json()) as T;
       } catch (parseError) {
         if (!opts.silent) {
-          showToastMsg(opts.errorMsg || ERROR_MESSAGES['parse']!);
+          showToastMsg(opts.errorMsg || errorMessage('parse'));
         }
         console.warn(`[API] JSON parse error ← ${url}`, parseError);
         throw parseError;
