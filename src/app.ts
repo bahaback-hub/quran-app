@@ -49,6 +49,7 @@ import { injectOverlays } from './overlays.js';
 import { loadFullQuranText } from './features/search/search-ui.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { refreshRecentExternalData } from './external-data-cache.js';
+import { deleteLegacyCaches } from './cache-names.js';
 import { initLangSwitcher } from './lang-switcher.js';
 import { initCspReporting } from './csp-report.js';
 
@@ -83,6 +84,10 @@ function initState(): void {
 export async function initApp(): Promise<void> {
   // ========== PHASE 1: CRITICAL PATH ==========
   initState();
+  // Drop pre-v3 Cache Storage buckets left by older releases (ARC-03).
+  // Fire-and-forget: readers use caches.match across all buckets, so the
+  // background cleanup cannot break reads; misses simply re-fetch.
+  deleteLegacyCaches();
   initCspReporting(); // CSP violation monitoring — before any dynamic content injects
   setLoadSurah(loadSurah);
   setReloadAudio(reloadCurrentSurahAudio);

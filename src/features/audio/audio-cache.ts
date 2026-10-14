@@ -21,6 +21,8 @@
  *   const url = await getCachedAudioUrl('https://...mp3');
  */
 
+import { CACHE_NAMES } from '../../cache-names.js';
+
 /* ===================== CONSTANTS ===================== */
 
 /** Maximum cache size in bytes (200 MB). */
@@ -38,8 +40,8 @@ const AUDIO_STORE = 'audioFiles';
 /** Object store name for cache metadata. */
 const META_STORE = 'cacheMeta';
 
-/** Runtime cache names shared with the PWA's Workbox audio routes. */
-const RUNTIME_AUDIO_CACHE_NAMES = ['islamic-cdn', 'quran-audio'];
+/** Runtime cache buckets, shared with the PWA's Workbox audio routes (see cache-names.ts). */
+const RUNTIME_AUDIO_CACHE_NAMES = [CACHE_NAMES.islamicCdn, CACHE_NAMES.quranAudio] as const;
 
 /* ===================== INTERFACES ===================== */
 

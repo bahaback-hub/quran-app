@@ -94,7 +94,7 @@ describe('offline-pack — additional coverage', () => {
       await expect(getCachedExternalData('https://api.alquran.cloud/v1/quran/en.sahih')).resolves.toEqual({
         data: 'stored-https://api.alquran.cloud/v1/quran/en.sahih',
       });
-      const tajweedCache = await cacheStorage.open('app-data-v2');
+      const tajweedCache = await cacheStorage.open('app-data-v3');
       await expect(tajweedCache.match('/data/tajweed/manifest.json')).resolves.toBeInstanceOf(Response);
       await expect(tajweedCache.match('/data/tajweed/001.json')).resolves.toBeInstanceOf(Response);
     });

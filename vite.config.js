@@ -2,6 +2,9 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { readFileSync } from 'node:fs';
 import { capacitorCssWebOnly } from './scripts/vite-plugin-capacitor-css-web-only.mjs';
+// Cache Storage bucket names shared with runtime code (src/cache-names.ts) —
+// one rename here propagates to audio-cache.ts and offline-pack.ts.
+import { CACHE_NAMES } from './src/cache-names.ts';
 
 // Single source of truth for the app version shown in Settings ("App version")
 // and used by future "What's new" logic. Bumped via package.json only.
@@ -211,14 +214,16 @@ export default defineConfig({
                   },
                 },
                 // App data (Quran text, tafsir, tajweed) — StaleWhileRevalidate
-                // Large files loaded on demand, cached for offline use
+                // Large files loaded on demand, cached for offline use.
+                // 300 entries because /data/*.json covers 115 tajweed shards +
+                // 115 contemplation shards + core datasets; 10 used to churn.
                 {
                   urlPattern: /\/data\/.*\.json$/i,
                   handler: 'CacheFirst',
                   options: {
-                    cacheName: 'app-data-v3',
+                    cacheName: CACHE_NAMES.appData,
                     expiration: {
-                      maxEntries: 10,
+                      maxEntries: 300,
                       maxAgeSeconds: 86400 * 30, // 30 days
                       purgeOnQuotaError: true,
                     },
@@ -282,7 +287,7 @@ export default defineConfig({
                   urlPattern: /^https:\/\/server\d+\.mp3quran\.net\/.*/i,
                   handler: 'CacheFirst',
                   options: {
-                    cacheName: 'quran-audio-v3',
+                    cacheName: CACHE_NAMES.quranAudio,
                     expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 },
                   },
                 },
@@ -290,7 +295,7 @@ export default defineConfig({
                   urlPattern: /^https:\/\/cdn\.islamic\.network\/.*/i,
                   handler: 'CacheFirst',
                   options: {
-                    cacheName: 'islamic-cdn-v3',
+                    cacheName: CACHE_NAMES.islamicCdn,
                     expiration: { maxEntries: 300, maxAgeSeconds: 86400 * 365 },
                   },
                 },

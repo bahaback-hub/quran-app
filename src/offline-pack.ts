@@ -13,6 +13,7 @@ import { CONFIG } from './config.js';
 import { cacheSurahAudio, isSurahCached } from './features/audio/audio-cache.js';
 import { cacheExternalData } from './external-data-cache.js';
 import { buildAudioUrl, getReciterById } from './reciters.js';
+import { CACHE_NAMES } from './cache-names.js';
 
 /* ===================== TYPES ===================== */
 
@@ -56,7 +57,8 @@ const OFFLINE_AUDIO_URLS_KEY = 'offline_pack_audio_urls';
 const DEFAULT_TRANSLATIONS = ['en.sahih', 'en.pickthall', 'en.yusufali', 'fr.hamidullah', 'ur.jalandhry'];
 
 const FETCH_TIMEOUT_MS = 30_000;
-const TAJWEED_CACHE_NAME = 'app-data-v2';
+/** Same-origin JSON bucket, shared with the SW app-data route (see cache-names.ts). */
+const TAJWEED_CACHE_NAME = CACHE_NAMES.appData;
 
 interface AudioEditionResponse {
   data?: {
