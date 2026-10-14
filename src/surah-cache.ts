@@ -30,7 +30,17 @@ export interface CachedSurahEntry {
   timings?: number[];
   audio?: { ayahs: AyahEntry[] };
   translation: Record<string, unknown> | null;
+  /** Last read/write time (ms) for LRU eviction; maintained by this module. */
+  lastAccessed?: number;
 }
+
+/**
+ * Cap on stored surahs. The key space is surah × reciter × translation, so an
+ * uncapped store grows forever and risks a full-origin IndexedDB eviction by
+ * the browser (taking the 200MB audio cache with it). 300 entries cover deep
+ * use (~a full Quran × reciter × translation plus exploration headroom).
+ */
+export const MAX_SURAH_CACHE_ENTRIES = 300;
 
 /* ===================== IndexedDB SURAH CACHE ===================== */
 
@@ -63,19 +73,57 @@ export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Pro
   try {
     db = await openSurahDB();
     const tx = db.transaction('surahs', 'readwrite');
-    tx.objectStore('surahs').put({ key, ...entry });
+    tx.objectStore('surahs').put({ key, ...entry, lastAccessed: Date.now() });
     // Wait for the transaction to complete so errors are properly caught
     await new Promise<void>((resolve, reject) => {
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error || new Error('IDB transaction failed'));
       tx.onabort = () => reject(tx.error || new Error('IDB transaction aborted'));
     });
+    await enforceSurahCap(db);
   } catch (err) {
     if (import.meta.env.DEV) {
       console.warn('[IDB] Failed to cache surah:', err);
     }
   } finally {
     db?.close();
+  }
+}
+
+/** Delete least-recently-used entries down to the cap. Best-effort: cache pressure must never break a save. */
+async function enforceSurahCap(db: IDBDatabase): Promise<void> {
+  try {
+    const count: number = await new Promise((resolve, reject) => {
+      const req = db.transaction('surahs', 'readonly').objectStore('surahs').count();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error || new Error('IDB count failed'));
+    });
+    const overBy = count - MAX_SURAH_CACHE_ENTRIES;
+    if (overBy <= 0) {
+      return;
+    }
+    const all: Array<{ key: string; lastAccessed?: number }> = await new Promise((resolve, reject) => {
+      const req = db.transaction('surahs', 'readonly').objectStore('surahs').getAll();
+      req.onsuccess = () => resolve((req.result ?? []) as Array<{ key: string; lastAccessed?: number }>);
+      req.onerror = () => reject(req.error || new Error('IDB read failed'));
+    });
+    all.sort((a, b) => (a.lastAccessed ?? 0) - (b.lastAccessed ?? 0));
+    const victims = all.slice(0, overBy);
+    if (victims.length === 0) {
+      return;
+    }
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction('surahs', 'readwrite');
+      for (const victim of victims) {
+        tx.objectStore('surahs').delete(victim.key);
+      }
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error('IDB eviction failed'));
+    });
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[SurahCache] Cap enforcement failed:', err);
+    }
   }
 }
 
@@ -93,7 +141,7 @@ export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEnt
   let db: IDBDatabase | null = null;
   try {
     db = await openSurahDB();
-    return await new Promise((resolve) => {
+    const entry = await new Promise<CachedSurahEntry | null>((resolve) => {
       const tx = db!.transaction('surahs', 'readonly');
       const req = tx.objectStore('surahs').get(key);
       req.onsuccess = () => {
@@ -105,6 +153,7 @@ export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEnt
               timings?: number[];
               audio?: { ayahs: AyahEntry[] };
               translation: Record<string, unknown> | null;
+              lastAccessed?: number;
             }
           | undefined;
         if (!result) {
@@ -124,11 +173,30 @@ export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEnt
           return;
         }
         // Extract the CachedSurahEntry fields (exclude the 'key' property)
-        const { key: _k, ...entry } = result;
-        resolve(entry as CachedSurahEntry);
+        const { key: _k, ...rest } = result;
+        resolve(rest as CachedSurahEntry);
       };
       req.onerror = () => resolve(null);
     });
+    if (entry) {
+      // Touch for LRU: a surah in active use must not be evicted as "old".
+      // Best-effort — a failed touch must never fail the read.
+      try {
+        const touchTx = db.transaction('surahs', 'readwrite');
+        touchTx.objectStore('surahs').put({ key, ...entry, lastAccessed: Date.now() });
+        await new Promise<void>((resolve) => {
+          touchTx.oncomplete = () => resolve();
+          touchTx.onerror = () => resolve();
+          touchTx.onabort = () => resolve();
+        });
+      } catch (err) {
+        // The read itself succeeded; a failed touch only skews eviction order.
+        if (import.meta.env.DEV) {
+          console.warn('[SurahCache] LRU touch failed:', err);
+        }
+      }
+    }
+    return entry;
   } catch {
     return null;
   } finally {

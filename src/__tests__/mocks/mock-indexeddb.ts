@@ -36,6 +36,14 @@ class MockObjectStore {
     return MockRequest.success(undefined);
   }
 
+  count(): MockRequest {
+    return MockRequest.success(this.records.size);
+  }
+
+  getAll(): MockRequest {
+    return MockRequest.success([...this.records.values()].map((r) => r.value));
+  }
+
   clear(): void {
     this.records.clear();
   }

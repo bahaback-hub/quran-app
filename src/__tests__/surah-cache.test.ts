@@ -605,4 +605,87 @@ describe('surah-cache', () => {
       expect(cached).not.toBeNull();
     });
   });
+
+  /* ===================== cap and LRU eviction (ARC-01) ===================== */
+  // Without a cap, the surah × reciter × translation key space grows forever
+  // and risks a full-origin IndexedDB eviction (taking the audio cache with
+  // it). The in-memory mock above keeps this fast (no fake-indexeddb).
+
+  describe('cap and LRU eviction', () => {
+    function tinyEntry(n: number): CachedSurahEntry {
+      return {
+        text: {
+          number: n,
+          name: `S${n}`,
+          englishName: `S${n}`,
+          ayahs: [{ numberInSurah: 1, text: `text-${n}`, number: 1 }],
+        },
+        translation: null,
+      };
+    }
+
+    async function countEntries(): Promise<number> {
+      return new Promise((resolve, reject) => {
+        const open = indexedDB.open('QuranSurahDB', 1);
+        open.onsuccess = () => {
+          const db = open.result;
+          const req = db
+            .transaction('surahs', 'readonly')
+            .objectStore('surahs')
+            .count();
+          req.onsuccess = () => {
+            db.close();
+            resolve(req.result as number);
+          };
+          req.onerror = () => reject(req.error);
+        };
+        open.onerror = () => reject(open.error);
+      });
+    }
+
+    it('exposes a sane cap', async () => {
+      const { MAX_SURAH_CACHE_ENTRIES } = await import('../surah-cache.js');
+      expect(MAX_SURAH_CACHE_ENTRIES).toBe(300);
+    });
+
+    it('evicts oldest-first down to the cap', async () => {
+      const { MAX_SURAH_CACHE_ENTRIES } = await import('../surah-cache.js');
+      for (let i = 1; i <= MAX_SURAH_CACHE_ENTRIES + 5; i++) {
+        await cacheSurahToIDB(`cap-k${String(i).padStart(4, '0')}`, tinyEntry(i));
+      }
+      expect(await countEntries()).toBe(MAX_SURAH_CACHE_ENTRIES);
+      // Insertion order doubles as age order (monotonic timestamps).
+      for (let i = 1; i <= 5; i++) {
+        expect(await getCachedSurahFromIDB(`cap-k${String(i).padStart(4, '0')}`)).toBeNull();
+      }
+      expect(await getCachedSurahFromIDB(`cap-k${String(MAX_SURAH_CACHE_ENTRIES + 5).padStart(4, '0')}`)).not.toBeNull();
+    });
+
+    it('a recent read protects an entry from eviction', async () => {
+      const { MAX_SURAH_CACHE_ENTRIES } = await import('../surah-cache.js');
+      // Deterministic clock: the touch must make keep-me strictly newest.
+      let now = 1000;
+      const dateSpy = vi.spyOn(Date, 'now').mockImplementation(() => now);
+      try {
+        await cacheSurahToIDB('cap-keep', tinyEntry(1)); // lastAccessed = 1000
+        now = 2000;
+        for (let i = 2; i <= MAX_SURAH_CACHE_ENTRIES; i++) {
+          await cacheSurahToIDB(`cap-f${String(i).padStart(4, '0')}`, tinyEntry(i));
+        }
+        expect(await countEntries()).toBe(MAX_SURAH_CACHE_ENTRIES);
+        // Touch keep-me: without this read it would be the oldest entry and
+        // the next write would evict exactly it.
+        now = 3000;
+        expect(await getCachedSurahFromIDB('cap-keep')).not.toBeNull();
+        // One more write overflows the cap; the victim must be an untouched
+        // flood entry, never the freshly read one.
+        await cacheSurahToIDB('cap-final', tinyEntry(999));
+        expect(await countEntries()).toBe(MAX_SURAH_CACHE_ENTRIES);
+        expect(await getCachedSurahFromIDB('cap-keep')).not.toBeNull();
+        expect(await getCachedSurahFromIDB('cap-f0002')).toBeNull();
+      } finally {
+        dateSpy.mockRestore();
+      }
+    });
+  });
 });
