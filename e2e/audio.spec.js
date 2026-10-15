@@ -10,7 +10,7 @@ test.describe('الصوت', () => {
       if (ws) ws.remove();
     });
     await page.selectOption('#surahSelect', '1');
-    await page.waitForTimeout(3000);
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
     await page.evaluate(() => {
       const player = document.getElementById('player');
       if (player) player.classList.remove('collapsed');
@@ -46,7 +46,6 @@ test.describe('الصوت', () => {
         window.__state__.isPlaying = !window.__state__.isPlaying;
       }
     });
-    await page.waitForTimeout(800);
     // The button text is bound to state.isPlaying via updatePlayPauseBtn.
     // Force a UI sync so the test is deterministic regardless of network.
     const toggledIcon = await page.evaluate(() => {
@@ -69,7 +68,6 @@ test.describe('الصوت', () => {
   });
 
   test('يعرض اسم السورة والفاتحة في المشغل', async ({ page }) => {
-    await page.waitForTimeout(1000);
     const surahName = page.locator('#playerSurahName');
     await expect(surahName).toBeVisible();
     const ayahText = page.locator('#playerCurrentAyah');

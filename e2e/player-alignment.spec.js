@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/mock-network';
+import { waitForAnimations, waitForReflow } from './fixtures/wait';
 
 // Regression (tablet report): in the 601–1655px band the centered
 // `.container` is shifted `margin-left: 78px` to clear the fixed sidebar,
@@ -30,7 +31,7 @@ test('player matches container width on tablet viewports', async ({ page }) => {
     { name: 'tablet-landscape', width: 1024, height: 768 },
   ]) {
     await page.setViewportSize({ width: vp.width, height: vp.height });
-    await page.waitForTimeout(400);
+    await waitForReflow(page);
 
     // Collapsed state (default).
     let r = await edges();
@@ -42,7 +43,7 @@ test('player matches container width on tablet viewports', async ({ page }) => {
     await page.evaluate(() => {
       document.getElementById('player')?.classList.remove('collapsed');
     });
-    await page.waitForTimeout(400);
+    await waitForAnimations(page.locator('#player'));
     r = await edges();
     expect(r, vp.name).not.toBeNull();
     expect(Math.abs(r.pLeft - r.cLeft), `${vp.name} expanded left`).toBeLessThanOrEqual(2);

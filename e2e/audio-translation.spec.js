@@ -33,7 +33,7 @@ test('translation toggle keeps audio playable', async ({ page }) => {
 
   // Play once so the player attaches to the loaded audio list.
   await page.locator('#playPauseBtn').click();
-  await page.waitForTimeout(500);
+  await expect(page.locator('#audioPlayer')).toHaveAttribute('src', /\.mp3/, { timeout: 15000 });
 
   // Enable translation — this reloads surah 1 in the background.
   await page.locator('#translationToggle').click();
@@ -44,11 +44,12 @@ test('translation toggle keeps audio playable', async ({ page }) => {
     const el = document.querySelector('#surahContent');
     return el !== null && !el.classList.contains('is-loading') && el.querySelectorAll('.ayah').length > 0;
   }, undefined, { timeout: 30000 });
-  await page.waitForTimeout(1500);
 
-  // Playback must NOT raise the "no audio" error toast.
+  // Playback must NOT raise the "no audio" error toast. A resolved mp3 src
+  // proves the player kept a playable list across the reload; the error-toast
+  // check below then guards the exact regression string.
   await page.locator('#playPauseBtn').click();
-  await page.waitForTimeout(1200);
+  await expect(page.locator('#audioPlayer')).toHaveAttribute('src', /\.mp3/, { timeout: 15000 });
   const errToast = page.locator('#toast.show.error');
   if ((await errToast.count()) > 0) {
     const text = ((await errToast.textContent()) ?? '').trim();

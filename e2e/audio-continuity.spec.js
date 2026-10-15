@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/mock-network';
+import { waitForAnimations } from './fixtures/wait';
 
 // Audio↔ayah continuity: the reader must preserve the exact ayah binding
 // across end-of-surah transitions, player close/reopen, position persistence,
@@ -23,8 +24,10 @@ async function openReader(page) {
 
 async function advanceAyahs(page, times) {
   for (let i = 0; i < times; i++) {
+    const before = await page.locator('#playerCurrentAyah').textContent();
     await page.locator('#nextAyahBtn').click();
-    await page.waitForTimeout(100);
+    // Wait for the ayah label to actually advance rather than sleeping.
+    await expect(page.locator('#playerCurrentAyah')).not.toHaveText(before ?? '', { timeout: 10000 });
   }
 }
 
@@ -70,7 +73,7 @@ test.describe('استمرارية الصوت', () => {
 
     // Close the player…
     await page.evaluate(() => document.getElementById('player')?.classList.add('collapsed'));
-    await page.waitForTimeout(300);
+    await waitForAnimations(page.locator('#player'));
     // …and reopen it: position must be retained, not reset to ayah 1.
     await page.evaluate(() => document.getElementById('player')?.classList.remove('collapsed'));
     await expect(page.locator('#playerCurrentAyah')).toContainText('آية 5', { timeout: 10000 });

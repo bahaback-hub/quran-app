@@ -28,15 +28,11 @@ test.describe('Offline & Performance Features', () => {
   });
 
   test('should register service worker', async ({ page }) => {
-    const hasSW = await page.evaluate(() => {
-      return 'serviceWorker' in navigator && navigator.serviceWorker.controller !== null;
-    });
-    // SW may take a moment to register
-    if (!hasSW) {
-      await page.waitForTimeout(2000);
-      const hasSW2 = await page.evaluate(() => navigator.serviceWorker.controller !== null);
-      expect(hasSW2 || true).toBeTruthy(); // Non-blocking — SW may not be ready in test env
-    }
+    // The E2E config blocks service workers (`serviceWorkers: 'block'`), so the
+    // controller is intentionally null here. Assert the capability instead of
+    // sleeping for a controller that can never appear.
+    const hasSwApi = await page.evaluate(() => 'serviceWorker' in navigator);
+    expect(hasSwApi).toBe(true);
   });
 
   test('should display prayer times section', async ({ page }) => {

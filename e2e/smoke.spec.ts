@@ -48,7 +48,7 @@ test.describe('Quran App — Core Smoke Tests', () => {
     await surahSelect.selectOption('2');
 
     // Wait for content to load
-    await page.waitForTimeout(2000);
+    await expect(page.locator('.ayah[data-surah="2"]').first()).toBeVisible({ timeout: 30000 });
 
     // Verify surah content changed
     const ayahsContainer = page.locator('.ayahs-container');
@@ -118,7 +118,7 @@ test.describe('Quran App — Player', () => {
         p.classList.add('expanded');
       }
     });
-    await page.waitForTimeout(300);
+    await expect(page.locator('#player')).toHaveClass(/expanded/);
   });
 
   test('should display the audio player', async ({ page }) => {

@@ -31,7 +31,7 @@ test.describe('الأوفلاين', () => {
 
     // Test offline mode — mushaf should stay active
     await page.context().setOffline(true);
-    await page.waitForTimeout(500);
+    await page.waitForFunction(() => navigator.onLine === false);
     const isActive = await page.evaluate(() => document.body.classList.contains('mushaf-active'));
     expect(isActive).toBe(true);
     await page.context().setOffline(false);

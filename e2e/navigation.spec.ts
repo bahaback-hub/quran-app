@@ -74,7 +74,7 @@ test.describe('Quran App — Theme Switching', () => {
     );
     if (isOpen) {
       await page.locator('#themeMenuBtn').click();
-      await page.waitForTimeout(200);
+      await expect(page.locator('#themeDropdownMenu .theme-btn').first()).toBeHidden();
     }
     await page.locator('#themeMenuBtn').click();
     await page.waitForSelector('#themeDropdownMenu .theme-btn', { state: 'visible', timeout: 5000 });
@@ -84,22 +84,18 @@ test.describe('Quran App — Theme Switching', () => {
     await openThemeDropdown(page);
     await page.locator('#themeNight').click();
     // Dropdown auto-closes after a theme selection — nothing more to do.
-    await page.waitForTimeout(400);
-    const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
-    expect(bodyClass).toBe(true);
+    await expect(page.locator('body')).toHaveClass(/night-mode/);
   });
 
   test('should toggle night mode off when switched back to light', async ({ page }) => {
     await openThemeDropdown(page);
     await page.locator('#themeNight').click();
-    await page.waitForTimeout(400);
+    await expect(page.locator('body')).toHaveClass(/night-mode/);
     // Re-open the dropdown (it auto-closes after a theme selection).
     await page.locator('#themeMenuBtn').click();
     await page.waitForSelector('#themeDropdownMenu .theme-btn', { state: 'visible', timeout: 5000 });
     await page.locator('#themeLight').click();
-    await page.waitForTimeout(400);
-    const bodyClass = await page.evaluate(() => document.body.classList.contains('night-mode'));
-    expect(bodyClass).toBe(false);
+    await expect(page.locator('body')).not.toHaveClass(/night-mode/);
     await page.locator('#themeMenuBtn').click();
   });
 });
@@ -124,10 +120,9 @@ test.describe('Quran App — Search Functionality', () => {
     await searchInput.fill('بسم الله');
     await page.locator('#searchBtn').click();
     // Wait for results to render (search index loads on idle).
-    await page.waitForTimeout(3000);
-
     const results = page.locator('#searchResults');
     await expect(results).toBeVisible({ timeout: 15000 });
+    await expect(results.locator('.search-result-item').first()).toBeVisible({ timeout: 15000 });
   });
 });
 

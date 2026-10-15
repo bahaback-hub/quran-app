@@ -10,7 +10,7 @@ test.describe('التفسير', () => {
       if (ws) ws.remove();
     });
     await page.selectOption('#surahSelect', '1');
-    await page.waitForTimeout(3000);
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
   });
 
   test('ستارة التفسير موجودة', async ({ page }) => {
@@ -22,7 +22,6 @@ test.describe('التفسير', () => {
       const handle = document.getElementById('tafsirCurtainHandle');
       if (handle) handle.click();
     });
-    await page.waitForTimeout(3000);
     await expect(page.locator('#tafsirCurtain')).toHaveClass(/open/);
     const header = page.locator('#tafsirCurtainHeader');
     await expect(header).toBeVisible();
@@ -34,12 +33,11 @@ test.describe('التفسير', () => {
       const handle = document.getElementById('tafsirCurtainHandle');
       if (handle) handle.click();
     });
-    await page.waitForTimeout(2000);
+    await expect(page.locator('#tafsirCurtain')).toHaveClass(/open/);
     await page.evaluate(() => {
       const handle = document.getElementById('tafsirCurtainHandle');
       if (handle) handle.click();
     });
-    await page.waitForTimeout(1000);
     await expect(page.locator('#tafsirCurtain')).not.toHaveClass(/open/);
   });
 

@@ -25,6 +25,7 @@
  */
 
 import { test, expect } from './fixtures/mock-network';
+import { waitForReflow } from './fixtures/wait';
 
 /** Upright phone. */
 const PORTRAIT_PHONE = { width: 393, height: 851 };
@@ -92,7 +93,7 @@ test.describe('reader side rail', () => {
   for (const [name, viewport] of viewports) {
     test(`every tool is rendered and on screen — ${name}`, async ({ page }) => {
       await page.setViewportSize(viewport);
-      await page.waitForTimeout(400);
+      await waitForReflow(page);
 
       const boxes = await railBoxes(page);
 
@@ -114,7 +115,7 @@ test.describe('reader side rail', () => {
   test('the rail itself never exceeds the space below its anchor', async ({ page }) => {
     for (const viewport of LANDSCAPE_PHONES) {
       await page.setViewportSize(viewport);
-      await page.waitForTimeout(300);
+      await waitForReflow(page);
 
       const rail = await page.evaluate(() => {
         const el = document.querySelector('#readerSideTools');

@@ -74,7 +74,6 @@ test.describe('الترجمة', () => {
       if (tabBtn) tabBtn.classList.add('active');
       if (tabContent) tabContent.classList.add('active');
     });
-    await page.waitForTimeout(200);
     await expect(page.locator('#translationSelect')).toBeVisible({ timeout: 10000 });
   });
 

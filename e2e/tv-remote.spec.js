@@ -53,7 +53,7 @@ test.describe('TV remote control', () => {
   async function focusForOk(page, selector, id) {
     await expect(async () => {
       await page.locator(selector).evaluate((el) => el.focus());
-      await page.waitForTimeout(50);
+      await expect(page.locator(selector)).toBeFocused({ timeout: 500 });
       const focused = await page.evaluate((expected) => document.activeElement?.id === expected, id);
       expect(focused).toBe(true);
     }).toPass({ timeout: 5000 });
@@ -118,11 +118,11 @@ test.describe('TV remote control', () => {
 
   test('long-press OK toggles pointer mode and arrows move the cursor', async ({ page }) => {
     await page.locator('#settingsToggleBtn').evaluate((el) => el.focus());
-    // Long-press: down, hold past the 1000ms threshold, release.
+    // Long-press: hold OK until pointer mode engages (the timer fires at the
+    // 1000ms threshold while the key is still held), then release.
     await page.keyboard.down('Enter');
-    await page.waitForTimeout(1200);
+    await expect(page.locator('body')).toHaveClass(/tv-pointer/, { timeout: 5000 });
     await page.keyboard.up('Enter');
-    await expect(page.locator('body')).toHaveClass(/tv-pointer/);
     const cursor = page.locator('#tvPointerCursor');
     await expect(cursor).toBeVisible();
     const before = await cursor.evaluate((el) => ({ x: el.dataset['x'], y: el.dataset['y'] }));
@@ -231,9 +231,8 @@ test.describe('TV remote control', () => {
     // Long-press OK on the (covered) button to enter pointer mode.
     await page.locator('#viewPresBtn').evaluate((el) => el.focus());
     await page.keyboard.down('Enter');
-    await page.waitForTimeout(1200);
+    await expect(page.locator('body')).toHaveClass(/tv-pointer/, { timeout: 5000 });
     await page.keyboard.up('Enter');
-    await expect(page.locator('body')).toHaveClass(/tv-pointer/);
     const layers = await page.evaluate(() => {
       const cursor = document.getElementById('tvPointerCursor');
       const overlay = document.getElementById('presentationOverlay');

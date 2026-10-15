@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/mock-network';
+import { waitForReflow } from './fixtures/wait';
 
 /**
  * Comprehensive offline verification.
@@ -40,7 +41,6 @@ async function openSearch(page) {
       async () => {
         if (!(await page.locator('#searchInputGroup').isVisible())) {
           await page.locator('#searchToggleBtn').click();
-          await page.waitForTimeout(100);
         }
         return page.locator('#searchInputGroup').isVisible();
       },
@@ -55,7 +55,6 @@ async function openFirstAyahModal(page) {
       async () => {
         if (!(await page.locator('#ayahModal').isVisible())) {
           await page.locator('.ayah[data-surah="1"] .word').first().click();
-          await page.waitForTimeout(200);
         }
         return page.locator('#ayahModal').isVisible();
       },
@@ -85,7 +84,6 @@ async function selectSurah(page, n) {
           .isVisible()
           .catch(() => false);
         if (!loadFailed && Date.now() - lastSelect < 3500) {
-          await page.waitForTimeout(200);
           return target.isVisible().catch(() => false);
         }
 
@@ -99,11 +97,10 @@ async function selectSurah(page, n) {
           .catch(() => '');
         if (current !== '1') {
           await page.selectOption('#surahSelect', '1');
-          await page.waitForTimeout(150);
+          await waitForReflow(page);
         }
         await page.selectOption('#surahSelect', String(n));
         lastSelect = Date.now();
-        await page.waitForTimeout(150);
         return target.isVisible().catch(() => false);
       },
       { timeout: 30000 },
@@ -169,7 +166,6 @@ test.describe('الأوفلاين الكامل', () => {
         async () => {
           if (!(await page.evaluate(() => document.body.classList.contains('mushaf-active')))) {
             await page.locator('#viewMushafBtn').click();
-            await page.waitForTimeout(200);
           }
           return page.evaluate(() => document.body.classList.contains('mushaf-active'));
         },

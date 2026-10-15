@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/mock-network';
+import { waitForReflow } from './fixtures/wait';
 
 // Item 5: translation text must scale with the ayah size (0.62 ratio with a
 // 13px floor) on phones, tablets, and large screens — never the old tiny
@@ -19,7 +20,7 @@ for (const c of cases) {
       document.getElementById('translationToggle')?.classList.remove('hidden');
     });
     await page.setViewportSize({ width: c.width, height: c.height });
-    await page.waitForTimeout(400);
+    await waitForReflow(page);
     await page.locator('#translationToggle').click();
     await expect(page.locator('.translation-text').first()).toBeVisible({ timeout: 30000 });
 

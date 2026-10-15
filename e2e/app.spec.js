@@ -43,7 +43,7 @@ test.describe('التطبيق — الصفحة الرئيسية', () => {
 
   test('اختيار سورة من القائمة يحمّل المحتوى', async ({ page }) => {
     await page.selectOption('#surahSelect', '1');
-    await page.waitForTimeout(2000);
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
     const content = page.locator('#surahContent');
     await expect(content).not.toContainText('اختر سورة');
   });

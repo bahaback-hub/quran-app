@@ -8,6 +8,7 @@
  */
 
 import { test, expect } from './fixtures/mock-network';
+import { waitForReflow } from './fixtures/wait';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -85,7 +86,9 @@ test('mushaf highlight bars follow measured ayah bounds (desktop)', async ({ pag
 
   await page.goto('/');
   await page.waitForSelector('#surahContent .ayah', { timeout: 45_000 });
-  await page.waitForTimeout(800);
+  // Canvas text measurement must run against the real QCF4 fonts, not the
+  // fallback, so wait for them to be ready rather than for a fixed delay.
+  await page.evaluate(() => document.fonts.ready.then(() => undefined));
 
   await page.locator('#viewMushafBtn').click();
 
@@ -128,7 +131,7 @@ test('mushaf highlight bars follow measured ayah bounds (desktop)', async ({ pag
       }
     }
     if (round === 0) {
-      await page.waitForTimeout(700);
+      await waitForReflow(page);
     }
   }
   expect(bars).toBeGreaterThan(0);

@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/mock-network';
+import { waitForAnimations } from './fixtures/wait';
 
 /**
  * Helper: activate a settings tab by its data-tab attribute.
@@ -19,7 +20,6 @@ async function activateTab(page, tabName) {
     if (tabBtn) tabBtn.classList.add('active');
     if (tabContent) tabContent.classList.add('active');
   }, tabName);
-  await page.waitForTimeout(150);
 }
 
 test.describe('الإعدادات', () => {
@@ -37,8 +37,8 @@ test.describe('الإعدادات', () => {
         panel.style.right = '0';
       }
     });
-    // Give the layout a tick to settle
-    await page.waitForTimeout(300);
+    // Let the panel's open transition finish before asserting on inner elements.
+    await waitForAnimations(page.locator('#settingsPanel'));
   });
 
   test('لوحة الإعدادات تفتح', async ({ page }) => {

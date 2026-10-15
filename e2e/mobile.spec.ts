@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/mock-network';
+import { waitForAnimations } from './fixtures/wait';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -248,7 +249,7 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(curtain).toHaveClass(/open/);
     await expect(curtain).toBeVisible();
 
-    await page.waitForTimeout(400);
+    await waitForAnimations(curtain);
     const box = await curtain.boundingBox();
     expect(box).not.toBeNull();
     // On mobile the tafsir now docks as a left panel taking ~40% of the width.

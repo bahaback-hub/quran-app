@@ -75,7 +75,6 @@ test.describe('مواقيت الصلاة', () => {
         panel.style.right = '0';
       }
     });
-    await page.waitForTimeout(300);
     await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
   });
 });

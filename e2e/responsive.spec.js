@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/mock-network';
+import { waitForAnimations } from './fixtures/wait';
 
 // Note: Some tests are skipped on CI (process.env.CI === 'true') due to
 // environment-specific flakiness (headless browser timing, panel-open
@@ -170,7 +171,7 @@ test.describe('التوافق — أوضاع مختلفة', () => {
     // Open the tafsir: the screen splits 40% curtain / 60% ayahs.
     await page.locator('#tafsirCurtainHandle').click();
     await expect(page.locator('.tafsir-curtain')).toHaveClass(/open/, { timeout: 10000 });
-    await page.waitForTimeout(400);
+    await waitForAnimations(page.locator('.tafsir-curtain'));
 
     const curtainBox = await page.locator('.tafsir-curtain').boundingBox();
     const contentOpen = await page.locator('.surah-content').boundingBox();

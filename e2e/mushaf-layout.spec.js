@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/mock-network';
+import { waitForReflow } from './fixtures/wait';
 
 // Guards the tablet gap (769–1099px) where mushaf relied on neither the
 // phone offset (≤768) nor the centered desktop window (≥1100): the rail
@@ -15,10 +16,24 @@ for (const [w, h] of [
     });
     await page.goto('/');
     await page.waitForSelector('#surahContent .ayah', { timeout: 45000 });
-    await page.waitForTimeout(800);
-    await page.locator('#viewMushafBtn').click();
+    // The mushaf view button is only wired up once the deferred init has bound
+    // its handlers, so retry the click until mushaf mode actually activates.
+    await expect
+      .poll(
+        async () => {
+          if (!(await page.evaluate(() => document.body.classList.contains('mushaf-active')))) {
+            await page.locator('#viewMushafBtn').click();
+          }
+          return page.evaluate(() => document.body.classList.contains('mushaf-active'));
+        },
+        { timeout: 60000 },
+      )
+      .toBe(true);
     await page.waitForSelector('.mushaf-container', { timeout: 60000 });
-    await page.waitForTimeout(1500);
+    // The page canvases are measured against the QCF fonts — wait for them and
+    // for the resulting layout to settle before probing geometry.
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    await waitForReflow(page);
     const data = await page.evaluate(() => {
       const rail = document.getElementById('readerSideTools');
       const rr = rail.getBoundingClientRect();
