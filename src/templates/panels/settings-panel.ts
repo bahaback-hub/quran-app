@@ -52,38 +52,38 @@ export function settingsPanelHTML(): string {
             <label for="cityQuickSelect" data-i18n="quick_select">اختيار سريع:</label>
             <select id="cityQuickSelect">
               <option value="" data-i18n="select_option">— اختر —</option>
-              <option value="مكة|SA">مكة المكرمة</option>
-              <option value="المدينة|SA">المدينة المنورة</option>
-              <option value="الرياض|SA">الرياض</option>
-              <option value="القاهرة|EG">القاهرة</option>
-              <option value="دمشق|SY">دمشق</option>
-              <option value="عمان|JO">عمّان</option>
-              <option value="بغداد|IQ">بغداد</option>
-              <option value="الدوحة|QA">الدوحة</option>
-              <option value="الكويت|KW">الكويت</option>
-              <option value="دبي|AE">دبي</option>
-              <option value="بيروت|LB">بيروت</option>
-              <option value="الجزائر|DZ">الجزائر</option>
-              <option value="الرباط|MA">الرباط</option>
-              <option value="تونس|TN">تونس</option>
-              <option value="الخرطوم|SD">الخرطوم</option>
-              <option value="صنعاء|YE">صنعاء</option>
-              <option value="إسطنبول|TR">إسطنبول</option>
+              <option value="مكة|SA" data-i18n="city_makkah">مكة المكرمة</option>
+              <option value="المدينة|SA" data-i18n="city_madinah">المدينة المنورة</option>
+              <option value="الرياض|SA" data-i18n="city_riyadh">الرياض</option>
+              <option value="القاهرة|EG" data-i18n="city_cairo">القاهرة</option>
+              <option value="دمشق|SY" data-i18n="city_damascus">دمشق</option>
+              <option value="عمان|JO" data-i18n="city_amman">عمّان</option>
+              <option value="بغداد|IQ" data-i18n="city_baghdad">بغداد</option>
+              <option value="الدوحة|QA" data-i18n="city_doha">الدوحة</option>
+              <option value="الكويت|KW" data-i18n="city_kuwait">الكويت</option>
+              <option value="دبي|AE" data-i18n="city_dubai">دبي</option>
+              <option value="بيروت|LB" data-i18n="city_beirut">بيروت</option>
+              <option value="الجزائر|DZ" data-i18n="city_algiers">الجزائر</option>
+              <option value="الرباط|MA" data-i18n="city_rabat">الرباط</option>
+              <option value="تونس|TN" data-i18n="city_tunis">تونس</option>
+              <option value="الخرطوم|SD" data-i18n="city_khartoum">الخرطوم</option>
+              <option value="صنعاء|YE" data-i18n="city_sanaa">صنعاء</option>
+              <option value="إسطنبول|TR" data-i18n="city_istanbul">إسطنبول</option>
             </select>
           </div>
           <div class="settings-row">
             <label for="methodSelect" data-i18n="calculation_method">طريقة الحساب:</label>
             <select id="methodSelect">
-              <option value="4">أم القرى — مكة</option>
-              <option value="5">الهيئة المصرية</option>
-              <option value="3">رابطة العالم الإسلامي</option>
-              <option value="2">ISNA — أمريكا الشمالية</option>
-              <option value="1">جامعة العلوم — كراتشي</option>
-              <option value="8">الديوان الكويتي</option>
-              <option value="9">قطر</option>
-              <option value="10">سنغافورة</option>
-              <option value="12">اتحاد علماء أوروبا</option>
-              <option value="13">ديانت — تركيا</option>
+              <option value="4" data-i18n="method_4">أم القرى — مكة</option>
+              <option value="5" data-i18n="method_5">الهيئة المصرية</option>
+              <option value="3" data-i18n="method_3">رابطة العالم الإسلامي</option>
+              <option value="2" data-i18n="method_2">ISNA — أمريكا الشمالية</option>
+              <option value="1" data-i18n="method_1">جامعة العلوم — كراتشي</option>
+              <option value="8" data-i18n="method_8">الديوان الكويتي</option>
+              <option value="9" data-i18n="method_9">قطر</option>
+              <option value="10" data-i18n="method_10">سنغافورة</option>
+              <option value="12" data-i18n="method_12">اتحاد علماء أوروبا</option>
+              <option value="13" data-i18n="method_13">ديانت — تركيا</option>
             </select>
           </div>
           <div class="settings-row">

@@ -5,7 +5,7 @@ import { storage } from '../../storage.js';
 import { showToast } from '../../ui.js';
 import { pad2, formatTime12, timeStrToMinutes } from '../../utils.js';
 import { prayerFetch, jsonFetch } from '../../api-client.js';
-import { __, getCityName, getPrayerName } from '../../i18n.js';
+import { __, getCityName, getPrayerName, getLang } from '../../i18n.js';
 import { prayerTimesRows, PRAYER_BAR_LOCATIONS, barCountryOptions, barCityOptions } from '../../templates.js';
 import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from '../../a11y.js';
 import { setStoppedState } from '../audio/audio.js';
@@ -260,6 +260,29 @@ function updateDates(): void {
   }
 }
 
+/** BCP-47 locale per interface language for the prayer-bar Gregorian date. */
+function dateLocaleFor(lang: string): string {
+  switch (lang) {
+    case 'en':
+      return 'en-US';
+    case 'fr':
+      return 'fr-FR';
+    case 'de':
+      return 'de-DE';
+    case 'tr':
+      return 'tr-TR';
+    case 'ms':
+      return 'ms-MY';
+    case 'id':
+      return 'id-ID';
+    case 'ru':
+      return 'ru-RU';
+    case 'ar':
+    default:
+      return 'ar-EG';
+  }
+}
+
 /** Keep the prayer curtain context in sync without coupling it to the settings panel. */
 function updatePrayerCurtainContext(now: Date): void {
   const location = document.getElementById('prayerBarLocation');
@@ -267,7 +290,7 @@ function updatePrayerCurtainContext(now: Date): void {
     const city = dom.cityInput?.value.trim() || state.city;
     const country = dom.countryInput?.value.trim() || state.country;
     const cityLabel = getCityName(city.toLowerCase());
-    const countryLabel = country === 'SA' ? 'المملكة العربية السعودية' : country;
+    const countryLabel = country === 'SA' ? __('country_sa') : country;
     location.textContent = ['📍', cityLabel, countryLabel].filter(Boolean).join(' ');
   }
 
@@ -282,13 +305,17 @@ function updatePrayerCurtainContext(now: Date): void {
 
   const gregorian = document.getElementById('prayerBarDate');
   if (gregorian) {
-    gregorian.textContent = now.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+    gregorian.textContent = now.toLocaleDateString(dateLocaleFor(getLang()), {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   }
 
   const updated = document.getElementById('prayerBarUpdated');
   if (updated) {
     const stamp = prayerTimesLastUpdatedAt || now;
-    updated.textContent = `◷ تم التحديث ${pad2(stamp.getHours())}:${pad2(stamp.getMinutes())}`;
+    updated.textContent = __('prayer_updated', `${pad2(stamp.getHours())}:${pad2(stamp.getMinutes())}`);
   }
 }
 

@@ -491,7 +491,7 @@ describe('getCalcMethodName', () => {
   });
 
   it('should return localized calc method name for known key', () => {
-    expect(getCalcMethodName('4')).toBe('أم القرى');
+    expect(getCalcMethodName('4')).toBe('أم القرى — مكة');
   });
 
   it('should return the key when method is not found', () => {
@@ -500,7 +500,7 @@ describe('getCalcMethodName', () => {
 
   it('should return English calc method name when English is active', async () => {
     await setLang('en');
-    expect(getCalcMethodName('4')).toBe('Umm Al-Qura');
+    expect(getCalcMethodName('4')).toBe('Umm Al-Qura – Makkah');
   });
 });
 

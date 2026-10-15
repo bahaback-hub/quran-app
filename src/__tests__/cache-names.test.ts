@@ -28,13 +28,9 @@ describe('cache-names (ARC-03)', () => {
   it('deletes only legacy buckets, keeping current and foreign ones', async () => {
     const deleted: string[] = [];
     vi.stubGlobal('caches', {
-      keys: vi.fn().mockResolvedValue([
-        'islamic-cdn',
-        'quran-audio',
-        'app-data-v2',
-        'quran-audio-v3',
-        'some-other-app-bucket',
-      ]),
+      keys: vi
+        .fn()
+        .mockResolvedValue(['islamic-cdn', 'quran-audio', 'app-data-v2', 'quran-audio-v3', 'some-other-app-bucket']),
       delete: vi.fn((name: string) => {
         deleted.push(name);
         return Promise.resolve(true);

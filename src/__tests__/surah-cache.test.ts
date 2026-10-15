@@ -629,10 +629,7 @@ describe('surah-cache', () => {
         const open = indexedDB.open('QuranSurahDB', 1);
         open.onsuccess = () => {
           const db = open.result;
-          const req = db
-            .transaction('surahs', 'readonly')
-            .objectStore('surahs')
-            .count();
+          const req = db.transaction('surahs', 'readonly').objectStore('surahs').count();
           req.onsuccess = () => {
             db.close();
             resolve(req.result as number);
@@ -658,7 +655,9 @@ describe('surah-cache', () => {
       for (let i = 1; i <= 5; i++) {
         expect(await getCachedSurahFromIDB(`cap-k${String(i).padStart(4, '0')}`)).toBeNull();
       }
-      expect(await getCachedSurahFromIDB(`cap-k${String(MAX_SURAH_CACHE_ENTRIES + 5).padStart(4, '0')}`)).not.toBeNull();
+      expect(
+        await getCachedSurahFromIDB(`cap-k${String(MAX_SURAH_CACHE_ENTRIES + 5).padStart(4, '0')}`),
+      ).not.toBeNull();
     });
 
     it('a recent read protects an entry from eviction', async () => {

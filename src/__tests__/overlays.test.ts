@@ -261,4 +261,37 @@ describe('injectOverlays', () => {
     expect(document.getElementById('ayahModalCopyBtn')).not.toBeNull();
     expect(document.getElementById('ayahModalTafsirBtn')).not.toBeNull();
   });
+
+  /* ===================== I18N WIRING (UXS-02) ===================== */
+  // Static overlay text must go through data-i18n attributes so language
+  // switches translate it; hardcoded Arabic would freeze for other locales.
+
+  it('should wire adhkar notification texts to i18n keys', () => {
+    injectOverlays();
+
+    expect(document.getElementById('adhkarNotifTitle')?.getAttribute('data-i18n')).toBe('adhkar_notif_title');
+    expect(document.getElementById('adhkarNotifOpenBtn')?.getAttribute('data-i18n')).toBe('adhkar_notif_open');
+    expect(document.getElementById('adhkarNotifShareBtn')?.getAttribute('data-i18n')).toBe('adhkar_notif_copy');
+    expect(document.getElementById('adhkarNotifDismissBtn')?.getAttribute('data-i18n')).toBe('adhkar_notif_later');
+  });
+
+  it('should wire presentation overlay controls to i18n keys', () => {
+    injectOverlays();
+
+    expect(document.getElementById('presentationOverlay')?.getAttribute('data-i18n-aria-label')).toBe('pres_dlg');
+    expect(document.getElementById('presentationCloseBtn')?.getAttribute('data-i18n-aria-label')).toBe('pres_close');
+    expect(document.getElementById('presShareBtn')?.getAttribute('data-i18n-aria-label')).toBe('pres_share');
+    expect(document.querySelector('[data-pres-bg-mode="plain"]')?.getAttribute('data-i18n')).toBe('pres_pick_plain');
+  });
+
+  it('should wire azan, secrets, contemplation and stats overlays to i18n keys', () => {
+    injectOverlays();
+
+    expect(document.querySelector('.azan-notification-title')?.getAttribute('data-i18n')).toBe('azan_now');
+    expect(document.getElementById('surahSecretsOverlay')?.getAttribute('data-i18n-aria-label')).toBe('secrets_dlg');
+    expect(document.getElementById('contemplationTitle')?.getAttribute('data-i18n')).toBe('contemplation_title');
+    expect(document.getElementById('contemplationHint')?.getAttribute('data-i18n')).toBe('contemplation_hint');
+    expect(document.getElementById('readingStatsPanel')?.getAttribute('data-i18n-aria-label')).toBe('stats_dlg');
+    expect(document.getElementById('ayahModalTitle')?.getAttribute('data-i18n')).toBe('ayah_title_ph');
+  });
 });

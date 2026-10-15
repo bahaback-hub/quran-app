@@ -286,13 +286,13 @@ describe('i18n — additional coverage', () => {
     it('should return Arabic name for known method', async () => {
       await setLang('ar');
       const name = getCalcMethodName('4');
-      expect(name).toBe('أم القرى');
+      expect(name).toBe('أم القرى — مكة');
     });
 
     it('should return English name for known method', async () => {
       await setLang('en');
       const name = getCalcMethodName('4');
-      expect(name).toBe('Umm Al-Qura');
+      expect(name).toBe('Umm Al-Qura – Makkah');
     });
 
     it('should return key for unknown method', async () => {

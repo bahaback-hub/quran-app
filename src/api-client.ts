@@ -325,8 +325,7 @@ async function _singleFetch<T>(
       // final server error must remain visible.
       const willRetry = (response.status >= 500 || response.status === 429) && hasRetryRemaining;
       if (!opts.silent && !willRetry) {
-        const msg =
-          response.status >= 500 ? errorMessage('server') : opts.errorMsg || errorMessage('default');
+        const msg = response.status >= 500 ? errorMessage('server') : opts.errorMsg || errorMessage('default');
         showToastMsg(msg);
       }
 

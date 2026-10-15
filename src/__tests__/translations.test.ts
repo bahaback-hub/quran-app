@@ -68,7 +68,7 @@ describe('Arabic translation bundle', () => {
     const bundle = mod.default;
     expect(bundle.calc_methods).toBeDefined();
     expect(typeof bundle.calc_methods).toBe('object');
-    expect(bundle.calc_methods['4']).toBe('أم القرى');
+    expect(bundle.calc_methods['4']).toBe('أم القرى — مكة');
   });
 });
 
@@ -122,7 +122,7 @@ describe('English translation bundle', () => {
     const mod = await import('../translations/en');
     const bundle = mod.default;
     expect(bundle.calc_methods).toBeDefined();
-    expect(bundle.calc_methods['4']).toBe('Umm Al-Qura');
+    expect(bundle.calc_methods['4']).toBe('Umm Al-Qura – Makkah');
   });
 });
 
