@@ -664,10 +664,7 @@ describe('surah-cache', () => {
       const { saveOfflineAudioUrls, getOfflineAudioUrls } = await import('../surah-cache.js');
       expect(await getOfflineAudioUrls('r1', 1)).toEqual([]);
       await saveOfflineAudioUrls('r1', 1, ['https://a.example/1.mp3', 'https://a.example/2.mp3']);
-      expect(await getOfflineAudioUrls('r1', 1)).toEqual([
-        'https://a.example/1.mp3',
-        'https://a.example/2.mp3',
-      ]);
+      expect(await getOfflineAudioUrls('r1', 1)).toEqual(['https://a.example/1.mp3', 'https://a.example/2.mp3']);
       expect(await getOfflineAudioUrls('r1', 2)).toEqual([]);
       expect(await getOfflineAudioUrls('r2', 1)).toEqual([]);
     });

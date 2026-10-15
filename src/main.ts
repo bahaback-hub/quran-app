@@ -328,8 +328,7 @@ function setupMobilePanelObserver(): void {
       const relevant = mutations.some((m) => {
         if (m.type === 'childList') {
           return [...m.addedNodes].some(
-            (n) =>
-              n instanceof HTMLElement && (n.matches(PANEL_SELECTOR) || n.querySelector(PANEL_SELECTOR) !== null),
+            (n) => n instanceof HTMLElement && (n.matches(PANEL_SELECTOR) || n.querySelector(PANEL_SELECTOR) !== null),
           );
         }
         const t = m.target;
