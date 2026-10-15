@@ -63,6 +63,12 @@ describe('mushaf data pack manifest integrity', () => {
     expect(manifest.source.rawBaseUrl).toContain(manifest.source.commit);
   });
 
+  it('pins the remote layout mirrors to the same commit the manifest verifies (SEC-06)', () => {
+    const sources = readFileSync(resolve(process.cwd(), 'src/external-sources.ts'), 'utf8');
+    const pinned = /export const MUSHAF_QCF4_COMMIT = '([0-9a-f]{40})';/.exec(sources)?.[1];
+    expect(pinned, 'MUSHAF_QCF4_COMMIT must be declared in external-sources.ts').toBe(manifest.source.commit);
+  });
+
   it('lists no duplicate file paths', () => {
     const paths = manifest.files.map((f) => f.path);
     expect(new Set(paths).size).toBe(paths.length);

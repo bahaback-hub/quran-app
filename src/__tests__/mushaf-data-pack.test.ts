@@ -2,11 +2,13 @@ import { createHash } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 import {
+  _resetVerifiedManifestForTests,
   deleteMushafDataPack,
   downloadMushafDataPack,
   getMushafDataPackStatus,
   getMushafPageLayout,
   verifyMushafDataPack,
+  verifyMushafLayoutBytes,
 } from '../features/mushaf/mushaf-data-pack.js';
 
 const SOURCE_COMMIT = 'test-fixed-commit';
@@ -68,6 +70,7 @@ describe('mushaf-data-pack', () => {
 
   beforeEach(async () => {
     await resetDatabase();
+    _resetVerifiedManifestForTests();
     manifestText = makeManifest();
     cachedFonts = new Map();
     (
@@ -152,4 +155,23 @@ describe('mushaf-data-pack', () => {
     await expect(verifyMushafDataPack()).resolves.toBe(false);
     expect(cachedFonts.size).toBe(0);
   }, 30000);
+
+  describe('verifyMushafLayoutBytes (SEC-06)', () => {
+    const pageBytes = (text: string): ArrayBuffer => new TextEncoder().encode(text).buffer;
+
+    it('accepts a layout whose bytes match the verified manifest', async () => {
+      await expect(verifyMushafLayoutBytes(1, pageBytes(JSON_CONTENT))).resolves.toBe(true);
+    });
+
+    it('rejects a tampered layout served by a CDN mirror', async () => {
+      await expect(verifyMushafLayoutBytes(1, pageBytes('{"lines":["evil"]}'))).resolves.toBe(false);
+    });
+
+    it('defers to the immutable commit pin when the manifest cannot be verified', async () => {
+      (
+        globalThis as { __QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__?: Record<string, string> }
+      ).__QURAN_TEST_MUSHAF_DATA_PACK_CONFIG__!.manifestSha256 = '0'.repeat(64);
+      await expect(verifyMushafLayoutBytes(1, pageBytes('{"lines":["anything"]}'))).resolves.toBe(true);
+    });
+  });
 });

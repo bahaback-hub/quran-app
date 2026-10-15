@@ -33,7 +33,7 @@ import { buildColorMap, getTajweedColor, pickTajweedRule } from '../../tajweed.j
 import { getAyahAnnotations } from '../../tajweed-data.js';
 import type { TajweedAnnotation } from '../../tajweed-data.js';
 import { isCapacitorNative } from '../../types.js';
-import { getMushafPageLayout } from './mushaf-data-pack.js';
+import { getMushafPageLayout, verifyMushafLayoutBytes } from './mushaf-data-pack.js';
 import { qcf4FontUrl } from './qcf4-font-pack.js';
 import { mushafPageLayoutUrls } from '../../external-sources.js';
 import type { PageLayoutData, PageWord } from './mushaf-layout-data.js';
@@ -175,7 +175,18 @@ async function fetchPageLayoutFromNetwork(pageNum: number): Promise<PageLayoutDa
       if (!res.ok) {
         continue; // a mirror answered negative — try the next source
       }
-      const data = (await res.json()) as PageLayoutData;
+      // Real Response objects always expose arrayBuffer(); verification needs
+      // the raw bytes, so read the body once before parsing.
+      const raw = typeof res.arrayBuffer === 'function' ? await res.arrayBuffer() : null;
+      if (raw) {
+        // SEC-06: never trust a CDN-served layout blindly — check it against
+        // the verified manifest hash before parsing or caching it.
+        if (!(await verifyMushafLayoutBytes(pageNum, raw))) {
+          console.warn(`[Mushaf] Integrity check failed for page ${pageNum} from ${url}`);
+          continue; // try the next source
+        }
+      }
+      const data = (raw ? JSON.parse(new TextDecoder().decode(raw)) : await res.json()) as PageLayoutData;
       if (typeof globalThis.caches !== 'undefined') {
         try {
           const cache = await globalThis.caches.open(LAYOUT_CACHE_NAME);

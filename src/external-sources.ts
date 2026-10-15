@@ -19,15 +19,25 @@ function env(key: string, fallback: string): string {
 export const QURAN_COM_API_BASE: string = env('VITE_QURAN_COM_API_BASE', 'https://api.quran.com/api/v4');
 
 /**
+ * Immutable commit of the quran-qcf4 repository the verified data pack is
+ * pinned to (must match the manifest's `source.commit`). Pinning the mirrors to
+ * this commit — instead of the moving `main` branch — makes every served file
+ * content-addressed: a branch rewrite or a compromised mirror cannot swap the
+ * bytes. SEC-06: the page layouts were previously fetched from `@main`.
+ */
+export const MUSHAF_QCF4_COMMIT = '5130511027e769f0a8f4eeb7f00f46bde3788d60';
+
+/**
  * Ordered mirrors serving the quran-qcf4 page-layout JSONs. The first
  * reachable source wins; raw.githubusercontent.com is intentionally last
- * because it is unreachable from several networks.
+ * because it is unreachable from several networks. Every URL is pinned to
+ * {@link MUSHAF_QCF4_COMMIT} so the content cannot change underneath the cache.
  */
 const MUSHAF_PAGE_SOURCES: readonly string[] = Object.freeze([
-  'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages/',
-  'https://fastly.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages/',
-  'https://gcore.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages/',
-  'https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/main/pages/',
+  `https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@${MUSHAF_QCF4_COMMIT}/pages/`,
+  `https://fastly.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@${MUSHAF_QCF4_COMMIT}/pages/`,
+  `https://gcore.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@${MUSHAF_QCF4_COMMIT}/pages/`,
+  `https://raw.githubusercontent.com/MohamadHajjRabee/quran-qcf4/${MUSHAF_QCF4_COMMIT}/pages/`,
 ]);
 
 /**

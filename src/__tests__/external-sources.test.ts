@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  MUSHAF_QCF4_COMMIT,
   QURAN_COM_API_BASE,
   SHARE_TELEGRAM_BASE,
   SHARE_WHATSAPP_BASE,
@@ -21,6 +22,15 @@ describe('external-sources', () => {
   it('zero-pads page numbers in every mirror URL', () => {
     for (const url of mushafPageLayoutUrls(7)) {
       expect(url).toContain('007.json');
+    }
+  });
+
+  it('pins every mirror to the immutable commit, never a moving branch (SEC-06)', () => {
+    const urls = mushafPageLayoutUrls(1);
+    expect(MUSHAF_QCF4_COMMIT).toBe('5130511027e769f0a8f4eeb7f00f46bde3788d60');
+    for (const url of urls) {
+      expect(url).toContain(MUSHAF_QCF4_COMMIT);
+      expect(url).not.toMatch(/@main\/|quran-qcf4\/main\//);
     }
   });
 

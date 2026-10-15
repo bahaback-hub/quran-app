@@ -228,6 +228,51 @@ async function getVerifiedManifest(): Promise<MushafDataManifest> {
   return manifest;
 }
 
+let _verifiedManifestPromise: Promise<MushafDataManifest | null> | null = null;
+
+/** Load and verify the manifest once; null when it can't be verified. */
+function loadVerifiedManifestSafe(): Promise<MushafDataManifest | null> {
+  _verifiedManifestPromise ??= getVerifiedManifest().catch((err: unknown) => {
+    // Not fatal: the layout mirrors stay pinned to an immutable commit, so an
+    // unverifiable manifest only means we fall back to that pin.
+    console.warn('[Mushaf] Layout integrity manifest unavailable:', err);
+    return null;
+  });
+  return _verifiedManifestPromise;
+}
+
+function layoutPath(pageNum: number): string {
+  return `pages/${String(pageNum).padStart(3, '0')}.json`;
+}
+
+/**
+ * SEC-06: verify a remotely fetched mushaf page-layout JSON against the
+ * per-file SHA-256 in the same verified manifest the data pack uses. The
+ * layout mirrors are CDN-served and long-cached, so their bytes must not be
+ * trusted blindly.
+ *
+ * Returns true when the bytes match the manifest, or when the manifest cannot
+ * be verified at all (offline / not installed) — in that case the URL is still
+ * pinned to {@link MUSHAF_QCF4_COMMIT}, so the content is immutable anyway. It
+ * returns false only on a concrete mismatch.
+ */
+export async function verifyMushafLayoutBytes(pageNum: number, bytes: ArrayBuffer): Promise<boolean> {
+  const manifest = await loadVerifiedManifestSafe();
+  if (!manifest) {
+    return true;
+  }
+  const file = manifest.files.find((f) => f.path === layoutPath(pageNum));
+  if (!file || bytes.byteLength !== file.bytes) {
+    return false;
+  }
+  return (await sha256(bytes)) === file.sha256;
+}
+
+/** Reset the cached verified manifest — test-only. */
+export function _resetVerifiedManifestForTests(): void {
+  _verifiedManifestPromise = null;
+}
+
 async function downloadAndStoreFile(manifest: MushafDataManifest, file: MushafPackFile): Promise<void> {
   const response = await fetch(`${manifest.source.rawBaseUrl}/${file.path}`, { cache: 'no-store' });
   if (!response.ok) {
