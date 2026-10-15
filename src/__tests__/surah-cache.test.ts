@@ -660,6 +660,18 @@ describe('surah-cache', () => {
       ).not.toBeNull();
     });
 
+    it('stores and returns offline-pack audio URL indexes', async () => {
+      const { saveOfflineAudioUrls, getOfflineAudioUrls } = await import('../surah-cache.js');
+      expect(await getOfflineAudioUrls('r1', 1)).toEqual([]);
+      await saveOfflineAudioUrls('r1', 1, ['https://a.example/1.mp3', 'https://a.example/2.mp3']);
+      expect(await getOfflineAudioUrls('r1', 1)).toEqual([
+        'https://a.example/1.mp3',
+        'https://a.example/2.mp3',
+      ]);
+      expect(await getOfflineAudioUrls('r1', 2)).toEqual([]);
+      expect(await getOfflineAudioUrls('r2', 1)).toEqual([]);
+    });
+
     it('a recent read protects an entry from eviction', async () => {
       const { MAX_SURAH_CACHE_ENTRIES } = await import('../surah-cache.js');
       // Deterministic clock: the touch must make keep-me strictly newest.

@@ -282,13 +282,6 @@
       "reason": "the listener was already removed — ignore"
     },
     {
-      "file": "src/offline-pack.ts",
-      "fn": "saveOfflineAudioUrls",
-      "anchor": "// Metadata is only written after audio persistence succeeds; a later download can restore it.",
-      "kind": "catch-empty-block",
-      "reason": "metadata is only written after audio persistence succeeds; a later download can restore it"
-    },
-    {
       "file": "src/pointer-nav.ts",
       "fn": "activateEl",
       "anchor": "/* fall through to click fallback below */",

@@ -14,6 +14,7 @@ import { cacheSurahAudio, isSurahCached } from './features/audio/audio-cache.js'
 import { cacheExternalData } from './external-data-cache.js';
 import { buildAudioUrl, getReciterById } from './reciters.js';
 import { CACHE_NAMES } from './cache-names.js';
+import { saveOfflineAudioUrls as saveUrlsToIDB, getOfflineAudioUrls as getUrlsFromIDB } from './surah-cache.js';
 
 /* ===================== TYPES ===================== */
 
@@ -106,27 +107,73 @@ export function clearOfflinePackStatus(): void {
 
 type OfflineAudioUrls = Record<string, Record<string, string[]>>;
 
-function saveOfflineAudioUrls(reciterId: string, surahNum: number, urls: string[]): void {
+/**
+ * Persist per-ayah audio URLs for a downloaded surah (ARC-09).
+ *
+ * Delegates to QuranSurahDB (see surah-cache.ts) instead of one ever-growing
+ * localStorage blob (5–10 MB quota, synchronously parsed on every read).
+ */
+async function saveOfflineAudioUrls(reciterId: string, surahNum: number, urls: string[]): Promise<void> {
+  await saveUrlsToIDB(reciterId, surahNum, urls);
+}
+
+/**
+ * Migrate the pre-ARC-09 localStorage URL index into IndexedDB.
+ *
+ * Idempotent by design (no once-flag): it runs only while the legacy key
+ * exists, and the key is removed after a successful import — so test seeding
+ * and repeated calls simply re-import the same data instead of going stale.
+ */
+async function migrateLegacyAudioUrls(): Promise<void> {
+  let raw: string | null = null;
   try {
-    const saved = JSON.parse(localStorage.getItem(OFFLINE_AUDIO_URLS_KEY) || '{}') as OfflineAudioUrls;
-    const byReciter = saved[reciterId] || {};
-    byReciter[String(surahNum)] = urls;
-    saved[reciterId] = byReciter;
-    localStorage.setItem(OFFLINE_AUDIO_URLS_KEY, JSON.stringify(saved));
-  } catch {
-    // Metadata is only written after audio persistence succeeds; a later download can restore it.
+    raw = localStorage.getItem(OFFLINE_AUDIO_URLS_KEY);
+  } catch (err) {
+    console.warn('[OfflinePack] Legacy URL index unreadable, skipping migration:', err);
+    return;
+  }
+  if (!raw) {
+    return;
+  }
+  let saved: OfflineAudioUrls | null = null;
+  try {
+    saved = JSON.parse(raw) as OfflineAudioUrls;
+  } catch (err) {
+    console.warn('[OfflinePack] Legacy URL index corrupt, dropping it:', err);
+    try {
+      localStorage.removeItem(OFFLINE_AUDIO_URLS_KEY);
+    } catch (removeErr) {
+      // Leave it; it is never read except here.
+      console.warn('[OfflinePack] Could not drop corrupt URL index:', removeErr);
+    }
+    return;
+  }
+  if (!saved || typeof saved !== 'object') {
+    return;
+  }
+  for (const [reciterId, bySurah] of Object.entries(saved)) {
+    if (!bySurah || typeof bySurah !== 'object') {
+      continue;
+    }
+    for (const [surah, urls] of Object.entries(bySurah)) {
+      const surahNum = Number(surah);
+      if (Number.isInteger(surahNum) && Array.isArray(urls)) {
+        await saveUrlsToIDB(reciterId, surahNum, urls);
+      }
+    }
+  }
+  try {
+    localStorage.removeItem(OFFLINE_AUDIO_URLS_KEY);
+  } catch (err) {
+    // The legacy copy stays but is never read again; harmless either way.
+    console.warn('[OfflinePack] Could not drop legacy URL index:', err);
   }
 }
 
 /** Return verified audio URLs from a downloaded offline pack for one reciter and surah. */
-export function getOfflinePackAudioUrls(reciterId: string, surahNum: number): string[] {
-  try {
-    const saved = JSON.parse(localStorage.getItem(OFFLINE_AUDIO_URLS_KEY) || '{}') as OfflineAudioUrls;
-    const urls = saved[reciterId]?.[String(surahNum)];
-    return Array.isArray(urls) ? urls.filter((url): url is string => typeof url === 'string' && url.length > 0) : [];
-  } catch {
-    return [];
-  }
+export async function getOfflinePackAudioUrls(reciterId: string, surahNum: number): Promise<string[]> {
+  await migrateLegacyAudioUrls();
+  return getUrlsFromIDB(reciterId, surahNum);
 }
 
 /* ===================== INTERNAL FETCH ===================== */

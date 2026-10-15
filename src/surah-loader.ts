@@ -187,8 +187,8 @@ async function loadApiAudio(
   }
 }
 
-function getOfflinePackAudioResult(surahNum: number, textData: SurahTextData): AudioResult | null {
-  const urls = getOfflinePackAudioUrls(state.currentReciter, surahNum);
+async function getOfflinePackAudioResult(surahNum: number, textData: SurahTextData): Promise<AudioResult | null> {
+  const urls = await getOfflinePackAudioUrls(state.currentReciter, surahNum);
   if (!urls.length) {
     return null;
   }
@@ -609,7 +609,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
           englishName: state.surahList.find((s: SurahInfo) => s.number === surahNum)?.englishName || '',
           ayahs: ayahs.map((a: { ayah: number; text: string }) => ({ numberInSurah: a.ayah, text: a.text })),
         };
-        const offlineAudio = getOfflinePackAudioResult(surahNum, state.surahData);
+        const offlineAudio = await getOfflinePackAudioResult(surahNum, state.surahData);
         state.ayahsAudios = offlineAudio?.audios.map((audio) => audio ?? '') ?? [];
         state.ayahTimings = offlineAudio?.timings ?? [];
         renderSurah(state.surahData!);
@@ -627,7 +627,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       const localSurah = await loadLocalSurahText(surahNum);
       if (localSurah && _loadCounter === currentLoad) {
         state.surahData = localSurah;
-        const offlineAudio = getOfflinePackAudioResult(surahNum, localSurah);
+        const offlineAudio = await getOfflinePackAudioResult(surahNum, localSurah);
         state.ayahsAudios = offlineAudio?.audios.map((audio) => audio ?? '') ?? [];
         state.ayahTimings = offlineAudio?.timings ?? [];
         renderSurah(localSurah);

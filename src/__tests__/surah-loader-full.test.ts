@@ -136,10 +136,20 @@ vi.mock('../quran-meta.js', () => ({
   isJuzStart: vi.fn(() => null),
 }));
 
-vi.mock('../surah-cache.js', () => ({
-  cacheSurahToIDB: vi.fn(),
-  getCachedSurahFromIDB: vi.fn(() => Promise.resolve(null)),
-}));
+vi.mock('../surah-cache.js', () => {
+  const urlIndex = new Map<string, string[]>();
+  return {
+    cacheSurahToIDB: vi.fn(),
+    getCachedSurahFromIDB: vi.fn(() => Promise.resolve(null)),
+    saveOfflineAudioUrls: vi.fn((reciterId: string, surahNum: number, urls: string[]) => {
+      urlIndex.set(`${reciterId}:${surahNum}`, [...urls]);
+      return Promise.resolve();
+    }),
+    getOfflineAudioUrls: vi.fn((reciterId: string, surahNum: number) =>
+      Promise.resolve(urlIndex.get(`${reciterId}:${surahNum}`) ?? []),
+    ),
+  };
+});
 
 import {
   loadSurahList,

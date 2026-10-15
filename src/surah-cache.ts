@@ -90,6 +90,84 @@ export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Pro
   }
 }
 
+/** Namespace prefix keeping URL-index records apart from surah entries. */
+const OFFLINE_URLS_PREFIX = 'offline-urls:';
+
+function offlineUrlsKey(reciterId: string, surahNum: number): string {
+  return `${OFFLINE_URLS_PREFIX}${reciterId}:${surahNum}`;
+}
+
+/**
+ * Persist per-ayah audio URLs for a downloaded offline pack (ARC-09).
+ *
+ * These lived in localStorage as one ever-growing JSON blob (quota: 5-10MB,
+ * synchronously parsed on every read). They now live as small records in this
+ * same database, counted by the LRU cap like everything else.
+ */
+export async function saveOfflineAudioUrls(reciterId: string, surahNum: number, urls: string[]): Promise<void> {
+  let db: IDBDatabase | null = null;
+  try {
+    db = await openSurahDB();
+    const tx = db.transaction('surahs', 'readwrite');
+    tx.objectStore('surahs').put({ key: offlineUrlsKey(reciterId, surahNum), urls, lastAccessed: Date.now() });
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error('IDB transaction failed'));
+      tx.onabort = () => reject(tx.error || new Error('IDB transaction aborted'));
+    });
+    await enforceSurahCap(db);
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[SurahCache] Failed to save offline audio URLs:', err);
+    }
+  } finally {
+    db?.close();
+  }
+}
+
+/** Read back offline-pack audio URLs ([] when absent or malformed). */
+export async function getOfflineAudioUrls(reciterId: string, surahNum: number): Promise<string[]> {
+  let db: IDBDatabase | null = null;
+  try {
+    db = await openSurahDB();
+    const record: unknown = await new Promise((resolve) => {
+      const tx = db!.transaction('surahs', 'readonly');
+      const req = tx.objectStore('surahs').get(offlineUrlsKey(reciterId, surahNum));
+      req.onsuccess = () => resolve(req.result ?? null);
+      req.onerror = () => resolve(null);
+    });
+    if (!record || typeof record !== 'object') {
+      return [];
+    }
+    const urls = (record as { urls?: unknown }).urls;
+    if (!Array.isArray(urls)) {
+      return [];
+    }
+    const clean = urls.filter((u): u is string => typeof u === 'string' && u.length > 0);
+    // Touch for LRU so an offline pack in active use is not evicted first.
+    if (clean.length > 0) {
+      try {
+        const touchTx = db.transaction('surahs', 'readwrite');
+        touchTx.objectStore('surahs').put({ ...(record as Record<string, unknown>), lastAccessed: Date.now() });
+        await new Promise<void>((resolve) => {
+          touchTx.oncomplete = () => resolve();
+          touchTx.onerror = () => resolve();
+          touchTx.onabort = () => resolve();
+        });
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.warn('[SurahCache] URL-index touch failed:', err);
+        }
+      }
+    }
+    return clean;
+  } catch {
+    return [];
+  } finally {
+    db?.close();
+  }
+}
+
 /** Delete least-recently-used entries down to the cap. Best-effort: cache pressure must never break a save. */
 async function enforceSurahCap(db: IDBDatabase): Promise<void> {
   try {
