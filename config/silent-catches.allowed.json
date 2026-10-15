@@ -441,6 +441,111 @@
       "anchor": "// Already disconnected",
       "kind": "catch-empty-block",
       "reason": "observer already disconnected — cleanup noop"
+    },
+    {
+      "file": "src/contemplation.ts",
+      "fn": "hasContemplation",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "capability probe: reading the contemplation map failed → report the feature as unavailable so the UI hides it cleanly"
+    },
+    {
+      "file": "src/error-boundary.ts",
+      "fn": "getPersistedErrorLog",
+      "anchor": "#1",
+      "kind": "catch-return-empty-array",
+      "reason": "corrupt/unavailable persisted error log → start with an empty log; a later write recreates it"
+    },
+    {
+      "file": "src/features/audio/audio-cache.ts",
+      "fn": "isRuntimeAudioCached",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "cache lookup failed → treat as not cached; the caller re-fetches the audio"
+    },
+    {
+      "file": "src/features/audio/audio-cache.ts",
+      "fn": "clearAudioCache",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "clearing the audio cache failed → report failure to the caller (returns boolean) instead of throwing"
+    },
+    {
+      "file": "src/features/audio/audio-pitch.ts",
+      "fn": "isHostCorsClean",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "CORS-clean probe failed → treat the host as not safe for the Web Audio graph and use the direct element path"
+    },
+    {
+      "file": "src/features/audio/audio-pitch.ts",
+      "fn": "ensureAudioGraph",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "Web Audio unavailable/blocked → return false; playback falls back to the plain element path"
+    },
+    {
+      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "fn": "isCapacitorEnv",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "Capacitor env probe failed → treat as web; mushaf uses the browser render path"
+    },
+    {
+      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "fn": "isCapacitor",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "Capacitor detection failed → treat as web; mushaf uses the browser render path"
+    },
+    {
+      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "fn": "verifyFontOnCanvas",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "canvas font probe failed → report the font as unverified; caller falls back to image rendering"
+    },
+    {
+      "file": "src/features/prayer/azan-notifications.ts",
+      "fn": "isNative",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "native plugin probe failed → treat as web; azan uses the web notification path"
+    },
+    {
+      "file": "src/features/prayer/prayer.ts",
+      "fn": "getTodayHijriISO",
+      "anchor": "#1",
+      "kind": "catch-return-empty-string",
+      "reason": "Umm Al-Qura Intl calendar unavailable → empty Hijri string; caller skips Hijri-dependent logic"
+    },
+    {
+      "file": "src/settings.ts",
+      "fn": "supportsWebp",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "WebP capability probe failed → treat as unsupported and request the PNG/JPEG fallback"
+    },
+    {
+      "file": "src/surah-cache.ts",
+      "fn": "getOfflineAudioUrls",
+      "anchor": "#1",
+      "kind": "catch-return-empty-array",
+      "reason": "stored audio-url list unreadable → return [] (no offline URLs); caller falls back to the network fetch"
+    },
+    {
+      "file": "src/surah-loader.ts",
+      "fn": "loadAudioUrlsForSession",
+      "anchor": "#1",
+      "kind": "catch-return-empty-array",
+      "reason": "session audio fetch failed → return []; the caller (hifz-room-download) validates the length and throws a user-facing 'audio unavailable' error"
+    },
+    {
+      "file": "src/surah-loader.ts",
+      "fn": "reloadCurrentSurahAudio",
+      "anchor": "#1",
+      "kind": "catch-return-false",
+      "reason": "on-demand audio reload failed → return false; the play handler shows the 'no audio' toast"
     }
   ]
 }

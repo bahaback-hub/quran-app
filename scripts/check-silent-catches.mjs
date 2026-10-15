@@ -7,7 +7,10 @@
  *   - empty bodies / comment-only bodies
  *   - `void e;`
  *   - `return;` / `return undefined;` / `return null;`
- *   - expression-arrow handlers   `.catch(() => null | undefined | { })`
+ *   - degraded falsy results: `return false;` / `return '';` / `return [];`
+ *     / `return {};` (a "success-looking" value that hides the failure)
+ *   - expression-arrow handlers   `.catch(() => null | undefined | false
+ *     | '' | [] | { })`
  *   - block handlers               `.catch(() => {})`
  *
  * Every detected site must be documented in config/silent-catches.allowed.json
@@ -26,12 +29,12 @@
  * Scan directory can be overridden with SILENT_SCAN_DIR for testing.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, resolve, sep } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import ts from 'typescript';
 
 const ROOT = process.cwd();
 const SCAN_DIR = resolve(ROOT, process.env.SILENT_SCAN_DIR || 'src');
-const ALLOWLIST_PATH = resolve(ROOT, 'config/silent-catches.allowed.json');
+const ALLOWLIST_PATH = resolve(ROOT, process.env.SILENT_ALLOWLIST_PATH || 'config/silent-catches.allowed.json');
 
 let hasErrors = false;
 
@@ -51,6 +54,18 @@ function isSilent(node) {
     }
     if (node.expression.kind === ts.SyntaxKind.NullKeyword) {
       return { kind: 'catch-return-null' };
+    }
+    if (node.expression.kind === ts.SyntaxKind.FalseKeyword) {
+      return { kind: 'catch-return-false' };
+    }
+    if (ts.isStringLiteralLike(node.expression) && node.expression.text === '') {
+      return { kind: 'catch-return-empty-string' };
+    }
+    if (ts.isArrayLiteralExpression(node.expression) && node.expression.elements.length === 0) {
+      return { kind: 'catch-return-empty-array' };
+    }
+    if (ts.isObjectLiteralExpression(node.expression) && node.expression.properties.length === 0) {
+      return { kind: 'catch-return-empty-object' };
     }
     if (ts.isVoidExpression(node.expression)) {
       return { kind: 'catch-void' };
@@ -86,6 +101,24 @@ function classifyBlock(statements) {
   if (voids) {
     return { kind: 'catch-void' };
   }
+  // QUA-02: a degraded falsy value (false, '', [], {}) swallows the error
+  // just as thoroughly as an empty block — the caller proceeds as if nothing
+  // happened. Each shape gets its own kind so the allowlist stays precise.
+  const falsyKinds = [
+    'catch-return-false',
+    'catch-return-empty-string',
+    'catch-return-empty-array',
+    'catch-return-empty-object',
+  ];
+  for (const kind of falsyKinds) {
+    const hits = statements.filter((s) => {
+      const r = isSilent(s);
+      return r && r.kind === kind;
+    });
+    if (hits.length > 0) {
+      return { kind };
+    }
+  }
   return { kind: 'catch-return-only' };
 }
 
@@ -104,8 +137,17 @@ function classifyArrowHandler(fn) {
   if (expr.kind === ts.SyntaxKind.NullKeyword) {
     return { kind: 'expression-arrow-null' };
   }
+  if (expr.kind === ts.SyntaxKind.FalseKeyword) {
+    return { kind: 'expression-arrow-false' };
+  }
   if (ts.isIdentifier(expr) && expr.text === 'undefined') {
     return { kind: 'expression-arrow-undefined' };
+  }
+  if (ts.isStringLiteralLike(expr) && expr.text === '') {
+    return { kind: 'expression-arrow-empty-string' };
+  }
+  if (ts.isArrayLiteralExpression(expr) && expr.elements.length === 0) {
+    return { kind: 'expression-arrow-empty-array' };
   }
   if (ts.isObjectLiteralExpression(expr) && expr.properties.length === 0) {
     return { kind: 'expression-arrow-empty-object' };
@@ -168,7 +210,7 @@ function walk(dir, files = []) {
 function collectFiles() {
   return walk(SCAN_DIR)
     .filter((f) => !f.split(sep).includes('__tests__'))
-    .map((f) => f.slice(ROOT.length + 1).replace(/\\/g, '/'))
+    .map((f) => relative(ROOT, f).replace(/\\/g, '/'))
     .sort();
 }
 
