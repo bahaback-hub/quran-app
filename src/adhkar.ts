@@ -12,6 +12,7 @@ import {
   resetAdhkarCustomizations,
 } from './adhkar-data.js';
 import { __ } from './i18n.js';
+import { initDialogAccessibility } from './a11y.js';
 import {
   checkAdhkarNotifications,
   dismissAdhkarNotification,
@@ -624,52 +625,79 @@ function editPersonalAdhkar(id: string): void {
   }
 }
 
-function deletePersonalAdhkar(id: string): void {
-  // Custom confirmation modal instead of browser confirm()
-  const existing = document.getElementById('adhkarDeleteModal');
-  if (existing) {
-    existing.remove();
-  }
+/**
+ * Single builder for every adhkar confirmation dialog (QUA-03).
+ *
+ * Three near-identical builders used to live here; they drifted (one forgot
+ * direction:rtl, toast types disagreed) and every accessibility improvement
+ * would have needed applying three times. This one also wires
+ * initDialogAccessibility (UXS-05): focus trap + Escape + aria-modal, which
+ * the hand-rolled versions never had.
+ */
+interface ConfirmDialogOptions {
+  id: string;
+  messageKey: string;
+  titleKey?: string;
+  confirmKey: string;
+  /** Delete-style red vs settings-style accent confirm button. */
+  tone: 'danger' | 'accent';
+  minWidth: number;
+  onConfirm: () => void;
+}
 
+function confirmAdhkarDialog(opts: ConfirmDialogOptions): void {
+  document.getElementById(opts.id)?.remove();
   const overlay = document.createElement('div');
-  overlay.id = 'adhkarDeleteModal';
+  overlay.id = opts.id;
+  overlay.setAttribute('role', 'dialog');
   overlay.style.cssText =
-    'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);';
+    'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;' +
+    'background:rgba(0,0,0,0.5);';
 
   const modal = document.createElement('div');
   modal.style.cssText =
-    'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:280px;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);';
+    `background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:${opts.minWidth}px;` +
+    'max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);direction:rtl;';
+
+  if (opts.titleKey) {
+    const title = document.createElement('h3');
+    title.textContent = __(opts.titleKey);
+    title.style.cssText = 'margin:0 0 12px;color:var(--text-primary,#000);font-size:16px;';
+    modal.append(title);
+  }
 
   const msg = document.createElement('p');
+  msg.textContent = __(opts.messageKey);
   msg.style.cssText = 'margin:0 0 20px;color:var(--text-secondary,#666);font-size:14px;';
-  msg.textContent = __('adhkar_confirm_delete');
+  modal.append(msg);
 
   const btnRow = document.createElement('div');
   btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
 
   const confirmBtn = document.createElement('button');
-  confirmBtn.textContent = __('delete');
+  confirmBtn.textContent = __(opts.confirmKey);
   confirmBtn.style.cssText =
-    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:#e74c3c;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;';
+    'flex:1;padding:10px 20px;border:none;border-radius:8px;' +
+    (opts.tone === 'danger'
+      ? 'background:#e74c3c;color:#fff;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;'
+      : 'background:var(--accent,#d97706);color:#fff;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;');
 
   const cancelBtn = document.createElement('button');
   cancelBtn.textContent = __('close');
   cancelBtn.style.cssText =
-    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);color:var(--text-primary);font-size:14px;cursor:pointer;font-family:inherit;';
+    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);' +
+    'color:var(--text-primary,#000);font-size:14px;cursor:pointer;font-family:inherit;';
 
+  // Accessibility (UXS-05): focus trap + Escape dismiss. The cleanup must run
+  // on every close path or listeners leak onto document forever.
+  const cleanupA11y = initDialogAccessibility(overlay, () => close());
   function close(): void {
+    cleanupA11y();
     overlay.remove();
   }
 
   confirmBtn.addEventListener('click', () => {
-    const settings = state.adhkarSettings!;
-    settings.personal_adhkar = (settings.personal_adhkar || []).filter((x: PersonalAdhkarEntry) => x.id !== id);
-    const newSettings = cloneAdhkarSettings(state.adhkarSettings);
-    delete newSettings[`item_personal_${id}`];
-    state.adhkarSettings = newSettings;
-    saveAdhkarSettings();
-    renderPersonalAdhkar();
-    showToast(__('adhkar_deleted'), '');
+    opts.onConfirm();
     close();
   });
 
@@ -680,13 +708,32 @@ function deletePersonalAdhkar(id: string): void {
     }
   });
 
-  btnRow.appendChild(cancelBtn);
-  btnRow.appendChild(confirmBtn);
-  modal.appendChild(msg);
-  modal.appendChild(btnRow);
-  overlay.appendChild(modal);
+  btnRow.append(cancelBtn, confirmBtn);
+  modal.append(btnRow);
+  overlay.append(modal);
   document.body.appendChild(overlay);
   cancelBtn.focus();
+}
+
+function deletePersonalAdhkar(id: string): void {
+  // Custom confirmation modal instead of browser confirm()
+  confirmAdhkarDialog({
+    id: 'adhkarDeleteModal',
+    messageKey: 'adhkar_confirm_delete',
+    confirmKey: 'delete',
+    tone: 'danger',
+    minWidth: 280,
+    onConfirm: () => {
+      const settings = state.adhkarSettings!;
+      settings.personal_adhkar = (settings.personal_adhkar || []).filter((x: PersonalAdhkarEntry) => x.id !== id);
+      const newSettings = cloneAdhkarSettings(state.adhkarSettings);
+      delete newSettings[`item_personal_${id}`];
+      state.adhkarSettings = newSettings;
+      saveAdhkarSettings();
+      renderPersonalAdhkar();
+      showToast(__('adhkar_deleted'), '');
+    },
+  });
 }
 
 /* ===== Settings list in settings panel ===== */
@@ -960,128 +1007,36 @@ function copyAdhkarItemText(itemId: string, categoryId: string): void {
 
 /** Confirm deletion of an item with a custom modal (no browser confirm()). */
 function confirmDeleteItem(itemId: string, categoryId: string): void {
-  document.getElementById('adhkarDeleteItemModal')?.remove();
-  const overlay = document.createElement('div');
-  overlay.id = 'adhkarDeleteItemModal';
-  overlay.style.cssText =
-    'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;' +
-    'background:rgba(0,0,0,0.5);';
-
-  const modal = document.createElement('div');
-  modal.style.cssText =
-    'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:280px;' +
-    'max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);direction:rtl;';
-
-  const msg = document.createElement('p');
-  msg.textContent = __('adhkar_confirm_delete_item');
-  msg.style.cssText = 'margin:0 0 20px;color:var(--text-secondary,#666);font-size:14px;';
-
-  const btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
-
-  const confirmBtn = document.createElement('button');
-  confirmBtn.textContent = __('delete');
-  confirmBtn.style.cssText =
-    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:#e74c3c;color:#fff;' +
-    'font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;';
-
-  const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = __('close');
-  cancelBtn.style.cssText =
-    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);' +
-    'color:var(--text-primary,#000);font-size:14px;cursor:pointer;font-family:inherit;';
-
-  function close(): void {
-    overlay.remove();
-  }
-
-  confirmBtn.addEventListener('click', () => {
-    deleteAdhkarItem(itemId, categoryId);
-    renderAdhkarCategory(categoryId);
-    showToast(__('adhkar_deleted'), '');
-    close();
+  confirmAdhkarDialog({
+    id: 'adhkarDeleteItemModal',
+    messageKey: 'adhkar_confirm_delete_item',
+    confirmKey: 'delete',
+    tone: 'danger',
+    minWidth: 280,
+    onConfirm: () => {
+      deleteAdhkarItem(itemId, categoryId);
+      renderAdhkarCategory(categoryId);
+      showToast(__('adhkar_deleted'), '');
+    },
   });
-
-  cancelBtn.addEventListener('click', close);
-  overlay.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === overlay) {
-      close();
-    }
-  });
-
-  btnRow.appendChild(cancelBtn);
-  btnRow.appendChild(confirmBtn);
-  modal.appendChild(msg);
-  modal.appendChild(btnRow);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-  cancelBtn.focus();
 }
 
 /** Confirm reset of all customizations for a category. */
 function confirmResetCustomizations(categoryId: string): void {
-  document.getElementById('adhkarResetModal')?.remove();
-  const overlay = document.createElement('div');
-  overlay.id = 'adhkarResetModal';
-  overlay.style.cssText =
-    'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;' +
-    'background:rgba(0,0,0,0.5);';
-
-  const modal = document.createElement('div');
-  modal.style.cssText =
-    'background:var(--bg-primary,#fff);border-radius:16px;padding:24px;min-width:320px;' +
-    'max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.3);direction:rtl;';
-
-  const title = document.createElement('h3');
-  title.textContent = __('adhkar_reset_defaults');
-  title.style.cssText = 'margin:0 0 12px;color:var(--text-primary,#000);font-size:16px;';
-
-  const msg = document.createElement('p');
-  msg.textContent = __('adhkar_reset_defaults_desc');
-  msg.style.cssText = 'margin:0 0 20px;color:var(--text-secondary,#666);font-size:14px;';
-
-  const btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:8px;justify-content:center;';
-
-  const confirmBtn = document.createElement('button');
-  confirmBtn.textContent = __('adhkar_reset_defaults');
-  confirmBtn.style.cssText =
-    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--accent,#d97706);' +
-    'color:#fff;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;';
-
-  const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = __('close');
-  cancelBtn.style.cssText =
-    'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);' +
-    'color:var(--text-primary,#000);font-size:14px;cursor:pointer;font-family:inherit;';
-
-  function close(): void {
-    overlay.remove();
-  }
-
-  confirmBtn.addEventListener('click', () => {
-    // Reset all customizations (affects all categories, but that's the user's choice)
-    resetAdhkarCustomizations();
-    renderAdhkarCategory(categoryId);
-    showToast(__('adhkar_reset'), 'success');
-    close();
+  confirmAdhkarDialog({
+    id: 'adhkarResetModal',
+    messageKey: 'adhkar_reset_defaults_desc',
+    titleKey: 'adhkar_reset_defaults',
+    confirmKey: 'adhkar_reset_defaults',
+    tone: 'accent',
+    minWidth: 320,
+    onConfirm: () => {
+      // Reset all customizations (affects all categories, but that's the user's choice)
+      resetAdhkarCustomizations();
+      renderAdhkarCategory(categoryId);
+      showToast(__('adhkar_reset'), 'success');
+    },
   });
-
-  cancelBtn.addEventListener('click', close);
-  overlay.addEventListener('click', (e: MouseEvent) => {
-    if (e.target === overlay) {
-      close();
-    }
-  });
-
-  btnRow.appendChild(cancelBtn);
-  btnRow.appendChild(confirmBtn);
-  modal.appendChild(title);
-  modal.appendChild(msg);
-  modal.appendChild(btnRow);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-  cancelBtn.focus();
 }
 
 /* Wire up event listeners that need access to adhkar functions */

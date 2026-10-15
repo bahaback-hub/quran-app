@@ -431,6 +431,12 @@ body.night-mode .adhkar-add-inner {
   cursor: pointer;
   color: var(--accent);
   font-weight: 600;
+  /* The nav control is a real <button> (keyboard/AT operable); neutralize
+     UA button chrome so it keeps its text-link look. */
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
 }
 .ayah-modal-nav-btn:hover {
   text-decoration: underline;

@@ -186,7 +186,7 @@ const ayahModalHTML = `
       <button class="btn btn-sm btn-fav" id="ayahModalFavBtn"></button>
     </div>
     <div class="ayah-modal-nav" id="ayahModalNav">
-      <span class="ayah-modal-nav-btn" id="ayahModalNextBtn" data-i18n="ayah_next">← الآية التالية</span>
+      <button class="ayah-modal-nav-btn" id="ayahModalNextBtn" data-i18n="ayah_next">← الآية التالية</button>
     </div>
     <div class="ayah-modal-text-box">
       <div class="ayah-modal-text" id="ayahModalText"></div>
