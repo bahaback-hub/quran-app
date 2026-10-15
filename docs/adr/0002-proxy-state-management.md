@@ -170,8 +170,9 @@ to `window.__quranState`:
 - **Batching** — `batch()` coalesces N changes into a single flush, reducing
   unnecessary DOM updates. Critical for the 3-phase bootstrap (ADR 0003)
   where multiple state properties are set in sequence.
-- **Zero dependencies** — the entire system is ~170 lines of TypeScript
-  across 4 files. No Redux, Zustand, or Preact Signals.
+- **Zero dependencies** — the entire system is a few hundred lines of
+  TypeScript across 4 files (`src/state/`). No Redux, Zustand, or Preact
+  Signals.
 - **DevTools** — `window.__quranState` provides runtime introspection
   without adding a production dependency.
 - **Immutable helpers** — prevent accidental in-place mutation of arrays

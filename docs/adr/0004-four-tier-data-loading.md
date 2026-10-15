@@ -56,14 +56,16 @@ Tier 4: Local JSON Fallback   (bundled, always available)
 
 ### Tier 1: IndexedDB Cache
 
-Three separate databases isolate concerns and respect quota:
+Separate databases isolate concerns and respect quota:
 
 | Database | Store | Content | Max Size |
 |----------|-------|---------|----------|
-| `QuranAppDB` | surah-cache | Surah text, translations, tajweed | — |
-| `QuranAudioCacheDB` | audio-blobs | Audio MP3 blobs per surah/reciter | 200 MB (LRU eviction) |
+| `QuranSurahDB` | surah-cache | Surah text, translations, offline audio URL index | 300 entries (LRU) |
 | `QuranTafsirDB` | tafsir-cache | Tafsir text per ayah | — |
-| `QuranExternalDataDB` | responses | Bounded JSON response cache (API resilience) | 40 entries |
+| `QuranAudioCacheDB` | audio-blobs | Audio MP3 blobs per surah/reciter | 200 MB (LRU eviction) |
+| `QuranExternalDataDB` | responses | Bounded JSON response cache (API resilience, SHA-256 checked) | 40 entries |
+| `QuranAppDB` | search | Search index (see `src/search-core.ts`) | — |
+| `QuranMushafDataPackDB` | mushaf files | Verified offline mushaf layout pack | — |
 
 **LRU eviction** (audio): when the 200 MB cap is reached, the
 least-recently-used audio blobs are evicted automatically. This prevents
@@ -204,9 +206,9 @@ is pinned to a specific commit (`5130511...` of
 
 ### Negative
 
-- **Storage complexity** — four IndexedDB databases + Service Worker caches
-  + localStorage + in-memory index. The total storage picture is hard to
-  explain to a new contributor.
+- **Storage complexity** — six IndexedDB databases (see the table above) +
+  Service Worker caches + localStorage + in-memory index. The total storage
+  picture is hard to explain to a new contributor.
 - **1.7 MB fallback file** — `quran-uthmani.json` is bundled with the app,
   adding to the initial download. Workbox's `globIgnores` excludes it from
   precache (it's runtime-cached on demand), but it's still in `public/`.

@@ -35,7 +35,7 @@ does nothing because the handler is not yet attached — a race condition.
   if events are bound before the first surah resolves. A surah-change event
   fired during boot must be handled, not dropped.
 - **Feature modules** — Mushaf mode, Presentation mode, and Ayah Modal are
-  large (~29 KB each). Loading them synchronously blocks initial render.
+  large (tens of KB each). Loading them synchronously blocks initial render.
 - **Capacitor** — on Android, the app boots inside a WebView. The splash
   screen must hide only after the first paint.
 
@@ -157,8 +157,8 @@ const scheduleIdle =
   resolves, making E2E tests deterministic (a key fix in v3.0.0).
 - **INP improvement** — deferring Groups 1–4 to idle periods yields the main
   thread back to the reader immediately.
-- **Lazy feature loading** — Mushaf, Presentation, and Ayah Modal (~87 KB
-  combined) are only loaded when the browser is idle.
+- **Lazy feature loading** — Mushaf, Presentation, and Ayah Modal are only
+  loaded when the browser is idle.
 - **Graceful degradation** — `safeLoad()` retry + error UI means a failed
   dynamic import doesn't silently break a feature.
 
@@ -169,7 +169,8 @@ const scheduleIdle =
   several seconds. The loading bar (`loadingBar.init()` in Phase 3) is not
   shown until Phase 3, meaning the reader sees a blank page during Phase 1
   on slow connections.
-- **Complexity** — `initApp()` is 250 lines and the ordering is fragile.
+- **Complexity** — `initApp()` is a large function (hundreds of lines) and the
+  ordering is fragile.
   A contributor adding a new feature must understand which phase it belongs
   in. Moving a task from Phase 1 to Phase 3 (or vice versa) without
   understanding dependencies can cause subtle bugs.
@@ -223,9 +224,9 @@ const scheduleIdle =
 
 ## References
 
-- [`src/app.ts`](../../src/app.ts) — `initApp()` implementation (333 lines)
+- [`src/app.ts`](../../src/app.ts) — `initApp()` implementation
 - [`src/main.ts`](../../src/main.ts) — entry point, `loadNonCriticalModules()`
-- [`src/app-events.ts`](../../src/app-events.ts) — event bindings
+- [`src/events/`](../../src/events/) — event bindings (split from `app-events.ts`)
 - [`src/overlays.ts`](../../src/overlays.ts) — lazy overlay injection
 - [`src/error-boundary.ts`](../../src/error-boundary.ts) — `safeLoad()`
 - [`e2e/fixtures/mock-network.ts`](../../e2e/fixtures/mock-network.ts) — network mocking

@@ -42,8 +42,11 @@ When the project was initiated, the team evaluated three approaches:
   threshold on the initial bundle.
 - Lighthouse CI enforces performance thresholds: FCP ≤ 3000 ms, LCP ≤ 4000 ms,
   TBT ≤ 600 ms (informational), accessibility ≥ 90 (mandatory).
-- The project uses Vite 8 with `manualChunks` code-splitting — frameworks
-  add a large `vendor` chunk that is harder to split.
+- The project uses Vite 8 with rolldown. Only `node_modules` vendors are
+  assigned `manualChunks`; feature modules are deliberately left to natural
+  splitting so each feature stays lazy (a framework would instead add a large
+  `vendor` chunk that is harder to split and drags shared modules into the
+  entry).
 
 ---
 
@@ -83,13 +86,17 @@ The application is built entirely with:
 Vite handles code-splitting without a framework's automatic chunking:
 
 ```js
-// vite.config.js — manualChunks splits by feature, not by component tree
+// vite.config.js — manualChunks splits only node_modules vendors.
+// Feature modules are intentionally NOT assigned chunks: under rolldown a
+// named chunk becomes the ROOT of that chunk and drags its whole shared
+// dependency closure in with it, turning a lazy feature into a first-paint
+// dependency (measured 146.2 KB gzip once). Natural splitting keeps every
+// feature lazy.
 manualChunks(id) {
-  if (id.includes('/features/mushaf/')) return 'feature-mushaf';
-  if (id.includes('/features/presentation/')) return 'feature-presentation';
-  if (id.includes('/tajweed')) return 'feature-tajweed';
-  if (id.includes('/search-')) return 'feature-search';
-  // ...
+  if (id.includes('node_modules')) {
+    if (id.includes('ajv') || id.includes('json-schema')) return 'vendor-json';
+    return 'vendor';
+  }
 }
 ```
 
@@ -120,9 +127,11 @@ Tree-shaking is maximized via `"sideEffects": false` in `package.json` and
 - **Higher implementation effort for UI** — every DOM update is manual.
   The team must discipline itself to use `subscribe()` callbacks and
   `escapeHtml()` consistently.
-- **Large source files** — `templates.ts` (~53 KB), `surah-loader.ts`
-  (~42 KB), and `audio.ts` (~29 KB) are larger than equivalent framework
-  components because logic and rendering are colocated.
+- **Large source files** — several modules (`adhkar.ts`, `prayer.ts`,
+  `mushaf-renderer.ts`, `audio.ts`, `surah-loader.ts`, and the per-language
+  `translations/*.ts` data files) are larger than equivalent framework
+  components because logic and data are colocated. `templates.ts` was split
+  into `templates*.ts` + `templates/` as it grew.
 - **No component reuse ecosystem** — we cannot drop in a community component
   (e.g., a date picker). Every UI element is hand-built.
 - **Steeper onboarding** — new contributors familiar with React must learn
