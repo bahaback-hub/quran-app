@@ -152,8 +152,7 @@ describe('lang switcher', () => {
     const options = [...document.querySelectorAll<HTMLButtonElement>('#langDropdown .lang-option')];
     expect(options).toHaveLength(3);
 
-    const key = (k: string) =>
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true }));
+    const key = (k: string) => document.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true }));
 
     (options[0] as HTMLButtonElement).focus();
     key('ArrowDown');
