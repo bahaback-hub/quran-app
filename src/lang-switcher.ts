@@ -152,7 +152,30 @@ export function initLangSwitcher(): void {
     if (e.key === 'Escape' && dropdownOpen) {
       closeDropdown();
       (btn as HTMLElement).focus();
+      return;
     }
+    // listbox pattern: arrows move between options (UXS-09). Buttons already
+    // work with Tab/Enter; this adds the arrow-key contract role=listbox makes.
+    if (!dropdownOpen || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+      return;
+    }
+    const options = [...dropdown.querySelectorAll<HTMLButtonElement>('.lang-option')];
+    if (!options.length || !options.some((o) => o === document.activeElement || o.contains(document.activeElement))) {
+      return;
+    }
+    e.preventDefault();
+    const current = options.findIndex((o) => o === document.activeElement);
+    let next: number;
+    if (e.key === 'ArrowDown') {
+      next = (current + 1) % options.length;
+    } else if (e.key === 'ArrowUp') {
+      next = (current - 1 + options.length) % options.length;
+    } else if (e.key === 'Home') {
+      next = 0;
+    } else {
+      next = options.length - 1;
+    }
+    options[next]?.focus();
   });
 
   // Fixed-position dropdown does not follow the button — close on scroll/resize

@@ -144,4 +144,38 @@ describe('lang switcher', () => {
     document.body.innerHTML = '';
     expect(() => initLangSwitcher()).not.toThrow();
   });
+
+  it('moves focus with arrows/Home/End inside the open listbox (UXS-09)', async () => {
+    const { initLangSwitcher } = await initSwitcher();
+    initLangSwitcher();
+    document.getElementById('langToggleBtn')!.click();
+    const options = [...document.querySelectorAll<HTMLButtonElement>('#langDropdown .lang-option')];
+    expect(options).toHaveLength(3);
+
+    const key = (k: string) =>
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true }));
+
+    (options[0] as HTMLButtonElement).focus();
+    key('ArrowDown');
+    expect(document.activeElement).toBe(options[1]);
+    key('ArrowDown');
+    expect(document.activeElement).toBe(options[2]);
+    key('ArrowDown');
+    expect(document.activeElement).toBe(options[0]);
+    key('ArrowUp');
+    expect(document.activeElement).toBe(options[2]);
+    key('Home');
+    expect(document.activeElement).toBe(options[0]);
+    key('End');
+    expect(document.activeElement).toBe(options[2]);
+  });
+
+  it('ignores arrows when focus is outside the dropdown', async () => {
+    const { initLangSwitcher } = await initSwitcher();
+    initLangSwitcher();
+    document.getElementById('langToggleBtn')!.click();
+    (document.getElementById('langToggleBtn') as HTMLButtonElement).focus();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(document.activeElement).toBe(document.getElementById('langToggleBtn'));
+  });
 });
