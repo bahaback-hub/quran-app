@@ -7,6 +7,8 @@
  * @module a11y
  */
 
+import { __ } from './i18n.js';
+
 /* ------------------------------------------------------------------ */
 /*  Live-region pool (re-uses a small set of ARIA live regions)       */
 /* ------------------------------------------------------------------ */
@@ -179,7 +181,7 @@ export function manageFocusOnPanelOpen(panelEl: HTMLElement, triggerEl?: HTMLEle
     }
   });
   const label = panelEl.getAttribute('aria-label') || panelEl.getAttribute('aria-labelledby') || 'Panel';
-  announceToScreenReader(`${label} opened`);
+  announceToScreenReader(__('panel_opened', label));
 }
 
 /* ================================================================== */
@@ -212,7 +214,7 @@ export function restoreFocusOnPanelClose(triggerEl?: HTMLElement | null, panelEl
     });
   }
   if (panelEl) {
-    announceToScreenReader((panelEl.getAttribute('aria-label') || 'Panel') + ' closed');
+    announceToScreenReader(__('panel_closed', panelEl.getAttribute('aria-label') || 'Panel'));
   }
 }
 

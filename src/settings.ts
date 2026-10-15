@@ -75,6 +75,11 @@ export function applyReaderSurfaceTransparency(value: number, persist = true): v
 
 /** Apply a specific font size to the ayahs container and persist it. */
 export function applyFontSize(size: number): void {
+  // Clamp to the declared scale: the keyboard shortcut can otherwise push 45
+  // (or 16) while the select tops out at 44, leaving the control blank.
+  const min = SURAH_FONT_SIZES[0]!;
+  const max = SURAH_FONT_SIZES[SURAH_FONT_SIZES.length - 1]!;
+  size = Math.min(max, Math.max(min, Math.round(size) || min));
   state.fontSize = size;
   const container = document.querySelector('.ayahs-container') as HTMLElement | null;
   if (container) {
@@ -553,7 +558,7 @@ export function saveLocationSettings(): void {
   const city = dom.cityInput?.value.trim();
   const country = dom.countryInput?.value.trim();
   if (!city || !country) {
-    showToast(__('save_location'), 'error');
+    showToast(__('save_location_error'), 'error');
     return;
   }
   state.city = city;
