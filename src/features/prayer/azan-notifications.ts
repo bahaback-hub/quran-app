@@ -115,10 +115,29 @@ function nextOccurrence(time: string | undefined, from: Date): Date | null {
 }
 
 /**
+ * Check-only permission read: never prompts. Used on background paths (prayer
+ * times load, timer ticks) where there is no user gesture — prompting there
+ * is treated as hostile by browsers/OS and can burn the one-time ask.
+ */
+export async function checkAzanNotificationPermission(): Promise<boolean> {
+  if (!isNative()) {
+    return false;
+  }
+  try {
+    const current = await LocalNotifications.checkPermissions();
+    return current.display === 'granted';
+  } catch (err: unknown) {
+    warnRecoverable('azan notification permission check failed', err);
+    return false;
+  }
+}
+
+/**
  * Ask for notification permission once per app session.
  *
- * Android 13+ denies notifications by default for freshly installed apps, so
- * without this every scheduled prayer would be silently dropped.
+ * Call ONLY from a user gesture (azan toggle, test button). Android 13+
+ * denies notifications by default for freshly installed apps, so without
+ * this every scheduled prayer would be silently dropped.
  */
 export async function ensureAzanNotificationPermission(): Promise<boolean> {
   if (!isNative()) {
@@ -146,7 +165,7 @@ export async function notifyAzanNow(title: string, body: string): Promise<void> 
   if (!isNative()) {
     return;
   }
-  if (!(await ensureAzanNotificationPermission())) {
+  if (!(await checkAzanNotificationPermission())) {
     return;
   }
   try {
@@ -188,7 +207,7 @@ export async function scheduleAzanNotifications(input: AzanScheduleInput): Promi
   if (!isNative()) {
     return;
   }
-  if (!(await ensureAzanNotificationPermission())) {
+  if (!(await checkAzanNotificationPermission())) {
     return;
   }
 

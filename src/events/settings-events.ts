@@ -39,6 +39,7 @@ import {
   verifyMushafDataPack,
 } from '../features/mushaf/mushaf-data-pack.js';
 import { testAzan, stopAzan, scheduleNextAzanCheck } from '../features/prayer/prayer.js';
+import { ensureAzanNotificationPermission } from '../features/prayer/azan-notifications.js';
 import { openHelp } from './help-events.js';
 import { CHECK_UPDATES_EVENT } from '../app-updates.js';
 import { setTvMode } from '../tv-nav.js';
@@ -388,11 +389,21 @@ export function bindDisplaySettingsEvents(): void {
   dom.azanToggle?.addEventListener('click', () => {
     state.azanEnabled = dom.azanToggle!.classList.toggle('on');
     storage.set('azan_enabled', state.azanEnabled);
+    // User gesture: the one safe moment to ask for notification permission
+    // (mirrors the adhkar toggle). Background paths only ever check.
+    if (state.azanEnabled) {
+      void ensureAzanNotificationPermission().then((granted) => {
+        showToast(granted ? __('notification_active') : __('notification_paused'), granted ? 'success' : 'warning');
+      });
+    }
     scheduleNextAzanCheck();
   });
   dom.azanFajrToggle?.addEventListener('click', () => {
     state.azanFajrEnabled = dom.azanFajrToggle!.classList.toggle('on');
     storage.set('azan_fajr_enabled', state.azanFajrEnabled);
+    if (state.azanFajrEnabled) {
+      void ensureAzanNotificationPermission();
+    }
     scheduleNextAzanCheck();
   });
   dom.autoSaveToggle?.addEventListener('click', () => {

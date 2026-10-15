@@ -197,16 +197,34 @@ describe('azan notifications', () => {
     expect(cancel).not.toHaveBeenCalled();
   });
 
-  it('requests permission once and gives up when denied', async () => {
+  it('never prompts on background paths — checks only and gives up when denied', async () => {
     checkPermissions.mockResolvedValue({ display: 'denied' });
     requestPermissions.mockResolvedValue({ display: 'denied' });
     const mod = await load();
 
     await mod.notifyAzanNow('t', 'b');
-    expect(requestPermissions).toHaveBeenCalledTimes(1);
+    expect(requestPermissions).not.toHaveBeenCalled();
     expect(schedule).not.toHaveBeenCalled();
 
-    await mod.notifyAzanNow('t', 'b');
+    await mod.scheduleAzanNotifications({
+      times: { Dhuhr: '12:14' },
+      label: (k: string) => k,
+      title: 't',
+      includeFajr: false,
+    });
+    expect(requestPermissions).not.toHaveBeenCalled();
+    expect(schedule).not.toHaveBeenCalled();
+  });
+
+  it('asks once per session through the explicit entry point (toggle gesture)', async () => {
+    checkPermissions.mockResolvedValue({ display: 'denied' });
+    requestPermissions.mockResolvedValue({ display: 'denied' });
+    const mod = await load();
+
+    await expect(mod.ensureAzanNotificationPermission()).resolves.toBe(false);
+    expect(requestPermissions).toHaveBeenCalledTimes(1);
+
+    await expect(mod.ensureAzanNotificationPermission()).resolves.toBe(false);
     expect(requestPermissions).toHaveBeenCalledTimes(1);
   });
 
