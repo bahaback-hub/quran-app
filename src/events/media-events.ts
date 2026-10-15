@@ -5,6 +5,7 @@
  * Split from app-events.ts for maintainability; re-exported through its barrel.
  */
 import { dom } from '../dom.js';
+import { requireDom } from '../dom-require.js';
 import { storage } from '../storage.js';
 import { state } from '../state.js';
 import { __ } from '../i18n.js';
@@ -38,7 +39,7 @@ export function bindTafsirEvents(): void {
   dom.tafsirCurtainCloseBtn?.addEventListener('click', closeTafsir);
   dom.translationToggle?.addEventListener('click', toggleTranslation);
   dom.tafsirSelect?.addEventListener('change', () => {
-    state.currentTafsirEdition = dom.tafsirSelect!.value;
+    state.currentTafsirEdition = requireDom('tafsirSelect').value;
     storage.set('tafsir_edition', state.currentTafsirEdition);
     if (dom.tafsirCurtain?.classList.contains('open')) {
       loadTafsirForCurrentAyah();
@@ -46,7 +47,7 @@ export function bindTafsirEvents(): void {
   });
 
   dom.translationSelect?.addEventListener('change', () => {
-    const val = dom.translationSelect!.value;
+    const val = requireDom('translationSelect').value;
     if (val) {
       state.translationEnabled = true;
       state.currentTranslation = val;

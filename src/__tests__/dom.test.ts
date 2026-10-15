@@ -8,6 +8,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 vi.unmock('../dom.js');
 
 import { dom, cacheDom } from '../dom.js';
+import { requireDom, requireEl } from '../dom-require.js';
 
 /** Reset dom to all-null state between tests. */
 function resetDom(): void {
@@ -72,6 +73,38 @@ describe('createEmptyDomMap (via dom export)', () => {
     for (const key of keys) {
       expect((dom as unknown as Record<string, unknown>)[key]).not.toBeUndefined();
     }
+  });
+});
+
+describe('requireEl', () => {
+  it('returns the element when present', () => {
+    const el = document.createElement('div');
+    expect(requireEl(el, 'x')).toBe(el);
+  });
+
+  it('throws a descriptive error naming the id when null', () => {
+    expect(() => requireEl(null, 'surahContent')).toThrow(/#surahContent/);
+  });
+
+  it('throws for undefined', () => {
+    expect(() => requireEl(undefined, 'audioPlayer')).toThrow(/#audioPlayer/);
+  });
+});
+
+describe('requireDom', () => {
+  beforeEach(resetDom);
+
+  it('throws loudly once when the element was never cached', () => {
+    expect(() => requireDom('surahContent')).toThrow(/#surahContent/);
+  });
+
+  it('returns the cached element after cacheDom()', () => {
+    const mockElement = document.createElement('div');
+    vi.spyOn(document, 'getElementById').mockImplementation((id: string) =>
+      id === 'surahContent' ? mockElement : null,
+    );
+    cacheDom();
+    expect(requireDom('surahContent')).toBe(mockElement);
   });
 });
 

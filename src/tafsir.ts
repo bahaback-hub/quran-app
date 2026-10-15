@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { CONFIG } from './config.js';
 import { dom } from './dom.js';
+import { requireDom } from './dom-require.js';
 import { tafsirLoading, tafsirErrorMessage } from './templates.js';
 import { tafsirFetch, jsonFetch } from './api-client.js';
 import { __ } from './i18n.js';
@@ -181,31 +182,31 @@ async function getTafsirText(edition: string, surahNum: number, ayahNum: number)
 /* ===================== TAFSIR UI ===================== */
 
 function renderTafsirContent(text: string, ayahText: string, surahName: string, ayahNum: number): void {
-  dom.tafsirCurtainHeader!.textContent = `${__('tafsir')}: ${surahName} — ${__('ayah')} ${ayahNum}`;
-  dom.tafsirCurtainBody!.replaceChildren();
-  dom.tafsirCurtainBody!.scrollTop = 0;
+  requireDom('tafsirCurtainHeader').textContent = `${__('tafsir')}: ${surahName} — ${__('ayah')} ${ayahNum}`;
+  requireDom('tafsirCurtainBody').replaceChildren();
+  requireDom('tafsirCurtainBody').scrollTop = 0;
   const titleEl = document.createElement('div');
   titleEl.className = 'tafsir-ayah-title';
   titleEl.textContent = `﴿${ayahText}﴾`;
   const bodyEl = document.createElement('div');
   bodyEl.className = 'tafsir-text';
   bodyEl.textContent = text;
-  dom.tafsirCurtainBody!.appendChild(titleEl);
-  dom.tafsirCurtainBody!.appendChild(bodyEl);
+  requireDom('tafsirCurtainBody').appendChild(titleEl);
+  requireDom('tafsirCurtainBody').appendChild(bodyEl);
 }
 
 function setTafsirHeader(surahName: string, ayahNum: number): void {
-  dom.tafsirCurtainHeader!.textContent = `${__('tafsir')}: ${surahName} — ${__('ayah')} ${ayahNum}`;
+  requireDom('tafsirCurtainHeader').textContent = `${__('tafsir')}: ${surahName} — ${__('ayah')} ${ayahNum}`;
 }
 
 function showTafsirLoading(): void {
-  dom.tafsirCurtainBody!.innerHTML = tafsirLoading();
-  dom.tafsirCurtainBody!.scrollTop = 0;
+  requireDom('tafsirCurtainBody').innerHTML = tafsirLoading();
+  requireDom('tafsirCurtainBody').scrollTop = 0;
 }
 
 function showTafsirError(): void {
-  dom.tafsirCurtainBody!.innerHTML = tafsirErrorMessage(__('tafsir_error'));
-  dom.tafsirCurtainBody!.scrollTop = 0;
+  requireDom('tafsirCurtainBody').innerHTML = tafsirErrorMessage(__('tafsir_error'));
+  requireDom('tafsirCurtainBody').scrollTop = 0;
 }
 
 /** Load & render tafsir for the currently-selected ayah. */
@@ -327,7 +328,7 @@ export function closeTafsir(): void {
 
 /** Toggle the tafsir curtain open/closed. */
 export function toggleTafsir(): void {
-  if (dom.tafsirCurtain!.classList.contains('open')) {
+  if (requireDom('tafsirCurtain').classList.contains('open')) {
     closeTafsir();
   } else {
     openTafsir();

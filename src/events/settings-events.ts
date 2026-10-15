@@ -5,6 +5,7 @@
  * Split from app-events.ts for maintainability; re-exported through its barrel.
  */
 import { dom } from '../dom.js';
+import { requireDom } from '../dom-require.js';
 import { storage } from '../storage.js';
 import { state } from '../state.js';
 import { showToast } from '../ui.js';
@@ -86,7 +87,7 @@ function initReaderToolbarPin(): void {
 /** Bind the compact reader-surface popover beside Settings. */
 function initReaderSurfaceControl(): void {
   dom.readerSurfaceSlider?.addEventListener('input', () => {
-    applyReaderSurfaceTransparency(Number(dom.readerSurfaceSlider!.value));
+    applyReaderSurfaceTransparency(Number(requireDom('readerSurfaceSlider').value));
   });
 
   const control = dom.readerSurfaceControl;
@@ -129,7 +130,7 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.themeMenuBtn?.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
     const expanded = dom.themeToggle?.classList.toggle('open') ?? false;
-    dom.themeMenuBtn!.setAttribute('aria-expanded', String(expanded));
+    requireDom('themeMenuBtn').setAttribute('aria-expanded', String(expanded));
   });
 
   dom.themeMenuBtn?.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -139,10 +140,10 @@ export function bindHeaderAndSettingsEvents(): void {
       const expanded = dom.themeToggle?.classList.contains('open');
       if (expanded) {
         dom.themeToggle?.classList.remove('open');
-        dom.themeMenuBtn!.setAttribute('aria-expanded', 'false');
+        requireDom('themeMenuBtn').setAttribute('aria-expanded', 'false');
       } else {
         dom.themeToggle?.classList.add('open');
-        dom.themeMenuBtn!.setAttribute('aria-expanded', 'true');
+        requireDom('themeMenuBtn').setAttribute('aria-expanded', 'true');
         // Focus the first theme button inside the dropdown
         const firstBtn = dom.themeDropdownMenu?.querySelector<HTMLButtonElement>('.theme-btn');
         firstBtn?.focus();
@@ -204,7 +205,7 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
   dom.useLocationBtn?.addEventListener('click', useMyLocation);
   dom.autoLocationToggle?.addEventListener('change', () => {
-    state.autoLocation = dom.autoLocationToggle!.checked;
+    state.autoLocation = requireDom('autoLocationToggle').checked;
     storage.set('auto_location', state.autoLocation);
   });
   dom.testAzanBtn?.addEventListener('click', testAzan);
@@ -387,7 +388,7 @@ export function bindDisplaySettingsEvents(): void {
   });
 
   dom.azanToggle?.addEventListener('click', () => {
-    state.azanEnabled = dom.azanToggle!.classList.toggle('on');
+    state.azanEnabled = requireDom('azanToggle').classList.toggle('on');
     storage.set('azan_enabled', state.azanEnabled);
     // User gesture: the one safe moment to ask for notification permission
     // (mirrors the adhkar toggle). Background paths only ever check.
@@ -399,7 +400,7 @@ export function bindDisplaySettingsEvents(): void {
     scheduleNextAzanCheck();
   });
   dom.azanFajrToggle?.addEventListener('click', () => {
-    state.azanFajrEnabled = dom.azanFajrToggle!.classList.toggle('on');
+    state.azanFajrEnabled = requireDom('azanFajrToggle').classList.toggle('on');
     storage.set('azan_fajr_enabled', state.azanFajrEnabled);
     if (state.azanFajrEnabled) {
       void ensureAzanNotificationPermission();
@@ -407,20 +408,20 @@ export function bindDisplaySettingsEvents(): void {
     scheduleNextAzanCheck();
   });
   dom.autoSaveToggle?.addEventListener('click', () => {
-    state.autoSave = dom.autoSaveToggle!.classList.toggle('on');
+    state.autoSave = requireDom('autoSaveToggle').classList.toggle('on');
     storage.set('auto_save', state.autoSave);
   });
   dom.tvModeToggle?.addEventListener('click', () => {
     setTvMode(!state.tvMode);
-    dom.tvModeToggle!.classList.toggle('on', state.tvMode);
+    requireDom('tvModeToggle').classList.toggle('on', state.tvMode);
   });
   dom.pointerModeToggle?.addEventListener('click', () => {
     setPointerMode(!state.pointerMode);
-    dom.pointerModeToggle!.classList.toggle('on', state.pointerMode);
+    requireDom('pointerModeToggle').classList.toggle('on', state.pointerMode);
   });
 
   dom.langSelect?.addEventListener('change', () => {
-    const newLang = dom.langSelect!.value;
+    const newLang = requireDom('langSelect').value;
     if (newLang !== getLang()) {
       setLang(newLang as LangCode).then(() => {
         showToast(
@@ -432,7 +433,7 @@ export function bindDisplaySettingsEvents(): void {
   });
 
   dom.cityQuickSelect?.addEventListener('change', () => {
-    const v = dom.cityQuickSelect!.value;
+    const v = requireDom('cityQuickSelect').value;
     if (v) {
       const [city, country] = v.split('|') as [string, string];
       if (dom.cityInput) {

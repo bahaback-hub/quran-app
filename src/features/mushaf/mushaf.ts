@@ -1,6 +1,7 @@
 import { state } from '../../state.js';
 import { JUZ_PAGES } from '../../config.js';
 import { dom } from '../../dom.js';
+import { requireDom } from '../../dom-require.js';
 import { storage } from '../../storage.js';
 import { showToast, loadingBar } from '../../ui.js';
 import { toArabicNumeral } from '../../utils.js';
@@ -156,7 +157,7 @@ export async function toggleMushafMode(): Promise<void> {
       updatePlayerInfo();
     } else {
       const surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
-      dom.surahContent!.innerHTML = surahLoadingMessage();
+      requireDom('surahContent').innerHTML = surahLoadingMessage();
       setTimeout(() => loadSurah(surahToLoad), 50);
     }
   }
@@ -479,8 +480,8 @@ export function populateSurahOverlay(): void {
       if (target.classList.contains('mushaf-surah-overlay-btn')) {
         const surahNum = parseInt(target.dataset['surah']!, 10);
         const surahName = target.dataset['surahName'] || '';
-        dom.mushafSurahOverlay!.classList.add('hidden');
-        dom.mushafSurahOverlay!.style.display = 'none';
+        requireDom('mushafSurahOverlay').classList.add('hidden');
+        requireDom('mushafSurahOverlay').style.display = 'none';
         state.currentSurah = surahNum;
         state.currentAyahIndex = 0;
         state.surahData = null;

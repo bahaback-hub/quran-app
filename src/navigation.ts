@@ -9,6 +9,7 @@
 import { state } from './state.js';
 import { warnRecoverable } from './error-boundary.js';
 import { dom } from './dom.js';
+import { requireDom } from './dom-require.js';
 import { storage } from './storage.js';
 import {
   prevAyah,
@@ -68,7 +69,7 @@ export function initNavigation(): void {
   bindCollapsedNav('collapsedNextAyahBtn', () => nextAyah(false));
 
   dom.speedSelect?.addEventListener('change', () => {
-    const rate = parseFloat(dom.speedSelect!.value);
+    const rate = parseFloat(requireDom('speedSelect').value);
     storage.set('playback_speed', rate);
     // Pass the rate explicitly (no storage round-trip) and re-apply the
     // pitch ratio live — no restart needed.
@@ -76,10 +77,10 @@ export function initNavigation(): void {
   });
 
   dom.pitchSelect?.addEventListener('change', () => {
-    setPitchFreq(parseInt(dom.pitchSelect!.value, 10));
+    setPitchFreq(parseInt(requireDom('pitchSelect').value, 10));
   });
   dom.pitchRange?.addEventListener('input', () => {
-    setPitchFreq(parseInt(dom.pitchRange!.value, 10));
+    setPitchFreq(parseInt(requireDom('pitchRange').value, 10));
   });
 
   /* ========== VIEW MODE TOGGLES ========== */
@@ -128,8 +129,8 @@ export function initNavigation(): void {
   });
 
   dom.pageSelect?.addEventListener('change', () => {
-    if (dom.pageSelect!.value) {
-      const p = parseInt(dom.pageSelect!.value, 10);
+    if (requireDom('pageSelect').value) {
+      const p = parseInt(requireDom('pageSelect').value, 10);
       if (dom.pageSlider) {
         dom.pageSlider.value = String(p);
       }
@@ -137,7 +138,7 @@ export function initNavigation(): void {
     }
   });
   dom.pageSlider?.addEventListener('input', () => {
-    const p = parseInt(dom.pageSlider!.value, 10);
+    const p = parseInt(requireDom('pageSlider').value, 10);
     if (dom.pageSelect) {
       dom.pageSelect.value = String(p);
     }

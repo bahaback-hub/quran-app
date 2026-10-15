@@ -20,6 +20,7 @@ import {
   setVoiceRecognition,
 } from '../../internal-state.js';
 import { dom } from '../../dom.js';
+import { requireDom } from '../../dom-require.js';
 import { storage } from '../../storage.js';
 import { showToast } from '../../ui.js';
 import { escapeRegExp, copyToClipboard, normalizeExactText } from '../../utils.js';
@@ -215,12 +216,12 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
     dom.searchResults.addEventListener('click', (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target.id === 'closeSearchResultsBtn') {
-        dom.searchResults!.style.display = 'none';
+        requireDom('searchResults').style.display = 'none';
         return;
       }
       if (target.id === 'loadMoreSearchBtn') {
-        const q = dom.searchResults!.dataset['query'] || '';
-        const currentCount = dom.searchResults!.querySelectorAll('.search-result-item').length;
+        const q = requireDom('searchResults').dataset['query'] || '';
+        const currentCount = requireDom('searchResults').querySelectorAll('.search-result-item').length;
         setSearchResultsPage((getSearchResultsPage() || 1) + 1);
         const allMatches = getAllSearchMatches() ?? [];
         const nextBatch = allMatches.slice(0, currentCount + SEARCH_PAGE_SIZE);

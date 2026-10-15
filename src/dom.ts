@@ -17,7 +17,7 @@
  */
 
 /** Map of DOM IDs to their element types — each property is nullable until cacheDom() runs. */
-interface DomMap {
+export interface DomMap {
   nextPrayerName: HTMLElement | null;
   nextPrayerTime: HTMLElement | null;
   prayerNextCountdown: HTMLElement | null;

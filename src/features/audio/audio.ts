@@ -29,6 +29,7 @@ export {
 
 import { state } from '../../state.js';
 import { dom } from '../../dom.js';
+import { requireDom } from '../../dom-require.js';
 import { storage } from '../../storage.js';
 import { showToast } from '../../ui.js';
 import { hapticFeedback } from '../../utils.js';
@@ -297,12 +298,14 @@ export async function playCurrentAyah(): Promise<void> {
       dom.audioPlayer.addEventListener(
         'loadedmetadata',
         function onMeta(): void {
-          dom.audioPlayer!.removeEventListener('loadedmetadata', onMeta);
-          dom.audioPlayer!.currentTime = _getAyahStartTime();
-          dom.audioPlayer!.play().catch((e: unknown) => {
-            console.warn(e);
-            setStoppedState();
-          });
+          requireDom('audioPlayer').removeEventListener('loadedmetadata', onMeta);
+          requireDom('audioPlayer').currentTime = _getAyahStartTime();
+          requireDom('audioPlayer')
+            .play()
+            .catch((e: unknown) => {
+              console.warn(e);
+              setStoppedState();
+            });
         },
         { once: true },
       );
@@ -358,8 +361,8 @@ function preloadNextAyah(): void {
         if (oldSrc && oldSrc.startsWith('blob:') && oldSrc !== resolved) {
           URL.revokeObjectURL(oldSrc);
         }
-        dom.audioPlayer2!.src = resolved;
-        dom.audioPlayer2!.load();
+        requireDom('audioPlayer2').src = resolved;
+        requireDom('audioPlayer2').load();
       });
     }
   }
@@ -990,23 +993,23 @@ export function populateRepeatUI(range: RepeatRange): void {
 
   // Bind change handlers
   dom.repeatFrom.onchange = () => {
-    state.repeatFrom = parseInt(dom.repeatFrom!.value, 10);
+    state.repeatFrom = parseInt(requireDom('repeatFrom').value, 10);
     if (state.repeatFrom > state.repeatTo) {
       state.repeatTo = state.repeatFrom;
-      dom.repeatTo!.value = String(state.repeatTo);
+      requireDom('repeatTo').value = String(state.repeatTo);
     }
     state.repeatCounter = 0;
   };
   dom.repeatTo.onchange = () => {
-    state.repeatTo = parseInt(dom.repeatTo!.value, 10);
+    state.repeatTo = parseInt(requireDom('repeatTo').value, 10);
     if (state.repeatTo < state.repeatFrom) {
       state.repeatFrom = state.repeatTo;
-      dom.repeatFrom!.value = String(state.repeatFrom);
+      requireDom('repeatFrom').value = String(state.repeatFrom);
     }
     state.repeatCounter = 0;
   };
   dom.repeatTimes.onchange = () => {
-    state.repeatTimes = parseInt(dom.repeatTimes!.value, 10);
+    state.repeatTimes = parseInt(requireDom('repeatTimes').value, 10);
     state.repeatCounter = 0;
   };
 }

@@ -6,6 +6,7 @@
  */
 import { apiFetch } from '../api-client.js';
 import { dom } from '../dom.js';
+import { requireDom } from '../dom-require.js';
 import { storage } from '../storage.js';
 import { state } from '../state.js';
 import type { AyahPageResponse } from '../types.js';
@@ -19,10 +20,10 @@ import * as audioModule from '../features/audio/audio.js';
  */
 export function bindNavigationEvents(): void {
   dom.surahSelect?.addEventListener('change', () => {
-    if (!dom.surahSelect!.value) {
+    if (!requireDom('surahSelect').value) {
       return;
     }
-    const surahNum = parseInt(dom.surahSelect!.value, 10);
+    const surahNum = parseInt(requireDom('surahSelect').value, 10);
     // أخرج التركيز من القائمة لعودة المؤشر لطبيعته
     dom.surahSelect?.blur?.();
     if (state.mushafMode) {
@@ -45,7 +46,7 @@ export function bindNavigationEvents(): void {
   });
 
   dom.reciterSelect?.addEventListener('change', () => {
-    state.currentReciter = dom.reciterSelect!.value;
+    state.currentReciter = requireDom('reciterSelect').value;
     storage.set('reciter', state.currentReciter);
     // The new reciter has a different audio duration, so the per-word sync
     // timings cached for the previous reciter are no longer valid.

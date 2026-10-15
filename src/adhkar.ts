@@ -1,5 +1,6 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
+import { requireDom } from './dom-require.js';
 import { storage } from './storage.js';
 import { showToast, hydrateProgressFills } from './ui.js';
 import { adhkarTab, adhkarCategoryTitle, escapeHtml } from './templates.js';
@@ -1066,7 +1067,7 @@ export function wireAdhkarEvents(): void {
     }
   });
   dom.adhkarEnabledToggle?.addEventListener('click', async () => {
-    const on = dom.adhkarEnabledToggle!.classList.toggle('on');
+    const on = requireDom('adhkarEnabledToggle').classList.toggle('on');
     // FIX #5: Request Notification permission when user enables adhkar (this is a user gesture).
     // Without this, system notifications never fire because permission is never requested.
     if (on && typeof Notification !== 'undefined' && Notification.permission === 'default') {
@@ -1087,7 +1088,7 @@ export function wireAdhkarEvents(): void {
     saveAdhkarSettings();
   });
   dom.adhkarSoundToggle?.addEventListener('click', () => {
-    const on = dom.adhkarSoundToggle!.classList.toggle('on');
+    const on = requireDom('adhkarSoundToggle').classList.toggle('on');
     const newSettings = cloneAdhkarSettings(state.adhkarSettings);
     newSettings.adhkar_sound = on;
     state.adhkarSettings = newSettings;
