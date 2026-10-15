@@ -82,10 +82,29 @@ export type ProgressCallback = (surah: number, reciter: string, current: number,
 const _activeDownloads = new Map<string, Promise<void>>();
 
 /**
+ * Shared AudioCacheDB connection (ARC-05).
+ *
+ * Previously every store/read/evict opened a fresh connection that was never
+ * closed — a full-reciter download opens thousands. One connection is opened
+ * lazily, reused, and re-created automatically if it ever fails.
+ */
+let dbPromise: Promise<IDBDatabase> | null = null;
+
+function openDB(): Promise<IDBDatabase> {
+  if (!dbPromise) {
+    dbPromise = openDBFresh().catch((err: unknown) => {
+      dbPromise = null;
+      throw err;
+    });
+  }
+  return dbPromise;
+}
+
+/**
  * Open the AudioCacheDB database.
  * Creates object stores on first run (version upgrade).
  */
-function openDB(): Promise<IDBDatabase> {
+function openDBFresh(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -420,12 +439,28 @@ async function updateAccessTime(url: string): Promise<void> {
 /**
  * Check if a specific audio URL is cached.
  *
+ * Reads only the tiny metadata row — never the Blob itself. The previous
+ * implementation fetched the full audio Blob from disk just to answer
+ * "does it exist", and the offline-pack verifier repeated that per link.
+ *
  * @param url The audio URL to check
  * @returns true if the URL is cached, false otherwise
  */
 export async function isAudioCached(url: string): Promise<boolean> {
-  const blob = await getCachedAudioBlob(url);
-  return blob !== null || isRuntimeAudioCached(url);
+  try {
+    const db = await openDB();
+    const inMeta = await new Promise<boolean>((resolve) => {
+      const req = db.transaction(META_STORE, 'readonly').objectStore(META_STORE).get(url);
+      req.onsuccess = () => resolve(!!req.result);
+      req.onerror = () => resolve(false);
+    });
+    if (inMeta) {
+      return true;
+    }
+  } catch {
+    return isRuntimeAudioCached(url);
+  }
+  return isRuntimeAudioCached(url);
 }
 
 /**
