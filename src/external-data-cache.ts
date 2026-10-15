@@ -10,6 +10,11 @@ interface ExternalCacheEntry {
   url: string;
   payload: unknown;
   updatedAt: number;
+  /**
+   * Hex SHA-256 of JSON.stringify(payload) at write time. Entries written
+   * before this field existed carry none and are trusted as before.
+   */
+  sha256?: string;
 }
 
 const DB_NAME = 'QuranExternalDataDB';
@@ -94,16 +99,65 @@ export async function getCachedExternalData<T>(url: string): Promise<T | null> {
   return surah === null ? null : ({ data: surah } as T);
 }
 
+/**
+ * SHA-256 hex digest of a payload's canonical JSON form. Returns null when
+ * WebCrypto is unavailable — callers then store/serve without verification
+ * rather than breaking offline reads.
+ */
+async function sha256Json(payload: unknown): Promise<string | null> {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) {
+    return null;
+  }
+  try {
+    const bytes = new TextEncoder().encode(JSON.stringify(payload));
+    const digest = await subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+  } catch (err) {
+    console.warn('[ExternalCache] Digest failed; storing without verification:', err);
+    return null;
+  }
+}
+
+async function deleteCachedEntry(url: string): Promise<void> {
+  const db = await openCacheDB();
+  if (!db) {
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).delete(url);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+    tx.onabort = () => resolve();
+  });
+}
+
 async function getExactCachedExternalData<T>(url: string): Promise<T | null> {
   const db = await openCacheDB();
   if (!db) {
     return null;
   }
-  return new Promise((resolve) => {
+  const entry = await new Promise<ExternalCacheEntry | null>((resolve) => {
     const request = db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).get(url);
-    request.onsuccess = () => resolve(((request.result as ExternalCacheEntry | undefined)?.payload as T) ?? null);
+    request.onsuccess = () => resolve((request.result as ExternalCacheEntry | undefined) ?? null);
     request.onerror = () => resolve(null);
   });
+  if (!entry) {
+    return null;
+  }
+  // Verify-before-serve: a payload whose bytes no longer match its write-time
+  // digest is dropped so the caller falls through to a fresh network fetch
+  // instead of displaying suspect data (SEC-01).
+  if (typeof entry.sha256 === 'string') {
+    const actual = await sha256Json(entry.payload);
+    if (actual === null || actual !== entry.sha256) {
+      console.warn(`[ExternalCache] Integrity mismatch for ${url} — dropping cached entry`);
+      await deleteCachedEntry(url);
+      return null;
+    }
+  }
+  return entry.payload as T;
 }
 
 function getFullQuranRequest(url: string): { url: string; surahNumber: number } | null {
@@ -158,7 +212,14 @@ export async function cacheExternalData(url: string, payload: unknown): Promise<
   if (!db) {
     return false;
   }
-  const entry: ExternalCacheEntry = { key: url, url, payload, updatedAt: Date.now() };
+  const sha256 = await sha256Json(payload);
+  const entry: ExternalCacheEntry = {
+    key: url,
+    url,
+    payload,
+    updatedAt: Date.now(),
+    ...(sha256 === null ? {} : { sha256 }),
+  };
   const stored = await new Promise<boolean>((resolve) => {
     const transaction = db.transaction(STORE_NAME, 'readwrite');
     transaction.objectStore(STORE_NAME).put(entry);

@@ -74,4 +74,56 @@ describe('external data resilience cache', () => {
 
     await expect(apiFetch('/surah/2', { signal: controller.signal, silent: true, retries: 0 })).rejects.toThrow();
   });
+
+  it('drops a tampered entry instead of serving it (SEC-01)', async () => {
+    const url = 'https://example.org/tampered.json';
+    const { cacheExternalData, getCachedExternalData } = await import('../external-data-cache.js');
+    await cacheExternalData(url, { data: 'genuine' });
+    await expect(getCachedExternalData(url)).resolves.toEqual({ data: 'genuine' });
+
+    // Rewrite the stored payload in place, keeping the write-time digest:
+    // this is exactly what a corrupted/backdoored record looks like.
+    await new Promise<void>((resolve, reject) => {
+      const open = indexedDB.open('QuranExternalDataDB', 1);
+      open.onsuccess = () => {
+        const db = open.result;
+        const tx = db.transaction('responses', 'readwrite');
+        const get = tx.objectStore('responses').get(url);
+        get.onsuccess = () => {
+          tx.objectStore('responses').put({ ...get.result, payload: { data: 'forged' } });
+        };
+        tx.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+        tx.onerror = () => reject(tx.error);
+      };
+      open.onerror = () => reject(open.error);
+    });
+
+    await expect(getCachedExternalData(url)).resolves.toBeNull();
+    // The suspect entry is gone, so a second read cannot resurrect it either.
+    await expect(getCachedExternalData(url)).resolves.toBeNull();
+  });
+
+  it('keeps serving pre-digest entries written before verification existed', async () => {
+    const url = 'https://example.org/legacy.json';
+    await new Promise<void>((resolve, reject) => {
+      const open = indexedDB.open('QuranExternalDataDB', 1);
+      open.onsuccess = () => {
+        const db = open.result;
+        const tx = db.transaction('responses', 'readwrite');
+        tx.objectStore('responses').put({ key: url, url, payload: { data: 'old' }, updatedAt: 1 });
+        tx.oncomplete = () => {
+          db.close();
+          resolve();
+        };
+        tx.onerror = () => reject(tx.error);
+      };
+      open.onerror = () => reject(open.error);
+    });
+
+    const { getCachedExternalData } = await import('../external-data-cache.js');
+    await expect(getCachedExternalData(url)).resolves.toEqual({ data: 'old' });
+  });
 });
