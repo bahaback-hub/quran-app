@@ -256,7 +256,7 @@ export function surahTextFingerprint(textData: SurahTextData): string {
 }
 
 /** Fingerprint of the active translation (edition plus every ayah text). */
-export function translationFingerprint(): string {
+function translationFingerprint(): string {
   const data =
     state.translationEnabled && state.translationData
       ? (state.translationData as { ayahs?: Array<{ text?: string }> })
