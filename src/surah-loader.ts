@@ -16,7 +16,13 @@ import type { CachedSurahEntry } from './surah-cache.js';
 import { loadLocalSurahText, loadLocalTranslation } from './api-fallback.js';
 import { getOfflinePackAudioUrls } from './offline-pack.js';
 import { QURAN_COM_API_BASE } from './external-sources.js';
-import { renderSurah, finalizeSurahLoad, highlightCurrentAyah } from './surah-render.js';
+import {
+  renderSurah,
+  finalizeSurahLoad,
+  highlightCurrentAyah,
+  patchTranslations,
+  renderSurahIfChanged,
+} from './surah-render.js';
 import type { SurahTextData, LoadSurahOptions } from './surah-render.js';
 
 // Re-export surah-list helpers so existing callers of surah-loader.loadSurahList /
@@ -28,7 +34,14 @@ export { loadSurahList, populateReciterSelect, buildSurahOffsets, absToSurahAyah
 // Re-export the render cluster (now in surah-render.ts) so existing callers of
 // surah-loader.renderSurah / highlightCurrentAyah / updatePlayerInfo /
 // updateCurrentSurahLocale continue to work without changing import paths.
-export { renderSurah, highlightCurrentAyah, updatePlayerInfo, updateCurrentSurahLocale } from './surah-render.js';
+export {
+  renderSurah,
+  highlightCurrentAyah,
+  updatePlayerInfo,
+  updateCurrentSurahLocale,
+  patchTranslations,
+  renderSurahIfChanged,
+} from './surah-render.js';
 
 /* ===================== LOCAL INTERFACES ===================== */
 
@@ -546,7 +559,12 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     _loadedAudioReciter = state.currentReciter;
     state.translationData = transResult;
     if (transResult && state.surahData) {
-      renderSurah(state.surahData);
+      // Translation arrived after the text render: patch the missing spans in
+      // place instead of rebuilding ~6,300 word spans. Falls back to a full
+      // render if the DOM no longer matches the surah.
+      if (!patchTranslations()) {
+        renderSurah(state.surahData);
+      }
       highlightCurrentAyah();
     }
 
@@ -714,8 +732,21 @@ async function _refreshSurahFromAPI(
     immutableMapSet(state, 'surahCache', cacheKey, cacheEntry);
     cacheSurahToIDB(cacheKey, cacheEntry);
 
-    // Re-render with fresh data
-    renderSurah(textData);
+    // Re-render only when the data actually changed. Background refreshes
+    // almost always deliver byte-identical text: skipping the rebuild avoids
+    // thousands of word-span repaints and never moves the reader's scroll.
+    // On a real change, preserve the scroll position across the rebuild.
+    const scroller = dom.surahContent;
+    const savedTop = scroller?.scrollTop ?? 0;
+    const savedY = window.scrollY;
+    if (renderSurahIfChanged(textData)) {
+      if (scroller && scroller.scrollTop !== savedTop) {
+        scroller.scrollTop = savedTop;
+      }
+      if (window.scrollY !== savedY) {
+        window.scrollTo(0, savedY);
+      }
+    }
     highlightCurrentAyah();
   } catch {
     // Background refresh failure is silent — the cached data is still displayed

@@ -224,6 +224,141 @@ export function renderSurah(textData: SurahTextData): void {
       );
     });
   }
+  _renderedTextFp = surahTextFingerprint(textData);
+  _renderedTransFp = translationFingerprint();
+}
+
+/* ===================== SELECTIVE UPDATE (ARC-02) ===================== */
+
+/** FNV-1a 32-bit hex — fast content fingerprint for change detection (not security). */
+function fnv1aHex(mix: (emit: (s: string) => void) => void): string {
+  let hash = 0x811c9dc5;
+  const emit = (s: string): void => {
+    for (let i = 0; i < s.length; i++) {
+      hash ^= s.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193) >>> 0;
+    }
+  };
+  mix(emit);
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+/** Fingerprint of surah text content: number plus every ayah text. */
+export function surahTextFingerprint(textData: SurahTextData): string {
+  return fnv1aHex((emit) => {
+    emit(String(textData.number));
+    emit('\n');
+    for (const a of textData.ayahs) {
+      emit(a.text);
+      emit('\n');
+    }
+  });
+}
+
+/** Fingerprint of the active translation (edition plus every ayah text). */
+export function translationFingerprint(): string {
+  const data =
+    state.translationEnabled && state.translationData
+      ? (state.translationData as { ayahs?: Array<{ text?: string }> })
+      : null;
+  return fnv1aHex((emit) => {
+    emit(state.translationEnabled ? (state.currentTranslation ?? '') : '');
+    emit('\n');
+    for (const a of data?.ayahs ?? []) {
+      emit(a?.text ?? '');
+      emit('\n');
+    }
+  });
+}
+
+let _renderedTextFp: string | null = null;
+let _renderedTransFp: string | null = null;
+
+/**
+ * Re-render only when the text or the translation actually changed.
+ * Background refreshes usually deliver byte-identical data; skipping the
+ * rebuild avoids ~6,300 word-span repaints and, more importantly, never moves
+ * the reader's scroll position. Returns true when it rendered.
+ */
+export function renderSurahIfChanged(textData: SurahTextData): boolean {
+  if (
+    _renderedTextFp !== null &&
+    _renderedTextFp === surahTextFingerprint(textData) &&
+    _renderedTransFp === translationFingerprint()
+  ) {
+    return false;
+  }
+  renderSurah(textData);
+  return true;
+}
+
+interface TranslationDataLike {
+  ayahs?: Array<{ text?: string }>;
+}
+
+/** Translation payload currently in effect, if translation display is on. */
+function activeTranslationData(): TranslationDataLike | null {
+  if (!state.translationEnabled) {
+    return null;
+  }
+  const data = state.translationData as TranslationDataLike | null;
+  return data?.ayahs?.length ? data : null;
+}
+
+/**
+ * Patch translation spans in place instead of rebuilding the whole surah.
+ * Used when translation data arrives after the text render. Returns false
+ * when the DOM does not match the current surah (caller falls back to a full
+ * renderSurah). Never throws: any structural surprise also falls back.
+ */
+export function patchTranslations(): boolean {
+  try {
+    const container = dom.surahContent?.querySelector('.ayahs-container');
+    const textData = state.surahData;
+    if (!container || !(container instanceof HTMLElement) || !textData) {
+      return false;
+    }
+    const rendered = [...container.children].filter(
+      (el): el is HTMLElement => el instanceof HTMLElement && el.classList.contains('ayah'),
+    );
+    if (rendered.length !== textData.ayahs.length) {
+      return false;
+    }
+    const translationAyahs = activeTranslationData()?.ayahs ?? [];
+    const isRtlTranslation = !!state.currentTranslation && state.currentTranslation.startsWith('ur.');
+    for (const ayahEl of rendered) {
+      const idx = Number(ayahEl.getAttribute('data-index'));
+      if (!Number.isInteger(idx)) {
+        return false;
+      }
+      const text = translationAyahs[idx]?.text;
+      const existing = [...ayahEl.children].find(
+        (el): el is HTMLElement => el instanceof HTMLElement && el.classList.contains('translation-text'),
+      );
+      if (text === undefined) {
+        existing?.remove();
+        continue;
+      }
+      if (existing) {
+        if (existing.textContent !== text) {
+          existing.textContent = text;
+        }
+        existing.classList.toggle('rtl-lang', isRtlTranslation);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'translation-text' + (isRtlTranslation ? ' rtl-lang' : '');
+        span.textContent = text;
+        ayahEl.append(span);
+      }
+    }
+    _renderedTransFp = translationFingerprint();
+    return true;
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[SurahRender] patchTranslations fell back to full render:', err);
+    }
+    return false;
+  }
 }
 
 function buildAyahWordsHtml(text: string, ayahIdx: number, colorMap: Map<number, TajweedRule> | null): string {
