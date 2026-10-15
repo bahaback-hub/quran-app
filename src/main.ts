@@ -318,7 +318,27 @@ function setupMobilePanelObserver(): void {
     // Watch the entire body subtree for class attribute changes. This catches
     // panels that exist now AND panels injected later (overlays.ts injects
     // settings-panel, help-panel, sleep-timer-overlay after initApp()).
-    const observer = new MutationObserver(() => updateBodyClasses());
+    //
+    // ARC-04: the callback used to run a full panel scan (with layout-forcing
+    // getComputedStyle per panel) on EVERY class mutation anywhere — including
+    // word-highlight ticks ~4×/sec during audio playback. Now mutations that
+    // cannot affect a panel (e.g. .word spans) are filtered first with a cheap
+    // DOM walk, so the expensive scan runs only when a panel really changed.
+    const observer = new MutationObserver((mutations: MutationRecord[]) => {
+      const relevant = mutations.some((m) => {
+        if (m.type === 'childList') {
+          return [...m.addedNodes].some(
+            (n) =>
+              n instanceof HTMLElement && (n.matches(PANEL_SELECTOR) || n.querySelector(PANEL_SELECTOR) !== null),
+          );
+        }
+        const t = m.target;
+        return t instanceof HTMLElement && (t.matches(PANEL_SELECTOR) || t.closest(PANEL_SELECTOR) !== null);
+      });
+      if (relevant) {
+        updateBodyClasses();
+      }
+    });
     observer.observe(document.body, {
       attributes: true,
       attributeFilter: ['class'],
