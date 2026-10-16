@@ -19,7 +19,8 @@ import { dom } from './dom.js';
 import { surahSelectLoading, surahSelectError, surahSelectDefault, reciterOptions } from './templates.js';
 import { state, SurahInfo, SurahOffset } from './state.js';
 import { RECITERS, getReciterDisplayName } from './reciters.js';
-import { apiFetch, jsonFetch } from './api-client.js';
+import { apiFetch } from './api-client.js';
+import { loadLocalSurahList } from './api-fallback.js';
 
 /** Reciter info from reciters module. */
 interface ReciterInfo {
@@ -67,19 +68,15 @@ export async function loadSurahList(): Promise<void> {
     return;
   }
 
-  try {
-    const localData = (await jsonFetch('data/surah-list.json', { silent: true })) as SurahInfo[];
-    if (localData && localData.length === CONFIG.SURAH_COUNT) {
-      state.surahList = localData;
-      state.surahOffsets = null;
-      storage.set('surah_list', localData);
-      populateSurahSelect();
-      // Sync with the authoritative list silently in the background.
-      void refreshSurahListFromAPI();
-      return;
-    }
-  } catch {
-    /* no local fallback — fall through to API */
+  const localData = await loadLocalSurahList();
+  if (localData) {
+    state.surahList = localData;
+    state.surahOffsets = null;
+    storage.set('surah_list', localData);
+    populateSurahSelect();
+    // Sync with the authoritative list silently in the background.
+    void refreshSurahListFromAPI();
+    return;
   }
   if (dom.surahSelect) {
     dom.surahSelect.innerHTML = surahSelectLoading();

@@ -24,10 +24,10 @@
     },
     {
       "file": "src/api-fallback.ts",
-      "fn": "loadLocalTafsirMuyassar",
+      "fn": "loadLocalTafsirFile",
       "anchor": "#1",
       "kind": "catch-return-null",
-      "reason": "local surah-info read fails → null → caller falls through to API / error display"
+      "reason": "local Muyassar bundle read fails → null → tafsir strategy falls through to IndexedDB cache / API / error display"
     },
     {
       "file": "src/api-fallback.ts",
@@ -298,13 +298,6 @@
     {
       "file": "src/surah-list.ts",
       "fn": "loadSurahList",
-      "anchor": "/* no local fallback — fall through to API */",
-      "kind": "catch-empty-block",
-      "reason": "no local fallback — fall through to the API"
-    },
-    {
-      "file": "src/surah-list.ts",
-      "fn": "loadSurahList",
       "anchor": "/* last resort error state */",
       "kind": "catch-empty-block",
       "reason": "last-resort error state — the UI is already degraded"
@@ -343,13 +336,6 @@
       "anchor": "// Background refresh failure is silent — the cached data is still displayed",
       "kind": "catch-empty-block",
       "reason": "background refresh failure is silent — the cached data is still displayed"
-    },
-    {
-      "file": "src/tafsir.ts",
-      "fn": "loadLocalMuyassar",
-      "anchor": "#1",
-      "kind": "catch-return-null",
-      "reason": "local Muyassar bundle read fails → null → API tafsir path"
     },
     {
       "file": "src/tafsir.ts",

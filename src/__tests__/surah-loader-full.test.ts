@@ -300,9 +300,7 @@ describe('surah-loader-full', () => {
     it('should show loading indicator in surah select while fetching', async () => {
       vi.spyOn(storage, 'get').mockReturnValue(null);
       vi.spyOn(storage, 'set').mockImplementation(() => true);
-      // Simulate no local fallback — throw synchronously so try/catch
-      // resolves without a microtask, keeping surahSelectLoading on the
-      // synchronous path.
+      // Simulate no local fallback (the bundled-file load rejects).
       vi.mocked(jsonFetch).mockImplementation(() => {
         throw new Error('No local file');
       });
@@ -314,6 +312,9 @@ describe('surah-loader-full', () => {
         }),
       );
       const listPromise = loadSurahList();
+      // The local fallback now goes through an async helper, so let the
+      // pending microtasks settle before checking the loading state.
+      await new Promise((r) => setTimeout(r, 0));
       // Loading state should be shown while waiting for API
       expect(surahSelectLoading).toHaveBeenCalled();
       // Now resolve so test can complete

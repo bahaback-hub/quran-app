@@ -152,40 +152,72 @@ export async function loadLocalSurahList(): Promise<SurahInfo[] | null> {
   return null;
 }
 
+/** A single ayah entry inside the bundled Muyassar tafsir file. */
+interface MuyassarAyah {
+  ayah: number;
+  text: string;
+}
+
+/** One surah's data in the bundled file — `{ayahs: [...]}` (bare array in older builds). */
+type LocalTafsirSurah = MuyassarAyah[] | { ayahs: MuyassarAyah[] };
+
+/** Parsed data/muyassar-tafsir.json, keyed by surah number as a string. */
+type LocalTafsirFile = Record<string, LocalTafsirSurah>;
+
+/** Cache for the full local Muyassar file (parsed once, reused). */
+let _localTafsirCache: LocalTafsirFile | null = null;
+
+/** Load and cache the bundled Muyassar tafsir file. */
+async function loadLocalTafsirFile(): Promise<LocalTafsirFile | null> {
+  if (_localTafsirCache) {
+    return _localTafsirCache;
+  }
+  try {
+    const data = (await jsonFetch('data/muyassar-tafsir.json', {
+      silent: true,
+      timeout: 10000,
+    })) as LocalTafsirFile;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return null;
+    }
+    _localTafsirCache = data;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Fallback: load Tafsir Al-Muyassar for a surah from the local bundled JSON.
  * Use this when the remote Tafsir API (jsDelivr) is unreachable.
  *
- * The local file contains tafsir for all ayahs of all surahs in a single
- * JSON object keyed by `${surahNum}:${ayahNum}`.
+ * The shipped file (public/data/muyassar-tafsir.json) is keyed by surah
+ * number, each entry holding that surah's ayahs:
+ *   { "1": { "ayahs": [{ "ayah": 1, "surah": 1, "text": "..." }] } }
  *
  * @param surahNum Surah number (1..114)
  * @returns A map of ayahNum → tafsir text, or null if not found locally
  */
 export async function loadLocalTafsirMuyassar(surahNum: number): Promise<Record<number, string> | null> {
-  try {
-    const data = (await jsonFetch('data/muyassar-tafsir.json', {
-      silent: true,
-      timeout: 10000,
-    })) as Record<string, string>;
-    if (!data || typeof data !== 'object') {
-      return null;
-    }
-    // Filter entries matching the requested surah
-    const result: Record<number, string> = {};
-    const prefix = `${surahNum}:`;
-    for (const [key, value] of Object.entries(data)) {
-      if (key.startsWith(prefix)) {
-        const ayahNum = parseInt(key.split(':')[1] ?? '0', 10);
-        if (ayahNum > 0 && typeof value === 'string') {
-          result[ayahNum] = value;
-        }
-      }
-    }
-    return Object.keys(result).length > 0 ? result : null;
-  } catch {
+  const data = await loadLocalTafsirFile();
+  if (!data) {
     return null;
   }
+  const entry = data[String(surahNum)];
+  if (!entry) {
+    return null;
+  }
+  const ayahs = Array.isArray(entry) ? entry : entry.ayahs;
+  if (!Array.isArray(ayahs)) {
+    return null;
+  }
+  const result: Record<number, string> = {};
+  for (const a of ayahs) {
+    if (a && typeof a.ayah === 'number' && typeof a.text === 'string' && a.text.trim().length > 0) {
+      result[a.ayah] = a.text;
+    }
+  }
+  return Object.keys(result).length > 0 ? result : null;
 }
 
 /**
@@ -282,21 +314,11 @@ export async function loadLocalTranslation(
 }
 
 /**
- * Check if the local fallback files are available.
- * Useful for displaying an "offline mode" indicator to the user.
- *
- * @returns true if the local Quran text file is accessible
- */
-export async function isLocalFallbackAvailable(): Promise<boolean> {
-  const quran = await loadLocalQuran();
-  return quran !== null;
-}
-
-/**
- * Clear the local Quran cache. Useful for testing or when the user
+ * Clear the local fallback caches. Useful for testing or when the user
  * requests a fresh load (e.g., after a PWA update).
  */
 export function clearLocalFallbackCache(): void {
   _localQuranCache = null;
   _localTranslationCache.clear();
+  _localTafsirCache = null;
 }

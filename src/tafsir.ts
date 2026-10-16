@@ -3,24 +3,13 @@ import { CONFIG } from './config.js';
 import { dom } from './dom.js';
 import { requireDom } from './dom-require.js';
 import { tafsirLoading, tafsirErrorMessage } from './templates.js';
-import { tafsirFetch, jsonFetch } from './api-client.js';
+import { tafsirFetch } from './api-client.js';
+import { loadLocalTafsirMuyassar } from './api-fallback.js';
 import { __ } from './i18n.js';
 import { tryValidate } from './schemas-validate.js';
 import { TafsirApiResponseSchema } from './api-schemas.js';
 
 /* ===================== LOCAL TYPES ===================== */
-
-/** A single ayah entry in the local Muyassar tafsir. */
-interface MuyassarAyah {
-  ayah: number;
-  text: string;
-}
-
-/** A surah entry in the local Muyassar file — either an object with an `ayahs` array or a bare array. */
-type MuyassarSurah = MuyassarAyah[] | { ayahs: MuyassarAyah[] };
-
-/** The full local Muyassar tafsir structure: surah number → surah data. */
-type LocalMuyassar = Record<number, MuyassarSurah> | null;
 
 /** Shape of an entry stored in the IndexedDB tafsir object store. */
 interface TafsirCacheEntry {
@@ -28,42 +17,7 @@ interface TafsirCacheEntry {
   text: string;
 }
 
-/* ===================== LOCAL MUYASSAR TAFSIR ===================== */
-
-let _localMuyassar: LocalMuyassar = null;
-
 let _tafsirRenderSeq = 0;
-
-/** Load the local Muyassar tafsir file once. */
-async function loadLocalMuyassar(): Promise<LocalMuyassar> {
-  if (_localMuyassar) {
-    return _localMuyassar;
-  }
-  try {
-    _localMuyassar = await jsonFetch<LocalMuyassar>('data/muyassar-tafsir.json', { silent: true });
-    return _localMuyassar;
-  } catch {
-    return null;
-  }
-}
-
-/** Get tafsir text from local Muyassar file (instant, no API needed). */
-function getLocalMuyassarAyah(surahNum: number, ayahNum: number): string | null {
-  if (!_localMuyassar) {
-    return null;
-  }
-  const surah = _localMuyassar[surahNum];
-  if (!surah) {
-    return null;
-  }
-  // Handle both {ayahs: [...]} and direct array formats
-  const ayahs: MuyassarAyah[] | null = Array.isArray(surah) ? surah : surah.ayahs;
-  if (!ayahs) {
-    return null;
-  }
-  const ayah = ayahs.find((a: MuyassarAyah) => a.ayah === ayahNum);
-  return ayah?.text || null;
-}
 
 /* ===================== TAFSIR INDEXEDDB CACHE ===================== */
 
@@ -161,12 +115,10 @@ async function fetchTafsirFromAPI(edition: string, surahNum: number, ayahNum: nu
 async function getTafsirText(edition: string, surahNum: number, ayahNum: number): Promise<string | null> {
   // Strategy 1: Local Muyassar file
   if (edition === 'ar-tafsir-muyassar') {
-    const local = await loadLocalMuyassar();
-    if (local) {
-      const text = getLocalMuyassarAyah(surahNum, ayahNum);
-      if (text) {
-        return text;
-      }
+    const local = await loadLocalTafsirMuyassar(surahNum);
+    const text = local?.[ayahNum] ?? null;
+    if (text) {
+      return text;
     }
   }
   // Strategy 2: IndexedDB cache
@@ -224,8 +176,8 @@ export async function loadTafsirForCurrentAyah(): Promise<void> {
   setTafsirHeader(surahData.name, a.numberInSurah);
   // Try instant local first for Muyassar
   if (edition === 'ar-tafsir-muyassar') {
-    const local = await loadLocalMuyassar();
-    const localText = local ? getLocalMuyassarAyah(state.currentSurah, a.numberInSurah) : null;
+    const local = await loadLocalTafsirMuyassar(state.currentSurah);
+    const localText = local?.[a.numberInSurah] ?? null;
     if (localText) {
       if (renderSeq !== _tafsirRenderSeq) {
         return;
@@ -273,8 +225,8 @@ export async function loadTafsirForSurahAyah(surahNum: number, ayahNum: number):
   const ayahText = (ayahEntry as { text?: string } | undefined)?.text || '';
   // Try instant local first for Muyassar
   if (edition === 'ar-tafsir-muyassar') {
-    const local = await loadLocalMuyassar();
-    const localText = local ? getLocalMuyassarAyah(surahNum, ayahNum) : null;
+    const local = await loadLocalTafsirMuyassar(surahNum);
+    const localText = local?.[ayahNum] ?? null;
     if (localText) {
       if (renderSeq !== _tafsirRenderSeq) {
         return;

@@ -63,10 +63,18 @@ const QURAN_FIXTURE = {
   },
 };
 
-const TAFSIR_FIXTURE: Record<string, string> = {
-  '1:1': 'تفسير الآية الأولى من الفاتحة',
-  '1:2': 'تفسير الآية الثانية من الفاتحة',
-  '2:1': 'تفسير الآية الأولى من البقرة',
+// Mirrors the shipped shape of public/data/muyassar-tafsir.json:
+// keyed by surah number, each surah holding its own `ayahs` array.
+const TAFSIR_FIXTURE: Record<string, { ayahs: Array<{ ayah: number; surah: number; text: string }> }> = {
+  '1': {
+    ayahs: [
+      { ayah: 1, surah: 1, text: 'تفسير الآية الأولى من الفاتحة' },
+      { ayah: 2, surah: 1, text: 'تفسير الآية الثانية من الفاتحة' },
+    ],
+  },
+  '2': {
+    ayahs: [{ ayah: 1, surah: 2, text: 'تفسير الآية الأولى من البقرة' }],
+  },
 };
 
 async function getModule() {
@@ -194,6 +202,47 @@ describe('api-fallback — loadLocalTafsirMuyassar', () => {
     const result = await mod.loadLocalTafsirMuyassar(1);
     expect(result).toBeNull();
   });
+
+  it('accepts the older bare-array surah format', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue({
+      '1': [{ ayah: 1, surah: 1, text: 'تفسير بصيغة المصفوفة' }],
+    });
+    const result = await mod.loadLocalTafsirMuyassar(1);
+    expect(result).not.toBeNull();
+    expect(result![1]).toContain('المصفوفة');
+  });
+
+  it('returns null for a `surah:ayah`-keyed map — a shape the bundle never had', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue({ '1:1': 'تفسير بمفاتيح غير معروفة' });
+    const result = await mod.loadLocalTafsirMuyassar(1);
+    expect(result).toBeNull();
+  });
+
+  it('skips empty ayah texts', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue({
+      '1': {
+        ayahs: [
+          { ayah: 1, surah: 1, text: 'تفسير صحيح' },
+          { ayah: 2, surah: 1, text: '   ' },
+        ],
+      },
+    });
+    const result = await mod.loadLocalTafsirMuyassar(1);
+    expect(result).not.toBeNull();
+    expect(result![1]).toContain('صحيح');
+    expect(result![2]).toBeUndefined();
+  });
+
+  it('parses the file once and reuses it across surahs', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue(TAFSIR_FIXTURE);
+    await mod.loadLocalTafsirMuyassar(1);
+    await mod.loadLocalTafsirMuyassar(2);
+    expect(jsonFetchMock).toHaveBeenCalledTimes(1);
+  });
 });
 
 const TRANSLATION_FIXTURE = {
@@ -311,33 +360,29 @@ describe('api-fallback — loadLocalTranslation', () => {
   });
 });
 
-describe('api-fallback — isLocalFallbackAvailable & cache', () => {
+describe('api-fallback — clearLocalFallbackCache', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
   });
 
-  it('returns true when local Quran file is accessible', async () => {
-    const { mod, jsonFetchMock } = await getModule();
-    jsonFetchMock.mockResolvedValue(QURAN_FIXTURE);
-    const result = await mod.isLocalFallbackAvailable();
-    expect(result).toBe(true);
-  });
-
-  it('returns false when jsonFetch throws', async () => {
-    const { mod, jsonFetchMock } = await getModule();
-    jsonFetchMock.mockRejectedValue(new Error('network error'));
-    const result = await mod.isLocalFallbackAvailable();
-    expect(result).toBe(false);
-  });
-
-  it('clearLocalFallbackCache resets the internal cache', async () => {
+  it('resets the Quran text cache', async () => {
     const { mod, jsonFetchMock } = await getModule();
     jsonFetchMock.mockResolvedValue(QURAN_FIXTURE);
     await mod.loadLocalSurahText(1); // first call — loads and caches
     expect(jsonFetchMock).toHaveBeenCalledTimes(1);
     mod.clearLocalFallbackCache();
     await mod.loadLocalSurahText(1); // second call — should reload
+    expect(jsonFetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('resets the tafsir cache', async () => {
+    const { mod, jsonFetchMock } = await getModule();
+    jsonFetchMock.mockResolvedValue(TAFSIR_FIXTURE);
+    await mod.loadLocalTafsirMuyassar(1);
+    expect(jsonFetchMock).toHaveBeenCalledTimes(1);
+    mod.clearLocalFallbackCache();
+    await mod.loadLocalTafsirMuyassar(1);
     expect(jsonFetchMock).toHaveBeenCalledTimes(2);
   });
 });
