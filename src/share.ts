@@ -122,7 +122,7 @@ export function shareWhatsApp(): void {
   if (!text) {
     return;
   }
-  window.open(`${SHARE_WHATSAPP_BASE}/?text=${encodeURIComponent(text)}`, '_blank');
+  window.open(`${SHARE_WHATSAPP_BASE}/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
 
 /** Share current ayah via Telegram. */
@@ -134,5 +134,6 @@ export function shareTelegram(): void {
   window.open(
     `${SHARE_TELEGRAM_BASE}?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`,
     '_blank',
+    'noopener,noreferrer',
   );
 }

@@ -619,7 +619,6 @@ function paintPageBackground(ctx: CanvasRenderingContext2D, colors: PageColors):
  */
 export async function renderPage(pageNum: number, targetCanvas?: HTMLCanvasElement | null): Promise<RenderPageResult> {
   const capMode = isCapacitor();
-  console.warn(`[Mushaf] renderPage(${pageNum}) starting... Capacitor=${capMode}`);
 
   // Add overall timeout for Capacitor to prevent hanging
   if (capMode) {
@@ -766,8 +765,6 @@ async function _renderPageInternal(
   drawPageFrame(ctx!, colors);
 
   drawPageNumber(ctx!, pageNum, colors);
-
-  console.warn(`[Mushaf] Page ${pageNum} rendered successfully`);
 
   // In Capacitor: schedule a single well-timed re-render because Android WebView
   // sometimes needs an extra render pass for fonts to take effect on Canvas.

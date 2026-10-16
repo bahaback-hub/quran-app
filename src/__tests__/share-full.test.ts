@@ -322,7 +322,7 @@ describe('share.ts — full coverage', () => {
 
       shareWhatsApp();
 
-      expect(windowOpenSpy).toHaveBeenCalledWith(expect.any(String), '_blank');
+      expect(windowOpenSpy).toHaveBeenCalledWith(expect.any(String), '_blank', 'noopener,noreferrer');
     });
   });
 
@@ -366,7 +366,7 @@ describe('share.ts — full coverage', () => {
 
       shareTelegram();
 
-      expect(windowOpenSpy).toHaveBeenCalledWith(expect.any(String), '_blank');
+      expect(windowOpenSpy).toHaveBeenCalledWith(expect.any(String), '_blank', 'noopener,noreferrer');
     });
 
     it('should include current page URL in share link', () => {

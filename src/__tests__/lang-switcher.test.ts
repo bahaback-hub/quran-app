@@ -63,6 +63,19 @@ describe('lang switcher', () => {
     expect(document.querySelectorAll('#langDropdown .lang-option')).toHaveLength(3);
   });
 
+  it('hides the flag image through a wired error listener rather than an inline onerror (SEC-03)', async () => {
+    const { initLangSwitcher } = await initSwitcher();
+    initLangSwitcher();
+
+    const flagImg = document.querySelector<HTMLImageElement>('#langCurrentFlag .lang-flag-img')!;
+    expect(flagImg).not.toBeNull();
+    expect(flagImg.hasAttribute('onerror')).toBe(false);
+    expect(flagImg.getAttribute('src')).toBe('flags/sa.svg');
+
+    flagImg.dispatchEvent(new Event('error'));
+    expect(flagImg.classList.contains('is-hidden')).toBe(true);
+  });
+
   it('opens and closes the dropdown from the toggle button', async () => {
     const { initLangSwitcher } = await initSwitcher();
     initLangSwitcher();

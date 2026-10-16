@@ -42,7 +42,18 @@ const FLAGS: Record<LangCode, string> = {
 function flagMarkup(lang: LangCode): string {
   const src = `flags/${COUNTRY_CODES[lang]}.svg`;
   const emoji = FLAGS[lang] ?? '🌐';
-  return `<img class="lang-flag-img" src="${src}" alt="" loading="lazy" onerror="this.classList.add('is-hidden')"><span class="lang-flag-emoji">${emoji}</span>`;
+  return `<img class="lang-flag-img" src="${src}" alt="" loading="lazy"><span class="lang-flag-emoji">${emoji}</span>`;
+}
+
+/**
+ * Wire the emoji fallback for the flag image inside `container`, hiding the
+ * image if it fails to load so the emoji shows. Attached as a real listener
+ * (not an inline `onerror` attribute) because the project CSP forbids inline
+ * event handlers, which silently disabled the fallback before.
+ */
+function wireFlagFallback(container: HTMLElement): void {
+  const img = container.querySelector<HTMLImageElement>('.lang-flag-img');
+  img?.addEventListener('error', () => img.classList.add('is-hidden'));
 }
 
 let dropdownOpen = false;
@@ -53,6 +64,7 @@ function updateButtonState(): void {
   const current = getLang();
   if (flag) {
     flag.innerHTML = flagMarkup(current);
+    wireFlagFallback(flag);
   }
 }
 
@@ -111,6 +123,7 @@ function buildDropdown(): void {
     item.dataset['lang'] = lang.code;
     item.setAttribute('role', 'option');
     item.innerHTML = `<span class="lang-option-flag" aria-hidden="true">${flagMarkup(lang.code)}</span><span class="lang-option-name">${lang.nativeName}</span>`;
+    wireFlagFallback(item);
     item.addEventListener('click', () => {
       closeDropdown();
       if (lang.code !== getLang()) {

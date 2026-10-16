@@ -21,25 +21,6 @@ interface EventTarget {
   blur?(): void;
 }
 
-// Cross-module functions - hoisted in concat build
-declare function loadSurah(surahNum: number, opts?: Record<string, unknown>): Promise<void>;
-declare function highlightCurrentAyah(): void;
-declare function playCurrentAyah(): void;
-declare function updatePlayerInfo(): void;
-declare function prepareAudioForNewSurah(): void;
-declare function updatePlayPauseBtn(): void;
-declare function expandPlayer(): void;
-declare function prevSurah(): void;
-declare function nextSurah(): void;
-declare function closeTafsir(): void;
-declare function hideAzanNotification(): void;
-declare function stopClock(): void;
-declare function loadTafsirForSurahAyah(surahNum: number, ayahNum: number): Promise<void>;
-declare function showSurahSecret(surahNum: number, surahName: string): void;
-declare function initKeyboardShortcuts(): void;
-declare function initNavigation(): void;
-declare function initCapacitorBackButton(): void;
-
 // Build-time app version injected by Vite (see vite.config.js `define`).
 // Single source of truth: package.json "version".
 declare const __APP_VERSION__: string;

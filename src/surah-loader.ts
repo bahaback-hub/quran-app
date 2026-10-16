@@ -615,7 +615,6 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
         renderSurah(state.surahData!);
         finalizeSurahLoad(opts);
         loadingBar.hide();
-        // showToast(__('offline_no_audio'), ''); // disabled at startup
         state.loadingSurah = null;
         return;
       }
@@ -646,7 +645,6 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     if (dom.surahContent) {
       dom.surahContent.innerHTML = surahLoadError();
     }
-    // showToast(__('failed_load_surah'), 'error'); // disabled at startup
     loadingBar.hide();
   } finally {
     // Only clear loading state if this is still the active load
