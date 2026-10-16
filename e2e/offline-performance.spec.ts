@@ -37,7 +37,9 @@ test.describe('Offline & Performance Features', () => {
 
   test('should display prayer times section', async ({ page }) => {
     const prayerBar = page.locator('.prayer-bar');
-    await expect(prayerBar).toBeVisible({ timeout: 10000 });
+    // 20s: under parallel CI load this static bar's first paint was observed
+    // to exceed the previous 10s budget (startup work: fonts, layout data).
+    await expect(prayerBar).toBeVisible({ timeout: 20000 });
   });
 
   test('should have font preload links in head', async ({ page }) => {

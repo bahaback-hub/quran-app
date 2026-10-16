@@ -24,16 +24,16 @@ export default defineConfig({
     disableConsoleIntercept: true,
     coverage: {
       reporter: ['text', 'html', 'json-summary', 'json'],
-      // Enforced thresholds — current baseline is lines 86.7%, branches 74.9%,
-      // functions 85.6%, statements 86.3%. We hold at 80% lines/statements and
-      // 70% branches/functions as a hard floor; the CI also enforces 80% lines
-      // via coverage-summary.json. Tightening these numbers forces new code to
-      // keep coverage discipline rather than regressing silently.
+      // Enforced thresholds — current baseline is lines 86.85%, branches 75.06%,
+      // functions 85.37%, statements 86.35%. The floors sit ~1.5-2 points below
+      // the baseline so ordinary coverage jitter does not fail CI, while any
+      // silent regression below them stops the build (the previous floors of
+      // 80/70 left too much room for unnoticed drift).
       thresholds: {
-        lines: 80,
-        functions: 70,
-        branches: 70,
-        statements: 80,
+        lines: 85,
+        functions: 84,
+        branches: 73,
+        statements: 85,
       },
       exclude: [
         'src/translations/**',
