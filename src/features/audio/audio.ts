@@ -12,6 +12,11 @@
  *
  * Architecture note: setLoadSurah() is called by app.ts during initialization
  * to inject the surah-loading callback, avoiding circular imports.
+ *
+ * Structure: word-by-word sync (audio-word-tracking.ts), the sleep timer
+ * (audio-sleep-timer.ts), and the repeat-mode UI (audio-repeat-ui.ts) live in
+ * sibling modules and are re-exported here, so existing callers keep importing
+ * from this module.
  */
 
 import { applyPlaybackRate, prepareElementForUrl } from './audio-pitch.js';
@@ -27,6 +32,35 @@ export {
   _resetPitchForTests,
 } from './audio-pitch.js';
 
+import {
+  clearWordWeightsCache,
+  initWordTrackingHost,
+  onSeeking,
+  onTimeUpdate,
+  resetWordTrackingDomCache,
+  startWordTracking,
+  stopWordTracking,
+} from './audio-word-tracking.js';
+export { clearWordWeightsCache } from './audio-word-tracking.js';
+
+import { initSleepTimerHost, updateSleepTimerDisplay } from './audio-sleep-timer.js';
+export {
+  clearSleepTimer,
+  cleanupSleepTimerInterval,
+  getSleepTimerMinutes,
+  getSleepTimerRemaining,
+  setSleepTimer,
+} from './audio-sleep-timer.js';
+
+import { resetRepeatUI } from './audio-repeat-ui.js';
+export {
+  applyRepeatUI,
+  getDefaultRepeatRange,
+  populateRepeatUI,
+  resetRepeatUI,
+  toggleRepeat,
+} from './audio-repeat-ui.js';
+
 import { state } from '../../state.js';
 import { dom } from '../../dom.js';
 import { requireDom } from '../../dom-require.js';
@@ -39,7 +73,7 @@ import type { SurahData } from '../../types.js';
 
 /* ===================== INTERFACES ===================== */
 
-import type { LoadSurahFn, ReloadAudioFn, RepeatRange, WordWeightsResult } from './audio-types.js';
+import type { LoadSurahFn, ReloadAudioFn } from './audio-types.js';
 export type { RepeatRange } from './audio-types.js';
 
 /* ===================== MODULE STATE ===================== */
@@ -90,9 +124,6 @@ function highlightCurrentAyah(): void {
 
 let _mp3quranUrl: string | null = null;
 let _autoAdvancing = false;
-let _sleepTimer: ReturnType<typeof setTimeout> | null = null;
-let _sleepTimerMinutes = 0;
-let _sleepTimerStart: number = 0;
 let _audioRetryCount = 0;
 /** True while an on-demand audio-list reload is in flight (re-entrancy guard). */
 let _audioReloading = false;
@@ -117,8 +148,7 @@ export function prepareAudioForNewSurah(): void {
     clearTimeout(_autoAdvanceSafetyTimer);
     _autoAdvanceSafetyTimer = null;
   }
-  _cachedWordEls = null;
-  _cachedWordAyahIndex = -1;
+  resetWordTrackingDomCache();
   clearWordWeightsCache();
   state.isPlaying = false;
   resetAudioPlayerUI();
@@ -171,6 +201,43 @@ function _getAyahEndTime(): number {
   }
   const next = state.ayahTimings[state.currentAyahIndex + 1];
   return (next !== undefined ? next : 1) * dom.audioPlayer.duration;
+}
+
+/**
+ * Handle the mp3quran ayah boundary detected by the word-tracking module:
+ * pause, then let repeat mode take over or advance to the next ayah / end of
+ * surah. Guarded by _autoAdvancing so later timeupdate ticks cannot re-enter
+ * while a transition is in flight; a safety timer clears a stuck guard after
+ * five seconds.
+ */
+function handleAyahBoundary(): void {
+  if (_autoAdvancing) {
+    return;
+  }
+  _autoAdvancing = true;
+  dom.audioPlayer?.pause();
+  try {
+    if (handleRepeatOnEnd()) {
+      // Repeat playback takes over immediately; do not leave the guard set
+      // or later timeupdate events would be suppressed for five seconds.
+      _autoAdvancing = false;
+      return;
+    }
+    if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
+      nextAyah(true);
+    } else {
+      onAudioEnded();
+    }
+  } catch (e) {
+    console.warn('[Audio] Error during auto-advance:', e);
+    _autoAdvancing = false;
+  }
+  _autoAdvanceSafetyTimer = setTimeout(() => {
+    if (_autoAdvancing) {
+      console.warn('[Audio] Auto-advance safety timeout — resetting stuck state');
+      _autoAdvancing = false;
+    }
+  }, 5000);
 }
 
 /* ===================== PLAYBACK STATE HELPERS ===================== */
@@ -414,183 +481,6 @@ function preloadNextAyah(): void {
       });
     }
   }
-}
-
-/* ===================== WORD-BY-WORD TRACKING ===================== */
-
-let wordTrackingActive = false;
-const _wordWeightsCache = new Map<string, WordWeightsResult>();
-
-function wordWeightsKey(ayahIndex: number): string {
-  // The reciter and playback speed change the audio duration, so timings are
-  // only valid for that exact combination. Keying on all three avoids stale
-  // sync after a reciter/speed change without clearing the whole cache.
-  const speed = dom.audioPlayer?.playbackRate ?? 1;
-  return `${ayahIndex}|${state.currentReciter}|${speed}`;
-}
-
-function startWordTracking(): void {
-  _lastWordIndex = -1;
-  wordTrackingActive = true;
-}
-
-function stopWordTracking(): void {
-  wordTrackingActive = false;
-  _lastWordIndex = -1;
-  document.querySelectorAll('.word.current-word').forEach((el: Element) => el.classList.remove('current-word'));
-}
-
-function getCachedWordWeights(ayahIndex: number): WordWeightsResult | null {
-  const cached = _wordWeightsCache.get(wordWeightsKey(ayahIndex));
-  if (cached) {
-    return cached;
-  }
-  const ayahEl = document.querySelector(`.ayah[data-index="${ayahIndex}"]`);
-  if (!ayahEl) {
-    return null;
-  }
-  const words = ayahEl.querySelectorAll('.word');
-  if (words.length === 0) {
-    return null;
-  }
-  const weights: number[] = [];
-  for (const w of words) {
-    const letters = w.textContent?.match(/[\u0621-\u064A\u0660-\u0669]/g) || [];
-    weights.push(Math.max(1, letters.length));
-  }
-  const totalWeight = weights.reduce((a: number, b: number) => a + b, 0);
-  const preferredPauseRatio = words.length <= 3 ? 0.06 : words.length <= 8 ? 0.04 : 0.025;
-  // Reserve at least 30% of the ayah duration for speech. A fixed pause per word
-  // otherwise makes speechRatio negative in long ayahs and reverses word timing.
-  const pauseRatio = Math.min(preferredPauseRatio, 0.7 / Math.max(1, words.length - 1));
-  const speechRatio = 1 - pauseRatio * (words.length - 1);
-  let cumTime = 0;
-  const startTimes: number[] = [];
-  for (let i = 0; i < words.length; i++) {
-    startTimes.push(cumTime);
-    cumTime += (weights[i]! / totalWeight) * speechRatio + pauseRatio;
-  }
-  const result: WordWeightsResult = { wordCount: words.length, startTimes };
-  _wordWeightsCache.set(wordWeightsKey(ayahIndex), result);
-  return result;
-}
-
-export function clearWordWeightsCache(): void {
-  _wordWeightsCache.clear();
-}
-
-let _cachedWordEls: NodeListOf<Element> | null = null;
-let _cachedWordAyahIndex = -1;
-/** Last word index painted with 'current-word'; -1 means no words painted. */
-let _lastWordIndex = -1;
-
-function onTimeUpdate(): void {
-  if (_autoAdvancing || !wordTrackingActive || !dom.audioPlayer || !state.surahData) {
-    return;
-  }
-  let duration = dom.audioPlayer.duration;
-  if (!duration || !isFinite(duration)) {
-    return;
-  }
-  let currentTime = dom.audioPlayer.currentTime;
-
-  const isMp3quran = state.ayahTimings?.length > 0;
-
-  if (isMp3quran) {
-    const endTime = _getAyahEndTime();
-    if (currentTime >= endTime - 0.15) {
-      if (_autoAdvancing) {
-        return;
-      }
-      _autoAdvancing = true;
-      dom.audioPlayer.pause();
-      try {
-        if (handleRepeatOnEnd()) {
-          // Repeat playback takes over immediately; do not leave the guard set
-          // or later timeupdate events would be suppressed for five seconds.
-          _autoAdvancing = false;
-          return;
-        }
-        if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
-          nextAyah(true);
-        } else {
-          onAudioEnded();
-        }
-      } catch (e) {
-        console.warn('[Audio] Error during auto-advance:', e);
-        _autoAdvancing = false;
-      }
-      _autoAdvanceSafetyTimer = setTimeout(() => {
-        if (_autoAdvancing) {
-          console.warn('[Audio] Auto-advance safety timeout — resetting stuck state');
-          _autoAdvancing = false;
-        }
-      }, 5000);
-      return;
-    }
-    const ayahStart = _getAyahStartTime();
-    currentTime -= ayahStart;
-    duration = endTime - ayahStart;
-    if (currentTime < 0) {
-      currentTime = 0;
-    }
-  }
-
-  const wordData = getCachedWordWeights(state.currentAyahIndex);
-  if (!wordData) {
-    return;
-  }
-
-  const startTimes = wordData.startTimes.map((t: number) => t * duration);
-  let wordIndex = wordData.wordCount - 1;
-  for (let i = wordData.wordCount - 1; i >= 0; i--) {
-    if (currentTime >= startTimes[i]!) {
-      wordIndex = i;
-      break;
-    }
-  }
-
-  // Re-query whenever the index changed OR the cached nodes were detached by a
-  // surah re-render (translation late-load re-renders keep the same ayah index,
-  // which previously left the cache pointing at a replaced, disconnected DOM).
-  if (
-    state.currentAyahIndex !== _cachedWordAyahIndex ||
-    !_cachedWordEls ||
-    _cachedWordEls.length === 0 ||
-    !document.contains(_cachedWordEls[0]!)
-  ) {
-    _cachedWordEls = document.querySelectorAll(`.ayah[data-index="${state.currentAyahIndex}"] .word`);
-    _cachedWordAyahIndex = state.currentAyahIndex;
-    // Fresh nodes (new ayah, or detached by a late translation re-render)
-    // start unpainted.
-    _lastWordIndex = -1;
-  }
-  if (!_cachedWordEls) {
-    return;
-  }
-  // ARC-11: paint only the diff since the last tick instead of toggling every
-  // word on every timeupdate (~4×/sec). Forward: add the newly covered range.
-  // Backward (seek): clear the range we no longer cover.
-  if (wordIndex !== _lastWordIndex) {
-    if (wordIndex > _lastWordIndex) {
-      for (let i = _lastWordIndex + 1; i <= wordIndex; i++) {
-        _cachedWordEls[i]?.classList.add('current-word');
-      }
-    } else {
-      for (let i = wordIndex + 1; i <= _lastWordIndex; i++) {
-        _cachedWordEls[i]?.classList.remove('current-word');
-      }
-    }
-    _lastWordIndex = wordIndex;
-  }
-}
-
-function onSeeking(): void {
-  if (!wordTrackingActive) {
-    return;
-  }
-  _lastWordIndex = -1;
-  document.querySelectorAll('.word.current-word').forEach((el: Element) => el.classList.remove('current-word'));
 }
 
 /* ===================== AUDIO EVENTS ===================== */
@@ -849,17 +739,6 @@ function completeRepeat(): void {
   setStoppedState();
 }
 
-/**
- * Reset the repeat mode UI elements.
- * Separated from completeRepeat for testability.
- */
-export function resetRepeatUI(): void {
-  dom.repeatBtn?.classList.remove('active');
-  if (dom.repeatControls) {
-    dom.repeatControls.style.display = 'none';
-  }
-}
-
 /** Find the array index of an ayah by its numberInSurah. */
 function findAyahIndex(surahData: SurahData, ayahNum: number): number {
   return surahData.ayahs.findIndex((a: { numberInSurah: number }) => a.numberInSurah === ayahNum);
@@ -1008,224 +887,25 @@ export function toggleHifdh(): void {
   showToast(state.hifdhMode ? __('hifdh_on') : __('hifdh_off'), state.hifdhMode ? 'success' : '');
 }
 
-/* ===================== REPEAT UI (separated from logic) ===================== */
+/* ===================== HOST WIRING ===================== */
 
-/**
- * Compute the default repeat range for the current surah.
- * Pure function — no side effects, easy to test.
- *
- * @param surahData The surah data to compute the default range for
- * @returns A RepeatRange with from=1, to=ayah count, times=3
- */
-export function getDefaultRepeatRange(surahData: SurahData): RepeatRange {
-  return { from: 1, to: surahData.ayahs.length, times: 3 };
-}
+// The word-tracking and sleep-timer modules receive the engine actions they
+// must not import directly (which would create a circular import). The
+// closures read module state lazily, so wiring them here — after every
+// definition — is safe.
+initWordTrackingHost({
+  isAutoAdvancing: () => _autoAdvancing,
+  hasTimings: () => (state.ayahTimings?.length ?? 0) > 0,
+  getAyahStartTime: _getAyahStartTime,
+  getAyahEndTime: _getAyahEndTime,
+  onAyahBoundary: handleAyahBoundary,
+});
 
-/**
- * Apply the repeat mode UI state — toggle button active class and controls visibility.
- * Separated from toggleRepeat for testability — pure DOM operation.
- *
- * @param active Whether repeat mode is currently active
- */
-export function applyRepeatUI(active: boolean): void {
-  dom.repeatBtn?.classList.toggle('active', active);
-  if (dom.repeatControls) {
-    // `.hidden` uses `display: none !important`; remove it before showing
-    // the range controls or Android will keep them invisible.
-    dom.repeatControls.classList.toggle('hidden', !active);
-    dom.repeatControls.style.display = active ? 'flex' : 'none';
-  }
-}
-
-/**
- * Populate repeat range dropdowns in the UI.
- * Separated from toggleRepeat for testability and clarity.
- *
- * @param range The repeat range configuration to populate the UI with
- */
-export function populateRepeatUI(range: RepeatRange): void {
-  if (!dom.repeatFrom || !dom.repeatTo || !dom.repeatTimes) {
-    return;
-  }
-
-  // Build option elements once and clone for each dropdown. For long surahs
-  // (e.g. Al-Baqarah with 286 ayahs) this halves the number of <option>
-  // allocations from 572 to 286 + clones (which are cheap).
-  const fromOpts = document.createDocumentFragment();
-  const toOpts = document.createDocumentFragment();
-
-  for (let i = 1; i <= range.to; i++) {
-    const opt = document.createElement('option');
-    opt.value = String(i);
-    opt.textContent = String(i);
-    // Clone for the "to" dropdown — cloneNode is faster than recreating
-    // because it skips attribute parsing.
-    fromOpts.appendChild(opt);
-    toOpts.appendChild(opt.cloneNode(true));
-  }
-
-  dom.repeatFrom.replaceChildren(fromOpts);
-  dom.repeatTo.replaceChildren(toOpts);
-  dom.repeatFrom.value = String(range.from);
-  dom.repeatTo.value = String(range.to);
-  dom.repeatTimes.value = String(range.times);
-
-  // Bind change handlers
-  dom.repeatFrom.onchange = () => {
-    state.repeatFrom = parseInt(requireDom('repeatFrom').value, 10);
-    if (state.repeatFrom > state.repeatTo) {
-      state.repeatTo = state.repeatFrom;
-      requireDom('repeatTo').value = String(state.repeatTo);
+initSleepTimerHost({
+  stopPlayback: () => {
+    if (dom.audioPlayer && !dom.audioPlayer.paused) {
+      dom.audioPlayer.pause();
+      setStoppedState();
     }
-    state.repeatCounter = 0;
-  };
-  dom.repeatTo.onchange = () => {
-    state.repeatTo = parseInt(requireDom('repeatTo').value, 10);
-    if (state.repeatTo < state.repeatFrom) {
-      state.repeatFrom = state.repeatTo;
-      requireDom('repeatFrom').value = String(state.repeatFrom);
-    }
-    state.repeatCounter = 0;
-  };
-  dom.repeatTimes.onchange = () => {
-    state.repeatTimes = parseInt(requireDom('repeatTimes').value, 10);
-    state.repeatCounter = 0;
-  };
-}
-
-/**
- * Toggle repeat mode on/off.
- * State changes are separated from DOM updates for testability.
- * When enabled, initializes the repeat range to the full surah and populates UI dropdowns.
- */
-export function toggleRepeat(): void {
-  hapticFeedback();
-  state.repeatMode = !state.repeatMode;
-  state.repeatCounter = 0;
-  applyRepeatUI(state.repeatMode);
-
-  if (state.repeatMode && state.surahData) {
-    const range = getDefaultRepeatRange(state.surahData);
-    state.repeatFrom = range.from;
-    state.repeatTo = range.to;
-    state.repeatTimes = range.times;
-    populateRepeatUI(range);
-    showToast(__('repeat_on'), 'success');
-  } else {
-    showToast(__('repeat_off'), '');
-  }
-}
-
-/* ===================== SLEEP TIMER ===================== */
-
-/**
- * Set a sleep timer to pause audio after N minutes.
- * @param minutes Duration in minutes. Set to 0 or negative to cancel.
- */
-export function setSleepTimer(minutes: number): void {
-  clearSleepTimer();
-  if (minutes <= 0) {
-    showToast(__('sleep_timer_cancelled'), '');
-    return;
-  }
-  _sleepTimerMinutes = minutes;
-  _sleepTimerStart = Date.now();
-  _sleepTimer = setTimeout(
-    () => {
-      if (dom.audioPlayer && !dom.audioPlayer.paused) {
-        dom.audioPlayer.pause();
-        setStoppedState();
-      }
-      showToast(__('sleep_timer_stopped', String(minutes)), 'success');
-      _sleepTimerMinutes = 0;
-      _sleepTimerStart = 0;
-      updateSleepTimerDisplay();
-    },
-    minutes * 60 * 1000,
-  );
-  showToast(__('sleep_timer_set', String(minutes)), 'success');
-  updateSleepTimerDisplay();
-  ensureSleepTimerInterval();
-}
-
-/**
- * Clear the active sleep timer and reset timer state.
- * Updates the sleep timer display after clearing.
- */
-export function clearSleepTimer(): void {
-  if (_sleepTimer) {
-    clearTimeout(_sleepTimer);
-    _sleepTimer = null;
-  }
-  _sleepTimerMinutes = 0;
-  _sleepTimerStart = 0;
-  updateSleepTimerDisplay();
-}
-
-/**
- * Get the original sleep timer duration in minutes.
- *
- * @returns The timer duration in minutes, or 0 if no timer is active
- */
-export function getSleepTimerMinutes(): number {
-  return _sleepTimerMinutes;
-}
-
-/**
- * Get the remaining time in minutes for the sleep timer, with fractional precision.
- *
- * @returns Remaining minutes (fractional), or 0 if no timer is active
- */
-export function getSleepTimerRemaining(): number {
-  if (!_sleepTimerMinutes || !_sleepTimerStart) {
-    return 0;
-  }
-  const elapsed = (Date.now() - _sleepTimerStart) / (60 * 1000);
-  return Math.max(0, _sleepTimerMinutes - elapsed);
-}
-
-/** Update the sleep timer display in the player UI. */
-function updateSleepTimerDisplay(): void {
-  const el = document.getElementById('sleepTimerDisplay');
-  if (!el) {
-    return;
-  }
-  if (!_sleepTimerMinutes || !_sleepTimerStart) {
-    el.textContent = '';
-    el.style.display = 'none';
-    return;
-  }
-  el.style.display = 'inline';
-  const remaining = getSleepTimerRemaining();
-  const mins = Math.floor(remaining);
-  const secs = Math.floor((remaining - mins) * 60);
-  el.textContent = `${__('sleep_timer_remaining') ?? '\u0645\u062a\u0628\u0642\u064a'} ${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-let _sleepTimerInterval: ReturnType<typeof setInterval> | null = null;
-
-function ensureSleepTimerInterval(): void {
-  if (_sleepTimerInterval) {
-    return;
-  }
-  _sleepTimerInterval = setInterval(() => {
-    if (!_sleepTimerMinutes || !_sleepTimerStart) {
-      // Timer finished or was cleared — retire the interval instead of
-      // polling every 15s forever (background wake-up + DOM churn).
-      cleanupSleepTimerInterval();
-      return;
-    }
-    updateSleepTimerDisplay();
-  }, 15000);
-}
-
-/**
- * Stop the sleep timer display interval.
- * Called during test cleanup or app shutdown to prevent memory leaks.
- */
-export function cleanupSleepTimerInterval(): void {
-  if (_sleepTimerInterval) {
-    clearInterval(_sleepTimerInterval);
-    _sleepTimerInterval = null;
-  }
-}
+  },
+});
