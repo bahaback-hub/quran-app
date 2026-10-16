@@ -323,6 +323,49 @@ describe('error classification', () => {
     expect(overlay).not.toBeNull();
   });
 
+  it('should show recovery overlay for Firefox wording of DOM-null access (QUA-07)', () => {
+    initErrorBoundary();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    window.onerror!(
+      'can\'t access property "textContent", dom.surahContent is null',
+      'test.js',
+      1,
+      1,
+      new TypeError('x'),
+    );
+    errorSpy.mockRestore();
+
+    expect(document.getElementById('errorRecoveryOverlay')).not.toBeNull();
+  });
+
+  it('should show recovery overlay for Safari wording of DOM-null access (QUA-07)', () => {
+    initErrorBoundary();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    window.onerror!("null is not an object (evaluating 'dom.methodSelect.value')", 'test.js', 1, 1, new TypeError('x'));
+    errorSpy.mockRestore();
+
+    expect(document.getElementById('errorRecoveryOverlay')).not.toBeNull();
+  });
+
+  it('should classify stack overflow by RangeError type even with a non-English message (QUA-07)', () => {
+    initErrorBoundary();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    window.onerror!('Stack depth exceeded', 'test.js', 1, 1, new RangeError('Stack depth exceeded'));
+    errorSpy.mockRestore();
+
+    expect(document.getElementById('errorRecoveryOverlay')).not.toBeNull();
+  });
+
+  it('should classify InternalError (OOM / recursion) as critical by name (QUA-07)', () => {
+    initErrorBoundary();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const internal = Object.assign(new Error('boom'), { name: 'InternalError' });
+    window.onerror!('boom', 'test.js', 1, 1, internal);
+    errorSpy.mockRestore();
+
+    expect(document.getElementById('errorRecoveryOverlay')).not.toBeNull();
+  });
+
   it('should show recovery overlay for errors from app.js', () => {
     initErrorBoundary();
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

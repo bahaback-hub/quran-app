@@ -189,8 +189,14 @@ test.describe('TV remote control', () => {
   });
 
   test('ayah modal confines remote focus to its options', async ({ page }) => {
-    await page.locator('.ayah[data-surah="1"]').first().click();
-    await expect(page.locator('#ayahModal')).toHaveClass(/open/);
+    // The ayah modal module is lazy-imported on idle (app.ts Group 4), and
+    // until its adapter is registered a click is swallowed silently. Under
+    // load the import can still be pending when this test starts, so retry
+    // the click until the handler is live instead of assuming init finished.
+    await expect(async () => {
+      await page.locator('.ayah[data-surah="1"]').first().click();
+      await expect(page.locator('#ayahModal')).toHaveClass(/open/, { timeout: 1000 });
+    }).toPass({ timeout: 15000 });
     await page.locator('#ayahModalCloseBtn').evaluate((el) => el.focus());
     for (let i = 0; i < 10; i++) {
       await page.keyboard.press('ArrowDown');

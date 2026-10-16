@@ -1,6 +1,6 @@
 # Quran App — AI & Human Reviewer Guide
 
-# دليل مراجعة الذكاء الاصطناعي والم human — تطبيق القرآن الكريم
+# دليل مراجعة الذكاء الاصطناعي والبشر — تطبيق القرآن الكريم
 
 > **For AI reviewers, engineers, and contributors:**
 > This guide summarises what to inspect, what is verifiable offline, and known limitations — in **English first, then Arabic**.

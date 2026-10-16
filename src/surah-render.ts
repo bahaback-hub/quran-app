@@ -474,18 +474,14 @@ export function highlightCurrentAyah(): void {
   if (cur) {
     cur.classList.add('current');
     if (state.hifdhMode) {
-      // Remove 'revealed' from all ayahs first
-      const revealedAyahs = container?.querySelectorAll('.ayah.revealed');
-      if (revealedAyahs) {
-        for (const el of revealedAyahs) {
-          el.classList.remove('revealed');
-        }
-      }
-      // Mark current and all rendered previous ayahs as revealed
-      for (let i = 0; i <= state.currentAyahIndex; i++) {
-        const prev = container?.querySelector(`.ayah[data-index="${i}"]`) as HTMLElement | null;
-        if (prev) {
-          prev.classList.add('revealed');
+      // ARC-11: single pass over the rendered ayahs — reveal up to the
+      // current one and clear anything after it. The previous code ran one
+      // querySelector per ayah on every ayah change (O(n²) cumulatively).
+      const renderedAyahs = container?.querySelectorAll<HTMLElement>('.ayah');
+      if (renderedAyahs) {
+        for (const el of renderedAyahs) {
+          const idx = Number(el.getAttribute('data-index'));
+          el.classList.toggle('revealed', Number.isInteger(idx) && idx <= state.currentAyahIndex);
         }
       }
     }

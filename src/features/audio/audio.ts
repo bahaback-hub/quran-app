@@ -382,11 +382,13 @@ function wordWeightsKey(ayahIndex: number): string {
 }
 
 function startWordTracking(): void {
+  _lastWordIndex = -1;
   wordTrackingActive = true;
 }
 
 function stopWordTracking(): void {
   wordTrackingActive = false;
+  _lastWordIndex = -1;
   document.querySelectorAll('.word.current-word').forEach((el: Element) => el.classList.remove('current-word'));
 }
 
@@ -431,6 +433,8 @@ export function clearWordWeightsCache(): void {
 
 let _cachedWordEls: NodeListOf<Element> | null = null;
 let _cachedWordAyahIndex = -1;
+/** Last word index painted with 'current-word'; -1 means no words painted. */
+let _lastWordIndex = -1;
 
 function onTimeUpdate(): void {
   if (_autoAdvancing || !wordTrackingActive || !dom.audioPlayer || !state.surahData) {
@@ -509,12 +513,27 @@ function onTimeUpdate(): void {
   ) {
     _cachedWordEls = document.querySelectorAll(`.ayah[data-index="${state.currentAyahIndex}"] .word`);
     _cachedWordAyahIndex = state.currentAyahIndex;
+    // Fresh nodes (new ayah, or detached by a late translation re-render)
+    // start unpainted.
+    _lastWordIndex = -1;
   }
   if (!_cachedWordEls) {
     return;
   }
-  for (let i = 0; i < _cachedWordEls.length; i++) {
-    _cachedWordEls[i]!.classList.toggle('current-word', i <= wordIndex);
+  // ARC-11: paint only the diff since the last tick instead of toggling every
+  // word on every timeupdate (~4×/sec). Forward: add the newly covered range.
+  // Backward (seek): clear the range we no longer cover.
+  if (wordIndex !== _lastWordIndex) {
+    if (wordIndex > _lastWordIndex) {
+      for (let i = _lastWordIndex + 1; i <= wordIndex; i++) {
+        _cachedWordEls[i]?.classList.add('current-word');
+      }
+    } else {
+      for (let i = wordIndex + 1; i <= _lastWordIndex; i++) {
+        _cachedWordEls[i]?.classList.remove('current-word');
+      }
+    }
+    _lastWordIndex = wordIndex;
   }
 }
 
@@ -522,6 +541,7 @@ function onSeeking(): void {
   if (!wordTrackingActive) {
     return;
   }
+  _lastWordIndex = -1;
   document.querySelectorAll('.word.current-word').forEach((el: Element) => el.classList.remove('current-word'));
 }
 

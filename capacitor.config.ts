@@ -32,11 +32,10 @@ const config: CapacitorConfig = {
   },
   android: {
     backgroundColor: '#1a1a2e',
-    // Deliberately left true pending on-device verification: the network
-    // security config already forbids cleartext traffic, so this only affects
-    // local dev servers. Flip it only after confirming dev live-reload still
-    // works on a real device.
-    allowMixedContent: true,
+    // SEC-05: false — the network security config already forbids cleartext, and
+    // every remote resource (APIs, audio, mirrors) is HTTPS-only, so mixed
+    // content has no legitimate use in production.
+    allowMixedContent: false,
   },
   plugins: {
     // IMPORTANT: CapacitorHttp is DISABLED because it intercepts ALL fetch() calls

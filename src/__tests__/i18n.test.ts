@@ -409,6 +409,39 @@ describe('applyTranslations', () => {
 
     document.body.removeChild(el);
   });
+
+  it('should translate prayer calculation method options when language changes (UXS-07 regression)', async () => {
+    const select = document.createElement('select');
+    select.id = 'methodSelect';
+    const option4 = document.createElement('option');
+    option4.value = '4';
+    option4.setAttribute('data-i18n', 'method_4');
+    option4.textContent = 'أم القرى — مكة';
+    const option13 = document.createElement('option');
+    option13.value = '13';
+    option13.setAttribute('data-i18n', 'method_13');
+    option13.textContent = 'ديانت — تركيا';
+    select.appendChild(option4);
+    select.appendChild(option13);
+    document.body.appendChild(select);
+
+    applyTranslations();
+    expect(option4.textContent).toBe('أم القرى — مكة');
+    expect(option13.textContent).toBe('ديانت — تركيا');
+
+    await setLang('en');
+    applyTranslations();
+    expect(option4.textContent).toBe('Umm Al-Qura – Makkah');
+    expect(option13.textContent).toBe('Diyanet – Türkiye');
+
+    await setLang('fr');
+    applyTranslations();
+    expect(option4.textContent).toBe('Oum al-Qoura – La Mecque');
+    expect(option13.textContent).toBe('Diyanet – Turquie');
+
+    await setLang('ar');
+    document.body.removeChild(select);
+  });
 });
 
 describe('getReciterName', () => {

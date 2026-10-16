@@ -13,9 +13,10 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock i18n
+// Mock i18n — keep the key visible AND append the interpolation args so tests
+// can assert that labels/values reach the translated message.
 vi.mock('../i18n.js', () => ({
-  __: (key: string) => key,
+  __: (key: string, ...args: string[]) => (args.length ? `${key} ${args.join(' ')}` : key),
 }));
 
 // Mock ui — use importOriginal to preserve other exports if needed
@@ -174,10 +175,10 @@ describe('safeLoad — retry mechanism', () => {
       showToast: true,
     });
 
-    // Should have called showToast with warning message
+    // Should have called showToast with the i18n key (QUA-06: no hardcoded Arabic)
     expect(showToast).toHaveBeenCalled();
     const calls = vi.mocked(showToast).mock.calls;
-    expect(calls.some((call) => call[0].includes('فشل تحميل'))).toBe(true);
+    expect(calls.some((call) => call[0].includes('safe_load_retrying'))).toBe(true);
   });
 
   it('should NOT call showToast when showToast=false', async () => {

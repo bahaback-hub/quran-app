@@ -106,12 +106,12 @@ Key modules:
 | `utils.ts`                                                 | `escapeHtml`, `toArabicNumeral`, etc.                                                                                                                                                                                                                                  |
 | `storage.ts`                                               | Safe `localStorage` wrapper                                                                                                                                                                                                                                            |
 | `config.ts`                                                | Constants (API URLs, defaults)                                                                                                                                                                                                                                         |
-| `i18n.ts`                                                  | Internationalization (ar/en/tr/ms/id) + RTL/LTR dynamic switching                                                                                                                                                                                                      |
-| `templates.ts`                                             | **Large file (~53KB)** — XSS-safe HTML templates                                                                                                                                                                                                                       |
+| `i18n.ts`                                                  | Internationalization (ar/en/tr/ms/id/fr/de/ru — 8 UI languages) + RTL/LTR dynamic switching                                                                                                                                                                                                      |
+| `templates.ts`                                             | Barrel module re-exporting XSS-safe HTML templates (templates-surah/search/mushaf/favorites/prayer/adhkar/feedback/panels)                                                                                                                                                                                                                       |
 | `overlays.ts`                                              | Lazy template injection before `cacheDom()`                                                                                                                                                                                                                            |
-| `surah-loader.ts`                                          | **Large file (~42KB)** — surah loading, rendering, caching, offsets                                                                                                                                                                                                    |
-| `surahs-data.ts`                                           | Static surah metadata (~50KB)                                                                                                                                                                                                                                          |
-| `features/audio/audio.ts`                                    | Advanced audio player (~29KB) — word tracking, hifdh, repeat, sleep timer                                                                                                                                                                                              |
+| `surah-loader.ts`                                          | **Large file (~30KB)** — surah loading, rendering, caching, offsets                                                                                                                                                                                                    |
+| `surahs-data.ts`                                           | Static surah secrets (from data/surah-secrets.json)                                                                                                                                                                                                                                          |
+| `features/audio/audio.ts`                                    | Advanced audio player (~37KB) — word tracking, hifdh, repeat, sleep timer                                                                                                                                                                                              |
 | `features/audio/audio-cache.ts`                              | IndexedDB audio cache with LRU eviction (200MB cap)                                                                                                                                                                                                                    |
 | `audio-visualizer.ts`                                      | Canvas-based audio visualizer                                                                                                                                                                                                                                          |
 | `features/mushaf/mushaf.ts` / `features/mushaf/mushaf-renderer.ts` | Mushaf mode (QCF V4 Canvas, 604 pages)                                                                                                                                                                                                                                 |
@@ -135,12 +135,12 @@ Key modules:
 
 These files are large and would benefit from being split by feature:
 
-- `templates.ts` (~53KB)
-- `surahs-data.ts` (~50KB) — static data, acceptable
-- `surah-loader.ts` (~42KB)
-- `adhkar-data.ts` (~31KB) — static data, acceptable
-- `audio.ts` (~29KB)
-- `mushaf-renderer.ts` (~29KB)
+- `adhkar.ts` (~41KB)
+- `prayer.ts` (~41KB)
+- `audio.ts` (~37KB)
+- `mushaf-renderer.ts` (~37KB)
+- `settings.ts` (~37KB)
+- `surah-loader.ts` (~30KB)
 - `pres-backgrounds.ts` (~22KB)
 
 ## DOM Conventions
@@ -164,9 +164,10 @@ These files are large and would benefit from being split by feature:
 ### Unit Tests (`src/__tests__/`)
 
 - **Vitest 5** + `jsdom` + `fake-indexeddb`
-- ~90 test files covering all modules
-- **Coverage threshold: ≥ 80% lines** (enforced in CI)
-- Per-file coverage gaps are tracked (not just the total)
+- ~170 test files covering all modules
+- **Coverage thresholds (enforced in CI)**: ≥ 80% lines/statements and ≥ 70%
+  functions/branches globally (`vitest.config.js`); plus a per-file line floor
+  of 65% via `npm run check:coverage`
 
 ### Known Test Limitations
 

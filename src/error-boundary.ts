@@ -261,22 +261,50 @@ function showRecoveryOverlay(errorMsg: string): void {
 /* ===================== ERROR CLASSIFICATION ===================== */
 
 /**
+ * Detect fatal error kinds from the error object itself (SEC/QUA-07):
+ * constructors and `name` are locale- and engine-independent, so they are the
+ * primary signal; English message matching remains a last resort for the
+ * cases where only a string is available.
+ */
+function isFatalErrorKind(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  // Stack overflow is a RangeError in V8, SpiderMonkey, and JavaScriptCore.
+  if (error instanceof RangeError && /stack|recursion/i.test(error.message)) {
+    return true;
+  }
+  // Out-of-memory and Firefox's "too much recursion" surface as InternalError.
+  if (error.name === 'InternalError') {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Determine if an error is "critical" (should show recovery overlay)
  * vs "non-critical" (toast only).
  *
  * Critical = likely broke the entire app shell or rendering.
  * Non-critical = a feature failed but the app is still usable.
  */
-function isCriticalError(message: string, source?: string): boolean {
-  if (!message) {
+function isCriticalError(message: string, source?: string, error?: unknown): boolean {
+  if (!message && !error) {
     return false;
   }
-  const msg = message.toLowerCase();
-  // Rendering / DOM errors that break the UI
-  if (msg.includes('cannot read properties of null') && (msg.includes('dom') || msg.includes('element'))) {
+  // Type/constructor first — works regardless of engine UI language.
+  if (isFatalErrorKind(error)) {
     return true;
   }
-  if (msg.includes('cannot read properties of undefined') && (msg.includes('dom') || msg.includes('element'))) {
+  const msg = message.toLowerCase();
+  // Rendering / DOM errors that break the UI. Covers the three engines'
+  // wordings because a cross-origin "Script error." may hide the object.
+  const domNullPatterns = [
+    /cannot read propert(?:y|ies) of (?:null|undefined)/, // V8 (Chrome/Edge)
+    /can't access property .{0,80} is (?:null|undefined)/, // SpiderMonkey (Firefox)
+    /(?:null|undefined) is not an object/, // JavaScriptCore (Safari)
+  ];
+  if (domNullPatterns.some((re) => re.test(msg)) && (msg.includes('dom') || msg.includes('element'))) {
     return true;
   }
   // Bootstrap / init errors
@@ -286,11 +314,11 @@ function isCriticalError(message: string, source?: string): boolean {
   if (source && source.includes('main.js')) {
     return true;
   }
-  // Stack overflow
-  if (msg.includes('maximum call stack')) {
+  // Stack overflow (string-only fallback)
+  if (msg.includes('maximum call stack') || msg.includes('too much recursion')) {
     return true;
   }
-  // Out of memory
+  // Out of memory (string-only fallback)
   if (msg.includes('out of memory')) {
     return true;
   }
@@ -322,7 +350,7 @@ function handleOnError(
     stack,
   });
 
-  if (isCriticalError(msg, source)) {
+  if (isCriticalError(msg, source, error)) {
     showRecoveryOverlay(stack || msg);
   } else {
     showDebouncedToast(__('error_title'));
@@ -357,7 +385,7 @@ function handleUnhandledRejection(event: PromiseRejectionEvent): void {
     msgLower.includes('net::err')
   ) {
     showDebouncedToast(__('error_server_unreachable'));
-  } else if (isCriticalError(message)) {
+  } else if (isCriticalError(message, undefined, reason)) {
     showRecoveryOverlay(stack || message);
   } else {
     showDebouncedToast(__('error_unexpected'));
@@ -496,7 +524,7 @@ export async function safeLoad<T>(loader: () => Promise<T>, options: SafeLoadOpt
         // Exponential backoff: 1s, 2s, 4s, ...
         const delay = baseDelay * Math.pow(2, attempt);
         if (showToast) {
-          displayToast(`فشل تحميل ${label}. إعادة المحاولة خلال ${Math.round(delay / 1000)} ثانية...`, 'warning');
+          displayToast(__('safe_load_retrying', label, String(Math.round(delay / 1000))), 'warning');
         }
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
@@ -508,7 +536,7 @@ export async function safeLoad<T>(loader: () => Promise<T>, options: SafeLoadOpt
   console.error(`[ErrorBoundary] safeLoad "${label}" exhausted ${attempts} attempts.`, lastError);
 
   if (showToast) {
-    displayToast(`تعذّر تحميل ${label}. يرجى تحديث الصفحة أو التحقق من اتصالك بالإنترنت.`, 'error');
+    displayToast(__('safe_load_failed', label), 'error');
   }
 
   return { success: false, attempts, error: lastError };
@@ -539,7 +567,7 @@ export async function safeAsync<T>(
       if (attempt < maxRetries) {
         const delay = baseDelay * Math.pow(2, attempt);
         if (showToast) {
-          displayToast(`فشلت عملية "${label}". إعادة المحاولة...`, 'warning');
+          displayToast(__('safe_async_retrying', label), 'warning');
         }
         await new Promise((resolve) => setTimeout(resolve, delay));
       }

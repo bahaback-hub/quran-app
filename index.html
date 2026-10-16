@@ -2,6 +2,10 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
+    <!-- SEC-02: GitHub Pages ignores public/_headers and meta CSP ignores
+         frame-ancestors, so frame-busting is enforced client-side. Kept tiny
+         and non-blocking for the top-level case (immediate return). -->
+    <script src="%BASE_URL%framebust.js"></script>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content"

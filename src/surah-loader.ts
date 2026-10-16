@@ -292,6 +292,19 @@ function findFallbackAudio(surahNum: number, reciterId: string): { audios: strin
   return null;
 }
 
+/**
+ * Insert (or refresh) an entry in the in-memory surah cache. A Map keeps
+ * insertion order, so re-inserting moves the key to the end (most recently
+ * used) — which turns the eviction at CACHE_LIMIT into true LRU instead of
+ * FIFO (ARC-10).
+ */
+function setSurahCacheEntry(key: string, entry: CachedSurahEntry): void {
+  if (state.surahCache.has(key)) {
+    immutableMapDelete(state, 'surahCache', key);
+  }
+  immutableMapSet(state, 'surahCache', key, entry);
+}
+
 /* ===================== LOAD & RENDER SURAH ===================== */
 
 let _loadCounter = 0;
@@ -424,7 +437,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       return;
     }
     // Also store in memory cache
-    immutableMapSet(state, 'surahCache', cacheKey, idbCached);
+    setSurahCacheEntry(cacheKey, idbCached);
     state.surahData = idbCached.text as unknown as SurahData;
     if (isMp3quran) {
       state.ayahsAudios = idbCached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');
@@ -584,7 +597,7 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       timings: state.ayahTimings,
       translation: state.translationData,
     };
-    immutableMapSet(state, 'surahCache', cacheKey, cacheEntry);
+    setSurahCacheEntry(cacheKey, cacheEntry);
     // Also persist to IndexedDB for offline access
     cacheSurahToIDB(cacheKey, cacheEntry);
   } catch (e: unknown) {
@@ -727,7 +740,7 @@ async function _refreshSurahFromAPI(
       timings: state.ayahTimings,
       translation: state.translationData,
     };
-    immutableMapSet(state, 'surahCache', cacheKey, cacheEntry);
+    setSurahCacheEntry(cacheKey, cacheEntry);
     cacheSurahToIDB(cacheKey, cacheEntry);
 
     // Re-render only when the data actually changed. Background refreshes
