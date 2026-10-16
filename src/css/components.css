@@ -132,7 +132,7 @@ body.night-mode .search-highlight {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 .btn:hover {
-  background: var(--primary-light);
+  background: var(--primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -204,7 +204,7 @@ body.night-mode .search-highlight {
   color: #fff;
 }
 .btn-secondary:hover {
-  background: var(--primary-light);
+  background: var(--primary-hover);
 }
 .btn-danger {
   background: #dc2626;

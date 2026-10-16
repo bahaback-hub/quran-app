@@ -345,7 +345,7 @@ body.night-mode .favorites-header h2 {
   transition: all 0.2s;
 }
 .favorite-action-btn:hover {
-  background: var(--primary-light);
+  background: var(--primary-hover);
 }
 .favorite-remove-btn {
   background: #dc2626;

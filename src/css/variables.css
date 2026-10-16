@@ -34,8 +34,9 @@
   --text-muted: #6e6150;
   --accent: #c47a12;
   --accent-dark: #9a5e08;
-  --primary: #9a7b4f;
+  --primary: #8a6c42;
   --primary-light: #b8956a;
+  --primary-hover: #7a5c3a;
   --border: #c47a12;
   --border-soft: #e5ddd0;
   --select-bg: #ffffff;
@@ -96,6 +97,7 @@ body.night-mode {
   --text-muted: #aaaaaa;
   --primary: #5a4a3a;
   --primary-light: #7a6a5a;
+  --primary-hover: #7a6a5a;
   --border: #5a4a3a;
   --border-soft: #2a3040;
   --select-bg: #232838;
@@ -135,6 +137,7 @@ body.sepia-mode {
   --text-muted: #6e6150;
   --primary: #7a5e38;
   --primary-light: #9a7e52;
+  --primary-hover: #6b4e2e;
   --border: #8a6840;
   --border-soft: #d4c8b2;
   --select-bg: #f0e6d2;
