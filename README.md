@@ -115,6 +115,7 @@
 | 🇹🇷 Türkçe           | Turkish    | LTR                 |
 | 🇲🇾 Bahasa Melayu    | Malay      | LTR                 |
 | 🇮🇩 Bahasa Indonesia | Indonesian | LTR                 |
+| 🇵🇰 اردو             | Urdu       | RTL                 |
 
 ---
 

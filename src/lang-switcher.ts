@@ -24,6 +24,7 @@ const COUNTRY_CODES: Record<LangCode, string> = {
   fr: 'fr',
   de: 'de',
   ru: 'ru',
+  ur: 'pk',
 };
 
 /** Emoji fallback shown only if the SVG flag image fails to load. */
@@ -36,6 +37,7 @@ const FLAGS: Record<LangCode, string> = {
   fr: '🇫🇷',
   de: '🇩🇪',
   ru: '🇷🇺',
+  ur: '🇵🇰',
 };
 
 /** Build flag markup: SVG image with emoji fallback on load error. */

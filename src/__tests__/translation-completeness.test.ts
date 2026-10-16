@@ -7,8 +7,9 @@ import id from '../translations/id.js';
 import ms from '../translations/ms.js';
 import ru from '../translations/ru.js';
 import tr from '../translations/tr.js';
+import ur from '../translations/ur.js';
 
-const bundles = { ar, de, en, fr, id, ms, ru, tr } as const;
+const bundles = { ar, de, en, fr, id, ms, ru, tr, ur } as const;
 const referenceKeys = Object.keys(en);
 const pluralKeys = [
   'ayah_count',

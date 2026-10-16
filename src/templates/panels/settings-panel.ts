@@ -235,6 +235,7 @@ export function settingsPanelHTML(): string {
               <option value="fr">Français</option>
               <option value="de">Deutsch</option>
               <option value="ru">Русский</option>
+              <option value="ur">اردو</option>
             </select>
           </div>
         </div>

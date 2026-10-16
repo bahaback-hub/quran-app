@@ -36,7 +36,7 @@ export function showContinueWidget(info: ContinueInfo): void {
   widget.id = 'continueWidget';
   widget.className = 'continue-widget';
   const lang = getLang();
-  widget.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  widget.dir = lang === 'ar' || lang === 'ur' ? 'rtl' : 'ltr';
   widget.setAttribute('role', 'status');
 
   const icon = document.createElement('span');
@@ -45,10 +45,13 @@ export function showContinueWidget(info: ContinueInfo): void {
 
   const text = document.createElement('span');
   text.className = 'continue-widget-text';
-  const locale = ({ ar: 'ar-SA', en: 'en', tr: 'tr', ms: 'ms', id: 'id', fr: 'fr', de: 'de', ru: 'ru' } as const)[lang];
+  const locale = (
+    { ar: 'ar-SA', en: 'en', tr: 'tr', ms: 'ms', id: 'id', fr: 'fr', de: 'de', ru: 'ru', ur: 'ur-PK' } as const
+  )[lang];
   const dateStr = info.timestamp ? new Date(info.timestamp).toLocaleDateString(locale) : '';
   const strong = document.createElement('strong');
-  const visibleSurahName = lang === 'ar' || !info.englishSurahName ? info.surahName : info.englishSurahName;
+  const visibleSurahName =
+    lang === 'ar' || lang === 'ur' || !info.englishSurahName ? info.surahName : info.englishSurahName;
   strong.textContent = visibleSurahName;
   const small = document.createElement('small');
   small.style.opacity = '0.7';

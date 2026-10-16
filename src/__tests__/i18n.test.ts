@@ -42,8 +42,8 @@ import {
 } from '../i18n.js';
 
 describe('AVAILABLE_LANGUAGES', () => {
-  it('should contain 8 languages', () => {
-    expect(AVAILABLE_LANGUAGES).toHaveLength(8);
+  it('should contain 9 languages', () => {
+    expect(AVAILABLE_LANGUAGES).toHaveLength(9);
   });
 
   it('should include Arabic with RTL direction', () => {
@@ -85,6 +85,14 @@ describe('AVAILABLE_LANGUAGES', () => {
     expect(ru?.dir).toBe('ltr');
   });
 
+  it('should include Urdu with RTL direction', () => {
+    const ur = AVAILABLE_LANGUAGES.find((l) => l.code === 'ur');
+    expect(ur).toBeDefined();
+    expect(ur!.nativeName).toBe('اردو');
+    expect(ur!.englishName).toBe('Urdu');
+    expect(ur!.dir).toBe('rtl');
+  });
+
   it('each language should have code, nativeName, englishName, dir', () => {
     for (const lang of AVAILABLE_LANGUAGES) {
       expect(lang.code).toBeTruthy();
@@ -94,10 +102,9 @@ describe('AVAILABLE_LANGUAGES', () => {
     }
   });
 
-  it('Arabic should be the only RTL language', () => {
+  it('should have Arabic and Urdu as the only RTL languages', () => {
     const rtlLangs = AVAILABLE_LANGUAGES.filter((l) => l.dir === 'rtl');
-    expect(rtlLangs).toHaveLength(1);
-    expect(rtlLangs[0].code).toBe('ar');
+    expect(rtlLangs.map((l) => l.code)).toEqual(['ar', 'ur']);
   });
 
   it('each language code should be unique', () => {
@@ -802,6 +809,12 @@ describe('setLang for all languages', () => {
     await setLang('id');
     expect(getLang()).toBe('id');
     expect(store['lang']).toBe('id');
+  });
+
+  it('should load and set Urdu correctly', async () => {
+    await setLang('ur');
+    expect(getLang()).toBe('ur');
+    expect(store['lang']).toBe('ur');
   });
 
   it('should be able to switch between languages', async () => {

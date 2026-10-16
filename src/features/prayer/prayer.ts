@@ -277,6 +277,8 @@ function dateLocaleFor(lang: string): string {
       return 'id-ID';
     case 'ru':
       return 'ru-RU';
+    case 'ur':
+      return 'ur-PK';
     case 'ar':
     default:
       return 'ar-EG';

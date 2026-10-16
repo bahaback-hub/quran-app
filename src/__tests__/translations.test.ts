@@ -221,7 +221,7 @@ describe('Indonesian translation bundle', () => {
 
 describe('Translation bundle consistency', () => {
   it('all bundles should have the same top-level string keys', async () => {
-    const [ar, en, tr, ms, id, fr, de, ru] = await Promise.all([
+    const [ar, en, tr, ms, id, fr, de, ru, ur] = await Promise.all([
       import('../translations/ar'),
       import('../translations/en'),
       import('../translations/tr'),
@@ -230,6 +230,7 @@ describe('Translation bundle consistency', () => {
       import('../translations/fr'),
       import('../translations/de'),
       import('../translations/ru'),
+      import('../translations/ur'),
     ]);
 
     const bundles = [
@@ -241,8 +242,9 @@ describe('Translation bundle consistency', () => {
       fr.default,
       de.default,
       ru.default,
+      ur.default,
     ] as unknown as Record<string, string>[];
-    const names = ['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru'];
+    const names = ['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru', 'ur'];
 
     // All should have weekdays
     for (let i = 0; i < bundles.length; i++) {
@@ -272,7 +274,7 @@ describe('Translation bundle consistency', () => {
   });
 
   it('all bundles should have prayer keys', async () => {
-    const [ar, en, tr, ms, id, fr, de, ru] = await Promise.all([
+    const [ar, en, tr, ms, id, fr, de, ru, ur] = await Promise.all([
       import('../translations/ar'),
       import('../translations/en'),
       import('../translations/tr'),
@@ -281,6 +283,7 @@ describe('Translation bundle consistency', () => {
       import('../translations/fr'),
       import('../translations/de'),
       import('../translations/ru'),
+      import('../translations/ur'),
     ]);
 
     const prayerKeys = ['prayer_fajr', 'prayer_sunrise', 'prayer_dhuhr', 'prayer_asr', 'prayer_maghrib', 'prayer_isha'];
@@ -293,8 +296,9 @@ describe('Translation bundle consistency', () => {
       fr.default,
       de.default,
       ru.default,
+      ur.default,
     ] as unknown as Record<string, string>[];
-    const names = ['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru'];
+    const names = ['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru', 'ur'];
 
     for (let i = 0; i < bundles.length; i++) {
       for (const key of prayerKeys) {
@@ -304,7 +308,7 @@ describe('Translation bundle consistency', () => {
   });
 
   it('all bundles should have offline and a11y keys', async () => {
-    const [ar, en, tr, ms, id, fr, de, ru] = await Promise.all([
+    const [ar, en, tr, ms, id, fr, de, ru, ur] = await Promise.all([
       import('../translations/ar'),
       import('../translations/en'),
       import('../translations/tr'),
@@ -313,6 +317,7 @@ describe('Translation bundle consistency', () => {
       import('../translations/fr'),
       import('../translations/de'),
       import('../translations/ru'),
+      import('../translations/ur'),
     ]);
 
     const a11yKeys = [
@@ -335,8 +340,9 @@ describe('Translation bundle consistency', () => {
       fr.default,
       de.default,
       ru.default,
+      ur.default,
     ] as unknown as Record<string, string>[];
-    const names = ['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru'];
+    const names = ['ar', 'en', 'tr', 'ms', 'id', 'fr', 'de', 'ru', 'ur'];
 
     for (let i = 0; i < bundles.length; i++) {
       for (const key of a11yKeys) {

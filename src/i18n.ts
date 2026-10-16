@@ -1,8 +1,8 @@
 /**
  * Internationalization (i18n) Module for Quran App.
  *
- * Provides a lightweight, lazy-loading translation system supporting 8 languages
- * (Arabic, English, Turkish, Malay, Indonesian, French, German, Russian). Key design decisions:
+ * Provides a lightweight, lazy-loading translation system supporting 9 languages
+ * (Arabic, English, Turkish, Malay, Indonesian, French, German, Russian, Urdu). Key design decisions:
  *
  *   - Arabic is always loaded as the fallback language
  *   - Only the active language bundle is kept in memory
@@ -30,7 +30,7 @@ export interface TranslationBundle {
 }
 
 /** Supported language codes. */
-export type LangCode = 'ar' | 'en' | 'tr' | 'ms' | 'id' | 'fr' | 'de' | 'ru';
+export type LangCode = 'ar' | 'en' | 'tr' | 'ms' | 'id' | 'fr' | 'de' | 'ru' | 'ur';
 
 /** Language metadata for the language selector UI. */
 export interface LanguageInfo {
@@ -50,6 +50,7 @@ export const AVAILABLE_LANGUAGES: LanguageInfo[] = [
   { code: 'fr', nativeName: 'Français', englishName: 'French', dir: 'ltr' },
   { code: 'de', nativeName: 'Deutsch', englishName: 'German', dir: 'ltr' },
   { code: 'ru', nativeName: 'Русский', englishName: 'Russian', dir: 'ltr' },
+  { code: 'ur', nativeName: 'اردو', englishName: 'Urdu', dir: 'rtl' },
 ];
 
 const STORAGE_KEY = 'lang';
@@ -96,6 +97,7 @@ async function loadTranslation(lang: LangCode): Promise<TranslationBundle> {
     fr: () => import('./translations/fr'),
     de: () => import('./translations/de'),
     ru: () => import('./translations/ru'),
+    ur: () => import('./translations/ur'),
   };
 
   const loader = moduleMap[lang];
