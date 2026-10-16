@@ -326,6 +326,12 @@ audio {
 .player-buttons .btn-gold {
   padding: 8px 20px;
 }
+#playPauseBtn.is-loading {
+  animation: player-btn-pulse 1s ease-in-out infinite;
+}
+@keyframes player-btn-pulse {
+  50% { opacity: 0.45; }
+}
 
 .player-grid {
   display: grid;

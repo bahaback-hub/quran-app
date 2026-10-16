@@ -4,6 +4,32 @@ import { test, expect } from './fixtures/mock-network';
 // Pressing play must refetch on demand; once the list is back, playback
 // proceeds instead of staying silent.
 test.describe('audio recovery', () => {
+  test('stalled audio load shows a busy indicator and an error toast', async ({ page }) => {
+    // Stall the audio CDN: the request never completes, mirroring a dead
+    // connection where no 'error' event fires. Without feedback the play
+    // button appeared dead (TestSprite report). The watchdog must surface it.
+    await page.route('https://cdn.islamic.network/**', () => new Promise(() => {}));
+
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForSelector('.surah-content', { timeout: 15000 });
+    await page.evaluate(() => {
+      const ws = document.getElementById('welcomeScreen');
+      if (ws) ws.remove();
+    });
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
+    await page.evaluate(() => document.getElementById('player')?.classList.remove('collapsed'));
+
+    const playBtn = page.locator('#playPauseBtn');
+    await playBtn.click();
+
+    // Loading indicator: the button turns busy while the request is in flight.
+    await expect(playBtn).toHaveAttribute('aria-busy', 'true', { timeout: 12000 });
+
+    // Watchdog fires after ~10s: the attempt stops with a visible error toast.
+    await expect(page.locator('#toast.show')).toBeVisible({ timeout: 25000 });
+  });
+
   test('refetches audio on play after a failed boot fetch, then plays', async ({ page }) => {
     let allowFetch = false;
     const postClickReqs = [];

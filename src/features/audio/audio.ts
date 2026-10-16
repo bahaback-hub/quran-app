@@ -97,6 +97,11 @@ let _audioRetryCount = 0;
 /** True while an on-demand audio-list reload is in flight (re-entrancy guard). */
 let _audioReloading = false;
 const MAX_AUDIO_RETRIES = 2;
+const PLAY_START_TIMEOUT_MS = 10000;
+/** Watchdog for playback requests that never start (silent network hangs). */
+let _playWatchdog: ReturnType<typeof setTimeout> | null = null;
+/** Pending mp3quran metadata listener, tracked so a timeout can detach it. */
+let _pendingMetaHandler: (() => void) | null = null;
 let _autoAdvanceSafetyTimer: ReturnType<typeof setTimeout> | null = null;
 const EXPAND_HINT_KEY = 'player_expand_hint_seen';
 const PLAYER_HINT_DURATION = 6000;
@@ -179,9 +184,49 @@ function setPlayingState(): void {
 
 /** Set playback state to stopped and update UI. */
 export function setStoppedState(): void {
+  endPlaybackWatchdog();
   state.isPlaying = false;
   document.body.classList.remove('audio-playing');
   updatePlayPauseBtn();
+}
+
+/**
+ * Mark the play button as busy and arm a watchdog while a fresh playback
+ * request is loading. If playback never starts within the timeout (silent
+ * network hang), the watchdog stops the attempt and surfaces an error toast.
+ */
+function beginPlaybackWatchdog(): void {
+  endPlaybackWatchdog();
+  dom.playPauseBtn?.classList.add('is-loading');
+  dom.playPauseBtn?.setAttribute('aria-busy', 'true');
+  _playWatchdog = setTimeout(() => {
+    _playWatchdog = null;
+    if (_pendingMetaHandler && dom.audioPlayer) {
+      dom.audioPlayer.removeEventListener('loadedmetadata', _pendingMetaHandler);
+    }
+    _pendingMetaHandler = null;
+    try {
+      dom.audioPlayer?.pause();
+    } catch (e) {
+      console.warn(e);
+    }
+    setStoppedState();
+    showToast(__('audio_error'), 'error');
+  }, PLAY_START_TIMEOUT_MS);
+}
+
+/** Clear the busy indicator and cancel any pending playback watchdog. */
+function endPlaybackWatchdog(): void {
+  if (_playWatchdog) {
+    clearTimeout(_playWatchdog);
+    _playWatchdog = null;
+  }
+  if (_pendingMetaHandler && dom.audioPlayer) {
+    dom.audioPlayer.removeEventListener('loadedmetadata', _pendingMetaHandler);
+  }
+  _pendingMetaHandler = null;
+  dom.playPauseBtn?.classList.remove('is-loading');
+  dom.playPauseBtn?.removeAttribute('aria-busy');
 }
 
 /* ===================== PLAYER ===================== */
@@ -265,11 +310,13 @@ export async function playCurrentAyah(): Promise<void> {
         console.warn(e);
         // Rejected (e.g. autoplay policy) — don't leave the button stuck on pause.
         setStoppedState();
+        showToast(__('audio_error'), 'error');
       });
       startWordTracking();
       return;
     }
 
+    beginPlaybackWatchdog();
     _mp3quranUrl = isMp3quran ? url : null;
 
     // Resolve the audio URL — check offline cache first
@@ -295,25 +342,26 @@ export async function playCurrentAyah(): Promise<void> {
 
     if (isMp3quran) {
       dom.audioPlayer.src = resolvedUrl;
-      dom.audioPlayer.addEventListener(
-        'loadedmetadata',
-        function onMeta(): void {
-          requireDom('audioPlayer').removeEventListener('loadedmetadata', onMeta);
-          requireDom('audioPlayer').currentTime = _getAyahStartTime();
-          requireDom('audioPlayer')
-            .play()
-            .catch((e: unknown) => {
-              console.warn(e);
-              setStoppedState();
-            });
-        },
-        { once: true },
-      );
+      const onMeta = function onMeta(): void {
+        requireDom('audioPlayer').removeEventListener('loadedmetadata', onMeta);
+        _pendingMetaHandler = null;
+        requireDom('audioPlayer').currentTime = _getAyahStartTime();
+        requireDom('audioPlayer')
+          .play()
+          .catch((e: unknown) => {
+            console.warn(e);
+            setStoppedState();
+            showToast(__('audio_error'), 'error');
+          });
+      };
+      _pendingMetaHandler = onMeta;
+      dom.audioPlayer.addEventListener('loadedmetadata', onMeta, { once: true });
     } else {
       dom.audioPlayer.src = resolvedUrl;
       dom.audioPlayer.play().catch((e: unknown) => {
         console.warn(e);
         setStoppedState();
+        showToast(__('audio_error'), 'error');
       });
     }
 
@@ -579,6 +627,7 @@ export function togglePlayPause(): void {
       playCurrentAyah().catch((e: unknown) => {
         console.warn('[Audio] togglePlayPause error:', e);
         setStoppedState();
+        showToast(__('audio_error'), 'error');
       });
     } else {
       // Optimistic: flip the button now; the play event confirms it, and a
@@ -587,6 +636,7 @@ export function togglePlayPause(): void {
       dom.audioPlayer.play().catch((e: unknown) => {
         console.warn(e);
         setStoppedState();
+        showToast(__('audio_error'), 'error');
       });
     }
   } else {
@@ -604,6 +654,8 @@ export function bindAudioEvents(): void {
     dom.audioPlayer.addEventListener('ended', onAudioEnded);
     dom.audioPlayer.removeEventListener('play', onAudioPlay);
     dom.audioPlayer.addEventListener('play', onAudioPlay);
+    dom.audioPlayer.removeEventListener('playing', onAudioPlaying);
+    dom.audioPlayer.addEventListener('playing', onAudioPlaying);
     dom.audioPlayer.removeEventListener('pause', onAudioPause);
     dom.audioPlayer.addEventListener('pause', onAudioPause);
     dom.audioPlayer.removeEventListener('error', onAudioError);
@@ -674,7 +726,13 @@ function onAudioPlay(): void {
   }
 }
 
+/** Playback actually started — the load succeeded; stop the watchdog. */
+function onAudioPlaying(): void {
+  endPlaybackWatchdog();
+}
+
 function onAudioPause(): void {
+  endPlaybackWatchdog();
   // When audio ends naturally, the browser fires both 'pause' and 'ended' events.
   // The 'ended' handler manages surah transitions (including autoPlayNext).
   // We must NOT set isPlaying=false here if the audio ended naturally,
@@ -687,6 +745,7 @@ function onAudioPause(): void {
 }
 
 function onAudioError(): void {
+  endPlaybackWatchdog();
   _autoAdvancing = false;
   _mp3quranUrl = null;
   stopWordTracking();

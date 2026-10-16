@@ -161,6 +161,8 @@ function createSurahData(ayahCount: number = 7, surahNumber: number = 1): SurahD
 }
 
 beforeEach(() => {
+  // Clear any playback watchdog left armed by the previous test.
+  setStoppedState();
   // Reset all state between tests
   state.isPlaying = false;
   state.surahData = null;

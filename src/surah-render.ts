@@ -164,7 +164,7 @@ function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string
     const sajdaTitle = sajda.type === 'obligatory' ? __('sajdah_wajib') : __('sajdah_mustahab');
     html += ` <span class="sajda-indicator" title="${sajdaTitle}">۩</span>`;
   }
-  html += ` <span class="ayah-number"><span class="ayah-number-inner">${a.numberInSurah}</span></span>`;
+  html += ` <span class="ayah-number" role="button" aria-label="${__('play')} ${__('ayah')} ${toArabicDigits(a.numberInSurah)}"><span class="ayah-number-inner">${a.numberInSurah}</span></span>`;
   const translationData = state.translationData as { ayahs?: { text: string }[] } | null;
   if (state.translationEnabled && translationData?.ayahs?.[i]) {
     const transText = escapeHtml(translationData.ayahs[i].text);

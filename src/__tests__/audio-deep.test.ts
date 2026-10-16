@@ -136,6 +136,7 @@ import {
   togglePlayPause,
   bindAudioEvents,
   updatePlayPauseBtn,
+  setStoppedState,
   resetAudioElement,
   expandPlayer,
   toggleHifdh,
@@ -218,6 +219,7 @@ describe('audio — deep coverage', () => {
   });
 
   afterEach(() => {
+    setStoppedState();
     document.body.innerHTML = '';
     vi.useRealTimers();
   });

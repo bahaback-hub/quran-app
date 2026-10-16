@@ -149,6 +149,7 @@ import {
   expandPlayer,
   bindAudioEvents,
   updatePlayPauseBtn,
+  setStoppedState,
   setLoadSurah,
   setHighlightAyah,
   prepareAudioForNewSurah,
@@ -277,6 +278,7 @@ describe('audio — full coverage', () => {
   });
 
   afterEach(() => {
+    setStoppedState();
     cleanupSleepTimerInterval();
     clearSleepTimer();
   });
@@ -420,6 +422,93 @@ describe('audio — full coverage', () => {
 
       expect(mockAudioPlayer.playbackRate).toBe(1.5);
       revokeSpy.mockRestore();
+    });
+  });
+
+  // ─── Playback watchdog (silent-hang feedback) ───────────────────
+
+  describe('playback watchdog', () => {
+    beforeEach(() => {
+      mockState.surahData = sampleSurahData;
+      mockState.ayahsAudios = ['https://cdn.example.com/1/1.mp3'];
+      mockState.currentAyahIndex = 0;
+      mockGetCachedAudioUrl.mockResolvedValue(null);
+      bindAudioEvents();
+    });
+
+    it('marks the play button busy while a fresh request loads', async () => {
+      const playMock = mockAudioPlayer.play as unknown as ReturnType<typeof vi.fn>;
+      playMock.mockReturnValue(new Promise<void>(() => {}));
+
+      void playCurrentAyah();
+      await flushPromises();
+
+      expect(mockDom.playPauseBtn!.classList.contains('is-loading')).toBe(true);
+      expect(mockDom.playPauseBtn!.getAttribute('aria-busy')).toBe('true');
+    });
+
+    it('clears the busy state once the playing event fires', async () => {
+      const playMock = mockAudioPlayer.play as unknown as ReturnType<typeof vi.fn>;
+      playMock.mockReturnValue(new Promise<void>(() => {}));
+
+      void playCurrentAyah();
+      await flushPromises();
+      expect(mockDom.playPauseBtn!.getAttribute('aria-busy')).toBe('true');
+
+      fireEvent(mockAudioPlayer, 'playing');
+
+      expect(mockDom.playPauseBtn!.classList.contains('is-loading')).toBe(false);
+      expect(mockDom.playPauseBtn!.hasAttribute('aria-busy')).toBe(false);
+    });
+
+    it('shows an error toast when play() rejects', async () => {
+      const playMock = mockAudioPlayer.play as unknown as ReturnType<typeof vi.fn>;
+      playMock.mockRejectedValue(new DOMException('blocked', 'NotAllowedError'));
+
+      await playCurrentAyah();
+      await flushPromises();
+
+      expect(mockShowToast).toHaveBeenCalledWith('audio_error', 'error');
+      expect(mockState.isPlaying).toBe(false);
+      expect(mockDom.playPauseBtn!.hasAttribute('aria-busy')).toBe(false);
+    });
+
+    it('stops the attempt and toasts when playback never starts', async () => {
+      vi.useFakeTimers();
+      try {
+        const playMock = mockAudioPlayer.play as unknown as ReturnType<typeof vi.fn>;
+        playMock.mockReturnValue(new Promise<void>(() => {}));
+
+        void playCurrentAyah();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(mockDom.playPauseBtn!.getAttribute('aria-busy')).toBe('true');
+
+        await vi.advanceTimersByTimeAsync(10000);
+
+        expect(mockShowToast).toHaveBeenCalledWith('audio_error', 'error');
+        expect(mockState.isPlaying).toBe(false);
+        expect(mockDom.playPauseBtn!.hasAttribute('aria-busy')).toBe(false);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('does not toast when playback starts before the timeout', async () => {
+      vi.useFakeTimers();
+      try {
+        const playMock = mockAudioPlayer.play as unknown as ReturnType<typeof vi.fn>;
+        playMock.mockReturnValue(new Promise<void>(() => {}));
+
+        void playCurrentAyah();
+        await vi.advanceTimersByTimeAsync(0);
+
+        fireEvent(mockAudioPlayer, 'playing');
+        await vi.advanceTimersByTimeAsync(10000);
+
+        expect(mockShowToast).not.toHaveBeenCalledWith('audio_error', 'error');
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 

@@ -52,6 +52,19 @@ describe('selective surah rendering (ARC-02)', () => {
     expect(surahTextFingerprint(a)).not.toBe(surahTextFingerprint(surah(2, 7)));
   });
 
+  it('exposes ayah numbers as labelled play buttons', () => {
+    const text = surah(11, 3);
+    state.surahData = text as unknown as typeof state.surahData;
+    renderSurah(text);
+
+    const numbers = [...container().querySelectorAll('.ayah-number')];
+    expect(numbers.length).toBe(3);
+    for (const el of numbers) {
+      expect(el.getAttribute('role')).toBe('button');
+      expect(el.getAttribute('aria-label')).toMatch(/1|2|3/);
+    }
+  });
+
   it('patchTranslations adds missing translation spans without rebuilding', () => {
     const text = surah(1, 3);
     state.surahData = text as unknown as typeof state.surahData;
