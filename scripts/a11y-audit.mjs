@@ -54,6 +54,26 @@ const STATES = [
   },
 ];
 
+/**
+ * Open a UI state with a small retry budget: on a cold, slow CI runner the
+ * feature modules load lazily, so the first click can be swallowed silently
+ * before its handler is bound. Escape clears any partially-opened overlay
+ * before the next attempt.
+ */
+async function openState(page, state) {
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await state.open(page);
+      return;
+    } catch (err) {
+      lastError = err;
+      await page.keyboard.press('Escape').catch(() => {});
+    }
+  }
+  throw lastError;
+}
+
 async function injectAxe(page) {
   // Read axe-core source from local node_modules and inject via evaluate
   // (avoids CSP script-src violation from addScriptTag with external URL)
@@ -102,7 +122,7 @@ async function runAudit() {
     await page.waitForSelector('.surah-content', { timeout: 15000 });
     await injectAxe(page);
     if (state.open) {
-      await state.open(page);
+      await openState(page, state);
     }
     const results = await runAxe(page);
     perState.push({ state: state.name, results });

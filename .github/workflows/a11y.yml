@@ -39,11 +39,13 @@ jobs:
         # static server mounts dist at the root. Auditing that layout would
         # exercise only an empty shell (assets 404 -> "0 violations").
         # Build a root-based variant (same code, no base prefix) so the audit
-        # runs against the REAL rendered app. Served with vite preview, which is
-        # already a dev dependency - a separate static server is not needed.
+        # runs against the REAL rendered app. BOTH the build AND the preview
+        # server must use base=/ - `vite preview` otherwise reads base from
+        # vite.config.js (/quran-app/), where the root-built assets 404 and
+        # every interactive state fails to open.
         run: |
           npx vite build --base=/ --outDir dist-a11y
-          npx vite preview --outDir dist-a11y --port 4173 &
+          npx vite preview --outDir dist-a11y --port 4173 --base=/ &
           sleep 3
           node scripts/a11y-audit.mjs
         env:
