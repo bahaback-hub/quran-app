@@ -14,7 +14,6 @@ import { state } from './state.js';
 import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
-import { closeHifzRoom, isHifzRoomOpen } from './hifz-room.js';
 import { isPointerMode, setPointerMode } from './pointer-nav.js';
 import { hideQiblaCompass } from './features/prayer/prayer.js';
 import { __ } from './i18n.js';
@@ -126,9 +125,21 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
         {
           el: document.getElementById('hifzRoom'),
           close: () => {
-            if (isHifzRoomOpen()) {
-              closeHifzRoom();
-            }
+            // Lazy on purpose: a module-scope import here would pull the
+            // hifz-room chunk into the entry's static graph and modulepreload
+            // it on first paint, even though the room is only initialized on
+            // idle (app.ts) and is closed for most sessions. The chunk is
+            // already loaded whenever this handler runs (the room only opens
+            // through that module), so the import resolves instantly.
+            void import('./hifz-room.js')
+              .then((m) => {
+                if (m.isHifzRoomOpen()) {
+                  m.closeHifzRoom();
+                }
+              })
+              .catch((err) => {
+                warnRecoverable('hifz-room.closeHifzRoom (back button) failed', err);
+              });
           },
         },
       ];

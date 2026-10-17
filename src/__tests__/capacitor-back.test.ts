@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+// hifz-room is imported lazily by the back handler; mocking it here keeps the
+// test focused on the close sequence without booting the real room module.
+vi.mock('../hifz-room.js', () => ({
+  isHifzRoomOpen: vi.fn(() => true),
+  closeHifzRoom: vi.fn(),
+}));
+
 describe('initCapacitorBackButton', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -35,6 +42,31 @@ describe('initCapacitorBackButton', () => {
     expect(listener).toBeDefined();
     // Should not throw when lazy import fails
     expect(() => listener!()).not.toThrow();
+  });
+
+  it('should close an open hifz room through the lazy import', async () => {
+    const room = document.createElement('div');
+    room.id = 'hifzRoom';
+    room.classList.add('open');
+    document.body.appendChild(room);
+
+    let listener: (() => void) | undefined;
+    const { initCapacitorBackButton } = await import('../capacitor-back.js');
+    initCapacitorBackButton({
+      App: {
+        addListener: vi.fn((_event: string, cb: () => void) => {
+          listener = cb;
+        }),
+      },
+    });
+
+    listener!();
+
+    const { isHifzRoomOpen, closeHifzRoom } = await import('../hifz-room.js');
+    await vi.waitFor(() => {
+      expect(isHifzRoomOpen).toHaveBeenCalled();
+    });
+    expect(closeHifzRoom).toHaveBeenCalled();
   });
 
   it('should close the visible qibla overlay before other navigation', async () => {
