@@ -25,11 +25,15 @@ vi.mock('../settings.js', () => ({
   applyPresBgVideo: vi.fn(),
   openSettings: vi.fn(),
   closeSettings: vi.fn(),
+  initSettingsTabs: vi.fn(),
+}));
+
+// Mock settings-panel module (lazily imported by settings-events handlers)
+vi.mock('../settings-panel.js', () => ({
   saveLocationSettings: vi.fn(),
   resetSettings: vi.fn(),
   exportSettings: vi.fn(),
   importSettings: vi.fn(),
-  initSettingsTabs: vi.fn(),
 }));
 
 // Mock audio-cache module
@@ -425,8 +429,8 @@ describe('app-events', () => {
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
       dom.saveLocationBtn!.click();
-      const { saveLocationSettings } = await import('../settings.js');
-      expect(saveLocationSettings).toHaveBeenCalled();
+      const { saveLocationSettings } = await import('../settings-panel.js');
+      await vi.waitFor(() => expect(saveLocationSettings).toHaveBeenCalled());
     });
 
     it('should bind testAzanBtn click to testAzan', async () => {
@@ -449,8 +453,8 @@ describe('app-events', () => {
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
       dom.resetSettingsBtn!.click();
-      const { resetSettings } = await import('../settings.js');
-      expect(resetSettings).toHaveBeenCalled();
+      const { resetSettings } = await import('../settings-panel.js');
+      await vi.waitFor(() => expect(resetSettings).toHaveBeenCalled());
     });
 
     it('should call initSettingsTabs', async () => {

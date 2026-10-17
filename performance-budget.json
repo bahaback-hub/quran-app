@@ -14,7 +14,7 @@
         { "resourceType": "total", "budget": 52000 }
       ],
       "resourceCounts": [
-        { "resourceType": "script", "budget": 33 },
+        { "resourceType": "script", "budget": 34 },
         { "resourceType": "stylesheet", "budget": 5 },
         { "resourceType": "image", "budget": 40 },
         { "resourceType": "font", "budget": 60 },
@@ -45,6 +45,7 @@
     "These budgets are set just above today's gzip floor: any future asset growth still fails the check (script/stylesheet/data/other/total budgets also remain enforced).",
     "data SIZE raised 2000 -> 2150 on 2026-10-08, then 2150 -> 3750 the same day: all five supported translations are now bundled (public/data/translations/*.json, ~8.1MB raw / ~1.9MB gzip total) as the offline fallback served when an edition endpoint is unreachable. Kept verbatim from the AlQuran.cloud endpoints so anyone can diff them against the source; the files are fetched on demand, never in first paint.",
     "script COUNT raised 20 -> 32 on 2026-09-25: the per-feature manualChunks were removed so rolldown splits by the real import graph. Naming a module in manualChunks made it a chunk ROOT and dragged its shared closure (storage/i18n/state/api/audio/prayer) into the named feature, which the entry then imported statically — 84 KB gzip of Canvas renderer was modulepreloaded for readers who never open the mushaf. Natural splitting raised the request count (more, smaller chunks) while cutting first-paint JS 146.2 -> 119.9 KB gzip. Size budgets are unchanged; only the count moved.",
-    "script COUNT raised 32 -> 33 on 2026-10-17: hifz-room left the first-paint graph. capacitor-back imported it at module scope, which kept the hifz-room chunk modulepreloaded on every boot although app.ts only initializes the room on idle. The back-button path now imports it on demand; the chunker then pulled the shared favorites module out of the hifz-room chunk into its own preloaded chunk. Boot requests are unchanged — favorites replaces hifz-room in the 13-file preload set and the hifz-room chunk (~6.8 KB gzip) now loads only when the room opens — while first-paint JS dropped 128.2 -> 121.4 KB gzip."
+    "script COUNT raised 32 -> 33 on 2026-10-17: hifz-room left the first-paint graph. capacitor-back imported it at module scope, which kept the hifz-room chunk modulepreloaded on every boot although app.ts only initializes the room on idle. The back-button path now imports it on demand; the chunker then pulled the shared favorites module out of the hifz-room chunk into its own preloaded chunk. Boot requests are unchanged — favorites replaces hifz-room in the 13-file preload set and the hifz-room chunk (~6.8 KB gzip) now loads only when the room opens — while first-paint JS dropped 128.2 -> 121.4 KB gzip.",
+    "script COUNT raised 33 -> 34 on 2026-10-17: the settings import/export/reset actions and their type validators left the first-paint graph. They are reachable only from settings-panel controls, so settings.ts kept the boot-time apply/restore half while the panel actions moved to settings-panel.ts, imported on demand by settings-events. The chunker pulled them out of the preloaded settings chunk (21.3 -> 19.8 KB gzip) into a non-preloaded settings-panel chunk (7.3 KB raw / 2.4 KB gzip), and first-paint JS dropped 118.7 -> 117.3 KB gzip."
   ]
 }

@@ -26,10 +26,6 @@ import {
   applyPresBgVideo,
   openSettings,
   closeSettings,
-  saveLocationSettings,
-  resetSettings,
-  exportSettings,
-  importSettings,
   initSettingsTabs,
 } from '../settings.js';
 import { testAzan, stopAzan, scheduleNextAzanCheck } from '../features/prayer/prayer.js';
@@ -46,6 +42,13 @@ import { warnRecoverable } from '../error-boundary.js';
  * Bind theme and settings buttons.
  */
 const READER_TOOLBAR_PIN_KEY = 'reader_toolbar_pinned';
+
+// Lazy on purpose: the import/export/reset actions and their validator tables
+// are only reachable from settings-panel controls; a module-scope import kept
+// them in the first-paint graph. Memoized so the panel buttons share ONE
+// in-flight import.
+let settingsPanelApiPromise: Promise<typeof import('../settings-panel.js')> | undefined;
+const loadSettingsPanelApi = () => (settingsPanelApiPromise ??= import('../settings-panel.js'));
 
 /** Keep the reading toolbar visible while a long surah is being read when the user requests it. */
 function applyReaderToolbarPin(pinned: boolean): void {
@@ -187,6 +190,11 @@ export function bindHeaderAndSettingsEvents(): void {
   });
 
   // ── Settings button ─────────────────────────────────────────────────────
+  const runPanelAction = (action: (panel: typeof import('../settings-panel.js')) => void): void => {
+    void loadSettingsPanelApi()
+      .then(action)
+      .catch((err) => warnRecoverable('settings panel action failed', err));
+  };
   dom.settingsToggleBtn?.addEventListener('click', () => {
     if (dom.settingsPanel?.classList.contains('open')) {
       closeSettings();
@@ -195,7 +203,7 @@ export function bindHeaderAndSettingsEvents(): void {
     openSettings();
   });
   dom.settingsCloseBtn?.addEventListener('click', closeSettings);
-  dom.saveLocationBtn?.addEventListener('click', saveLocationSettings);
+  dom.saveLocationBtn?.addEventListener('click', () => runPanelAction((panel) => panel.saveLocationSettings()));
   dom.useLocationBtn?.addEventListener('click', useMyLocation);
   dom.autoLocationToggle?.addEventListener('change', () => {
     state.autoLocation = requireDom('autoLocationToggle').checked;
@@ -204,9 +212,13 @@ export function bindHeaderAndSettingsEvents(): void {
   dom.testAzanBtn?.addEventListener('click', testAzan);
   dom.azanNotifStopBtn?.addEventListener('click', stopAzan);
   // welcome screen removed
-  dom.resetSettingsBtn?.addEventListener('click', resetSettings);
-  document.getElementById('exportSettingsBtn')?.addEventListener('click', () => exportSettings());
-  document.getElementById('importSettingsBtn')?.addEventListener('click', () => importSettings());
+  dom.resetSettingsBtn?.addEventListener('click', () => runPanelAction((panel) => panel.resetSettings()));
+  document
+    .getElementById('exportSettingsBtn')
+    ?.addEventListener('click', () => runPanelAction((panel) => panel.exportSettings()));
+  document
+    .getElementById('importSettingsBtn')
+    ?.addEventListener('click', () => runPanelAction((panel) => panel.importSettings()));
   // App version label + manual update check (handled in main.ts via event).
   const versionLabel = document.getElementById('appVersionLabel');
   if (versionLabel) {

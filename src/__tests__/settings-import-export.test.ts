@@ -119,7 +119,7 @@ vi.mock('../i18n.js', () => ({
 
 // Import after mocks
 import { storage } from '../storage.js';
-import { ALLOWED_SETTINGS_KEYS, SETTING_TYPE_VALIDATORS } from '../settings.js';
+import { ALLOWED_SETTINGS_KEYS, SETTING_TYPE_VALIDATORS } from '../settings-panel.js';
 
 describe('ALLOWED_SETTINGS_KEYS', () => {
   it('should contain essential setting keys', () => {

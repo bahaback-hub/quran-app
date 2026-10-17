@@ -330,7 +330,7 @@ describe('settings', () => {
     });
 
     it('should keep imported reader surface transparency within the safe range', async () => {
-      const { SETTING_TYPE_VALIDATORS } = await import('../settings.js');
+      const { SETTING_TYPE_VALIDATORS } = await import('../settings-panel.js');
       expect(SETTING_TYPE_VALIDATORS['reader_surface_transparency']!(65)).toBe(true);
       expect(SETTING_TYPE_VALIDATORS['reader_surface_transparency']!(101)).toBe(false);
       expect(SETTING_TYPE_VALIDATORS['reader_surface_transparency']!(-1)).toBe(false);

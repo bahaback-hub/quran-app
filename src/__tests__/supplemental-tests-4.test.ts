@@ -178,8 +178,10 @@ vi.mock('../settings.js', () => ({
   applyLineSpacing: vi.fn(),
   applySepiaMode: vi.fn(),
   applyNightMode: vi.fn(),
-  resetSettings: vi.fn(),
   openSettings: vi.fn(),
+}));
+vi.mock('../settings-panel.js', () => ({
+  resetSettings: vi.fn(),
 }));
 vi.mock('../favorites.js', () => ({
   toggleFavorite: vi.fn(),
@@ -631,9 +633,9 @@ import {
   applyLineSpacing,
   applySepiaMode,
   applyNightMode,
-  resetSettings,
   openSettings,
 } from '../settings.js';
+import { resetSettings } from '../settings-panel.js';
 
 describe('settings.ts — extended branches', () => {
   beforeEach(() => {

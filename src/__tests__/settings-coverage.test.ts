@@ -428,7 +428,7 @@ describe('settings — additional coverage', () => {
 
   describe('resetSettings', () => {
     it('should create and append reset confirmation modal', async () => {
-      const { resetSettings } = await import('../settings.js');
+      const { resetSettings } = await import('../settings-panel.js');
       resetSettings();
 
       const modal = document.getElementById('resetConfirmModal');
@@ -441,7 +441,7 @@ describe('settings — additional coverage', () => {
       existingModal.id = 'resetConfirmModal';
       document.body.appendChild(existingModal);
 
-      const { resetSettings } = await import('../settings.js');
+      const { resetSettings } = await import('../settings-panel.js');
       resetSettings();
 
       const modals = document.querySelectorAll('#resetConfirmModal');
@@ -450,7 +450,7 @@ describe('settings — additional coverage', () => {
     });
 
     it('should have confirm and cancel buttons', async () => {
-      const { resetSettings } = await import('../settings.js');
+      const { resetSettings } = await import('../settings-panel.js');
       resetSettings();
 
       const modal = document.getElementById('resetConfirmModal');
@@ -460,7 +460,7 @@ describe('settings — additional coverage', () => {
     });
 
     it('should remove modal when cancel button is clicked', async () => {
-      const { resetSettings } = await import('../settings.js');
+      const { resetSettings } = await import('../settings-panel.js');
       resetSettings();
 
       const modal = document.getElementById('resetConfirmModal');
@@ -471,7 +471,7 @@ describe('settings — additional coverage', () => {
     });
 
     it('should remove modal when clicking overlay background', async () => {
-      const { resetSettings } = await import('../settings.js');
+      const { resetSettings } = await import('../settings-panel.js');
       resetSettings();
 
       const modal = document.getElementById('resetConfirmModal');
@@ -481,7 +481,7 @@ describe('settings — additional coverage', () => {
     });
 
     it('should not remove modal when clicking inner content', async () => {
-      const { resetSettings } = await import('../settings.js');
+      const { resetSettings } = await import('../settings-panel.js');
       resetSettings();
 
       const modal = document.getElementById('resetConfirmModal');
@@ -497,7 +497,7 @@ describe('settings — additional coverage', () => {
       storage.set('night_mode', true);
       storage.set('city', 'Test City');
 
-      const { resetSettings } = await import('../settings.js');
+      const { resetSettings } = await import('../settings-panel.js');
       resetSettings();
 
       const modal = document.getElementById('resetConfirmModal');
@@ -512,7 +512,7 @@ describe('settings — additional coverage', () => {
     it('should remove night_mode_set_by_user on confirm', async () => {
       storage.set('night_mode_set_by_user', true);
 
-      const { resetSettings } = await import('../settings.js');
+      const { resetSettings } = await import('../settings-panel.js');
       resetSettings();
 
       const modal = document.getElementById('resetConfirmModal');
@@ -525,7 +525,7 @@ describe('settings — additional coverage', () => {
 
   describe('exportSettings', () => {
     it('should create a blob and trigger download', async () => {
-      const { exportSettings } = await import('../settings.js');
+      const { exportSettings } = await import('../settings-panel.js');
 
       const originalCreateObjectURL = URL.createObjectURL;
       const originalRevokeObjectURL = URL.revokeObjectURL;
@@ -546,7 +546,7 @@ describe('settings — additional coverage', () => {
       storage.set('night_mode', false);
       storage.set('city', 'Makkah');
 
-      const { exportSettings } = await import('../settings.js');
+      const { exportSettings } = await import('../settings-panel.js');
 
       let capturedBlob: Blob | null = null;
       const originalCreateObjectURL = URL.createObjectURL;
@@ -569,7 +569,7 @@ describe('settings — additional coverage', () => {
 
   describe('importSettings', () => {
     it('should not throw when called', async () => {
-      const { importSettings } = await import('../settings.js');
+      const { importSettings } = await import('../settings-panel.js');
       // This will create a file input and try to click it
       // Just verify it doesn't throw
       expect(() => importSettings()).not.toThrow();
@@ -1144,7 +1144,7 @@ describe('settings — additional coverage', () => {
       mockDom.cityInput = input;
       mockDom.countryInput = document.createElement('input');
 
-      const { saveLocationSettings } = await import('../settings.js');
+      const { saveLocationSettings } = await import('../settings-panel.js');
       saveLocationSettings();
 
       const { showToast } = await import('../ui.js');
@@ -1162,7 +1162,7 @@ describe('settings — additional coverage', () => {
       mockDom.cityInput = cityInput;
       mockDom.countryInput = countryInput;
 
-      const { saveLocationSettings } = await import('../settings.js');
+      const { saveLocationSettings } = await import('../settings-panel.js');
       saveLocationSettings();
 
       const { showToast } = await import('../ui.js');
@@ -1187,7 +1187,7 @@ describe('settings — additional coverage', () => {
       mockDom.countryInput = countryInput;
       mockDom.methodSelect = methodSelect;
 
-      const { saveLocationSettings } = await import('../settings.js');
+      const { saveLocationSettings } = await import('../settings-panel.js');
       saveLocationSettings();
 
       expect(state.city).toBe('Makkah');
