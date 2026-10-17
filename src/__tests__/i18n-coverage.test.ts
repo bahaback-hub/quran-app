@@ -57,30 +57,25 @@ describe('i18n — additional coverage', () => {
     it('should preload English from Arabic', async () => {
       await setLang('ar');
       expect(() => preloadLang('en')).not.toThrow();
-      // Wait a bit for async preload
-      await new Promise((r) => setTimeout(r, 200));
-      expect(getLoadedLangs()).toContain('en');
+      await vi.waitFor(() => expect(getLoadedLangs()).toContain('en'));
     });
 
     it('should preload Turkish', async () => {
       await setLang('ar');
       expect(() => preloadLang('tr')).not.toThrow();
-      await new Promise((r) => setTimeout(r, 200));
-      expect(getLoadedLangs()).toContain('tr');
+      await vi.waitFor(() => expect(getLoadedLangs()).toContain('tr'));
     });
 
     it('should preload Malay', async () => {
       await setLang('ar');
       expect(() => preloadLang('ms')).not.toThrow();
-      await new Promise((r) => setTimeout(r, 200));
-      expect(getLoadedLangs()).toContain('ms');
+      await vi.waitFor(() => expect(getLoadedLangs()).toContain('ms'));
     });
 
     it('should preload Indonesian', async () => {
       await setLang('ar');
       expect(() => preloadLang('id')).not.toThrow();
-      await new Promise((r) => setTimeout(r, 200));
-      expect(getLoadedLangs()).toContain('id');
+      await vi.waitFor(() => expect(getLoadedLangs()).toContain('id'));
     });
 
     it('should not throw for already-loaded language', async () => {
