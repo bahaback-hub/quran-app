@@ -28,8 +28,11 @@ export function bindNavigationEvents(): void {
     dom.surahSelect?.blur?.();
     if (state.mushafMode) {
       state.currentSurah = surahNum;
-      apiFetch<AyahPageResponse>(`/ayah/${surahNum}:1`)
-        .then((data) => {
+      // Sync the player/reciter to the chosen surah (the page jump alone left
+      // the previous surah loaded), then redraw the mushaf page: loadSurah
+      // renders the text view, so the page is force-reloaded once it settles.
+      Promise.all([loadSurah(surahNum), apiFetch<AyahPageResponse>(`/ayah/${surahNum}:1`)])
+        .then(([, data]) => {
           const page = data?.data?.page || 1;
           if (dom.pageSelect) {
             dom.pageSelect.value = String(page);
@@ -37,7 +40,7 @@ export function bindNavigationEvents(): void {
           if (dom.pageSlider) {
             dom.pageSlider.value = String(page);
           }
-          import('../features/mushaf/mushaf.js').then((m) => m.loadPage(page, true)); // lazy: mushaf not in main chunk
+          return import('../features/mushaf/mushaf.js').then((m) => m.loadPage(page, true, true));
         })
         .catch(() => showToast(__('mushaf_page_not_found'), 'error'));
     } else {

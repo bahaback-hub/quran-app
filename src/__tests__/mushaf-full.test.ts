@@ -709,6 +709,8 @@ describe('mushaf.ts', () => {
         expect(mockState.currentSurah).toBe(1);
       });
 
+      expect(mockLoadSurahSurah).toHaveBeenCalledWith(1);
+
       vi.restoreAllMocks();
     });
 

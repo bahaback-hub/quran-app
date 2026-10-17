@@ -1297,7 +1297,9 @@ describe('app-events', () => {
       dom.surahSelect!.value = '3';
       dom.surahSelect!.dispatchEvent(new Event('change'));
       const { loadPage } = await import('../features/mushaf/mushaf.js');
-      await vi.waitFor(() => expect(loadPage).toHaveBeenCalledWith(12, true));
+      const { loadSurah } = await import('../surah-loader.js');
+      await vi.waitFor(() => expect(loadPage).toHaveBeenCalledWith(12, true, true));
+      expect(loadSurah).toHaveBeenCalledWith(3);
       expect(dom.pageSelect!.value).toBe('12');
       expect(dom.pageSlider!.value).toBe('12');
       vi.unstubAllGlobals();

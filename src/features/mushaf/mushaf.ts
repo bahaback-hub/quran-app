@@ -487,7 +487,13 @@ export function populateSurahOverlay(): void {
         state.surahData = null;
         loadingBar.show(`⏳ ${__('loading_surah')} ${surahName}...`);
         try {
-          const data = await apiFetch<AyahPageResponse>(`/ayah/${surahNum}:1`, { silent: true });
+          // Sync the player/reciter to the chosen surah (without autoplay),
+          // then force-redraw the mushaf page once loadSurah settles — its
+          // text render replaces the page canvas.
+          const [data] = await Promise.all([
+            apiFetch<AyahPageResponse>(`/ayah/${surahNum}:1`, { silent: true }),
+            loadSurah(surahNum),
+          ]);
           const page = data?.data?.page || 1;
           if (dom.pageSelect) {
             dom.pageSelect.value = String(page);
@@ -495,7 +501,7 @@ export function populateSurahOverlay(): void {
           if (dom.pageSlider) {
             dom.pageSlider.value = String(page);
           }
-          loadPage(page, true);
+          loadPage(page, true, true);
         } catch {
           showToast(__('mushaf_page_not_found'), 'error');
         } finally {
