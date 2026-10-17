@@ -4,6 +4,8 @@
  * explicit user action, without changing the reader layout or Android.
  */
 
+import './css/hifz-room.css';
+
 import {
   getDownloadButtons,
   hydrateDownloadedSessionAudio,

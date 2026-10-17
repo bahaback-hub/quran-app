@@ -43,6 +43,9 @@ export default defineConfig({
         // Re-export wrappers — they have no logic to test
         'src/schemas-validate.ts',
         'src/templates.ts',
+        // Stylesheets are not JavaScript. Feature modules import them since
+        // the CSS split, and the v8 instrumenter lists them with 0 statements.
+        '**/*.css',
       ],
     },
   },

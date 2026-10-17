@@ -69,6 +69,7 @@ describe('official Uthmanic Hafs font', () => {
       'src/css/variables.css',
       'src/css/panels.css',
       'src/css/modals.css',
+      'src/css/reader-rail.css',
     ]) {
       expect(readFileSync(resolve(root, rel), 'utf8')).not.toContain('KFGQPC HAFS Uthmanic Script');
     }

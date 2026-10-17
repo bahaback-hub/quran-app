@@ -1802,7 +1802,7 @@ describe('app-events', () => {
       dom.downloadAudioBtn!.click();
       await vi.waitFor(() => expect(deleteSurahCache).toHaveBeenCalledWith(1, 'ar.alafasy'));
       const { showToast } = await import('../ui.js');
-      expect(showToast).toHaveBeenCalledWith('download_audio_deleted', 'success');
+      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('download_audio_deleted', 'success'));
       expect(dom.downloadAudioBtn!.textContent).toBe('download_audio');
     });
 
@@ -1821,10 +1821,10 @@ describe('app-events', () => {
       bindSearchEvents();
       dom.downloadAudioBtn!.click();
       await vi.waitFor(() => expect(cacheSurahAudio).toHaveBeenCalled());
+      await vi.waitFor(() => expect(dom.downloadAudioBtn!.textContent).toBe('✅'));
       const { showToast } = await import('../ui.js');
       expect(showToast).toHaveBeenCalledWith('download_audio_done', 'success');
       expect(dom.downloadAudioBtn!.classList.contains('active')).toBe(true);
-      expect(dom.downloadAudioBtn!.textContent).toBe('✅');
       await new Promise((resolve) => setTimeout(resolve, 2100));
       expect(dom.downloadAudioBtn!.textContent).toBe('download_audio');
     });

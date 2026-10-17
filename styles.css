@@ -5,8 +5,10 @@
 @import './src/css/surah.css';
 @import './src/css/player.css';
 @import './src/css/panels.css';
-@import './src/features/mushaf/mushaf.css';
-@import './src/features/presentation/presentation.css';
+/* Feature sheets — mushaf.css, presentation.css and the room-drawer half of
+   hifz-room.css — are imported by their own lazily loaded modules and stay
+   out of the render-blocking entry stylesheet. The reader tools rail keeps
+   its own sheet here (reader-rail.css) because it is visible on first paint. */
 @import './src/css/modals.css';
 @import './src/css/components.css';
 @import './src/css/continue-widget.css';
@@ -18,7 +20,7 @@
 @import './src/css/accessibility.css';
 @import './src/css/capacitor.css';
 @import './src/css/help.css';
-@import './src/css/hifz-room.css';
+@import './src/css/reader-rail.css';
 @import './src/css/home.css';
 
 /* Virtual Scrolling — chunk containers for windowed rendering */

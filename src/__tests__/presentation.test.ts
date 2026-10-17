@@ -186,7 +186,7 @@ describe('presentation', () => {
     it('should not inject a style element on open (CSP-safe static sheet)', async () => {
       const { openPresentation } = await import('../features/presentation/presentation.js');
       openPresentation();
-      // Styles come from presentation.css via styles.css; runtime <style>
+      // Styles come from presentation.css (imported by presentation.ts); runtime <style>
       // injection would require 'unsafe-inline' in style-src.
       expect(document.getElementById('pres-styles')).toBeNull();
     });

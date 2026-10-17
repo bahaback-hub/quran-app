@@ -3,7 +3,7 @@
  *
  * The overlay styles used to be injected at runtime via a <style> element
  * (injectStyles). That requires 'unsafe-inline' in style-src, so the rules
- * moved to the static presentation.css sheet linked from styles.css.
+ * moved to the static presentation.css sheet imported by presentation.ts.
  */
 
 import { readFileSync } from 'node:fs';
@@ -38,9 +38,11 @@ import { buildColorMap, tajweedColorWord } from '../tajweed.js';
 const sheet = readFileSync(resolve(import.meta.dirname, '../features/presentation/presentation.css'), 'utf8');
 
 describe('presentation.css static sheet (CSP-safe, no runtime <style> injection)', () => {
-  it('is linked from the global stylesheet', () => {
+  it('is imported by the presentation module, not the global stylesheet', () => {
+    const mod = readFileSync(resolve(import.meta.dirname, '../features/presentation/presentation.ts'), 'utf8');
+    expect(mod).toContain("import './presentation.css';");
     const styles = readFileSync(resolve(import.meta.dirname, '../../styles.css'), 'utf8');
-    expect(styles).toContain('presentation.css');
+    expect(styles).not.toMatch(/@import\s+['"][^'"]*presentation\.css/);
   });
 
   it('pres-styles.ts no longer injects a style element', () => {

@@ -1,3 +1,5 @@
+import './mushaf.css';
+
 import { state } from '../../state.js';
 import { JUZ_PAGES } from '../../config.js';
 import { dom } from '../../dom.js';

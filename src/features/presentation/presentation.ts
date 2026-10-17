@@ -1,3 +1,5 @@
+import './presentation.css';
+
 import { __ } from '../../i18n.js';
 import { state } from '../../state.js';
 import { dom } from '../../dom.js';
@@ -467,8 +469,8 @@ export function openPresentation(): void {
   setBackgroundPickerOpen(false);
   // Sync presentation tajweed with global setting on open
   _presTajweedEnabled = state.tajweedEnabled;
-  // NOTE: presentation styles are a static sheet (presentation.css via
-  // styles.css) — no runtime injection needed (CSP: style-src 'self').
+  // NOTE: presentation styles are a static sheet imported by this module
+  // (presentation.css) — no runtime injection needed (CSP: style-src 'self').
   // Wire the overlay controls before the first paint. app.ts also calls
   // initPresentation() from a deferred task (safeLoad with retries), so without
   // this an OK press landing in that window would hit an unwired ⏭/⏮ button
