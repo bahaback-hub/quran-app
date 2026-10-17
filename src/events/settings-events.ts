@@ -32,13 +32,6 @@ import {
   importSettings,
   initSettingsTabs,
 } from '../settings.js';
-import {
-  deleteMushafDataPack,
-  downloadMushafDataPack,
-  formatMushafDataBytes,
-  getMushafDataPackStatus,
-  verifyMushafDataPack,
-} from '../features/mushaf/mushaf-data-pack.js';
 import { testAzan, stopAzan, scheduleNextAzanCheck } from '../features/prayer/prayer.js';
 import { ensureAzanNotificationPermission } from '../features/prayer/azan-notifications.js';
 import { openHelp } from './help-events.js';
@@ -243,12 +236,21 @@ function bindMushafDataPackEvents(): void {
     return;
   }
 
+  // Lazy on purpose: this module (manifest digest verification + the
+  // IndexedDB pack store) is only useful inside this panel section; a
+  // module-scope import put its chunk in the entry graph and modulepreloaded
+  // it on every boot. Memoized so the boot status refresh and the button
+  // handlers share ONE in-flight import.
+  let packApiPromise: Promise<typeof import('../features/mushaf/mushaf-data-pack.js')> | undefined;
+  const loadPackApi = () => (packApiPromise ??= import('../features/mushaf/mushaf-data-pack.js'));
+
   const setBusy = (busy: boolean) => {
     downloadButton.disabled = busy;
     verifyButton.disabled = busy;
     deleteButton.disabled = busy;
   };
   const refresh = async () => {
+    const { getMushafDataPackStatus, formatMushafDataBytes } = await loadPackApi();
     const pack = await getMushafDataPackStatus();
     const completePack = pack.installed && pack.fontsIncluded;
     status.textContent = completePack
@@ -257,12 +259,15 @@ function bindMushafDataPackEvents(): void {
     verifyButton.disabled = !completePack;
     deleteButton.disabled = !pack.installed;
   };
-  void refresh();
+  void refresh().catch((err) => {
+    warnRecoverable('mushaf data pack status read failed', err);
+  });
 
   downloadButton.addEventListener('click', async () => {
     setBusy(true);
     let failed = false;
     try {
+      const { downloadMushafDataPack } = await loadPackApi();
       await downloadMushafDataPack((progress) => {
         status.textContent = `${__('mushaf_data_pack_downloading')} ${progress.completed}/${progress.total}`;
       });
@@ -289,6 +294,7 @@ function bindMushafDataPackEvents(): void {
   verifyButton.addEventListener('click', async () => {
     setBusy(true);
     try {
+      const { verifyMushafDataPack } = await loadPackApi();
       const valid = await verifyMushafDataPack((progress) => {
         status.textContent = `${__('mushaf_data_pack_verify')} ${progress.completed}/${progress.total}`;
       });
@@ -303,6 +309,7 @@ function bindMushafDataPackEvents(): void {
   deleteButton.addEventListener('click', async () => {
     setBusy(true);
     try {
+      const { deleteMushafDataPack } = await loadPackApi();
       await deleteMushafDataPack();
       showToast(__('mushaf_data_pack_deleted'), 'success');
     } finally {
