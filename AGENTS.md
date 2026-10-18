@@ -1,6 +1,6 @@
 # Quran App — Project Guide for AI Agents
 
-> **Honest snapshot of the codebase as of v3.1.27.** Read this BEFORE making changes.
+> **Honest snapshot of the codebase as of v3.1.28.** Read this BEFORE making changes.
 
 ## Commands
 
