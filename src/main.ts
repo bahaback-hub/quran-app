@@ -1,7 +1,8 @@
 import { initErrorBoundary, warnRecoverable } from './error-boundary.js';
 import { initApp } from './app.js';
 import { initI18n, __ } from './i18n.js';
-import { isCapacitorNative, getCapacitor } from './types.js';
+import { isCapacitorNative } from './types.js';
+import { dismissSplashOnReady } from './splash.js';
 import { updateBanner } from './templates.js';
 import { CHECK_UPDATES_EVENT, UPDATE_AVAILABLE_EVENT, checkForAppUpdates } from './app-updates.js';
 
@@ -67,17 +68,9 @@ if (isCapNative || isAndroidWebView) {
     });
   }
 
-  // Hide splash screen when app is ready (safety net even with launchAutoHide)
-  const hideSplash = () => {
-    try {
-      const cap = getCapacitor();
-      cap?.Plugins?.SplashScreen?.hide?.({ fadeOutDuration: 300 });
-    } catch {
-      /* ignore */
-    }
-  };
-  document.addEventListener('DOMContentLoaded', () => setTimeout(hideSplash, 500));
-  setTimeout(hideSplash, 2000); // fallback
+  // Hide the splash as early as possible (see src/splash.ts for why this is
+  // safe at DOMContentLoaded and what the old 500ms+300ms delay cost).
+  dismissSplashOnReady();
 }
 
 let _installEvent: BeforeInstallPromptEvent | null = null;

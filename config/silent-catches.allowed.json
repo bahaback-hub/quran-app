@@ -268,9 +268,9 @@
       "reason": "AudioContext may already be closed — ignore"
     },
     {
-      "file": "src/main.ts",
-      "fn": "hideSplash",
-      "anchor": "/* ignore */",
+      "file": "src/splash.ts",
+      "fn": "hideNativeSplash",
+      "anchor": "/* the plugin is optional; a missing hide is not fatal */",
       "kind": "catch-empty-block",
       "reason": "native SplashScreen hide is best-effort"
     },

@@ -70,6 +70,18 @@ function adb(adbPath, argv, { allowFailure = false } = {}) {
   return { code: res.status, stdout: res.stdout ?? '', stderr: res.stderr ?? '' };
 }
 
+/**
+ * Older/regional `dumpsys meminfo` builds omit the "TOTAL PSS:" summary line
+ * and only print the per-row table whose last line starts with "TOTAL". The
+ * first column is always the total PSS in KB; the remaining columns vary by
+ * Android version (8 or 10), so only the first is read.
+ */
+function parseTotalRow(meminfo) {
+  const row = (meminfo.match(/^\s*TOTAL\s+([\d\s]+)$/m) || [])[1];
+  if (!row) return NaN;
+  return Number(row.trim().split(/\s+/)[0]);
+}
+
 function main() {
   const report = {
     package: PKG,
@@ -167,10 +179,13 @@ function main() {
     const started = adb(adbPath, [
       ...serialArgs, 'shell', 'am', 'start', '-W', '-n', activity,
     ], { allowFailure: true }).stdout;
-    const ms = Number((started.match(/TotalTime:\s*(\d+)/) || [])[1]);
+    // `am start -W` prints TotalTime on most builds, but some OEM ROMs (seen on
+    // Xiaomi / Android 16) only print "WaitTime" with a "LaunchState: UNKNOWN".
+    // Both measure the same synchronous launch wait, so accept either.
+    const ms = Number((started.match(/(?:Total|Wait)Time:\s*(\d+)/) || [])[1]);
     report.coldStartMs = Number.isFinite(ms) && ms > 0 ? ms : null;
     if (report.coldStartMs === null) {
-      report.warnings.push('cold-start timing unavailable (am start -W gave no TotalTime)');
+      report.warnings.push('cold-start timing unavailable (am start -W gave no Total/WaitTime)');
     } else if (report.coldStartMs > LIMITS.coldStartMs) {
       report.warnings.push(
         `cold start ${report.coldStartMs}ms exceeds the ${LIMITS.coldStartMs}ms target`,
@@ -183,7 +198,9 @@ function main() {
   const meminfo = adb(adbPath, [
     ...serialArgs, 'shell', 'dumpsys', 'meminfo', PKG,
   ], { allowFailure: true }).stdout;
-  const pss = Number((meminfo.match(/TOTAL\s+PSS:\s*([\d\s]+?)\s*KB/) || [])[1]?.replace(/\s/g, ''));
+  const pss =
+    Number((meminfo.match(/TOTAL\s+PSS:\s*([\d\s]+?)\s*KB/) || [])[1]?.replace(/\s/g, '')) ||
+    parseTotalRow(meminfo);
   report.totalPssKb = Number.isFinite(pss) && pss > 0 ? pss : null;
   if (report.totalPssKb === null) {
     report.warnings.push('memory reading unavailable (dumpsys meminfo format not matched)');
