@@ -8,6 +8,21 @@ import { dom } from '../dom.js';
 import { state, resetState } from '../state.js';
 import { storage } from '../storage.js';
 
+/**
+ * `vi.waitFor` retries for only 1000ms by default. Test files here run in
+ * parallel (vitest.config.js `fileParallelism: true`), so a loaded machine can
+ * slow one down ~4x and a UI continuation that is merely late gets reported as
+ * a failure — that is how the audio-download test flaked while a concurrent
+ * lint/typecheck run was eating the CPU. 5000ms (the value this file already
+ * used ad hoc for `mushaf_page_not_found`) only lengthens the retry window
+ * when an assertion is actually failing; a passing check returns on the first
+ * poll.
+ */
+const waitUntil = <T>(check: () => T, options: number | { timeout?: number; interval?: number } = 5000): Promise<T> => {
+  const opts = typeof options === 'number' ? { timeout: options } : options;
+  return vi.waitFor(check, { timeout: 5000, ...opts });
+};
+
 // Mock settings module
 vi.mock('../settings.js', () => ({
   applyFontSize: vi.fn(),
@@ -430,7 +445,7 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       dom.saveLocationBtn!.click();
       const { saveLocationSettings } = await import('../settings-panel.js');
-      await vi.waitFor(() => expect(saveLocationSettings).toHaveBeenCalled());
+      await waitUntil(() => expect(saveLocationSettings).toHaveBeenCalled());
     });
 
     it('should bind testAzanBtn click to testAzan', async () => {
@@ -454,7 +469,7 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       dom.resetSettingsBtn!.click();
       const { resetSettings } = await import('../settings-panel.js');
-      await vi.waitFor(() => expect(resetSettings).toHaveBeenCalled());
+      await waitUntil(() => expect(resetSettings).toHaveBeenCalled());
     });
 
     it('should call initSettingsTabs', async () => {
@@ -1244,7 +1259,7 @@ describe('app-events', () => {
       dom.downloadAudioBtn!.click();
 
       // Wait for async handler
-      await vi.waitFor(() => {
+      await waitUntil(() => {
         expect(cacheSurahAudio).toHaveBeenCalled();
       });
     });
@@ -1298,7 +1313,7 @@ describe('app-events', () => {
       dom.surahSelect!.dispatchEvent(new Event('change'));
       const { loadPage } = await import('../features/mushaf/mushaf.js');
       const { loadSurah } = await import('../surah-loader.js');
-      await vi.waitFor(() => expect(loadPage).toHaveBeenCalledWith(12, true, true));
+      await waitUntil(() => expect(loadPage).toHaveBeenCalledWith(12, true, true));
       expect(loadSurah).toHaveBeenCalledWith(3);
       expect(dom.pageSelect!.value).toBe('12');
       expect(dom.pageSlider!.value).toBe('12');
@@ -1316,7 +1331,7 @@ describe('app-events', () => {
       dom.surahSelect!.value = '3';
       dom.surahSelect!.dispatchEvent(new Event('change'));
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_page_not_found', 'error'), {
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('mushaf_page_not_found', 'error'), {
         timeout: 5000,
       });
       vi.unstubAllGlobals();
@@ -1392,7 +1407,7 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       dom.useLocationBtn!.click();
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('location_not_supported', 'error'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('location_not_supported', 'error'));
     });
 
     it('should fill the city from GPS and persist it', async () => {
@@ -1404,7 +1419,7 @@ describe('app-events', () => {
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
       dom.useLocationBtn!.click();
-      await vi.waitFor(() => expect(dom.cityInput!.value).toBe('مكة المكرمة'));
+      await waitUntil(() => expect(dom.cityInput!.value).toBe('مكة المكرمة'));
       expect(state.city).toBe('مكة المكرمة');
       expect(storage.set).toHaveBeenCalledWith('city', 'مكة المكرمة');
       const { showToast } = await import('../ui.js');
@@ -1419,7 +1434,7 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       dom.useLocationBtn!.click();
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('location_denied', 'error'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('location_denied', 'error'));
     });
 
     it('should toast location_no_city when GPS is too far from a supported city', async () => {
@@ -1431,7 +1446,7 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       dom.useLocationBtn!.click();
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('location_no_city', 'error'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('location_no_city', 'error'));
     });
 
     it('should sync the auto-location toggle with state', async () => {
@@ -1476,7 +1491,7 @@ describe('app-events', () => {
       });
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
-      await vi.waitFor(() => expect(status.textContent).toContain('mushaf_data_pack_installed'));
+      await waitUntil(() => expect(status.textContent).toContain('mushaf_data_pack_installed'));
       expect(verifyButton.disabled).toBe(false);
       expect(deleteButton.disabled).toBe(false);
     });
@@ -1497,7 +1512,7 @@ describe('app-events', () => {
       });
       const { bindHeaderAndSettingsEvents } = await import('../app-events.js');
       bindHeaderAndSettingsEvents();
-      await vi.waitFor(() => expect(status.textContent).toContain('mushaf_data_pack_not_installed'));
+      await waitUntil(() => expect(status.textContent).toContain('mushaf_data_pack_not_installed'));
       expect(verifyButton.disabled).toBe(true);
     });
 
@@ -1522,7 +1537,7 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       downloadButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_verified', 'success'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_verified', 'success'));
       expect(downloadButton.disabled).toBe(false);
     });
 
@@ -1534,7 +1549,7 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       (document.getElementById('downloadMushafDataPackBtn') as HTMLButtonElement).click();
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_failed', 'error'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_failed', 'error'));
     });
 
     it('should report a valid pack after verification', async () => {
@@ -1548,7 +1563,7 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       (document.getElementById('verifyMushafDataPackBtn') as HTMLButtonElement).click();
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_verified', 'success'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_verified', 'success'));
     });
 
     it('should report corrupt data after a failed verification', async () => {
@@ -1559,7 +1574,7 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       (document.getElementById('verifyMushafDataPackBtn') as HTMLButtonElement).click();
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_failed', 'error'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_failed', 'error'));
     });
 
     it('should delete the installed pack', async () => {
@@ -1581,8 +1596,8 @@ describe('app-events', () => {
       bindHeaderAndSettingsEvents();
       (document.getElementById('deleteMushafDataPackBtn') as HTMLButtonElement).click();
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_deleted', 'success'));
-      await vi.waitFor(() => expect(status.textContent).toContain('mushaf_data_pack_not_installed'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('mushaf_data_pack_deleted', 'success'));
+      await waitUntil(() => expect(status.textContent).toContain('mushaf_data_pack_not_installed'));
     });
   });
 
@@ -1712,7 +1727,7 @@ describe('app-events', () => {
       bindDisplaySettingsEvents();
       dom.tajweedInlineBtn!.click();
       const { loadTajweedAnnotationsForSurah } = await import('../tajweed-data.js');
-      await vi.waitFor(() => expect(loadTajweedAnnotationsForSurah).toHaveBeenCalledWith(2));
+      await waitUntil(() => expect(loadTajweedAnnotationsForSurah).toHaveBeenCalledWith(2));
       const { loadSurah } = await import('../surah-loader.js');
       expect(loadSurah).toHaveBeenCalledWith(2);
     });
@@ -1725,7 +1740,7 @@ describe('app-events', () => {
       bindDisplaySettingsEvents();
       dom.tajweedInlineBtn!.click();
       const { loadPage } = await import('../features/mushaf/mushaf.js');
-      await vi.waitFor(() => expect(loadPage).toHaveBeenCalledWith(3, true, true));
+      await waitUntil(() => expect(loadPage).toHaveBeenCalledWith(3, true, true));
     });
 
     it('should toggle tv and pointer navigation modes', async () => {
@@ -1759,7 +1774,7 @@ describe('app-events', () => {
       const { setLang } = await import('../i18n.js');
       expect(setLang).toHaveBeenCalledWith('en');
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('language: English', 'success'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('language: English', 'success'));
     });
   });
 
@@ -1773,10 +1788,10 @@ describe('app-events', () => {
       bindSearchEvents();
       dom.searchBtn!.click();
       const { loadFullQuranText, performExactSearch } = await import('../features/search/search-ui.js');
-      await vi.waitFor(() => expect(loadFullQuranText).toHaveBeenCalled());
+      await waitUntil(() => expect(loadFullQuranText).toHaveBeenCalled());
       const { showToast } = await import('../ui.js');
       expect(showToast).toHaveBeenCalledWith('quran_db_loading');
-      await vi.waitFor(() => expect(performExactSearch).toHaveBeenCalledWith('نور'));
+      await waitUntil(() => expect(performExactSearch).toHaveBeenCalledWith('نور'));
     });
 
     it('should invoke the install prompt when the app exposes it', async () => {
@@ -1800,9 +1815,9 @@ describe('app-events', () => {
       const { bindSearchEvents } = await import('../app-events.js');
       bindSearchEvents();
       dom.downloadAudioBtn!.click();
-      await vi.waitFor(() => expect(deleteSurahCache).toHaveBeenCalledWith(1, 'ar.alafasy'));
+      await waitUntil(() => expect(deleteSurahCache).toHaveBeenCalledWith(1, 'ar.alafasy'));
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('download_audio_deleted', 'success'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('download_audio_deleted', 'success'));
       expect(dom.downloadAudioBtn!.textContent).toBe('download_audio');
     });
 
@@ -1820,8 +1835,8 @@ describe('app-events', () => {
       const { bindSearchEvents } = await import('../app-events.js');
       bindSearchEvents();
       dom.downloadAudioBtn!.click();
-      await vi.waitFor(() => expect(cacheSurahAudio).toHaveBeenCalled());
-      await vi.waitFor(() => expect(dom.downloadAudioBtn!.textContent).toBe('✅'));
+      await waitUntil(() => expect(cacheSurahAudio).toHaveBeenCalled());
+      await waitUntil(() => expect(dom.downloadAudioBtn!.textContent).toBe('✅'));
       const { showToast } = await import('../ui.js');
       expect(showToast).toHaveBeenCalledWith('download_audio_done', 'success');
       expect(dom.downloadAudioBtn!.classList.contains('active')).toBe(true);
@@ -1841,7 +1856,7 @@ describe('app-events', () => {
       bindSearchEvents();
       dom.downloadAudioBtn!.click();
       const { showToast } = await import('../ui.js');
-      await vi.waitFor(() => expect(showToast).toHaveBeenCalledWith('download_audio_error', 'error'));
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('download_audio_error', 'error'));
       expect(dom.downloadAudioBtn!.textContent).toBe('download_audio');
     });
   });
