@@ -18,6 +18,11 @@
 - `npm run android:build` — Build web + sync with Capacitor
 - `npm run android:open` — Open Android Studio
 - `npm run android:run` — Build, sync, and run on connected device
+- `npm run release:publish` — One-command release: tag → signed APK/AAB → attached to the GitHub Release
+- `npm run device:check` — Android store-readiness probe on a connected device (startup/memory/crashes)
+- `npm run fonts:subset` — Re-subset the UI fonts (run after editing translations or UI copy)
+- `npm run test:e2e:visual` — Only the visual-regression specs; on Windows the `*-win32.png`
+  baselines are local-only (see `.gitignore`) and are written on the first run
 
 ## Architecture
 

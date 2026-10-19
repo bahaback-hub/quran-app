@@ -5,6 +5,29 @@ dist as a native Android app through Capacitor 8. This guide covers producing a
 **release-signed** APK (not a Debug APK) so the app is installable on real
 devices and can be published to stores.
 
+## One-command release (preferred)
+
+With CI green on `main` and a clean working tree, everything below is scripted:
+
+```bash
+npm run release:publish
+```
+
+The script validates the tree and `npm run check:version`, creates and pushes
+the `vX.Y.Z` tag (which builds the web bundle and attaches the release notes),
+waits for the `Release` workflow, dispatches the signed `Android Release`
+workflow, downloads its `quranapp-release-apk`/`quranapp-release-aab` artifacts,
+renames them to `quran-app-vX.Y.Z-release.apk` / `-aab`, uploads them to the
+GitHub Release and verifies the download link.
+
+Flags: `--dry-run` (print the plan, change nothing), `--skip-android` (tag +
+web release only), `--version X.Y.Z` (release a different version than
+`package.json`).
+
+Also useful: `npm run device:check` runs the store-readiness probe on a
+connected Android phone (version match, cold start, resident memory, crash and
+ANR logs, battery).
+
 ## Prerequisites
 
 - Node 22 + npm (the project is npm-only).

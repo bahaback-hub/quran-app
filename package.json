@@ -18,6 +18,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --headed",
+    "test:e2e:visual": "playwright test visual-regression",
     "android:build": "BUILD_TARGET=capacitor npm run build && npx cap sync",
     "android:release": "node scripts/build-release.mjs",
     "android:open": "npx cap open android",
@@ -43,6 +44,9 @@
     "check:version": "node scripts/check-version-consistency.mjs",
     "check:coverage": "node scripts/check-per-file-coverage.mjs",
     "check:circular": "madge --circular --extensions ts src/",
+    "device:check": "node scripts/device-check.mjs",
+    "fonts:subset": "node scripts/subset-fonts.mjs",
+    "release:publish": "node scripts/publish-release.mjs",
     "prepublishOnly": "npm run lint && npm run lint:zero-style && npm run typecheck && npm test && npm run build"
   },
   "engines": {
@@ -96,6 +100,7 @@
     "madge": "^8.0.0",
     "prettier": "^3.9.10",
     "sharp": "0.35.5",
+    "subset-font": "2.9.0",
     "typedoc": "^0.28.19",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.1",

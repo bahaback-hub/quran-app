@@ -26,14 +26,6 @@
 
 @font-face {
   font-family: 'Amiri';
-  font-style: italic;
-  font-weight: 400;
-  font-display: optional;
-  src: url('./amiri-italic-400.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Amiri';
   font-style: normal;
   font-weight: 700;
   font-display: optional;

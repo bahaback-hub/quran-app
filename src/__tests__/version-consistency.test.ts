@@ -14,6 +14,9 @@
  * `scripts/check-version-consistency.mjs` is the CI guard. These tests pin the
  * repo to a consistent state AND prove the guard fails on drift, so a guard that
  * silently stopped working cannot ship.
+ *
+ * The Xiaomi store release checklist quotes the version it was verified
+ * against, so it is held to the same lockstep — that note went stale once.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -58,11 +61,32 @@ function catalogFixture({ version = '3.1.26', raw }: CatalogOptions = {}): strin
   return JSON.stringify({ specVersion: '1.0', host: { displayName: 'Example' }, entries: [entry] }, null, 2);
 }
 
+function listingFixture(version: string): string {
+  return [
+    '# Xiaomi store release checklist',
+    `- [ ] versionName in the store matches the APK (currently ${version})`,
+    '',
+  ].join('\n');
+}
+
+interface GuardOptions {
+  catalog?: string;
+  ard?: string;
+  /** null omits store/xiaomi/listing.txt entirely; undefined uses a matching fixture. */
+  listing?: string | null;
+}
+
 function runGuard(
   pkgVersion: string,
   gradle: string,
-  { catalog = catalogFixture(), ard = catalog }: { catalog?: string; ard?: string } = {},
-): { status: number; output: string } {
+  opts: GuardOptions = {},
+): {
+  status: number;
+  output: string;
+} {
+  const catalog = opts.catalog ?? catalogFixture();
+  const ard = opts.ard ?? catalog;
+  const listing = opts.listing === undefined ? listingFixture(pkgVersion) : opts.listing;
   const dir = mkdtempSync(join(tmpdir(), 'version-guard-'));
   try {
     mkdirSync(join(dir, 'android', 'app'), { recursive: true });
@@ -71,6 +95,10 @@ function runGuard(
     writeFileSync(join(dir, 'android', 'app', 'build.gradle'), gradle);
     writeFileSync(join(dir, 'public', '.well-known', 'ai-catalog.json'), catalog);
     writeFileSync(join(dir, 'public', '.well-known', 'ard.json'), ard);
+    if (listing !== null) {
+      mkdirSync(join(dir, 'store', 'xiaomi'), { recursive: true });
+      writeFileSync(join(dir, 'store', 'xiaomi', 'listing.txt'), listing);
+    }
     try {
       const stdout = execFileSync(process.execPath, [GUARD], { cwd: dir, encoding: 'utf8' });
       return { status: 0, output: stdout };
@@ -112,6 +140,14 @@ describe('release version consistency', () => {
     const aiCatalog = readFileSync(resolve(ROOT, 'public', '.well-known', 'ai-catalog.json'), 'utf8');
     expect(ard.trim(), 'ard.json and ai-catalog.json are both advertised, so they must not diverge').toBe(
       aiCatalog.trim(),
+    );
+  });
+
+  it('ships the store release checklist at the shipped version', () => {
+    const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8')) as { version: string };
+    const listing = readFileSync(resolve(ROOT, 'store', 'xiaomi', 'listing.txt'), 'utf8');
+    expect(listing, 'store/xiaomi/listing.txt must cite the version its checklist was verified against').toContain(
+      `(currently ${pkg.version})`,
     );
   });
 
@@ -186,5 +222,27 @@ describe('release version consistency', () => {
     });
     expect(status).toBe(1);
     expect(output).toContain('AI discovery manifests');
+  });
+
+  it('guard fails when the store checklist cites a stale version', () => {
+    const { status, output } = runGuard('3.1.26', gradleFixture(), {
+      listing: listingFixture('3.1.20'),
+    });
+    expect(status).toBe(1);
+    expect(output).toContain('Store listing version drift');
+  });
+
+  it('guard fails when the store checklist drops the version marker', () => {
+    const { status, output } = runGuard('3.1.26', gradleFixture(), {
+      listing: '# checklist\n- [ ] store build verified\n',
+    });
+    expect(status).toBe(1);
+    expect(output).toContain('(currently x.y.z)');
+  });
+
+  it('guard fails when store/xiaomi/listing.txt is missing', () => {
+    const { status, output } = runGuard('3.1.26', gradleFixture(), { listing: null });
+    expect(status).toBe(1);
+    expect(output).toContain('listing.txt');
   });
 });

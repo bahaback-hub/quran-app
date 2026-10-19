@@ -116,7 +116,7 @@ Minimum 3 screenshots are required; 5-7 is recommended. Capture in this order:
 [ ] Mi Developer account created and email verified (free)
 [ ] Signed RELEASE apk downloaded from the Android Release workflow run
     (https://github.com/bahaback-hub/quran-app/actions/workflows/android-release.yml)
-[ ] versionName in the store matches the APK (3.1.26 unless re-bumped)
+[ ] versionName in the store matches the APK (currently 3.1.28)
 [ ] Privacy policy URL opens correctly in a browser
 [ ] Icon, feature graphic and 5+ portrait screenshots uploaded
 [ ] Descriptions pasted from sections 4 and 5

@@ -1,19 +1,23 @@
 /**
  * Release Version Consistency
  *
- * The project reports its version in two independent places:
+ * The project reports its version in four independent places:
  *   - package.json "version"  -> injected as __APP_VERSION__ (vite.config.js)
  *                               and rendered by the settings panel, so it is
  *                               what every user reads inside the app.
  *   - android/app/build.gradle "versionName" -> what Android installs and what
  *                               app stores display.
+ *   - public/.well-known/ai-catalog.json and ard.json -> the version an agent
+ *                               reads when it inspects the app.
+ *   - store/xiaomi/listing.txt -> the release checklist a human follows.
  *
  * They drifted apart (package.json 3.1.20 vs versionName 3.1.26), so the app
  * told users "3.1.20" while the installed package was 3.1.26. Nothing failed
  * because each file is internally valid.
  *
- * This guard keeps the two in lockstep and validates versionCode, so a release
- * can never ship a package whose own settings screen disagrees with it.
+ * This guard keeps all four in lockstep and validates versionCode, so a
+ * release can never ship a package whose own settings screen disagrees with
+ * it.
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -110,13 +114,44 @@ if (catalog) {
   }
 }
 
+/*
+ * The Xiaomi store release checklist cites the version it was verified
+ * against ("versionName in the store matches the APK (currently x.y.z)").
+ * That note went stale once, so it is held to the same lockstep.
+ */
+let listingText = '';
+try {
+  listingText = readFileSync(resolve(ROOT, 'store', 'xiaomi', 'listing.txt'), 'utf8');
+} catch (e) {
+  errors.push(`Could not read store/xiaomi/listing.txt: ${e.message}`);
+}
+
+if (listingText !== '') {
+  const cited = listingText.match(/\(currently (\d+\.\d+\.\d+)\)/)?.[1] ?? null;
+  if (!cited) {
+    errors.push(
+      'store/xiaomi/listing.txt: no "(currently x.y.z)" marker found in the release checklist.',
+    );
+  } else if (cited !== pkg.version) {
+    errors.push(
+      `Store listing version drift: package.json says "${pkg.version}" but store/xiaomi/listing.txt cites ${cited}.\n` +
+        `   Update the "(currently x.y.z)" note so the store checklist matches the shipped build.`,
+    );
+  }
+}
+
 if (errors.length > 0) {
   console.error(`\n❌ [Version] ${errors.length} problem(s) found:`);
   for (const e of errors) {
     console.error(`   ${e}`);
   }
-  console.error('\nSet the same x.y.z in package.json and android/app/build.gradle, then re-run.');
+  console.error(
+    '\nSet the same x.y.z in package.json, android/app/build.gradle, both .well-known\n' +
+      'manifests and store/xiaomi/listing.txt, then re-run.',
+  );
   process.exit(1);
 }
 
-console.log(`✅ [Version] Passed: in-app label, Android package and AI discovery manifests all report ${pkg.version}.`);
+console.log(
+  `✅ [Version] Passed: in-app label, Android package, AI discovery manifests and the store checklist all report ${pkg.version}.`,
+);
