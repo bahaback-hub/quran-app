@@ -32,7 +32,11 @@ const { values: args } = parseArgs({
 const PKG = 'com.sulaimani.quranapp';
 const LIMITS = {
   coldStartMs: 2500, // store reviewers abandon much slower launches
-  totalPssKb: 200 * 1024, // generous for a WebView app with an open surah
+  // A Capacitor WebView app carries Chromium's baseline (~150-250MB on Android
+  // 16; Chrome itself measures ~157MB). This app settles at ~220-250MB with a
+  // surah open, so the ceiling is set well above that to catch a real
+  // regression (a font or image leak) without flagging normal WebView cost.
+  totalPssKb: 300 * 1024,
 };
 
 /** Resolve an adb executable, honouring the common SDK install locations. */
