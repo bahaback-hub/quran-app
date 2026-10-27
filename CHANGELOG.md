@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **ترقية سلسلة Vitest الأمنية**: `vitest` و`@vitest/coverage-v8` من 5.0.2 إلى 5.0.5، مع `npm audit fix` لثغرات التبعيات غير المباشرة (undici، markdown-it، fast-uri، serialize-javascript، zod). صار `npm audit` — بما فيها dev — يعلن **0 ثغرات** (27 أكتوبر 2026)، بعد أن كان يعلن 8.
+- **مزامنة التوثيق مع الواقع**: `README.md` صار يذكر عتبات التغطية الفعلية (lines/statements 85، functions 84، branches 73) ويؤرّخ ادعاء انعدام الثغرات؛ و`EVALUATION_GUIDE.md` أضاف جولة إعادة تحقق مؤرخة على v3.1.28 وصحّح وصف APK المنشور بوصفه Debug؛ و`AGENTS.md` صحّح `registerType` إلى `autoUpdate` وعدّد مشاريع E2E الأربعة وحدّث عتبات التغطية.
 - **تقليص خطوط الواجهة 38%** (من 584KB إلى 362KB): حُذف خط Amiri المائل غير المستخدم إطلاقًا (134KB، لا يشير إليه أي نص أو تنسيق)، وقُصّت الخطوط الأربع المتبقية بخطوة `npm run fonts:subset` التي تبني مجموعة المحارف من نصوص التطبيق وترجماته الخمس ثم تحذف ما لا يُستعمل. المقارنة البصرية في CI ومحليًا أثبتت تطابق الرسم قبل وبعد القص (3/3)، أي بلا رجوع إلى خطا النظام.
 - **حدود معروفة موثقة** في `EVALUATION_GUIDE.md`: تجديد كاش GitHub Pages (حتى 10 دقائق)، غياب إصدار iOS، وربط Search Console بحساب Google — تُقرأ كحدود نطاق لا كأعطال.
 

@@ -8,7 +8,7 @@
 - `npm run build` — Vite production build (with code splitting, tree shaking)
 - `npm test` — Run all Vitest unit tests
 - `npm test -- --coverage` — Run tests with coverage report
-- `npm run test:e2e` — Run Playwright E2E tests (chromium)
+- `npm run test:e2e` — Run Playwright E2E tests (all 4 projects: chromium, firefox, webkit, mobile-chrome)
 - `npm run test:a11y` — Run accessibility audit (builds + serves + axe-core)
 - `npm run typecheck` — TypeScript type check (`tsc --noEmit -p tsconfig.ci.json`)
 - `npm run lint` — ESLint check
@@ -31,7 +31,7 @@
 - **Vite 8 + LightningCSS** for production builds, with natural code-splitting
   by the real import graph (the old per-feature `manualChunks` were removed:
   naming a module made it a chunk root and dragged shared code into it).
-- **PWA**: `vite-plugin-pwa` (Workbox) with `registerType: 'prompt'`,
+- **PWA**: `vite-plugin-pwa` (Workbox) with `registerType: 'autoUpdate'`,
   CacheFirst for Quran/Tafsir/Audio/Fonts, StaleWhileRevalidate for APIs,
   `share_target`, `shortcuts`, `screenshots`.
 - **Android (Capacitor 8)**: `android/` dir wraps the web app as a native APK/AAB.
@@ -170,9 +170,9 @@ These files are large and would benefit from being split by feature:
 
 - **Vitest 5** + `jsdom` + `fake-indexeddb`
 - ~170 test files covering all modules
-- **Coverage thresholds (enforced in CI)**: ≥ 80% lines/statements and ≥ 70%
-  functions/branches globally (`vitest.config.js`); plus a per-file line floor
-  of 65% via `npm run check:coverage`
+- **Coverage thresholds (enforced in CI)**: ≥ 85% lines, ≥ 85% statements,
+  ≥ 84% functions, ≥ 73% branches globally (`vitest.config.js`); plus a per-file
+  line floor of 65% via `npm run check:coverage`.
 
 ### Known Test Limitations
 
@@ -190,7 +190,7 @@ These files are large and would benefit from being split by feature:
 
 ### E2E Tests (`e2e/`)
 
-- **Playwright 1.62** (chromium) — exercises real browser behavior
+- **Playwright 1.62** (4 projects: chromium, firefox, webkit, mobile-chrome) — exercises real browser behavior
 - Covers critical paths: navigation, audio playback, search, prayer times
 
 ## CDN & External APIs
@@ -212,7 +212,7 @@ retry, and dedup. IndexedDB caches reduce network dependence for offline use.
 `labeler.yml`, `stale.yml`, `android-release.yml`, `docs.yml`, `zap-scan.yml`,
 `sync-prayer-times.yml`.
 
-- **CI**: lint + typecheck + unit tests (≥80% coverage) + build + E2E
+- **CI**: lint + typecheck + unit tests (≥85% lines) + build + E2E
 - **Security**: `npm audit --audit-level=high` (fails build on high/critical)
   - license check
 - **CodeQL**: GitHub security analysis (weekly + on push)
@@ -223,7 +223,7 @@ retry, and dedup. IndexedDB caches reduce network dependence for offline use.
 ## Documentation Files
 
 - `README.md` — comprehensive bilingual (ar/en) project overview
-- `CHANGELOG.md` — Keep a Changelog format, v1.0.0 → v1.5.0
+- `CHANGELOG.md` — Keep a Changelog format, v1.0.0 → v3.1.28
 - `CONTRIBUTING.md` — contributor guide
 - `SECURITY.md` — security policy
 - `CODE_OF_CONDUCT.md` — community code of conduct
