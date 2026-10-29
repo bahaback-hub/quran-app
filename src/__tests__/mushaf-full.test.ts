@@ -590,6 +590,40 @@ describe('mushaf.ts', () => {
       expect(mockLoadingBar.hide).toHaveBeenCalled();
     });
 
+    it('exposes a screen-reader text alternative for the rendered canvas', async () => {
+      const layout = {
+        lines: [
+          {
+            words: [
+              { char: '', type: 'surah_header', text: 'سُورَةُ الفَاتِحَةِ' },
+              { char: '', type: 'word', verse_key: '1:1', text: 'بِسْمِ' },
+              { char: '', type: 'word', verse_key: '1:1', text: 'اللَّهِ' },
+              { char: '', type: 'end', verse_key: '1:1', text: 'V1' },
+            ],
+          },
+        ],
+      };
+      vi.mocked(renderPage).mockResolvedValue({ canvas: document.createElement('canvas'), layout });
+      vi.mocked(loadPageData).mockResolvedValue(layout);
+
+      await loadPage(2);
+
+      await vi.waitFor(() => {
+        expect(mockDom.surahContent!.querySelector('.mushaf-a11y-text')?.childElementCount).toBe(1);
+      });
+
+      const canvas = mockDom.surahContent!.querySelector('.mushaf-page-canvas');
+      expect(canvas?.getAttribute('aria-hidden')).toBe('true');
+
+      const region = mockDom.surahContent!.querySelector('.mushaf-a11y-text');
+      expect(region?.getAttribute('role')).toBe('region');
+      expect(region?.getAttribute('aria-label')).toContain('page');
+      expect(region?.textContent).toContain('بِسْمِ اللَّهِ');
+      expect(region?.textContent).toContain('﴿1﴾');
+      expect(region?.textContent).not.toContain('V1');
+      expect(region?.textContent).not.toContain('سُورَةُ');
+    });
+
     it('should show error toast when renderPage returns null canvas/layout', async () => {
       vi.mocked(renderPage).mockResolvedValue({ canvas: null, layout: null });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });

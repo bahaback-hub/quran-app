@@ -250,6 +250,73 @@ export async function loadPage(pageNum: number, skipNav?: boolean, force?: boole
   });
 }
 
+/* ===================== SCREEN-READER TEXT ===================== */
+
+/** Readable text extracted from a canvas-rendered mushaf page. */
+export interface MushafTextBlock {
+  /** `surah:ayah` for verse text, or `null` for text that belongs to no verse. */
+  verseKey: string | null;
+  text: string;
+}
+
+/**
+ * Build a plain-text alternative for a canvas-rendered mushaf page.
+ *
+ * The canvas paints one glyph per word, so assistive technology would
+ * otherwise see an empty bitmap. This reconstructs readable text from the
+ * same layout data: words are concatenated with single spaces and grouped by
+ * `verse_key`, merging verses that continue across lines. Verse-end markers
+ * (`type: 'end'`, whose `text` is a glyph placeholder such as `"V1"`) and
+ * surah headers are skipped because they carry no recitable text.
+ */
+export function buildMushafTextBlocks(layout: PageLayoutData | null): MushafTextBlock[] {
+  if (!layout) {
+    return [];
+  }
+
+  const blocks: MushafTextBlock[] = [];
+  let current: MushafTextBlock | null = null;
+
+  for (const line of layout.lines) {
+    for (const word of line.words) {
+      if (word.type === 'surah_header' || word.type === 'end') {
+        continue;
+      }
+      const text = word.text?.trim();
+      if (!text) {
+        continue;
+      }
+      const verseKey = word.verse_key ?? null;
+      if (current && verseKey !== null && current.verseKey === verseKey) {
+        current.text += ` ${text}`;
+        continue;
+      }
+      current = { verseKey, text };
+      blocks.push(current);
+    }
+  }
+
+  return blocks;
+}
+
+/** Render the screen-reader region: one paragraph per verse, with its ayah number. */
+function renderMushafTextAlternative(region: HTMLElement, layout: PageLayoutData | null): void {
+  region.innerHTML = '';
+  for (const block of buildMushafTextBlocks(layout)) {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = block.text;
+    if (block.verseKey) {
+      const ayah = Number(block.verseKey.split(':')[1]);
+      if (Number.isFinite(ayah)) {
+        const marker = document.createElement('span');
+        marker.textContent = ` ﴿${toArabicNumeral(ayah)}﴾`;
+        paragraph.appendChild(marker);
+      }
+    }
+    region.appendChild(paragraph);
+  }
+}
+
 /* ===================== JUZ HELPER ===================== */
 
 /** Get the Juz number for a given page number (1-604). */
@@ -285,8 +352,17 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
 
   const canvas = getCanvas();
   canvas.className = 'mushaf-page-canvas';
+  // The page is painted glyph-by-glyph; its readable equivalent lives in the
+  // screen-reader region below, so the bitmap itself must not be announced.
+  canvas.setAttribute('aria-hidden', 'true');
+
+  const a11yText = document.createElement('div');
+  a11yText.className = 'sr-only mushaf-a11y-text';
+  a11yText.setAttribute('role', 'region');
+  a11yText.setAttribute('aria-label', `${__('page')} ${toArabicNumeral(pageNum)}`);
 
   canvasWrapper.appendChild(canvas);
+  canvasWrapper.appendChild(a11yText);
 
   let pageLayout: PageLayoutData | null = null;
 
@@ -359,6 +435,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
       }
       pageLayout = layoutData;
       state.currentPageLayout = layoutData;
+      renderMushafTextAlternative(a11yText, layoutData);
       if (renderedCanvas && layoutData) {
         loadingBar.hide();
         if (state.mushafMode) {
