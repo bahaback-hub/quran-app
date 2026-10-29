@@ -345,6 +345,7 @@ export default {
   azan_now: 'حان الآن وقت الصلاة',
   secrets_dlg: 'سرّ السورة',
   secrets_title: '🌟 سرّ السورة',
+  secrets_disclaimer: 'ملخص تعليمي غير مدقّق شرعيًا — لا يُعتمد عليه في الأحكام.',
   ayah_dlg: 'تفاصيل الآية',
   ayah_title_ph: 'الآية — ',
   ayah_next: '← الآية التالية',
@@ -541,7 +542,6 @@ export default {
   mushaf_page_error: 'خطأ في تحميل الصفحة',
   mushaf_page_not_found: 'الصفحة غير موجودة',
   mushaf_retry_reload: 'إعادة المحاولة',
-  mushaf_sources: 'المصادر',
   mushaf_surah_info: 'معلومات السورة',
   save: 'حفظ',
   mushaf_page_info: 'معلومات الصفحة',
@@ -764,6 +764,12 @@ export default {
   credits_hamidullah_desc: 'ترجمة محمد حميد الله.',
   credits_jalandhry_name: 'جالندهري (الأردية)',
   credits_jalandhry_desc: 'ترجمة فتح محمد جالندهري.',
+  credits_fonts_name: 'الخطوط المضمّنة',
+  credits_fonts_desc:
+    'Amiri وScheherazade New مرخّصان تحت OFL 1.1. وخط حفص العثماني © مجمع الملك فهد لطباعة المصحف الشريف، يُستخدم دون تعديل مع الإسناد.',
+  credits_qcf4_name: 'تخطيط المصحف QCF4',
+  credits_qcf4_desc:
+    'بيانات 604 صفحات مرخّصة بـMIT © Mohamad Hajj Rabee، والخطوط © مجمع الملك فهد لطباعة المصحف الشريف تُستخدم دون تعديل مع الإسناد.',
 
   // === إمكانية الوصول ===
   a11y_panel_opened: 'تم فتح {0}',

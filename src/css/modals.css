@@ -145,21 +145,13 @@ body.night-mode .surah-secrets-overlay-inner {
   color: var(--text-primary);
   direction: rtl;
 }
-.surah-secrets-overlay-body .secret-source {
-  margin-top: 12px;
-  padding-top: 10px;
+.surah-secrets-overlay-body .secret-disclaimer {
+  margin-top: 16px;
+  padding-top: 12px;
   border-top: 1px dashed var(--border-soft);
   font-size: 13px;
+  line-height: 1.8;
   color: var(--text-muted);
-  direction: rtl;
-}
-.surah-secrets-overlay-body .secret-source span {
-  display: inline-block;
-  background: var(--hover-bg);
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin: 2px 4px;
-  font-size: 12px;
 }
 
 /* ========== شاشة الترحيب ========== */

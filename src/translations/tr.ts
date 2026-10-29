@@ -364,6 +364,7 @@ export default {
   azan_now: 'Namaz vakti geldi',
   secrets_dlg: 'Sure sırrı',
   secrets_title: '🌟 Sure sırrı',
+  secrets_disclaimer: 'Eğitim amaçlı özet — bir âlim tarafından incelenmemiştir. Hükümler için güvenmeyin.',
   ayah_dlg: 'Ayet detayları',
   ayah_title_ph: 'Ayet — ',
   ayah_next: '← Sonraki ayet',
@@ -560,7 +561,6 @@ export default {
   mushaf_page_error: 'Sayfa yükleme hatası',
   mushaf_page_not_found: 'Sayfa bulunamadı',
   mushaf_retry_reload: 'Tekrar dene',
-  mushaf_sources: 'Kaynaklar',
   mushaf_surah_info: 'Sure Bilgisi',
   save: 'Kaydet',
   mushaf_page_info: 'Sayfa Bilgisi',
@@ -770,6 +770,12 @@ export default {
   credits_hamidullah_desc: 'Muhammad Hamidullah çevirisi.',
   credits_jalandhry_name: 'Jalandhry (Urduca)',
   credits_jalandhry_desc: 'Fateh Muhammad Jalandhry çevirisi.',
+  credits_fonts_name: 'Paket yazı tipleri',
+  credits_fonts_desc:
+    'Amiri ve Scheherazade New OFL 1.1 ile lisanslıdır. Osmanlı Hafs yazı tipi © Kral Fehd Kurân-ı Kerim Basım Kompleksi’ne aittir ve değiştirilmeden atıfla kullanılır.',
+  credits_qcf4_name: 'QCF4 Mushaf düzeni',
+  credits_qcf4_desc:
+    '604 sayfalık düzen verisi MIT © Mohamad Hajj Rabee; glif yazı tipleri © Kral Fehd Kurân-ı Kerim Basım Kompleksi’ne aittir ve değiştirilmeden atıfla kullanılır.',
 
   // === Erişilebilirlik ===
   a11y_panel_opened: '{0} açıldı',

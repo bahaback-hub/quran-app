@@ -345,6 +345,7 @@ export default {
   azan_now: 'Наступило время молитвы',
   secrets_dlg: 'Тайна суры',
   secrets_title: '🌟 Тайна суры',
+  secrets_disclaimer: 'Учебное резюме — не проверено учёным. Не используйте для религиозных решений.',
   ayah_dlg: 'Детали аята',
   ayah_title_ph: 'Аят — ',
   ayah_next: '← Следующий аят',
@@ -541,7 +542,6 @@ export default {
   mushaf_page_error: 'Ошибка загрузки страницы',
   mushaf_page_not_found: 'Страница не найдена',
   mushaf_retry_reload: 'Повторить',
-  mushaf_sources: 'Источники',
   mushaf_surah_info: 'Информация о суре',
   save: 'Сохранить',
   mushaf_page_info: 'Информация о странице',
@@ -770,6 +770,12 @@ export default {
   credits_hamidullah_desc: 'Перевод Мухаммада Хамидуллы.',
   credits_jalandhry_name: 'Джаландхри (урду)',
   credits_jalandhry_desc: 'Перевод Фатеха Мухаммада Джаландхри.',
+  credits_fonts_name: 'Встроенные шрифты',
+  credits_fonts_desc:
+    'Amiri и Scheherazade New распространяются по лицензии OFL 1.1. Шрифт Uthmanic Hafs © Комплекс имени короля Фахда по печати Священного Корана, используется без изменений с указанием авторства.',
+  credits_qcf4_name: 'Вёрстка мусхафа QCF4',
+  credits_qcf4_desc:
+    'Данные вёрстки 604 страниц — MIT © Mohamad Hajj Rabee; глифовые шрифты © Комплекс имени короля Фахда, используются без изменений с указанием авторства.',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} открыто',

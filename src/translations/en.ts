@@ -345,6 +345,7 @@ export default {
   azan_now: 'Prayer time is now',
   secrets_dlg: 'Surah secret',
   secrets_title: '🌟 Surah secret',
+  secrets_disclaimer: 'Educational summary — not reviewed by a scholar. Do not rely on it for rulings.',
   ayah_dlg: 'Ayah details',
   ayah_title_ph: 'Ayah — ',
   ayah_next: '← Next ayah',
@@ -541,7 +542,6 @@ export default {
   mushaf_page_error: 'Page loading error',
   mushaf_page_not_found: 'Page not found',
   mushaf_retry_reload: 'Retry',
-  mushaf_sources: 'Sources',
   mushaf_surah_info: 'Surah Info',
   save: 'Save',
   mushaf_page_info: 'Page Info',
@@ -768,6 +768,12 @@ export default {
   credits_hamidullah_desc: 'By Muhammad Hamidullah.',
   credits_jalandhry_name: 'Jalandhry (Urdu)',
   credits_jalandhry_desc: 'By Fateh Muhammad Jalandhry.',
+  credits_fonts_name: 'Bundled fonts',
+  credits_fonts_desc:
+    'Amiri and Scheherazade New are licensed under OFL 1.1. The Uthmanic Hafs font is © King Fahd Glorious Quran Printing Complex and is used unmodified with attribution.',
+  credits_qcf4_name: 'QCF4 Mushaf layout',
+  credits_qcf4_desc:
+    'The 604-page layout data is MIT © Mohamad Hajj Rabee; the glyph fonts are © King Fahd Glorious Quran Printing Complex and are used unmodified with attribution.',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} opened',

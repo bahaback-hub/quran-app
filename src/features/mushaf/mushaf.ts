@@ -15,7 +15,7 @@ import {
   mushafSurahNameSpan,
   surahSecretsBody,
 } from '../../templates.js';
-import { SURAH_SECRETS, SURAH_SECRETS_AUTH_KEYS } from '../../surahs-data.js';
+import { SURAH_SECRETS } from '../../surahs-data.js';
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from '../../surah-loader.js';
 import { prepareAudioForNewSurah, playCurrentAyah, setStoppedState, updatePlayPauseBtn } from '../audio/audio.js';
 import { handlePageClick, getAyahHighlightRects } from '../../ayah-click.js';
@@ -609,8 +609,7 @@ export function showSurahSecret(surahNum: number, surahName?: string): void {
   }
   dom.surahSecretsSurahName.textContent = `ℹ️ ${surahNum}. ${surahName ?? ''}`;
   dom.surahSecretsTitle.textContent = __('mushaf_surah_info');
-  const authKeys = SURAH_SECRETS_AUTH_KEYS[surahNum];
-  dom.surahSecretsBody.innerHTML = surahSecretsBody(secret, authKeys && authKeys.length ? authKeys : undefined);
+  dom.surahSecretsBody.innerHTML = surahSecretsBody(secret);
   dom.surahSecretsOverlay.classList.remove('hidden');
   dom.surahSecretsOverlay.style.display = 'flex';
 }

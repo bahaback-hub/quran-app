@@ -128,10 +128,7 @@ vi.mock('../templates.js', () => ({
   mushafHeaderRow: vi.fn((juzLabel: string) => `<div class="mushaf-header-row">${juzLabel}</div>`),
   mushafErrorFallback: vi.fn(() => '<div class="mushaf-error">Error</div>'),
   mushafSurahNameSpan: vi.fn((name: string) => `<span class="mushaf-surah-name">${name}</span>`),
-  surahSecretsBody: vi.fn(
-    (secret: string, authKeys?: string[]) =>
-      `<div class="secrets-body">${secret}${authKeys ? ' ' + authKeys.join(',') : ''}</div>`,
-  ),
+  surahSecretsBody: vi.fn((secret: string) => `<div class="secrets-body">${secret}</div>`),
 }));
 
 vi.mock('../surahs-data.js', () => ({
@@ -140,10 +137,6 @@ vi.mock('../surahs-data.js', () => ({
     2: 'Secret of Al-Baqarah',
     36: 'Secret of Ya-Sin',
     112: 'Secret of Al-Ikhlas',
-  },
-  SURAH_SECRETS_AUTH_KEYS: {
-    1: ['Bukhari', 'Muslim'],
-    2: ['Tirmidhi'],
   },
 }));
 
@@ -817,14 +810,14 @@ describe('mushaf.ts', () => {
       expect((mockDom.surahSecretsOverlay as HTMLElement).style.display).toBe('flex');
     });
 
-    it('should include auth keys when available', () => {
+    it('should render the secret body', () => {
       showSurahSecret(1, 'الفاتحة');
-      expect(mockDom.surahSecretsBody!.innerHTML).toBeTruthy();
+      expect(mockDom.surahSecretsBody!.innerHTML).toContain('Secret of Al-Fatiha');
     });
 
-    it('should work without auth keys', () => {
+    it('should render a secret that has no per-surah source entry', () => {
       showSurahSecret(36, 'يس');
-      expect(mockDom.surahSecretsBody!.innerHTML).toBeTruthy();
+      expect(mockDom.surahSecretsBody!.innerHTML).toContain('Secret of Ya-Sin');
     });
 
     it('should handle missing surahName', () => {

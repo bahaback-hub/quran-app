@@ -345,6 +345,7 @@ export default {
   azan_now: 'C’est l’heure de la prière',
   secrets_dlg: 'Secret de la sourate',
   secrets_title: '🌟 Secret de la sourate',
+  secrets_disclaimer: 'Résumé pédagogique — non vérifié par un savant. Ne pas s’y fier pour les jugements religieux.',
   ayah_dlg: 'Détails du verset',
   ayah_title_ph: 'Verset — ',
   ayah_next: '← Verset suivant',
@@ -542,7 +543,6 @@ export default {
   mushaf_page_error: 'Erreur de chargement de la page',
   mushaf_page_not_found: 'Page introuvable',
   mushaf_retry_reload: 'Réessayer',
-  mushaf_sources: 'Sources',
   mushaf_surah_info: 'Informations sur la sourate',
   save: 'Enregistrer',
   mushaf_page_info: 'Info de la page',
@@ -775,6 +775,12 @@ export default {
   credits_hamidullah_desc: 'Par Muhammad Hamidullah.',
   credits_jalandhry_name: 'Jalandhry (ourdou)',
   credits_jalandhry_desc: 'Par Fateh Muhammad Jalandhry.',
+  credits_fonts_name: 'Polices intégrées',
+  credits_fonts_desc:
+    'Amiri et Scheherazade New sont sous licence OFL 1.1. La police Uthmanic Hafs est © Complexe du Roi Fahd pour l’impression du Saint Coran et est utilisée sans modification avec attribution.',
+  credits_qcf4_name: 'Mise en page du Mushaf QCF4',
+  credits_qcf4_desc:
+    'Les données de mise en page (604 pages) sont sous MIT © Mohamad Hajj Rabee ; les polices de glyphes sont © Complexe du Roi Fahd et sont utilisées sans modification avec attribution.',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} ouvert',

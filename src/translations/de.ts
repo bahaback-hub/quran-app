@@ -346,6 +346,7 @@ export default {
   azan_now: 'Gebetszeit ist da',
   secrets_dlg: 'Geheimnis der Sure',
   secrets_title: '🌟 Geheimnis der Sure',
+  secrets_disclaimer: 'Lernzusammenfassung — nicht von einem Gelehrten geprüft. Nicht für religiöse Urteile verwenden.',
   ayah_dlg: 'Versdetails',
   ayah_title_ph: 'Vers — ',
   ayah_next: '← Nächster Vers',
@@ -543,7 +544,6 @@ export default {
   mushaf_page_error: 'Fehler beim Laden der Seite',
   mushaf_page_not_found: 'Seite nicht gefunden',
   mushaf_retry_reload: 'Erneut versuchen',
-  mushaf_sources: 'Quellen',
   mushaf_surah_info: 'Sure-Info',
   save: 'Speichern',
   mushaf_page_info: 'Seiteninfo',
@@ -774,6 +774,12 @@ export default {
   credits_hamidullah_desc: 'Von Muhammad Hamidullah.',
   credits_jalandhry_name: 'Jalandhry (Urdu)',
   credits_jalandhry_desc: 'Von Fateh Muhammad Jalandhry.',
+  credits_fonts_name: 'Mitgelieferte Schriften',
+  credits_fonts_desc:
+    'Amiri und Scheherazade New stehen unter OFL 1.1. Die Uthmanic-Hafs-Schrift ist © König-Fahd-Komplex für den Druck des Heiligen Korans und wird unverändert mit Namensnennung verwendet.',
+  credits_qcf4_name: 'QCF4-Mushaf-Layout',
+  credits_qcf4_desc:
+    'Die Layoutdaten der 604 Seiten stehen unter MIT © Mohamad Hajj Rabee; die Glyphenschriften sind © König-Fahd-Komplex und werden unverändert mit Namensnennung verwendet.',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} geöffnet',

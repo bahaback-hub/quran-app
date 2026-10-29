@@ -345,6 +345,7 @@ export default {
   azan_now: 'نماز کا وقت آ گیا',
   secrets_dlg: 'سورہ کا راز',
   secrets_title: '🌟 سورہ کا راز',
+  secrets_disclaimer: 'تعلیمی خلاصہ — کسی عالم سے تصدیق شدہ نہیں۔ شرعی احکام کے لیے قابلِ اعتماد نہیں۔',
   ayah_dlg: 'آیت کی تفصیلات',
   ayah_title_ph: 'آیت — ',
   ayah_next: '← اگلی آیت',
@@ -541,7 +542,6 @@ export default {
   mushaf_page_error: 'صفحہ لوڈ کرنے میں خرابی',
   mushaf_page_not_found: 'صفحہ نہیں ملا',
   mushaf_retry_reload: 'دوبارہ کوشش کریں',
-  mushaf_sources: 'ذرائع',
   mushaf_surah_info: 'سورہ کی معلومات',
   save: 'محفوظ کریں',
   mushaf_page_info: 'صفحہ کی معلومات',
@@ -762,6 +762,12 @@ export default {
   credits_hamidullah_desc: 'از محمد حمید اللہ۔',
   credits_jalandhry_name: 'جالندھری (اردو)',
   credits_jalandhry_desc: 'از فتح محمد جالندھری۔',
+  credits_fonts_name: 'شامل فونٹس',
+  credits_fonts_desc:
+    'Amiri اور Scheherazade New او ایف ایل 1.1 کے تحت ہیں۔ عثمانی حفص فونٹ © مجمع الملك فهد لطباعة المصحف الشريف ہے اور بغیر تبدیلی کے حوالے کے ساتھ استعمال ہوتا ہے۔',
+  credits_qcf4_name: 'QCF4 مصحف ترتیب',
+  credits_qcf4_desc:
+    '604 صفحات کی ترتیب کا ڈیٹا MIT © Mohamad Hajj Rabee ہے؛ گلِف فونٹس © مجمع الملك فهد لطباعة المصحف الشريف ہیں اور بغیر تبدیلی کے حوالے کے ساتھ استعمال ہوتے ہیں۔',
 
   // === Accessibility ===
   a11y_panel_opened: '{0} کھل گیا',

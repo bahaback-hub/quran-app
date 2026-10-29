@@ -364,6 +364,7 @@ export default {
   azan_now: 'Waktu salat telah tiba',
   secrets_dlg: 'Rahasia surah',
   secrets_title: '🌟 Rahasia surah',
+  secrets_disclaimer: 'Ringkasan edukatif — belum ditinjau ulama. Jangan dijadikan rujukan hukum.',
   ayah_dlg: 'Detail ayat',
   ayah_title_ph: 'Ayat — ',
   ayah_next: '← Ayat berikutnya',
@@ -560,7 +561,6 @@ export default {
   mushaf_page_error: 'Kesalahan memuat halaman',
   mushaf_page_not_found: 'Halaman tidak ditemukan',
   mushaf_retry_reload: 'Coba lagi',
-  mushaf_sources: 'Sumber',
   mushaf_surah_info: 'Info Surah',
   save: 'Simpan',
   mushaf_page_info: 'Info Halaman',
@@ -770,6 +770,12 @@ export default {
   credits_hamidullah_desc: 'Oleh Muhammad Hamidullah.',
   credits_jalandhry_name: 'Jalandhry (Urdu)',
   credits_jalandhry_desc: 'Oleh Fateh Muhammad Jalandhry.',
+  credits_fonts_name: 'Font bawaan',
+  credits_fonts_desc:
+    'Amiri dan Scheherazade New dilisensikan di bawah OFL 1.1. Font Uthmanic Hafs © Kompleks Percetakan Al-Quran Raja Fahd dan digunakan tanpa diubah dengan atribusi.',
+  credits_qcf4_name: 'Tata letak Mushaf QCF4',
+  credits_qcf4_desc:
+    'Data tata letak 604 halaman berlisensi MIT © Mohamad Hajj Rabee; font glif © Kompleks Percetakan Al-Quran Raja Fahd dan digunakan tanpa diubah dengan atribusi.',
 
   // === Aksesibilitas ===
   a11y_panel_opened: '{0} dibuka',
