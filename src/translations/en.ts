@@ -770,7 +770,7 @@ export default {
   credits_jalandhry_desc: 'By Fateh Muhammad Jalandhry.',
   credits_fonts_name: 'Bundled fonts',
   credits_fonts_desc:
-    'Amiri and Scheherazade New are licensed under OFL 1.1. The Uthmanic Hafs font is © King Fahd Glorious Quran Printing Complex and is used unmodified with attribution.',
+    'The Amiri font and the “Mushaf Naskh” face (a subset of SIL’s Scheherazade New, renamed as the OFL requires) are licensed under OFL 1.1. The Uthmanic Hafs font is © King Fahd Glorious Quran Printing Complex and is used unmodified with attribution.',
   credits_qcf4_name: 'QCF4 Mushaf layout',
   credits_qcf4_desc:
     'The 604-page layout data is MIT © Mohamad Hajj Rabee; the glyph fonts are © King Fahd Glorious Quran Printing Complex and are used unmodified with attribution.',

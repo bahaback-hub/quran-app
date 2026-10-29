@@ -10,7 +10,7 @@
  *
  * font-display strategy:
  *   - swap: for body text (Amiri) — show fallback immediately, swap when loaded
- *   - optional: for Quran text (Scheherazade) — only use if cached, else fallback
+ *   - optional: for Quran text (Mushaf Naskh) — only use if cached, else fallback
  *     This prevents layout shift when switching between surahs
  */
 
@@ -32,12 +32,17 @@
   src: url('./amiri-bold-700.woff2') format('woff2');
 }
 
-/* ── Scheherazade New (Arabic Naskh — Quran text) ── */
-/* Using 'optional' for Quran text: if font is cached, use it; if not, use fallback.
+/* ── Mushaf Naskh (Arabic Naskh — Quran text) ── */
+/* These two files are subsets of SIL's Scheherazade New. OFL 1.1 reserves the
+   names "Scheherazade" and "SIL" for unmodified copies, so the subset ships
+   under its own family name (see scripts/lib/font-name.mjs). The original
+   copyright and license strings are kept inside the font files.
+   Filenames stay scheherazade-*.woff2 so the upstream provenance is obvious.
+   Using 'optional' for Quran text: if font is cached, use it; if not, use fallback.
    This prevents FOUT flicker when navigating between surahs. */
 
 @font-face {
-  font-family: 'Scheherazade New';
+  font-family: 'Mushaf Naskh';
   font-style: normal;
   font-weight: 400;
   font-display: optional;
@@ -45,7 +50,7 @@
 }
 
 @font-face {
-  font-family: 'Scheherazade New';
+  font-family: 'Mushaf Naskh';
   font-style: normal;
   font-weight: 700;
   font-display: optional;

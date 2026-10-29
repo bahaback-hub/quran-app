@@ -19,7 +19,7 @@
 - **Web**: TypeScript + Vite + pure DOM (no React/Vue/Angular)
 - **Android**: Capacitor 8 wraps the same web app into a native APK (currently Debug-signed only)
 - **Offline**: Optional download of Quran text, translations, tajweed, and selected audio via IndexedDB
-- **Backend APIs**: AlQuran.cloud (text/audio), Aladhan (prayer times), mp3quran.net (full surah audio), quran.com (word-by-word timing), Tafsir API (tafsir). Fonts (Amiri, Scheherazade New, Reem Kufi) are self-hosted, not served from Google Fonts.
+- **Backend APIs**: AlQuran.cloud (text/audio), Aladhan (prayer times), mp3quran.net (full surah audio), quran.com (word-by-word timing), Tafsir API (tafsir). Fonts (Amiri and Mushaf Naskh, a renamed subset of Scheherazade New) are self-hosted, not served from Google Fonts.
 
 It is **free, open-source (MIT)**, ad-free, and does not track users.
 
@@ -30,7 +30,7 @@ It is **free, open-source (MIT)**, ad-free, and does not track users.
 - **الويب**: TypeScript + Vite + DOM مباشر (بدون React أو Vue أو Angular)
 - **أندرويد**: Capacitor 8 يغلف نفس تطبيق الويب في APK أصلي (حاليًا موقّع بـ Debug فقط)
 - **دون اتصال**: تنزيل اختياري لنص القرآن والترجمات والتجويد والصوت المختار عبر IndexedDB
-- **واجهات البرامج الخلفية**: AlQuran.cloud (النص/الصوت)، Aladhan (مواقيت الصلاة)، mp3quran.net (الصوت الكامل للسورة)، quran.com (توقيت كلمة بكلمة)، Tafsir API (التفسير). الخطوط (Amiri، Scheherazade New، Reem Kufi) مستضافة محليًا، لا من Google Fonts.
+- **واجهات البرامج الخلفية**: AlQuran.cloud (النص/الصوت)، Aladhan (مواقيت الصلاة)، mp3quran.net (الصوت الكامل للسورة)، quran.com (توقيت كلمة بكلمة)، Tafsir API (التفسير). الخطوط (Amiri و«نسخ المصحف» المشتق من Scheherazade New) مستضافة محليًا، لا من Google Fonts.
 
 هو **مجاني ومفتوح المصدر (MIT)**، بلا إعلانات، ولا يتتبّع المستخدمين.
 

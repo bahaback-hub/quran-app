@@ -772,7 +772,7 @@ export default {
   credits_jalandhry_desc: 'Oleh Fateh Muhammad Jalandhry.',
   credits_fonts_name: 'Font bawaan',
   credits_fonts_desc:
-    'Amiri dan Scheherazade New dilisensikan di bawah OFL 1.1. Font Uthmanic Hafs © Kompleks Percetakan Al-Quran Raja Fahd dan digunakan tanpa diubah dengan atribusi.',
+    'Font Amiri dan “Mushaf Naskh” (subset Scheherazade New milik SIL, diganti nama sesuai ketentuan OFL) dilisensikan di bawah OFL 1.1. Font Uthmanic Hafs © Kompleks Percetakan Al-Quran Raja Fahd dan digunakan tanpa diubah dengan atribusi.',
   credits_qcf4_name: 'Tata letak Mushaf QCF4',
   credits_qcf4_desc:
     'Data tata letak 604 halaman berlisensi MIT © Mohamad Hajj Rabee; font glif © Kompleks Percetakan Al-Quran Raja Fahd dan digunakan tanpa diubah dengan atribusi.',

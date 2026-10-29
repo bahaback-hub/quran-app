@@ -766,7 +766,7 @@ export default {
   credits_jalandhry_desc: 'ترجمة فتح محمد جالندهري.',
   credits_fonts_name: 'الخطوط المضمّنة',
   credits_fonts_desc:
-    'Amiri وScheherazade New مرخّصان تحت OFL 1.1. وخط حفص العثماني © مجمع الملك فهد لطباعة المصحف الشريف، يُستخدم دون تعديل مع الإسناد.',
+    'Amiri وخط «نسخ المصحف» (مشتق من Scheherazade New بترخيص OFL 1.1 من SIL) وخط حفص العثماني © مجمع الملك فهد لطباعة المصحف الشريف يُستخدم دون تعديل مع الإسناد.',
   credits_qcf4_name: 'تخطيط المصحف QCF4',
   credits_qcf4_desc:
     'بيانات 604 صفحات مرخّصة بـMIT © Mohamad Hajj Rabee، والخطوط © مجمع الملك فهد لطباعة المصحف الشريف تُستخدم دون تعديل مع الإسناد.',

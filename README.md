@@ -131,7 +131,7 @@
 | **علامات السجدة**                   | 15 علامة سجدة (واجبة/مستحبة)                                                                                                                                                                                                                                                                             |
 | **فواصل الأجزاء**                   | 30 جزء مع أيقونات بداية كل جزء                                                                                                                                                                                                                                                                           |
 | **شريط تقدم القراءة**               | مؤشر تقدم مرتبط بالتمرير أعلى الصفحة                                                                                                                                                                                                                                                                     |
-| **التحكم بالخط**                    | حجم (16–45 بكسل)، نوع (Amiri, Scheherazade New, Reem Kufi)، تباعد الأسطر                                                                                                                                                                                                                                 |
+| **التحكم بالخط**                    | حجم (16–45 بكسل)، نوع (Amiri, Mushaf Naskh, Traditional Arabic, حفص عثماني)، تباعد الأسطر                                                                                                                                                                                                                                 |
 | **ترجمة معاني**                     | 5 ترجمات: Sahih International, Pickthall, Yusuf Ali, Hamidullah, Jalandhry                                                                                                                                                                                                                               |
 | **ألوان التجويد**                   | 18 قاعدة تجويد بألوان مميزة (نهاري + ليلي)                                                                                                                                                                                                                                                               |
 | **وضع الحفظ (حصن)**                 | إخفاء نص الآيات للتدريب على الاسترجاع                                                                                                                                                                                                                                                                    |
@@ -364,7 +364,7 @@
 | **فحص الكود**    | ESLint 9 + typescript-eslint                                                    |
 | **التنسيق**      | Prettier 3                                                                      |
 | **إدارة الحالة** | نظام Proxy تفاعلي مخصص (بدون إطار عمل)                                          |
-| **الخطوط**       | Amiri، Scheherazade New، Reem Kufi (مستضافة محليًا بدل شبكة Google)             |
+| **الخطوط**       | Amiri، Mushaf Naskh (مشتق من Scheherazade New)، حفص عثماني (مستضافة محليًا بدل شبكة Google) |
 | **واجهات API**   | AlQuran.cloud، Aladhan (الصلاة)، Tafsir API (jsDelivr)، mp3quran.net، quran.com |
 | **التخزين**      | localStorage + 3 قواعد IndexedDB (QuranAppDB، QuranAudioCacheDB، QuranTafsirDB) |
 

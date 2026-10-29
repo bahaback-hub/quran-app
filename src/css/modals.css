@@ -442,7 +442,7 @@ body.night-mode .adhkar-add-inner {
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 .ayah-modal-text {
-  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', serif;
+  font-family: 'Amiri', 'Mushaf Naskh', 'Traditional Arabic', serif;
   font-size: 26px;
   line-height: 1.9;
   color: var(--text-primary);

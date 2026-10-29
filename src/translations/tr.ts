@@ -772,7 +772,7 @@ export default {
   credits_jalandhry_desc: 'Fateh Muhammad Jalandhry çevirisi.',
   credits_fonts_name: 'Paket yazı tipleri',
   credits_fonts_desc:
-    'Amiri ve Scheherazade New OFL 1.1 ile lisanslıdır. Osmanlı Hafs yazı tipi © Kral Fehd Kurân-ı Kerim Basım Kompleksi’ne aittir ve değiştirilmeden atıfla kullanılır.',
+    'Amiri yazı tipi ve “Mushaf Naskh” (OFL’nin istediği gibi yeniden adlandırılmış, SIL’in Scheherazade New yazı tipinin bir alt kümesi) OFL 1.1 ile lisanslıdır. Osmanlı Hafs yazı tipi © Kral Fehd Kurân-ı Kerim Basım Kompleksi’ne aittir ve değiştirilmeden atıfla kullanılır.',
   credits_qcf4_name: 'QCF4 Mushaf düzeni',
   credits_qcf4_desc:
     '604 sayfalık düzen verisi MIT © Mohamad Hajj Rabee; glif yazı tipleri © Kral Fehd Kurân-ı Kerim Basım Kompleksi’ne aittir ve değiştirilmeden atıfla kullanılır.',

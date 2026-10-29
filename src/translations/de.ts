@@ -776,7 +776,7 @@ export default {
   credits_jalandhry_desc: 'Von Fateh Muhammad Jalandhry.',
   credits_fonts_name: 'Mitgelieferte Schriften',
   credits_fonts_desc:
-    'Amiri und Scheherazade New stehen unter OFL 1.1. Die Uthmanic-Hafs-Schrift ist © König-Fahd-Komplex für den Druck des Heiligen Korans und wird unverändert mit Namensnennung verwendet.',
+    'Die Schrift Amiri und die Schrift „Mushaf Naskh“ (eine Teilmenge von SILs Scheherazade New, wie von der OFL verlangt umbenannt) stehen unter OFL 1.1. Die Uthmanic-Hafs-Schrift ist © König-Fahd-Komplex für den Druck des Heiligen Korans und wird unverändert mit Namensnennung verwendet.',
   credits_qcf4_name: 'QCF4-Mushaf-Layout',
   credits_qcf4_desc:
     'Die Layoutdaten der 604 Seiten stehen unter MIT © Mohamad Hajj Rabee; die Glyphenschriften sind © König-Fahd-Komplex und werden unverändert mit Namensnennung verwendet.',

@@ -141,7 +141,7 @@ ${alternates}
     <meta name="twitter:image" content="${BASE_URL}/icon-512.png" />
     <meta name="robots" content="index,follow" />
     <style>
-      body { margin: 0; background: #faf5f2; color: #2b1a12; font-family: "Amiri", "Scheherazade New", "Traditional Arabic", serif; line-height: 1.9; }
+      body { margin: 0; background: #faf5f2; color: #2b1a12; font-family: "Amiri", "Mushaf Naskh", "Traditional Arabic", serif; line-height: 1.9; }
       .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 56px; }
       .langbar { display: flex; gap: 8px; margin: 0 0 18px; font-size: 15px; }
       .langbar a { background: #f1e6dd; color: #5c2e2e; text-decoration: none; padding: 5px 12px; border-radius: 999px; }

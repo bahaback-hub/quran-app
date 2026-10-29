@@ -242,6 +242,16 @@ describe('settings', () => {
       applyFontType('amiri');
       expect(mockContainer.style.fontFamily).toBe('amiri');
     });
+
+    it('should migrate a saved Scheherazade New stack to the renamed family', async () => {
+      const { applyFontType } = await import('../settings.js');
+      const setSpy = vi.spyOn(storage, 'set');
+      applyFontType("'Scheherazade New','Traditional Arabic',serif");
+      expect(state.fontType).toBe("'Mushaf Naskh','Traditional Arabic',serif");
+      expect(mockContainer.style.fontFamily).toContain('Mushaf Naskh');
+      expect(setSpy).toHaveBeenCalledWith('font_type', "'Mushaf Naskh','Traditional Arabic',serif");
+      setSpy.mockRestore();
+    });
   });
 
   describe('applyLineSpacing', () => {

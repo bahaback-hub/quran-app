@@ -11,7 +11,7 @@
       position: fixed; inset: 0; z-index: 5000;
       background: var(--bg-primary, #1a1a2e);
       display: flex; align-items: center; justify-content: center;
-      direction: rtl; font-family: 'Scheherazade New', 'Amiri', serif;
+      direction: rtl; font-family: 'Mushaf Naskh', 'Amiri', serif;
       animation: presFadeIn 0.3s ease;
       transition: background-image 1.2s ease;
       background-size: cover;

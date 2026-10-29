@@ -773,7 +773,7 @@ export default {
   credits_jalandhry_desc: 'Oleh Fateh Muhammad Jalandhry.',
   credits_fonts_name: 'Fon terbina',
   credits_fonts_desc:
-    'Amiri dan Scheherazade New dilesenkan di bawah OFL 1.1. Fon Uthmanic Hafs © Kompleks Percetakan Al-Quran Raja Fahd dan digunakan tanpa ubah suai dengan atribusi.',
+    'Fon Amiri dan “Mushaf Naskh” (subset Scheherazade New oleh SIL, dinamakan semula seperti yang dikehendaki OFL) dilesenkan di bawah OFL 1.1. Fon Uthmanic Hafs © Kompleks Percetakan Al-Quran Raja Fahd dan digunakan tanpa ubah suai dengan atribusi.',
   credits_qcf4_name: 'Susun atur Mushaf QCF4',
   credits_qcf4_desc:
     'Data susun atur 604 halaman dilesenkan MIT © Mohamad Hajj Rabee; fon glif © Kompleks Percetakan Al-Quran Raja Fahd dan digunakan tanpa ubah suai dengan atribusi.',

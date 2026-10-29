@@ -777,7 +777,7 @@ export default {
   credits_jalandhry_desc: 'Par Fateh Muhammad Jalandhry.',
   credits_fonts_name: 'Polices intégrées',
   credits_fonts_desc:
-    'Amiri et Scheherazade New sont sous licence OFL 1.1. La police Uthmanic Hafs est © Complexe du Roi Fahd pour l’impression du Saint Coran et est utilisée sans modification avec attribution.',
+    'La police Amiri et la fonte « Mushaf Naskh » (sous-ensemble de Scheherazade New de SIL, renommée comme l’exige l’OFL) sont sous licence OFL 1.1. La police Uthmanic Hafs est © Complexe du Roi Fahd pour l’impression du Saint Coran et est utilisée sans modification avec attribution.',
   credits_qcf4_name: 'Mise en page du Mushaf QCF4',
   credits_qcf4_desc:
     'Les données de mise en page (604 pages) sont sous MIT © Mohamad Hajj Rabee ; les polices de glyphes sont © Complexe du Roi Fahd et sont utilisées sans modification avec attribution.',
