@@ -53,7 +53,7 @@ OFL 1.1 and are not shipped in this repository.
 | --------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Presentation & theme backgrounds (19 files: 4 MP4 videos, poster frames, screen backgrounds) | `public/backgrounds/` | Generated in-house with open-source AI image/video tools. No stock footage or third-party media is included, so no external attribution is required. |
 | Brand logos, app icons and store screenshots | `public/brand/`, `public/screenshots/` | Produced in-house for this project. |
-| Language flag icons (5 SVGs) | `public/flags/` | Simple national flag icons used in the language selector; the original source is not recorded. |
+| Language flag icons (9 SVGs) | `public/flags/` | Simplified geometric drawings of the official national flags, used only as language indicators (ar → `sa`, en → `gb`, ur → `pk`, …). Official national flags are state symbols and are not protected by copyright. The Saudi flag carries the shahada, so it is only ever shown undistorted, unrotated and unanimated; these icons do not imply any state endorsement. |
 
 ## Bundled Data
 
