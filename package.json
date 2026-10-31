@@ -114,7 +114,7 @@
     "@capacitor/android": "^8.5.2",
     "@capacitor/app": "^8.1.1",
     "@capacitor/cli": "^8.5.2",
-    "@capacitor/core": "^8.3.4",
+    "@capacitor/core": "^8.5.3",
     "@capacitor/filesystem": "^8.1.3",
     "@capacitor/geolocation": "8.2.2",
     "@capacitor/local-notifications": "8.3.1",
