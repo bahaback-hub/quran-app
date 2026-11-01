@@ -61,10 +61,10 @@ test.describe('مواقيت الصلاة', () => {
     const clock = page.locator('#bigClockTime');
     await expect(clock).toBeVisible();
     // MUST show real time — do NOT accept --:--. The app redraws the clock
-    // roughly every second (sometimes with Arabic-Indic digits), so assert
-    // with auto-retry until a stable HH:MM (Latin or Arabic-Indic digits)
-    // is on screen instead of racing a single read.
-    await expect(clock).toHaveText(/^[\d٠-٩]{2}:[٠-٩\d]{2}$/, { timeout: 8000 });
+    // roughly every second as HH:MM:SS while the fallback above writes HH:MM,
+    // so accept either shape with Latin or Arabic-Indic digits and auto-retry
+    // until one is on screen instead of racing a single read.
+    await expect(clock).toHaveText(/^[\d٠-٩]{2}:[٠-٩\d]{2}(?::[٠-٩\d]{2})?$/, { timeout: 8000 });
   });
 
   test('فتح الإعدادات واختيار مدينة', async ({ page }) => {
