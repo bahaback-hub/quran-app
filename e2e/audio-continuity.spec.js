@@ -25,9 +25,9 @@ async function openReader(page) {
 async function advanceAyahs(page, times) {
   for (let i = 0; i < times; i++) {
     const before = await page.locator('#playerCurrentAyah').textContent();
-    // The player keeps a slow enter/retract animation; on loaded CI runners
-    // Playwright's stability check can stall a real click past the test budget.
-    await page.locator('#nextAyahBtn').click({ force: true });
+    // The player animates while it settles; on a loaded CI runner the click
+    // actionability check can take a while, so give each click its own budget.
+    await page.locator('#nextAyahBtn').click({ timeout: 20000 });
     // Wait for the ayah label to actually advance rather than sleeping.
     await expect(page.locator('#playerCurrentAyah')).not.toHaveText(before ?? '', { timeout: 10000 });
   }
@@ -87,7 +87,7 @@ test.describe('استمرارية الصوت', () => {
     // off the last ayah into surah 2 must re-anchor the saved position there.
     await advanceAyahs(page, 2);
     await expect(page.locator('#playerCurrentAyah')).toContainText('آية 7', { timeout: 10000 });
-    await page.locator('#nextAyahBtn').click();
+    await page.locator('#nextAyahBtn').click({ timeout: 20000 });
     await expect(page.locator('.ayah[data-surah="2"]').first()).toBeVisible({ timeout: 25000 });
 
     const saved = await page.evaluate(() => {
