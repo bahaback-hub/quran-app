@@ -1072,7 +1072,7 @@ function renderPageContent(
 
     if (isBismillahLine) {
       const bsmlFontSize = Math.round(pageFontSize * 0.95);
-      ctx.font = `500 ${bsmlFontSize}px "${bsmlFont}", "Scheherazade New", serif`;
+      ctx.font = `500 ${bsmlFontSize}px "${bsmlFont}", "Mushaf Naskh", serif`;
       ctx.textAlign = 'center';
       ctx.fillStyle = bsmlColor;
       ctx.fillText(bsmlText, CANVAS_W / 2, y);

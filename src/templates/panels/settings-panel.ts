@@ -1,4 +1,5 @@
 import { __ } from '../../i18n.js';
+import { QURAN_FONT_STACK } from '../../font-family.js';
 
 /**
  * Generate the complete settings panel HTML with all six tabs.
@@ -113,7 +114,7 @@ export function settingsPanelHTML(): string {
             <label for="fontTypeSelect" data-i18n="font_type">نوع الخط:</label>
             <select id="fontTypeSelect">
               <option value="'Amiri','Traditional Arabic',serif" selected>أميري</option>
-              <option value="'Scheherazade New','Traditional Arabic',serif">شهرزاد</option>
+              <option value="${QURAN_FONT_STACK}">شهرزاد</option>
               <option value="'Traditional Arabic',serif">عربي تقليدي</option>
               <option value="'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif" data-i18n="font_uthmanic_hafs">حفص عثماني رسمي</option>
               <option value="'Al Qalam','Traditional Arabic',serif">القلم</option>

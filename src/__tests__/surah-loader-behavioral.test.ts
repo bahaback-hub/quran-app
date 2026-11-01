@@ -318,16 +318,6 @@ describe('surah-loader — populateSurahSelect', () => {
       expect(v.length).toBeGreaterThan(0);
     }
   });
-
-  it('SURAH_SECRETS_AUTH_KEYS is a Record<number, string[]>', async () => {
-    const { SURAH_SECRETS_AUTH_KEYS } = await import('../surahs-data.js');
-    expect(SURAH_SECRETS_AUTH_KEYS).toBeTypeOf('object');
-    // Sample check: key 1 should exist and be an array (possibly empty)
-    for (const [k, v] of Object.entries(SURAH_SECRETS_AUTH_KEYS)) {
-      expect(Number(k)).toBeGreaterThanOrEqual(1);
-      expect(Array.isArray(v)).toBe(true);
-    }
-  });
 });
 
 describe('surah-loader — saveCurrentPosition', () => {

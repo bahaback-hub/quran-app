@@ -128,10 +128,7 @@ vi.mock('../templates.js', () => ({
   mushafHeaderRow: vi.fn((juzLabel: string) => `<div class="mushaf-header-row">${juzLabel}</div>`),
   mushafErrorFallback: vi.fn(() => '<div class="mushaf-error">Error</div>'),
   mushafSurahNameSpan: vi.fn((name: string) => `<span class="mushaf-surah-name">${name}</span>`),
-  surahSecretsBody: vi.fn(
-    (secret: string, authKeys?: string[]) =>
-      `<div class="secrets-body">${secret}${authKeys ? ' ' + authKeys.join(',') : ''}</div>`,
-  ),
+  surahSecretsBody: vi.fn((secret: string) => `<div class="secrets-body">${secret}</div>`),
 }));
 
 vi.mock('../surahs-data.js', () => ({
@@ -140,10 +137,6 @@ vi.mock('../surahs-data.js', () => ({
     2: 'Secret of Al-Baqarah',
     36: 'Secret of Ya-Sin',
     112: 'Secret of Al-Ikhlas',
-  },
-  SURAH_SECRETS_AUTH_KEYS: {
-    1: ['Bukhari', 'Muslim'],
-    2: ['Tirmidhi'],
   },
 }));
 
@@ -590,6 +583,40 @@ describe('mushaf.ts', () => {
       expect(mockLoadingBar.hide).toHaveBeenCalled();
     });
 
+    it('exposes a screen-reader text alternative for the rendered canvas', async () => {
+      const layout = {
+        lines: [
+          {
+            words: [
+              { char: '', type: 'surah_header', text: 'سُورَةُ الفَاتِحَةِ' },
+              { char: '', type: 'word', verse_key: '1:1', text: 'بِسْمِ' },
+              { char: '', type: 'word', verse_key: '1:1', text: 'اللَّهِ' },
+              { char: '', type: 'end', verse_key: '1:1', text: 'V1' },
+            ],
+          },
+        ],
+      };
+      vi.mocked(renderPage).mockResolvedValue({ canvas: document.createElement('canvas'), layout });
+      vi.mocked(loadPageData).mockResolvedValue(layout);
+
+      await loadPage(2);
+
+      await vi.waitFor(() => {
+        expect(mockDom.surahContent!.querySelector('.mushaf-a11y-text')?.childElementCount).toBe(1);
+      });
+
+      const canvas = mockDom.surahContent!.querySelector('.mushaf-page-canvas');
+      expect(canvas?.getAttribute('aria-hidden')).toBe('true');
+
+      const region = mockDom.surahContent!.querySelector('.mushaf-a11y-text');
+      expect(region?.getAttribute('role')).toBe('region');
+      expect(region?.getAttribute('aria-label')).toContain('page');
+      expect(region?.textContent).toContain('بِسْمِ اللَّهِ');
+      expect(region?.textContent).toContain('﴿1﴾');
+      expect(region?.textContent).not.toContain('V1');
+      expect(region?.textContent).not.toContain('سُورَةُ');
+    });
+
     it('should show error toast when renderPage returns null canvas/layout', async () => {
       vi.mocked(renderPage).mockResolvedValue({ canvas: null, layout: null });
       vi.mocked(loadPageData).mockResolvedValue({ lines: [] });
@@ -783,14 +810,14 @@ describe('mushaf.ts', () => {
       expect((mockDom.surahSecretsOverlay as HTMLElement).style.display).toBe('flex');
     });
 
-    it('should include auth keys when available', () => {
+    it('should render the secret body', () => {
       showSurahSecret(1, 'الفاتحة');
-      expect(mockDom.surahSecretsBody!.innerHTML).toBeTruthy();
+      expect(mockDom.surahSecretsBody!.innerHTML).toContain('Secret of Al-Fatiha');
     });
 
-    it('should work without auth keys', () => {
+    it('should render a secret that has no per-surah source entry', () => {
       showSurahSecret(36, 'يس');
-      expect(mockDom.surahSecretsBody!.innerHTML).toBeTruthy();
+      expect(mockDom.surahSecretsBody!.innerHTML).toContain('Secret of Ya-Sin');
     });
 
     it('should handle missing surahName', () => {

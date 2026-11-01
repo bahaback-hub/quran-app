@@ -122,12 +122,15 @@ function fitPresentationAyahText(): void {
     return;
   }
 
+  const minimumSize = window.innerWidth <= 600 ? 19 : 26;
   const computed = window.getComputedStyle(ayahText);
   const measuredSize = Number.parseFloat(computed.fontSize);
+  // A size below the readable minimum means the computed style could not give
+  // us the design value (some DOM implementations report the initial 16px
+  // instead of the cascade). Start from the design scale so the loop below can
+  // still bring an overflowing ayah back into view.
   const initialSize =
-    Number.isFinite(measuredSize) && measuredSize > 0 ? measuredSize : window.innerWidth <= 600 ? 32 : 60;
-
-  const minimumSize = window.innerWidth <= 600 ? 19 : 26;
+    Number.isFinite(measuredSize) && measuredSize >= minimumSize ? measuredSize : window.innerWidth <= 600 ? 32 : 60;
   let size = initialSize;
 
   // First preserve the font size and recover vertical room by using a still

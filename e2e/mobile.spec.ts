@@ -183,31 +183,50 @@ test.describe('Quran App — Mobile Controls', () => {
     await expect(page.locator('#settingsToggleBtn')).toBeVisible();
     await expect(page.locator('#breadcrumbs')).toHaveCount(0);
 
-    const firstAction = await primaryActions.nth(0).boundingBox();
-    const lastAction = await primaryActions.nth(1).boundingBox();
-    const theme = await page.locator('#themeToggle').boundingBox();
-    const brand = await page.locator('.header-brand-mark').boundingBox();
-    expect(firstAction).not.toBeNull();
-    expect(lastAction).not.toBeNull();
-    expect(theme).not.toBeNull();
-    expect(brand).not.toBeNull();
-    expect(Math.abs(firstAction!.y - lastAction!.y)).toBeLessThan(2);
-    // شعار المصحف السليماني يجلس في نفس صف أزرار اللغة والإعدادات والسمات.
-    expect(Math.abs(brand!.y - firstAction!.y)).toBeLessThan(12);
-    // يقوم الشعار قرب حافة الصف دون أن يتداخل مع أزرار السمات بجانبه.
-    expect(brand!.x).toBeGreaterThanOrEqual(theme!.x + theme!.width - 1);
-    const actionsArea = await primaryActions.evaluateAll((els) => {
-      const rects = els.map((e) => e.getBoundingClientRect());
+    // All four boxes are read in a single round-trip. The reader restores its
+    // saved scroll offset shortly after the first paint and `html` uses
+    // `scroll-behavior: smooth`, so one `boundingBox()` call per element can
+    // land mid-animation and report coordinates that differ by the distance
+    // being scrolled — a measuring artefact, not a layout change.
+    const metrics = await page.evaluate(() => {
+      type Box = { x: number; y: number; width: number; height: number };
+      const box = (el: Element | null): Box | null => {
+        if (!el) { return null; }
+        const r = el.getBoundingClientRect();
+        return { x: r.x, y: r.y, width: r.width, height: r.height };
+      };
+      const actions = Array.from(document.querySelectorAll('.header-primary-actions .header-action-btn'));
+      const rects = actions.map((el) => el.getBoundingClientRect());
       return {
-        x: Math.min(...rects.map((r) => r.x)),
-        right: Math.max(...rects.map((r) => r.x + r.width)),
-        y: Math.min(...rects.map((r) => r.y)),
-        bottom: Math.max(...rects.map((r) => r.y + r.height)),
+        first: box(actions[0] ?? null),
+        last: box(actions[1] ?? null),
+        theme: box(document.querySelector('#themeToggle')),
+        brand: box(document.querySelector('.header-brand-mark')),
+        actionsArea:
+          rects.length === 0
+            ? null
+            : {
+                x: Math.min(...rects.map((r) => r.x)),
+                right: Math.max(...rects.map((r) => r.x + r.width)),
+                y: Math.min(...rects.map((r) => r.y)),
+                bottom: Math.max(...rects.map((r) => r.y + r.height)),
+              },
       };
     });
+    const { first, last, theme, brand, actionsArea } = metrics;
+    expect(first).not.toBeNull();
+    expect(last).not.toBeNull();
+    expect(theme).not.toBeNull();
+    expect(brand).not.toBeNull();
+    expect(actionsArea).not.toBeNull();
+    expect(Math.abs(first!.y - last!.y)).toBeLessThan(2);
+    // شعار المصحف السليماني يجلس في نفس صف أزرار اللغة والإعدادات والسمات.
+    expect(Math.abs(brand!.y - first!.y)).toBeLessThan(12);
+    // يقوم الشعار قرب حافة الصف دون أن يتداخل مع أزرار السمات بجانبه.
+    expect(brand!.x).toBeGreaterThanOrEqual(theme!.x + theme!.width - 1);
     const overlaps =
-      theme!.x < actionsArea.right && theme!.x + theme!.width > actionsArea.x
-      && theme!.y < actionsArea.bottom && theme!.y + theme!.height > actionsArea.y;
+      theme!.x < actionsArea!.right && theme!.x + theme!.width > actionsArea!.x
+      && theme!.y < actionsArea!.bottom && theme!.y + theme!.height > actionsArea!.y;
     expect(overlaps).toBe(false);
 
     await expect(page.locator('#collapsedInfo')).not.toHaveText('');

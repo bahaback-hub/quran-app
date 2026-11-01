@@ -69,13 +69,13 @@ export function mushafSurahNameSpan(name: string): string {
 /**
  * Generate the surah secrets body content.
  *
+ * The summaries are educational paraphrases that have not been reviewed by a
+ * scholar, so they are always rendered with an explicit disclaimer. Per-surah
+ * source labels were removed on purpose (SEC/CONTENT-01): the previous
+ * `Quran N` tags misattributed hadith content to the Quran itself.
+ *
  * @param secret The secret text
- * @param authKeys Optional array of source/auth key strings
  */
-export function surahSecretsBody(secret: string, authKeys?: string[]): string {
-  let html = `<p>${escapeHtml(secret)}</p>`;
-  if (authKeys && authKeys.length) {
-    html += `<div class="secret-source">${__('mushaf_sources')} ${authKeys.map((k: string) => `<span>${escapeHtml(k)}</span>`).join(' ')}</div>`;
-  }
-  return html;
+export function surahSecretsBody(secret: string): string {
+  return `<p>${escapeHtml(secret)}</p><p class="secret-disclaimer">${escapeHtml(__('secrets_disclaimer'))}</p>`;
 }
