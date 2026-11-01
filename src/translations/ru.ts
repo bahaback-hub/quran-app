@@ -345,7 +345,6 @@ export default {
   azan_now: 'Наступило время молитвы',
   secrets_dlg: 'Тайна суры',
   secrets_title: '🌟 Тайна суры',
-  secrets_disclaimer: 'Учебное резюме — не проверено учёным. Не используйте для религиозных решений.',
   ayah_dlg: 'Детали аята',
   ayah_title_ph: 'Аят — ',
   ayah_next: '← Следующий аят',

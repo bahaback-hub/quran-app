@@ -364,7 +364,6 @@ export default {
   azan_now: 'Waktu salat telah tiba',
   secrets_dlg: 'Rahasia surah',
   secrets_title: '🌟 Rahasia surah',
-  secrets_disclaimer: 'Ringkasan edukatif — belum ditinjau ulama. Jangan dijadikan rujukan hukum.',
   ayah_dlg: 'Detail ayat',
   ayah_title_ph: 'Ayat — ',
   ayah_next: '← Ayat berikutnya',

@@ -345,7 +345,6 @@ export default {
   azan_now: 'حان الآن وقت الصلاة',
   secrets_dlg: 'سرّ السورة',
   secrets_title: '🌟 سرّ السورة',
-  secrets_disclaimer: 'ملخص تعليمي غير مدقّق شرعيًا — لا يُعتمد عليه في الأحكام.',
   ayah_dlg: 'تفاصيل الآية',
   ayah_title_ph: 'الآية — ',
   ayah_next: '← الآية التالية',

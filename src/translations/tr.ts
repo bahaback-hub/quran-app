@@ -364,7 +364,6 @@ export default {
   azan_now: 'Namaz vakti geldi',
   secrets_dlg: 'Sure sırrı',
   secrets_title: '🌟 Sure sırrı',
-  secrets_disclaimer: 'Eğitim amaçlı özet — bir âlim tarafından incelenmemiştir. Hükümler için güvenmeyin.',
   ayah_dlg: 'Ayet detayları',
   ayah_title_ph: 'Ayet — ',
   ayah_next: '← Sonraki ayet',

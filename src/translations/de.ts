@@ -346,7 +346,6 @@ export default {
   azan_now: 'Gebetszeit ist da',
   secrets_dlg: 'Geheimnis der Sure',
   secrets_title: '🌟 Geheimnis der Sure',
-  secrets_disclaimer: 'Lernzusammenfassung — nicht von einem Gelehrten geprüft. Nicht für religiöse Urteile verwenden.',
   ayah_dlg: 'Versdetails',
   ayah_title_ph: 'Vers — ',
   ayah_next: '← Nächster Vers',

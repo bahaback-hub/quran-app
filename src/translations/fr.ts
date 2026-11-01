@@ -345,7 +345,6 @@ export default {
   azan_now: 'C’est l’heure de la prière',
   secrets_dlg: 'Secret de la sourate',
   secrets_title: '🌟 Secret de la sourate',
-  secrets_disclaimer: 'Résumé pédagogique — non vérifié par un savant. Ne pas s’y fier pour les jugements religieux.',
   ayah_dlg: 'Détails du verset',
   ayah_title_ph: 'Verset — ',
   ayah_next: '← Verset suivant',

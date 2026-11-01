@@ -145,14 +145,6 @@ body.night-mode .surah-secrets-overlay-inner {
   color: var(--text-primary);
   direction: rtl;
 }
-.surah-secrets-overlay-body .secret-disclaimer {
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--border-soft);
-  font-size: 13px;
-  line-height: 1.8;
-  color: var(--text-muted);
-}
 
 /* ========== شاشة الترحيب ========== */
 .welcome-screen {

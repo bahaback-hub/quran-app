@@ -345,7 +345,6 @@ export default {
   azan_now: 'نماز کا وقت آ گیا',
   secrets_dlg: 'سورہ کا راز',
   secrets_title: '🌟 سورہ کا راز',
-  secrets_disclaimer: 'تعلیمی خلاصہ — کسی عالم سے تصدیق شدہ نہیں۔ شرعی احکام کے لیے قابلِ اعتماد نہیں۔',
   ayah_dlg: 'آیت کی تفصیلات',
   ayah_title_ph: 'آیت — ',
   ayah_next: '← اگلی آیت',

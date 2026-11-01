@@ -345,7 +345,6 @@ export default {
   azan_now: 'Prayer time is now',
   secrets_dlg: 'Surah secret',
   secrets_title: '🌟 Surah secret',
-  secrets_disclaimer: 'Educational summary — not reviewed by a scholar. Do not rely on it for rulings.',
   ayah_dlg: 'Ayah details',
   ayah_title_ph: 'Ayah — ',
   ayah_next: '← Next ayah',

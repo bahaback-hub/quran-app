@@ -690,9 +690,9 @@ describe('Mushaf templates', () => {
     expect(result).toContain('سر السورة');
   });
 
-  it('surahSecretsBody should render the scholarly disclaimer and no source labels', () => {
+  it('surahSecretsBody should render the secret with no disclaimer or source labels', () => {
     const result = surahSecretsBody('سر السورة');
-    expect(result).toContain('secret-disclaimer');
+    expect(result).not.toContain('secret-disclaimer');
     expect(result).not.toContain('secret-source');
   });
 
