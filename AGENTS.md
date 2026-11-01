@@ -190,7 +190,7 @@ These files are large and would benefit from being split by feature:
 
 ### E2E Tests (`e2e/`)
 
-- **Playwright 1.62** (4 projects: chromium, firefox, webkit, mobile-chrome) — exercises real browser behavior
+- **Playwright 1.64** (4 projects: chromium, firefox, webkit, mobile-chrome) — exercises real browser behavior
 - Covers critical paths: navigation, audio playback, search, prayer times
 
 ## CDN & External APIs

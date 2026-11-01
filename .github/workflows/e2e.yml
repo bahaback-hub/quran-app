@@ -23,7 +23,7 @@ jobs:
     # Pin the image to the @playwright/test version so browser executables and
     # system dependencies are present before the job starts.
     container:
-      image: mcr.microsoft.com/playwright:v1.62.0-noble
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --user 1001
     timeout-minutes: 25
     strategy:
@@ -73,7 +73,7 @@ jobs:
     name: CLS guard
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.62.0-noble
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --user 1001
     timeout-minutes: 10
     steps:
@@ -99,7 +99,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.update_snapshots
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.62.0-noble
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --user 1001
     timeout-minutes: 25
     steps:

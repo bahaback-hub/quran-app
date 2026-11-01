@@ -140,7 +140,7 @@ jobs:
     # Match the project Playwright version so Chromium and its system
     # dependencies are available without an unreliable runtime download.
     container:
-      image: mcr.microsoft.com/playwright:v1.62.0-noble
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --user 1001
     needs: build
     timeout-minutes: 20
