@@ -135,26 +135,26 @@ test.describe('Quran App — Mobile Controls', () => {
     await context.grantPermissions(['geolocation']);
     await context.setGeolocation({ latitude: 24.7136, longitude: 46.6753 });
     await page.evaluate(() => {
-      // Headless Chromium may omit DeviceOrientationEvent even though Chrome
-      // Android supplies it. Keep this behavioral test focused on the exact
-      // absolute-orientation contract the app consumes on a real handset.
-      if (!window.DeviceOrientationEvent) {
-        class OrientationEvent extends Event {
-          constructor(type: string, init: DeviceOrientationEventInit = {}) {
-            super(type);
-            Object.defineProperties(this, {
-              absolute: { value: init.absolute ?? false },
-              alpha: { value: init.alpha ?? null },
-              beta: { value: init.beta ?? null },
-              gamma: { value: init.gamma ?? null },
-            });
-          }
+      // Chrome on Android has no DeviceOrientationEvent.requestPermission — it
+      // is an iOS-only gate. Chromium 142 started exposing that member, which
+      // sends the app down the iOS permission path and leaves the compass in
+      // static mode when headless never grants it. Replace the interface with
+      // a minimal shim so the Android listener path is the one under test.
+      class OrientationEvent extends Event {
+        constructor(type: string, init: DeviceOrientationEventInit = {}) {
+          super(type);
+          Object.defineProperties(this, {
+            absolute: { value: init.absolute ?? false },
+            alpha: { value: init.alpha ?? null },
+            beta: { value: init.beta ?? null },
+            gamma: { value: init.gamma ?? null },
+          });
         }
-        Object.defineProperty(window, 'DeviceOrientationEvent', {
-          configurable: true,
-          value: OrientationEvent,
-        });
       }
+      Object.defineProperty(window, 'DeviceOrientationEvent', {
+        configurable: true,
+        value: OrientationEvent,
+      });
     });
 
     await page.locator('#qiblaBtn').click();
@@ -164,11 +164,16 @@ test.describe('Quran App — Mobile Controls', () => {
     const bearingBeforeHeading = await needle.getAttribute('style');
 
     await page.evaluate(() => {
-      const event = new DeviceOrientationEvent('deviceorientationabsolute', {
-        absolute: true,
-        alpha: 90,
-        beta: 0,
-        gamma: 0,
+      // Dispatch what Chrome on Android actually delivers: a generic event
+      // whose orientation members are populated. Browsers that ship
+      // DeviceOrientationEvent natively do not honour the constructor init in
+      // headless runs, which left the needle without a usable heading.
+      const event = new Event('deviceorientationabsolute');
+      Object.defineProperties(event, {
+        absolute: { value: true },
+        alpha: { value: 90 },
+        beta: { value: 0 },
+        gamma: { value: 0 },
       });
       window.dispatchEvent(event);
     });
