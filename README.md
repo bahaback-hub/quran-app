@@ -360,7 +360,7 @@
 | **البناء**       | Vite 8 مع LightningCSS                                                          |
 | **PWA**          | vite-plugin-pwa (Workbox)                                                       |
 | **أندرويد**      | Capacitor 8 (@capacitor/android, app, share, splash-screen, status-bar)         |
-| **الاختبار**     | Vitest 5 (وحدات)، Playwright 1.62 (E2E)                                         |
+| **الاختبار**     | Vitest 5 (وحدات)، Playwright 1.64 (E2E)                                         |
 | **فحص الكود**    | ESLint 9 + typescript-eslint                                                    |
 | **التنسيق**      | Prettier 3                                                                      |
 | **إدارة الحالة** | نظام Proxy تفاعلي مخصص (بدون إطار عمل)                                          |

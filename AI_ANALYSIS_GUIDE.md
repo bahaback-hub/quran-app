@@ -246,7 +246,7 @@ Do **not** count the Debug APK or browser compass behaviour as a web-app bug —
 | Build: Vite 8 + LightningCSS            | البناء: Vite 8 + LightningCSS             |
 | PWA: vite-plugin-pwa (Workbox)          | PWA: vite-plugin-pwa (Workbox)            |
 | Android: Capacitor 8                    | أندرويد: Capacitor 8                      |
-| Tests: Vitest 5 + Playwright 1.62       | الاختبارات: Vitest 5 + Playwright 1.62    |
+| Tests: Vitest 5 + Playwright 1.64       | الاختبارات: Vitest 5 + Playwright 1.64    |
 | Lint: ESLint 9 + typescript-eslint      | الفحص: ESLint 9 + typescript-eslint       |
 | Format: Prettier 3                      | التنسيق: Prettier 3                       |
 | State: custom Proxy (no framework)      | الحالة: Proxy مخصص (بدون أطار)            |
