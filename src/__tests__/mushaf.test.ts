@@ -47,7 +47,7 @@ vi.mock('../storage.js', () => ({
   },
 }));
 
-import { getJuzForPage, updatePageIndicator } from '../features/mushaf/mushaf.js';
+import { getJuzForPage, updatePageIndicator, buildMushafTextBlocks } from '../features/mushaf/mushaf.js';
 
 describe('getJuzForPage', () => {
   it('should return juz 1 for page 1', () => {
@@ -72,6 +72,96 @@ describe('getJuzForPage', () => {
     expect(getJuzForPage(200)).toBe(10);
     expect(getJuzForPage(400)).toBe(20);
     expect(getJuzForPage(500)).toBe(25);
+  });
+});
+
+describe('buildMushafTextBlocks', () => {
+  it('returns an empty list when there is no layout', () => {
+    expect(buildMushafTextBlocks(null)).toEqual([]);
+    expect(buildMushafTextBlocks({ lines: [] })).toEqual([]);
+  });
+
+  it('joins the words of one verse and keeps verse order', () => {
+    const blocks = buildMushafTextBlocks({
+      lines: [
+        {
+          words: [
+            { char: 'x', text: 'بِسْمِ', type: 'word', verse_key: '1:1' },
+            { char: 'x', text: 'اللَّهِ', type: 'word', verse_key: '1:1' },
+          ],
+        },
+        {
+          words: [
+            { char: 'x', text: 'الرَّحْمَنِ', type: 'word', verse_key: '1:1' },
+            { char: 'x', text: 'الرَّحِيمِ', type: 'word', verse_key: '1:1' },
+            { char: 'x', text: 'الْحَمْدُ', type: 'word', verse_key: '1:2' },
+          ],
+        },
+      ],
+    });
+
+    expect(blocks).toEqual([
+      { verseKey: '1:1', text: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ' },
+      { verseKey: '1:2', text: 'الْحَمْدُ' },
+    ]);
+  });
+
+  it('skips surah headers and verse-end glyph placeholders', () => {
+    const blocks = buildMushafTextBlocks({
+      lines: [
+        {
+          words: [
+            { char: 'x', text: 'سُورَةُ البَقَرَةِ', type: 'surah_header' },
+            { char: 'x', text: 'الم', type: 'word', verse_key: '2:1' },
+            { char: 'x', text: 'V1', type: 'end', verse_key: '2:1' },
+            { char: 'x', text: 'ذَلِكَ', type: 'word', verse_key: '2:2' },
+          ],
+        },
+      ],
+    });
+
+    expect(blocks).toEqual([
+      { verseKey: '2:1', text: 'الم' },
+      { verseKey: '2:2', text: 'ذَلِكَ' },
+    ]);
+  });
+
+  it('keeps an opening basmala as its own block without a verse key', () => {
+    const blocks = buildMushafTextBlocks({
+      lines: [
+        {
+          words: [
+            { char: 'x', text: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ', type: 'bismillah' },
+            { char: 'x', text: 'الم', type: 'word', verse_key: '2:1' },
+          ],
+        },
+      ],
+    });
+
+    expect(blocks).toEqual([
+      { verseKey: null, text: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ' },
+      { verseKey: '2:1', text: 'الم' },
+    ]);
+  });
+
+  it('trims word text and ignores glyphs that carry no readable text', () => {
+    const blocks = buildMushafTextBlocks({
+      lines: [
+        {
+          words: [
+            { char: 'x', text: '  الم  ', type: 'word', verse_key: '2:1' },
+            { char: 'x', text: '', type: 'word', verse_key: '2:1' },
+            { char: 'x', text: undefined, type: 'word', verse_key: '2:1' },
+            { char: 'x', text: 'ذَلِكَ', type: 'word', verse_key: '2:2' },
+          ],
+        },
+      ],
+    });
+
+    expect(blocks).toEqual([
+      { verseKey: '2:1', text: 'الم' },
+      { verseKey: '2:2', text: 'ذَلِكَ' },
+    ]);
   });
 });
 

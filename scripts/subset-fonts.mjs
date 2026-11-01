@@ -23,6 +23,7 @@ import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import subsetFont from 'subset-font';
+import { renameWoff2File } from './lib/font-name.mjs';
 
 const { values: args } = parseArgs({
   options: { 'dry-run': { type: 'boolean', default: false } },
@@ -36,6 +37,28 @@ const FONTS = [
   'scheherazade-regular-400.woff2',
   'scheherazade-bold-700.woff2',
 ];
+
+/**
+ * A subset is a *Modified Version* under the SIL Open Font License, and the
+ * Scheherazade license reserves the names "Scheherazade" and "SIL" for the
+ * original. So after subsetting, the family is renamed to "Mushaf Naskh" while
+ * the copyright and license notices inside the file stay intact
+ * (see `scripts/lib/font-name.mjs` and `public/fonts/OFL-Scheherazade.txt`).
+ */
+const RENAMED_FAMILIES = {
+  'scheherazade-regular-400.woff2': {
+    family: 'Mushaf Naskh',
+    subfamily: 'Regular',
+    postscript: 'MushafNaskh-Regular',
+    vendor: 'Quran App',
+  },
+  'scheherazade-bold-700.woff2': {
+    family: 'Mushaf Naskh',
+    subfamily: 'Bold',
+    postscript: 'MushafNaskh-Bold',
+    vendor: 'Quran App',
+  },
+};
 
 /** Unicode blocks kept even when no source file mentions them. */
 const SAFETY_BLOCKS = [
@@ -97,8 +120,10 @@ function kb(bytes) {
 async function main() {
   const codepoints = collectCodepoints();
   const text = String.fromCodePoint(...codepoints);
-  console.log(`[fonts] glyph set: ${codepoints.length} codepoints `
-    + `(0x${codepoints[0].toString(16)}..0x${codepoints[codepoints.length - 1].toString(16)})`);
+  console.log(
+    `[fonts] glyph set: ${codepoints.length} codepoints ` +
+      `(0x${codepoints[0].toString(16)}..0x${codepoints[codepoints.length - 1].toString(16)})`,
+  );
 
   let beforeTotal = 0;
   let afterTotal = 0;
@@ -117,15 +142,23 @@ async function main() {
     }
     const saved = before.length - after.length;
     const pct = ((saved / before.length) * 100).toFixed(1);
-    console.log(`[fonts] ${name}: ${kb(before.length)} -> ${kb(after.length)} `
-      + `(saved ${kb(saved)}, ${pct}%)`);
+    console.log(`[fonts] ${name}: ${kb(before.length)} -> ${kb(after.length)} ` + `(saved ${kb(saved)}, ${pct}%)`);
     beforeTotal += before.length;
     afterTotal += after.length;
-    if (!args['dry-run']) writeFileSync(path, after);
+    if (!args['dry-run']) {
+      writeFileSync(path, after);
+      const rename = RENAMED_FAMILIES[name];
+      if (rename) {
+        const renamed = await renameWoff2File(path, rename);
+        console.log(`[fonts] ${name}: family renamed to "${rename.family}" ` + `(${kb(renamed.after)})`);
+      }
+    }
   }
 
-  console.log(`[fonts] TOTAL ${kb(beforeTotal)} -> ${kb(afterTotal)} `
-    + `(saved ${kb(beforeTotal - afterTotal)}, ${(((beforeTotal - afterTotal) / beforeTotal) * 100).toFixed(1)}%)`);
+  console.log(
+    `[fonts] TOTAL ${kb(beforeTotal)} -> ${kb(afterTotal)} ` +
+      `(saved ${kb(beforeTotal - afterTotal)}, ${(((beforeTotal - afterTotal) / beforeTotal) * 100).toFixed(1)}%)`,
+  );
   if (args['dry-run']) console.log('[fonts] dry run — nothing written');
 
   if (failures) {

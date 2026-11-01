@@ -16,6 +16,7 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
+import { migrateFontFamily } from './font-family.js';
 import { stopAzan } from './features/prayer/prayer.js';
 import { renderAdhkarSettingsList } from './adhkar.js';
 import { initTvMode } from './tv-nav.js';
@@ -391,16 +392,22 @@ export function initSystemThemeDetection(): void {
 
 /* ===================== FONT TYPE ===================== */
 
-/** Apply a specific font family to the ayahs container and persist it. */
+/**
+ * Apply a specific font family to the ayahs container and persist it.
+ *
+ * Saved settings from before the Scheherazade subset was renamed are migrated
+ * here (see `src/font-family.ts`), so returning readers keep the same face.
+ */
 export function applyFontType(type: string): void {
-  state.fontType = type;
+  const family = migrateFontFamily(type);
+  state.fontType = family;
   const container = document.querySelector('.ayahs-container') as HTMLElement | null;
   if (container) {
-    container.style.fontFamily = type;
+    container.style.fontFamily = family;
   }
-  storage.set('font_type', type);
+  storage.set('font_type', family);
   if (dom.fontTypeSelect) {
-    dom.fontTypeSelect.value = type;
+    dom.fontTypeSelect.value = family;
   }
 }
 

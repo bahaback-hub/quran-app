@@ -434,6 +434,33 @@ describe('presentation', () => {
       expect(dom.presentationBody!.scrollTop).toBe(0);
     });
 
+    it('should fall back to the design scale when the computed size is unusable', async () => {
+      state.presentationMode = true;
+      state.surahData!.ayahs[0]!.text = 'آية طويلة '.repeat(70);
+      Object.defineProperty(dom.presentationBody!, 'clientHeight', { configurable: true, value: 460 });
+      Object.defineProperty(dom.presentationAyahText!, 'scrollHeight', { configurable: true, value: 780 });
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1280 });
+      // Some DOM implementations report the initial 16px instead of the value
+      // coming from the stylesheet; that must not disable the shrink loop.
+      const realComputedStyle = window.getComputedStyle.bind(window);
+      const spy = vi
+        .spyOn(window, 'getComputedStyle')
+        .mockImplementation((el, pseudo) =>
+          el === dom.presentationAyahText
+            ? ({ fontSize: '16px' } as CSSStyleDeclaration)
+            : realComputedStyle(el, pseudo),
+        );
+      try {
+        const { syncPresentation } = await import('../features/presentation/presentation.js');
+        syncPresentation();
+      } finally {
+        spy.mockRestore();
+      }
+      const fitted = Number.parseFloat(dom.presentationAyahText!.style.fontSize);
+      expect(Number.isNaN(fitted)).toBe(false);
+      expect(fitted).toBeLessThanOrEqual(42);
+    });
+
     it('should show translation when enabled', async () => {
       state.presentationMode = true;
       state.translationEnabled = true;

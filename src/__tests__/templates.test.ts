@@ -686,20 +686,13 @@ describe('Mushaf templates', () => {
   });
 
   it('surahSecretsBody should contain secret text', () => {
-    const result = surahSecretsBody('سر السورة', ['المصدر']);
-    expect(result).toContain('سر السورة');
-    expect(result).toContain('المصدر');
-    expect(result).toContain('secret-source');
-  });
-
-  it('surahSecretsBody without sources should not render sources', () => {
     const result = surahSecretsBody('سر السورة');
     expect(result).toContain('سر السورة');
-    expect(result).not.toContain('secret-source');
   });
 
-  it('surahSecretsBody with empty sources array should not render sources', () => {
-    const result = surahSecretsBody('سر السورة', []);
+  it('surahSecretsBody should render the scholarly disclaimer and no source labels', () => {
+    const result = surahSecretsBody('سر السورة');
+    expect(result).toContain('secret-disclaimer');
     expect(result).not.toContain('secret-source');
   });
 
@@ -1138,6 +1131,13 @@ describe('Help panel translation credits (UXS-03)', () => {
       'credits_hamidullah_desc',
       'credits_jalandhry_desc',
     ]) {
+      expect(result).toContain(key);
+    }
+  });
+
+  it('should credit bundled fonts and the QCF4 mushaf layout', () => {
+    const result = helpPanelHTML();
+    for (const key of ['credits_fonts_name', 'credits_fonts_desc', 'credits_qcf4_name', 'credits_qcf4_desc']) {
       expect(result).toContain(key);
     }
   });

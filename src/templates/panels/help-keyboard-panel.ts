@@ -269,6 +269,14 @@ export function helpPanelHTML(): string {
               <div class="help-item-title">${__('credits_jalandhry_name')}</div>
               <div class="help-item-desc">${__('credits_jalandhry_desc')}</div>
             </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('credits_fonts_name')}</div>
+              <div class="help-item-desc">${__('credits_fonts_desc')}</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">${__('credits_qcf4_name')}</div>
+              <div class="help-item-desc">${__('credits_qcf4_desc')}</div>
+            </div>
           </div>
         </div>
 
