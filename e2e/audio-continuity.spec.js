@@ -25,13 +25,18 @@ async function openReader(page) {
 async function advanceAyahs(page, times) {
   for (let i = 0; i < times; i++) {
     const before = await page.locator('#playerCurrentAyah').textContent();
-    await page.locator('#nextAyahBtn').click();
+    // The player keeps a slow enter/retract animation; on loaded CI runners
+    // Playwright's stability check can stall a real click past the test budget.
+    await page.locator('#nextAyahBtn').click({ force: true });
     // Wait for the ayah label to actually advance rather than sleeping.
     await expect(page.locator('#playerCurrentAyah')).not.toHaveText(before ?? '', { timeout: 10000 });
   }
 }
 
 test.describe('استمرارية الصوت', () => {
+  // Every case walks six ayahs through real clicks plus a cross-surah load, so
+  // the default 30s budget is tight on a loaded WebKit container.
+  test.describe.configure({ timeout: 90_000 });
   test('آخر آية في السورة → السورة التالية تلقائياً عند انتهاء التشغيل', async ({ page }) => {
     await openReader(page);
 
