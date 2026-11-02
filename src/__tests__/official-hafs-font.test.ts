@@ -36,7 +36,7 @@ describe('official Uthmanic Hafs font', () => {
   it('loads fonts.css through a document-relative URL so web and Capacitor can resolve it', () => {
     const html = readFileSync(resolve(root, 'index.html'), 'utf8');
     expect(html).toContain('<script type="module" src="./src/framebust.ts"></script>');
-    expect(html).toContain('href="fonts/fonts.css"');
+    expect(html).toContain('href="fonts/fonts.css" fetchpriority="high" vite-ignore');
     expect(html).not.toContain('href="/fonts/fonts.css"');
     // Any reference to the font that does appear in the shell must be
     // document-relative, because the Capacitor WebView serves from its own root.
