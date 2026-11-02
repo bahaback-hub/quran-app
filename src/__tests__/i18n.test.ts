@@ -217,9 +217,9 @@ describe('setLang', () => {
     expect(getLang()).toBe('en');
   });
 
-  it('should keep RTL direction for English (layout must not flip)', async () => {
+  it('should apply LTR direction for English', async () => {
     await setLang('en');
-    expect(document.documentElement.dir).toBe('rtl');
+    expect(document.documentElement.dir).toBe('ltr');
   });
 
   it('should update document direction to rtl for Arabic', async () => {
@@ -237,9 +237,9 @@ describe('setLang', () => {
     expect(document.body.style.direction).toBe('rtl');
   });
 
-  it('should keep body direction rtl for English (layout must not flip)', async () => {
+  it('should apply body direction ltr for English', async () => {
     await setLang('en');
-    expect(document.body.style.direction).toBe('rtl');
+    expect(document.body.style.direction).toBe('ltr');
   });
 
   it('should save language to storage', async () => {
@@ -271,20 +271,20 @@ describe('setLang', () => {
     document.body.removeChild(el);
   });
 
-  it('should keep RTL direction for Turkish (layout must not flip)', async () => {
+  it('should apply LTR direction for Turkish', async () => {
     await setLang('tr');
-    expect(document.documentElement.dir).toBe('rtl');
-    expect(document.body.style.direction).toBe('rtl');
+    expect(document.documentElement.dir).toBe('ltr');
+    expect(document.body.style.direction).toBe('ltr');
   });
 
-  it('should keep RTL direction for Malay (layout must not flip)', async () => {
+  it('should apply LTR direction for Malay', async () => {
     await setLang('ms');
-    expect(document.documentElement.dir).toBe('rtl');
+    expect(document.documentElement.dir).toBe('ltr');
   });
 
-  it('should keep RTL direction for Indonesian (layout must not flip)', async () => {
+  it('should apply LTR direction for Indonesian', async () => {
     await setLang('id');
-    expect(document.documentElement.dir).toBe('rtl');
+    expect(document.documentElement.dir).toBe('ltr');
   });
 
   it('should save Turkish to storage', async () => {
