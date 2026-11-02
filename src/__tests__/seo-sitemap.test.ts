@@ -130,25 +130,17 @@ describe('sitemap', () => {
     expect(robots).toMatch(/^Allow: \/$/m);
   });
 
-  it('declares the same alternates on the app shell as the sitemap does', () => {
-    // The shell is the one page Google reaches first, so its hreflang has to
-    // agree with the sitemap. Disagreeing sets are treated as conflicting
-    // signals and both get dropped, which is worse than declaring nothing.
+  it('declares the locale-neutral fallback on the app shell', () => {
+    // The shell is a locale-neutral app entry point, not the Arabic or English
+    // surah index. Those localized pages own their reciprocal hreflang sets.
     const head = readFileSync(resolve(ROOT, 'dist', 'index.html'), 'utf8').split('</head>')[0]!;
     const declared = [...head.matchAll(/<link\s+rel="alternate"[^>]*hreflang="([^"]+)"[^>]*>/g)].map((m) => m[1]!);
-    expect(declared.sort()).toEqual(['ar', 'en', 'x-default']);
-
-    // Every href must be a real page that the sitemap also lists, and the ar/en
-    // pair must point at each other.
+    expect(declared).toEqual(['x-default']);
     const listed = new Set(locs());
     const hrefOf = (lang: string) => head.match(new RegExp(`hreflang="${lang}"[^>]*href="([^"]+)"`))![1]!;
-    for (const lang of ['ar', 'en', 'x-default']) {
+    for (const lang of ['x-default']) {
       expect(listed.has(hrefOf(lang)), `${lang} href must be a listed page`).toBe(true);
     }
-    const arEntry = locs().includes(hrefOf('ar'))
-      ? entries().find((c) => c.includes(`<loc>${hrefOf('ar')}</loc>`))!
-      : '';
-    expect(arEntry, 'ar page must declare en back').toContain(hrefOf('en'));
   });
 
   it('uses absolute social image URLs, not base-relative ones', () => {

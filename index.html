@@ -50,14 +50,9 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>المصحف السليماني — القرآن الكريم | تلاوة، تفسير، مواقيت الصلاة</title>
     <link rel="canonical" href="https://bahaback-hub.github.io/quran-app/" />
-    <!-- Reciprocal hreflang. Google ignores hreflang unless every declaration
-         points back at the others, so each side names itself and the other.
-         /en/quran/ is the English equivalent of the Arabic surah index, and it
-         exists (generated, plus present in the sitemap). The app shell is one
-         URL with a locale switcher, so it does not get an English variant of
-         its own and is deliberately not declared here. -->
-    <link rel="alternate" hreflang="ar" href="https://bahaback-hub.github.io/quran-app/quran/" />
-    <link rel="alternate" hreflang="en" href="https://bahaback-hub.github.io/quran-app/en/quran/" />
+    <!-- The app shell is a locale-neutral entry point. The Arabic and English
+         localized SEO pages declare their own reciprocal hreflang sets below;
+         this page is the fallback for languages without a dedicated page. -->
     <link rel="alternate" hreflang="x-default" href="https://bahaback-hub.github.io/quran-app/quran/" />
     <!-- Advertise the sitemap from the pages themselves. robots.txt already
          points at it, but Search Console's "sitemaps discovered" only fills in

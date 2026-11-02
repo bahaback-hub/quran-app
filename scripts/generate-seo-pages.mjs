@@ -159,7 +159,7 @@ const LOCALES = {
       `All ${n} surahs of the Quran, with the number of verses, where each was revealed, and its meaning. Select a surah to read it in full in Uthmani script, or open it in the app to listen with tafsir.`,
     meccanHeading: 'Meccan surahs',
     medinanHeading: 'Medinan surahs',
-    surahTitle: (name) => `Surah ${name} - Al-Mushaf As-Sulaymani`,
+    surahTitle: (name) => `Surah ${name} — Read and Listen | Al-Mushaf As-Sulaymani`,
     surahDescription: (name, ayahs, revelation) =>
       `Surah ${name} of the Quran (${ayahs} verses${revelation ? ', ' + revelation : ''}) — read and listen to the full text in Uthmani script with tafsir in Al-Mushaf As-Sulaymani. Free, and works offline.`,
     h2Facts: 'About this surah',
@@ -373,7 +373,7 @@ function buildSurahPage(surah, slug, surahListEntry, { prev, next }, localeCode)
       '@context': 'https://schema.org',
       '@graph': [
         {
-          '@type': 'Article',
+          '@type': 'WebPage',
           headline: title,
           name: name,
           inLanguage: t.lang,
