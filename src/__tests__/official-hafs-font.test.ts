@@ -33,14 +33,15 @@ describe('official Uthmanic Hafs font', () => {
     expect(kfgBlock).not.toContain('font-display: optional');
   });
 
-  it('loads fonts.css through a base-relative URL so Capacitor can resolve it', () => {
+  it('loads fonts.css through a document-relative URL so web and Capacitor can resolve it', () => {
     const html = readFileSync(resolve(root, 'index.html'), 'utf8');
-    expect(html).toContain('href="%BASE_URL%fonts/fonts.css"');
+    expect(html).toContain('<script type="module" src="./src/framebust.ts"></script>');
+    expect(html).toContain('href="fonts/fonts.css"');
     expect(html).not.toContain('href="/fonts/fonts.css"');
     // Any reference to the font that does appear in the shell must be
-    // base-relative, because the Capacitor WebView serves from its own root.
+    // document-relative, because the Capacitor WebView serves from its own root.
     for (const ref of html.match(/href="[^"]*UthmanicHafs[^"]*"/g) ?? []) {
-      expect(ref).toContain('%BASE_URL%');
+      expect(ref).not.toMatch(/^href="\//);
     }
   });
 
@@ -55,7 +56,7 @@ describe('official Uthmanic Hafs font', () => {
     const html = readFileSync(resolve(root, 'index.html'), 'utf8');
     expect(html).not.toMatch(/<link[^>]+UthmanicHafs[^>]*>/);
     // The body font is used on the first screen, so it stays preloaded.
-    expect(html).toContain('href="%BASE_URL%fonts/amiri-regular-400.woff2"');
+    expect(html).toContain('href="fonts/amiri-regular-400.woff2"');
   });
 
   it('is the only family that needs the TTF, and it is the room', () => {

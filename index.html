@@ -5,7 +5,7 @@
     <!-- SEC-02: GitHub Pages ignores public/_headers and meta CSP ignores
          frame-ancestors, so frame-busting is enforced client-side. Kept tiny
          and non-blocking for the top-level case (immediate return). -->
-    <script src="%BASE_URL%framebust.js"></script>
+    <script type="module" src="./src/framebust.ts"></script>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content"
@@ -75,7 +75,7 @@
     <link rel="apple-touch-icon" href="%BASE_URL%icon-192.png" />
     <!-- Self-hosted fonts (replaces Google Fonts CDN for offline support & privacy) -->
     <!-- LCP: Preload the primary body font to speed up first paint -->
-    <link rel="preload" href="%BASE_URL%fonts/amiri-regular-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/amiri-regular-400.woff2" as="font" type="font/woff2" crossorigin />
     <!-- The Quran-script TTF is deliberately NOT preloaded. 'KFGQPC HAFS Uthmanic
          Script' is referenced only by src/css/hifz-room.css, and the room is
          off-screen and closed on arrival, so no rule that uses it matches at
@@ -89,7 +89,7 @@
          the *active* theme only — see ensureActiveThemeBackgroundPreload() in
          src/settings.ts. A static preload would fetch the night background for
          every visitor even though light is the default theme. -->
-    <link rel="stylesheet" href="%BASE_URL%fonts/fonts.css" fetchpriority="high" />
+    <link rel="stylesheet" href="fonts/fonts.css" fetchpriority="high" />
     <link rel="preconnect" href="https://api.alquran.cloud" />
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
     <link rel="dns-prefetch" href="https://server.mp3quran.net" />

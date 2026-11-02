@@ -35,7 +35,12 @@ function env(key: string, fallback: string): string {
 /** Application configuration constants. */
 export const CONFIG: AppConfig = {
   API_BASE: env('VITE_API_BASE', 'https://api.alquran.cloud/v1'),
-  TAFSIR_API: env('VITE_TAFSIR_API', 'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir'),
+  // Pin the upstream dataset so production builds remain reproducible. Override
+  // with VITE_TAFSIR_API when testing or operating a private mirror.
+  TAFSIR_API: env(
+    'VITE_TAFSIR_API',
+    'https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@eb82bb6294efe30ad5c135c03b1864afaa70e855/tafsir',
+  ),
   PRAYER_API: env('VITE_PRAYER_API', 'https://api.aladhan.com/v1/timingsByCity'),
   AZAN_FILE: `${import.meta.env.BASE_URL}azan.mp3`,
   CSP_REPORT_ENDPOINT: env('VITE_CSP_REPORT_ENDPOINT', ''),

@@ -8,13 +8,10 @@
  * cross-origin (navigation throws) it blanks the document so clickjacking has
  * no visible UI to target.
  */
-(function () {
-  if (window.top === window.self) {
-    return;
-  }
+if (window.top !== window.self) {
   try {
-    window.top.location = window.self.location;
+    window.top!.location.href = window.self.location.href;
   } catch {
     document.documentElement.style.display = 'none';
   }
-})();
+}
