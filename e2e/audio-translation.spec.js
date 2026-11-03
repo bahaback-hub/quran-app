@@ -10,6 +10,9 @@ import { test, expect } from './fixtures/mock-network';
 // audio-deep: loading toast). This E2E covers the end-to-end happy path:
 // toggle translation → reload → playback still works, no error toast.
 test('translation toggle keeps audio playable', async ({ page }) => {
+  // Multi-step flow (play → toggle → reload → settle → play): triple the
+  // default 30s budget, WebKit runners have been observed needing more.
+  test.slow();
   await page.goto('/');
   await page.waitForLoadState('domcontentloaded');
   await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });

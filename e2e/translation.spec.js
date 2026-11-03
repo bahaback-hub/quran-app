@@ -78,6 +78,9 @@ test.describe('الترجمة', () => {
   });
 
   test('تغيير الترجمة يعيد تحميل المحتوى', async ({ page }) => {
+    // Multi-step flow (toggle → settings → tab → select): under load WebKit
+    // needs more than the default 30s per-step budget.
+    test.slow();
     await page.locator('#translationToggle').click();
     await waitForTranslation(page);
     await page.locator('#settingsToggleBtn').click();
