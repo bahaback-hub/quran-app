@@ -16,7 +16,9 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 3 : 0,
+  // Flaky root causes are fixed (belt-and-suspenders remain via on-first-retry
+  // traces): one retry absorbs residual variance on loaded CI runners.
+  retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : 1,
   reporter: [['html'], ['github'], ['list']],
   use: {
