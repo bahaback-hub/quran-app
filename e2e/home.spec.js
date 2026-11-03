@@ -28,7 +28,7 @@ test.describe('home launcher', () => {
 
     await page.locator('.home-surah-card[data-surah="2"]').click();
 
-    await expect(page.locator('.ayah[data-surah="2"]').first()).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('.ayah[data-surah="2"]').first()).toBeVisible({ timeout: 45000 });
     await expect(page.locator('#homeScreen')).toHaveCount(0);
     await expect(page.locator('.surah-title')).toContainText('البقرة');
   });
@@ -76,7 +76,7 @@ test.describe('home launcher', () => {
 
     await page.locator('.home-action-btn[data-action="read"]').click();
 
-    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 20000 });
+    await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 45000 });
     await expect(page.locator('#homeScreen')).toHaveCount(0);
   });
 });

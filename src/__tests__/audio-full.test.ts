@@ -905,6 +905,34 @@ describe('audio — full coverage', () => {
       nextAyah(false);
       expect(mockHighlightCurrentAyah).not.toHaveBeenCalled();
     });
+
+    it('should still advance while the audio list has not loaded yet', () => {
+      // Boot-time audio fetch in flight (ayahsAudios empty): the button must
+      // not be a no-op — the highlight advances against the surah text.
+      mockState.surahData = sampleSurahData;
+      mockState.ayahsAudios = [];
+      mockState.currentAyahIndex = 0;
+
+      nextAyah(false);
+
+      expect(mockState.currentAyahIndex).toBe(1);
+      expect(mockHighlightCurrentAyah).toHaveBeenCalled();
+    });
+
+    it('should not advance past the last text ayah while audio is missing', () => {
+      mockState.surahData = sampleSurahData;
+      mockState.ayahsAudios = [];
+      mockState.currentAyahIndex = sampleSurahData.ayahs.length - 1;
+      mockState.currentSurah = 1;
+
+      const loadSurahFn = vi.fn();
+      setLoadSurah(loadSurahFn);
+
+      nextAyah(false);
+
+      expect(loadSurahFn).not.toHaveBeenCalled();
+      expect(mockState.currentAyahIndex).toBe(sampleSurahData.ayahs.length - 1);
+    });
   });
 
   describe('prevAyah', () => {

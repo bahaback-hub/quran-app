@@ -797,7 +797,20 @@ function onAudioEnded(): void {
  * @param autoFromRepeat Whether this was triggered automatically by repeat mode
  */
 export function nextAyah(autoFromRepeat: boolean): void {
-  if (!state.surahData || !state.ayahsAudios) {
+  if (!state.surahData) {
+    return;
+  }
+  if (!state.ayahsAudios?.length) {
+    // The boot-time audio fetch can still be in flight while the user taps
+    // "next": swallowing the click silently left the label unchanged for
+    // seconds (observed as an E2E flake on loaded CI runners). Advance the
+    // highlight against the surah's text length instead; playback resumes
+    // once the audio list arrives.
+    const total = state.surahData.ayahs.length;
+    if (total > 0 && state.currentAyahIndex < total - 1) {
+      state.currentAyahIndex++;
+      highlightCurrentAyah();
+    }
     return;
   }
   if (state.currentAyahIndex < state.ayahsAudios.length - 1) {

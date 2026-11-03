@@ -123,9 +123,7 @@ function renderSurahGrid(surahs: SurahInfo[]): string {
   return surahs
     .map(
       (s: SurahInfo) => `<li>
-        <button type="button" class="home-surah-card" data-surah="${s.number}" aria-label="${escapeHtml(
-          `${toArabicNumeral(s.number)} ${s.name} ${toArabicNumeral(s.numberOfAyahs)} ${__('home_ayahs')}`,
-        )}">
+        <button type="button" class="home-surah-card" data-surah="${s.number}">
           <span class="home-surah-num" aria-hidden="true">${toArabicNumeral(s.number)}</span>
           <span class="home-surah-name">${escapeHtml(s.name)}</span>
           <span class="home-surah-meta">${toArabicNumeral(s.numberOfAyahs)} ${escapeHtml(__('home_ayahs'))}</span>
