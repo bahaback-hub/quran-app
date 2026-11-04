@@ -71,12 +71,13 @@ describe('no layout shift from the loading reader', () => {
     expect(body.indexOf('min-height: 100vh')).toBeLessThan(body.indexOf('min-height: 100dvh'));
   });
 
-  it('leaves the loaded state at its original height', () => {
-    // The reservation applies only while loading; the steady state must not
-    // change, or the whole page would be a viewport taller than it needs to be.
+  it('keeps the loaded state tall enough to keep the footer below the fold', () => {
+    // The reservation must survive rendering: removing it after the first
+    // surah arrives would pull a visible footer into the viewport.
     const body = ruleBody('.surah-content.is-loading');
     expect(body).toContain('cursor: progress');
-    expect(ruleBody('.surah-content')).toContain('min-height: clamp(380px, 55vh, 680px)');
+    expect(ruleBody('.surah-content')).toContain('min-height: max(100vh, clamp(380px, 55vh, 680px))');
+    expect(ruleBody('.surah-content')).toContain('min-height: max(100dvh, clamp(380px, 55vh, 680px))');
   });
 
   it('keeps the loading class on for the whole render', () => {
