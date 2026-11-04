@@ -67,4 +67,12 @@ describe('capacitor.css is excluded from web builds', () => {
     const scopedBlocks = capacitorCss.match(/body\.capacitor-native/g) ?? [];
     expect(scopedBlocks.length).toBeGreaterThanOrEqual(50);
   });
+
+  it('keeps large data and QCF4 page fonts out of the install-time PWA cache', () => {
+    expect(VITE_CONFIG).toContain('maximumFileSizeToCacheInBytes: 512 * 1024');
+    expect(VITE_CONFIG).toContain("'**/data/**'");
+    expect(VITE_CONFIG).toContain("'**/fonts/qcf4/**'");
+    expect(VITE_CONFIG).toContain('urlPattern: /\\/data\\/.*\\.json$/i');
+    expect(VITE_CONFIG).toContain('urlPattern: /\\/fonts\\/.*\\.(ttf|woff2|css)$/i');
+  });
 });

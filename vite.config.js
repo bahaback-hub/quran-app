@@ -178,18 +178,22 @@ export default defineConfig({
               ],
             },
             workbox: {
-              maximumFileSizeToCacheInBytes: 2 * 1024 * 1024, // 2MB limit per file (was 10MB)
-              // Only precache small essential files — large data files are runtime-cached
+              // Keep installation small. Data, page fonts and media are loaded on
+              // demand and handled by the runtime CacheFirst routes below.
+              // This cap also protects future builds from silently precaching a
+              // newly-added large asset.
+              maximumFileSizeToCacheInBytes: 512 * 1024,
+              // Only precache small essential files — large assets are runtime-cached
+              // when the user opens the corresponding feature.
               globPatterns: ['**/*.{js,css,html,woff2,png,webp}'],
-              // Exclude large data files from precache — they're runtime-cached on demand
               globIgnores: [
-                '**/data/*.json', // Quran text, tafsir, tajweed chunks — loaded on demand
+                '**/data/**', // Quran text, tafsir, translations and tajweed — on demand
                 '**/quran/**', // Pre-rendered SEO pages — duplicated SPA content, not precached
                 '**/screenshots/**', // PWA screenshots — not needed for offline
                 '**/backgrounds/**', // Background images — not essential
                 '**/*.mp3', // Audio files — runtime cached
                 '**/*.ttf', // Fonts — runtime cached via CacheFirst
-                '**/fonts/qcf4/**', // Downloaded together only when the user enables offline Mushaf
+                '**/fonts/qcf4/**', // Page fonts load only in Mushaf mode
               ],
               offlineGoogleAnalytics: false,
               navigateFallback: 'index.html',

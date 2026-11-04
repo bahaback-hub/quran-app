@@ -400,10 +400,12 @@ function createFontPreloadElement(fontName: string): void {
  * Load a QCF4 font using the most reliable method available.
  *
  * Strategy order (most to least reliable):
- * 1. XHR fetch as ArrayBuffer → FontFace from binary data
- *    (Bypasses CapacitorHttp which corrupts binary data)
- * 2. FontFace API with URL (browser handles download)
- * 3. Static @font-face sheet (<link>) with DOM preload element
+ * - Capacitor: XHR/fetch as ArrayBuffer → FontFace from binary data, then
+ *   FontFace URL and the static CSS fallback. Capacitor needs the binary path
+ *   because its WebView can intercept ordinary font requests.
+ * - Browser: FontFace API with URL, then the static @font-face sheet. This
+ *   avoids copying an 800–950KB WOFF2 into JavaScript memory and lets the
+ *   browser manage the request and HTTP cache directly.
  *
  * In Capacitor: We skip pixel-level Canvas verification and trust
  * document.fonts API instead.
@@ -447,46 +449,49 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
   for (let attempt = 1; attempt <= (capMode ? 2 : 3); attempt++) {
     console.warn(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})...`);
 
-    // --- Strategy 1: XHR/Fetch ArrayBuffer → FontFace (most reliable) ---
-    try {
-      console.warn(`[Mushaf] Strategy 1: ArrayBuffer for "${fontName}" from ${fontUrl}`);
-      const buffer = await fetchFontBinary(fontUrl);
-      console.warn(`[Mushaf] Font "${fontName}" downloaded: ${buffer.byteLength} bytes`);
+    // --- Strategy 1: Capacitor-only ArrayBuffer → FontFace ---
+    // Browsers use the URL strategy below to avoid an unnecessary binary copy.
+    if (capMode) {
+      try {
+        console.warn(`[Mushaf] Strategy 1: ArrayBuffer for "${fontName}" from ${fontUrl}`);
+        const buffer = await fetchFontBinary(fontUrl);
+        console.warn(`[Mushaf] Font "${fontName}" downloaded: ${buffer.byteLength} bytes`);
 
-      // Validate: woff2 files should be at least 10KB
-      if (buffer.byteLength < 10000) {
-        console.warn(`[Mushaf] Font "${fontName}" too small (${buffer.byteLength} bytes), likely corrupted`);
-        throw new Error(`Font data too small: ${buffer.byteLength} bytes`);
-      }
+        // Validate: woff2 files should be at least 10KB
+        if (buffer.byteLength < 10000) {
+          console.warn(`[Mushaf] Font "${fontName}" too small (${buffer.byteLength} bytes), likely corrupted`);
+          throw new Error(`Font data too small: ${buffer.byteLength} bytes`);
+        }
 
-      const fontFace = new FontFace(fontName, buffer, { display: 'block' });
-      const loaded = await fontFace.load();
-      document.fonts.add(loaded);
+        const fontFace = new FontFace(fontName, buffer, { display: 'block' });
+        const loaded = await fontFace.load();
+        document.fonts.add(loaded);
 
-      await document.fonts.ready;
-      createFontPreloadElement(fontName);
-      await new Promise<void>((r) => setTimeout(r, waitMs));
+        await document.fonts.ready;
+        createFontPreloadElement(fontName);
+        await new Promise<void>((r) => setTimeout(r, waitMs));
 
-      const verified = verifyFontOnCanvas(fontName);
-      console.warn(`[Mushaf] Strategy 1 verify for "${fontName}": ${verified}`);
-      if (verified) {
-        console.warn(`[Mushaf] Font "${fontName}" loaded successfully via ArrayBuffer`);
-        return true;
-      }
-
-      // In Capacitor: trust document.fonts and proceed even if Canvas verify fails
-      if (capMode) {
-        const fontsCheck = document.fonts.check(`40px "${fontName}"`);
-        if (fontsCheck) {
-          console.warn(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}"`);
+        const verified = verifyFontOnCanvas(fontName);
+        console.warn(`[Mushaf] Strategy 1 verify for "${fontName}": ${verified}`);
+        if (verified) {
+          console.warn(`[Mushaf] Font "${fontName}" loaded successfully via ArrayBuffer`);
           return true;
         }
-        // Even if fonts.check fails, if we added the font, proceed anyway
-        console.warn(`[Mushaf] Capacitor: Proceeding with font "${fontName}" despite verification failure`);
-        return true;
+
+        // In Capacitor: trust document.fonts and proceed even if Canvas verify fails
+        if (capMode) {
+          const fontsCheck = document.fonts.check(`40px "${fontName}"`);
+          if (fontsCheck) {
+            console.warn(`[Mushaf] Capacitor: Trusting document.fonts.check for "${fontName}"`);
+            return true;
+          }
+          // Even if fonts.check fails, if we added the font, proceed anyway
+          console.warn(`[Mushaf] Capacitor: Proceeding with font "${fontName}" despite verification failure`);
+          return true;
+        }
+      } catch (e) {
+        console.warn(`[Mushaf] ArrayBuffer strategy failed for "${fontName}":`, e);
       }
-    } catch (e) {
-      console.warn(`[Mushaf] ArrayBuffer strategy failed for "${fontName}":`, e);
     }
 
     // --- Strategy 2: FontFace with URL (browser handles download) ---
