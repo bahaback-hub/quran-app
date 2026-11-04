@@ -91,7 +91,9 @@ test.describe('Hifz Room — side drawer', () => {
     await expect(page.locator('#hifzRoomStageText')).toHaveText('۞');
     await room.locator('#hifzRoomHideText').click();
     await room.locator('#hifzRoomToggleRange').click();
-    await expect(page.locator('#hifzRoomStageText')).not.toHaveText('۞');
+    await expect(room).toHaveClass(/hifz-room-show-range/);
+    await expect(page.locator('#hifzRoomStageText')).toContainText('﴿1﴾');
+    await expect(page.locator('#hifzRoomStageText')).toContainText('﴿2﴾');
     await room.locator('#hifzRoomEnd').click();
     await expect(room).not.toHaveClass(/hifz-room-focused/);
     await expect(page.locator('#hifzRoomStage')).toHaveAttribute('aria-hidden', 'true');
