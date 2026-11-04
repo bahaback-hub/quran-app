@@ -18,7 +18,7 @@ The Quran App depends on five external APIs for its content:
 | Aladhan | Prayer times, Hijri date |
 | mp3quran.net | Full-surah audio per reciter |
 | quran.com | Per-ayah audio timestamps (word-by-word highlighting) |
-| Tafsir API (jsDelivr) | 6 tafsirs (Muyassar, Ibn Kathir, Tabari, etc.) |
+| Tafsir API (jsDelivr) | 5 tafsir editions (reliable sources; book titles not listed here) |
 
 ### Problems with Naive API Calls
 
