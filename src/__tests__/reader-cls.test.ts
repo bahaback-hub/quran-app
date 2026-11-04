@@ -56,6 +56,13 @@ describe('no layout shift from the loading reader', () => {
     expect(hifzRoom).toContain('toggleSlot.replaceWith(toggle)');
   });
 
+  it('reserves first-paint geometry in index.html', () => {
+    expect(indexHtml).toMatch(/#readerToolbarShell \.reader-command-bar[\s\S]*?min-height:\s*126px/);
+    expect(indexHtml).toMatch(/#readerToolbarShell \.reader-context-card[\s\S]*?min-height:\s*54px/);
+    expect(indexHtml).toMatch(/#readerSideTools \.reader-side-tool-slot[\s\S]*?min-height:\s*72px/);
+    expect(indexHtml).toMatch(/@media \(max-width: 1024px\)[\s\S]*?min-height:\s*66px/);
+  });
+
   it('fills the viewport while loading so the footer starts below the fold', () => {
     const body = ruleBody('.surah-content.is-loading');
     expect(body).toMatch(/min-height:\s*100dvh/);

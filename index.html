@@ -93,6 +93,41 @@
     <link rel="dns-prefetch" href="https://server8.mp3quran.net" />
     <link rel="dns-prefetch" href="https://server9.mp3quran.net" />
     <link rel="stylesheet" href="styles.css" />
+    <!-- Critical geometry: reserve the reader toolbar and side-rail space before
+         JavaScript and web fonts finish loading. These dimensions prevent the
+         first-paint shell from jumping when the full stylesheet is applied. -->
+    <style>
+      #readerToolbarShell .reader-command-bar {
+        box-sizing: border-box;
+        min-height: 126px;
+      }
+
+      #readerToolbarShell .reader-context-card {
+        box-sizing: border-box;
+        min-height: 54px;
+      }
+
+      #readerSideTools {
+        contain: layout;
+      }
+
+      #readerSideTools .reader-side-tool-slot {
+        box-sizing: border-box;
+        width: 84px;
+        min-height: 72px;
+        flex: 0 0 auto;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      @media (max-width: 1024px) {
+        #readerSideTools .reader-side-tool-slot {
+          width: 74px;
+          min-height: 66px;
+          flex-basis: 74px;
+        }
+      }
+    </style>
     <!-- Structured data: WebApplication (rich search results for PWA install prompts) -->
     <script type="application/ld+json">
       {
