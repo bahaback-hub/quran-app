@@ -96,6 +96,12 @@ export default defineConfig({
               name: 'القرآن الكريم',
               short_name: 'القرآن',
               description: 'تطبيق ويب للقرآن الكريم مع الصوت والتفسير والمصحف',
+              // Keep the installed app identity stable across launches and
+              // manifest updates; without id browsers may derive identity from
+              // changing start_url values and create duplicate installations.
+              id: '/quran-app/',
+              start_url: '/quran-app/',
+              scope: '/quran-app/',
               theme_color: '#5c2e2e',
               background_color: '#faf5f2',
               display: 'standalone',

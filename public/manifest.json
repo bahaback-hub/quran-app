@@ -4,6 +4,7 @@
   "description": "تطبيق القرآن الكريم — تلاوة، بحث، تفسير، ومواقيت الصلاة",
   "dir": "rtl",
   "display": "standalone",
+  "id": "/quran-app/",
   "icons": [
     {
       "purpose": "any maskable",
@@ -21,8 +22,8 @@
   "lang": "ar",
   "name": "القرآن الكريم - عائلة السليماني",
   "orientation": "portrait-primary",
-  "scope": "./",
+  "scope": "/quran-app/",
   "short_name": "القرآن الكريم",
-  "start_url": "./",
+  "start_url": "/quran-app/",
   "theme_color": "#5c2e2e"
 }
