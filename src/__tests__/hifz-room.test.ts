@@ -396,14 +396,13 @@ describe('Hifz Room', () => {
     const { hifdhClick, repeatClick } = addPlayerControls();
     initHifzRoom();
     const room = document.getElementById('hifzRoom')!;
+    mockState.surahData = null;
     room.querySelector<HTMLSelectElement>('#hifzRoomFrom')!.value = '2';
     room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.value = '5';
     room.querySelector<HTMLButtonElement>('[data-hifz-repeat="15"]')!.click();
     room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
-    await Promise.resolve();
-    await Promise.resolve();
+    await vi.waitFor(() => expect(hifdhClick).toHaveBeenCalledTimes(1));
     expect(mockLoadSurah).toHaveBeenCalledWith(1, { startAyah: 2 });
-    expect(hifdhClick).toHaveBeenCalledTimes(1);
     expect(repeatClick).toHaveBeenCalledTimes(1);
     expect((document.getElementById('repeatFrom') as HTMLSelectElement).value).toBe('2');
     expect((document.getElementById('repeatTo') as HTMLSelectElement).value).toBe('5');
@@ -411,10 +410,29 @@ describe('Hifz Room', () => {
     expect(room.querySelector('#hifzRoomStatus')!.textContent).toContain('فُعّل الحفظ والتكرار.');
   });
 
+  it('reuses the already loaded surah when the plan matches the current reader', async () => {
+    const { hifdhClick, repeatClick } = addPlayerControls();
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    room.querySelector<HTMLSelectElement>('#hifzRoomFrom')!.value = '2';
+    room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.value = '5';
+    room.querySelector<HTMLButtonElement>('[data-hifz-repeat="15"]')!.click();
+
+    room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
+    await vi.waitFor(() => expect(room.classList.contains('hifz-room-focused')).toBe(true));
+
+    expect(mockLoadSurah).not.toHaveBeenCalled();
+    expect(mockHighlightCurrentAyah).toHaveBeenCalled();
+    expect(mockState.currentAyahIndex).toBe(1);
+    expect(hifdhClick).toHaveBeenCalledTimes(1);
+    expect(repeatClick).toHaveBeenCalledTimes(1);
+  });
+
   it('does not persist player preferences when loading the hifz session fails', async () => {
     addPlayerControls();
     initHifzRoom();
     const room = document.getElementById('hifzRoom')!;
+    mockState.surahData = null;
     room.querySelector<HTMLSelectElement>('#hifzRoomReciter')!.value = 'ar.husary';
     room.querySelector<HTMLSelectElement>('#hifzRoomSpeed')!.value = '1.25';
     mockStorage.set.mockClear();
@@ -499,8 +517,7 @@ describe('Hifz Room', () => {
     room.querySelector<HTMLSelectElement>('#hifzRoomTo')!.value = '3';
     room.querySelector<HTMLButtonElement>('[data-hifz-repeat="3"]')!.click();
     room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
-    await Promise.resolve();
-    await Promise.resolve();
+    await vi.waitFor(() => expect(room.classList.contains('hifz-room-focused')).toBe(true));
     const stage = document.getElementById('hifzRoomStage')!;
     expect(room.classList.contains('hifz-room-focused')).toBe(true);
     expect(stage.getAttribute('aria-hidden')).toBe('false');

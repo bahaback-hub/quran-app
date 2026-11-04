@@ -563,6 +563,27 @@ function activateCurrentHifzTools(plan: HifzPlan): void {
   document.body.classList.remove('player-expanded');
 }
 
+/**
+ * Prepare the reader for a hifz session without refetching data that is
+ * already displayed. This is especially important on WebKit, where waiting
+ * for the full text/audio refresh can make the Start action appear stuck.
+ */
+async function prepareSurahForHifz(plan: HifzPlan): Promise<void> {
+  const currentSurahIsReady =
+    state.currentSurah === plan.surah && state.currentReciter === plan.reciter && state.surahData?.ayahs?.length;
+
+  if (currentSurahIsReady) {
+    const startIndex = state.surahData!.ayahs.findIndex((ayah) => ayah.numberInSurah === plan.from);
+    if (startIndex >= 0) {
+      state.currentAyahIndex = startIndex;
+      highlightCurrentAyah();
+    }
+    return;
+  }
+
+  await loadSurah(plan.surah, { startAyah: plan.from });
+}
+
 async function startHifzSession(room: HTMLElement): Promise<void> {
   const controls = getControls(room);
   const plan = readSessionPlan(room);
@@ -573,7 +594,7 @@ async function startHifzSession(room: HTMLElement): Promise<void> {
   controls.start.disabled = true;
   controls.status.textContent = label('hifz_room_loading');
   try {
-    await loadSurah(plan.surah, { startAyah: plan.from });
+    await prepareSurahForHifz(plan);
     await hydrateDownloadedSessionAudio(plan);
     const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
     if (mainSelect) {

@@ -1064,6 +1064,20 @@ describe('savePersonalAdhkar (via DOM)', () => {
     expect(state.adhkarSettings!.personal_adhkar[0].duration).toBe(1);
   });
 
+  it('should clamp count and duration to their supported bounds', () => {
+    state.adhkarSettings = createTestSettings();
+    wireAdhkarEvents();
+    dom.adhkarAddText!.value = 'Bounded dhikr';
+    dom.adhkarAddCount!.value = '-5';
+    dom.adhkarAddDuration!.value = '999';
+    dom.adhkarAddOverlay!.dataset['editId'] = '';
+
+    dom.adhkarAddSaveBtn!.click();
+
+    expect(state.adhkarSettings!.personal_adhkar[0].count).toBe(1);
+    expect(state.adhkarSettings!.personal_adhkar[0].duration).toBe(60);
+  });
+
   it('should set time to null when time input is empty', () => {
     state.adhkarSettings = createTestSettings();
     wireAdhkarEvents();

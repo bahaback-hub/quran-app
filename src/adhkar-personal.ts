@@ -174,15 +174,23 @@ export function closeAdhkarAddDialog(): void {
   }
 }
 
+function readBoundedInteger(value: string | undefined, fallback: number, min: number, max: number): number {
+  const parsed = Number.parseInt(value ?? '', 10);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+  return Math.max(min, Math.min(max, parsed));
+}
+
 export function savePersonalAdhkar(): void {
   const text = dom.adhkarAddText?.value.trim();
   if (!text) {
     showToast(__('adhkar_enter_text'), 'error');
     return;
   }
-  const count = parseInt(dom.adhkarAddCount?.value ?? '1', 10) || 1;
+  const count = readBoundedInteger(dom.adhkarAddCount?.value, 1, 1, 999);
   const time = dom.adhkarAddTime?.value || null;
-  const duration = parseInt(dom.adhkarAddDuration?.value ?? '1', 10) || 1;
+  const duration = readBoundedInteger(dom.adhkarAddDuration?.value, 1, 1, 60);
   const editId = dom.adhkarAddOverlay?.dataset['editId'] || '';
 
   // Clone settings to trigger Proxy notification (consistent with rest of codebase)
