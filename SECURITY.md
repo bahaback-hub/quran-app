@@ -80,6 +80,18 @@ npm audit fix
 
 The CI pipeline runs `npm audit --audit-level=high` on every PR and fails the build if any high or critical vulnerability is found.
 
+### Known dev-only advisories (accepted, re-checked on upgrades)
+
+`npm audit` currently reports **2 low + 24 moderate advisories — all inside dev-only tooling** (`eslint`'s minimatch 3.x chain, `workbox-build`/`madge`/`typedoc` chains). None affect the shipped application or end users:
+
+| Advisory | Severity | Location | Why it is accepted |
+|----------|----------|----------|--------------------|
+| minimatch globparts amplification ([GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)) | moderate | eslint 9 → minimatch 3.1.5; jake → filelist → minimatch 5.1.9; estree/typedoc/workbox-build → minimatch 10.2.6 | DoS only reachable via glob patterns on **untrusted input**; lint/doc tooling matches repo-controlled patterns. No fixes shipped for the 3.x/5.x/10.x lines; forcing major versions (`overrides`) risks silently breaking lint and build tooling |
+| glob AbortSignal cancellation bypass ([GHSA-3g3m-2fjr-6pw4](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4)) | moderate | workbox-build → glob 11.1.0 | Post-timeout filesystem traversal requires an abort-with-timeout in build tooling on **our own repo**; glob 14.0.3 (used by `@capacitor/cli` → `rimraf`) is patched |
+| deepmerge prototype poisoning ([GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4)) | low | workbox-build → deepmerge 4.3.1 | Prototype pollution reachable only with untrusted merge input at **build time**; upstream has no fixed release |
+
+Re-check this table every time `eslint`, `vite-plugin-pwa` (workbox), `madge`, `typedoc`, or `@capacitor/cli` receive major upgrades; drop the table once the feeds show clean. The production dependency set (`npm audit --omit=dev`) is clean.
+
 ## Threat Model
 
 ### Trusted
