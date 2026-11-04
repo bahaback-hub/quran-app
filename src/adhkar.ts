@@ -1,6 +1,11 @@
 import { state } from './state.js';
 import { getDefaultAdhkarSettings, cloneAdhkarSettings, saveAdhkarSettings } from './adhkar-store.js';
-import { renderPersonalAdhkar, confirmAdhkarDialog, closeAdhkarAddDialog, savePersonalAdhkar } from './adhkar-personal.js';
+import {
+  renderPersonalAdhkar,
+  confirmAdhkarDialog,
+  closeAdhkarAddDialog,
+  savePersonalAdhkar,
+} from './adhkar-personal.js';
 import { dom } from './dom.js';
 import { requireDom } from './dom-require.js';
 import { storage } from './storage.js';
@@ -39,7 +44,6 @@ export function initAdhkarState(): void {
   }
 }
 
-
 /* ===================== LOAD / SAVE ===================== */
 
 /** Load adhkar settings from storage or set defaults; reset daily counters. */
@@ -75,7 +79,6 @@ export function loadAdhkarSettings(): void {
     saveAdhkarSettings();
   }
 }
-
 
 /* ===================== PANEL ===================== */
 
