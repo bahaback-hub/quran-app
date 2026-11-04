@@ -20,6 +20,11 @@ import { resolve } from 'node:path';
 
 const ROOT = process.cwd();
 const surahCss = readFileSync(resolve(ROOT, 'src', 'css', 'surah.css'), 'utf8');
+const stylesCss = readFileSync(resolve(ROOT, 'styles.css'), 'utf8');
+const readerControlsCss = readFileSync(resolve(ROOT, 'src', 'css', 'reader-controls.css'), 'utf8');
+const mushafCss = readFileSync(resolve(ROOT, 'src', 'features', 'mushaf', 'mushaf.css'), 'utf8');
+const indexHtml = readFileSync(resolve(ROOT, 'index.html'), 'utf8');
+const hifzRoom = readFileSync(resolve(ROOT, 'src', 'hifz-room.ts'), 'utf8');
 const loader = readFileSync(resolve(ROOT, 'src', 'surah-loader.ts'), 'utf8');
 
 function ruleBody(selector: string): string {
@@ -38,6 +43,19 @@ function ruleBody(selector: string): string {
 }
 
 describe('no layout shift from the loading reader', () => {
+  it('loads visible reader controls in the critical stylesheet', () => {
+    expect(stylesCss).toContain("@import './src/css/reader-controls.css';");
+    expect(readerControlsCss).toContain('.view-mode-btn');
+    expect(readerControlsCss).toContain('.surah-reciter-group');
+    expect(mushafCss).not.toContain('.view-mode-btn {');
+    expect(mushafCss).not.toContain('.surah-reciter-group {');
+  });
+
+  it('reserves the side-rail slot before the Hifz Room initializes', () => {
+    expect(indexHtml).toContain('id="hifzRoomToggleSlot"');
+    expect(hifzRoom).toContain('toggleSlot.replaceWith(toggle)');
+  });
+
   it('fills the viewport while loading so the footer starts below the fold', () => {
     const body = ruleBody('.surah-content.is-loading');
     expect(body).toMatch(/min-height:\s*100dvh/);

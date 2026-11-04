@@ -535,6 +535,14 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
+.reader-side-tool-slot {
+  box-sizing: border-box;
+  width: 84px;
+  min-height: 72px;
+  flex: 0 0 auto;
+  visibility: hidden;
+  pointer-events: none;
+}
 .reader-side-tool:hover,
 .reader-side-tool:focus-visible {
   background: var(--accent);
@@ -624,6 +632,11 @@ body.tafsir-curtain-active .reader-side-tools {
     width: 74px;
     min-height: 66px;
     border-radius: 13px;
+  }
+  .reader-side-tool-slot {
+    flex: 0 0 74px;
+    width: 74px;
+    min-height: 66px;
   }
   .reader-side-prayer .prayer-bar-toggle { min-height: 66px; }
   .reader-side-prayer .prayer-bar-details {

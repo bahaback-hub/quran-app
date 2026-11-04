@@ -17,7 +17,7 @@ let serverErr = '';
 const server = spawn(
   process.execPath,
   [VITE_BIN, 'preview', '--port', String(PORT), '--strictPort', '--host', '127.0.0.1'],
-  { stdio: ['ignore', 'ignore', 'pipe'] }
+  { stdio: ['ignore', 'ignore', 'pipe'] },
 );
 server.stderr.on('data', (d) => {
   serverErr += d.toString();
@@ -53,9 +53,29 @@ await page.addInitScript(() => {
     for (const entry of list.getEntries()) {
       if (!entry.hadRecentInput) {
         value += entry.value;
+        window.__clsEntries = (window.__clsEntries || []).concat([
+          {
+            value: entry.value,
+            sources: entry.sources.map((s) => ({
+              name: s.node?.className || s.node?.id || 'unknown',
+              previous: {
+                top: s.previousRect.top,
+                left: s.previousRect.left,
+                width: s.previousRect.width,
+                height: s.previousRect.height,
+              },
+              current: {
+                top: s.currentRect.top,
+                left: s.currentRect.left,
+                width: s.currentRect.width,
+                height: s.currentRect.height,
+              },
+            })),
+          },
+        ]);
         if (entry.sources.length) {
           window.__clsElements = (window.__clsElements || []).concat(
-            entry.sources.map((s) => s.node?.className || s.node?.id || 'unknown')
+            entry.sources.map((s) => s.node?.className || s.node?.id || 'unknown'),
           );
         }
       }
@@ -70,10 +90,16 @@ await page.waitForTimeout(4000);
 
 const cls = (await page.evaluate(() => window.__clsLast)) || 0;
 const elements = (await page.evaluate(() => window.__clsElements)) || [];
+const entries = (await page.evaluate(() => window.__clsEntries)) || [];
 
 console.log(`CLS measured: ${cls.toFixed(4)} (threshold ${THRESHOLD})`);
 if (elements.length) {
   console.log(`Shifting elements: ${[...new Set(elements)].join(', ')}`);
+}
+for (const entry of entries.sort((a, b) => b.value - a.value).slice(0, 5)) {
+  console.log(
+    `  shift ${entry.value.toFixed(4)}: ${entry.sources.map((source) => `${source.name} ${source.previous.top}->${source.current.top} (${source.previous.height}->${source.current.height})`).join(', ') || 'unknown'}`,
+  );
 }
 
 await browser.close();

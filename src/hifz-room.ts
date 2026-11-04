@@ -744,7 +744,12 @@ export function initHifzRoom(): void {
     '<span data-hifz-toggle-label></span>';
   document.body.append(backdrop, stage, room);
   const sideTools = document.getElementById('readerSideTools');
-  (sideTools || document.body).append(toggle);
+  const toggleSlot = document.getElementById('hifzRoomToggleSlot');
+  if (toggleSlot) {
+    toggleSlot.replaceWith(toggle);
+  } else {
+    (sideTools || document.body).append(toggle);
+  }
   renderRoomText(room);
   const toggleLabel = toggle.querySelector<HTMLElement>('[data-hifz-toggle-label]');
   if (toggleLabel) {

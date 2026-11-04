@@ -3,6 +3,7 @@
 @import './src/css/base.css';
 @import './src/css/layout.css';
 @import './src/css/surah.css';
+@import './src/css/reader-controls.css';
 @import './src/css/player.css';
 @import './src/css/panels.css';
 /* Feature sheets — mushaf.css, presentation.css and the room-drawer half of
