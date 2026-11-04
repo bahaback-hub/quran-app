@@ -1238,13 +1238,20 @@ textarea,
   .tafsir-curtain {
     padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
-  /* عند فتح أي لوحة: أخفِ المشغل لتحرير المساحة */
+  /* عند فتح أي لوحة: أخفِ المشغل بصريًا مع إبقاء صندوقه ثابتًا.
+     display:none كان يسبب CLS ملحوظًا في Lighthouse عندما تُفتح لوحة
+     الإعدادات؛ visibility يحافظ على مساحة/هندسة العنصر ويمنع قفزة القارئ. */
   body.panel-open .player {
-    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
   /* لكن أبقِ المشغل مرئياً إذا فُتحت ستارة التفسير فقط (لأن المستخدم قد يستمع أثناء القراءة) */
   body.tafsir-only-open .player {
     display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
   /* بانر التحديث: على الجوال يوجد المشغل (44px) في الأسفل.
      نرفع البانر ليكون فوقه بفاصل 12px. */
