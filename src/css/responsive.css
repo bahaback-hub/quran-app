@@ -129,8 +129,7 @@
     width: 100%;
     margin-top: 6px;
   }
-  .header-action-btn,
-  .header-menu-btn {
+  .header-action-btn {
     width: 100%;
     height: 44px;
     min-height: 44px;
@@ -149,26 +148,6 @@
     align-items: stretch;
     width: 100%;
     gap: 4px;
-  }
-  .header-utility-row {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .header-prayer-tile {
-    width: 100%;
-  }
-  .header-prayer-tile .prayer-bar-toggle {
-    min-height: 44px;
-    height: 44px;
-    padding: 4px 8px;
-  }
-  .header-prayer-tile .prayer-bar-summary strong {
-    max-width: none;
-    font-size: 10px;
-  }
-  .header-prayer-tile .prayer-bar-summary-time {
-    font-size: 10px;
   }
   /* Theme & search buttons */
   .theme-btn {
@@ -260,10 +239,6 @@
     height: 32px;
     min-width: 32px;
     min-height: 32px;
-  }
-  .reader-command-search .search-toggle-btn {
-    flex-basis: 32px;
-    width: 32px;
   }
   .reader-toolbar-shell.is-pinned {
     max-height: 60dvh;
@@ -371,9 +346,6 @@
     padding: 3px 6px;
     font-size: 10px;
   }
-  .prayer-bar-actions {
-    gap: 4px;
-  }
   /* Toast */
   .toast {
     bottom: 85px;
@@ -459,14 +431,7 @@
     min-height: 32px;
   }
   /* Mode toggle */
-  .mode-btn.mode-toggle {
-    padding: 3px 6px;
-    font-size: 9px;
-  }
   /* Keyboard hint */
-  .keyboard-hint {
-    display: none;
-  }
   /* Audio element */
   audio {
     max-width: 100%;
@@ -511,33 +476,13 @@
    Token values scale up on touch devices — see variables.css. */
 @media (hover: none) and (pointer: coarse), (max-width: 768px) {
   .control-group button,
-  .btn-sm,
-  .settings-close,
-  .favorites-close,
-  .adhkar-close-btn,
-  .mushaf-surah-overlay-close,
-  .surah-secrets-close-btn,
-  .collapse-bar-btn,
-  .expand-bar-btn,
-  .mode-toggle-control,
-  .header-action-btn,
-  .header-menu-btn,
-  .search-btn,
-  .clear-search-btn,
-  .voice-search-btn,
-  .prev-ayah-btn,
-  .next-ayah-btn,
-  .prev-surah-btn,
-  .next-surah-btn,
-  .hifdh-btn,
-  .repeat-btn,
-  .bookmark-btn,
-  .favorite-btn,
-  .share-btn,
-  .play-pause-btn,
-  .collapsed-play-btn,
-  .collapse-bar-btn,
-  .expand-bar-btn {
+.btn-sm,
+.settings-close,
+.favorites-close,
+.header-action-btn,
+.search-btn,
+.voice-search-btn,
+.share-btn {
     width: var(--touch-target-min);
     height: var(--touch-target-min);
     padding: 10px;
@@ -558,21 +503,9 @@
   button {
     font-size: var(--font-size-touch);
   }
-  .surah-select,
-  .reciter-select,
   .translation-select,
-  .tafsir-select,
-  .speed-select,
-  .font-size-select,
-  .method-select,
-  .city-quick-select,
-  .lang-select {
+.speed-select {
     min-height: var(--select-min-height);
-    padding: 8px 12px;
-  }
-  .mushaf-ayah-btn {
-    min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
     padding: 8px 12px;
   }
   .mushaf-page-nav-btn {
@@ -606,9 +539,6 @@
     font-size: 20px !important;
     line-height: 1.8 !important;
   }
-  .player-controls {
-    gap: 6px;
-  }
 }
 
 /* تحسين التمرير للشاشات التي تعمل باللمس */
@@ -624,16 +554,15 @@
   }
   /* Only apply touch-action: manipulation to interactive elements, not content area */
   button,
-  .btn,
-  a,
-  select,
-  input,
-  textarea,
-  .toggle-switch,
-  .header-action-btn,
-  .header-menu-btn,
-  .player-buttons .btn,
-  .search-autocomplete-item {
+.btn,
+a,
+select,
+input,
+textarea,
+.toggle-switch,
+.header-action-btn,
+.player-buttons .btn,
+.search-autocomplete-item {
     touch-action: manipulation;
   }
   /* Allow pinch-to-zoom in ayah content area for accessibility */
@@ -740,8 +669,7 @@
   .header-menu-container {
     gap: 4px;
   }
-  .header-action-btn,
-  .header-menu-btn {
+  .header-action-btn {
     width: 36px;
     height: 36px;
     font-size: 18px;
@@ -766,9 +694,6 @@
   }
   .prayer-bar-items {
     gap: 6px;
-  }
-  .prayer-bar-inner {
-    padding: 8px 12px;
   }
   .player:not(.collapsed) {
     padding: 8px 12px;
@@ -855,8 +780,7 @@
     width: auto;
     flex: 0 0 auto;
   }
-  .header-action-btn,
-  .header-menu-btn {
+  .header-action-btn {
     width: 32px;
     height: 32px;
     min-width: 32px;
@@ -872,25 +796,6 @@
     padding: 0;
     flex: 0 0 auto;
     order: 2;
-  }
-  .theme-visible-grid .theme-dropdown-menu {
-    display: flex;
-    flex-direction: row;
-    width: auto;
-    min-width: 0;
-    gap: 3px;
-  }
-  .theme-visible-grid .theme-btn {
-    width: 30px;
-    height: 30px;
-    min-height: 30px;
-    min-width: 30px;
-    flex: 0 0 30px;
-    border-radius: 7px;
-    font-size: 15px;
-  }
-  .theme-visible-grid .theme-btn .theme-label {
-    display: none;
   }
   .theme-menu-trigger,
   .header-search-trigger {
@@ -973,10 +878,6 @@
     padding-inline: 7px;
     font-size: 13px;
   }
-  .reader-command-search .search-toggle-btn {
-    flex-basis: 34px;
-    width: 34px;
-  }
   .reader-command-display .view-mode-group {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1003,8 +904,7 @@
     display: flex;
     align-items: center;
   }
-  .reader-command-search .header-search-trigger,
-  .reader-command-search .search-toggle-btn {
+  .reader-command-search .header-search-trigger {
     flex: 0 0 auto;
   }
   #headerSearch.reader-command-search .header-search-input {
@@ -1281,8 +1181,7 @@
     font-size: 10px;
   }
   /* تبقى الإجراءات الخمس مرئية في صف واحد حتى الشاشات الصغيرة جداً. */
-  .header-action-btn,
-  .header-menu-btn {
+  .header-action-btn {
     width: 44px;
     height: 44px;
     min-width: 44px;
@@ -1371,9 +1270,8 @@
   .header { padding: 6px 10px; padding-top: 38px; }
   .header h1 { font-size: 16px; }
   .header p { display: none; }
-  .header-action-btn, .header-menu-btn { width: 32px; height: 32px; font-size: 14px; }
+  .header-action-btn { width: 32px; height: 32px; font-size: 14px; }
   .prayer-bar.collapsed { height: 28px; }
-  .collapsed-preview { height: 28px; font-size: 11px; }
   .player.collapsed { height: 36px; bottom: 0; }
   .player:not(.collapsed) { padding: 4px 8px; padding-bottom: 44px; }
   #surahContent { padding-left: 80px !important; }
@@ -1460,7 +1358,9 @@
     --surface-alt: #f0f0f0;
     --border: #000000;
   }
-  .btn, .control-group button, .header-action-btn, .header-menu-btn {
+  .btn,
+.control-group button,
+.header-action-btn {
     border: 2px solid currentColor !important;
   }
   .ayah.current { outline: 3px solid currentColor !important; outline-offset: 2px; }
@@ -1474,22 +1374,21 @@
     color: #000;
   }
   .player,
-  .controls,
-  .settings-panel,
-  .favorites-panel,
-  .tafsir-curtain,
-  .tafsir-curtain-handle,
-  .header-action-btn,
-  .header-menu-btn,
-  .header-menu-container,
-  .network-banner,
-  .toast,
-  .azan-notification,
-  .adhkar-notification,
-  .prayer-bar,
-  .reading-progress,
-  .footer,
-  .skip-link {
+.controls,
+.settings-panel,
+.favorites-panel,
+.tafsir-curtain,
+.tafsir-curtain-handle,
+.header-action-btn,
+.header-menu-container,
+.network-banner,
+.toast,
+.azan-notification,
+.adhkar-notification,
+.prayer-bar,
+.reading-progress,
+.footer,
+.skip-link {
     display: none !important;
   }
   .container {

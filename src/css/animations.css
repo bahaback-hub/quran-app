@@ -143,12 +143,6 @@ body.night-mode .container {
 .prayer-bar.collapsed .expanded-content {
   display: none;
 }
-.prayer-bar.collapsed .collapsed-preview {
-  display: flex;
-}
-.prayer-bar .collapsed-preview {
-  display: none;
-}
 
 .btn {
   transition: all 0.2s ease;
@@ -164,17 +158,12 @@ body.night-mode .container {
 /* ========== تأثير Ripple للأزرار ========== */
 .btn,
 .header-action-btn,
-.header-menu-btn,
-.collapse-bar-btn,
-.floating-play-btn,
-.settings-toggle-btn {
+.floating-play-btn {
   position: relative;
   overflow: hidden;
 }
 .btn::after,
 .header-action-btn::after,
-.header-menu-btn::after,
-.collapse-bar-btn::after,
 .floating-play-btn::after {
   content: '';
   position: absolute;
@@ -193,8 +182,7 @@ body.night-mode .container {
   pointer-events: none;
 }
 .btn:active::after,
-.header-action-btn:active::after,
-.header-menu-btn:active::after {
+.header-action-btn:active::after {
   width: 300px;
   height: 300px;
   opacity: 0;
@@ -214,28 +202,6 @@ body.night-mode .container {
   100% {
     background-position: -200% 0;
   }
-}
-.skeleton-text {
-  height: 16px;
-  margin-bottom: 8px;
-  border-radius: 4px;
-}
-.skeleton-text:last-child {
-  width: 70%;
-}
-.skeleton-title {
-  height: 24px;
-  width: 50%;
-  margin: 0 auto 16px;
-  border-radius: 6px;
-}
-.skeleton-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: inline-block;
-  vertical-align: middle;
-  margin: 0 6px;
 }
 
 /* ========== أنيميشن ظهور الآيات ========== */
@@ -267,11 +233,9 @@ body.night-mode .container {
 /* ========== Glass Morphism ========== */
 @supports (backdrop-filter: blur(12px)) {
   .settings-panel,
-  .favorites-panel,
-  .tafsir-curtain,
-  .adhkar-panel,
-  .header-dropdown,
-  .share-menu {
+.favorites-panel,
+.tafsir-curtain,
+.adhkar-panel {
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
   }
@@ -292,17 +256,5 @@ body.night-mode .container {
   }
   body.night-mode .tafsir-curtain {
     background: rgba(30, 35, 48, 0.85);
-  }
-  .header-dropdown {
-    background: rgba(255, 255, 255, 0.9);
-  }
-  body.night-mode .header-dropdown {
-    background: rgba(30, 35, 48, 0.9);
-  }
-  .share-menu {
-    background: rgba(255, 255, 255, 0.9);
-  }
-  body.night-mode .share-menu {
-    background: rgba(42, 48, 64, 0.9);
   }
 }

@@ -189,18 +189,6 @@ body.sepia-mode .search-result-item:hover {
 }
 
 /* ========== القائمة المنسدلة ========== */
-body.sepia-mode .header-dropdown {
-  background: rgba(242, 232, 212, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 4px 20px rgba(80, 60, 30, 0.1);
-}
-
-body.sepia-mode .share-menu {
-  background: rgba(242, 232, 212, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
 
 /* ========== الإكمال التلقائي ========== */
 body.sepia-mode .search-autocomplete {
@@ -242,10 +230,6 @@ body.sepia-mode .settings-row input {
   background: rgba(248, 240, 224, 0.8);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-}
-
-body.sepia-mode .font-size-select {
-  background: rgba(248, 240, 224, 0.8);
 }
 
 body.sepia-mode .search-input-wrapper {
@@ -372,11 +356,9 @@ body.sepia-mode .adhkar-close:hover {
 /* ========== دعم المتصفحات بدون backdrop-filter ========== */
 @supports ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
   body.sepia-mode .settings-panel,
-  body.sepia-mode .favorites-panel,
-  body.sepia-mode .tafsir-curtain,
-  body.sepia-mode .adhkar-panel,
-  body.sepia-mode .header-dropdown,
-  body.sepia-mode .share-menu {
+body.sepia-mode .favorites-panel,
+body.sepia-mode .tafsir-curtain,
+body.sepia-mode .adhkar-panel {
     -webkit-backdrop-filter: blur(18px) saturate(180%);
     backdrop-filter: blur(18px) saturate(180%);
   }

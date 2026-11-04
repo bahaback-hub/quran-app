@@ -35,10 +35,6 @@
   background: rgba(255, 255, 255, 0.22);
   border-color: rgba(255, 255, 255, 0.62);
 }
-.prayer-bar-clock {
-  flex: 0 0 auto;
-  color: var(--accent);
-}
 .prayer-bar-summary {
   display: inline-flex;
   align-items: baseline;
@@ -48,9 +44,6 @@
   flex: 1;
   font-size: 13px;
   white-space: nowrap;
-}
-.prayer-bar-summary-label {
-  opacity: 0.86;
 }
 .prayer-bar-summary strong {
   font-weight: 800;
@@ -227,10 +220,6 @@
   .header .header-primary-actions {
     flex: 0 0 auto;
   }
-  .header .header-utility-row {
-    flex: 0 0 38px;
-    width: 38px;
-  }
 }
 .breadcrumbs {
   display: flex;
@@ -239,20 +228,6 @@
   font-size: 14px;
   opacity: 0.85;
   direction: rtl;
-}
-.breadcrumb-item {
-  cursor: pointer;
-  padding: 2px 8px;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-.breadcrumb-item:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-.breadcrumb-sep {
-  font-size: 18px;
-  color: var(--accent);
-  opacity: 0.7;
 }
 .breadcrumb-surah {
   font-weight: bold;
@@ -290,10 +265,6 @@
 #langSwitcher {
   order: 1;
 }
-.reader-surface-control {
-  order: 2;
-  position: relative;
-}
 #favoritesOpenBtn {
   order: 3;
 }
@@ -303,141 +274,8 @@
 #adhkarBtn {
   order: 5;
 }
-.reader-surface-popover {
-  position: absolute;
-  top: calc(100% + 9px);
-  left: 0;
-  z-index: 60;
-  width: min(290px, calc(100vw - 28px));
-  padding: 12px;
-  border: 1px solid color-mix(in srgb, var(--accent) 58%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--container-bg) 96%, transparent);
-  box-shadow: 0 12px 30px rgba(50, 35, 20, 0.2);
-  color: var(--text-primary);
-  direction: rtl;
-}
-.reader-surface-popover.hidden { display: none; }
-.reader-surface-popover-head,
-.reader-surface-range-row {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-.reader-surface-range-row { direction: ltr; }
-.reader-surface-popover-head {
-  justify-content: space-between;
-  font-size: 13px;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-.reader-surface-popover output {
-  direction: ltr;
-  color: var(--accent-dark);
-  font-variant-numeric: tabular-nums;
-}
-.reader-surface-range-row input {
-  flex: 1;
-  min-width: 86px;
-  accent-color: var(--accent);
-}
-.reader-surface-range-end {
-  max-width: 66px;
-  color: var(--text-muted);
-  font-size: 10px;
-  line-height: 1.25;
-  text-align: center;
-  direction: rtl;
-}
-@media (max-width: 600px) {
-  .reader-surface-popover {
-    position: fixed;
-    top: max(76px, calc(env(safe-area-inset-top, 0px) + 10px));
-    left: auto;
-    right: 8px;
-    width: min(290px, calc(100vw - 16px));
-  }
-}
 
 /* ========== أدوات الرأس المصغرة: المظهر والبحث ========== */
-.header-utility-row {
-  display: grid;
-  grid-template-columns: 38px;
-  grid-template-areas:
-    'theme'
-    'search';
-  align-self: flex-start;
-  align-items: center;
-  gap: 7px;
-  width: 38px;
-  max-width: 38px;
-  direction: ltr;
-}
-.header-prayer-tile {
-  order: 5;
-  position: relative;
-  flex: 0 0 68px;
-  width: 68px;
-  margin: 0;
-  transform: none !important;
-  border-bottom: 0 !important;
-  text-align: center;
-}
-.header-prayer-tile .prayer-bar-toggle {
-  width: 100%;
-  min-height: 64px;
-  height: 64px;
-  padding: 6px 4px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--header-text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font: inherit;
-  backdrop-filter: blur(4px);
-}
-.header-prayer-tile .prayer-bar-summary {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  min-width: 0;
-  line-height: 1.1;
-}
-.header-prayer-tile .prayer-bar-summary-label,
-.header-prayer-tile .prayer-bar-chevron {
-  display: none;
-}
-.header-prayer-tile .prayer-bar-summary strong {
-  max-width: 58px;
-  overflow: hidden;
-  color: inherit;
-  font-size: 10px;
-  font-weight: 800;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.header-prayer-tile .prayer-bar-summary-time {
-  direction: ltr;
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-.header-prayer-tile .prayer-bar-details {
-  position: fixed;
-  top: max(76px, calc(env(safe-area-inset-top, 0px) + 12px));
-  right: clamp(8px, 2vw, 24px);
-  width: min(340px, calc(100vw - 16px));
-  max-height: calc(100vh - 92px);
-  overflow-y: auto;
-  z-index: 35;
-}
 /* تنظيم هادئ: البحث يتبع قفل القراءة، والأوضاع الأربعة ظاهرة بعد «وضوح». */
 .theme-menu {
   order: unset;
@@ -623,8 +461,7 @@
   color: var(--accent-dark);
   background: rgba(217, 119, 6, 0.1);
 }
-.header-action-btn,
-.header-menu-btn {
+.header-action-btn {
   background: rgba(255, 255, 255, 0.15);
   border: 2px solid var(--accent);
   color: var(--header-text);
@@ -647,9 +484,7 @@
    sets e.target to the SVG instead of the button, which breaks
    click handlers that check e.target === button. */
 .header-action-btn svg,
-.header-menu-btn svg,
-.header-action-btn .icon,
-.header-menu-btn .icon {
+.header-action-btn .icon {
   pointer-events: none;
 }
 .header-action-label {
@@ -797,41 +632,6 @@ body.tafsir-curtain-active .reader-side-tools {
   }
   body.tafsir-curtain-active .reader-side-tools { left: auto; }
 }
-.header-menu-btn:hover {
-  background: var(--accent);
-  transform: rotate(90deg) scale(1.1);
-}
-.header-dropdown {
-  position: absolute;
-  top: 52px;
-  left: 0;
-  background: var(--card-bg);
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  min-width: 170px;
-  z-index: 100;
-  overflow: hidden;
-}
-.header-dropdown button {
-  display: block;
-  width: 100%;
-  padding: 10px 14px;
-  border: none;
-  background: none;
-  color: var(--text-primary);
-  font-size: 14px;
-  text-align: right;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.15s;
-}
-.header-dropdown button:hover {
-  background: rgba(217, 119, 6, 0.1);
-}
-.header-dropdown button:not(:last-child) {
-  border-bottom: 1px solid var(--border-soft);
-}
 
 /* ========== أدوات التحكم ========== */
 .controls {
@@ -906,18 +706,6 @@ body.night-mode .control-group label {
   align-items: flex-end;
   width: 100%;
 }
-.controls-right {
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
-.controls-left {
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
 .controls-row .control-group {
   min-width: 180px;
   max-width: 220px;
@@ -932,27 +720,6 @@ body.night-mode .control-group label {
 .controls-row .control-group label {
   font-size: 12px;
   white-space: nowrap;
-}
-.search-toggle-btn {
-  background: none;
-  border: 1.5px solid var(--border-soft);
-  border-radius: 6px;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-size: 16px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  color: var(--text-secondary);
-  transition: all 0.2s;
-}
-.search-toggle-btn:hover {
-  background: rgba(217, 119, 6, 0.1);
-  color: var(--accent-dark);
-}
-.search-toggle-btn.active {
-  background: var(--accent);
-  color: #2c3e50;
 }
 
 .controls-row .search-input-group {
@@ -1030,25 +797,6 @@ body.night-mode .control-group label {
 .reader-command-search .search-input-wrapper input {
   height: 36px;
   font-size: 14px;
-}
-.reader-command-search .search-toggle-btn {
-  flex: 0 0 36px;
-  width: 36px;
-  height: 36px;
-  min-height: 36px;
-  border: 0;
-  border-inline-start: 1px solid var(--border-soft);
-  border-radius: 0;
-  padding: 0;
-  justify-content: center;
-  color: var(--text-secondary);
-}
-.reader-command-search .search-toggle-btn.active {
-  background: transparent;
-  color: var(--accent-dark);
-}
-.reader-command-divider {
-  display: none;
 }
 .reader-command-display {
   grid-area: display;
@@ -1134,20 +882,6 @@ body.night-mode .control-group label {
 }
 
 /* ========== قائمة منسدلة حجم الخط ========== */
-.font-size-select {
-  background: var(--font-size-select-bg);
-  border: 2px solid var(--accent);
-  border-radius: 8px;
-  padding: 6px 6px;
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--text-secondary);
-  min-width: 60px;
-  width: 64px;
-  height: 34px;
-  align-self: flex-end;
-}
 
 /* ========== التذييل ========== */
 .footer {
@@ -1214,20 +948,15 @@ body:not(.night-mode) .controls {
 body:not(.night-mode) .prayer-bar {
   border-bottom: 2px solid var(--accent);
 }
-body:not(.night-mode) .header-prayer-tile {
-  border-bottom: 0;
-}
 
-body:not(.night-mode) .header-action-btn,
-body:not(.night-mode) .header-menu-btn {
+body:not(.night-mode) .header-action-btn {
   border: 2px solid rgba(255, 255, 255, 0.35);
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(4px);
   transition: all 0.3s ease;
 }
 
-body:not(.night-mode) .header-action-btn:hover,
-body:not(.night-mode) .header-menu-btn:hover {
+body:not(.night-mode) .header-action-btn:hover {
   background: var(--accent);
   border-color: var(--accent);
 }

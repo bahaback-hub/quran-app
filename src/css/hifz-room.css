@@ -196,22 +196,6 @@ body.hifz-room-active .hifz-room-toggle {
   background: linear-gradient(145deg, rgb(255 255 255 / 76%), rgb(232 225 209 / 74%));
 }
 
-.hifz-room-card-title {
-  margin: 0.75rem 0 0.42rem;
-  color: var(--hifz-curtain-accent-strong);
-  font-family: 'KFGQPC HAFS Uthmanic Script', 'Traditional Arabic', serif;
-  font-size: 1.55rem;
-  line-height: 1.55;
-}
-
-.hifz-room-card-meta,
-.hifz-room-footnote {
-  margin: 0;
-  color: var(--hifz-curtain-muted);
-  font-size: 0.84rem;
-  line-height: 1.65;
-}
-
 .hifz-room-start {
   width: 100%;
   margin-top: 1.25rem;
@@ -261,12 +245,6 @@ body.hifz-room-active .hifz-room-toggle {
   color: var(--hifz-curtain-muted);
   font-size: 0.88rem;
   line-height: 1.55;
-}
-
-.hifz-room-footnote {
-  margin-top: auto;
-  padding-top: 1.2rem;
-  border-top: 1px solid rgb(31 91 73 / 12%);
 }
 
 /* One clear session: these controls remain isolated inside the web-only drawer. */
@@ -875,8 +853,6 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-download-status,
 .hifz-room-return,
 .hifz-room-review strong,
-.hifz-room-card-meta,
-.hifz-room-footnote,
 .hifz-room-choice-row button,
 .hifz-room-repeat-options button {
   color: rgb(247 243 232 / 78%);

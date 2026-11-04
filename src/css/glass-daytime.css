@@ -195,18 +195,6 @@ body:not(.night-mode):not(.sepia-mode) .search-result-item:hover {
 }
 
 /* ========== القائمة المنسدلة ========== */
-body:not(.night-mode):not(.sepia-mode) .header-dropdown {
-  background: rgba(254, 253, 248, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 4px 20px rgba(60, 40, 20, 0.1);
-}
-
-body:not(.night-mode):not(.sepia-mode) .share-menu {
-  background: rgba(254, 253, 248, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
 
 /* ========== الإكمال التلقائي ========== */
 body:not(.night-mode):not(.sepia-mode) .search-autocomplete {
@@ -248,10 +236,6 @@ body:not(.night-mode):not(.sepia-mode) .settings-row input {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-}
-
-body:not(.night-mode):not(.sepia-mode) .font-size-select {
-  background: rgba(255, 255, 255, 0.8);
 }
 
 body:not(.night-mode):not(.sepia-mode) .search-input-wrapper {

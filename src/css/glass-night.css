@@ -92,8 +92,7 @@ body.night-mode.deep-night-mode .control-group select,
 body.night-mode.deep-night-mode .control-group input,
 body.night-mode.deep-night-mode .surah-reciter-group select,
 body.night-mode.deep-night-mode .settings-row select,
-body.night-mode.deep-night-mode .settings-row input,
-body.night-mode.deep-night-mode .font-size-select {
+body.night-mode.deep-night-mode .settings-row input {
   background: transparent;
   color: #f7f3e8;
 }
@@ -307,18 +306,6 @@ body.night-mode .search-result-item:hover {
 }
 
 /* ========== القائمة المنسدلة ========== */
-body.night-mode .header-dropdown {
-  background: rgba(12, 16, 28, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
-}
-
-body.night-mode .share-menu {
-  background: rgba(12, 16, 28, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
 
 /* ========== الإكمال التلقائي ========== */
 body.night-mode .search-autocomplete {
@@ -364,10 +351,6 @@ body.night-mode .settings-row input {
   -webkit-backdrop-filter: blur(8px);
 }
 
-body.night-mode .font-size-select {
-  background: rgba(22, 28, 44, 0.8);
-}
-
 body.night-mode .search-input-wrapper {
   background: rgba(22, 28, 44, 0.8);
   backdrop-filter: blur(8px);
@@ -386,14 +369,12 @@ body.night-mode .ayah-modal-meta-item {
 
 body.night-mode .settings-row small,
 body.night-mode .control-card small,
-body.night-mode .muted,
-body.night-mode .loading-msg {
+body.night-mode .muted {
   color: #cfcab9;
 }
 
 body.night-mode .btn-sm,
-body.night-mode .ayah-modal-repeat-label,
-body.night-mode .header-dropdown button {
+body.night-mode .ayah-modal-repeat-label {
   color: #f7f3e8;
 }
 
@@ -518,24 +499,13 @@ body.night-mode .adhkar-close:hover {
 }
 
 /* ========== تحسين تباين الأزرار في الوضع الليلي ========== */
-body.night-mode .btn-primary {
-  background: linear-gradient(135deg, #d4af37, #b8952a);
-  color: #0a0e1a;
-  font-weight: bold;
-}
-
-body.night-mode .btn-primary:hover {
-  background: linear-gradient(135deg, #e8c84a, #d4af37);
-}
 
 /* ========== دعم المتصفحات بدون backdrop-filter ========== */
 @supports ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
   body.night-mode .settings-panel,
-  body.night-mode .favorites-panel,
-  body.night-mode .tafsir-curtain,
-  body.night-mode .adhkar-panel,
-  body.night-mode .header-dropdown,
-  body.night-mode .share-menu {
+body.night-mode .favorites-panel,
+body.night-mode .tafsir-curtain,
+body.night-mode .adhkar-panel {
     -webkit-backdrop-filter: blur(18px) saturate(180%);
     backdrop-filter: blur(18px) saturate(180%);
   }

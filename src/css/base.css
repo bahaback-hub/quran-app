@@ -53,29 +53,11 @@ body {
 }
 
 /* ========== الخلفيات الزخرفية ========== */
-body.bg-css {
-  background: none !important;
-}
 body[data-bg-css] {
   background: var(--bg-css-value, var(--bg-gradient));
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-}
-body.bg-css::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: inherit;
-  z-index: -1;
-  opacity: 0.55;
-  animation: bgSlowShift 20s ease-in-out infinite alternate;
-}
-body.night-mode.bg-css::after {
-  opacity: 0.65;
 }
 
 @keyframes bgSlowShift {
@@ -170,20 +152,6 @@ noscript > div {
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
-}
-.icon-quran {
-  color: inherit;
-  margin-left: 6px;
-}
-.icon-sm {
-  color: var(--icon-primary, var(--primary));
-  margin-left: 4px;
-}
-.icon-nav {
-  color: inherit;
-}
-.icon-xs {
-  color: inherit;
 }
 .icon-play {
   color: inherit;

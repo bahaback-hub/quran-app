@@ -107,8 +107,7 @@ body.night-mode .search-highlight {
   background-color: #facc15 !important;
   color: #0a0e1a !important;
 }
-.search-empty,
-.search-loading {
+.search-empty {
   text-align: center;
   padding: 20px;
   color: var(--text-muted);
@@ -177,57 +176,14 @@ body.night-mode .search-highlight {
   padding: 4px 10px;
   font-size: 13px;
 }
-.btn-bookmark {
-  background: #2563eb;
-  color: #fff;
-}
-.btn-favorite {
-  background: #ca8a04;
-  color: #1a1a1a;
-}
-.btn-favorite.active {
-  background: #dc2626;
-  color: #fff;
-  box-shadow: 0 0 12px rgba(220, 38, 38, 0.5);
-}
 
 /* ========== نظام الأزرار الجديد (3 أنواع أساسية) ========== */
-.btn-primary {
-  background: var(--accent);
-  color: #2c3e50;
-}
-.btn-primary:hover {
-  background: var(--accent-dark);
-}
-.btn-secondary {
-  background: var(--primary);
-  color: #fff;
-}
-.btn-secondary:hover {
-  background: var(--primary-hover);
-}
 .btn-danger {
   background: #dc2626;
   color: #fff;
 }
 .btn-danger:hover {
   background: #b91c1c;
-}
-body.night-mode .btn-primary {
-  color: #1a1a1a;
-}
-
-.keyboard-hint {
-  text-align: center;
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 8px;
-  padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 8px;
-}
-body.night-mode .keyboard-hint {
-  background: rgba(255, 255, 255, 0.05);
 }
 
 .toggle-switch {
@@ -480,10 +436,6 @@ body.night-mode .search-autocomplete-item {
   color: #2c3e50;
   transform: scale(0.95);
 }
-.kbd-key-wide {
-  min-width: 48px;
-  flex: 1;
-}
 .kbd-key-shift {
   background: rgba(217, 119, 6, 0.15);
   color: var(--accent-dark);
@@ -492,10 +444,6 @@ body.night-mode .search-autocomplete-item {
 }
 .kbd-key-space {
   flex: 3;
-}
-.kbd-key-fixed {
-  min-width: 36px;
-  flex: 0 0 auto;
 }
 .kbd-key-clear {
   background: rgba(220, 38, 38, 0.08);
@@ -519,9 +467,6 @@ body.night-mode .kbd-key:active {
 }
 body.night-mode .kbd-key-shift {
   background: rgba(217, 119, 6, 0.2);
-}
-body.night-mode .kbd-key-fixed {
-  background: rgba(255, 255, 255, 0.04);
 }
 body.night-mode .kbd-key-clear {
   background: rgba(220, 38, 38, 0.15);
@@ -741,75 +686,11 @@ body:not(.night-mode) .kbd-key:active {
   font-size: 48px;
   margin-bottom: 16px;
 }
-.error-overlay-title {
-  margin: 0 0 12px;
-  font-size: 20px;
-  color: #f87171;
-}
-.error-overlay-description {
-  margin: 0 0 24px;
-  font-size: 14px;
-  color: #9ca3af;
-  line-height: 1.6;
-}
 .error-overlay-actions {
   display: flex;
   gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
-}
-.error-overlay-btn-reload {
-  padding: 10px 24px;
-  border-radius: 8px;
-  border: none;
-  background: #6366f1;
-  color: #fff;
-  font-size: 15px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.error-overlay-btn-home {
-  padding: 10px 24px;
-  border-radius: 8px;
-  border: none;
-  background: #374151;
-  color: #e0e0e0;
-  font-size: 15px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.error-overlay-btn-copy {
-  padding: 10px 24px;
-  border-radius: 8px;
-  border: none;
-  background: #1f2937;
-  color: #9ca3af;
-  font-size: 14px;
-  cursor: pointer;
-}
-.error-overlay-details {
-  margin-top: 20px;
-  text-align: right;
-  cursor: pointer;
-}
-.error-overlay-details-summary {
-  color: #6b7280;
-  font-size: 13px;
-}
-.error-overlay-details-pre {
-  margin-top: 8px;
-  padding: 12px;
-  background: #111827;
-  border-radius: 8px;
-  overflow-x: auto;
-  font-size: 12px;
-  color: #f87171;
-  white-space: pre-wrap;
-  word-break: break-all;
-  direction: ltr;
-  text-align: left;
-  max-height: 200px;
-  overflow-y: auto;
 }
 
 /* ========== Adhkar Category Options ========== */

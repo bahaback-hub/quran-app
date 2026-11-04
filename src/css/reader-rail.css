@@ -187,8 +187,6 @@ body.hifz-room-active .hifz-room.is-open {
 .hifz-room-download-status,
 .hifz-room-return,
 .hifz-room-review strong,
-.hifz-room-card-meta,
-.hifz-room-footnote,
 .hifz-room-choice-row button,
 .hifz-room-repeat-options button {
   color: var(--hifz-curtain-muted);

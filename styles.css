@@ -24,11 +24,3 @@
 @import './src/css/home.css';
 
 /* Virtual Scrolling — chunk containers for windowed rendering */
-.virtual-chunk {
-  contain: layout style;
-  content-visibility: auto;
-}
-.virtual-chunk[data-spacer="true"] {
-  contain: strict;
-  content-visibility: hidden;
-}

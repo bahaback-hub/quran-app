@@ -198,41 +198,6 @@
 }
 
 /* ========== قائمة المشاركة ========== */
-.share-menu {
-  position: absolute;
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--share-menu-bg);
-  border-radius: 16px;
-  box-shadow: var(--share-menu-shadow);
-  padding: 8px 0;
-  z-index: 600;
-  display: none;
-  flex-direction: column;
-  min-width: 200px;
-  border: 1px solid var(--border-soft);
-}
-.share-menu button {
-  background: none;
-  border: none;
-  padding: 12px 18px;
-  text-align: right;
-  font-family: inherit;
-  font-size: 14px;
-  cursor: pointer;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: background 0.2s;
-}
-.share-menu button:hover {
-  background: var(--hover-bg);
-}
-.share-menu.show {
-  display: flex;
-}
 
 /* ========== لوحة المفضلة ========== */
 .favorites-panel {
@@ -498,12 +463,6 @@ body.night-mode .prayer-next-countdown {
 .prayer-row:hover {
   transform: translateX(-3px);
 }
-.prayer-row.next-prayer {
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  border-right-color: #f59e0b;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
-  animation: pulseNext 2.5s ease-in-out infinite;
-}
 @keyframes pulseNext {
   0%,
   100% {
@@ -512,10 +471,6 @@ body.night-mode .prayer-next-countdown {
   50% {
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
   }
-}
-body.night-mode .prayer-row.next-prayer {
-  background: linear-gradient(135deg, #4a3d1a, #6b5520);
-  color: #ffe066;
 }
 .prayer-name {
   font-weight: bold;
@@ -529,16 +484,6 @@ body.night-mode .prayer-row.next-prayer {
 }
 body.night-mode .prayer-time {
   color: var(--accent);
-}
-
-.countdown-box {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #fff;
-  padding: 12px;
-  border-radius: 10px;
-  text-align: center;
-  margin-top: 10px;
-  font-weight: bold;
 }
 
 .settings-section {
@@ -611,23 +556,6 @@ body.night-mode .settings-section-title {
 }
 
 /* ========== زر الإعدادات (شفاف) ========== */
-.settings-toggle-btn {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 6px 16px;
-  border-radius: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 14px;
-  font-family: inherit;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-.settings-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
-}
 
 /* ========== لوحة الأذكار ========== */
 .adhkar-panel {
@@ -829,29 +757,6 @@ body.night-mode .adhkar-header h2 {
 }
 
 /* ===== زر الأذكار في الرأس ===== */
-.adhkar-header-btn,
-.favorites-header-btn {
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background 0.2s,
-    transform 0.2s;
-  line-height: 1;
-}
-.adhkar-header-btn:hover,
-.favorites-header-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: scale(1.15);
-}
 
 /* ===== أزرار الأذكار الشخصية ===== */
 .adhkar-personal-actions {

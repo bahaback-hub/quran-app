@@ -50,13 +50,7 @@ body:not(.tv-pointer) #tvPointerCursor {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .prayer-row.next-prayer {
-    animation: none !important;
-  }
   .bismillah {
-    animation: none !important;
-  }
-  body.bg-css::after {
     animation: none !important;
   }
   .ayahs-container .ayah {

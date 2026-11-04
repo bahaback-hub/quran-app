@@ -147,32 +147,6 @@ body.night-mode .surah-secrets-overlay-inner {
 }
 
 /* ========== شاشة الترحيب ========== */
-.welcome-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  padding: 20px;
-  backdrop-filter: blur(4px);
-}
-
-.welcome-screen-inner {
-  background: var(--container-bg);
-  border: 2px solid var(--accent);
-  border-radius: 20px;
-  padding: 40px 30px;
-  max-width: 420px;
-  width: 100%;
-  text-align: center;
-  box-shadow: var(--shadow);
-  animation: welcomeFadeIn 0.4s ease;
-}
 
 @keyframes welcomeFadeIn {
   from {
@@ -183,54 +157,6 @@ body.night-mode .surah-secrets-overlay-inner {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
-}
-
-.welcome-logo {
-  font-size: 64px;
-  margin-bottom: 8px;
-}
-
-.welcome-title {
-  font-size: 28px;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.welcome-subtitle {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-bottom: 20px;
-}
-
-.welcome-features {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 24px;
-}
-
-.welcome-feature {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  color: var(--text-secondary);
-  padding: 8px 12px;
-  background: var(--tafsir-bg);
-  border-radius: 10px;
-}
-
-.welcome-feature span {
-  text-align: right;
-}
-
-.welcome-dismiss-btn {
-  font-size: 18px;
-  padding: 12px 40px;
-}
-
-body.night-mode .welcome-screen-inner {
-  border-color: var(--accent-dark);
 }
 
 /* ===== إشعار الأذكار ===== */
@@ -700,43 +626,6 @@ body.night-mode .contemplation-sheet-inner {
   z-index: 6000;
   animation: fadeIn 0.2s ease;
 }
-.sleep-timer-panel {
-  background: var(--container-bg, #fefdf8);
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 320px;
-  width: 90%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-.sleep-timer-panel h3 {
-  text-align: center;
-  margin-bottom: 16px;
-  color: var(--text-primary, #1a1a1a);
-}
-.sleep-timer-options {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.sleep-timer-option {
-  padding: 12px 8px;
-  border: 1px solid var(--border-soft, #d4c9a8);
-  border-radius: 8px;
-  background: none;
-  cursor: pointer;
-  font-size: 14px;
-  color: var(--text-primary, #1a1a1a);
-  transition: all 0.2s;
-}
-.sleep-timer-option:hover {
-  background: var(--hover-bg, rgba(217, 119, 6, 0.15));
-  border-color: var(--accent, #d97706);
-}
-.sleep-timer-option.active {
-  background: var(--accent, #d97706);
-  color: #fff;
-  border-color: var(--accent, #d97706);
-}
 
 /* ========== قمر عزم القبلة ========== */
 .qibla-overlay {
@@ -899,21 +788,6 @@ body.night-mode.deep-night-mode .qibla-panel {
 }
 
 /* ========== صفحة أوفلاين ========== */
-.offline-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--text-secondary);
-}
-.offline-page-icon {
-  font-size: 80px;
-  margin-bottom: 20px;
-  animation: offlineFloat 3s ease-in-out infinite;
-}
 @keyframes offlineFloat {
   0%,
   100% {
@@ -922,17 +796,6 @@ body.night-mode.deep-night-mode .qibla-panel {
   50% {
     transform: translateY(-10px);
   }
-}
-.offline-page h2 {
-  font-size: 24px;
-  color: var(--accent);
-  margin-bottom: 12px;
-}
-.offline-page p {
-  font-size: 16px;
-  color: var(--text-muted);
-  max-width: 400px;
-  line-height: 1.8;
 }
 
 /* ========== Custom Modal System (replaces prompt/confirm) ========== */
@@ -1039,41 +902,3 @@ body.night-mode.deep-night-mode .qibla-panel {
 }
 
 /* ========== Confirm Modal (replaces confirm()) ========== */
-.confirm-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-  animation: fadeIn 0.2s ease;
-}
-.confirm-box {
-  background: var(--container-bg, #fff);
-  border-radius: 16px;
-  padding: 24px;
-  min-width: 280px;
-  max-width: 90vw;
-  text-align: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  font-family: inherit;
-  animation: scaleIn 0.2s ease;
-}
-.confirm-title {
-  margin: 0 0 12px;
-  color: var(--text-primary);
-  font-size: 18px;
-  font-weight: bold;
-}
-.confirm-message {
-  margin: 0 0 20px;
-  color: var(--text-secondary);
-  font-size: 15px;
-  line-height: 1.6;
-}
-.confirm-btn-row {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}

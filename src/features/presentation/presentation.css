@@ -71,10 +71,6 @@
       z-index: 0;
       animation: kenBurns1 24s ease-in-out infinite alternate;
     }
-    .presentation-overlay.pres-animated .pres-bg-layer.kb2 { animation-name: kenBurns2; animation-duration: 28s; }
-    .presentation-overlay.pres-animated .pres-bg-layer.kb3 { animation-name: kenBurns3; animation-duration: 22s; }
-    .presentation-overlay.pres-animated .pres-bg-layer.kb4 { animation-name: kenBurns4; animation-duration: 26s; }
-    .presentation-overlay.pres-animated .pres-bg-layer.kb5 { animation-name: kenBurns5; animation-duration: 30s; }
     .presentation-overlay.pres-animated .presentation-inner {
       position: relative; z-index: 2;
     }
