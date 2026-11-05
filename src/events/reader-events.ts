@@ -20,15 +20,27 @@ import {
   showQiblaCompass,
 } from '../features/prayer/prayer.js';
 import { cacheSurahAudio, isSurahCached, deleteSurahCache } from '../features/audio/audio-cache.js';
-import {
-  performExactSearch,
-  initKeyboard,
-  initSearchAutocomplete,
-  loadFullQuranText,
-  startVoiceSearch,
-} from '../features/search/search-ui.js';
 import { showSleepTimerModal } from '../sleep-timer-modal.js';
 import * as audioModule from '../features/audio/audio.js';
+
+type SearchModule = typeof import('../features/search/search-ui.js');
+let searchModulePromise: Promise<SearchModule> | null = null;
+let searchUiInitialized = false;
+
+function loadSearchModule(): Promise<SearchModule> {
+  searchModulePromise ??= import('../features/search/search-ui.js');
+  return searchModulePromise;
+}
+
+async function prepareSearchUi(): Promise<SearchModule> {
+  const module = await loadSearchModule();
+  if (!searchUiInitialized) {
+    module.initKeyboard();
+    module.initSearchAutocomplete();
+    searchUiInitialized = true;
+  }
+  return module;
+}
 
 /**
  * Bind favorites and prayer bar collapse events.
@@ -156,18 +168,21 @@ export function bindSearchEvents(): void {
     if (!q) {
       return;
     }
+    const searchModule = await prepareSearchUi();
     if (!state.fullQuranLoaded) {
       showToast(__('quran_db_loading'));
-      await loadFullQuranText();
+      await searchModule.loadFullQuranText();
     }
-    performExactSearch(q);
+    searchModule.performExactSearch(q);
   });
   dom.searchInput?.addEventListener('keypress', (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       dom.searchBtn?.click();
     }
   });
-  dom.voiceSearchBtn?.addEventListener('click', startVoiceSearch);
+  dom.voiceSearchBtn?.addEventListener('click', () => {
+    void prepareSearchUi().then(({ startVoiceSearch }) => startVoiceSearch());
+  });
   dom.installBtn?.addEventListener('click', () => {
     if (typeof (window as Window & { installPWA?: () => void }).installPWA === 'function') {
       (window as Window & { installPWA: () => void }).installPWA();
@@ -181,8 +196,6 @@ export function bindSearchEvents(): void {
   // Auto-play next surah toggle
   dom.autoPlayNextBtn?.addEventListener('click', handleAutoPlayNextToggle);
 
-  initKeyboard();
-  initSearchAutocomplete();
 }
 
 /**
@@ -232,6 +245,7 @@ export function bindHeaderMenuEvents(): void {
  */
 export function bindMiscEvents(): void {
   dom.searchToggleBtn?.addEventListener('click', () => {
+    void prepareSearchUi();
     const headerSearch = document.getElementById('headerSearch');
     headerSearch?.classList.add('is-expanded');
     dom.searchToggleBtn?.setAttribute('aria-expanded', 'true');

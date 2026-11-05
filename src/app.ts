@@ -46,7 +46,6 @@ import { handleVisibilityChange, showContinueWidget, updateNetworkBanner, update
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
 import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
 import { injectOverlays } from './overlays.js';
-import { loadFullQuranText } from './features/search/search-ui.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { refreshRecentExternalData } from './external-data-cache.js';
 import { deleteLegacyCaches } from './cache-names.js';
@@ -128,6 +127,7 @@ export async function initApp(): Promise<void> {
   // Keep search ready when offline, where an on-demand fetch may not be
   // possible. Connected readers load the index only when opening search.
   if (!navigator.onLine) {
+    const { loadFullQuranText } = await import('./features/search/search-ui.js');
     await loadFullQuranText();
   }
 

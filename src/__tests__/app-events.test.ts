@@ -905,7 +905,7 @@ describe('app-events', () => {
       bindSearchEvents();
       dom.searchBtn!.click();
       const { performExactSearch } = await import('../features/search/search-ui.js');
-      expect(performExactSearch).toHaveBeenCalledWith('الله');
+      await waitUntil(() => expect(performExactSearch).toHaveBeenCalledWith('الله'));
     });
 
     it('should not call performExactSearch when search input is empty', async () => {
@@ -940,7 +940,7 @@ describe('app-events', () => {
       bindSearchEvents();
       dom.voiceSearchBtn!.click();
       const { startVoiceSearch } = await import('../features/search/search-ui.js');
-      expect(startVoiceSearch).toHaveBeenCalled();
+      await waitUntil(() => expect(startVoiceSearch).toHaveBeenCalled());
     });
 
     it('should call showSleepTimerModal on sleepTimerBtn click', async () => {
@@ -951,13 +951,6 @@ describe('app-events', () => {
       expect(showSleepTimerModal).toHaveBeenCalled();
     });
 
-    it('should call initKeyboard and initSearchAutocomplete', async () => {
-      const { bindSearchEvents } = await import('../app-events.js');
-      bindSearchEvents();
-      const { initKeyboard, initSearchAutocomplete } = await import('../features/search/search-ui.js');
-      expect(initKeyboard).toHaveBeenCalled();
-      expect(initSearchAutocomplete).toHaveBeenCalled();
-    });
   });
 
   /* ==================== bindGlobalClickHandler ==================== */
