@@ -53,13 +53,14 @@ describe('audio CSP allowlist', () => {
     expect(csp.length).toBeGreaterThan(0);
   });
 
-  it('declares non-fallback isolation directives in every CSP copy', () => {
+  it('declares non-fallback isolation directives in every HTTP CSP copy', () => {
     for (const [name, text] of copies) {
-      expect(text, `${name} frame protection`).toContain("frame-ancestors 'none'");
       expect(text, `${name} child protection`).toContain("child-src 'none'");
       expect(text, `${name} worker policy`).toContain("worker-src 'self' blob:");
       expect(text, `${name} manifest policy`).toContain("manifest-src 'self'");
     }
+    expect(headers, 'HTTP frame protection').toContain("frame-ancestors 'none'");
+    expect(generator, 'generated HTTP frame protection').toContain("frame-ancestors 'none'");
   });
 
   it('allows the mp3quran CDN redirect target for playback and fetching, in every copy', () => {

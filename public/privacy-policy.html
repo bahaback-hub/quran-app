@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <script src="framebust.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; frame-src 'none'; frame-ancestors 'none'; child-src 'none'; worker-src 'self' blob:; manifest-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self'; style-src 'self'; font-src 'self' data:; img-src 'self' data: blob:; frame-src 'none'; child-src 'none'; worker-src 'self' blob:; manifest-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none';" />
     <title>سياسة الخصوصية — المصحف السليماني</title>
     <meta
       name="description"
@@ -14,90 +14,7 @@
     <meta name="theme-color" content="#5c2e2e" />
     <link rel="icon" href="icon-192.png" />
     <link rel="stylesheet" href="fonts/fonts.css" />
-    <style>
-      body {
-        margin: 0;
-        background: #faf5f2;
-        color: #2b1a12;
-        font-family: 'Amiri', 'Mushaf Naskh', 'Traditional Arabic', serif;
-        line-height: 2;
-      }
-      .wrap {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 32px 18px 72px;
-      }
-      header {
-        text-align: center;
-        border-bottom: 1px solid #e4d8cf;
-        padding-bottom: 18px;
-        margin-bottom: 26px;
-      }
-      h1 {
-        font-size: 30px;
-        margin: 0 0 6px;
-        color: #5c2e2e;
-      }
-      .updated {
-        color: #8a6a55;
-        font-size: 15px;
-      }
-      h2 {
-        font-size: 22px;
-        color: #5c2e2e;
-        margin: 30px 0 8px;
-      }
-      p,
-      li {
-        font-size: 18px;
-      }
-      .summary {
-        background: #fff;
-        border: 1px solid #e4d8cf;
-        border-radius: 12px;
-        padding: 14px 18px;
-        margin: 0 0 8px;
-      }
-      .lang-switch {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        justify-content: center;
-        margin: 18px 0 0;
-      }
-      .lang-switch a,
-      .back {
-        display: inline-block;
-        background: #5c2e2e;
-        color: #fff;
-        text-decoration: none;
-        padding: 10px 22px;
-        border-radius: 10px;
-        font-size: 17px;
-      }
-      .lang-switch a.active {
-        background: #7a4136;
-        box-shadow: inset 0 0 0 2px #fff;
-      }
-      footer {
-        margin-top: 40px;
-        border-top: 1px solid #e4d8cf;
-        padding-top: 14px;
-        font-size: 15px;
-        color: #8a6a55;
-        text-align: center;
-      }
-      a {
-        color: #5c2e2e;
-      }
-      code {
-        font-family: monospace;
-        font-size: 0.9em;
-        background: #f1e7e0;
-        padding: 1px 5px;
-        border-radius: 4px;
-      }
-    </style>
+    <link rel="stylesheet" href="privacy-policy.css" />
   </head>
   <body>
     <main class="wrap">
@@ -517,96 +434,6 @@
         <p style="margin-top: 14px">اللهم اجعل هذا العمل في ميزان أعمال عائلة السليماني.</p>
       </footer>
     </main>
-    <script>
-      (function () {
-        var LANGS = {
-          ar: {
-            dir: 'rtl',
-            title: 'سياسة الخصوصية — المصحف السليماني',
-            h1: 'سياسة الخصوصية',
-            updated: 'المصحف السليماني — آخر تحديث: 25 سبتمبر 2026',
-            back: 'فتح التطبيق',
-          },
-          en: {
-            dir: 'ltr',
-            title: 'Privacy Policy — Al-Mushaf As-Sulaimani',
-            h1: 'Privacy Policy',
-            updated: 'Al-Mushaf As-Sulaimani — last updated: 25 September 2026',
-            back: 'Open the app',
-          },
-          tr: {
-            dir: 'ltr',
-            title: 'Gizlilik Politikası — El-Mushaf Es-Süleymani',
-            h1: 'Gizlilik Politikası',
-            updated: 'El-Mushaf Es-Süleymani — son güncelleme: 25 Eylül 2026',
-            back: 'Uygulamayı aç',
-          },
-          ms: {
-            dir: 'ltr',
-            title: 'Dasar Privasi — Al-Mushaf As-Sulaimani',
-            h1: 'Dasar Privasi',
-            updated: 'Al-Mushaf As-Sulaimani — kemas kini terakhir: 25 September 2026',
-            back: 'Buka aplikasi',
-          },
-          id: {
-            dir: 'ltr',
-            title: 'Kebijakan Privasi — Al-Mushaf As-Sulaimani',
-            h1: 'Kebijakan Privasi',
-            updated: 'Al-Mushaf As-Sulaimani — terakhir diperbarui: 25 September 2026',
-            back: 'Buka aplikasi',
-          },
-          fr: {
-            dir: 'ltr',
-            title: 'Politique de confidentialité — Al-Mushaf As-Sulaimani',
-            h1: 'Politique de confidentialité',
-            updated: 'Al-Mushaf As-Sulaimani — dernière mise à jour : 25 septembre 2026',
-            back: "Ouvrir l'application",
-          },
-          de: {
-            dir: 'ltr',
-            title: 'Datenschutzerklärung — Al-Mushaf As-Sulaimani',
-            h1: 'Datenschutzerklärung',
-            updated: 'Al-Mushaf As-Sulaimani — zuletzt aktualisiert: 25. September 2026',
-            back: 'App öffnen',
-          },
-          ru: {
-            dir: 'ltr',
-            title: 'Политика конфиденциальности — Al-Mushaf As-Sulaimani',
-            h1: 'Политика конфиденциальности',
-            updated: 'Al-Mushaf As-Sulaimani — последнее обновление: 25 сентября 2026 г.',
-            back: 'Открыть приложение',
-          },
-          ur: {
-            dir: 'rtl',
-            title: 'رازداری کی پالیسی — المصحف السلیمانی',
-            h1: 'رازداری کی پالیسی',
-            updated: 'المصحف السلیمانی — آخری اپ ڈیٹ: 25 ستمبر 2026',
-            back: 'ایپ کھولیں',
-          },
-        };
-        var requested = new URLSearchParams(location.search).get('lang');
-        var lang = requested && Object.prototype.hasOwnProperty.call(LANGS, requested) ? requested : 'ar';
-        var conf = LANGS[lang];
-        for (var code in LANGS) {
-          var section = document.getElementById(code);
-          if (section) {
-            section.hidden = code !== lang;
-          }
-        }
-        document.documentElement.lang = lang;
-        document.documentElement.dir = conf.dir;
-        document.title = conf.title;
-        document.querySelector('h1').textContent = conf.h1;
-        document.querySelector('.updated').textContent = conf.updated;
-        document.querySelector('.back').textContent = conf.back;
-        document.querySelectorAll('.lang-switch a').forEach(function (link) {
-          var active = link.getAttribute('lang') === lang;
-          link.classList.toggle('active', active);
-          if (active) {
-            link.setAttribute('aria-current', 'page');
-          }
-        });
-      })();
-    </script>
+    <script src="privacy-policy.js"></script>
   </body>
 </html>
