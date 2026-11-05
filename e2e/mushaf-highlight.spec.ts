@@ -87,8 +87,17 @@ test('mushaf highlight bars follow measured ayah bounds (desktop)', async ({ pag
   await page.goto('/');
   await page.waitForSelector('#surahContent .ayah', { timeout: 45_000 });
   // Canvas text measurement must run against the real QCF4 fonts, not the
-  // fallback, so wait for them to be ready rather than for a fixed delay.
-  await page.evaluate(() => document.fonts.ready.then(() => undefined));
+  // fallback, so wait for the two page-1 families explicitly — fonts.ready
+  // resolves as soon as nothing is *pending*, which on loaded WebKit runners
+  // can complete before the QCF4 faces finish registering, letting the canvas
+  // measure with the fallback and clicks miss the real glyphs.
+  await page
+    .waitForFunction(
+      () => document.fonts.check('16px "QCF4_Hafs_01"') && document.fonts.check('16px "QCF4_QBSML"'),
+      undefined,
+      { timeout: 60_000 },
+    )
+    .catch(() => console.log('(QCF4 fonts were not confirmed ready — proceeding on fallback)'));
 
   await page.locator('#viewMushafBtn').click();
 
