@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <script src="framebust.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; frame-src 'none'; frame-ancestors 'none'; child-src 'none'; worker-src 'self' blob:; manifest-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none';">
   <title>القرآن الكريم — غير متصل</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -71,8 +72,9 @@
     <div class="offline-icon">📖</div>
     <h1>غير متصل بالإنترنت</h1>
     <p>يبدو أنك غير متصل بالإنترنت. يمكنك قراءة السور المحفوظة مسبقاً أو إعادة المحاولة عند استعادة الاتصال.</p>
-    <button class="retry-btn" onclick="window.location.reload()">🔄 إعادة المحاولة</button>
+    <button class="retry-btn" id="retryButton" type="button">🔄 إعادة المحاولة</button>
     <p class="hint">السور التي تم تحميلها مسبقاً متاحة للقراءة بدون اتصال</p>
   </div>
+  <script src="offline.js"></script>
 </body>
 </html>

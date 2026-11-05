@@ -53,6 +53,15 @@ describe('audio CSP allowlist', () => {
     expect(csp.length).toBeGreaterThan(0);
   });
 
+  it('declares non-fallback isolation directives in every CSP copy', () => {
+    for (const [name, text] of copies) {
+      expect(text, `${name} frame protection`).toContain("frame-ancestors 'none'");
+      expect(text, `${name} child protection`).toContain("child-src 'none'");
+      expect(text, `${name} worker policy`).toContain("worker-src 'self' blob:");
+      expect(text, `${name} manifest policy`).toContain("manifest-src 'self'");
+    }
+  });
+
   it('allows the mp3quran CDN redirect target for playback and fetching, in every copy', () => {
     // Verified live: every mp3quran.net reciter server 301-redirects audio to
     // cdn.mp3quran.net. Without this host the redirect is blocked and every
