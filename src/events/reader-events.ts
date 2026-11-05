@@ -11,7 +11,6 @@ import { state } from '../state.js';
 import { showToast } from '../ui.js';
 import { __ } from '../i18n.js';
 import { openFavorites, closeFavorites } from '../favorites.js';
-import { closeAdhkarPanel, wireAdhkarEvents } from '../adhkar.js';
 import { closeSettings } from '../settings.js';
 import { cacheSurahAudio, isSurahCached, deleteSurahCache } from '../features/audio/audio-cache.js';
 import { showSleepTimerModal } from '../sleep-timer-modal.js';
@@ -22,6 +21,10 @@ let prayerModulePromise: Promise<PrayerModule> | null = null;
 const loadPrayerModule = (): Promise<PrayerModule> =>
   (prayerModulePromise ??= import('../features/prayer/prayer.js'));
 let prayerBarQuickSelectInitialized = false;
+type AdhkarModule = typeof import('../adhkar.js');
+let adhkarModulePromise: Promise<AdhkarModule> | null = null;
+const loadAdhkarModule = (): Promise<AdhkarModule> =>
+  (adhkarModulePromise ??= import('../adhkar.js'));
 
 type SearchModule = typeof import('../features/search/search-ui.js');
 let searchModulePromise: Promise<SearchModule> | null = null;
@@ -237,7 +240,7 @@ export function bindGlobalClickHandler(): void {
       !dom.adhkarPanel.contains(e.target as Node) &&
       !isAdhkarTrigger
     ) {
-      closeAdhkarPanel();
+      void loadAdhkarModule().then(({ closeAdhkarPanel }) => closeAdhkarPanel());
     }
   });
 }
@@ -296,7 +299,16 @@ export function bindMiscEvents(): void {
     }
   });
 
-  wireAdhkarEvents();
+  dom.adhkarBtn?.addEventListener('click', () => {
+    if (document.documentElement.dataset['adhkarEventsBound'] === 'true') {
+      return;
+    }
+    dom.adhkarBtn?.setAttribute('data-adhkar-trigger-bound', 'true');
+    void loadAdhkarModule().then(({ wireAdhkarEvents, toggleAdhkarPanel }) => {
+      wireAdhkarEvents();
+      toggleAdhkarPanel();
+    });
+  });
 
   dom.qiblaBtn?.addEventListener('click', () => {
     const qiblaOpen = Boolean(dom.qiblaOverlay && !dom.qiblaOverlay.classList.contains('hidden'));

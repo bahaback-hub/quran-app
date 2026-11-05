@@ -20,11 +20,6 @@ vi.mock('../settings.js', () => ({
   closeSettings: vi.fn(),
 }));
 
-// Mock adhkar module
-vi.mock('../adhkar.js', () => ({
-  closeAdhkarPanel: vi.fn(),
-}));
-
 // Mock favorites module
 vi.mock('../favorites.js', () => ({
   closeFavorites: vi.fn(),
@@ -43,7 +38,6 @@ vi.mock('../types.js', () => ({
 import { initCapacitorBackButton } from '../capacitor-back.js';
 import { state } from '../state.js';
 import { closeSettings } from '../settings.js';
-import { closeAdhkarPanel } from '../adhkar.js';
 import { closeFavorites } from '../favorites.js';
 import { closeTafsir } from '../tafsir.js';
 import { getCapacitor } from '../types.js';
@@ -253,7 +247,8 @@ describe('capacitor-back-full', () => {
 
     const listener = createBackListener();
     listener();
-    expect(closeAdhkarPanel).toHaveBeenCalled();
+    expect(state.adhkarPanelOpen).toBe(false);
+    expect(panel.classList.contains('open')).toBe(false);
   });
 
   it('should not close adhkar panel when adhkarPanelOpen is false', () => {
@@ -270,7 +265,7 @@ describe('capacitor-back-full', () => {
 
     const listener = createBackListener();
     listener();
-    expect(closeAdhkarPanel).not.toHaveBeenCalled();
+    expect(state.adhkarPanelOpen).toBe(false);
   });
 
   it('should close favorites panel when visible', () => {
@@ -329,7 +324,7 @@ describe('capacitor-back-full', () => {
 
     // Settings should be closed first since it's higher in the array
     expect(closeSettings).toHaveBeenCalled();
-    expect(closeAdhkarPanel).not.toHaveBeenCalled();
+    expect(state.adhkarPanelOpen).toBe(true);
   });
 
   it('should skip panel that is hidden', () => {

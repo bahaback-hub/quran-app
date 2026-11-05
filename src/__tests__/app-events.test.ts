@@ -1044,11 +1044,11 @@ describe('app-events', () => {
       expect(dom.searchToggleBtn!.getAttribute('aria-expanded')).toBe('false');
     });
 
-    it('should call wireAdhkarEvents', async () => {
+    it('should keep adhkar wiring out of the synchronous event-bind phase', async () => {
       const { bindMiscEvents } = await import('../app-events.js');
       bindMiscEvents();
       const { wireAdhkarEvents } = await import('../adhkar.js');
-      expect(wireAdhkarEvents).toHaveBeenCalled();
+      expect(wireAdhkarEvents).not.toHaveBeenCalled();
     });
 
     it('should bind qiblaCloseBtn to hideQiblaCompass', async () => {
@@ -1199,11 +1199,11 @@ describe('app-events', () => {
       expect(() => bindAllEvents()).not.toThrow();
     });
 
-    it('should wire adhkar events (called from bindMiscEvents)', async () => {
+    it('should keep adhkar event wiring deferred from bindAllEvents', async () => {
       const { bindAllEvents } = await import('../app-events.js');
       bindAllEvents();
       const { wireAdhkarEvents } = await import('../adhkar.js');
-      expect(wireAdhkarEvents).toHaveBeenCalled();
+      expect(wireAdhkarEvents).not.toHaveBeenCalled();
     });
 
     it('should call initSettingsTabs (called from bindHeaderAndSettingsEvents)', async () => {

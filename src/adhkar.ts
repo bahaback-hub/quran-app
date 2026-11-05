@@ -682,7 +682,10 @@ function confirmResetCustomizations(categoryId: string): void {
 export { startAdhkarNotificationScheduler, stopAdhkarNotificationScheduler, checkAdhkarNotifications };
 
 export function wireAdhkarEvents(): void {
-  dom.adhkarBtn?.addEventListener('click', toggleAdhkarPanel);
+  document.documentElement.dataset['adhkarEventsBound'] = 'true';
+  if (dom.adhkarBtn?.dataset['adhkarTriggerBound'] !== 'true') {
+    dom.adhkarBtn?.addEventListener('click', toggleAdhkarPanel);
+  }
   dom.adhkarCloseBtn?.addEventListener('click', closeAdhkarPanel);
   dom.adhkarNotifOpenBtn?.addEventListener('click', () => {
     dismissAdhkarNotification();

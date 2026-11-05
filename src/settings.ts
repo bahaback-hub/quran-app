@@ -17,7 +17,6 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { migrateFontFamily } from './font-family.js';
-import { renderAdhkarSettingsList } from './adhkar.js';
 import { initTvMode } from './tv-nav.js';
 import { syncPitchControls, applyPlaybackRate } from './features/audio/audio.js';
 import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from './a11y.js';
@@ -533,7 +532,7 @@ export function openSettings(): void {
     return;
   }
   dom.settingsPanel.classList.add('open');
-  renderAdhkarSettingsList();
+  void import('./adhkar.js').then(({ renderAdhkarSettingsList }) => renderAdhkarSettingsList());
   // Confine Tab navigation inside the panel and move focus into it, so
   // keyboard/screen-reader users can't leak focus to the page behind.
   // Capture the trigger BEFORE trapFocus moves focus into the panel.

@@ -113,6 +113,7 @@ vi.mock('../favorites.js', () => ({
 vi.mock('../adhkar.js', () => ({
   initAdhkarState: vi.fn(),
   loadAdhkarSettings: vi.fn(),
+  wireAdhkarEvents: vi.fn(),
   startAdhkarNotificationScheduler: vi.fn(),
 }));
 

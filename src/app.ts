@@ -19,7 +19,6 @@ import { getLang, applyTranslations } from './i18n.js';
 import { state, resetState } from './state.js';
 import { setUpdateReadingProgress } from './internal-state.js';
 import { loadFavorites } from './favorites.js';
-import { initAdhkarState, loadAdhkarSettings, startAdhkarNotificationScheduler } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah, setReloadAudio, setHighlightAyah } from './features/audio/audio.js';
 import { initKeyboardShortcuts } from './keyboard.js';
 import { initCapacitorBackButton } from './capacitor-back.js';
@@ -301,8 +300,6 @@ export async function initApp(): Promise<void> {
     loadingBar.hide();
 
     // Group 1: Lightweight state init (no network, no DOM mutation)
-    initAdhkarState();
-    loadAdhkarSettings();
     loadFavorites();
 
     // Group 2: Clock & prayer (lightweight, starts intervals)
@@ -312,7 +309,12 @@ export async function initApp(): Promise<void> {
 
     // Group 3: Network-dependent (non-blocking) — defer to next idle period
     scheduleIdle(() => {
-      startAdhkarNotificationScheduler();
+      void import('./adhkar.js').then(({ initAdhkarState, loadAdhkarSettings, wireAdhkarEvents, startAdhkarNotificationScheduler }) => {
+        initAdhkarState();
+        loadAdhkarSettings();
+        wireAdhkarEvents();
+        startAdhkarNotificationScheduler();
+      });
       void import('./features/prayer/prayer.js').then(({ loadUnderwrittenPrayerTable, loadPrayerTimes }) =>
         loadUnderwrittenPrayerTable().then(() => loadPrayerTimes()),
       );

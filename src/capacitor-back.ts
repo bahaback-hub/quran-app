@@ -11,7 +11,6 @@
 import { closeSettings } from './settings.js';
 import { warnRecoverable } from './error-boundary.js';
 import { state } from './state.js';
-import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
 import { isPointerMode, setPointerMode } from './pointer-nav.js';
@@ -111,7 +110,9 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
           el: document.getElementById('adhkarPanel'),
           close: () => {
             if (state.adhkarPanelOpen) {
-              closeAdhkarPanel();
+              state.adhkarPanelOpen = false;
+              document.getElementById('adhkarPanel')?.classList.remove('open');
+              document.body.classList.remove('adhkar-curtain-active');
             }
           },
         },
