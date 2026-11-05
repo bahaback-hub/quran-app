@@ -66,6 +66,12 @@ describe('no layout shift from the loading reader', () => {
     expect(criticalGeometryCss).toMatch(/@media \(max-width: 1024px\)[\s\S]*?min-height:\s*66px/);
   });
 
+  it('reserves dimensions for every reading-mode preview image', () => {
+    expect(indexHtml).toMatch(/reading-mode-surah-logo\.webp[\s\S]*?width="160"[\s\S]*?height="107"/);
+    expect(indexHtml).toMatch(/reading-mode-mushaf-logo\.webp[\s\S]*?width="160"[\s\S]*?height="107"/);
+    expect(indexHtml).toMatch(/reading-mode-featured-ayah-logo\.webp[\s\S]*?width="160"[\s\S]*?height="60"/);
+  });
+
   it('fills the viewport while loading so the footer starts below the fold', () => {
     const body = ruleBody('.surah-content.is-loading');
     expect(body).toMatch(/min-height:\s*100dvh/);
