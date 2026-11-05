@@ -114,7 +114,10 @@ Key modules:
 | `i18n.ts`                                                  | Internationalization (ar/en/tr/ms/id/fr/de/ru/ur — 9 UI languages) + RTL/LTR dynamic switching                                                                                                                                                                                                      |
 | `templates.ts`                                             | Barrel module re-exporting XSS-safe HTML templates (templates-surah/search/mushaf/favorites/prayer/adhkar/feedback/panels)                                                                                                                                                                                                                       |
 | `overlays.ts`                                              | Lazy template injection before `cacheDom()`                                                                                                                                                                                                                            |
-| `surah-loader.ts`                                          | **Large file (~30KB)** — surah loading, rendering, caching, offsets                                                                                                                                                                                                    |
+| `surah-loader.ts`                                          | Surah loading, rendering, caching, offsets; delegates the audio pipeline (timings, MP3QURAN/reciter download helpers, shared generation counter) to `surah-audio.ts` |
+| `surah-audio.ts`                                             | Audio pipeline: timings, download helpers, and the shared generation counter used by the reader and hifz session |
+| `adhkar-store.ts` / `adhkar-personal.ts`                     | Adhkar settings store and the personal-adhkar UI/dialogs, imported by `adhkar.ts` |
+| `features/prayer/qibla.ts`                                   | Qibla compass (heading math, overlay wiring, native/Capacitor pathway), re-exported from `prayer.ts` |
 | `surahs-data.ts`                                           | Static surah secrets (from data/surah-secrets.json)                                                                                                                                                                                                                                          |
 | `features/audio/audio.ts`                                    | Advanced audio player (~37KB) — word tracking, hifdh, repeat, sleep timer                                                                                                                                                                                              |
 | `features/audio/audio-cache.ts`                              | IndexedDB audio cache with LRU eviction (200MB cap)                                                                                                                                                                                                                    |
@@ -140,12 +143,14 @@ Key modules:
 
 These files are large and would benefit from being split by feature:
 
-- `adhkar.ts` (~41KB)
-- `prayer.ts` (~41KB)
+- `adhkar.ts` (~29KB) — already split: `adhkar-personal.ts` holds the
+  personal-adhkar UI/dialogs and `adhkar-store.ts` the shared settings store
+- `prayer.ts` (~37KB) — already split: `qibla.ts` holds the Qibla compass
+- `surah-loader.ts` — already split: `surah-audio.ts` owns the audio pipeline
+  (MP3QURAN/reciter download helpers, timings, generation counter)
 - `audio.ts` (~37KB)
 - `mushaf-renderer.ts` (~37KB)
 - `settings.ts` (~37KB)
-- `surah-loader.ts` (~30KB)
 - `pres-backgrounds.ts` (~22KB)
 
 ## DOM Conventions
