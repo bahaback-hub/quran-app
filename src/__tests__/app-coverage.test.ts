@@ -511,10 +511,19 @@ describe('app.ts — initApp', () => {
     it('should call initAdhkarState and loadAdhkarSettings', async () => {
       const { initAdhkarState, loadAdhkarSettings } = await import('../adhkar.js');
       await initApp();
-      await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(initAdhkarState).toHaveBeenCalled();
-      expect(loadAdhkarSettings).toHaveBeenCalled();
+      // Adhkar module is lazy-loaded (group 3 of the deferred init) — poll
+      // instead of a fixed 50ms sleep, which raced the idle callback on slow
+      // machines and full-suite parallel runs.
+      await expect(
+        vi.waitFor(
+          () => {
+            expect(initAdhkarState).toHaveBeenCalled();
+            expect(loadAdhkarSettings).toHaveBeenCalled();
+          },
+          { timeout: 5000 },
+        ),
+      ).resolves.toBeUndefined();
     });
 
     it('should call loadFavorites', async () => {

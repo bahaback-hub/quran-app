@@ -1828,7 +1828,7 @@ describe('app-events', () => {
       bindSearchEvents();
       dom.downloadAudioBtn!.click();
       await waitUntil(() => expect(cacheSurahAudio).toHaveBeenCalled());
-      await waitUntil(() => expect(dom.downloadAudioBtn!.textContent).toBe('✅'));
+      await waitUntil(() => expect(dom.downloadAudioBtn!.textContent).toBe('✅'), { timeout: 10000, interval: 20 });
       const { showToast } = await import('../ui.js');
       expect(showToast).toHaveBeenCalledWith('download_audio_done', 'success');
       expect(dom.downloadAudioBtn!.classList.contains('active')).toBe(true);
