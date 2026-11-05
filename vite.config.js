@@ -9,6 +9,18 @@ import { CACHE_NAMES } from './src/cache-names.ts';
 // Single source of truth for the app version shown in Settings ("App version")
 // and used by future "What's new" logic. Bumped via package.json only.
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+const securityHeadersFile = readFileSync(new URL('./public/_headers', import.meta.url), 'utf8');
+const productionCsp = securityHeadersFile.match(/^  Content-Security-Policy:\s*(.+)$/m)?.[1]?.trim();
+const previewSecurityHeaders = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Embedder-Policy': 'require-corp',
+  'Cross-Origin-Resource-Policy': 'same-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self), payment=()',
+  ...(productionCsp ? { 'Content-Security-Policy': productionCsp } : {}),
+};
 
 // When building for Capacitor Android, disable PWA/Service Worker entirely
 const isCapacitorBuild = process.env.BUILD_TARGET === 'capacitor';
@@ -72,6 +84,7 @@ export default defineConfig({
   preview: {
     port: 4173,
     strictPort: true,
+    headers: previewSecurityHeaders,
   },
   plugins: [
     capacitorCssWebOnly(isCapacitorBuild),
