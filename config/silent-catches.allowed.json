@@ -310,7 +310,7 @@
       "reason": "non-critical — keep the local list"
     },
     {
-      "file": "src/surah-loader.ts",
+      "file": "src/surah-audio.ts",
       "fn": "fetchAyahTimings",
       "anchor": "#1",
       "kind": "catch-return-null",
@@ -520,14 +520,14 @@
       "reason": "stored audio-url list unreadable → return [] (no offline URLs); caller falls back to the network fetch"
     },
     {
-      "file": "src/surah-loader.ts",
+      "file": "src/surah-audio.ts",
       "fn": "loadAudioUrlsForSession",
       "anchor": "#1",
       "kind": "catch-return-empty-array",
       "reason": "session audio fetch failed → return []; the caller (hifz-room-download) validates the length and throws a user-facing 'audio unavailable' error"
     },
     {
-      "file": "src/surah-loader.ts",
+      "file": "src/surah-audio.ts",
       "fn": "reloadCurrentSurahAudio",
       "anchor": "#1",
       "kind": "catch-return-false",
