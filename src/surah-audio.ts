@@ -54,7 +54,7 @@ export interface TimestampEntry {
   timestamp_to: number;
 }
 
-export function countArabicChars(text: string): number {
+function countArabicChars(text: string): number {
   return (text.match(/[\u0621-\u064A\u0660-\u0669]/g) || []).length;
 }
 
@@ -63,7 +63,7 @@ export function countArabicChars(text: string): number {
  * Returns fractions (0-1) matching the calculateAyahTimings() format,
  * or null if unavailable (triggers character-count fallback).
  */
-export async function fetchAyahTimings(
+async function fetchAyahTimings(
   reciterId: string,
   surahNum: number,
   ayahs: AyahEntry[],
