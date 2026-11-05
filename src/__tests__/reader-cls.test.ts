@@ -23,6 +23,7 @@ const surahCss = readFileSync(resolve(ROOT, 'src', 'css', 'surah.css'), 'utf8');
 const stylesCss = readFileSync(resolve(ROOT, 'styles.css'), 'utf8');
 const readerControlsCss = readFileSync(resolve(ROOT, 'src', 'css', 'reader-controls.css'), 'utf8');
 const mushafCss = readFileSync(resolve(ROOT, 'src', 'features', 'mushaf', 'mushaf.css'), 'utf8');
+const criticalGeometryCss = readFileSync(resolve(ROOT, 'public', 'critical-geometry.css'), 'utf8');
 const indexHtml = readFileSync(resolve(ROOT, 'index.html'), 'utf8');
 const hifzRoom = readFileSync(resolve(ROOT, 'src', 'hifz-room.ts'), 'utf8');
 const loader = readFileSync(resolve(ROOT, 'src', 'surah-loader.ts'), 'utf8');
@@ -57,10 +58,12 @@ describe('no layout shift from the loading reader', () => {
   });
 
   it('reserves first-paint geometry in index.html', () => {
-    expect(indexHtml).toMatch(/#readerToolbarShell \.reader-command-bar[\s\S]*?min-height:\s*126px/);
-    expect(indexHtml).toMatch(/#readerToolbarShell \.reader-context-card[\s\S]*?min-height:\s*54px/);
-    expect(indexHtml).toMatch(/#readerSideTools \.reader-side-tool-slot[\s\S]*?min-height:\s*72px/);
-    expect(indexHtml).toMatch(/@media \(max-width: 1024px\)[\s\S]*?min-height:\s*66px/);
+    expect(indexHtml).toContain('href="%BASE_URL%critical-geometry.css"');
+    expect(indexHtml).not.toMatch(/<style[\s>]/i);
+    expect(criticalGeometryCss).toMatch(/#readerToolbarShell \.reader-command-bar[\s\S]*?min-height:\s*126px/);
+    expect(criticalGeometryCss).toMatch(/#readerToolbarShell \.reader-context-card[\s\S]*?min-height:\s*54px/);
+    expect(criticalGeometryCss).toMatch(/#readerSideTools \.reader-side-tool-slot[\s\S]*?min-height:\s*72px/);
+    expect(criticalGeometryCss).toMatch(/@media \(max-width: 1024px\)[\s\S]*?min-height:\s*66px/);
   });
 
   it('fills the viewport while loading so the footer starts below the fold', () => {
