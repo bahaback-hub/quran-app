@@ -86,8 +86,10 @@ describe('initCapacitorBackButton', () => {
 
     listener!();
 
-    expect(overlay.classList.contains('hidden')).toBe(true);
-    expect(overlay.style.display).toBe('none');
+    await vi.waitFor(() => {
+      expect(overlay.classList.contains('hidden')).toBe(true);
+      expect(overlay.style.display).toBe('none');
+    });
   });
 
   it('should close help, reading statistics, and sleep timer overlays before exiting', async () => {

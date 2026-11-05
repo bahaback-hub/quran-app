@@ -18,12 +18,6 @@ import { loadingBar } from './ui.js';
 import { getLang, applyTranslations } from './i18n.js';
 import { state, resetState } from './state.js';
 import { setUpdateReadingProgress } from './internal-state.js';
-import {
-  startClock,
-  loadPrayerTimes,
-  loadUnderwrittenPrayerTable,
-  scheduleNextAzanCheck,
-} from './features/prayer/prayer.js';
 import { loadFavorites } from './favorites.js';
 import { initAdhkarState, loadAdhkarSettings, startAdhkarNotificationScheduler } from './adhkar.js';
 import { bindAudioEvents, setLoadSurah, setReloadAudio, setHighlightAyah } from './features/audio/audio.js';
@@ -302,7 +296,7 @@ export async function initApp(): Promise<void> {
       });
   });
 
-  scheduleIdle(() => {
+  scheduleIdle(async () => {
     loadingBar.init();
     loadingBar.hide();
 
@@ -312,13 +306,16 @@ export async function initApp(): Promise<void> {
     loadFavorites();
 
     // Group 2: Clock & prayer (lightweight, starts intervals)
-    startClock();
-    scheduleNextAzanCheck();
+    const prayer = await import('./features/prayer/prayer.js');
+    prayer.startClock();
+    prayer.scheduleNextAzanCheck();
 
     // Group 3: Network-dependent (non-blocking) — defer to next idle period
     scheduleIdle(() => {
       startAdhkarNotificationScheduler();
-      void loadUnderwrittenPrayerTable().then(() => loadPrayerTimes());
+      void import('./features/prayer/prayer.js').then(({ loadUnderwrittenPrayerTable, loadPrayerTimes }) =>
+        loadUnderwrittenPrayerTable().then(() => loadPrayerTimes()),
+      );
     });
 
     // Group 4: Heavy feature modules — lazy-import, lowest priority

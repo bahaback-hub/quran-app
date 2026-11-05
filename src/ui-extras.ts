@@ -1,7 +1,6 @@
 import { state } from './state.js';
 import { dom } from './dom.js';
 import { loadSurah } from './surah-loader.js';
-import { stopClock, startClock } from './features/prayer/prayer.js';
 import { checkAdhkarNotifications } from './adhkar.js';
 import { __, getLang } from './i18n.js';
 import { getAdhkarIntervalId, setAdhkarIntervalId } from './internal-state.js';
@@ -101,14 +100,14 @@ export function showContinueWidget(info: ContinueInfo): void {
 
 export function handleVisibilityChange(): void {
   if (document.hidden) {
-    stopClock();
+    void import('./features/prayer/prayer.js').then(({ stopClock }) => stopClock());
     const intervalId = getAdhkarIntervalId();
     if (intervalId) {
       clearInterval(intervalId);
       setAdhkarIntervalId(null);
     }
   } else {
-    startClock();
+    void import('./features/prayer/prayer.js').then(({ startClock }) => startClock());
     if (!getAdhkarIntervalId()) {
       setAdhkarIntervalId(setInterval(checkAdhkarNotifications, 30_000));
     }

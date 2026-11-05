@@ -9,7 +9,6 @@ import { requireDom } from '../dom-require.js';
 import { storage } from '../storage.js';
 import { state } from '../state.js';
 import { __ } from '../i18n.js';
-import { stopAzan, hideAzanNotification } from '../features/prayer/prayer.js';
 import { toggleTafsir, openTafsir, closeTafsir, loadTafsirForCurrentAyah } from '../tafsir.js';
 import { loadSurah, toggleTranslation } from '../surah-loader.js';
 
@@ -19,7 +18,7 @@ import { loadSurah, toggleTranslation } from '../surah-loader.js';
 export function bindAzanEvents(): void {
   dom.azanNotification?.addEventListener('click', (e: MouseEvent) => {
     if (e.target === dom.azanNotification) {
-      stopAzan();
+      void import('../features/prayer/prayer.js').then(({ stopAzan }) => stopAzan());
     }
   });
   dom.azanPlayer?.addEventListener('ended', () => {
@@ -27,7 +26,7 @@ export function bindAzanEvents(): void {
     if (dom.testAzanBtn) {
       dom.testAzanBtn.textContent = __('test_azan');
     }
-    hideAzanNotification();
+    void import('../features/prayer/prayer.js').then(({ hideAzanNotification }) => hideAzanNotification());
   });
 }
 

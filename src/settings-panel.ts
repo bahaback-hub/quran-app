@@ -13,7 +13,6 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
-import { loadPrayerTimes } from './features/prayer/prayer.js';
 import { __ } from './i18n.js';
 import {
   SURAH_FONT_SIZES,
@@ -36,7 +35,7 @@ export function saveLocationSettings(): void {
   storage.set('city', city);
   storage.set('country', country);
   storage.set('method', state.method);
-  loadPrayerTimes();
+  void import('./features/prayer/prayer.js').then(({ loadPrayerTimes }) => loadPrayerTimes());
   showToast(__('save_location'), 'success');
 }
 

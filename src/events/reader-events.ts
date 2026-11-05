@@ -13,15 +13,15 @@ import { __ } from '../i18n.js';
 import { openFavorites, closeFavorites } from '../favorites.js';
 import { closeAdhkarPanel, wireAdhkarEvents } from '../adhkar.js';
 import { closeSettings } from '../settings.js';
-import {
-  togglePrayerBar,
-  initPrayerBarQuickSelect,
-  hideQiblaCompass,
-  showQiblaCompass,
-} from '../features/prayer/prayer.js';
 import { cacheSurahAudio, isSurahCached, deleteSurahCache } from '../features/audio/audio-cache.js';
 import { showSleepTimerModal } from '../sleep-timer-modal.js';
 import * as audioModule from '../features/audio/audio.js';
+
+type PrayerModule = typeof import('../features/prayer/prayer.js');
+let prayerModulePromise: Promise<PrayerModule> | null = null;
+const loadPrayerModule = (): Promise<PrayerModule> =>
+  (prayerModulePromise ??= import('../features/prayer/prayer.js'));
+let prayerBarQuickSelectInitialized = false;
 
 type SearchModule = typeof import('../features/search/search-ui.js');
 let searchModulePromise: Promise<SearchModule> | null = null;
@@ -54,9 +54,16 @@ export function bindPanelsAndShareEvents(): void {
     openFavorites();
   });
   dom.favoritesCloseBtn?.addEventListener('click', closeFavorites);
+  const togglePrayerBar = () =>
+    void loadPrayerModule().then(({ togglePrayerBar, initPrayerBarQuickSelect }) => {
+      if (!prayerBarQuickSelectInitialized) {
+        initPrayerBarQuickSelect();
+        prayerBarQuickSelectInitialized = true;
+      }
+      togglePrayerBar();
+    });
   dom.collapseBarBtn?.addEventListener('click', togglePrayerBar);
   dom.expandBarBtn?.addEventListener('click', togglePrayerBar);
-  initPrayerBarQuickSelect();
 }
 
 /**
@@ -294,15 +301,17 @@ export function bindMiscEvents(): void {
   dom.qiblaBtn?.addEventListener('click', () => {
     const qiblaOpen = Boolean(dom.qiblaOverlay && !dom.qiblaOverlay.classList.contains('hidden'));
     if (qiblaOpen) {
-      hideQiblaCompass();
+      void loadPrayerModule().then(({ hideQiblaCompass }) => hideQiblaCompass());
       return;
     }
-    showQiblaCompass();
+    void loadPrayerModule().then(({ showQiblaCompass }) => showQiblaCompass());
   });
-  dom.qiblaCloseBtn?.addEventListener('click', hideQiblaCompass);
+  dom.qiblaCloseBtn?.addEventListener('click', () => {
+    void loadPrayerModule().then(({ hideQiblaCompass }) => hideQiblaCompass());
+  });
   dom.qiblaOverlay?.addEventListener('click', (e: MouseEvent) => {
     if (e.target === dom.qiblaOverlay) {
-      hideQiblaCompass();
+      void loadPrayerModule().then(({ hideQiblaCompass }) => hideQiblaCompass());
     }
   });
 

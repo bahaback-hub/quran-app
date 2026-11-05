@@ -107,10 +107,10 @@ describe('initKeyboardShortcuts', () => {
     expect(togglePlayPause).toHaveBeenCalled();
   });
 
-  it('should call stopAzan when Escape is pressed and azan is playing', () => {
+  it('should call stopAzan when Escape is pressed and azan is playing', async () => {
     state.azanPlaying = true;
     pressKey('Escape');
-    expect(stopAzan).toHaveBeenCalled();
+    await vi.waitFor(() => expect(stopAzan).toHaveBeenCalled());
   });
 
   it('should not trigger other shortcuts when Escape stops azan', () => {

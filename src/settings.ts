@@ -17,7 +17,6 @@ import { state } from './state.js';
 import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { migrateFontFamily } from './font-family.js';
-import { stopAzan } from './features/prayer/prayer.js';
 import { renderAdhkarSettingsList } from './adhkar.js';
 import { initTvMode } from './tv-nav.js';
 import { syncPitchControls, applyPlaybackRate } from './features/audio/audio.js';
@@ -553,7 +552,7 @@ export function closeSettings(): void {
     dom.settingsPanel.classList.remove('open');
   }
   if (state.azanPlaying) {
-    stopAzan();
+    void import('./features/prayer/prayer.js').then(({ stopAzan }) => stopAzan());
   }
 }
 

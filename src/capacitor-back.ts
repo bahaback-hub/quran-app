@@ -15,7 +15,6 @@ import { closeAdhkarPanel } from './adhkar.js';
 import { closeFavorites } from './favorites.js';
 import { closeTafsir } from './tafsir.js';
 import { isPointerMode, setPointerMode } from './pointer-nav.js';
-import { hideQiblaCompass } from './features/prayer/prayer.js';
 import { __ } from './i18n.js';
 import { getCapacitor } from './types.js';
 import type { CapacitorPlugins } from './types.js';
@@ -79,7 +78,7 @@ export function initCapacitorBackButton(plugins?: CapacitorPlugins): void {
 
       const qiblaOverlay = document.getElementById('qiblaOverlay');
       if (qiblaOverlay && !qiblaOverlay.classList.contains('hidden')) {
-        hideQiblaCompass();
+        void import('./features/prayer/prayer.js').then(({ hideQiblaCompass }) => hideQiblaCompass());
         return;
       }
 

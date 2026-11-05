@@ -28,8 +28,6 @@ import {
   closeSettings,
   initSettingsTabs,
 } from '../settings.js';
-import { testAzan, stopAzan, scheduleNextAzanCheck } from '../features/prayer/prayer.js';
-import { ensureAzanNotificationPermission } from '../features/prayer/azan-notifications.js';
 import { openHelp } from './help-events.js';
 import { CHECK_UPDATES_EVENT } from '../app-updates.js';
 import { setTvMode } from '../tv-nav.js';
@@ -37,6 +35,11 @@ import { setPointerMode } from '../pointer-nav.js';
 import { loadTajweedAnnotationsForSurah } from '../tajweed-data.js';
 import { loadSurah } from '../surah-loader.js';
 import { warnRecoverable } from '../error-boundary.js';
+
+type PrayerModule = typeof import('../features/prayer/prayer.js');
+let prayerModulePromise: Promise<PrayerModule> | null = null;
+const loadPrayerModule = (): Promise<PrayerModule> =>
+  (prayerModulePromise ??= import('../features/prayer/prayer.js'));
 
 /**
  * Bind theme and settings buttons.
@@ -209,8 +212,12 @@ export function bindHeaderAndSettingsEvents(): void {
     state.autoLocation = requireDom('autoLocationToggle').checked;
     storage.set('auto_location', state.autoLocation);
   });
-  dom.testAzanBtn?.addEventListener('click', testAzan);
-  dom.azanNotifStopBtn?.addEventListener('click', stopAzan);
+  dom.testAzanBtn?.addEventListener('click', () => {
+    void loadPrayerModule().then(({ testAzan }) => testAzan());
+  });
+  dom.azanNotifStopBtn?.addEventListener('click', () => {
+    void loadPrayerModule().then(({ stopAzan }) => stopAzan());
+  });
   // welcome screen removed
   dom.resetSettingsBtn?.addEventListener('click', () => runPanelAction((panel) => panel.resetSettings()));
   document
@@ -412,19 +419,24 @@ export function bindDisplaySettingsEvents(): void {
     // User gesture: the one safe moment to ask for notification permission
     // (mirrors the adhkar toggle). Background paths only ever check.
     if (state.azanEnabled) {
-      void ensureAzanNotificationPermission().then((granted) => {
+      void Promise.all([
+        loadPrayerModule(),
+        import('../features/prayer/azan-notifications.js'),
+      ]).then(([, { ensureAzanNotificationPermission }]) => ensureAzanNotificationPermission()).then((granted) => {
         showToast(granted ? __('notification_active') : __('notification_paused'), granted ? 'success' : 'warning');
       });
     }
-    scheduleNextAzanCheck();
+    void loadPrayerModule().then(({ scheduleNextAzanCheck }) => scheduleNextAzanCheck());
   });
   dom.azanFajrToggle?.addEventListener('click', () => {
     state.azanFajrEnabled = requireDom('azanFajrToggle').classList.toggle('on');
     storage.set('azan_fajr_enabled', state.azanFajrEnabled);
     if (state.azanFajrEnabled) {
-      void ensureAzanNotificationPermission();
+      void import('../features/prayer/azan-notifications.js').then(({ ensureAzanNotificationPermission }) =>
+        ensureAzanNotificationPermission(),
+      );
     }
-    scheduleNextAzanCheck();
+    void loadPrayerModule().then(({ scheduleNextAzanCheck }) => scheduleNextAzanCheck());
   });
   dom.autoSaveToggle?.addEventListener('click', () => {
     state.autoSave = requireDom('autoSaveToggle').classList.toggle('on');

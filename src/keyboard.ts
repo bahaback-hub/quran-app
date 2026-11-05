@@ -21,7 +21,6 @@ import {
 } from './features/audio/audio.js';
 import { toggleNightMode, applyFontSize, closeSettings } from './settings.js';
 import { toggleFavorite, setBookmark, gotoBookmark, closeFavorites } from './favorites.js';
-import { stopAzan } from './features/prayer/prayer.js';
 import { toggleTafsir, closeTafsir } from './tafsir.js';
 import { isTvNavActive, moveTvFocus } from './tv-nav.js';
 import { activateAtCursor, activateEl, isPointerMode, movePointer, setPointerMode } from './pointer-nav.js';
@@ -165,7 +164,7 @@ function pointerMove(direction: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRi
 export function initKeyboardShortcuts(): void {
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape' && state.azanPlaying) {
-      stopAzan();
+      void import('./features/prayer/prayer.js').then(({ stopAzan }) => stopAzan());
       return;
     }
     if (
