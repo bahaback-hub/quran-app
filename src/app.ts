@@ -309,12 +309,14 @@ export async function initApp(): Promise<void> {
 
     // Group 3: Network-dependent (non-blocking) — defer to next idle period
     scheduleIdle(() => {
-      void import('./adhkar.js').then(({ initAdhkarState, loadAdhkarSettings, wireAdhkarEvents, startAdhkarNotificationScheduler }) => {
-        initAdhkarState();
-        loadAdhkarSettings();
-        wireAdhkarEvents();
-        startAdhkarNotificationScheduler();
-      });
+      void import('./adhkar.js').then(
+        ({ initAdhkarState, loadAdhkarSettings, wireAdhkarEvents, startAdhkarNotificationScheduler }) => {
+          initAdhkarState();
+          loadAdhkarSettings();
+          wireAdhkarEvents();
+          startAdhkarNotificationScheduler();
+        },
+      );
       void import('./features/prayer/prayer.js').then(({ loadUnderwrittenPrayerTable, loadPrayerTimes }) =>
         loadUnderwrittenPrayerTable().then(() => loadPrayerTimes()),
       );

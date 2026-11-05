@@ -950,7 +950,6 @@ describe('app-events', () => {
       const { showSleepTimerModal } = await import('../sleep-timer-modal.js');
       expect(showSleepTimerModal).toHaveBeenCalled();
     });
-
   });
 
   /* ==================== bindGlobalClickHandler ==================== */

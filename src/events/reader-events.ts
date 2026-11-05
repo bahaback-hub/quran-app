@@ -18,13 +18,11 @@ import * as audioModule from '../features/audio/audio.js';
 
 type PrayerModule = typeof import('../features/prayer/prayer.js');
 let prayerModulePromise: Promise<PrayerModule> | null = null;
-const loadPrayerModule = (): Promise<PrayerModule> =>
-  (prayerModulePromise ??= import('../features/prayer/prayer.js'));
+const loadPrayerModule = (): Promise<PrayerModule> => (prayerModulePromise ??= import('../features/prayer/prayer.js'));
 let prayerBarQuickSelectInitialized = false;
 type AdhkarModule = typeof import('../adhkar.js');
 let adhkarModulePromise: Promise<AdhkarModule> | null = null;
-const loadAdhkarModule = (): Promise<AdhkarModule> =>
-  (adhkarModulePromise ??= import('../adhkar.js'));
+const loadAdhkarModule = (): Promise<AdhkarModule> => (adhkarModulePromise ??= import('../adhkar.js'));
 
 type SearchModule = typeof import('../features/search/search-ui.js');
 let searchModulePromise: Promise<SearchModule> | null = null;
@@ -205,7 +203,6 @@ export function bindSearchEvents(): void {
 
   // Auto-play next surah toggle
   dom.autoPlayNextBtn?.addEventListener('click', handleAutoPlayNextToggle);
-
 }
 
 /**

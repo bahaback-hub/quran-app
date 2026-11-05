@@ -38,8 +38,7 @@ import { warnRecoverable } from '../error-boundary.js';
 
 type PrayerModule = typeof import('../features/prayer/prayer.js');
 let prayerModulePromise: Promise<PrayerModule> | null = null;
-const loadPrayerModule = (): Promise<PrayerModule> =>
-  (prayerModulePromise ??= import('../features/prayer/prayer.js'));
+const loadPrayerModule = (): Promise<PrayerModule> => (prayerModulePromise ??= import('../features/prayer/prayer.js'));
 
 /**
  * Bind theme and settings buttons.
@@ -419,12 +418,11 @@ export function bindDisplaySettingsEvents(): void {
     // User gesture: the one safe moment to ask for notification permission
     // (mirrors the adhkar toggle). Background paths only ever check.
     if (state.azanEnabled) {
-      void Promise.all([
-        loadPrayerModule(),
-        import('../features/prayer/azan-notifications.js'),
-      ]).then(([, { ensureAzanNotificationPermission }]) => ensureAzanNotificationPermission()).then((granted) => {
-        showToast(granted ? __('notification_active') : __('notification_paused'), granted ? 'success' : 'warning');
-      });
+      void Promise.all([loadPrayerModule(), import('../features/prayer/azan-notifications.js')])
+        .then(([, { ensureAzanNotificationPermission }]) => ensureAzanNotificationPermission())
+        .then((granted) => {
+          showToast(granted ? __('notification_active') : __('notification_paused'), granted ? 'success' : 'warning');
+        });
     }
     void loadPrayerModule().then(({ scheduleNextAzanCheck }) => scheduleNextAzanCheck());
   });
