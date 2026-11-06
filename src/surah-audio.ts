@@ -63,11 +63,7 @@ function countArabicChars(text: string): number {
  * Returns fractions (0-1) matching the calculateAyahTimings() format,
  * or null if unavailable (triggers character-count fallback).
  */
-async function fetchAyahTimings(
-  reciterId: string,
-  surahNum: number,
-  ayahs: AyahEntry[],
-): Promise<number[] | null> {
+async function fetchAyahTimings(reciterId: string, surahNum: number, ayahs: AyahEntry[]): Promise<number[] | null> {
   const apiId = getTimingApiId(reciterId);
   if (!apiId) {
     return null;
