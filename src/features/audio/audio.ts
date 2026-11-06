@@ -73,26 +73,16 @@ import type { SurahData } from '../../types.js';
 
 /* ===================== INTERFACES ===================== */
 
-import type { LoadSurahFn, ReloadAudioFn } from './audio-types.js';
+import type { ReloadAudioFn } from './audio-types.js';
 export type { RepeatRange } from './audio-types.js';
 
 /* ===================== MODULE STATE ===================== */
-
-/** Inject the loadSurah callback from app.ts (avoids circular import). */
-let _loadSurah: LoadSurahFn | null = null;
+// Navigation + highlight injection live in ./audio-navigation.ts; re-exported here
+// so existing import sites (app.ts, keyboard.ts, navigation.ts, tests) keep working.
+import { initAudioNavigationHost, nextAyah, prevAyah, nextSurah, highlightCurrentAyah } from './audio-navigation.js';
 
 /** Inject the reloadCurrentSurahAudio callback from app.ts (avoids circular import). */
 let _reloadSurahAudio: ReloadAudioFn | null = null;
-
-/**
- * Inject the loadSurah callback from app.ts.
- * Required to avoid circular imports — app.ts calls this during initialization.
- *
- * @param fn The function to call when loading a new surah
- */
-export function setLoadSurah(fn: LoadSurahFn): void {
-  _loadSurah = fn;
-}
 
 /**
  * Inject the reloadCurrentSurahAudio callback from app.ts.
@@ -102,24 +92,6 @@ export function setLoadSurah(fn: LoadSurahFn): void {
  */
 export function setReloadAudio(fn: ReloadAudioFn): void {
   _reloadSurahAudio = fn;
-}
-
-/** Injectable highlightCurrentAyah callback (avoids circular import). */
-let _highlightAyah: (() => void) | null = null;
-
-/**
- * Inject the highlightCurrentAyah callback from app.ts.
- * Required to avoid circular imports — app.ts calls this during initialization.
- *
- * @param fn The function to call to highlight the current ayah in the reader
- */
-export function setHighlightAyah(fn: () => void): void {
-  _highlightAyah = fn;
-}
-
-/** Highlight the current ayah via the injected reader callback (safe no-op). */
-function highlightCurrentAyah(): void {
-  _highlightAyah?.();
 }
 
 let _mp3quranUrl: string | null = null;
@@ -790,84 +762,6 @@ function onAudioEnded(): void {
   nextAyah(true);
 }
 
-/* ===================== NAVIGATION ===================== */
-
-/**
- * Advance to the next ayah, or the next surah if at the end.
- * @param autoFromRepeat Whether this was triggered automatically by repeat mode
- */
-export function nextAyah(autoFromRepeat: boolean): void {
-  if (!state.surahData) {
-    return;
-  }
-  if (!state.ayahsAudios?.length) {
-    // The boot-time audio fetch can still be in flight while the user taps
-    // "next": swallowing the click silently left the label unchanged for
-    // seconds (observed as an E2E flake on loaded CI runners). Advance the
-    // highlight against the surah's text length instead; playback resumes
-    // once the audio list arrives.
-    const total = state.surahData.ayahs.length;
-    if (total > 0 && state.currentAyahIndex < total - 1) {
-      state.currentAyahIndex++;
-      highlightCurrentAyah();
-    }
-    return;
-  }
-  if (state.currentAyahIndex < state.ayahsAudios.length - 1) {
-    state.currentAyahIndex++;
-    highlightCurrentAyah();
-    if (autoFromRepeat || state.isPlaying) {
-      playCurrentAyah();
-    }
-  } else if (state.currentSurah < 114) {
-    if (state.mushafMode) {
-      dom.audioPlayer?.pause();
-      setStoppedState();
-      return;
-    }
-    nextSurah();
-  }
-}
-
-/**
- * Go to the previous ayah, or the previous surah if at the beginning.
- * Automatically starts playback if currently playing.
- */
-export function prevAyah(): void {
-  if (!state.surahData) {
-    return;
-  }
-  if (state.currentAyahIndex > 0) {
-    state.currentAyahIndex--;
-    highlightCurrentAyah();
-    if (state.isPlaying) {
-      playCurrentAyah();
-    }
-  } else if (state.currentSurah > 1) {
-    prevSurah();
-  }
-}
-
-/**
- * Load the next surah, preserving current playback state.
- * Calls the injected loadSurah callback with autoPlay = state.isPlaying.
- */
-export function nextSurah(): void {
-  if (state.currentSurah < 114) {
-    _loadSurah?.(state.currentSurah + 1, { autoPlay: state.isPlaying });
-  }
-}
-
-/**
- * Load the previous surah, preserving current playback state.
- * Calls the injected loadSurah callback with autoPlay = state.isPlaying.
- */
-export function prevSurah(): void {
-  if (state.currentSurah > 1) {
-    _loadSurah?.(state.currentSurah - 1, { autoPlay: state.isPlaying });
-  }
-}
-
 /* ===================== HIFDH & REPEAT ===================== */
 
 /**
@@ -906,6 +800,11 @@ export function toggleHifdh(): void {
 // must not import directly (which would create a circular import). The
 // closures read module state lazily, so wiring them here — after every
 // definition — is safe.
+initAudioNavigationHost({
+  playCurrentAyah,
+  setStoppedState,
+});
+
 initWordTrackingHost({
   isAutoAdvancing: () => _autoAdvancing,
   hasTimings: () => (state.ayahTimings?.length ?? 0) > 0,
@@ -922,3 +821,6 @@ initSleepTimerHost({
     }
   },
 });
+
+// Navigation moved to ./audio-navigation.ts — re-exported for existing import sites.
+export { setLoadSurah, setHighlightAyah, nextAyah, prevAyah, nextSurah, prevSurah } from './audio-navigation.js';

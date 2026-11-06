@@ -149,7 +149,10 @@ These files are large and would benefit from being split by feature:
 - `prayer.ts` (~37KB) — already split: `qibla.ts` holds the Qibla compass
 - `surah-loader.ts` — already split: `surah-audio.ts` owns the audio pipeline
   (MP3QURAN/reciter download helpers, timings, generation counter)
-- `audio.ts` (~37KB)
+- `audio.ts` (~37KB) — already split: `audio-navigation.ts` owns next/prev ayah &
+  surah transitions plus the load/highlight injections, re-exported from
+  `audio.ts` (the playback engine stays in `audio.ts` and injects its actions)
+
 - `mushaf-renderer.ts` (~37KB)
 - `settings.ts` — already split: `theme.ts` owns the theme pipeline and is re-exported from `settings.ts`  
 - `pres-backgrounds.ts` (~22KB) — already split: `pres-scene-canvas.ts` owns the
