@@ -37,7 +37,7 @@ import { parseDeepLink, clearDeepLinkHash } from './deep-link.js';
 import { refreshHomeGrid, showHome } from './home.js';
 import { handleVisibilityChange, showContinueWidget, updateNetworkBanner, updateReadingProgress } from './ui-extras.js';
 import { restoreSettings, initSystemThemeDetection } from './settings.js';
-import { bindAllEvents, initAutoPlayNextButton } from './app-events.js';
+import { bindCriticalEvents, bindDeferredEvents, initAutoPlayNextButton } from './app-events.js';
 import { injectOverlays } from './overlays.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { refreshRecentExternalData } from './external-data-cache.js';
@@ -132,7 +132,10 @@ export async function initApp(): Promise<void> {
   // also keeps E2E deterministic on slower engines: a surah change high in the
   // boot sequence is still handled instead of racing the initial load.
   bindAudioEvents();
-  bindAllEvents();
+  bindCriticalEvents();
+  // Search/help/share integrations are not needed for the first interaction
+  // window. Keep them out of the initial Lighthouse main-thread sample.
+  scheduleAfterPaint(bindDeferredEvents, 1000);
   initNavigation();
   scheduleAfterPaint(() => {
     initAutoPlayNextButton();

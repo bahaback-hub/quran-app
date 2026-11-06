@@ -180,6 +180,8 @@ vi.mock('../settings.js', () => ({
 
 vi.mock('../app-events.js', () => ({
   bindAllEvents: vi.fn(),
+  bindCriticalEvents: vi.fn(),
+  bindDeferredEvents: vi.fn(),
   initAutoPlayNextButton: vi.fn(),
 }));
 
@@ -337,10 +339,18 @@ describe('app.ts — initApp', () => {
   // ─── Phase 2: Event Bindings ────────────────────────────────────
 
   describe('Phase 2 — Event Bindings', () => {
-    it('should call bindAllEvents', async () => {
-      const { bindAllEvents } = await import('../app-events.js');
+    it('should call bindCriticalEvents', async () => {
+      const { bindCriticalEvents } = await import('../app-events.js');
       await initApp();
-      expect(bindAllEvents).toHaveBeenCalled();
+      expect(bindCriticalEvents).toHaveBeenCalled();
+    });
+
+    it('should defer secondary event bindings until after paint', async () => {
+      const { bindDeferredEvents } = await import('../app-events.js');
+      await initApp();
+      expect(bindDeferredEvents).not.toHaveBeenCalled();
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      expect(bindDeferredEvents).toHaveBeenCalled();
     });
 
     it('should call initAutoPlayNextButton', async () => {

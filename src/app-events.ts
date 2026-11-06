@@ -3,7 +3,7 @@
  *
  * The bind* implementations live in focused per-domain modules; this file
  * only re-exports them (so every existing import path keeps working) and
- * hosts bindAllEvents, which registers everything at startup.
+ * hosts the grouped startup binders.
  */
 import { bindHelpEvents } from './events/help-events.js';
 import { bindNavigationEvents } from './events/navigation-events.js';
@@ -34,18 +34,33 @@ export {
 };
 
 /**
- * Register all application event bindings at once.
+ * Register only the controls needed during the first interaction window.
+ * Keep this group synchronous so navigation and settings work immediately.
  */
-export function bindAllEvents(): void {
+export function bindCriticalEvents(): void {
   bindNavigationEvents();
   bindHeaderAndSettingsEvents();
+  bindDisplaySettingsEvents();
+  bindGlobalClickHandler();
+}
+
+/** Register secondary integrations after the first frame has painted. */
+export function bindDeferredEvents(): void {
   bindAzanEvents();
   bindTafsirEvents();
-  bindDisplaySettingsEvents();
   bindPanelsAndShareEvents();
   bindSearchEvents();
-  bindGlobalClickHandler();
   bindHeaderMenuEvents();
   bindMiscEvents();
   bindHelpEvents();
+}
+
+/**
+ * Backwards-compatible all-at-once binder for callers outside the boot path.
+ * The application boot uses the two grouped functions above to yield between
+ * critical and secondary event registration.
+ */
+export function bindAllEvents(): void {
+  bindCriticalEvents();
+  bindDeferredEvents();
 }

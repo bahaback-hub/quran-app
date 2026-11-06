@@ -6,9 +6,9 @@
  * JavaScript turn with the first frame. The timeout path keeps this safe in
  * WebViews and test environments without requestAnimationFrame.
  */
-export function scheduleAfterPaint(task: () => void): void {
+export function scheduleAfterPaint(task: () => void, delayMs = 0): void {
   const defer = (): void => {
-    window.setTimeout(task, 0);
+    window.setTimeout(task, delayMs);
   };
 
   if (typeof window.requestAnimationFrame === 'function') {
