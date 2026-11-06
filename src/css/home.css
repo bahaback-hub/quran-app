@@ -3,18 +3,6 @@
 .home-screen {
   padding: 8px 4px 28px;
   text-align: center;
-  animation: homeFadeIn 0.35s ease;
-}
-
-@keyframes homeFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .home-hero {
@@ -22,6 +10,8 @@
 }
 
 .home-bismillah {
+  display: block;
+  min-height: 61px;
   font-size: clamp(1.6rem, 4.5vw, 2.4rem);
   color: var(--accent);
   font-family: var(--font-quran, 'Amiri', 'Traditional Arabic', serif);

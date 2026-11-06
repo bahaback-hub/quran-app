@@ -86,12 +86,20 @@ export async function initApp(): Promise<void> {
   setHighlightAyah(highlightCurrentAyah);
   injectOverlays(); // Must run before cacheDom — injects overlay HTML into DOM
   cacheDom();
+
   // initI18n runs before panel injection; apply once more so newly injected
   // settings, player, and help menus immediately use the selected language.
   applyTranslations();
   restoreSettings();
   initSystemThemeDetection();
   populateReciterSelect();
+
+  // Paint the launcher before the surah list is fetched. Translation and
+  // settings are applied first so the first paint cannot shift when localized
+  // labels arrive.
+  if (!parseDeepLink(window.location.hash) && !storage.get<LastPosition>('last_position')?.surah) {
+    showHome();
+  }
 
   // Paint the launcher before the surah list is fetched.
   //
@@ -105,12 +113,6 @@ export async function initApp(): Promise<void> {
   // `refreshHomeGrid()` fills the grid in when the list lands, without touching
   // the hero or moving anything on screen.
   //
-  // The decision is identical to the one at the bottom of this function, which
-  // stays as the fallback: no deep link and no saved position means first visit.
-  if (!parseDeepLink(window.location.hash) && !storage.get<LastPosition>('last_position')?.surah) {
-    showHome();
-  }
-
   await loadSurahList();
   buildSurahOffsets();
   // A launcher painted above is still showing only on a first visit, so this

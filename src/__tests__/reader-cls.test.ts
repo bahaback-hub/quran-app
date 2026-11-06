@@ -72,6 +72,12 @@ describe('no layout shift from the loading reader', () => {
     expect(indexHtml).toMatch(/reading-mode-featured-ayah-logo\.webp[\s\S]*?width="160"[\s\S]*?height="60"/);
   });
 
+  it('reserves the first-paint home launcher geometry for the LCP text', () => {
+    expect(criticalGeometryCss).toMatch(/\.home-screen[\s\S]*?text-align:\s*center/);
+    expect(criticalGeometryCss).toMatch(/\.home-bismillah[\s\S]*?min-height:\s*61px/);
+    expect(criticalGeometryCss).toMatch(/\.home-bismillah[\s\S]*?font-family:\s*'Amiri'/);
+  });
+
   it('fills the viewport while loading so the footer starts below the fold', () => {
     const body = ruleBody('.surah-content.is-loading');
     expect(body).toMatch(/min-height:\s*100dvh/);

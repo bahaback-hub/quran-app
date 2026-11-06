@@ -24,10 +24,39 @@
   pointer-events: none;
 }
 
+/* The first-visit launcher is painted before the surah list arrives. Reserve
+   its hero geometry in the critical sheet so the LCP text is visible as soon
+   as the launcher is inserted, without waiting for the full stylesheet. */
+.home-screen {
+  box-sizing: border-box;
+  padding: 8px 4px 28px;
+  text-align: center;
+}
+
+.home-hero {
+  margin-bottom: 20px;
+}
+
+.home-bismillah {
+  display: block;
+  min-height: 61px;
+  margin-bottom: 8px;
+  color: var(--accent);
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  line-height: 1.6;
+}
+
 @media (max-width: 1024px) {
   #readerSideTools .reader-side-tool-slot {
     width: 74px;
     min-height: 66px;
     flex-basis: 74px;
+  }
+}
+
+@media (max-width: 639px) {
+  .home-bismillah {
+    min-height: 52px;
   }
 }
