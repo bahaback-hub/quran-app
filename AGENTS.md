@@ -132,6 +132,7 @@ Key modules:
 | `adhkar.ts` / `adhkar-data.ts` / `adhkar-notifications.ts` | Adhkar panel, data, scheduled notifications                                                                                                                                                                                                                            |
 | `favorites.ts`                                             | Favorites + bookmarks + export (.txt/.json)                                                                                                                                                                                                                            |
 | `settings.ts`                                              | Settings panel + import/export with type validation                                                                                                                                                                                                                    |
+| `theme.ts`                                                | Theme pipeline (night/sepia/deep-night modes, background preloads, system-preference detection), re-exported from `settings.ts`  |
 | `keyboard.ts`                                              | Keyboard shortcuts + on-screen Arabic keyboard                                                                                                                                                                                                                         |
 | `navigation.ts`                                            | Navigation system                                                                                                                                                                                                                                                      |
 | `a11y.ts`                                                  | Accessibility utilities (focus trap, ARIA live, reduced-motion)                                                                                                                                                                                                        |
@@ -150,7 +151,7 @@ These files are large and would benefit from being split by feature:
   (MP3QURAN/reciter download helpers, timings, generation counter)
 - `audio.ts` (~37KB)
 - `mushaf-renderer.ts` (~37KB)
-- `settings.ts` (~37KB)
+- `settings.ts` — already split: `theme.ts` owns the theme pipeline and is re-exported from `settings.ts`  
 - `pres-backgrounds.ts` (~22KB)
 
 ## DOM Conventions
