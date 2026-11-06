@@ -256,6 +256,7 @@ describe('app.ts — initApp', () => {
     it('should call preloadTajweedIfNeeded', async () => {
       const { preloadTajweedIfNeeded } = await import('../tajweed-data.js');
       await initApp();
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(preloadTajweedIfNeeded).toHaveBeenCalled();
     });
 
@@ -345,6 +346,7 @@ describe('app.ts — initApp', () => {
     it('should call initAutoPlayNextButton', async () => {
       const { initAutoPlayNextButton } = await import('../app-events.js');
       await initApp();
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(initAutoPlayNextButton).toHaveBeenCalled();
     });
 
@@ -357,6 +359,7 @@ describe('app.ts — initApp', () => {
     it('should call initKeyboardShortcuts', async () => {
       const { initKeyboardShortcuts } = await import('../keyboard.js');
       await initApp();
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(initKeyboardShortcuts).toHaveBeenCalled();
     });
 

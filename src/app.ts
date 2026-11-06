@@ -44,6 +44,7 @@ import { refreshRecentExternalData } from './external-data-cache.js';
 import { deleteLegacyCaches } from './cache-names.js';
 import { initLangSwitcher } from './lang-switcher.js';
 import { initCspReporting } from './csp-report.js';
+import { scheduleAfterPaint } from './scheduler.js';
 
 export {
   loadSurah,
@@ -76,10 +77,9 @@ function initState(): void {
 export async function initApp(): Promise<void> {
   // ========== PHASE 1: CRITICAL PATH ==========
   initState();
-  // Drop pre-v3 Cache Storage buckets left by older releases (ARC-03).
-  // Fire-and-forget: readers use caches.match across all buckets, so the
-  // background cleanup cannot break reads; misses simply re-fetch.
-  deleteLegacyCaches();
+  // Drop pre-v3 Cache Storage buckets after the first paint. Readers use
+  // caches.match across all buckets, so this cleanup is safe to defer.
+  scheduleAfterPaint(deleteLegacyCaches);
   initCspReporting(); // CSP violation monitoring — before any dynamic content injects
   setLoadSurah(loadSurah);
   setReloadAudio(reloadCurrentSurahAudio);
@@ -133,9 +133,11 @@ export async function initApp(): Promise<void> {
   // boot sequence is still handled instead of racing the initial load.
   bindAudioEvents();
   bindAllEvents();
-  initAutoPlayNextButton();
   initNavigation();
-  initKeyboardShortcuts();
+  scheduleAfterPaint(() => {
+    initAutoPlayNextButton();
+    initKeyboardShortcuts();
+  });
 
   const deepLink = parseDeepLink(window.location.hash);
   let loadedSurah = false;
@@ -192,8 +194,11 @@ export async function initApp(): Promise<void> {
   }
 
   // This now resolves to the active surah's small tajweed chunk, not the
-  // full corpus, and is a no-op when tajweed is disabled.
-  void preloadTajweedIfNeeded();
+  // full corpus, and is a no-op when tajweed is disabled. It is not needed
+  // for the first frame, so let the launcher/reader paint first.
+  scheduleAfterPaint(() => {
+    void preloadTajweedIfNeeded();
+  });
 
   // React to deep links arriving while the app is already open (e.g. clicking a
   // shared SEO URL or a bookmarked #surah=N link).
@@ -279,6 +284,8 @@ export async function initApp(): Promise<void> {
   window.addEventListener('scroll', updateReadingProgress, { passive: true });
   updateReadingProgress();
 
+  scheduleAfterPaint(loadFavorites);
+
   // ========== PHASE 3: DEFERRED NON-CRITICAL INIT ==========
   // Use requestIdleCallback when available to avoid blocking user interaction.
   // Falls back to setTimeout for browsers without rIC support.
@@ -301,8 +308,8 @@ export async function initApp(): Promise<void> {
     loadingBar.init();
     loadingBar.hide();
 
-    // Group 1: Lightweight state init (no network, no DOM mutation)
-    loadFavorites();
+    // Favorites are local state only, but still do not belong on the critical
+    // path. They are loaded by the shared after-paint scheduler below.
 
     // Group 2: Clock & prayer (lightweight, starts intervals)
     const prayer = await import('./features/prayer/prayer.js');
