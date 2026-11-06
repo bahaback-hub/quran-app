@@ -142,21 +142,21 @@
       "reason": "stored pack JSON unreadable → null → treated as not downloaded; the re-download flow recovers"
     },
     {
-      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "file": "src/features/mushaf/mushaf-page-data.ts",
       "fn": "cachedPageLayoutData",
       "anchor": "/* cache is best-effort — fall through to the network */",
       "kind": "catch-empty-block",
       "reason": "layout cache is best-effort — fall through to the network"
     },
     {
-      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "file": "src/features/mushaf/mushaf-page-data.ts",
       "fn": "fetchPageLayoutFromNetwork",
       "anchor": "/* persistent caching is best-effort */",
       "kind": "catch-empty-block",
       "reason": "persistent caching is best-effort"
     },
     {
-      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "file": "src/features/mushaf/mushaf-font-loader.ts",
       "fn": "_doLoadFont",
       "anchor": "/* some browsers don't support the text param */",
       "kind": "catch-empty-block",
@@ -471,21 +471,21 @@
       "reason": "Web Audio unavailable/blocked → return false; playback falls back to the plain element path"
     },
     {
-      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "file": "src/features/mushaf/mushaf-font-loader.ts",
       "fn": "isCapacitorEnv",
       "anchor": "#1",
       "kind": "catch-return-false",
       "reason": "Capacitor env probe failed → treat as web; mushaf uses the browser render path"
     },
     {
-      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "file": "src/features/mushaf/mushaf-font-loader.ts",
       "fn": "isCapacitor",
       "anchor": "#1",
       "kind": "catch-return-false",
       "reason": "Capacitor detection failed → treat as web; mushaf uses the browser render path"
     },
     {
-      "file": "src/features/mushaf/mushaf-renderer.ts",
+      "file": "src/features/mushaf/mushaf-font-loader.ts",
       "fn": "verifyFontOnCanvas",
       "anchor": "#1",
       "kind": "catch-return-false",

@@ -153,7 +153,10 @@ These files are large and would benefit from being split by feature:
   surah transitions plus the load/highlight injections, re-exported from
   `audio.ts` (the playback engine stays in `audio.ts` and injects its actions)
 
-- `mushaf-renderer.ts` (~37KB)
+- `mushaf-renderer.ts` (~37KB) — already split: `mushaf-page-data.ts` owns the
+  page-layout fetch pipeline (LRU cache + SEC-06 integrity check) and
+  `mushaf-font-loader.ts` owns QCF4 font loading/verification; the render math
+  and canvas painting all remain in `mushaf-renderer.ts`
 - `settings.ts` — already split: `theme.ts` owns the theme pipeline and is re-exported from `settings.ts`  
 - `pres-backgrounds.ts` (~22KB) — already split: `pres-scene-canvas.ts` owns the
   canvas animated scenes (stars/waves/aurora/particles/rain), re-exported from
