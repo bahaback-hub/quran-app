@@ -152,7 +152,9 @@ These files are large and would benefit from being split by feature:
 - `audio.ts` (~37KB)
 - `mushaf-renderer.ts` (~37KB)
 - `settings.ts` — already split: `theme.ts` owns the theme pipeline and is re-exported from `settings.ts`  
-- `pres-backgrounds.ts` (~22KB)
+- `pres-backgrounds.ts` (~22KB) — already split: `pres-scene-canvas.ts` owns the
+  canvas animated scenes (stars/waves/aurora/particles/rain), re-exported from
+  `pres-backgrounds.ts`
 
 ## DOM Conventions
 
