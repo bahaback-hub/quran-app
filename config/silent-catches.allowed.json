@@ -198,7 +198,7 @@
       "reason": "local refresh failure — fall through to the cache below"
     },
     {
-      "file": "src/features/presentation/pres-backgrounds.ts",
+      "file": "src/features/presentation/pres-scene-canvas.ts",
       "fn": "removeSceneCanvas",
       "anchor": "/* ignore */",
       "kind": "catch-empty-block",
@@ -506,7 +506,7 @@
       "reason": "Umm Al-Qura Intl calendar unavailable → empty Hijri string; caller skips Hijri-dependent logic"
     },
     {
-      "file": "src/settings.ts",
+      "file": "src/theme.ts",
       "fn": "supportsWebp",
       "anchor": "#1",
       "kind": "catch-return-false",
