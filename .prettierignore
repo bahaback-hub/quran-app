@@ -1,3 +1,6 @@
 # Don't format CSS files that are already in the repo
 src/css/
 styles.css
+# Hand-minified static font-face sheet (served as-is from public/, needed
+# small for the Lighthouse "minify CSS" audit). Edit it in one-line form.
+public/fonts/fonts.css
