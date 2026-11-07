@@ -18,6 +18,8 @@ import type { SurahInfo } from './state.js';
 
 /** DOM id of the launcher root element. */
 const HOME_ID = 'homeScreen';
+const SURAH_BATCH_SIZE = 18;
+let homeGridRenderToken = 0;
 
 /** Whether the launcher is currently rendered. */
 export function isHomeVisible(): boolean {
@@ -55,12 +57,34 @@ export function refreshHomeGrid(): void {
     return;
   }
   const grid = container.querySelector('.home-surah-grid');
-  if (!grid || grid.dataset['filled'] === 'true') {
+  if (!grid || grid.dataset['filled'] === 'true' || grid.dataset['rendering'] === 'true') {
     return;
   }
-  grid.innerHTML = renderSurahGrid(state.surahList);
-  grid.dataset['filled'] = 'true';
-  bindHomeSurahCards(container);
+  const surahs = [...state.surahList];
+  const token = ++homeGridRenderToken;
+  let offset = 0;
+  grid.dataset['rendering'] = 'true';
+  grid.replaceChildren();
+
+  const renderBatch = (): void => {
+    // A surah opened while the batches were pending replaces the launcher.
+    // Stop without touching the reader surface in that case.
+    if (token !== homeGridRenderToken || !isHomeVisible() || !grid.isConnected) {
+      return;
+    }
+    const end = Math.min(offset + SURAH_BATCH_SIZE, surahs.length);
+    grid.insertAdjacentHTML('beforeend', renderSurahGrid(surahs.slice(offset, end)));
+    bindHomeSurahCards(grid);
+    offset = end;
+    if (offset < surahs.length) {
+      window.requestAnimationFrame(renderBatch);
+      return;
+    }
+    delete grid.dataset['rendering'];
+    grid.dataset['filled'] = 'true';
+  };
+
+  window.requestAnimationFrame(renderBatch);
 }
 
 /** The launcher markup, split out so both entry points share one source. */
@@ -107,8 +131,9 @@ function showHomeIn(container: HTMLElement): void {
  * inserted buttons do not inherit listeners from markup that has already been
  * wired. Without this the grid would render but be dead to the touch.
  */
-function bindHomeSurahCards(root: HTMLElement): void {
-  root.querySelectorAll<HTMLElement>('.home-surah-card').forEach((card) => {
+function bindHomeSurahCards(root: ParentNode): void {
+  root.querySelectorAll<HTMLElement>('.home-surah-card:not([data-bound])').forEach((card) => {
+    card.dataset['bound'] = 'true';
     card.addEventListener('click', () => {
       const number = parseInt(card.dataset['surah'] || '0', 10);
       if (number > 0 && number <= 114) {

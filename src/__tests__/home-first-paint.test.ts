@@ -45,6 +45,16 @@ function setupDom(): HTMLElement {
 
 const grid = (content: HTMLElement) => content.querySelector('.home-surah-grid')!;
 
+async function waitForGridToFinish(content: HTMLElement): Promise<void> {
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    if (grid(content).dataset['filled'] === 'true') {
+      return;
+    }
+    await new Promise<void>((resolve) => window.setTimeout(resolve, 5));
+  }
+  throw new Error('surah grid did not finish rendering');
+}
+
 beforeEach(() => {
   document.body.innerHTML = '';
   loadSurahMock.mockClear();
@@ -65,13 +75,14 @@ describe('home launcher paints before the surah list arrives', () => {
     expect(grid(content).dataset['filled']).toBeUndefined();
   });
 
-  it('fills the grid in once the list lands, without touching the hero', () => {
+  it('fills the grid in once the list lands, without touching the hero', async () => {
     const content = setupDom();
     showHome();
     const hero = content.querySelector('.home-bismillah')!;
 
     state.surahList = SURAHS as never;
     refreshHomeGrid();
+    await waitForGridToFinish(content);
 
     expect(grid(content).querySelectorAll('.home-surah-card')).toHaveLength(2);
     expect(grid(content).dataset['filled']).toBe('true');
@@ -80,11 +91,12 @@ describe('home launcher paints before the surah list arrives', () => {
     expect(content.querySelector('.home-bismillah')).toBe(hero);
   });
 
-  it('keeps the replacement cards clickable', () => {
+  it('keeps the replacement cards clickable', async () => {
     const content = setupDom();
     showHome();
     state.surahList = SURAHS as never;
     refreshHomeGrid();
+    await waitForGridToFinish(content);
 
     const card = grid(content).querySelector<HTMLElement>('.home-surah-card[data-surah="2"]')!;
     expect(card).toBeTruthy();
@@ -92,11 +104,12 @@ describe('home launcher paints before the surah list arrives', () => {
     expect(loadSurahMock).toHaveBeenCalledWith(2);
   });
 
-  it('is idempotent, so a second call cannot rebuild a filled grid', () => {
+  it('is idempotent, so a second call cannot rebuild a filled grid', async () => {
     const content = setupDom();
     showHome();
     state.surahList = SURAHS as never;
     refreshHomeGrid();
+    await waitForGridToFinish(content);
     const first = grid(content).firstElementChild;
 
     refreshHomeGrid();
@@ -109,6 +122,24 @@ describe('home launcher paints before the surah list arrives', () => {
     showHome();
 
     expect(grid(content).querySelectorAll('.home-surah-card')).toHaveLength(2);
+    expect(grid(content).dataset['filled']).toBe('true');
+  });
+
+  it('renders a large list across animation frames without losing cards', async () => {
+    const content = setupDom();
+    showHome();
+    state.surahList = Array.from({ length: 40 }, (_, index) => ({
+      number: index + 1,
+      name: `سورة ${index + 1}`,
+      englishName: `Surah ${index + 1}`,
+      numberOfAyahs: index + 1,
+    })) as never;
+
+    refreshHomeGrid();
+    expect(grid(content).querySelectorAll('.home-surah-card')).toHaveLength(0);
+    await waitForGridToFinish(content);
+
+    expect(grid(content).querySelectorAll('.home-surah-card')).toHaveLength(40);
     expect(grid(content).dataset['filled']).toBe('true');
   });
 
