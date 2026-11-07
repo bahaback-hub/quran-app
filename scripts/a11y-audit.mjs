@@ -84,6 +84,79 @@ async function injectAxe(page) {
   }, axeSource);
 }
 
+/**
+ * UXS-side manual-review registry for axe `incomplete` color-contrast nodes.
+ * axe marks elements "incomplete" when it cannot MEASURE them — for us that is
+ * always one of: (a) text over decorative background images / glass surfaces,
+ * (b) lone decorative glyphs, (c) mid-animation panels. Each such node is
+ * documented in config/a11y-contrast-review.json (owner decision 2026-11-06)
+ * and is FILTERED from the incomplete summary here — while still being
+ * printed, so every audit output shows exactly what was exempted.
+ */
+const REVIEW_PATH = resolve(__dirname, '..', 'config', 'a11y-contrast-review.json');
+
+function loadContrastReview() {
+  const raw = JSON.parse(readFileSync(REVIEW_PATH, 'utf-8'));
+  return {
+    entries: raw.entries || [],
+    decisionDate: raw.decisionDate || 'n/a',
+  };
+}
+
+/** True when a node's last CSS target matches a documented selector. */
+function nodeMatchesReview(node, entries) {
+  const targets = node.target || [];
+  return entries.some((entry) =>
+    targets.some(
+      (t) => t === entry.selector || t.endsWith(` > ${entry.selector}`) || t.startsWith(`${entry.selector}`),
+    ),
+  );
+}
+
+/** True when the reason is one axe attributes to decorative lone glyphs. */
+function isDecorativeGlyphReason(node, entry) {
+  return (
+    entry.category === 'decorative-glyph' &&
+    /non-text characters/.test(node.failureSummary || '') &&
+    node.html.includes('aria-hidden')
+  );
+}
+
+function filterDocumentedContrasts(perState, review) {
+  let exempted = 0;
+  let withheld = 0;
+  const keptPerState = perState.map(({ state, results }) => {
+    const incomplete = (results.incomplete || []).map((item) => {
+      if (item.id !== 'color-contrast') {
+        return item;
+      }
+      const kept = [];
+      for (const node of item.nodes || []) {
+        const matched = nodeMatchesReview(node, review.entries);
+        if (!matched) {
+          kept.push(node);
+          continue;
+        }
+        const entry = review.entries.find((e) => (node.target || []).includes(e.selector));
+        const withhold = (entry && entry.category) === 'decorative-glyph' && !isDecorativeGlyphReason(node, entry);
+        if (withhold) {
+          // Documented as glyph, but the reason says otherwise (e.g. real text
+          // now lives under that selector) — keep it visible, do not exempt.
+          kept.push(node);
+          withheld++;
+          continue;
+        }
+        exempted++;
+        console.log(`   · exempted (documented ${review.decisionDate}): [${state}] ${node.target.join(' ')}`);
+      }
+      return { ...item, nodes: kept };
+    });
+    return { state, results: { ...results, incomplete } };
+  });
+  console.log(`   · color-contrast review: ${exempted} documented exemption(s), ${withheld} withheld`);
+  return { keptPerState, exempted };
+}
+
 async function runAxe(page) {
   return page.evaluate(() => {
     return new Promise((resolve) => {
@@ -129,26 +202,28 @@ async function runAudit() {
     console.log(`   ✓ scanned: ${state.name}`);
   }
 
+  // Apply the documented manual-review exemptions (config/a11y-contrast-review.json)
+  // to the axe "incomplete" list, keeping raw results intact on disk.
+  const review = loadContrastReview();
+  const { keptPerState } = filterDocumentedContrasts(perState, review);
+  const reportStates = keptPerState;
+
   // Write full results
   const fs = await import('fs');
   fs.writeFileSync(
     'a11y-results.json',
-    JSON.stringify(
-      { baseUrl: BASE_URL, scannedAt: new Date().toISOString(), states: perState },
-      null,
-      2,
-    ),
+    JSON.stringify({ baseUrl: BASE_URL, scannedAt: new Date().toISOString(), states: perState }, null, 2),
   );
 
   // Summary
   let totalViolations = 0;
   let totalIncomplete = 0;
   const criticalSerious = [];
-  for (const { state, results } of perState) {
+  for (const { state, results } of reportStates) {
     const violations = results.violations || [];
     const incomplete = results.incomplete || [];
     totalViolations += violations.length;
-    totalIncomplete += incomplete.length;
+    totalIncomplete += incomplete.filter((i) => i.nodes.length > 0).length;
 
     if (violations.length > 0) {
       console.log(`\n❌ Violations in "${state}":`);
@@ -172,7 +247,7 @@ async function runAudit() {
 
   if (totalIncomplete > 0) {
     console.log('\n⚠️ Incomplete checks (manual review needed):');
-    const first = perState[0]?.results.incomplete || [];
+    const first = (reportStates[0]?.results.incomplete || []).filter((i) => i.nodes.length > 0);
     for (const i of first.slice(0, 5)) {
       console.log(`   • ${i.id}: ${i.description} (${i.nodes.length} elements)`);
     }

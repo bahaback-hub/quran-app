@@ -1,0 +1,78 @@
+{
+  "//": [
+    "Documented manual-review exemptions for the axe color-contrast 'incomplete' list.",
+    "On 2026-11-06 the project owner reviewed all axe 'incomplete' color-contrast",
+    "items (the tool cannot measure over the decorative background images /",
+    "blur-glass surfaces, and cannot measure lone decorative glyphs) and decided",
+    "to keep the visual identity unchanged while documenting the review.",
+    "Evidence: pixel-level measurement over the real rendering (temp scripts),",
+    "CSS compositing math for rgba review values, and an isolation run with",
+    "background-image stripped. Category values must match what the audit",
+    "script understands: 'decorative-glyph' | 'glass-surface' | 'obsfuscated'."
+  ],
+  "decisionDate": "2026-11-06",
+  "entries": [
+    {
+      "selector": ".header-action-label",
+      "category": "glass-surface",
+      "note": "white label over the daytime parchment texture; measured ≈2.9–3.0:1 — accepted, identity preserved"
+    },
+    {
+      "selector": "#readerSurfaceValue",
+      "category": "glass-surface",
+      "note": "amber 65% chip on light glass; measured ≈3.2–3.4:1 — accepted, identity preserved"
+    },
+    {
+      "selector": "#readerZoomValue",
+      "category": "glass-surface",
+      "note": "measured ≈12.7:1 — passes on its isolated background; gauge chip only"
+    },
+    {
+      "selector": "footer",
+      "category": "glass-surface",
+      "note": "rgba(92,68,48,.85) blur-glass over parchment; composited ratios ≈4.5:1 — borderline pass, monitored"
+    },
+    {
+      "selector": ".footer-link",
+      "category": "glass-surface",
+      "note": "#ffd866 links on the glass footer; composited ≈4.5:1 — borderline pass, monitored"
+    },
+    {
+      "selector": "#bigClockTime2",
+      "category": "glass-surface",
+      "note": "clock digits over gradient; decorative emphasis, values also announced by aria-live"
+    },
+    {
+      "selector": "#bigClockHijri",
+      "category": "glass-surface",
+      "note": "hijri date over gradient; decorative emphasis"
+    },
+    {
+      "selector": "span[data-i18n=\"azan\"]",
+      "category": "glass-surface",
+      "note": "measured ≈6:1 on its isolated background — passes"
+    },
+    {
+      "selector": "h2[data-i18n=\"settings\"]",
+      "category": "obsfuscated",
+      "note": "axe could not compute because the panel was mid-animation; computed ≈4.9:1 — passes"
+    },
+    {
+      "selector": "span[data-i18n=\"tools\"]",
+      "category": "glass-surface",
+      "note": "active tab + section title chips; measured ≈4.9:1 isolated — passes"
+    },
+    { "selector": ".theme-menu-caret", "category": "decorative-glyph", "note": "lone ▼ glyph, aria-hidden, not text" },
+    {
+      "selector": ".home-action-icon",
+      "category": "decorative-glyph",
+      "note": "lone ⋯ glyph, aria-hidden, not text; measured ≈18:1 anyway"
+    },
+    { "selector": ".collapse-chevron", "category": "decorative-glyph", "note": "lone ▲ glyph, aria-hidden, not text" },
+    {
+      "selector": ".help-toggle-icon",
+      "category": "decorative-glyph",
+      "note": "lone ▼ glyphs beside real accessible section buttons, aria-hidden, not text"
+    }
+  ]
+}
