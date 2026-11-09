@@ -45,7 +45,13 @@ await new Promise((resolve, reject) => {
 });
 
 const browser = await chromium.launch({ timeout: 30000 });
-const page = await browser.newPage({ viewport: { width: 1350, height: 940 } });
+// Mirror the Lighthouse CI environment (English, LTR): booting English is
+// what used to paint the static RTL shell and then mirror the whole page.
+// localStorage stays empty (first visit), like the LHCI collect run.
+const page = await browser.newPage({
+  viewport: { width: 1350, height: 940 },
+  locale: 'en-US',
+});
 
 await page.addInitScript(() => {
   let value = 0;

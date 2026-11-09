@@ -30,6 +30,11 @@ html.home-preload-hide .surah-content > .loading {
 
 .home-bismillah {
   display: block;
+  /* One line, always: with a metrics-wide fallback font (or tofu on a
+     fontless system) wrapped text would grow the box from one line to two
+     and shift everything below. The Amiri text is narrow enough (266px at
+     desktop, 177px at 320px) that nowrap never clips it. */
+  white-space: nowrap;
   min-height: 61px;
   font-size: clamp(1.6rem, 4.5vw, 2.4rem);
   color: var(--accent);
