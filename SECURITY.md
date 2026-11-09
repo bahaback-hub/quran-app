@@ -82,7 +82,7 @@ The CI pipeline runs `npm audit --audit-level=high` on every PR and fails the bu
 
 ### Known dev-only advisories (accepted, re-checked on upgrades)
 
-`npm audit` currently reports **2 low + 24 moderate advisories — all inside dev-only tooling** (`eslint`'s minimatch 3.x chain, `workbox-build`/`madge`/`typedoc` chains). None affect the shipped application or end users:
+`npm audit` currently reports **2 low + 18 moderate advisories — all inside dev-only tooling** (`eslint`'s minimatch 3.x chain, `workbox-build`/`madge`/`typedoc` chains; count dropped from 24 to 18 as the toolchain moved to eslint 10 / typescript-eslint 8). None affect the shipped application or end users:
 
 | Advisory | Severity | Location | Why it is accepted |
 |----------|----------|----------|--------------------|
