@@ -28,6 +28,16 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      # The app's primary UI is Arabic; the runner must render real Arabic
+      # glyphs (Noto) instead of tofu boxes, or the font swap would shift
+      # the measured page. The CLS guard (scripts/measure-cls.mjs, en-US)
+      # covers the English-boot flip regression deterministically.
+      - name: Install Arabic fonts
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-noto-core
+          fc-cache -f
+
       - name: Lighthouse CI
         run: |
           npm install -g @lhci/cli

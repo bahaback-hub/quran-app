@@ -6,7 +6,8 @@
       "startServerReadyPattern": "Local",
       "url": ["http://localhost:4173/quran-app/"],
       "settings": {
-        "preset": "desktop"
+        "preset": "desktop",
+        "locale": "ar"
       }
     },
     "assert": {
