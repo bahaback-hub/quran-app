@@ -18,6 +18,11 @@ import { LEGACY_QURAN_FONT_FAMILY, QURAN_FONT_FAMILY, QURAN_FONT_STACK, migrateF
 
 const root = resolve(import.meta.dirname, '../..');
 const fontsCss = readFileSync(resolve(root, 'public/fonts/fonts.css'), 'utf8');
+/**
+ * The sheet is hand-minified (one line, no space after `:`), so compare
+ * declarations rather than formatting. Whitespace carries no meaning in CSS.
+ */
+const css = fontsCss.replace(/\s+/g, ' ').replace(/\s*:\s*/g, ': ');
 const settingsTemplate = readFileSync(resolve(root, 'src/templates/panels/settings-panel.ts'), 'utf8');
 const notice = readFileSync(resolve(root, 'NOTICE.md'), 'utf8');
 
@@ -40,9 +45,9 @@ function cssFiles(dir: string): string[] {
 describe('Mushaf Naskh font family (OFL reserved-name compliance)', () => {
   it('declares the renamed family for both weights', () => {
     expect(QURAN_FONT_FAMILY).toBe('Mushaf Naskh');
-    expect(fontsCss.match(new RegExp(`font-family: '${QURAN_FONT_FAMILY}';`, 'g'))?.length).toBe(2);
-    expect(fontsCss).toContain("src: url('./scheherazade-regular-400.woff2')");
-    expect(fontsCss).toContain("src: url('./scheherazade-bold-700.woff2')");
+    expect(css.match(new RegExp(`font-family: '${QURAN_FONT_FAMILY}';`, 'g'))?.length).toBe(2);
+    expect(css).toContain("src: url('./scheherazade-regular-400.woff2')");
+    expect(css).toContain("src: url('./scheherazade-bold-700.woff2')");
   });
 
   it('never presents the reserved name as a CSS family', () => {

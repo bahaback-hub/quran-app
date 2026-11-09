@@ -6,6 +6,9 @@
          frame-ancestors, so frame-busting is enforced client-side. Kept tiny
          and non-blocking for the top-level case (immediate return). -->
     <script type="module" src="./src/framebust.ts"></script>
+    <!-- Marks returning readers before the first paint so the static launcher
+         hero below cannot flash while their surah is fetched. See src/home-boot.ts. -->
+    <script type="module" src="./src/home-boot.ts"></script>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content"
@@ -84,6 +87,18 @@
          the *active* theme only — see ensureActiveThemeBackgroundPreload() in
          src/settings.ts. A static preload would fetch the night background for
          every visitor even though light is the default theme. -->
+    <!-- LCP: the header brand mark is the largest above-the-fold paint on
+         desktop. It is now a real <img> below, but it still needs the preload:
+         the parser only reaches the body after the ~46KB shell and the CSS, so
+         without this hint the fetch started late. The 21KB webp is loaded on
+         every visit anyway, so preloading it moves the fetch earlier, not adds
+         one. -->
+    <link
+      rel="preload"
+      as="image"
+      href="%BASE_URL%brand/mushaf-sulaymani-transparent-final.webp"
+      fetchpriority="high"
+    />
     <link rel="stylesheet" href="fonts/fonts.css" fetchpriority="high" vite-ignore />
     <link rel="preconnect" href="https://api.alquran.cloud" />
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
@@ -93,7 +108,6 @@
     <link rel="dns-prefetch" href="https://server8.mp3quran.net" />
     <link rel="dns-prefetch" href="https://server9.mp3quran.net" />
     <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="%BASE_URL%critical-geometry.css" vite-ignore />
     <!-- Structured data: WebApplication (rich search results for PWA install prompts) -->
     <script type="application/ld+json">
       {
@@ -244,7 +258,19 @@
           </div>
           <div class="header-title-row">
             <h1 class="header-brand-title">
-              <span class="header-brand-mark" role="img" aria-label="المصحف السليماني"></span>
+              <!-- A real <img>, not a CSS background: modern Chrome only counts
+                   image elements (and text) towards Largest Contentful Paint, so
+                   a background-image logo never painted early enough and the
+                   late repaint became the measured LCP. Same file, same box. -->
+              <img
+                class="header-brand-mark"
+                src="%BASE_URL%brand/mushaf-sulaymani-transparent-final.webp"
+                alt="المصحف السليماني"
+                width="126"
+                height="84"
+                fetchpriority="high"
+                decoding="async"
+              />
               <span class="sr-only" data-i18n="app_title">المصحف السليماني</span>
             </h1>
           </div>
@@ -527,6 +553,24 @@
 
       <!-- ========== محتوى السورة ========== -->
       <main class="surah-content" id="surahContent" role="main" aria-label="نص السورة">
+        <!-- The launcher hero ships statically: the bismillah is a first-visit
+             Largest Contentful Paint, so it must paint with the first frame
+             instead of waiting for i18n + the module graph. src/home.ts only
+             adds the buttons/grid around it; src/home-boot.ts hides it before
+             paint for returning readers. Keep the Arabic text and the
+             data-i18n hooks in sync with showHomeIn() in src/home.ts. -->
+        <section
+          class="home-screen"
+          id="homeScreen"
+          role="region"
+          aria-label="مرحباً بك — اختر سورة لبدء القراءة"
+          data-i18n-aria-label="home_welcome"
+        >
+          <div class="home-hero">
+            <div class="home-bismillah" aria-hidden="true">بِسْمِ اللهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+            <p class="home-welcome" data-i18n="home_welcome">مرحباً بك — اختر سورة لبدء القراءة</p>
+          </div>
+        </section>
         <p class="loading" data-i18n="select_hint">📿 اختر سورة من القائمة لعرض النص والاستماع</p>
       </main>
 

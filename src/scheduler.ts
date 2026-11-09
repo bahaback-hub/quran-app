@@ -17,3 +17,31 @@ export function scheduleAfterPaint(task: () => void, delayMs = 0): void {
     defer();
   }
 }
+
+/**
+ * Resolve once the browser has painted and presented the current frame.
+ *
+ * Used to hand the first frame to the static shell in index.html before the
+ * startup DOM work (injected panels, launcher hydration) runs. Everything that
+ * blocks the commit of that frame is measured as LCP render delay, so waiting
+ * here is faster where it counts even though the app starts slightly later.
+ *
+ * Two frames, not one: the first callback runs before the frame is composited,
+ * so work started there still delays its presentation. The second frame starts
+ * after the previous one was presented.
+ */
+export function afterFirstPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    const finish = (): void => {
+      window.setTimeout(resolve, 0);
+    };
+
+    if (typeof window.requestAnimationFrame === 'function') {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(finish);
+      });
+    } else {
+      finish();
+    }
+  });
+}

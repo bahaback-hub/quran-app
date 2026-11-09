@@ -11,6 +11,13 @@ const noticePath = resolve(root, 'NOTICE.md');
 const rightsPath = resolve(root, 'public/fonts/official/UTHMANIC-HAFS-USAGE-RIGHTS.ar.md');
 const OFFICIAL_HAFS_SHA256 = 'aa68bffce289b4c0ebac68e90502eb69e42356abcd1603cb2b8e99c2c723f145';
 
+/**
+ * fonts.css is hand-minified (one line) to keep the render-blocking sheet small,
+ * so these assertions compare declarations rather than formatting. Whitespace
+ * and the space after a colon carry no meaning in CSS.
+ */
+const normalizeCss = (css: string): string => css.replace(/\s+/g, ' ').replace(/\s*:\s*/g, ': ');
+
 describe('official Uthmanic Hafs font', () => {
   it('ships the original approved font binary without transformation', () => {
     const digest = createHash('sha256').update(readFileSync(fontPath)).digest('hex');
@@ -18,7 +25,7 @@ describe('official Uthmanic Hafs font', () => {
   });
 
   it('declares the font as a self-hosted reading font and exposes it in display settings', () => {
-    const fontCss = readFileSync(fontCssPath, 'utf8');
+    const fontCss = normalizeCss(readFileSync(fontCssPath, 'utf8'));
     const template = readFileSync(templatePath, 'utf8');
 
     expect(fontCss).toContain("font-family: 'KFGQPC HAFS Uthmanic Script'");
@@ -28,7 +35,7 @@ describe('official Uthmanic Hafs font', () => {
 
   it('uses font-display swap so slow WebViews (Android TV) still apply it', () => {
     const fontCss = readFileSync(fontCssPath, 'utf8');
-    const kfgBlock = fontCss.slice(fontCss.indexOf("'KFGQPC HAFS Uthmanic Script'"));
+    const kfgBlock = normalizeCss(fontCss.slice(fontCss.indexOf("'KFGQPC HAFS Uthmanic Script'")));
     expect(kfgBlock).toContain('font-display: swap');
     expect(kfgBlock).not.toContain('font-display: optional');
   });

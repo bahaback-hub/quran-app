@@ -42,6 +42,14 @@
 
 ### Three-Phase Bootstrap (`src/app.ts`)
 
+> **Paint first, boot second.** `src/main.ts` (the entry) waits for the first
+> painted frame via `afterFirstPaint()` and only then dynamically imports the
+> 117KB `app.ts` chunk. The launcher hero — including the bismillah that is the
+> first-visit LCP — ships statically in `index.html`, and `src/home-boot.ts`
+> applies the saved theme/language before paint. Do not import `app.js`
+> statically again: doing so puts the whole module graph back on the critical
+> path and undoes the measured LCP win.
+
 1. **Critical path**: state init → DOM cache → settings → surah list → first load/home.
    Toolbar/navigation/keyboard events bind BEFORE the first surah load so interaction
    is never blocked by (or racing) the initial network fetch.
@@ -98,7 +106,9 @@ Key modules:
 
 | File                                                       | Purpose                                                                                                                                                                                                                                                                |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `main.ts`                                                  | Entry point — error boundary, SW registration, Capacitor init                                                                                                                                                                                                          |
+| `main.ts`                                                  | Entry point — error boundary, SW registration, Capacitor init, and the deferred `import('./app.js')` after the first painted frame                                                                                                                                    |
+| `home-boot.ts`                                             | Pre-paint guard: applies the saved theme (or OS dark preference) and language direction, hides the static launcher for returning readers                                                                                                                               |
+| `scheduler.ts`                                             | `scheduleAfterPaint()` and `afterFirstPaint()` (double rAF + timeout) — the paint-aware hand-off used by the boot sequence                                                                                                                                              |
 | `app.ts`                                                   | 3-phase bootstrap orchestrator + `initApp()`                                                                                                                                                                                                                           |
 | `app-events.ts`                                            | Event bindings (separated from `app.ts`)                                                                                                                                                                                                                               |
 | `state.ts`                                                 | Reactive `state` Proxy + `subscribe`/`batch`/`setState`                                                                                                                                                                                                                |

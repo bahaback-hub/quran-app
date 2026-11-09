@@ -148,6 +148,10 @@
 /* ========== رأس الصفحة ========== */
 .header {
   background: var(--header-bg);
+  /* Reserve header height so deferred/font-loading reflow cannot
+     shift the brand mark and reset the LCP candidate. */
+  min-height: 132px;
+  contain: layout;
   color: var(--header-text);
   padding: 24px 20px;
   text-align: center;
@@ -187,12 +191,16 @@
 .header-brand-title {
   display: block;
   line-height: 1;
+  height: 84px;
+  overflow: hidden;
+  contain: layout;
 }
 .header-brand-mark {
   display: block;
   width: 126px;
   height: 84px;
-  background: url('/brand/mushaf-sulaymani-transparent-final.webp') center / contain no-repeat;
+  object-fit: contain;
+  object-position: center;
 }
 /* سطح المكتب: العنوان والأدوات في صف واحد لتقديم مساحة أكبر للقراءة.
    تتجمع الأدوات كلها إلى اليسار، بينما يتراص البحث والمظهر عموديًا في الطرف نفسه. */

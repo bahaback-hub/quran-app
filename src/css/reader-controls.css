@@ -171,3 +171,17 @@
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
+
+/* Reserve the toolbar's two rows before the deferred modules render their
+   content. These two rules used to live in public/critical-geometry.css, a
+   second render-blocking stylesheet; they are folded into the entry sheet so
+   first paint waits on one CSS request instead of two. */
+#readerToolbarShell .reader-command-bar {
+  box-sizing: border-box;
+  min-height: 126px;
+}
+
+#readerToolbarShell .reader-context-card {
+  box-sizing: border-box;
+  min-height: 54px;
+}

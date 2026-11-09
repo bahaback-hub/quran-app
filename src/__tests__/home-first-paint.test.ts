@@ -163,3 +163,49 @@ describe('home launcher paints before the surah list arrives', () => {
     expect(grid(content).dataset['filled']).toBeUndefined();
   });
 });
+
+describe('static launcher shell shipped in index.html', () => {
+  const SHELL = `
+    <section class="home-screen" id="homeScreen" role="region">
+      <div class="home-hero">
+        <div class="home-bismillah" aria-hidden="true">بِسْمِ اللهِ</div>
+        <p class="home-welcome" data-i18n="home_welcome">مرحباً</p>
+      </div>
+    </section>`;
+
+  it('fills the shell without replacing the hero that already painted', () => {
+    const content = setupDom();
+    content.innerHTML = SHELL;
+    const hero = content.querySelector('.home-bismillah');
+
+    showHome();
+
+    // Same node: replacing it would paint a new element after first paint and
+    // move the recorded LCP for no reason.
+    expect(content.querySelector('.home-bismillah')).toBe(hero);
+    expect(content.querySelectorAll('.home-action-btn').length).toBeGreaterThan(0);
+    expect(grid(content)).not.toBeNull();
+  });
+
+  it('reveals the shell that the pre-paint guard hid', () => {
+    const content = setupDom();
+    content.innerHTML = SHELL;
+    document.documentElement.classList.add('home-preload-hide');
+
+    showHome();
+
+    expect(document.documentElement.classList.contains('home-preload-hide')).toBe(false);
+    expect(content.querySelector('.home-surah-grid')).not.toBeNull();
+  });
+
+  it('does not duplicate its controls when called again', () => {
+    const content = setupDom();
+    content.innerHTML = SHELL;
+
+    showHome();
+    const actions = content.querySelectorAll('.home-action-btn').length;
+    showHome();
+
+    expect(content.querySelectorAll('.home-action-btn')).toHaveLength(actions);
+  });
+});

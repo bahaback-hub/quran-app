@@ -28,14 +28,58 @@ export function isHomeVisible(): boolean {
 
 /**
  * Render the home launcher into `#surahContent`.
- * No-op if the launcher is already visible or the reader surface is missing.
- * Callers decide when to show it (first visit, no deep link, no resume).
+ * No-op if the reader surface is missing; an already-visible launcher is
+ * hydrated in place instead of being rebuilt. Callers decide when to show it
+ * (first visit, no deep link, no resume).
  */
 export function showHome(): void {
-  if (!dom.surahContent || isHomeVisible()) {
+  if (!dom.surahContent) {
+    return;
+  }
+  // The launcher shell (and the bismillah that is the first-visit LCP) ships in
+  // index.html so it paints with the first frame. Fill it in instead of
+  // replacing it: a new element would only be painted after the LCP candidate
+  // was already recorded.
+  const shell = document.getElementById(HOME_ID);
+  if (shell) {
+    hydrateHome(shell);
     return;
   }
   showHomeIn(dom.surahContent);
+}
+
+/**
+ * Add the interactive launcher content around the static hero in index.html.
+ *
+ * The hero node is deliberately left untouched: it is painted with the first
+ * frame and can already be the recorded LCP element, so replacing it would
+ * create a new element and a later LCP candidate. The rest of the launcher is
+ * rendered once into a detached node and moved in, which also carries the
+ * listeners bound during rendering.
+ */
+function hydrateHome(shell: HTMLElement): void {
+  // A returning reader had the shell hidden before paint; showing the launcher
+  // is the caller's intent, so reveal it.
+  document.documentElement.classList.remove('home-preload-hide');
+  if (shell.dataset['hydrated'] === 'true' || shell.querySelector('.home-primary-actions')) {
+    return;
+  }
+  shell.dataset['hydrated'] = 'true';
+
+  const rendered = document.createElement('div');
+  showHomeIn(rendered);
+  const home = rendered.firstElementChild;
+  if (!home) {
+    return;
+  }
+  const renderedHero = home.querySelector('.home-hero');
+  const staticHero = shell.querySelector('.home-hero');
+  if (renderedHero && staticHero) {
+    renderedHero.remove();
+  }
+  while (home.firstChild) {
+    shell.appendChild(home.firstChild);
+  }
 }
 
 /**

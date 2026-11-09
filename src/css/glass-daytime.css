@@ -276,20 +276,10 @@ body:not(.night-mode):not(.sepia-mode) ::-webkit-scrollbar-track {
 }
 
 /* ========== تحسينات إضافية ========== */
-@keyframes glassFadeIn {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(12px);
-  }
-}
-
-body:not(.night-mode):not(.sepia-mode) .container {
-  animation: glassFadeIn 0.6s ease-out;
-}
+/* NOTE: the 600ms fade-in on .container was removed on purpose. The container
+   holds the header brand mark, so animating its opacity from 0 kept the LCP
+   element invisible for ~600ms and delayed the LCP candidate. The glass look is
+   unchanged after first paint; only the startup fade is gone. */
 
 body:not(.night-mode):not(.sepia-mode) .surah-title {
   text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);

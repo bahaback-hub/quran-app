@@ -84,6 +84,11 @@ body.hifz-room-active .hifz-room-toggle {
 
 /* The reader tools rail owns the visible Hifz trigger; the drawer itself and
    its drag behavior remain unchanged. */
+/* Critical geometry: isolate the rail's layout so the tool slots reserved
+   below cannot shift the rest of the page before the rail is populated. */
+#readerSideTools {
+  contain: layout;
+}
 /* Higher-specificity selector so the .reader-side-tool skin (shared with the
    prayer-times rail tool) wins over the global .hifz-room-toggle rule. */
 /* Match the Hifz trigger skin to the other reader-side tools (prayer times,

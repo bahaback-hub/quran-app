@@ -1126,20 +1126,9 @@ describe('app-events', () => {
       expect(dom.helpPanel!.classList.contains('open')).toBe(false);
     });
 
-    it('should auto-open help on first use', async () => {
+    it('binding help events must not open the panel by itself', async () => {
       (storage.get as ReturnType<typeof vi.fn>).mockImplementation((key: string) => {
         if (key === 'help_seen') return false;
-        return null;
-      });
-      const { bindHelpEvents } = await import('../app-events.js');
-      bindHelpEvents();
-      expect(dom.helpPanel!.classList.contains('open')).toBe(true);
-      expect(storage.set).toHaveBeenCalledWith('help_seen', true);
-    });
-
-    it('should not auto-open help if already seen', async () => {
-      (storage.get as ReturnType<typeof vi.fn>).mockImplementation((key: string) => {
-        if (key === 'help_seen') return true;
         return null;
       });
       dom.helpPanel!.classList.remove('open');

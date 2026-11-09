@@ -1,6 +1,25 @@
 /* Home launcher — first-visit screen with quick tools and a 114-surah grid */
 
+/* --- Static first-paint launcher -------------------------------------------
+   The launcher hero (the bismillah) is shipped in index.html so it paints with
+   the first frame instead of waiting for i18n and the module graph; it is the
+   Largest Contentful Paint on a first visit. src/home-boot.ts marks returning
+   readers (saved position or deep link) before paint, and these two rules keep
+   the hero from flashing for them while the reader loads. */
+html.home-preload-hide #homeScreen {
+  display: none;
+}
+.surah-content > .loading {
+  display: none;
+}
+html.home-preload-hide .surah-content > .loading {
+  display: block;
+}
+
 .home-screen {
+  /* Critical geometry: the launcher is the first thing painted, so its box is
+     reserved here instead of in a second render-blocking stylesheet. */
+  box-sizing: border-box;
   padding: 8px 4px 28px;
   text-align: center;
 }
@@ -17,6 +36,12 @@
   font-family: var(--font-quran, 'Amiri', 'Traditional Arabic', serif);
   line-height: 1.6;
   margin-bottom: 8px;
+}
+
+@media (max-width: 639px) {
+  .home-bismillah {
+    min-height: 52px;
+  }
 }
 
 .home-welcome {

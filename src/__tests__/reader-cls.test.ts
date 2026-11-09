@@ -23,7 +23,9 @@ const surahCss = readFileSync(resolve(ROOT, 'src', 'css', 'surah.css'), 'utf8');
 const stylesCss = readFileSync(resolve(ROOT, 'styles.css'), 'utf8');
 const readerControlsCss = readFileSync(resolve(ROOT, 'src', 'css', 'reader-controls.css'), 'utf8');
 const mushafCss = readFileSync(resolve(ROOT, 'src', 'features', 'mushaf', 'mushaf.css'), 'utf8');
-const criticalGeometryCss = readFileSync(resolve(ROOT, 'public', 'critical-geometry.css'), 'utf8');
+const homeCss = readFileSync(resolve(ROOT, 'src', 'css', 'home.css'), 'utf8');
+const layoutCss = readFileSync(resolve(ROOT, 'src', 'css', 'layout.css'), 'utf8');
+const readerRailCss = readFileSync(resolve(ROOT, 'src', 'css', 'reader-rail.css'), 'utf8');
 const indexHtml = readFileSync(resolve(ROOT, 'index.html'), 'utf8');
 const hifzRoom = readFileSync(resolve(ROOT, 'src', 'hifz-room.ts'), 'utf8');
 const loader = readFileSync(resolve(ROOT, 'src', 'surah-loader.ts'), 'utf8');
@@ -57,13 +59,20 @@ describe('no layout shift from the loading reader', () => {
     expect(hifzRoom).toContain('toggleSlot.replaceWith(toggle)');
   });
 
-  it('reserves first-paint geometry in index.html', () => {
-    expect(indexHtml).toContain('href="%BASE_URL%critical-geometry.css"');
+  it('reserves first-paint geometry in the entry stylesheet', () => {
+    // The geometry used to ship as a second render-blocking stylesheet
+    // (public/critical-geometry.css). It is now part of the single entry sheet:
+    // every rule below is duplicated in the bundled CSS, so the extra request
+    // only delayed first paint.
+    expect(indexHtml).not.toContain('critical-geometry.css');
     expect(indexHtml).not.toMatch(/<style[\s>]/i);
-    expect(criticalGeometryCss).toMatch(/#readerToolbarShell \.reader-command-bar[\s\S]*?min-height:\s*126px/);
-    expect(criticalGeometryCss).toMatch(/#readerToolbarShell \.reader-context-card[\s\S]*?min-height:\s*54px/);
-    expect(criticalGeometryCss).toMatch(/#readerSideTools \.reader-side-tool-slot[\s\S]*?min-height:\s*72px/);
-    expect(criticalGeometryCss).toMatch(/@media \(max-width: 1024px\)[\s\S]*?min-height:\s*66px/);
+    expect(layoutCss).toMatch(/\.reader-command-bar \{[\s\S]*?flex: 1 1 390px/);
+    expect(readerControlsCss).toMatch(/\.reader-command-bar \{[\s\S]*?min-height:\s*126px/);
+    expect(readerControlsCss).toMatch(/\.reader-context-card \{[\s\S]*?min-height:\s*54px/);
+    expect(layoutCss).toMatch(/\.reader-context-card \{[\s\S]*?min-height:\s*54px/);
+    expect(layoutCss).toMatch(/\.reader-side-tool-slot \{[\s\S]*?min-height:\s*72px/);
+    expect(layoutCss).toMatch(/\.reader-side-tool-slot \{[\s\S]*?flex: 0 0 74px/);
+    expect(readerRailCss).toMatch(/#readerSideTools \{[\s\S]*?contain:\s*layout/);
   });
 
   it('reserves dimensions for every reading-mode preview image', () => {
@@ -73,9 +82,10 @@ describe('no layout shift from the loading reader', () => {
   });
 
   it('reserves the first-paint home launcher geometry for the LCP text', () => {
-    expect(criticalGeometryCss).toMatch(/\.home-screen[\s\S]*?text-align:\s*center/);
-    expect(criticalGeometryCss).toMatch(/\.home-bismillah[\s\S]*?min-height:\s*61px/);
-    expect(criticalGeometryCss).toMatch(/\.home-bismillah[\s\S]*?font-family:\s*'Amiri'/);
+    expect(homeCss).toMatch(/\.home-screen \{[\s\S]*?box-sizing:\s*border-box[\s\S]*?text-align:\s*center/);
+    expect(homeCss).toMatch(/\.home-bismillah \{[\s\S]*?min-height:\s*61px/);
+    expect(homeCss).toMatch(/\.home-bismillah \{[\s\S]*?font-family:\s*var\(--font-quran, 'Amiri'/);
+    expect(homeCss).toMatch(/@media \(max-width: 639px\)[\s\S]*?\.home-bismillah[\s\S]*?min-height:\s*52px/);
   });
 
   it('fills the viewport while loading so the footer starts below the fold', () => {

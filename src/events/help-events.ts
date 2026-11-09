@@ -5,7 +5,6 @@
  */
 
 import { dom } from '../dom.js';
-import { storage } from '../storage.js';
 import { helpPanelHTML } from '../templates.js';
 
 /** Open the help/guide panel. */
@@ -107,11 +106,4 @@ export function bindHelpEvents(): void {
     bindHelpPanelInteractions(dom.helpPanel);
   }
   window.addEventListener('app:langchange', refreshHelpPanelForLanguage);
-
-  // Auto-open help on first use
-  const seen = storage.get<boolean>('help_seen', false);
-  if (!seen) {
-    storage.set('help_seen', true);
-    openHelp();
-  }
 }

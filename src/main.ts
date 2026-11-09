@@ -1,8 +1,8 @@
 import { initErrorBoundary, warnRecoverable } from './error-boundary.js';
-import { initApp } from './app.js';
-import { initI18n, __ } from './i18n.js';
+import { initI18n } from './i18n.js';
 import { isCapacitorNative } from './types.js';
 import { dismissSplashOnReady } from './splash.js';
+import { afterFirstPaint } from './scheduler.js';
 import { updateBanner } from './templates.js';
 import { CHECK_UPDATES_EVENT, UPDATE_AVAILABLE_EVENT, checkForAppUpdates } from './app-updates.js';
 
@@ -245,7 +245,38 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
 // after the browser is idle. This improves Time to Interactive.
 loadNonCriticalModules();
 
-initI18n().then(() => initApp());
+/**
+ * Paint first, boot second.
+ *
+ * The launcher shell — including the bismillah that is the first-visit Largest
+ * Contentful Paint — already ships in index.html, so everything the first frame
+ * needs is in the document. Evaluating the application module graph before that
+ * frame used to hold the paint back: on the reference desktop the entry bundle
+ * spent ~90ms in top-level work (imports, i18n tables, storage reads), and that
+ * time is measured twice — once in First Contentful Paint and again in the LCP
+ * render delay. Waiting for the first painted frame and only then fetching and
+ * evaluating `app.js` hands that frame to the browser immediately.
+ *
+ * The saved theme is applied pre-paint by src/home-boot.ts, so the deferred
+ * boot cannot flash the default palette.
+ */
+let _bootStarted = false;
+
+async function bootApp(): Promise<void> {
+  if (_bootStarted) {
+    return;
+  }
+  _bootStarted = true;
+  await afterFirstPaint();
+  // Fetch the application chunk while the translation tables initialize; both
+  // run after the first frame and neither depends on the other.
+  const [{ initApp }] = await Promise.all([import('./app.js'), initI18n()]);
+  await initApp();
+}
+
+void bootApp().catch((err) => {
+  warnRecoverable('application boot failed', err);
+});
 
 /**
  * Mobile panel observer.

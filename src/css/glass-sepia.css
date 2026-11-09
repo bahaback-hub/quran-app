@@ -274,20 +274,8 @@ body.sepia-mode ::-webkit-scrollbar-track {
 }
 
 /* ========== تحسينات إضافية ========== */
-@keyframes glassSepiaFadeIn {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(12px);
-  }
-}
-
-body.sepia-mode .container {
-  animation: glassSepiaFadeIn 0.6s ease-out;
-}
+/* NOTE: the 600ms fade-in on .container was removed on purpose (see
+   glass-daytime.css): it delayed the LCP candidate for the header brand mark. */
 
 body.sepia-mode .stat-card {
   background: rgba(245, 237, 216, 0.7);
