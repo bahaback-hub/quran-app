@@ -6,6 +6,15 @@
          frame-ancestors, so frame-busting is enforced client-side. Kept tiny
          and non-blocking for the top-level case (immediate return). -->
     <script type="module" src="./src/framebust.ts"></script>
+    <!-- Direction BEFORE the first paint: this classic (non-module) script
+         is parser-blocking, so it runs before the body below is parsed or
+         painted. Wrapping it as a deferred module (as the previous draft
+         did) let the browser paint the static RTL shell first and then
+         mirror the whole page when the deferred guard flipped dir to LTR —
+         measured CLS 0.13 in Lighthouse CI (English runner). It ships from
+         public/ verbatim (Vite does not bundle classic scripts found in the
+         HTML), so it must stay import-free. -->
+    <script src="%BASE_URL%home-boot-pre.js"></script>
     <!-- Marks returning readers before the first paint so the static launcher
          hero below cannot flash while their surah is fetched. See src/home-boot.ts. -->
     <script type="module" src="./src/home-boot.ts"></script>
