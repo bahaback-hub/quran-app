@@ -68,6 +68,9 @@ test.describe('مواقيت الصلاة', () => {
   });
 
   test('فتح الإعدادات واختيار مدينة', async ({ page }) => {
+    // The settings panel is lazy-injected during boot; in slow browsers
+    // (WebKit) it may not exist yet when the evaluate below runs.
+    await page.locator('#settingsPanel').waitFor({ state: 'attached' });
     await page.evaluate(() => {
       const panel = document.getElementById('settingsPanel');
       if (panel) {

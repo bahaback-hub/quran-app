@@ -21,6 +21,10 @@ test.describe('التطبيق — الصفحة الرئيسية', () => {
   });
 
   test('فتح وإغلاق الإعدادات عبر JS', async ({ page }) => {
+    // The settings panel is lazy-injected during boot; in slow browsers
+    // (WebKit) it may not exist yet when the evaluate below runs, which
+    // made the assertions fail against a late-injected closed panel.
+    await page.locator('#settingsPanel').waitFor({ state: 'attached' });
     await page.evaluate(() => {
       const panel = document.getElementById('settingsPanel');
       if (panel) panel.classList.add('open');

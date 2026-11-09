@@ -27,6 +27,9 @@ test.describe('الإعدادات', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('.surah-content', { timeout: 15000 });
+    // The settings panel is lazy-injected during boot; in slow browsers
+    // (WebKit) it may not exist yet when the evaluate below runs.
+    await page.locator('#settingsPanel').waitFor({ state: 'attached' });
     await page.evaluate(() => {
       const panel = document.getElementById('settingsPanel');
       if (panel) {

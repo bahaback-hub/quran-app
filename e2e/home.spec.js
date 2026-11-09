@@ -14,7 +14,9 @@ test.describe('home launcher', () => {
 
     const screen = page.locator('#homeScreen');
     await expect(screen).toBeVisible({ timeout: 20000 });
-    await expect(screen.locator('.home-surah-card')).toHaveCount(114);
+    // The grid hydrates in rAF batches; in WebKit (slow main thread) it can
+    // take far longer than the default 5s assertion timeout to reach 114.
+    await expect(screen.locator('.home-surah-card')).toHaveCount(114, { timeout: 20000 });
     await expect(screen.locator('.home-surah-card[data-surah="1"]')).toHaveCount(1);
     await expect(screen.locator('.home-browse-title')).toBeVisible();
     // No reader content has been loaded yet — the visitor is still choosing.

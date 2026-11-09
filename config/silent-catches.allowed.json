@@ -532,6 +532,13 @@
       "anchor": "#1",
       "kind": "catch-return-false",
       "reason": "on-demand audio reload failed → return false; the play handler shows the 'no audio' toast"
+    },
+    {
+      "file": "src/home-boot.ts",
+      "fn": "module-scope",
+      "anchor": "// Storage blocked or malformed: keep the launcher visible and the default theme.",
+      "kind": "catch-empty-block",
+      "reason": "pre-paint guard: if storage throws, the launcher must stay visible with the default theme; there is no error surface before the first frame"
     }
   ]
 }
