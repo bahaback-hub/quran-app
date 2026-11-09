@@ -1,0 +1,49 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d4d4d4;
+  text-align: center;
+  padding: 20px;
+}
+.notfound-container {
+  max-width: 500px;
+}
+.notfound-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+h1 {
+  font-size: 28px;
+  color: #d4af37;
+  margin-bottom: 12px;
+}
+p {
+  font-size: 18px;
+  line-height: 1.8;
+  color: #b8b8b8;
+  margin-bottom: 24px;
+}
+.home-btn {
+  display: inline-block;
+  background: #d4af37;
+  color: #2c3e50;
+  text-decoration: none;
+  padding: 12px 32px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+.hint {
+  font-size: 14px;
+  color: #8a8a8a;
+}
