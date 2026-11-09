@@ -90,12 +90,7 @@ test.describe('Hifz Room — side drawer', () => {
     await room.locator('#hifzRoomHideText').click();
     await expect(page.locator('#hifzRoomStageText')).toHaveText('۞');
     await room.locator('#hifzRoomHideText').click();
-    // The session audio highlight keeps re-rendering the stage while this
-    // click runs, so in the slow WebKit engine the button never gets two
-    // identical frames (30s "waiting for element to be stable" timeout).
-    // Force the click; the class + stage-text assertions below still prove
-    // the range toggle works.
-    await room.locator('#hifzRoomToggleRange').click({ force: true });
+    await room.locator('#hifzRoomToggleRange').click();
     await expect(room).toHaveClass(/hifz-room-show-range/);
     await expect(page.locator('#hifzRoomStageText')).toContainText('﴿1﴾');
     await expect(page.locator('#hifzRoomStageText')).toContainText('﴿2﴾');

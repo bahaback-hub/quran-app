@@ -650,6 +650,13 @@ body.hifz-room-tools-hidden .hifz-room-stage {
 }
 
 .hifz-room-repeat-progress {
+  /* One line, always reserved: this text updates live during a session, and
+     the focus column is vertically centered, so any height change here would
+     re-center and shift every focus button (a WebKit stability timeout on
+     #hifzRoomToggleRange). The label is a single short line in all 9 UI
+     languages, so the reserve adds nothing visible. (2em covers the Arabic
+     normal line-height, measured 22px at this 0.8rem size.) */
+  min-height: 2em;
   margin: 0;
   color: var(--hifz-curtain-accent);
   font-size: 0.8rem;
