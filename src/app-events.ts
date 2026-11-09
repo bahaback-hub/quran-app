@@ -44,7 +44,13 @@ export function bindCriticalEvents(): void {
   bindGlobalClickHandler();
 }
 
-/** Register secondary integrations after the first frame has painted. */
+/**
+ * Register the remaining integrations: azan, tafsir, panels/share, search,
+ * header menu, misc overlays and the guide.
+ *
+ * Called in the same turn as {@link bindCriticalEvents} — listener registration
+ * is cheap, and delaying it left those controls inert after the first paint.
+ */
 export function bindDeferredEvents(): void {
   bindAzanEvents();
   bindTafsirEvents();

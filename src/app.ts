@@ -133,9 +133,12 @@ export async function initApp(): Promise<void> {
   // boot sequence is still handled instead of racing the initial load.
   bindAudioEvents();
   bindCriticalEvents();
-  // Search/help/share integrations are not needed for the first interaction
-  // window. Keep them out of the initial Lighthouse main-thread sample.
-  scheduleAfterPaint(bindDeferredEvents, 1000);
+  // Bind the remaining controls in the same turn. Registering listeners costs
+  // microseconds, while deferring them left search, tafsir, translation and the
+  // TV-remote keys inert for a second after the first paint — readers saw dead
+  // buttons. This is already off the critical path: src/main.ts imports app.js
+  // only after the first frame has been presented.
+  bindDeferredEvents();
   initNavigation();
   scheduleAfterPaint(() => {
     initAutoPlayNextButton();

@@ -757,6 +757,15 @@ textarea,
     width: 58px;
     height: 40px;
   }
+  /* The 84px title box is sized for the desktop wordmark. On phones only the
+     40px mark is visible, and the extra 44px pushed the logo above the row
+     centre (29px off the action buttons, which the E2E header-row check
+     rejects). Match the box to the mark so the logo shares the row's centre. */
+  .header-brand-title {
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
   .header-menu-container {
     order: 2;
     position: static;

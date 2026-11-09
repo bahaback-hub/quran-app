@@ -258,8 +258,9 @@ describe('app.ts — initApp', () => {
     it('should call preloadTajweedIfNeeded', async () => {
       const { preloadTajweedIfNeeded } = await import('../tajweed-data.js');
       await initApp();
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      expect(preloadTajweedIfNeeded).toHaveBeenCalled();
+      // Deferred to the first paint opportunity; give a loaded CI worker more
+      // than one frame instead of assuming a fixed 100ms window.
+      await vi.waitFor(() => expect(preloadTajweedIfNeeded).toHaveBeenCalled(), { timeout: 3000 });
     });
 
     it('should call populateReciterSelect', async () => {
@@ -345,11 +346,9 @@ describe('app.ts — initApp', () => {
       expect(bindCriticalEvents).toHaveBeenCalled();
     });
 
-    it('should defer secondary event bindings until after paint', async () => {
+    it('binds secondary events during boot instead of leaving controls inert', async () => {
       const { bindDeferredEvents } = await import('../app-events.js');
       await initApp();
-      expect(bindDeferredEvents).not.toHaveBeenCalled();
-      await new Promise((resolve) => setTimeout(resolve, 1200));
       expect(bindDeferredEvents).toHaveBeenCalled();
     });
 
