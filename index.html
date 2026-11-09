@@ -74,6 +74,12 @@
     <!-- Self-hosted fonts (replaces Google Fonts CDN for offline support & privacy) -->
     <!-- LCP: Preload the primary body font to speed up first paint -->
     <link rel="preload" href="fonts/amiri-regular-400.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- CLS: the bold face sets the reader toolbar's line boxes. Without this
+         hint its 106KB arrived after the first paint on a fast connection, the
+         toolbar reflowed when the face applied, and Lighthouse measured a
+         0.13 layout shift caused by "Web font loaded". Low priority keeps the
+         regular face (the LCP text) ahead of it on slow connections. -->
+    <link rel="preload" href="fonts/amiri-bold-700.woff2" as="font" type="font/woff2" crossorigin fetchpriority="low" />
     <!-- The Quran-script TTF is deliberately NOT preloaded. 'KFGQPC HAFS Uthmanic
          Script' is referenced only by src/css/hifz-room.css, and the room is
          off-screen and closed on arrival, so no rule that uses it matches at
