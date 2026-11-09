@@ -793,6 +793,19 @@ body.night-mode .control-group label {
   padding: 9px 12px;
   flex-wrap: nowrap;
 }
+/* Reserve the toolbar card's height at wide-desktop widths so a fallback web
+   font that is wider than Amiri (e.g. a Linux CI without Arabic fonts) cannot
+   wrap the reading-mode buttons onto extra rows and push the page down before
+   the swap — Lighthouse CI measured CLS 0.13 from exactly that. Measured:
+   the card is exactly 126px in all 9 UI languages at ≥1200px (single-row
+   content); below that some translations legitimately wrap taller and must
+   keep their natural height. Overflow stays visible so the search
+   autocomplete (which drops below the card) is never clipped. */
+@media (min-width: 1200px) {
+  .reader-command-bar {
+    height: 126px;
+  }
+}
 .reader-command-section {
   min-width: 0;
   display: flex;
