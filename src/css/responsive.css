@@ -312,7 +312,7 @@
     max-width: 100%;
   }
   .settings-panel {
-    right: -100%;
+    left: -100%;
   }
   .favorites-panel {
     left: -100%;
@@ -1092,7 +1092,7 @@ textarea,
     max-width: 100%;
   }
   .settings-panel {
-    right: -100%;
+    left: -100%;
   }
   .favorites-panel {
     left: -100%;
