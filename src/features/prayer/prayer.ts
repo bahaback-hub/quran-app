@@ -660,9 +660,12 @@ function showAzanNotification(prayerKey: string): void {
       icon: '/icon-192.png',
       tag: 'azan-' + prayerKey,
     });
-  } else if ('Notification' in window && Notification.permission !== 'denied') {
-    Notification.requestPermission();
   }
+  // UXS-04: no requestPermission() here. Azan time arrives from a timer, not a
+  // user gesture — browsers block or silently drop the ask, and the project's
+  // own policy (adhkar-notifications.ts) reserves it for the toggle click,
+  // which routes through ensureAzanNotificationPermission(). Without the grant
+  // the in-page banner above still fires.
 
   // The Web Notification API is unavailable inside an Android WebView, so the
   // phone relies on a real scheduled notification instead.

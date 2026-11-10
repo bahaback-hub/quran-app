@@ -255,6 +255,55 @@ describe('azan notifications', () => {
     expect(cancel).not.toHaveBeenCalled();
   });
 
+  // N-07: on the web, ensureAzanNotificationPermission() used to return false
+  // without ever reading Notification.permission, so the azan toggle toasted
+  // "notifications paused" on every enable even with the grant in place and
+  // azan fully working. It must report the real Web Notification API state —
+  // and may ask, because its only production callers are toggle clicks.
+  it('reports the real web permission state instead of an unconditional false (N-07)', async () => {
+    isNativePlatform.mockReturnValue(false);
+    const mod = await load();
+    const original = (globalThis as { Notification?: unknown }).Notification;
+    const requestPermission = vi.fn(async () => 'granted' as NotificationPermission);
+
+    const setPermission = (permission: string): void => {
+      Object.defineProperty(globalThis, 'Notification', {
+        value: Object.assign(function Notification() {}, { permission, requestPermission }),
+        configurable: true,
+        writable: true,
+      });
+    };
+
+    try {
+      setPermission('granted');
+      await expect(mod.ensureAzanNotificationPermission()).resolves.toBe(true);
+      expect(requestPermission).not.toHaveBeenCalled();
+      await expect(mod.checkAzanNotificationPermission()).resolves.toBe(true);
+
+      setPermission('denied');
+      await expect(mod.ensureAzanNotificationPermission()).resolves.toBe(false);
+      expect(requestPermission).not.toHaveBeenCalled();
+      await expect(mod.checkAzanNotificationPermission()).resolves.toBe(false);
+
+      setPermission('default');
+      await expect(mod.ensureAzanNotificationPermission()).resolves.toBe(true);
+      expect(requestPermission).toHaveBeenCalledTimes(1);
+
+      // Native plugin calls stay untouched on the web path.
+      expect(checkPermissions).not.toHaveBeenCalled();
+    } finally {
+      if (original === undefined) {
+        delete (globalThis as { Notification?: unknown }).Notification;
+      } else {
+        Object.defineProperty(globalThis, 'Notification', {
+          value: original,
+          configurable: true,
+          writable: true,
+        });
+      }
+    }
+  });
+
   it('toasts a one-time hint when exact alarms are denied', async () => {
     checkExactNotificationSetting.mockResolvedValue({ exact_alarm: 'denied' });
     const mod = await load();

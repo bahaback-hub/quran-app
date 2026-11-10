@@ -121,7 +121,9 @@ function nextOccurrence(time: string | undefined, from: Date): Date | null {
  */
 export async function checkAzanNotificationPermission(): Promise<boolean> {
   if (!isNative()) {
-    return false;
+    // N-07: on the web this is the plain Web Notification API — report its
+    // actual state instead of an unconditional false.
+    return 'Notification' in window && Notification.permission === 'granted';
   }
   try {
     const current = await LocalNotifications.checkPermissions();
@@ -138,10 +140,31 @@ export async function checkAzanNotificationPermission(): Promise<boolean> {
  * Call ONLY from a user gesture (azan toggle, test button). Android 13+
  * denies notifications by default for freshly installed apps, so without
  * this every scheduled prayer would be silently dropped.
+ *
+ * N-07: the web half used to return false unconditionally — without ever
+ * looking at Notification.permission — so enabling the azan toggle toasted
+ * "notifications paused" on every click, even with the permission granted
+ * and azan working. The web path now judges (and, from this gesture-only
+ * entry point, asks for) the Web Notification API by its real state.
  */
 export async function ensureAzanNotificationPermission(): Promise<boolean> {
   if (!isNative()) {
-    return false;
+    if (!('Notification' in window)) {
+      return false;
+    }
+    if (Notification.permission === 'granted') {
+      return true;
+    }
+    if (Notification.permission === 'denied') {
+      return false;
+    }
+    try {
+      const asked = await Notification.requestPermission();
+      return asked === 'granted';
+    } catch (err: unknown) {
+      warnRecoverable('azan notification permission request failed', err);
+      return false;
+    }
   }
   try {
     const current = await LocalNotifications.checkPermissions();

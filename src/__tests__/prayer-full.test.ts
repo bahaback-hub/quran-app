@@ -1849,7 +1849,7 @@ describe('prayer.ts', () => {
       });
     });
 
-    it('should request Notification permission when not denied', async () => {
+    it('never asks for web Notification permission at azan time (UXS-04)', async () => {
       state.prayerTimes = { ...SAMPLE_PRAYER_TIMES };
       state.azanEnabled = true;
       state.azanFajrEnabled = true;
@@ -1878,7 +1878,13 @@ describe('prayer.ts', () => {
       // Wait for the play promise to resolve
       await vi.advanceTimersByTimeAsync(0);
 
-      expect(mockRequestPermission).toHaveBeenCalled();
+      // UXS-04: azan time arrives from a timer, not a user gesture, so the
+      // web path must NEVER call requestPermission() here — browsers block or
+      // silently drop the ask and it burns the one-time prompt. Permission is
+      // requested only from the azan toggle click (ensureAzanNotificationPermission).
+      expect(mockRequestPermission).not.toHaveBeenCalled();
+      // The in-page banner is the gesture-free fallback and must still appear.
+      expect(mockDom.azanNotification?.classList.contains('hidden')).toBe(false);
 
       Object.defineProperty(globalThis, 'Notification', {
         value: origNotification,
