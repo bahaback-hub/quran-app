@@ -227,6 +227,18 @@ export default defineConfig({
               // get fresh API data instead of stale offline cache forever.
               cleanupOutdatedCaches: true,
               runtimeCaching: [
+                // QCF4 Mushaf font binaries — CacheFirst into the SAME bucket the
+                // runtime pack manager uses (NEW-03: previously every ~800 KB
+                // font was stored twice — here and in 'mushaf-fonts').
+                // Must stay ABOVE the generic font route to win the match.
+                {
+                  urlPattern: /\/fonts\/qcf4\/.*\.woff2$/i,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: CACHE_NAMES.mushafFonts,
+                    expiration: { maxEntries: 60, maxAgeSeconds: 86400 * 365 },
+                  },
+                },
                 // Self-hosted fonts — CacheFirst (small, essential, never change)
                 {
                   urlPattern: /\/fonts\/.*\.(ttf|woff2|css)$/i,
@@ -326,7 +338,10 @@ export default defineConfig({
                   urlPattern: /^https:\/\/raw\.githubusercontent\.com\/.*quran-qcf4\/.*\/pages\/.*\.json/i,
                   handler: 'CacheFirst',
                   options: {
-                    cacheName: 'mushaf-layout-v3',
+                    // NEW-03: same bucket as the runtime pipeline
+                    // (mushaf-page-data.ts) — layouts were stored in up to
+                    // three parallel buckets before.
+                    cacheName: CACHE_NAMES.mushafLayouts,
                     expiration: { maxEntries: 700, maxAgeSeconds: 86400 * 365 },
                   },
                 },
@@ -334,8 +349,8 @@ export default defineConfig({
                   urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/MohamadHajjRabee\/quran-qcf4.*/i,
                   handler: 'CacheFirst',
                   options: {
-                    cacheName: 'mushaf-fonts-v3',
-                    expiration: { maxEntries: 50, maxAgeSeconds: 86400 * 365 },
+                    cacheName: CACHE_NAMES.mushafLayouts,
+                    expiration: { maxEntries: 700, maxAgeSeconds: 86400 * 365 },
                   },
                 },
               ],

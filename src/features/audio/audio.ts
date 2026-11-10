@@ -604,7 +604,7 @@ function onAudioPlay(): void {
       title: ayah ? `${__('ayah')} ${ayah.numberInSurah}` : '',
       artist: surahData.name || __('app_title'),
       album: __('app_title'),
-      artwork: [{ src: '/icon-512.png', sizes: '512x512', type: 'image/png' }],
+      artwork: [{ src: `${import.meta.env.BASE_URL}icon-512.png`, sizes: '512x512', type: 'image/png' }],
     });
   }
 }

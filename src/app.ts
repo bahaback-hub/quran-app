@@ -41,7 +41,7 @@ import { bindCriticalEvents, bindDeferredEvents, initAutoPlayNextButton } from '
 import { injectOverlays } from './overlays.js';
 import { preloadTajweedIfNeeded } from './tajweed-data.js';
 import { refreshRecentExternalData } from './external-data-cache.js';
-import { deleteLegacyCaches } from './cache-names.js';
+import { deleteLegacyCaches, deleteLegacyQcf4FontEntries } from './cache-names.js';
 import { initLangSwitcher } from './lang-switcher.js';
 import { initCspReporting } from './csp-report.js';
 import { scheduleAfterPaint } from './scheduler.js';
@@ -80,6 +80,9 @@ export async function initApp(): Promise<void> {
   // Drop pre-v3 Cache Storage buckets after the first paint. Readers use
   // caches.match across all buckets, so this cleanup is safe to defer.
   scheduleAfterPaint(deleteLegacyCaches);
+  // NEW-03: also evict the QCF4 binaries older releases cached inside the
+  // generic app-fonts bucket (they now live only in the mushaf-fonts bucket).
+  scheduleAfterPaint(deleteLegacyQcf4FontEntries);
   initCspReporting(); // CSP violation monitoring — before any dynamic content injects
   setLoadSurah(loadSurah);
   setReloadAudio(reloadCurrentSurahAudio);

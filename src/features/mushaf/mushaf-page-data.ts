@@ -5,14 +5,15 @@
  * loadPageData so all existing import sites keep working.
  */
 import { mushafPageLayoutUrls } from '../../external-sources.js';
+import { CACHE_NAMES } from '../../cache-names.js';
 import { getMushafPageLayout, verifyMushafLayoutBytes } from './mushaf-data-pack.js';
 import type { PageLayoutData } from './mushaf-layout-data.js';
 
 const LAYOUT_CACHE_MAX = 50; // LRU cache limit to prevent unbounded memory growth
 const layoutCache = new Map<string, PageLayoutData>();
 
-/** Cache name for page layout JSONs rendered once, then reused offline. */
-const LAYOUT_CACHE_NAME = 'qcf4-page-layouts';
+/** Page-layout bucket, shared with the SW mirror routes (single source of truth, NEW-03). */
+const LAYOUT_CACHE_NAME = CACHE_NAMES.mushafLayouts;
 
 /** Read a previously rendered page layout straight from the browser cache. */
 async function cachedPageLayoutData(pageNum: number): Promise<PageLayoutData | null> {

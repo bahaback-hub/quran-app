@@ -657,7 +657,7 @@ function showAzanNotification(prayerKey: string): void {
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification(__('prayer_time_come'), {
       body: `${__('prayer')} ${getPrayerName(prayerKey)}`,
-      icon: '/icon-192.png',
+      icon: `${import.meta.env.BASE_URL}icon-192.png`,
       tag: 'azan-' + prayerKey,
     });
   }

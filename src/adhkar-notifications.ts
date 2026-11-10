@@ -100,7 +100,7 @@ export function showAdhkarNotification(cat: AdhkarNotifContext, notifDuration?: 
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification('🕌 ' + cat.name, {
       body: cat.id === 'personal' ? cat.name || '' : __('adhkar_notification'),
-      icon: '/icon-192.png',
+      icon: `${import.meta.env.BASE_URL}icon-192.png`,
       tag: 'adhkar-' + cat.id,
     });
   }
