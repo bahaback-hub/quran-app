@@ -10,8 +10,8 @@ const CURTAIN_REVEAL_STORAGE_KEY = 'hifz_curtain_reveal';
 
 /** Engine actions injected by hifz-room.ts at module scope (importing them back would cycle). */
 let _isHifzRoomOpen: () => boolean = () => false;
-let _openHifzRoom: (restoreReveal?: boolean) => void = () => {};
-let _closeHifzRoom: (returnFocus: boolean) => void = () => {};
+let _openHifzRoom: (restoreReveal?: boolean) => void = () => undefined;
+let _closeHifzRoom: (returnFocus: boolean) => void = () => undefined;
 
 export function initHifzCurtainHost(host: {
   isHifzRoomOpen: () => boolean;

@@ -212,13 +212,13 @@ describe('i18n — additional coverage', () => {
     it('should return Arabic name for known tafsir', async () => {
       await setLang('ar');
       const name = getTafsirName('ar-tafsir-muyassar');
-      expect(name).toBe('التفسير الميسر');
+      expect(name).toBe('الميسر');
     });
 
     it('should return English name for known tafsir', async () => {
       await setLang('en');
       const name = getTafsirName('ar-tafsir-muyassar');
-      expect(name).toBe('Muyassar Tafsir');
+      expect(name).toBe('Al-Muyassar');
     });
 
     it('should return key for unknown tafsir', async () => {
