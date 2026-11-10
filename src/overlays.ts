@@ -42,7 +42,7 @@ const adhkarAddOverlayHTML = `
   <div class="adhkar-add-inner">
     <div class="adhkar-add-header">
       <h3 data-i18n="adhkar_add_title">📝 إضافة ذكر جديد</h3>
-      <button class="btn" id="adhkarAddCloseBtn">✖</button>
+      <button class="btn" id="adhkarAddCloseBtn" data-i18n-aria-label="close" aria-label="إغلاق">✖</button>
     </div>
     <div class="adhkar-add-body">
       <div class="settings-row">
@@ -164,7 +164,7 @@ const surahSecretsOverlayHTML = `
   <div class="surah-secrets-overlay-inner">
     <div class="surah-secrets-overlay-header">
       <h3 id="surahSecretsTitle" data-i18n="secrets_title">🌟 سرّ السورة</h3>
-      <button class="btn" id="surahSecretsCloseBtn">✖</button>
+      <button class="btn" id="surahSecretsCloseBtn" data-i18n-aria-label="close" aria-label="إغلاق">✖</button>
     </div>
     <div class="surah-secrets-overlay-surah-name" id="surahSecretsSurahName"></div>
     <div class="surah-secrets-overlay-body" id="surahSecretsBody"></div>
@@ -284,7 +284,7 @@ const readingStatsPanelHTML = `
   <div class="settings-panel-inner">
     <div class="settings-header">
       <h3 data-i18n="stats_title">📊 إحصائيات القراءة</h3>
-      <button class="btn" id="readingStatsCloseBtn">✖</button>
+      <button class="btn" id="readingStatsCloseBtn" data-i18n-aria-label="close" aria-label="إغلاق">✖</button>
     </div>
     <div id="readingStatsContent"></div>
   </div>

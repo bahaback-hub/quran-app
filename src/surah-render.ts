@@ -164,7 +164,7 @@ function buildAyahHtml(a: AyahEntry, i: number, textData: SurahTextData): string
     const sajdaTitle = sajda.type === 'obligatory' ? __('sajdah_wajib') : __('sajdah_mustahab');
     html += ` <span class="sajda-indicator" title="${sajdaTitle}">۩</span>`;
   }
-  html += ` <span class="ayah-number" role="button" aria-label="${__('play')} ${__('ayah')} ${toArabicDigits(a.numberInSurah)}"><span class="ayah-number-inner">${a.numberInSurah}</span></span>`;
+  html += ` <span class="ayah-number" role="button" tabindex="0" aria-label="${__('play')} ${__('ayah')} ${toArabicDigits(a.numberInSurah)}"><span class="ayah-number-inner">${a.numberInSurah}</span></span>`;
   const translationData = state.translationData as { ayahs?: { text: string }[] } | null;
   if (state.translationEnabled && translationData?.ayahs?.[i]) {
     const transText = escapeHtml(translationData.ayahs[i].text);
@@ -380,6 +380,21 @@ function initAyahDelegation(): void {
     return;
   }
   _ayahDelegationBound = true;
+  // N-14: the ayah-number spans expose role="button" but were unreachable
+  // by keyboard (no tabindex) and had no key activation. Tabindex is emitted
+  // with the span; this delegated keydown gives Enter/Space the same path as
+  // a click.
+  dom.surahContent.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key !== 'Enter' && e.key !== ' ') {
+      return;
+    }
+    const target = e.target as HTMLElement;
+    if (!target.classList.contains('ayah-number')) {
+      return;
+    }
+    e.preventDefault();
+    target.click();
+  });
   dom.surahContent.addEventListener('click', (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const ayahEl = target.closest('.ayah') as HTMLElement | null;
