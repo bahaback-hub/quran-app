@@ -633,3 +633,20 @@ describe('Error Boundary — Persistence & Export', () => {
     expect(parsed.errorCount).toBeGreaterThanOrEqual(1);
   });
 });
+
+// N-08: interactive dynamic imports used to be fire-and-forget — a stale tab
+// after a deploy made the tap vanish into a rejected promise. The shared
+// terminal catch must warn AND surface the translated load-failure toast.
+describe('moduleLoadFailed (N-08)', () => {
+  it('warns and toasts the translated safe_load_failed message', async () => {
+    const { moduleLoadFailed } = await import('../error-boundary.js');
+    const { showToast } = await import('../ui.js');
+    vi.mocked(showToast).mockClear();
+
+    moduleLoadFailed('mushaf', new Error('chunk 404'));
+
+    // This file mocks i18n to identity, so the raw key is the translated
+    // message's stand-in; the real bundle interpolation is covered elsewhere.
+    expect(showToast).toHaveBeenCalledWith('safe_load_failed', 'error');
+  });
+});

@@ -7,7 +7,8 @@
  */
 
 import { state } from './state.js';
-import { warnRecoverable } from './error-boundary.js';
+import { moduleLoadFailed } from './error-boundary.js';
+import { __ } from './i18n.js';
 import { dom } from './dom.js';
 import {
   togglePlayPause,
@@ -292,22 +293,20 @@ export function initKeyboardShortcuts(): void {
         break;
       case 'm':
       case 'M':
-        import('./features/mushaf/mushaf.js').then((m: { toggleMushafMode: () => void }) => m.toggleMushafMode());
+        import('./features/mushaf/mushaf.js')
+          .then((m: { toggleMushafMode: () => void }) => m.toggleMushafMode())
+          .catch((err) => moduleLoadFailed(__('reading_mode_mushaf'), err));
         break;
       case 'p':
       case 'P':
         if (state.presentationMode) {
           import('./features/presentation/presentation.js')
             .then((m: { closePresentation: () => void }) => m.closePresentation())
-            .catch((err) => {
-              warnRecoverable('presentation.closePresentation (keyboard shortcut) failed', err);
-            });
+            .catch((err) => moduleLoadFailed(__('pres_dlg'), err));
         } else {
           import('./features/presentation/presentation.js')
             .then((m: { openPresentation: () => void }) => m.openPresentation())
-            .catch((err) => {
-              warnRecoverable('presentation.openPresentation (keyboard shortcut) failed', err);
-            });
+            .catch((err) => moduleLoadFailed(__('pres_dlg'), err));
         }
         break;
       case 'g':

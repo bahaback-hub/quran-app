@@ -7,7 +7,8 @@
  */
 
 import { state } from './state.js';
-import { warnRecoverable } from './error-boundary.js';
+import { moduleLoadFailed } from './error-boundary.js';
+import { __ } from './i18n.js';
 import { dom } from './dom.js';
 import { requireDom } from './dom-require.js';
 import { storage } from './storage.js';
@@ -87,11 +88,11 @@ export function initNavigation(): void {
   dom.viewSurahBtn?.addEventListener('click', () => {
     import('./features/presentation/presentation.js')
       .then((m) => m.closePresentation())
-      .catch((err) => {
-        warnRecoverable('presentation.closePresentation (view mode) failed', err);
-      });
+      .catch((err) => moduleLoadFailed(__('pres_dlg'), err));
     if (state.mushafMode) {
-      import('./features/mushaf/mushaf.js').then((m) => m.toggleMushafMode());
+      import('./features/mushaf/mushaf.js')
+        .then((m) => m.toggleMushafMode())
+        .catch((err) => moduleLoadFailed(__('reading_mode_mushaf'), err));
     }
     document.querySelectorAll('.view-mode-btn').forEach((b) => {
       const active = (b as HTMLElement).dataset['mode'] === 'surah';
@@ -113,19 +114,17 @@ export function initNavigation(): void {
   dom.viewMushafBtn?.addEventListener('click', () => {
     import('./features/presentation/presentation.js')
       .then((m) => m.closePresentation())
-      .catch((err) => {
-        warnRecoverable('presentation.closePresentation (mushaf view) failed', err);
-      });
-    import('./features/mushaf/mushaf.js').then((m) => m.toggleMushafMode());
+      .catch((err) => moduleLoadFailed(__('pres_dlg'), err));
+    import('./features/mushaf/mushaf.js')
+      .then((m) => m.toggleMushafMode())
+      .catch((err) => moduleLoadFailed(__('reading_mode_mushaf'), err));
   });
   dom.viewPresBtn?.addEventListener('click', () => {
     // openPresentation() handles mushaf mode toggle internally — don't toggle here
     // to avoid double-toggle race condition
     import('./features/presentation/presentation.js')
       .then((m) => m.openPresentation())
-      .catch((err) => {
-        console.error('[Nav] Failed to open presentation:', err);
-      });
+      .catch((err) => moduleLoadFailed(__('pres_dlg'), err));
   });
 
   dom.pageSelect?.addEventListener('change', () => {
@@ -134,7 +133,9 @@ export function initNavigation(): void {
       if (dom.pageSlider) {
         dom.pageSlider.value = String(p);
       }
-      import('./features/mushaf/mushaf.js').then((m) => m.loadPage(p, true));
+      import('./features/mushaf/mushaf.js')
+        .then((m) => m.loadPage(p, true))
+        .catch((err) => moduleLoadFailed(__('reading_mode_mushaf'), err));
     }
   });
   dom.pageSlider?.addEventListener('input', () => {
@@ -142,7 +143,9 @@ export function initNavigation(): void {
     if (dom.pageSelect) {
       dom.pageSelect.value = String(p);
     }
-    import('./features/mushaf/mushaf.js').then((m) => m.loadPage(p, true));
+    import('./features/mushaf/mushaf.js')
+      .then((m) => m.loadPage(p, true))
+      .catch((err) => moduleLoadFailed(__('reading_mode_mushaf'), err));
   });
 
   // Restore mushaf mode
@@ -152,7 +155,9 @@ export function initNavigation(): void {
     state.currentPage = savedPage;
   }
   if (savedMushaf) {
-    import('./features/mushaf/mushaf.js').then((m) => m.toggleMushafMode());
+    import('./features/mushaf/mushaf.js')
+      .then((m) => m.toggleMushafMode())
+      .catch((err) => moduleLoadFailed(__('reading_mode_mushaf'), err));
   }
 }
 

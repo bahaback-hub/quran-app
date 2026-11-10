@@ -543,6 +543,23 @@ export async function safeLoad<T>(loader: () => Promise<T>, options: SafeLoadOpt
 }
 
 /**
+ * N-08: minimal feedback for fire-and-forget dynamic imports on interactive
+ * entry points (search handler, mushaf keys, azan toggles, presentation
+ * buttons). A tab left open across a deploy requests a chunk that no longer
+ * exists; without a .catch the user's tap disappears into a rejected promise
+ * with no visible effect. Attach as the chain's terminal catch:
+ *
+ *   import('./feature.js').then((m) => m.act()).catch((e) => moduleLoadFailed('feature', e));
+ *
+ * safeLoad remains the right tool where retries make sense; this helper is
+ * for one-shot gestures that just deserve a translated explanation.
+ */
+export function moduleLoadFailed(label: string, err: unknown): void {
+  warnRecoverable(`dynamic import of "${label}" failed`, err);
+  displayToast(__('safe_load_failed', label), 'error');
+}
+
+/**
  * Wrap an async function with retry logic (similar to safeLoad but for any async op).
  *
  * @example
