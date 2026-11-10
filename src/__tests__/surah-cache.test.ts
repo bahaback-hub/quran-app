@@ -626,7 +626,9 @@ describe('surah-cache', () => {
 
     async function countEntries(): Promise<number> {
       return new Promise((resolve, reject) => {
-        const open = indexedDB.open('QuranSurahDB', 1);
+        // No explicit version: opening below the current schema version throws
+        // VersionError on a real IndexedDB.
+        const open = indexedDB.open('QuranSurahDB');
         open.onsuccess = () => {
           const db = open.result;
           const req = db.transaction('surahs', 'readonly').objectStore('surahs').count();
@@ -694,6 +696,99 @@ describe('surah-cache', () => {
       } finally {
         dateSpy.mockRestore();
       }
+    });
+  });
+
+  /* ===================== LRU sidecar store (N-05) ===================== */
+  // Eviction orders by a tiny 'meta' sidecar store; a cache hit must never
+  // rewrite the (potentially hundreds-of-KB) payload, and enforcement must
+  // never deserialize payloads at all.
+
+  describe('LRU sidecar store', () => {
+    function tinyEntry(n: number): CachedSurahEntry {
+      return {
+        text: {
+          number: n,
+          name: `S${n}`,
+          englishName: `S${n}`,
+          ayahs: [{ numberInSurah: 1, text: `text-${n}`, number: 1 }],
+        },
+        translation: null,
+      };
+    }
+
+    /** Read a record straight from a store, bypassing the module under test. */
+    function readStore<T>(store: string, key: string): Promise<T | undefined> {
+      return new Promise((resolve, reject) => {
+        const open = indexedDB.open('QuranSurahDB');
+        open.onsuccess = () => {
+          const db = open.result;
+          const req = db.transaction(store, 'readonly').objectStore(store).get(key);
+          req.onsuccess = () => {
+            db.close();
+            resolve(req.result as T | undefined);
+          };
+          req.onerror = () => reject(req.error);
+        };
+        open.onerror = () => reject(open.error);
+      });
+    }
+
+    it('creates the meta sidecar store alongside the payload store', async () => {
+      await cacheSurahToIDB('sidecar-schema', tinyEntry(1));
+      const open = indexedDB.open('QuranSurahDB');
+      const db = await new Promise<any>((resolve, reject) => {
+        open.onsuccess = () => resolve(open.result);
+        open.onerror = () => reject(open.error);
+      });
+      expect(db.objectStoreNames.contains('surahs')).toBe(true);
+      expect(db.objectStoreNames.contains('meta')).toBe(true);
+      db.close();
+    });
+
+    it('a cache hit touches only the sidecar — the payload is never rewritten', async () => {
+      let now = 5000;
+      const dateSpy = vi.spyOn(Date, 'now').mockImplementation(() => now);
+      try {
+        await cacheSurahToIDB('sidecar-key', tinyEntry(7));
+        now = 9000;
+        expect(await getCachedSurahFromIDB('sidecar-key')).not.toBeNull();
+        const payload = await readStore<{ lastAccessed?: number }>('surahs', 'sidecar-key');
+        const meta = await readStore<{ lastAccessed: number }>('meta', 'sidecar-key');
+        // The payload keeps its write-time timestamp; only the sidecar moved.
+        expect(payload?.lastAccessed).toBe(5000);
+        expect(meta?.lastAccessed).toBe(9000);
+      } finally {
+        dateSpy.mockRestore();
+      }
+    });
+
+    it('an offline-URL read also touches only the sidecar', async () => {
+      const { saveOfflineAudioUrls, getOfflineAudioUrls } = await import('../surah-cache.js');
+      let now = 1000;
+      const dateSpy = vi.spyOn(Date, 'now').mockImplementation(() => now);
+      try {
+        await saveOfflineAudioUrls('r1', 1, ['https://a.example/1.mp3']);
+        now = 4000;
+        expect(await getOfflineAudioUrls('r1', 1)).toEqual(['https://a.example/1.mp3']);
+        const payload = await readStore<{ lastAccessed?: number }>('surahs', 'offline-urls:r1:1');
+        const meta = await readStore<{ lastAccessed: number }>('meta', 'offline-urls:r1:1');
+        expect(payload?.lastAccessed).toBe(1000);
+        expect(meta?.lastAccessed).toBe(4000);
+      } finally {
+        dateSpy.mockRestore();
+      }
+    });
+
+    it('eviction removes the victim from both stores', async () => {
+      const { MAX_SURAH_CACHE_ENTRIES } = await import('../surah-cache.js');
+      for (let i = 1; i <= MAX_SURAH_CACHE_ENTRIES + 1; i++) {
+        await cacheSurahToIDB(`side-evict-${String(i).padStart(4, '0')}`, tinyEntry(i));
+      }
+      expect(await readStore('surahs', 'side-evict-0001')).toBeUndefined();
+      expect(await readStore('meta', 'side-evict-0001')).toBeUndefined();
+      expect(await readStore('surahs', 'side-evict-0301')).toBeDefined();
+      expect(await readStore('meta', 'side-evict-0301')).toBeDefined();
     });
   });
 });

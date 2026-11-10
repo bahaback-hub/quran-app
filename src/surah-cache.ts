@@ -44,18 +44,63 @@ export const MAX_SURAH_CACHE_ENTRIES = 300;
 
 /* ===================== IndexedDB SURAH CACHE ===================== */
 
+/** Tiny LRU sidecar record: the payload never has to be read or rewritten for ordering. */
+interface SurahMetaRecord {
+  key: string;
+  lastAccessed: number;
+}
+
 function openSurahDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('QuranSurahDB', 1);
+    const request = indexedDB.open('QuranSurahDB', 2);
     request.onupgradeneeded = (e: IDBVersionChangeEvent) => {
       const db = (e.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains('surahs')) {
         db.createObjectStore('surahs', { keyPath: 'key' });
       }
+      if (!db.objectStoreNames.contains('meta')) {
+        // v2 (N-05): LRU timestamps move to a sidecar store so eviction never
+        // deserializes full surah payloads and a cache hit never rewrites one.
+        const meta = db.createObjectStore('meta', { keyPath: 'key' });
+        // Backfill from v1 records, which stored lastAccessed inside the
+        // payload. Only possible on a real versionchange transaction (the
+        // fresh-create path has nothing to backfill).
+        const upgradeTx = request.transaction;
+        if (upgradeTx && db.objectStoreNames.contains('surahs')) {
+          const surahs = upgradeTx.objectStore('surahs');
+          const cursorReq = surahs.openCursor();
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result;
+            if (cursor) {
+              const record = cursor.value as { key: string; lastAccessed?: number };
+              meta.put({ key: record.key, lastAccessed: record.lastAccessed ?? 0 } satisfies SurahMetaRecord);
+              cursor.continue();
+            }
+          };
+        }
+      }
     };
     request.onsuccess = (e: Event) => resolve((e.target as IDBOpenDBRequest).result);
     request.onerror = () => reject(new Error('Failed to open QuranSurahDB'));
   });
+}
+
+/** Best-effort LRU touch: one tiny sidecar write, never a payload rewrite (N-05). */
+async function touchMeta(db: IDBDatabase, key: string): Promise<void> {
+  try {
+    const tx = db.transaction('meta', 'readwrite');
+    tx.objectStore('meta').put({ key, lastAccessed: Date.now() } satisfies SurahMetaRecord);
+    await new Promise<void>((resolve) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+      tx.onabort = () => resolve();
+    });
+  } catch (err) {
+    // A failed touch only skews eviction order; it must never fail the caller.
+    if (import.meta.env.DEV) {
+      console.warn('[SurahCache] LRU touch failed:', err);
+    }
+  }
 }
 
 /**
@@ -72,8 +117,10 @@ export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Pro
   let db: IDBDatabase | null = null;
   try {
     db = await openSurahDB();
-    const tx = db.transaction('surahs', 'readwrite');
-    tx.objectStore('surahs').put({ key, ...entry, lastAccessed: Date.now() });
+    const now = Date.now();
+    const tx = db.transaction(['surahs', 'meta'], 'readwrite');
+    tx.objectStore('surahs').put({ key, ...entry, lastAccessed: now });
+    tx.objectStore('meta').put({ key, lastAccessed: now } satisfies SurahMetaRecord);
     // Wait for the transaction to complete so errors are properly caught
     await new Promise<void>((resolve, reject) => {
       tx.oncomplete = () => resolve();
@@ -108,8 +155,10 @@ export async function saveOfflineAudioUrls(reciterId: string, surahNum: number, 
   let db: IDBDatabase | null = null;
   try {
     db = await openSurahDB();
-    const tx = db.transaction('surahs', 'readwrite');
-    tx.objectStore('surahs').put({ key: offlineUrlsKey(reciterId, surahNum), urls, lastAccessed: Date.now() });
+    const now = Date.now();
+    const tx = db.transaction(['surahs', 'meta'], 'readwrite');
+    tx.objectStore('surahs').put({ key: offlineUrlsKey(reciterId, surahNum), urls, lastAccessed: now });
+    tx.objectStore('meta').put({ key: offlineUrlsKey(reciterId, surahNum), lastAccessed: now } satisfies SurahMetaRecord);
     await new Promise<void>((resolve, reject) => {
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error || new Error('IDB transaction failed'));
@@ -146,19 +195,7 @@ export async function getOfflineAudioUrls(reciterId: string, surahNum: number): 
     const clean = urls.filter((u): u is string => typeof u === 'string' && u.length > 0);
     // Touch for LRU so an offline pack in active use is not evicted first.
     if (clean.length > 0) {
-      try {
-        const touchTx = db.transaction('surahs', 'readwrite');
-        touchTx.objectStore('surahs').put({ ...(record as Record<string, unknown>), lastAccessed: Date.now() });
-        await new Promise<void>((resolve) => {
-          touchTx.oncomplete = () => resolve();
-          touchTx.onerror = () => resolve();
-          touchTx.onabort = () => resolve();
-        });
-      } catch (err) {
-        if (import.meta.env.DEV) {
-          console.warn('[SurahCache] URL-index touch failed:', err);
-        }
-      }
+      await touchMeta(db, offlineUrlsKey(reciterId, surahNum));
     }
     return clean;
   } catch {
@@ -180,20 +217,27 @@ async function enforceSurahCap(db: IDBDatabase): Promise<void> {
     if (overBy <= 0) {
       return;
     }
-    const all: Array<{ key: string; lastAccessed?: number }> = await new Promise((resolve, reject) => {
-      const req = db.transaction('surahs', 'readonly').objectStore('surahs').getAll();
-      req.onsuccess = () => resolve((req.result ?? []) as Array<{ key: string; lastAccessed?: number }>);
+    // N-05: order by the tiny sidecar records, never by deserializing full
+    // surah payloads (a 286-ayah Al-Baqarah entry is hundreds of KB; the old
+    // getAll() here loaded every payload on every save).
+    const metas: SurahMetaRecord[] = await new Promise((resolve, reject) => {
+      const req = db.transaction('meta', 'readonly').objectStore('meta').getAll();
+      req.onsuccess = () => resolve((req.result ?? []) as SurahMetaRecord[]);
       req.onerror = () => reject(req.error || new Error('IDB read failed'));
     });
-    all.sort((a, b) => (a.lastAccessed ?? 0) - (b.lastAccessed ?? 0));
-    const victims = all.slice(0, overBy);
+    metas.sort((a, b) => a.lastAccessed - b.lastAccessed);
+    // Keys with no sidecar record (a v1 tab writing during the update window)
+    // are not visible here; they self-heal on their next write/read, which
+    // recreates the sidecar entry.
+    const victims = metas.slice(0, overBy);
     if (victims.length === 0) {
       return;
     }
     await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction('surahs', 'readwrite');
+      const tx = db.transaction(['surahs', 'meta'], 'readwrite');
       for (const victim of victims) {
         tx.objectStore('surahs').delete(victim.key);
+        tx.objectStore('meta').delete(victim.key);
       }
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error || new Error('IDB eviction failed'));
@@ -258,21 +302,9 @@ export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEnt
     });
     if (entry) {
       // Touch for LRU: a surah in active use must not be evicted as "old".
-      // Best-effort — a failed touch must never fail the read.
-      try {
-        const touchTx = db.transaction('surahs', 'readwrite');
-        touchTx.objectStore('surahs').put({ key, ...entry, lastAccessed: Date.now() });
-        await new Promise<void>((resolve) => {
-          touchTx.oncomplete = () => resolve();
-          touchTx.onerror = () => resolve();
-          touchTx.onabort = () => resolve();
-        });
-      } catch (err) {
-        // The read itself succeeded; a failed touch only skews eviction order.
-        if (import.meta.env.DEV) {
-          console.warn('[SurahCache] LRU touch failed:', err);
-        }
-      }
+      // N-05: one tiny sidecar write — the hundreds-of-KB payload is never
+      // rewritten just to bump a timestamp.
+      await touchMeta(db, key);
     }
     return entry;
   } catch {
