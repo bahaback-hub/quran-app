@@ -14,6 +14,7 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { showToast } from './ui.js';
 import { __ } from './i18n.js';
+import { initDialogAccessibility } from './a11y.js';
 import {
   SURAH_FONT_SIZES,
   MUSHAF_ZOOM_LEVELS,
@@ -49,6 +50,7 @@ export function resetSettings(): void {
 
   const overlay = document.createElement('div');
   overlay.id = 'resetConfirmModal';
+  overlay.setAttribute('role', 'dialog');
   overlay.style.cssText =
     'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);';
 
@@ -78,8 +80,14 @@ export function resetSettings(): void {
     'flex:1;padding:10px 20px;border:none;border-radius:8px;background:var(--border-soft,#eee);color:var(--text-primary);font-size:14px;cursor:pointer;font-family:inherit;';
 
   function close(): void {
+    cleanupA11y();
     overlay.remove();
   }
+
+  // UXS-05: this confirmation had no dialog role, no focus trap and no
+  // Escape — the only "danger" dialog in the app a keyboard user could
+  // neither contain nor dismiss. Same treatment as confirmAdhkarDialog().
+  const cleanupA11y = initDialogAccessibility(overlay, () => close());
 
   confirmBtn.addEventListener('click', () => {
     // N-13: derived from SETTING_STORAGE_KEYS so "reset all" can never leave

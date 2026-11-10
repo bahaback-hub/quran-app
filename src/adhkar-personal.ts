@@ -165,6 +165,23 @@ function openAdhkarAddDialog(): void {
   dom.adhkarAddOverlay.dataset['editId'] = '';
   dom.adhkarAddOverlay.classList.remove('hidden');
   dom.adhkarAddOverlay.style.display = 'flex';
+  beginAddDialogA11y();
+}
+
+/**
+ * UXS-05: the add/edit overlay shipped aria-modal with no focus trap and no
+ * Escape of its own — and the global Escape list (keyboard.ts) closed every
+ * other surface but this one. initDialogAccessibility installs the trap, the
+ * Escape dismiss and re-asserts aria-modal; the session is per open, and
+ * closeAdhkarAddDialog() releases it on every close path (save, ✖, backdrop).
+ */
+let _addDialogA11yCleanup: (() => void) | null = null;
+
+function beginAddDialogA11y(): void {
+  _addDialogA11yCleanup?.();
+  if (dom.adhkarAddOverlay) {
+    _addDialogA11yCleanup = initDialogAccessibility(dom.adhkarAddOverlay, () => closeAdhkarAddDialog());
+  }
 }
 
 export function closeAdhkarAddDialog(): void {
@@ -172,6 +189,8 @@ export function closeAdhkarAddDialog(): void {
     dom.adhkarAddOverlay.classList.add('hidden');
     dom.adhkarAddOverlay.style.display = 'none';
   }
+  _addDialogA11yCleanup?.();
+  _addDialogA11yCleanup = null;
 }
 
 function readBoundedInteger(value: string | undefined, fallback: number, min: number, max: number): number {
@@ -231,6 +250,7 @@ function editPersonalAdhkar(id: string): void {
   dom.adhkarAddOverlay.classList.remove('hidden');
   dom.adhkarAddOverlay.style.display = 'flex';
   dom.adhkarAddOverlay.dataset['editId'] = id;
+  beginAddDialogA11y();
   if (dom.adhkarAddText) {
     dom.adhkarAddText.value = p.text;
   }

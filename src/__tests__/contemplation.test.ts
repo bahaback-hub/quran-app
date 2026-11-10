@@ -79,3 +79,52 @@ describe('contemplation', () => {
     expect(document.getElementById('contemplationSheet')?.classList.contains('hidden')).toBe(false);
   });
 });
+
+// UXS-05: the sheet had role=dialog + aria-modal + Escape but no focus trap,
+// so Tab escaped into the page behind it while it was open.
+describe('contemplation sheet focus trap (UXS-05)', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.unstubAllGlobals();
+    mountSheet();
+    mockLocalData();
+  });
+
+  it('moves focus into the sheet on open and keeps Tab inside it', async () => {
+    const { initContemplation, openContemplation } = await import('../contemplation.js');
+    initContemplation();
+    const sheet = document.getElementById('contemplationSheet')!;
+
+    await openContemplation(2, 1, 'البقرة');
+
+    // trapFocus moves the initial focus onto the first focusable element.
+    expect(sheet.contains(document.activeElement)).toBe(true);
+
+    // Tab from the last focusable element wraps back inside the sheet.
+    const closeBtn = document.getElementById('contemplationCloseBtn')!;
+    closeBtn.focus();
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    closeBtn.dispatchEvent(tab);
+    expect(tab.defaultPrevented).toBe(true);
+    expect(sheet.contains(document.activeElement)).toBe(true);
+  });
+
+  it('releases the trap when the sheet closes', async () => {
+    const { initContemplation, openContemplation } = await import('../contemplation.js');
+    initContemplation();
+    const sheet = document.getElementById('contemplationSheet')!;
+    const closeBtn = document.getElementById('contemplationCloseBtn')!;
+
+    await openContemplation(2, 1, 'البقرة');
+    closeBtn.click();
+
+    expect(sheet.classList.contains('hidden')).toBe(true);
+    // After cleanup, Tab is no longer intercepted by the sheet's listener.
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    outside.focus();
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    outside.dispatchEvent(tab);
+    expect(tab.defaultPrevented).toBe(false);
+  });
+});

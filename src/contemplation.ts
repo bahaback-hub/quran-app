@@ -5,6 +5,7 @@
 
 import { __ } from './i18n.js';
 import { jsonFetch } from './api-client.js';
+import { trapFocus } from './a11y.js';
 import { AL_FATIHAH_CONTEMPLATION_SAMPLE } from './contemplation-questions.sample.js';
 
 interface ContemplationEntry {
@@ -43,6 +44,11 @@ let questionsList: HTMLOListElement | null = null;
 let closeButton: HTMLButtonElement | null = null;
 let title: HTMLElement | null = null;
 let hint: HTMLElement | null = null;
+/**
+ * UXS-05: focus trap for the open sheet. Installed per open (trapFocus also
+ * moves initial focus inside) and released on every close path.
+ */
+let sheetTrapCleanup: (() => void) | null = null;
 let activeContext: ActiveContext | null = null;
 
 function entryKey(surah: number, ayah: number): string {
@@ -240,6 +246,10 @@ export async function openContemplation(surah: number, ayah: number, surahName: 
   sheet.classList.remove('hidden');
   sheet.style.display = 'flex';
   document.body.style.overflow = 'hidden';
+  // UXS-05: the sheet already had role=dialog, aria-modal and Escape; the
+  // missing piece was the trap — Tab leaked back into the page behind it.
+  sheetTrapCleanup?.();
+  sheetTrapCleanup = trapFocus(sheet);
   closeButton?.focus();
 }
 
@@ -251,4 +261,6 @@ function closeContemplation(): void {
   sheet.style.display = 'none';
   document.body.style.overflow = '';
   activeContext = null;
+  sheetTrapCleanup?.();
+  sheetTrapCleanup = null;
 }
