@@ -6,7 +6,7 @@
  */
 
 import type { SurahInfo } from './state.js';
-import { __ } from './i18n.js';
+import { __, __n } from './i18n.js';
 import { escapeHtml } from './templates/escape.js';
 
 /* ===================== SURAH TEMPLATES ===================== */
@@ -45,7 +45,7 @@ export function mushafSurahItem(surah: SurahInfo): string {
     `<button class="mushaf-surah-item" data-surah="${surah.number}">` +
     `<span class="mushaf-surah-num">${surah.number}</span>` +
     `<span class="mushaf-surah-name">${escapeHtml(surah.name)}</span>` +
-    `<span class="mushaf-surah-count">${surah.numberOfAyahs} ${__('ayah') || 'آية'}</span>` +
+    `<span class="mushaf-surah-count">${__n('ayah_count', surah.numberOfAyahs)}</span>` +
     `</button>`
   );
 }

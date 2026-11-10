@@ -108,6 +108,7 @@ vi.mock('../utils.js', () => ({
 
 vi.mock('../i18n.js', () => ({
   __: (key: string) => key,
+  __n: (key: string) => key,
 }));
 
 vi.mock('../features/audio/audio-cache.js', () => ({

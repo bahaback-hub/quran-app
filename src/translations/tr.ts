@@ -611,8 +611,20 @@ export default {
   sleep_timer_confirm: 'Onayla',
   sleep_timer_cancel: 'İptal',
   sleep_timer_cancelled: 'Uyku zamanlayıcı iptal edildi',
-  sleep_timer_set: 'Uyku zamanlayıcı ayarlandı: {0} dakika',
-  sleep_timer_stopped: 'Ses {0} dakika sonra durduruldu',
+  sleep_timer_set: {
+    one: 'Uyku zamanlayıcı ayarlandı: {count} dakika',
+    two: 'Uyku zamanlayıcı ayarlandı: {count} dakika',
+    few: 'Uyku zamanlayıcı ayarlandı: {count} dakika',
+    many: 'Uyku zamanlayıcı ayarlandı: {count} dakika',
+    other: 'Uyku zamanlayıcı ayarlandı: {count} dakika',
+  },
+  sleep_timer_stopped: {
+    one: 'Ses {count} dakika sonra durduruldu',
+    two: 'Ses {count} dakika sonra durduruldu',
+    few: 'Ses {count} dakika sonra durduruldu',
+    many: 'Ses {count} dakika sonra durduruldu',
+    other: 'Ses {count} dakika sonra durduruldu',
+  },
   sleep_timer_remaining: 'Kalan',
 
   // === Tecvid ===

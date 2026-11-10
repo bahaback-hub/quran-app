@@ -592,8 +592,20 @@ export default {
   sleep_timer_confirm: 'تأكيد',
   sleep_timer_cancel: 'إلغاء',
   sleep_timer_cancelled: 'تم إلغاء مؤقت النوم',
-  sleep_timer_set: 'تم تعيين مؤقت النوم: {0} دقيقة',
-  sleep_timer_stopped: 'تم إيقاف الصوت بعد {0} دقيقة',
+  sleep_timer_set: {
+    one: 'تم تعيين مؤقت النوم: دقيقة واحدة',
+    two: 'تم تعيين مؤقت النوم: دقيقتان',
+    few: 'تم تعيين مؤقت النوم: {count} دقائق',
+    many: 'تم تعيين مؤقت النوم: {count} دقيقة',
+    other: 'تم تعيين مؤقت النوم: {count} دقيقة',
+  },
+  sleep_timer_stopped: {
+    one: 'تم إيقاف الصوت بعد دقيقة واحدة',
+    two: 'تم إيقاف الصوت بعد دقيقتين',
+    few: 'تم إيقاف الصوت بعد {count} دقائق',
+    many: 'تم إيقاف الصوت بعد {count} دقيقة',
+    other: 'تم إيقاف الصوت بعد {count} دقيقة',
+  },
   sleep_timer_remaining: 'متبقي',
 
   // === التجويد ===

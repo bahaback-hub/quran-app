@@ -10,7 +10,7 @@
  */
 
 import { showToast } from '../../ui.js';
-import { __ } from '../../i18n.js';
+import { __, __n } from '../../i18n.js';
 
 /* ===================== HOST WIRING ===================== */
 
@@ -48,14 +48,14 @@ export function setSleepTimer(minutes: number): void {
   _sleepTimer = setTimeout(
     () => {
       _host?.stopPlayback();
-      showToast(__('sleep_timer_stopped', String(minutes)), 'success');
+      showToast(__n('sleep_timer_stopped', minutes), 'success');
       _sleepTimerMinutes = 0;
       _sleepTimerStart = 0;
       updateSleepTimerDisplay();
     },
     minutes * 60 * 1000,
   );
-  showToast(__('sleep_timer_set', String(minutes)), 'success');
+  showToast(__n('sleep_timer_set', minutes), 'success');
   updateSleepTimerDisplay();
   ensureSleepTimerInterval();
 }
