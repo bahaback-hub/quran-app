@@ -631,20 +631,8 @@ export default {
   select_mode_copied: '{0} ayahs copied',
 
   // === Welcome ===
-  welcome_feature_audio: 'Listen to Quran recitations',
-  welcome_feature_search: 'Search the Holy Quran',
 
   // === Onboarding ===
-  onboarding_desc_1: 'Read the Holy Quran easily',
-  onboarding_desc_2: 'Listen to various recitations',
-  onboarding_desc_3: 'Know prayer times',
-  onboarding_desc_4: 'Save daily adhkar',
-  onboarding_desc_5: 'Browse the Mushaf',
-  onboarding_desc_6: 'Track your reading stats',
-  onboarding_next: 'Next',
-  onboarding_prev: 'Previous',
-  onboarding_skip: 'Skip',
-  onboarding_start: 'Start',
 
   // === Pages ===
   next_page: 'Next Page',

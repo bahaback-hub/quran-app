@@ -650,20 +650,8 @@ export default {
   select_mode_copied: '{0} ayat disalin',
 
   // === Selamat Datang ===
-  welcome_feature_audio: 'Dengar tilawah Al-Quran',
-  welcome_feature_search: 'Cari dalam Al-Quran',
 
   // === Onboarding ===
-  onboarding_desc_1: 'Baca Al-Quran dengan mudah',
-  onboarding_desc_2: 'Dengar berbagai tilawah',
-  onboarding_desc_3: 'Ketahui waktu shalat',
-  onboarding_desc_4: 'Simpan dzikir harian',
-  onboarding_desc_5: 'Jelajahi Mushaf',
-  onboarding_desc_6: 'Lacak statistik bacaan Anda',
-  onboarding_next: 'Berikutnya',
-  onboarding_prev: 'Sebelumnya',
-  onboarding_skip: 'Lewati',
-  onboarding_start: 'Mulai',
 
   // === Halaman ===
   next_page: 'Halaman Berikutnya',

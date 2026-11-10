@@ -650,20 +650,8 @@ export default {
   select_mode_copied: '{0} ayet kopyalandı',
 
   // === Hoş Geldin ===
-  welcome_feature_audio: "Kur'an tilavetlerini dinleyin",
-  welcome_feature_search: "Kur'an-ı Kerim'de arayın",
 
   // === Onboarding ===
-  onboarding_desc_1: "Kur'an-ı Kerim'i kolayca okuyun",
-  onboarding_desc_2: 'Çeşitli tilavetleri dinleyin',
-  onboarding_desc_3: 'Namaz vakitlerini öğrenin',
-  onboarding_desc_4: 'Günlük zikirleri kaydedin',
-  onboarding_desc_5: "Mushaf'ı tarayın",
-  onboarding_desc_6: 'Okuma istatistiklerinizi takip edin',
-  onboarding_next: 'İleri',
-  onboarding_prev: 'Geri',
-  onboarding_skip: 'Atla',
-  onboarding_start: 'Başla',
 
   // === Sayfalar ===
   next_page: 'Sonraki Sayfa',

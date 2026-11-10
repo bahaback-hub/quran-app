@@ -631,20 +631,8 @@ export default {
   select_mode_copied: 'تم نسخ {0} آية',
 
   // === الترحيب ===
-  welcome_feature_audio: 'استمع إلى تلاوات القرآن',
-  welcome_feature_search: 'ابحث في القرآن الكريم',
 
   // === Onboarding ===
-  onboarding_desc_1: 'اقرأ القرآن الكريم بسهولة',
-  onboarding_desc_2: 'استمع إلى تلاوات مختلفة',
-  onboarding_desc_3: 'تعرف على مواقيت الصلاة',
-  onboarding_desc_4: 'احفظ الأذكار اليومية',
-  onboarding_desc_5: 'تصفح المصحف الشريف',
-  onboarding_desc_6: 'تابع إحصائيات قراءتك',
-  onboarding_next: 'التالي',
-  onboarding_prev: 'السابق',
-  onboarding_skip: 'تخطي',
-  onboarding_start: 'ابدأ',
 
   // === الصفحات ===
   next_page: 'الصفحة التالية',

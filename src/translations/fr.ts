@@ -635,20 +635,8 @@ export default {
   select_mode_copied: '{0} ayahs copiées',
 
   // === Welcome ===
-  welcome_feature_audio: 'Écouter des récitations du Coran',
-  welcome_feature_search: 'Rechercher dans le Saint Coran',
 
   // === Onboarding ===
-  onboarding_desc_1: 'Lire facilement le Saint Coran',
-  onboarding_desc_2: 'Écouter diverses récitations',
-  onboarding_desc_3: 'Connaître les heures de prière',
-  onboarding_desc_4: 'Enregistrer les adhkar quotidiens',
-  onboarding_desc_5: 'Parcourir le Mushaf',
-  onboarding_desc_6: 'Suivre vos statistiques de lecture',
-  onboarding_next: 'Suivant',
-  onboarding_prev: 'Précédent',
-  onboarding_skip: 'Passer',
-  onboarding_start: 'Commencer',
 
   // === Pages ===
   next_page: 'Page suivante',

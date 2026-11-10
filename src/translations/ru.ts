@@ -633,20 +633,8 @@ export default {
   select_mode_copied: '{0} аятов скопировано',
 
   // === Welcome ===
-  welcome_feature_audio: 'Слушайте чтения Корана',
-  welcome_feature_search: 'Ищите в Священном Коране',
 
   // === Onboarding ===
-  onboarding_desc_1: 'Легко читать Священный Коран',
-  onboarding_desc_2: 'Слушать различные рецитации',
-  onboarding_desc_3: 'Узнавать времена молитв',
-  onboarding_desc_4: 'Сохранять ежедневные азкары',
-  onboarding_desc_5: 'Просматривать Мушаф',
-  onboarding_desc_6: 'Отслеживать статистику чтения',
-  onboarding_next: 'Далее',
-  onboarding_prev: 'Назад',
-  onboarding_skip: 'Пропустить',
-  onboarding_start: 'Начать',
 
   // === Pages ===
   next_page: 'Следующая страница',

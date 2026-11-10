@@ -632,20 +632,8 @@ export default {
   select_mode_copied: '{0} آیات کاپی ہوئیں',
 
   // === Welcome ===
-  welcome_feature_audio: 'قرآن کی تلاوتیں سنیں',
-  welcome_feature_search: 'قرآن کریم میں تلاش کریں',
 
   // === Onboarding ===
-  onboarding_desc_1: 'قرآن کریم آسانی سے پڑھیں',
-  onboarding_desc_2: 'مختلف تلاوتیں سنیں',
-  onboarding_desc_3: 'نماز کے اوقات جانیں',
-  onboarding_desc_4: 'روزانہ کے اذکار محفوظ کریں',
-  onboarding_desc_5: 'مصحف دیکھیں',
-  onboarding_desc_6: 'اپنے قراءت کے اعداد و شمار دیکھیں',
-  onboarding_next: 'اگلا',
-  onboarding_prev: 'پچھلا',
-  onboarding_skip: 'چھوڑیں',
-  onboarding_start: 'شروع کریں',
 
   // === Pages ===
   next_page: 'اگلا صفحہ',

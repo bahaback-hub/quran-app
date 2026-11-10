@@ -148,7 +148,6 @@ Key modules:
 | `a11y.ts`                                                  | Accessibility utilities (focus trap, ARIA live, reduced-motion)                                                                                                                                                                                                        |
 | `ayah-modal.ts` / `ayah-click.ts`                          | Ayah detail modal + click handling                                                                                                                                                                                                                                     |
 | `capacitor-back.ts`                                        | Android back-button handling                                                                                                                                                                                                                                           |
-| `onboarding.ts`                                            | First-run onboarding                                                                                                                                                                                                                                                   |
 
 ### Known Large Files (Refactor Candidates)
 

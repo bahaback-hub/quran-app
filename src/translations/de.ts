@@ -635,20 +635,8 @@ export default {
   select_mode_copied: '{0} Ayahs kopiert',
 
   // === Welcome ===
-  welcome_feature_audio: 'Quran-Rezitationen anhören',
-  welcome_feature_search: 'Im Heiligen Quran suchen',
 
   // === Onboarding ===
-  onboarding_desc_1: 'Den Heiligen Quran einfach lesen',
-  onboarding_desc_2: 'Verschiedene Rezitationen anhören',
-  onboarding_desc_3: 'Gebetszeiten kennen',
-  onboarding_desc_4: 'Tägliche Adhkar speichern',
-  onboarding_desc_5: 'Im Mushaf blättern',
-  onboarding_desc_6: 'Deine Lese-Statistiken verfolgen',
-  onboarding_next: 'Weiter',
-  onboarding_prev: 'Zurück',
-  onboarding_skip: 'Überspringen',
-  onboarding_start: 'Start',
 
   // === Pages ===
   next_page: 'Nächste Seite',
