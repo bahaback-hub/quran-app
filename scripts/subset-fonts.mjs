@@ -11,10 +11,14 @@
  * can show, so the glyph set is the union of:
  *   1. every codepoint that appears in src/**, index.html and the bundled
  *      translation JSON files (en/fr/ur — ur is Urdu in the Arabic script);
- *   2. a conservative safety net of blocks (Arabic + presentation forms +
- *      Quranic annotations, Latin-1 supplement and extended-A, punctuation,
- *      currency, geometric shapes and dingbats used by the UI).
- * Anything else is dropped. Run with --dry-run to preview savings.
+ *   2. a conservative safety net of blocks (Basic Latin; Arabic + supplement
+ *      + extended-A/B incl. Quranic annotation signs; general punctuation
+ *      such as dashes, quotes and ZWJ/ZWNJ — see SAFETY_BLOCKS below).
+ * Anything else is dropped. Note the safety net does NOT include Latin-1
+ * supplement, currency symbols or dingbats: those glyphs survive only when
+ * some scanned source file uses them, and runtime-fetched tafsir/translation
+ * editions are outside the scan, so such characters fall back to the next
+ * font in the stack. Run with --dry-run to preview savings.
  *
  * Regenerate: `npm run fonts:subset`
  */
