@@ -602,6 +602,89 @@ describe('surah-loader-full', () => {
       expect(cacheSurahToIDB).toHaveBeenCalled();
     });
 
+    // N-02: opening a surah and switching to mushaf mode inside the 0.5-3s
+    // translation-fetch window used to let the arriving translation rebuild
+    // the HTML reader over the open mushaf canvas (patchTranslations returns
+    // false because .ayahs-container is not mounted, and the fallback calls
+    // renderSurah). The canvas must survive; the translation belongs to state.
+    it('keeps the open mushaf canvas when the translation arrives late (N-02)', async () => {
+      let releaseTranslation!: (value: { data: Record<string, unknown> }) => void;
+      const translationGate = new Promise<{ data: Record<string, unknown> }>((resolve) => {
+        releaseTranslation = resolve;
+      });
+      vi.mocked(apiFetch).mockImplementation(async (url: unknown) => {
+        if (String(url).includes('en.sahih')) {
+          return translationGate;
+        }
+        return { data: SAMPLE_SURAH_DATA };
+      });
+      vi.spyOn(storage, 'set').mockImplementation(() => true);
+      state.surahList = SAMPLE_SURAH_LIST;
+      state.translationEnabled = true;
+      state.currentTranslation = 'en.sahih';
+
+      const loading = loadSurah(1);
+      // Wait until the text has rendered (loadSurah is then parked on the
+      // gated translation promise).
+      await vi.waitFor(() => {
+        expect(dom.surahContent?.querySelector('.ayahs-container')).toBeTruthy();
+      });
+
+      // User switches to mushaf mode inside the fetch window: the reader DOM
+      // is replaced by the canvas stage.
+      state.mushafMode = true;
+      dom.surahContent!.innerHTML = '<div class="mushaf-stage"><canvas id="mushafCanvas"></canvas></div>';
+      const canvasHost = dom.surahContent!.firstElementChild;
+
+      releaseTranslation({ data: { ayahs: [{ text: 't1' }] } });
+      await loading;
+
+      expect(state.translationData).toBeTruthy();
+      expect(dom.surahContent!.contains(canvasHost)).toBe(true);
+      expect(dom.surahContent!.querySelector('.ayahs-container')).toBeNull();
+      state.mushafMode = false;
+    });
+
+    // N-02 (background refresh half): a stale-while-revalidate delivery with
+    // changed text must not rebuild the reader over the open canvas either.
+    it('keeps the open mushaf canvas when a background refresh delivers new text (N-02)', async () => {
+      vi.useFakeTimers();
+      try {
+        const cachedEntry = {
+          text: SAMPLE_SURAH_DATA,
+          audios: ['https://audio/1.mp3'],
+          timings: [],
+          translation: null,
+        };
+        vi.mocked(getCachedSurahFromIDB).mockResolvedValueOnce(cachedEntry as never);
+        const changedText = {
+          ...SAMPLE_SURAH_DATA,
+          ayahs: SAMPLE_SURAH_DATA.ayahs.map((a, i) => ({ ...a, text: `changed-${i}` })),
+        };
+        vi.mocked(apiFetch).mockResolvedValue({ data: changedText });
+        vi.spyOn(storage, 'set').mockImplementation(() => true);
+        state.surahList = SAMPLE_SURAH_LIST;
+
+        await loadSurah(1); // serves the IDB cache entry, schedules the refresh
+        expect(dom.surahContent?.querySelector('.ayahs-container')).toBeTruthy();
+
+        // User opens mushaf mode; the canvas replaces the reader DOM.
+        state.mushafMode = true;
+        dom.surahContent!.innerHTML = '<div class="mushaf-stage"><canvas id="mushafCanvas"></canvas></div>';
+        const canvasHost = dom.surahContent!.firstElementChild;
+
+        await vi.advanceTimersByTimeAsync(1300); // past REFRESH_DEBOUNCE_MS (1200)
+
+        expect(dom.surahContent!.contains(canvasHost)).toBe(true);
+        expect(dom.surahContent!.querySelector('.ayahs-container')).toBeNull();
+        // The refreshed text still lands in state for the exit-from-mushaf render.
+        expect(state.surahData?.ayahs[0]?.text).toBe('changed-0');
+        state.mushafMode = false;
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
     it('should find startAyah index when provided', async () => {
       vi.mocked(apiFetch).mockResolvedValue({ data: SAMPLE_SURAH_DATA });
       vi.spyOn(storage, 'set').mockImplementation(() => true);

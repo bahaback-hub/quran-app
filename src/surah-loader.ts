@@ -317,7 +317,12 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     }
     markCurrentAudio(surahNum, state.currentReciter);
     state.translationData = transResult;
-    if (transResult && state.surahData) {
+    if (transResult && state.surahData && !state.mushafMode) {
+      // N-02: while the mushaf canvas is open, the reader DOM is not mounted,
+      // so patchTranslations() would report failure and its full-render
+      // fallback would replace the open canvas with the ayah list. The
+      // translation is already in state; leaving mushaf mode re-renders
+      // from it (mushaf.ts exit path).
       // Translation arrived after the text render: patch the missing spans in
       // place instead of rebuilding ~6,300 word spans. Falls back to a full
       // render if the DOM no longer matches the surah.
@@ -492,18 +497,23 @@ async function _refreshSurahFromAPI(
     // almost always deliver byte-identical text: skipping the rebuild avoids
     // thousands of word-span repaints and never moves the reader's scroll.
     // On a real change, preserve the scroll position across the rebuild.
-    const scroller = dom.surahContent;
-    const savedTop = scroller?.scrollTop ?? 0;
-    const savedY = window.scrollY;
-    if (renderSurahIfChanged(textData)) {
-      if (scroller && scroller.scrollTop !== savedTop) {
-        scroller.scrollTop = savedTop;
+    // N-02: never rebuild the reader while the mushaf canvas is open — the
+    // refresh only needs to update state and the caches; leaving mushaf mode
+    // re-renders from the refreshed state (mushaf.ts exit path).
+    if (!state.mushafMode) {
+      const scroller = dom.surahContent;
+      const savedTop = scroller?.scrollTop ?? 0;
+      const savedY = window.scrollY;
+      if (renderSurahIfChanged(textData)) {
+        if (scroller && scroller.scrollTop !== savedTop) {
+          scroller.scrollTop = savedTop;
+        }
+        if (window.scrollY !== savedY) {
+          window.scrollTo(0, savedY);
+        }
       }
-      if (window.scrollY !== savedY) {
-        window.scrollTo(0, savedY);
-      }
+      highlightCurrentAyah();
     }
-    highlightCurrentAyah();
   } catch {
     // Background refresh failure is silent — the cached data is still displayed
   }
