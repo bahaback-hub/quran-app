@@ -611,8 +611,20 @@ export default {
   sleep_timer_confirm: 'Konfirmasi',
   sleep_timer_cancel: 'Batal',
   sleep_timer_cancelled: 'Penghitung tidur dibatalkan',
-  sleep_timer_set: 'Penghitung tidur diatur: {0} menit',
-  sleep_timer_stopped: 'Audio dihentikan setelah {0} menit',
+  sleep_timer_set: {
+    one: 'Penghitung tidur diatur: {count} menit',
+    two: 'Penghitung tidur diatur: {count} menit',
+    few: 'Penghitung tidur diatur: {count} menit',
+    many: 'Penghitung tidur diatur: {count} menit',
+    other: 'Penghitung tidur diatur: {count} menit',
+  },
+  sleep_timer_stopped: {
+    one: 'Audio dihentikan setelah {count} menit',
+    two: 'Audio dihentikan setelah {count} menit',
+    few: 'Audio dihentikan setelah {count} menit',
+    many: 'Audio dihentikan setelah {count} menit',
+    other: 'Audio dihentikan setelah {count} menit',
+  },
   sleep_timer_remaining: 'Tersisa',
 
   // === Tajwid ===

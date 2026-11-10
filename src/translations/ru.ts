@@ -593,8 +593,20 @@ export default {
   sleep_timer_confirm: 'Подтвердить',
   sleep_timer_cancel: 'Отмена',
   sleep_timer_cancelled: 'Таймер сна отменён',
-  sleep_timer_set: 'Таймер сна установлен: {0} минут',
-  sleep_timer_stopped: 'Аудио остановлено через {0} минут',
+  sleep_timer_set: {
+    one: 'Таймер сна установлен: {count} минута',
+    two: 'Таймер сна установлен: {count} минут',
+    few: 'Таймер сна установлен: {count} минуты',
+    many: 'Таймер сна установлен: {count} минут',
+    other: 'Таймер сна установлен: {count} минут',
+  },
+  sleep_timer_stopped: {
+    one: 'Аудио остановлено через {count} минуту',
+    two: 'Аудио остановлено через {count} минут',
+    few: 'Аудио остановлено через {count} минуты',
+    many: 'Аудио остановлено через {count} минут',
+    other: 'Аудио остановлено через {count} минут',
+  },
   sleep_timer_remaining: 'Осталось',
 
   // === Tajweed ===

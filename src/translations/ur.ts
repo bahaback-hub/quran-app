@@ -592,8 +592,20 @@ export default {
   sleep_timer_confirm: 'تصدیق کریں',
   sleep_timer_cancel: 'منسوخ کریں',
   sleep_timer_cancelled: 'نیند کا ٹائمر منسوخ ہو گیا',
-  sleep_timer_set: 'نیند کا ٹائمر مقرر: {0} منٹ',
-  sleep_timer_stopped: '{0} منٹ بعد آڈیو رک گئی',
+  sleep_timer_set: {
+    one: 'نیند کا ٹائمر مقرر: {count} منٹ',
+    two: 'نیند کا ٹائمر مقرر: {count} منٹ',
+    few: 'نیند کا ٹائمر مقرر: {count} منٹ',
+    many: 'نیند کا ٹائمر مقرر: {count} منٹ',
+    other: 'نیند کا ٹائمر مقرر: {count} منٹ',
+  },
+  sleep_timer_stopped: {
+    one: '{count} منٹ بعد آڈیو رک گئی',
+    two: '{count} منٹ بعد آڈیو رک گئی',
+    few: '{count} منٹ بعد آڈیو رک گئی',
+    many: '{count} منٹ بعد آڈیو رک گئی',
+    other: '{count} منٹ بعد آڈیو رک گئی',
+  },
   sleep_timer_remaining: 'باقی',
 
   // === Tajweed ===

@@ -592,8 +592,20 @@ export default {
   sleep_timer_confirm: 'Confirm',
   sleep_timer_cancel: 'Cancel',
   sleep_timer_cancelled: 'Sleep timer cancelled',
-  sleep_timer_set: 'Sleep timer set: {0} minutes',
-  sleep_timer_stopped: 'Audio stopped after {0} minutes',
+  sleep_timer_set: {
+    one: 'Sleep timer set: {count} minute',
+    two: 'Sleep timer set: {count} minutes',
+    few: 'Sleep timer set: {count} minutes',
+    many: 'Sleep timer set: {count} minutes',
+    other: 'Sleep timer set: {count} minutes',
+  },
+  sleep_timer_stopped: {
+    one: 'Audio stopped after {count} minute',
+    two: 'Audio stopped after {count} minutes',
+    few: 'Audio stopped after {count} minutes',
+    many: 'Audio stopped after {count} minutes',
+    other: 'Audio stopped after {count} minutes',
+  },
   sleep_timer_remaining: 'Remaining',
 
   // === Tajweed ===

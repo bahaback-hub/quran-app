@@ -15,6 +15,27 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import arT from '../translations/ar.js';
+import enT from '../translations/en.js';
+import urT from '../translations/ur.js';
+import ruT from '../translations/ru.js';
+import deT from '../translations/de.js';
+import frT from '../translations/fr.js';
+import trT from '../translations/tr.js';
+import msT from '../translations/ms.js';
+import idT from '../translations/id.js';
+
+const LOCALE_BUNDLES: Record<string, Record<string, unknown>> = {
+  ar: arT as unknown as Record<string, unknown>,
+  en: enT as unknown as Record<string, unknown>,
+  ur: urT as unknown as Record<string, unknown>,
+  ru: ruT as unknown as Record<string, unknown>,
+  de: deT as unknown as Record<string, unknown>,
+  fr: frT as unknown as Record<string, unknown>,
+  tr: trT as unknown as Record<string, unknown>,
+  ms: msT as unknown as Record<string, unknown>,
+  id: idT as unknown as Record<string, unknown>,
+};
 
 // We test the underlying logic directly without depending on i18n.ts state.
 // The plural-selection logic is replicated here for testing, mirroring __n.
@@ -229,7 +250,7 @@ describe('Arabic translation bundle has all plural forms', () => {
     expect(favoriteCount.two).toBe('مفضلتان');
   });
 
-  it('should have plural forms for all 11 count-related keys', async () => {
+  it('should have plural forms for all 13 count-related keys', async () => {
     const ar = (await import('../translations/ar.js')).default as unknown as Record<string, unknown>;
     const keysWithPlurals = [
       'ayah_count',
@@ -243,6 +264,9 @@ describe('Arabic translation bundle has all plural forms', () => {
       'listening_minutes',
       'reading_sessions',
       'day_streak',
+      // N-12: migrated from plain strings to plural-form objects
+      'sleep_timer_set',
+      'sleep_timer_stopped',
     ];
 
     for (const key of keysWithPlurals) {
@@ -251,5 +275,63 @@ describe('Arabic translation bundle has all plural forms', () => {
       expect(value.other, `Key "${key}" should have 'other' form`).toBeDefined();
       expect(typeof value.other).toBe('string');
     }
+  });
+});
+
+describe('N-12: sleep_timer and ayah_count plural forms across all 9 locales', () => {
+  // Regression for the plural-form migration: every locale must expose
+  // sleep_timer_set, sleep_timer_stopped, and ayah_count as plural-form
+  // objects (with at least an 'other' fallback), and the call sites must
+  // render the right form for the right count.
+  const LOCALES = Object.keys(LOCALE_BUNDLES);
+  const PLURAL_KEYS = ['sleep_timer_set', 'sleep_timer_stopped', 'ayah_count'] as const;
+
+  for (const lang of LOCALES) {
+    for (const key of PLURAL_KEYS) {
+      it(`${lang}.ts: ${key} is a plural-form object with an 'other' fallback`, () => {
+        const bundle = LOCALE_BUNDLES[lang]!;
+        const val = bundle[key];
+        expect(val, `${lang} ${key} must exist`).toBeDefined();
+        expect(typeof val, `${lang} ${key} must be a plural-form object, not a string`).toBe('object');
+        const forms = val as Record<string, string>;
+        expect(forms.other, `${lang} ${key} must have an 'other' fallback`).toBeDefined();
+        expect(typeof forms.other).toBe('string');
+      });
+    }
+  }
+
+  it('Arabic sleep_timer_stopped uses the few form (دقائق) for 3-10 minutes', () => {
+    const forms = LOCALE_BUNDLES.ar!['sleep_timer_stopped'] as Record<PluralForm, string>;
+    const selected = selectPluralForm(forms, 7, 'ar');
+    const result = substitute(selected, 7, 'ar');
+    expect(result).toContain('دقائق');
+    expect(result).toContain('٧');
+  });
+
+  it('Arabic sleep_timer_set uses the many form (دقيقة) for 11+ minutes', () => {
+    const forms = LOCALE_BUNDLES.ar!['sleep_timer_set'] as Record<PluralForm, string>;
+    const selected = selectPluralForm(forms, 15, 'ar');
+    const result = substitute(selected, 15, 'ar');
+    expect(result).toContain('دقيقة');
+    expect(result).toContain('١٥');
+  });
+
+  it('English sleep_timer_set distinguishes 1 minute vs 5 minutes', () => {
+    const forms = LOCALE_BUNDLES.en!['sleep_timer_set'] as Record<PluralForm, string>;
+    expect(substitute(selectPluralForm(forms, 1, 'en'), 1, 'en')).toBe('Sleep timer set: 1 minute');
+    expect(substitute(selectPluralForm(forms, 5, 'en'), 5, 'en')).toBe('Sleep timer set: 5 minutes');
+  });
+
+  it('Russian sleep_timer_stopped uses the right case for 1 vs 2-4 vs 5+', () => {
+    const forms = LOCALE_BUNDLES.ru!['sleep_timer_stopped'] as Record<PluralForm, string>;
+    expect(substitute(selectPluralForm(forms, 1, 'ru'), 1, 'ru')).toContain('минуту');
+    expect(substitute(selectPluralForm(forms, 3, 'ru'), 3, 'ru')).toContain('минуты');
+    expect(substitute(selectPluralForm(forms, 5, 'ru'), 5, 'ru')).toContain('минут');
+  });
+
+  it('Arabic ayah_count renders 7 آيات (few) for Al-Fatihah and 286 آية (many) for Al-Baqarah', () => {
+    const forms = LOCALE_BUNDLES.ar!['ayah_count'] as Record<PluralForm, string>;
+    expect(substitute(selectPluralForm(forms, 7, 'ar'), 7, 'ar')).toBe('٧ آيات');
+    expect(substitute(selectPluralForm(forms, 286, 'ar'), 286, 'ar')).toBe('٢٨٦ آية');
   });
 });
