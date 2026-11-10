@@ -2,40 +2,17 @@
  * Tests for config.ts — application configuration constants.
  */
 
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect, vi } from 'vitest';
 
 // Override the setup mock so we get the actual config module
 vi.unmock('../config.js');
 
-// Mock i18n (config depends on __)
-vi.mock('../i18n.js', () => ({
-  __: (key: string) => {
-    const translations: Record<string, string> = {
-      makkah: 'مكة المكرمة',
-      prayer_fajr: 'الفجر',
-      prayer_sunrise: 'الشروق',
-      prayer_dhuhr: 'الظهر',
-      prayer_asr: 'العصر',
-      prayer_maghrib: 'المغرب',
-      prayer_isha: 'العشاء',
-      weekday_sunday: 'الأحد',
-      weekday_monday: 'الاثنين',
-      weekday_tuesday: 'الثلاثاء',
-      weekday_wednesday: 'الأربعاء',
-      weekday_thursday: 'الخميس',
-      weekday_friday: 'الجمعة',
-      weekday_saturday: 'السبت',
-    };
-    return translations[key] || key;
-  },
-}));
-
 import {
   CONFIG,
-  PRAYER_NAMES_AR,
   PRAYER_ORDER,
   PRAYER_DISPLAY_ORDER,
-  ARABIC_WEEKDAYS,
   JUZ_PAGES,
   TRANSLATION_EDITIONS,
   type AppConfig,
@@ -121,26 +98,22 @@ describe('CONFIG', () => {
   });
 });
 
-describe('PRAYER_NAMES_AR', () => {
-  it('should have 6 prayer names', () => {
-    expect(Object.keys(PRAYER_NAMES_AR)).toHaveLength(6);
+describe('DEFAULT_CITY (N-09)', () => {
+  it('is the stable English lookup key, not a module-load-time translation', () => {
+    // state.city is a data key: the Aladhan query sends it verbatim and the
+    // UI localizes it at render time through getCityName(). The old
+    // __('madinah') snapshot raced initI18n() in bootApp() and could freeze
+    // the raw key — or worse, the Arabic display name — into a new user's
+    // state. The constant key is correct for both consumers.
+    expect(CONFIG.DEFAULT_CITY).toBe('madinah');
   });
 
-  it('should include all standard prayer times', () => {
-    expect(PRAYER_NAMES_AR).toHaveProperty('Fajr');
-    expect(PRAYER_NAMES_AR).toHaveProperty('Sunrise');
-    expect(PRAYER_NAMES_AR).toHaveProperty('Dhuhr');
-    expect(PRAYER_NAMES_AR).toHaveProperty('Asr');
-    expect(PRAYER_NAMES_AR).toHaveProperty('Maghrib');
-    expect(PRAYER_NAMES_AR).toHaveProperty('Isha');
-  });
-
-  it('should have Arabic strings as values', () => {
-    // Arabic text contains Arabic Unicode characters
-    for (const key of Object.keys(PRAYER_NAMES_AR)) {
-      expect(PRAYER_NAMES_AR[key]).toBeTruthy();
-      expect(typeof PRAYER_NAMES_AR[key]).toBe('string');
-    }
+  it('does not depend on the i18n bundle being initialized', () => {
+    // Importing config.ts must not require (or trigger) any translation work:
+    // no i18n import and no module-level __() snapshot can exist in it.
+    const configSource = readFileSync(resolve(import.meta.dirname, '../config.ts'), 'utf8');
+    expect(configSource).not.toMatch(/from\s+'\.\/?i18n/);
+    expect(configSource).not.toMatch(/__\(/);
   });
 });
 
@@ -169,27 +142,6 @@ describe('PRAYER_DISPLAY_ORDER', () => {
 
   it('should be in correct chronological order', () => {
     expect(PRAYER_DISPLAY_ORDER).toEqual(['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']);
-  });
-});
-
-describe('ARABIC_WEEKDAYS', () => {
-  it('should have 7 entries', () => {
-    expect(ARABIC_WEEKDAYS).toHaveLength(7);
-  });
-
-  it('should start with Sunday', () => {
-    expect(ARABIC_WEEKDAYS[0]).toBeTruthy();
-  });
-
-  it('should have Friday at index 5', () => {
-    expect(ARABIC_WEEKDAYS[5]).toBeTruthy();
-  });
-
-  it('all entries should be strings', () => {
-    for (const day of ARABIC_WEEKDAYS) {
-      expect(typeof day).toBe('string');
-      expect(day.length).toBeGreaterThan(0);
-    }
   });
 });
 

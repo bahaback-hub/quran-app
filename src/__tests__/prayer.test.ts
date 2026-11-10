@@ -21,13 +21,6 @@ vi.mock('../config.js', async (importOriginal) => {
       CACHE_LIMIT: 20,
     },
     PRAYER_ORDER: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'],
-    PRAYER_NAMES_AR: {
-      Fajr: 'الفجر',
-      Dhuhr: 'الظهر',
-      Asr: 'العصر',
-      Maghrib: 'المغرب',
-      Isha: 'العشاء',
-    },
   };
 });
 
@@ -46,7 +39,7 @@ vi.mock('../storage.js', () => ({
   },
 }));
 
-import { PRAYER_ORDER, PRAYER_NAMES_AR } from '../config.js';
+import { PRAYER_ORDER } from '../config.js';
 import { getNextPrayerKey } from '../features/prayer/prayer.js';
 
 describe('PRAYER_ORDER', () => {
@@ -55,15 +48,9 @@ describe('PRAYER_ORDER', () => {
   });
 });
 
-describe('PRAYER_NAMES_AR', () => {
-  it('should have Arabic names for all prayers', () => {
-    expect(PRAYER_NAMES_AR.Fajr).toBe('الفجر');
-    expect(PRAYER_NAMES_AR.Dhuhr).toBe('الظهر');
-    expect(PRAYER_NAMES_AR.Asr).toBe('العصر');
-    expect(PRAYER_NAMES_AR.Maghrib).toBe('المغرب');
-    expect(PRAYER_NAMES_AR.Isha).toBe('العشاء');
-  });
-});
+// PRAYER_NAMES_AR was removed from config.ts (N-09): production localizes
+// prayer names at render time via getPrayerName(); the module-load snapshot
+// had no production importer.
 
 describe('getNextPrayerKey', () => {
   beforeEach(() => {

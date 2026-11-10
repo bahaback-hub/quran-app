@@ -1,5 +1,3 @@
-import { __ } from './i18n.js';
-
 /** Application configuration constants interface. */
 export interface AppConfig {
   API_BASE: string;
@@ -49,19 +47,16 @@ export const CONFIG: AppConfig = {
   DEFAULT_RECITER: 'ar.alafasy',
   DEFAULT_TAFSIR: 'ar-tafsir-muyassar',
   DEFAULT_METHOD: '4',
-  DEFAULT_CITY: __('madinah'),
+  // N-09: this used to be a localized "madinah" string, evaluated at module
+  // load — before initI18n() could finish in bootApp(), freezing either the
+  // raw key or the Arabic display name into a new user's state.city.
+  // state.city is a data key, not a display string: the Aladhan query sends
+  // it verbatim and the UI localizes it at render time via getCityName().
+  // The stable English key is correct for both consumers, so no translation
+  // belongs here.
+  DEFAULT_CITY: 'madinah',
   DEFAULT_COUNTRY: 'SA',
   CACHE_LIMIT: 20,
-};
-
-/** Localized names for prayer times (uses i18n). */
-export const PRAYER_NAMES_AR: Record<string, string> = {
-  Fajr: __('prayer_fajr'),
-  Sunrise: __('prayer_sunrise'),
-  Dhuhr: __('prayer_dhuhr'),
-  Asr: __('prayer_asr'),
-  Maghrib: __('prayer_maghrib'),
-  Isha: __('prayer_isha'),
 };
 
 /** Ordered list of prayer keys for azan scheduling (excludes Sunrise — not a prayer). */
@@ -70,16 +65,10 @@ export const PRAYER_ORDER: string[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'
 /** Ordered list for countdown display (includes Sunrise). */
 export const PRAYER_DISPLAY_ORDER: string[] = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-/** Localized weekday names (uses i18n). @deprecated Use getWeekday() from i18n.js — kept for backward compat with v1.x consumers. @internal */
-export const ARABIC_WEEKDAYS: string[] = [
-  __('weekday_sunday'),
-  __('weekday_monday'),
-  __('weekday_tuesday'),
-  __('weekday_wednesday'),
-  __('weekday_thursday'),
-  __('weekday_friday'),
-  __('weekday_saturday'),
-];
+// N-09: PRAYER_NAMES_AR and ARABIC_WEEKDAYS were removed — production code
+// localizes through getPrayerName()/getWeekday() from the i18n module at
+// render time; the module-load-time translation snapshots here were the same
+// early-evaluation pattern as DEFAULT_CITY and had no production importer.
 
 /** Starting page numbers for each Juz (30 entries). */
 export const JUZ_PAGES: number[] = [
