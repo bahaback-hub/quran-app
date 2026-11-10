@@ -63,7 +63,9 @@ const BSML_FONT = 'QCF4_QBSML';
  * navigation in production. Genuine failures stay on warn/error; progress is
  * visible in development only.
  */
-const debugLog: (typeof console)['debug'] = import.meta.env.DEV ? console.debug.bind(console) : () => {};
+const debugLog: (...args: unknown[]) => void = import.meta.env.DEV
+  ? (console as { debug: (...args: unknown[]) => void }).debug.bind(console)
+  : () => undefined;
 
 /** Canvas pool — reuse canvases to avoid GC pressure and memory allocation.
  * On mobile, keep pool size small (1) to save memory.

@@ -85,7 +85,9 @@ function fetchFontViaXHR(url: string): Promise<ArrayBuffer> {
  * failures (strategy exceptions, corrupted data, degraded verification
  * acceptances, terminal errors) stay on console.warn/error.
  */
-const debug: (typeof console)['debug'] = import.meta.env.DEV ? console.debug.bind(console) : () => {};
+const debug: (...args: unknown[]) => void = import.meta.env.DEV
+  ? (console as { debug: (...args: unknown[]) => void }).debug.bind(console)
+  : () => undefined;
 
 /**
  * N-06: every load attempt/retry used to install a NEW FontFace (~800KB per
