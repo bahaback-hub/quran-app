@@ -10,12 +10,17 @@ import {
   verifyMushafDataPack,
   verifyMushafLayoutBytes,
 } from '../features/mushaf/mushaf-data-pack.js';
+import { QCF4_FONT_NAMES, QCF4_FONT_TOTAL_BYTES } from '../features/mushaf/qcf4-font-pack.js';
 
 const SOURCE_COMMIT = 'test-fixed-commit';
 const PACK_ID = 'qcf4-hafs-layout-v1';
 const JSON_CONTENT = '{"lines":[]}';
 const JSON_DIGEST = createHash('sha256').update(JSON_CONTENT).digest('hex');
-const FONT_CONTENT = new Uint8Array(10_240);
+// SEC-06: font mock sizes must sum to exactly QCF4_FONT_TOTAL_BYTES so the
+// total-size integrity gate passes. base = floor(TOTAL/48); the QBSML font
+// absorbs the remainder (TOTAL - base*48 = 32 bytes).
+const FONT_BASE_SIZE = Math.floor(QCF4_FONT_TOTAL_BYTES / QCF4_FONT_NAMES.length);
+const FONT_REMAINDER = QCF4_FONT_TOTAL_BYTES - FONT_BASE_SIZE * QCF4_FONT_NAMES.length;
 
 function sha256(text: string): string {
   return createHash('sha256').update(text).digest('hex');
@@ -86,7 +91,8 @@ describe('mushaf-data-pack', () => {
       vi.fn((input: string | URL | Request) => {
         const url = String(input);
         if (url.endsWith('.woff2')) {
-          return Promise.resolve(new Response(FONT_CONTENT));
+          const size = url.includes('QBSML') ? FONT_BASE_SIZE + FONT_REMAINDER : FONT_BASE_SIZE;
+          return Promise.resolve(new Response(new Uint8Array(size)));
         }
         return Promise.resolve(new Response(url.includes('manifest.json') ? manifestText : JSON_CONTENT));
       }),
