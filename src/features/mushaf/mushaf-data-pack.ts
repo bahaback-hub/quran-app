@@ -321,6 +321,7 @@ async function cacheQcf4Fonts(
   let cursor = 0;
   let completed = completedBeforeFonts;
   let bytesDownloaded = bytesBeforeFonts;
+  let fontBytesTotal = 0;
   let failure: Error | null = null;
 
   await Promise.all(
@@ -344,6 +345,7 @@ async function cacheQcf4Fonts(
           await cache.put(url, new Response(fontBytes, { headers: { 'Content-Type': 'font/woff2' } }));
           completed++;
           bytesDownloaded += fontBytes.byteLength;
+          fontBytesTotal += fontBytes.byteLength;
           onProgress?.({
             completed,
             total: totalFiles,
@@ -358,6 +360,16 @@ async function cacheQcf4Fonts(
       }
     }),
   );
+
+  // SEC-06: verify the downloaded font collection matches its compiled-in
+  // total byte length. A per-font 10KB floor catches gross truncation, but
+  // only the total catches a font that downloaded at the wrong size (e.g. a
+  // CDN served a stale/wrong file that happens to exceed 10KB).
+  if (fontBytesTotal !== QCF4_FONT_TOTAL_BYTES) {
+    throw new Error(
+      `Mushaf font total size mismatch: expected ${QCF4_FONT_TOTAL_BYTES} bytes across ${QCF4_FONT_NAMES.length} fonts, got ${fontBytesTotal}.`,
+    );
+  }
 
   if (failure) {
     throw failure;
@@ -379,6 +391,7 @@ async function verifyQcf4Fonts(
   const cache = await globalThis.caches.open(QCF4_FONT_CACHE_NAME);
   let completed = completedBeforeFonts;
   let bytesDownloaded = bytesBeforeFonts;
+  let fontBytesTotal = 0;
 
   for (const fontName of QCF4_FONT_NAMES) {
     const response = await cache.match(qcf4FontUrl(fontName));
@@ -391,6 +404,7 @@ async function verifyQcf4Fonts(
     }
     completed++;
     bytesDownloaded += fontBytes.byteLength;
+    fontBytesTotal += fontBytes.byteLength;
     onProgress?.({
       completed,
       total: totalFiles,
@@ -398,6 +412,14 @@ async function verifyQcf4Fonts(
       totalBytes,
       currentPath: `fonts/${fontName}.woff2`,
     });
+  }
+
+  // SEC-06: the cached font collection must match its compiled-in total byte
+  // length. A per-font 10KB floor catches gross truncation; the total catches
+  // a font that was cached at the wrong size (stale CDN response, partial
+  // overwrite). A mismatch means the pack is not trustworthy → not verified.
+  if (fontBytesTotal !== QCF4_FONT_TOTAL_BYTES) {
+    return false;
   }
 
   return true;

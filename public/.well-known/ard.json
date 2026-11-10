@@ -30,13 +30,13 @@
         "في أي اتجاه القبلة من موقعي الحالي"
       ],
       "version": "3.1.28",
-      "updatedAt": "2026-09-27T00:00:00Z",
+      "updatedAt": "2026-11-10T00:00:00Z",
       "metadata": {
         "appUrl": "https://bahaback-hub.github.io/quran-app/",
         "llmsTxt": "https://bahaback-hub.github.io/quran-app/llms.txt",
         "sitemap": "https://bahaback-hub.github.io/quran-app/sitemap.xml",
         "surahPages": "https://bahaback-hub.github.io/quran-app/quran/{slug}/",
-        "interfaceLanguages": "ar, en, de, fr, tr, id, ms, ru",
+        "interfaceLanguages": "ar, en, de, fr, tr, id, ms, ru, ur",
         "quranTextLanguage": "ar",
         "offlineCapable": "true",
         "installable": "true",
@@ -57,7 +57,7 @@
         "اقرأ نص سورة الكهف"
       ],
       "version": "3.1.28",
-      "updatedAt": "2026-09-27T00:00:00Z",
+      "updatedAt": "2026-11-10T00:00:00Z",
       "metadata": {
         "pageCount": "114",
         "urlPattern": "https://bahaback-hub.github.io/quran-app/quran/{slug}/"
