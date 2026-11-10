@@ -335,10 +335,10 @@ quran-app/
 | License              | MIT                                                                                    |
 | PWA URL              | `https://bahaback-hub.github.io/quran-app/`                                            |
 | Android APK (latest) | `https://github.com/bahaback-hub/quran-app/releases/latest`                            |
-| Language             | Arabic (primary UI) + 7 additional languages                                           |
+| Language             | Arabic (primary UI) + 8 additional languages (en, tr, ms, id, fr, de, ru, ur)          |
 | Data sources         | AlQuran.cloud API, Tafsir API (spa5k/tafsir_api), Aladhan API, mp3quran.net, quran.com |
 
 ---
 
-_Last updated: 2026-09-04 — with theme dropdown commit (f7ca8a1)_
-_آخر تحديث: 2026-09-04 — مع commit قائمة الثيمات المنسدلة (f7ca8a1)_
+_Last updated: 2026-11-10 — language row refreshed to the 9-locale UI (QUA-09)_
+_آخر تحديث: 2026-11-10 — تحديث صف اللغات إلى واجهة اللغات التسع (QUA-09)_
