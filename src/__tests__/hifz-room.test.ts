@@ -304,38 +304,37 @@ describe('Hifz Room', () => {
     expect(document.documentElement.style.getPropertyValue('--hifz-curtain-reveal')).toBe('180px');
   });
 
-  // N-04: in the Arabic (RTL) UI the room is anchored to the right edge, so
-  // the handle sits on the room's left edge and the natural opening gesture
-  // drags it LEFT toward the reader. Before the fix, that gesture collapsed
-  // the curtain (reveal shrank) while dragging right — away from the reader —
-  // opened it. CI never caught this because E2E boots in English.
-  it('opens when the RTL handle is dragged left toward the reader (N-04)', () => {
+  // The room is left-anchored in both LTR and RTL (matching the adhkar panel):
+  // dragging the handle RIGHT widens the reveal (opens), dragging LEFT shrinks
+  // it (closes). The earlier N-04 RTL mirror is gone because the panel no longer
+  // anchors to the right edge in Arabic. These tests pin the unified direction.
+  it('opens when the RTL handle is dragged right (left-anchored, same as LTR)', () => {
     initHifzRoom();
     const room = document.getElementById('hifzRoom')!;
     expect(room.dir).toBe('rtl');
     const toggle = document.getElementById('hifzRoomToggle') as HTMLButtonElement;
     toggle.setPointerCapture = vi.fn();
     vi.spyOn(room, 'getBoundingClientRect').mockReturnValue({ width: 420 } as DOMRect);
-    dispatchPointer(toggle, 'pointerdown', 300);
-    dispatchPointer(toggle, 'pointermove', 120); // drag left = open in RTL
-    dispatchPointer(toggle, 'pointerup', 120);
+    dispatchPointer(toggle, 'pointerdown', 100);
+    dispatchPointer(toggle, 'pointermove', 280); // drag right by 180 = open
+    dispatchPointer(toggle, 'pointerup', 280);
     expect(isHifzRoomOpen()).toBe(true);
     expect(mockStorage.set).toHaveBeenCalledWith('hifz_curtain_reveal', 180);
     expect(document.documentElement.style.getPropertyValue('--hifz-curtain-reveal')).toBe('180px');
   });
 
-  it('collapses the RTL curtain when the handle is dragged right (N-04)', () => {
+  it('collapses the RTL curtain when the handle is dragged left', () => {
     initHifzRoom();
     const room = document.getElementById('hifzRoom')!;
     const toggle = document.getElementById('hifzRoomToggle') as HTMLButtonElement;
     toggle.setPointerCapture = vi.fn();
     vi.spyOn(room, 'getBoundingClientRect').mockReturnValue({ width: 420 } as DOMRect);
-    // Start open at 200px reveal, then drag right (away from the reader).
+    // Start open at 200px reveal, then drag left (shrinks the reveal).
     openHifzRoom(true);
     document.documentElement.style.setProperty('--hifz-curtain-reveal', '200px');
-    dispatchPointer(toggle, 'pointerdown', 100);
-    dispatchPointer(toggle, 'pointermove', 160); // +60 right = reveal shrinks to 140
-    dispatchPointer(toggle, 'pointerup', 160);
+    dispatchPointer(toggle, 'pointerdown', 280);
+    dispatchPointer(toggle, 'pointermove', 220); // -60 left = reveal shrinks to 140
+    dispatchPointer(toggle, 'pointerup', 220);
     expect(isHifzRoomOpen()).toBe(true);
     expect(mockStorage.set).toHaveBeenCalledWith('hifz_curtain_reveal', 140);
     expect(document.documentElement.style.getPropertyValue('--hifz-curtain-reveal')).toBe('140px');
