@@ -41,3 +41,22 @@ interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: string }>;
 }
+
+// Ambient declaration for the `magvar` package (NEW-11: WMM2025 magnetic
+// declination). The package ships plain JS without bundled TypeScript types;
+// its public surface is a single function. MIT-licensed, zero dependencies.
+declare module 'magvar' {
+  /**
+   * Compute the magnetic declination (variation) in degrees at a WGS84
+   * location using the World Magnetic Model 2025-2030.
+   *
+   * Positive = magnetic north is east of true north.
+   * Negative = magnetic north is west of true north.
+   *
+   * @param latitude  WGS84 latitude, degrees (-90 to 90)
+   * @param longitude WGS84 longitude, degrees (-180 to 180)
+   * @param altitudeKm Altitude above mean sea level, kilometers (optional, default 0)
+   * @returns Declination in degrees (finite; the model covers the whole globe)
+   */
+  export function magvar(latitude: number, longitude: number, altitudeKm?: number): number;
+}
