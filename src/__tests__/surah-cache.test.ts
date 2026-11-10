@@ -791,4 +791,115 @@ describe('surah-cache', () => {
       expect(await readStore('meta', 'side-evict-0301')).toBeDefined();
     });
   });
+
+  /* ===================== Integrity check (SEC-01) ===================== */
+  // Every cached surah entry stores a SHA-256 of its payload on write and
+  // verifies it on read. A tampered or bitwise-corrupted entry that passes the
+  // shape-guard (text.ayahs is still a valid array) must be rejected as a
+  // cache miss so the app re-fetches a clean copy instead of rendering
+  // corrupted text.
+
+  describe('SEC-01: SHA-256 integrity check', () => {
+    function tinyEntry(n: number): CachedSurahEntry {
+      return {
+        text: {
+          number: n,
+          name: `S${n}`,
+          englishName: `S${n}`,
+          ayahs: [{ numberInSurah: 1, text: `text-${n}`, number: 1 }],
+        },
+        translation: null,
+      };
+    }
+
+    /** Read a record straight from a store, bypassing the module under test. */
+    function readStore<T>(store: string, key: string): Promise<T | undefined> {
+      return new Promise((resolve, reject) => {
+        const open = indexedDB.open('QuranSurahDB');
+        open.onsuccess = () => {
+          const db = open.result;
+          const req = db.transaction(store, 'readonly').objectStore(store).get(key);
+          req.onsuccess = () => { db.close(); resolve(req.result as T | undefined); };
+          req.onerror = () => { db.close(); reject(req.error); };
+        };
+        open.onerror = () => reject(open.error);
+      });
+    }
+
+    it('stores an integrity hash alongside a cached entry', async () => {
+      await cacheSurahToIDB('sec01-valid', tinyEntry(1));
+      const record = await readStore<Record<string, unknown>>('surahs', 'sec01-valid');
+      expect(record).toBeDefined();
+      expect(typeof record?.integrityHash).toBe('string');
+      expect((record?.integrityHash as string).length).toBe(64); // SHA-256 hex
+    });
+
+    it('round-trips a valid entry (integrity passes, content preserved)', async () => {
+      const entry = tinyEntry(5);
+      await cacheSurahToIDB('sec01-roundtrip', entry);
+      const cached = await getCachedSurahFromIDB('sec01-roundtrip');
+      expect(cached).not.toBeNull();
+      expect(cached?.text.ayahs[0]?.text).toBe('text-5');
+      // The returned entry must NOT leak the storage metadata fields.
+      expect((cached as unknown as Record<string, unknown>)?.integrityHash).toBeUndefined();
+    });
+
+    /**
+     * Directly mutate a stored record's value in the mock's in-memory store,
+     * simulating an IndexedDB-editing extension or bitwise disk corruption
+     * that changes the payload without recomputing the integrity hash.
+     */
+    function mutateStoredRecord(storeName: string, key: string, mutate: (value: Record<string, unknown>) => void): void {
+      const mockIDB = indexedDB as unknown as {
+        databases: Map<string, { stores: Map<string, { records: Map<unknown, { key: unknown; value: Record<string, unknown> }> }> }>;
+      };
+      const db = mockIDB.databases.get('QuranSurahDB');
+      const store = db?.stores.get(storeName);
+      const record = store?.records.get(key);
+      if (record) {
+        mutate(record.value);
+      }
+    }
+
+    it('rejects a tampered entry whose payload was modified after write', async () => {
+      // 1. Write a valid entry (correct hash stored).
+      await cacheSurahToIDB('sec01-tampered', tinyEntry(7));
+      const original = await readStore<Record<string, unknown>>('surahs', 'sec01-tampered');
+      expect(original?.integrityHash).toBeDefined();
+
+      // 2. Tamper: change the surah name but keep the stale hash. This simulates
+      //    a bitwise corruption or an IndexedDB-editing extension that modifies
+      //    the payload without recomputing the hash.
+      mutateStoredRecord('surahs', 'sec01-tampered', (value) => {
+        (value.text as Record<string, unknown>).name = 'TAMPERED';
+      });
+
+      // 3. Read: integrity check must fail → cache miss → null.
+      const cached = await getCachedSurahFromIDB('sec01-tampered');
+      expect(cached).toBeNull();
+    });
+
+    it('rejects a record whose hash was swapped (payload unchanged, hash wrong)', async () => {
+      await cacheSurahToIDB('sec01-badhash', tinyEntry(9));
+      // Replace the hash with a valid-looking but wrong 64-char hex string.
+      mutateStoredRecord('surahs', 'sec01-badhash', (value) => {
+        value.integrityHash = '0'.repeat(64);
+      });
+      const cached = await getCachedSurahFromIDB('sec01-badhash');
+      expect(cached).toBeNull();
+    });
+
+    it('accepts a pre-SEC-01 record with no hash (backward compatibility)', async () => {
+      // Write a valid entry, then strip its integrityHash to simulate a record
+      // written before SEC-01 existed. The integrity check must skip (not fail)
+      // and the entry must still read successfully.
+      await cacheSurahToIDB('sec01-legacy', tinyEntry(11));
+      mutateStoredRecord('surahs', 'sec01-legacy', (value) => {
+        delete value.integrityHash;
+      });
+      const cached = await getCachedSurahFromIDB('sec01-legacy');
+      expect(cached).not.toBeNull();
+      expect(cached?.text.ayahs[0]?.text).toBe('text-11');
+    });
+  });
 });

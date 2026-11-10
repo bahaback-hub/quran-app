@@ -8,8 +8,8 @@ import { CHECK_UPDATES_EVENT, UPDATE_AVAILABLE_EVENT, checkForAppUpdates } from 
 
 /**
  * Performance: Load non-critical modules lazily after initial render.
- * Web Vitals monitoring and Memory Manager are useful but not needed
- * for first paint. Loading them lazily improves Time to Interactive.
+ * Web Vitals monitoring is useful but not needed for first paint.
+ * Loading it lazily improves Time to Interactive.
  */
 function loadNonCriticalModules(): void {
   // Use requestIdleCallback to defer until browser is idle
@@ -18,11 +18,6 @@ function loadNonCriticalModules(): void {
       .then(({ initWebVitalsMonitoring }) => initWebVitalsMonitoring())
       .catch((err) => {
         warnRecoverable('web-vitals module failed to load', err);
-      });
-    import('./memory-manager.js')
-      .then(({ initMemoryManager }) => initMemoryManager())
-      .catch((err) => {
-        warnRecoverable('memory-manager module failed to load', err);
       });
   };
 

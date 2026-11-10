@@ -42,6 +42,63 @@ export interface CachedSurahEntry {
  */
 export const MAX_SURAH_CACHE_ENTRIES = 300;
 
+/* ===================== INTEGRITY (SEC-01) ===================== */
+
+/**
+ * The on-disk shape of a surah record in the 'surahs' store. Adds the
+ * optional `integrityHash` field that SEC-01 writes and verifies.
+ */
+interface StoredSurahRecord {
+  key: string;
+  text: SurahTextData;
+  audios?: (string | null)[];
+  timings?: number[];
+  audio?: { ayahs: AyahEntry[] };
+  translation: Record<string, unknown> | null;
+  lastAccessed?: number;
+  /** SEC-01: SHA-256 of the payload fields, set on write, verified on read. */
+  integrityHash?: string;
+}
+
+/**
+ * Compute a SHA-256 integrity hash of a surah entry's meaningful payload
+ * (SEC-01). Returns null when the Web Crypto API is unavailable (older
+ * browser, insecure context, or a test environment without it) — callers
+ * treat null as "skip the integrity check" and fall back to the shape-guard.
+ *
+ * Only the payload fields are hashed (text, translation, audios, timings,
+ * audio) — NOT key, lastAccessed, or integrityHash itself, which are metadata
+ * that may change without the entry being a different surah.
+ */
+async function computeEntryHash(entry: {
+  text: SurahTextData;
+  translation: Record<string, unknown> | null;
+  audios?: (string | null)[];
+  timings?: number[];
+  audio?: { ayahs: AyahEntry[] };
+}): Promise<string | null> {
+  try {
+    const cryptoApi = globalThis.crypto as Crypto & { subtle?: SubtleCrypto };
+    if (!cryptoApi?.subtle?.digest) {
+      return null;
+    }
+    const payload = JSON.stringify({
+      text: entry.text,
+      translation: entry.translation,
+      audios: entry.audios,
+      timings: entry.timings,
+      audio: entry.audio,
+    });
+    const data = new TextEncoder().encode(payload);
+    const hashBuffer = await cryptoApi.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+  } catch {
+    return null;
+  }
+}
+
 /* ===================== IndexedDB SURAH CACHE ===================== */
 
 /** Tiny LRU sidecar record: the payload never has to be read or rewritten for ordering. */
@@ -118,8 +175,9 @@ export async function cacheSurahToIDB(key: string, entry: CachedSurahEntry): Pro
   try {
     db = await openSurahDB();
     const now = Date.now();
+    const integrityHash = await computeEntryHash(entry);
     const tx = db.transaction(['surahs', 'meta'], 'readwrite');
-    tx.objectStore('surahs').put({ key, ...entry, lastAccessed: now });
+    tx.objectStore('surahs').put({ key, ...entry, lastAccessed: now, ...(integrityHash ? { integrityHash } : {}) });
     tx.objectStore('meta').put({ key, lastAccessed: now } satisfies SurahMetaRecord);
     // Wait for the transaction to complete so errors are properly caught
     await new Promise<void>((resolve, reject) => {
@@ -263,21 +321,12 @@ export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEnt
   let db: IDBDatabase | null = null;
   try {
     db = await openSurahDB();
-    const entry = await new Promise<CachedSurahEntry | null>((resolve) => {
+    // 1. GET + shape-guard the raw record.
+    const record = await new Promise<StoredSurahRecord | null>((resolve) => {
       const tx = db!.transaction('surahs', 'readonly');
       const req = tx.objectStore('surahs').get(key);
       req.onsuccess = () => {
-        const result = req.result as
-          | {
-              key: string;
-              text: SurahTextData;
-              audios?: (string | null)[];
-              timings?: number[];
-              audio?: { ayahs: AyahEntry[] };
-              translation: Record<string, unknown> | null;
-              lastAccessed?: number;
-            }
-          | undefined;
+        const result = req.result as StoredSurahRecord | undefined;
         if (!result) {
           resolve(null);
           return;
@@ -289,24 +338,38 @@ export async function getCachedSurahFromIDB(key: string): Promise<CachedSurahEnt
         const text = result.text;
         if (!text || typeof text !== 'object' || !Array.isArray(text.ayahs) || text.ayahs.length === 0) {
           if (import.meta.env.DEV) {
-            console.warn(`[SurahCache] Dropping corrupt cache entry for ${result.key}`);
+            console.warn(`[SurahCache] Dropping structurally corrupt cache entry for ${result.key}`);
           }
           resolve(null);
           return;
         }
-        // Extract the CachedSurahEntry fields (exclude the 'key' property)
-        const { key: _k, ...rest } = result;
-        resolve(rest as CachedSurahEntry);
+        resolve(result);
       };
       req.onerror = () => resolve(null);
     });
-    if (entry) {
-      // Touch for LRU: a surah in active use must not be evicted as "old".
-      // N-05: one tiny sidecar write — the hundreds-of-KB payload is never
-      // rewritten just to bump a timestamp.
-      await touchMeta(db, key);
+    if (!record) {
+      return null;
     }
-    return entry;
+    // 2. SEC-01: integrity check. If the stored hash doesn't match the
+    // recomputed payload hash, treat the entry as a cache miss (return null).
+    // The stale corrupt record gets overwritten on the next cache write for
+    // this key. A missing hash (pre-SEC-01 record, or crypto.subtle
+    // unavailable) skips the check and falls back to the shape-guard alone.
+    const storedHash = record.integrityHash;
+    if (storedHash) {
+      const computedHash = await computeEntryHash(record);
+      if (computedHash && computedHash !== storedHash) {
+        if (import.meta.env.DEV) {
+          console.warn(`[SurahCache] Integrity check failed for ${record.key}, treating as cache miss`);
+        }
+        return null;
+      }
+    }
+    // 3. LRU touch + extract the CachedSurahEntry fields (exclude key,
+    // lastAccessed, and integrityHash — they are storage metadata).
+    await touchMeta(db, key);
+    const { key: _k, lastAccessed: _la, integrityHash: _ih, ...rest } = record;
+    return rest as CachedSurahEntry;
   } catch {
     return null;
   } finally {
