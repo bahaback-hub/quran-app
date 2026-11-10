@@ -6,29 +6,16 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    allowNavigation: [
-      'api.alquran.cloud',
-      'api.aladhan.com',
-      'cdn.jsdelivr.net',
-      'fastly.jsdelivr.net',
-      'gcore.jsdelivr.net',
-      'cdn.islamic.network',
-      // Audio hosts, mirroring the CSP media-src list: the per-reciter
-      // servers (server6..13, as configured in RECITERS) plus the CDN they
-      // 301-redirect audio to. server1..5 were listed but no reciter uses
-      // them; server9..13 and the CDN were missing.
-      'server6.mp3quran.net',
-      'server7.mp3quran.net',
-      'server8.mp3quran.net',
-      'server9.mp3quran.net',
-      'server10.mp3quran.net',
-      'server11.mp3quran.net',
-      'server12.mp3quran.net',
-      'server13.mp3quran.net',
-      'cdn.mp3quran.net',
-      'raw.githubusercontent.com',
-      'api.quran.com',
-    ],
+    // SEC-05: allowNavigation governs NAVIGATION only — a listed host can
+    // replace the whole app inside the native WebView. Every host this app
+    // touches is a data/audio endpoint reached through fetch() or <audio>
+    // (unaffected by this list and already pinned by the CSP and the network
+    // security config), and the few real external links (API credits, repo)
+    // are target="_blank" + rel="noopener" and open in the system browser —
+    // exactly like github.com, which was never listed. The list used to
+    // mirror the CSP and grew to 17 hosts; it is empty now, so no
+    // compromised or coercing endpoint can hijack the WebView.
+    allowNavigation: [],
   },
   android: {
     backgroundColor: '#1a1a2e',
