@@ -447,6 +447,53 @@ describe('audio — deep coverage', () => {
 
       expect(mockShowToast).toHaveBeenCalled();
     });
+
+    // N-11: the retry/skip timer armed by onAudioError() used to survive a
+    // surah switch, so playCurrentAyah() fired 1–1.5s later against the NEW
+    // surah with no user gesture — an audible surprise and an autoplay-policy
+    // violation. prepareAudioForNewSurah() must cancel it.
+    it('cancels the pending retry timer when the user switches surahs (N-11)', async () => {
+      vi.useFakeTimers();
+      try {
+        mockState.surahData = SAMPLE_SURAH_DATA;
+        mockState.ayahsAudios = ['https://audio/1.mp3'];
+
+        bindAudioEvents();
+        const audio = mockDom.audioPlayer!;
+        (audio.play as ReturnType<typeof vi.fn>).mockClear();
+
+        audio.dispatchEvent(new Event('error'));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(mockShowToast).toHaveBeenCalled(); // retry armed (1500ms)
+
+        // The user switches surahs inside the retry window.
+        prepareAudioForNewSurah();
+
+        await vi.advanceTimersByTimeAsync(2500);
+        expect(audio.play).not.toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('still auto-retries when no surah switch happens (N-11 control)', async () => {
+      vi.useFakeTimers();
+      try {
+        mockState.surahData = SAMPLE_SURAH_DATA;
+        mockState.ayahsAudios = ['https://audio/1.mp3'];
+
+        bindAudioEvents();
+        const audio = mockDom.audioPlayer!;
+        (audio.play as ReturnType<typeof vi.fn>).mockClear();
+
+        audio.dispatchEvent(new Event('error'));
+        await vi.advanceTimersByTimeAsync(2000);
+
+        expect(audio.play).toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 
   describe('expandPlayer', () => {

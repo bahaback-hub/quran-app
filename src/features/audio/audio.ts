@@ -97,6 +97,14 @@ export function setReloadAudio(fn: ReloadAudioFn): void {
 let _mp3quranUrl: string | null = null;
 let _autoAdvancing = false;
 let _audioRetryCount = 0;
+/**
+ * N-11: pending onAudioError() retry/skip timer. It must be cancelled by
+ * prepareAudioForNewSurah() — otherwise switching surahs inside the 1–1.5s
+ * window auto-plays the NEW surah with no user gesture (autoplay-policy
+ * risk on top of the surprise), because playCurrentAyah() reads whatever
+ * state.currentAyahIndex/ayahsAudios point at when it fires.
+ */
+let _audioRetryTimer: ReturnType<typeof setTimeout> | null = null;
 /** True while an on-demand audio-list reload is in flight (re-entrancy guard). */
 let _audioReloading = false;
 const MAX_AUDIO_RETRIES = 2;
@@ -120,6 +128,13 @@ export function prepareAudioForNewSurah(): void {
     clearTimeout(_autoAdvanceSafetyTimer);
     _autoAdvanceSafetyTimer = null;
   }
+  // N-11: a retry/skip timer armed by onAudioError() must not survive the
+  // switch — it would play the newly loaded surah without a gesture.
+  if (_audioRetryTimer) {
+    clearTimeout(_audioRetryTimer);
+    _audioRetryTimer = null;
+  }
+  _audioRetryCount = 0;
   resetWordTrackingDomCache();
   clearWordWeightsCache();
   state.isPlaying = false;
@@ -570,6 +585,12 @@ function onAudioPlay(): void {
     clearTimeout(_autoAdvanceSafetyTimer);
     _autoAdvanceSafetyTimer = null;
   }
+  // N-11: manual playback within the retry window supersedes the pending
+  // automatic attempt; without this clear it would fire a second later.
+  if (_audioRetryTimer) {
+    clearTimeout(_audioRetryTimer);
+    _audioRetryTimer = null;
+  }
   setPlayingState();
   updateSleepTimerDisplay();
   maybeShowExpandHint();
@@ -620,7 +641,11 @@ function onAudioError(): void {
       `${__('audio_error')} (\u0645\u062d\u0627\u0648\u0644\u0629 ${_audioRetryCount}/${MAX_AUDIO_RETRIES})`,
       'error',
     );
-    setTimeout(() => playCurrentAyah(), 1500);
+    // N-11: keep the handle so prepareAudioForNewSurah() can cancel it.
+    _audioRetryTimer = setTimeout(() => {
+      _audioRetryTimer = null;
+      playCurrentAyah();
+    }, 1500);
     return;
   }
 
@@ -630,7 +655,11 @@ function onAudioError(): void {
     showToast(__('audio_error') + ' \u2014 ' + __('next_ayah'), 'error');
     state.currentAyahIndex++;
     highlightCurrentAyah();
-    setTimeout(() => playCurrentAyah(), 1000);
+    // N-11: same handle discipline as the retry branch above.
+    _audioRetryTimer = setTimeout(() => {
+      _audioRetryTimer = null;
+      playCurrentAyah();
+    }, 1000);
     return;
   }
 
