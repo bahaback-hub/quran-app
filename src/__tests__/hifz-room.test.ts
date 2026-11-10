@@ -289,7 +289,8 @@ describe('Hifz Room', () => {
     expect(isHifzRoomOpen()).toBe(false);
   });
 
-  it('opens from a drag on the left-edge handle', () => {
+  it('opens from a drag toward the reader on the left-edge handle (LTR)', () => {
+    document.documentElement.dir = 'ltr';
     initHifzRoom();
     const toggle = document.getElementById('hifzRoomToggle') as HTMLButtonElement;
     toggle.setPointerCapture = vi.fn();
@@ -301,6 +302,43 @@ describe('Hifz Room', () => {
     expect(isHifzRoomOpen()).toBe(true);
     expect(mockStorage.set).toHaveBeenCalledWith('hifz_curtain_reveal', 180);
     expect(document.documentElement.style.getPropertyValue('--hifz-curtain-reveal')).toBe('180px');
+  });
+
+  // N-04: in the Arabic (RTL) UI the room is anchored to the right edge, so
+  // the handle sits on the room's left edge and the natural opening gesture
+  // drags it LEFT toward the reader. Before the fix, that gesture collapsed
+  // the curtain (reveal shrank) while dragging right — away from the reader —
+  // opened it. CI never caught this because E2E boots in English.
+  it('opens when the RTL handle is dragged left toward the reader (N-04)', () => {
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    expect(room.dir).toBe('rtl');
+    const toggle = document.getElementById('hifzRoomToggle') as HTMLButtonElement;
+    toggle.setPointerCapture = vi.fn();
+    vi.spyOn(room, 'getBoundingClientRect').mockReturnValue({ width: 420 } as DOMRect);
+    dispatchPointer(toggle, 'pointerdown', 300);
+    dispatchPointer(toggle, 'pointermove', 120); // drag left = open in RTL
+    dispatchPointer(toggle, 'pointerup', 120);
+    expect(isHifzRoomOpen()).toBe(true);
+    expect(mockStorage.set).toHaveBeenCalledWith('hifz_curtain_reveal', 180);
+    expect(document.documentElement.style.getPropertyValue('--hifz-curtain-reveal')).toBe('180px');
+  });
+
+  it('collapses the RTL curtain when the handle is dragged right (N-04)', () => {
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    const toggle = document.getElementById('hifzRoomToggle') as HTMLButtonElement;
+    toggle.setPointerCapture = vi.fn();
+    vi.spyOn(room, 'getBoundingClientRect').mockReturnValue({ width: 420 } as DOMRect);
+    // Start open at 200px reveal, then drag right (away from the reader).
+    openHifzRoom(true);
+    document.documentElement.style.setProperty('--hifz-curtain-reveal', '200px');
+    dispatchPointer(toggle, 'pointerdown', 100);
+    dispatchPointer(toggle, 'pointermove', 160); // +60 right = reveal shrinks to 140
+    dispatchPointer(toggle, 'pointerup', 160);
+    expect(isHifzRoomOpen()).toBe(true);
+    expect(mockStorage.set).toHaveBeenCalledWith('hifz_curtain_reveal', 140);
+    expect(document.documentElement.style.getPropertyValue('--hifz-curtain-reveal')).toBe('140px');
   });
 
   it('ignores a secondary mouse press on the curtain handle', () => {
@@ -315,6 +353,7 @@ describe('Hifz Room', () => {
   });
 
   it('does not leak click suppression after a pointercancel', () => {
+    document.documentElement.dir = 'ltr';
     initHifzRoom();
     const toggle = document.getElementById('hifzRoomToggle') as HTMLButtonElement;
     toggle.setPointerCapture = vi.fn();
