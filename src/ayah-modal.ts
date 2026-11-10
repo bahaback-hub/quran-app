@@ -8,7 +8,7 @@ import { storage } from './storage.js';
 import { RECITERS, getReciterById, buildAudioUrl, getReciterDisplayName } from './reciters.js';
 import { fetchTafsirText } from './tafsir.js';
 import { apiFetch } from './api-client.js';
-import { __ } from './i18n.js';
+import { __, getTafsirName } from './i18n.js';
 import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from './a11y.js';
 import { shareText } from './share.js';
 import { initContemplation, openContemplation, syncContemplationAction } from './contemplation.js';
@@ -155,6 +155,15 @@ function refreshLocalizedModalText(): void {
     const key = element.dataset['ayahKey'];
     if (key && staticLabels[key]) {
       element.textContent = staticLabels[key];
+    }
+  });
+  // UXS-02: the tafsir edition tabs shipped hardcoded Arabic labels that were
+  // never re-labeled on language switch — this runs at init and on every
+  // app:langchange, so the tabs follow the active locale via tafsir_names.
+  modalEl.querySelectorAll<HTMLElement>('.ayah-modal-tafsir-tab').forEach((tab) => {
+    const edition = tab.dataset['edition'];
+    if (edition) {
+      tab.textContent = getTafsirName(edition);
     }
   });
   const selectedReciter = M.ayahModalQariSelect?.value;

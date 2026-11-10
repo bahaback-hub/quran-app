@@ -487,7 +487,18 @@ describe('getTafsirName', () => {
   });
 
   it('should return localized tafsir name for known key', () => {
-    expect(getTafsirName('ar-tafsir-muyassar')).toBe('التفسير الميسر');
+    expect(getTafsirName('ar-tafsir-muyassar')).toBe('الميسر');
+  });
+
+  it('covers every tafsir edition the ayah-modal tabs offer (UXS-02)', () => {
+    for (const edition of [
+      'ar-tafsir-muyassar',
+      'ar-tafsir-as-saadi',
+      'ar-tafsir-ibn-kathir',
+      'ar-tafsir-al-tabari',
+    ]) {
+      expect(getTafsirName(edition), edition).not.toBe(edition);
+    }
   });
 
   it('should return the key when tafsir is not found', () => {
@@ -496,7 +507,7 @@ describe('getTafsirName', () => {
 
   it('should return English tafsir name when English is active', async () => {
     await setLang('en');
-    expect(getTafsirName('ar-tafsir-muyassar')).toBe('Muyassar Tafsir');
+    expect(getTafsirName('ar-tafsir-muyassar')).toBe('Al-Muyassar');
   });
 });
 

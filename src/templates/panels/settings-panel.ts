@@ -113,11 +113,11 @@ export function settingsPanelHTML(): string {
           <div class="settings-row">
             <label for="fontTypeSelect" data-i18n="font_type">نوع الخط:</label>
             <select id="fontTypeSelect">
-              <option value="'Amiri','Traditional Arabic',serif" selected>أميري</option>
-              <option value="${QURAN_FONT_STACK}">شهرزاد</option>
-              <option value="'Traditional Arabic',serif">عربي تقليدي</option>
+              <option value="'Amiri','Traditional Arabic',serif" selected data-i18n="font_amiri">أميري</option>
+              <option value="${QURAN_FONT_STACK}" data-i18n="font_mushaf_naskh">شهرزاد</option>
+              <option value="'Traditional Arabic',serif" data-i18n="font_traditional">عربي تقليدي</option>
               <option value="'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif" data-i18n="font_uthmanic_hafs">حفص عثماني رسمي</option>
-              <option value="'Al Qalam','Traditional Arabic',serif">القلم</option>
+              <option value="'Al Qalam','Traditional Arabic',serif" data-i18n="font_al_qalam">القلم</option>
             </select>
           </div>
           <div class="settings-row">
@@ -146,29 +146,29 @@ export function settingsPanelHTML(): string {
             </select>
           </div>
           <div class="settings-row hidden" id="presBgNatureRow">
-            <label for="presBgNatureSelect">اختر المنظر الطبيعي:</label>
-            <select id="presBgNatureSelect" aria-label="اختر المنظر الطبيعي">
-              <option value="dawn">🌅 فجر</option>
-              <option value="morning">☁️ صباح</option>
-              <option value="afternoon">⛰️ ظهر</option>
-              <option value="sunset">🌇 غروب</option>
-              <option value="night">🌙 ليل</option>
+            <label for="presBgNatureSelect" data-i18n="pres_bg_nature_pick">اختر المنظر الطبيعي:</label>
+            <select id="presBgNatureSelect" data-i18n-aria-label="pres_bg_nature_pick" aria-label="اختر المنظر الطبيعي">
+              <option value="dawn" data-i18n="pres_bg_nature_dawn">🌅 فجر</option>
+              <option value="morning" data-i18n="pres_bg_nature_morning">☁️ صباح</option>
+              <option value="afternoon" data-i18n="pres_bg_nature_afternoon">⛰️ ظهر</option>
+              <option value="sunset" data-i18n="pres_bg_nature_sunset">🌇 غروب</option>
+              <option value="night" data-i18n="pres_bg_nature_night">🌙 ليل</option>
             </select>
           </div>
           <div class="settings-row hidden" id="presBgSceneRow">
-            <label for="presBgSceneSelect">اختر المنظر:</label>
-            <select id="presBgSceneSelect" aria-label="اختر المنظر المتحرك">
-              <option value="stars">سماء نجوم ✨</option>
-              <option value="particles">جسيمات ذهبية ✦</option>
+            <label for="presBgSceneSelect" data-i18n="pres_bg_scene_pick">اختر المنظر:</label>
+            <select id="presBgSceneSelect" data-i18n-aria-label="pres_bg_scene_pick" aria-label="اختر المنظر المتحرك">
+              <option value="stars" data-i18n="pres_bg_scene_stars">سماء نجوم ✨</option>
+              <option value="particles" data-i18n="pres_bg_scene_particles">جسيمات ذهبية ✦</option>
             </select>
           </div>
           <div class="settings-row hidden" id="presBgVideoRow">
-            <label for="presBgVideoSelect">اختر الفيديو المحلي:</label>
-            <select id="presBgVideoSelect" aria-label="اختر فيديو خلفية وضع العرض">
-              <option value="eva">منزل على البحر</option>
-              <option value="alps">جبال الألب والضباب</option>
-              <option value="sunset">غروب البحر</option>
-              <option value="wave">الموج المتكسر</option>
+            <label for="presBgVideoSelect" data-i18n="pres_bg_video_pick">اختر الفيديو المحلي:</label>
+            <select id="presBgVideoSelect" data-i18n-aria-label="pres_bg_video_pick" aria-label="اختر فيديو خلفية وضع العرض">
+              <option value="eva" data-i18n="pres_bg_video_eva">منزل على البحر</option>
+              <option value="alps" data-i18n="pres_bg_video_alps">جبال الألب والضباب</option>
+              <option value="sunset" data-i18n="pres_bg_video_sunset">غروب البحر</option>
+              <option value="wave" data-i18n="pres_bg_video_wave">الموج المتكسر</option>
             </select>
           </div>
           <div class="settings-row">
