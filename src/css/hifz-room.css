@@ -46,8 +46,7 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-toggle--rtl {
-  right: 0;
-  left: auto;
+  /* Toggle stays on the left edge in RTL, matching the left-anchored panel. */
   border-radius: 999px 0 0 999px;
   padding: 0.74rem 0.64rem 0.74rem 0.82rem;
 }
@@ -82,10 +81,9 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room--rtl {
-  right: 0;
-  left: auto;
-  box-shadow: -18px 0 56px rgb(20 35 29 / 34%);
-  transform: translateX(110%);
+  /* The curtain opens from the left in both LTR and RTL, matching the
+     adhkar panel (left-anchored, slides in from the left edge). */
+  box-shadow: 18px 0 56px rgb(20 35 29 / 34%);
 }
 
 .hifz-room.is-open {
@@ -783,8 +781,6 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 .hifz-room-toggle--rtl {
-  right: 0;
-  left: auto;
   padding: 0;
   border-radius: 12px 0 0 12px;
 }
@@ -801,16 +797,16 @@ body.hifz-room-active .hifz-room-toggle {
 }
 
 body.hifz-room-active .hifz-room-toggle {
-  right: min(360px, 88vw);
+  left: min(360px, 88vw);
 }
 
 .hifz-room,
 .hifz-room--rtl {
   z-index: 940;
   top: 1rem;
-  right: 0;
+  left: 0;
   bottom: 1rem;
-  left: auto;
+  right: auto;
   box-sizing: border-box;
   width: min(360px, 88vw);
   min-width: 0;
@@ -818,10 +814,10 @@ body.hifz-room-active .hifz-room-toggle {
   color: #f7f3e8;
   background: #090a09;
   border: 1px solid rgb(215 187 129 / 42%);
-  border-right: 0;
-  border-radius: 18px 0 0 18px;
-  box-shadow: -12px 0 34px rgb(0 0 0 / 42%);
-  transform: translateX(calc(100% + 1rem));
+  border-left: 0;
+  border-radius: 0 18px 18px 0;
+  box-shadow: 12px 0 34px rgb(0 0 0 / 42%);
+  transform: translateX(calc(-100% - 1rem));
 }
 
 .hifz-room.is-open {
@@ -834,7 +830,7 @@ body.hifz-room-active .hifz-room-toggle {
   margin: 0;
   padding: 1.05rem;
   border: 0;
-  border-radius: 18px 0 0 18px;
+  border-radius: 0 18px 18px 0;
   color: #f7f3e8;
   background: #090a09;
   box-shadow: none;
