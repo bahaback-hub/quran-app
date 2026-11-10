@@ -299,3 +299,50 @@ describe('SETTING_TYPE_VALIDATORS', () => {
     }
   });
 });
+
+// N-13: the reset, export, and import allowlists used to be three
+// hand-maintained lists that drifted apart — "reset all" left
+// deep_night_mode active after the reload, export/import silently dropped
+// hifz_curtain_reveal, auto_play_next, pitch_freq, tafsir_* layout keys,
+// tv_mode and pointer_mode, and the tv_mode validator was dead because the
+// allowlist never contained its key. The three lists now derive from one
+// constant, and these assertions keep them locked together.
+describe('single-source settings lists (N-13)', () => {
+  it('covers every persisted user preference in the allowlist', () => {
+    const expected = [
+      'deep_night_mode',
+      'hifz_curtain_reveal',
+      'auto_play_next',
+      'pitch_freq',
+      'pres_bg_video',
+      'tafsir_curtain_reveal',
+      'tafsir_sheet_height',
+      'tafsir_text_size',
+      'tv_mode',
+      'pointer_mode',
+      'auto_location',
+    ];
+    for (const key of expected) {
+      expect(ALLOWED_SETTINGS_KEYS.has(key), `${key} must be allowlisted`).toBe(true);
+    }
+  });
+
+  it('gives every allowlisted key a validator (import refuses raw values)', () => {
+    for (const key of ALLOWED_SETTINGS_KEYS) {
+      expect(SETTING_TYPE_VALIDATORS[key], `${key} needs a validator`).toBeTypeOf('function');
+    }
+  });
+
+  it('accepts the previously-dropped keys with valid values', () => {
+    expect(SETTING_TYPE_VALIDATORS['deep_night_mode']!(true)).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['pitch_freq']!(440)).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['pitch_freq']!(399)).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['pitch_freq']!(601)).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['hifz_curtain_reveal']!(320)).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['hifz_curtain_reveal']!(-1)).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['tafsir_text_size']!(16)).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['tafsir_text_size']!(13)).toBe(false);
+    expect(SETTING_TYPE_VALIDATORS['auto_play_next']!(false)).toBe(true);
+    expect(SETTING_TYPE_VALIDATORS['tv_mode']!(true)).toBe(true);
+  });
+});

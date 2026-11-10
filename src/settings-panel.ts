@@ -82,44 +82,9 @@ export function resetSettings(): void {
   }
 
   confirmBtn.addEventListener('click', () => {
-    const keys = [
-      'font_size',
-      'mushaf_zoom',
-      'night_mode',
-      'sepia_mode',
-      'city',
-      'country',
-      'method',
-      'azan_enabled',
-      'azan_fajr_enabled',
-      'auto_save',
-      'reciter',
-      'tafsir_edition',
-      'bar_collapsed',
-      'player_collapsed',
-      'playback_speed',
-      'lang',
-      'surah_list',
-      'translation_enabled',
-      'translation_edition',
-      'last_position',
-      'bookmark',
-      'favorites',
-      'mushaf_mode',
-      'current_page',
-      'search_history',
-      'adhkar_settings',
-      'font_type',
-      'line_spacing',
-      'reader_surface_transparency',
-      'tajweed_enabled',
-      'pres_bg_mode',
-      'pres_bg_scene',
-      'pres_bg_nature',
-      'reading_stats',
-    ];
-    keys.forEach((k: string) => storage.remove(k));
-    storage.remove('night_mode_set_by_user');
+    // N-13: derived from SETTING_STORAGE_KEYS so "reset all" can never leave
+    // a preference behind (deep_night_mode used to survive the reset).
+    SETTING_STORAGE_KEYS.forEach((k: string) => storage.remove(k));
     showToast(__('reset_settings'), 'success');
     setTimeout(() => location.reload(), 1500);
   });
@@ -143,43 +108,11 @@ export function resetSettings(): void {
 
 /** Export all settings as a downloadable JSON file. */
 export function exportSettings(): void {
-  const keys = [
-    'font_size',
-    'mushaf_zoom',
-    'night_mode',
-    'sepia_mode',
-    'city',
-    'country',
-    'method',
-    'azan_enabled',
-    'azan_fajr_enabled',
-    'auto_save',
-    'reciter',
-    'tafsir_edition',
-    'bar_collapsed',
-    'player_collapsed',
-    'playback_speed',
-    'lang',
-    'translation_enabled',
-    'translation_edition',
-    'favorites',
-    'bookmark',
-    'last_position',
-    'mushaf_mode',
-    'current_page',
-    'adhkar_settings',
-    'search_history',
-    'font_type',
-    'line_spacing',
-    'reader_surface_transparency',
-    'tajweed_enabled',
-    'pres_bg_mode',
-    'pres_bg_scene',
-    'pres_bg_nature',
-    'reading_stats',
-  ];
+  // N-13: derived from SETTING_STORAGE_KEYS so nothing is silently dropped
+  // on backup (hifz_curtain_reveal, pitch_freq, tafsir_* layout keys and
+  // friends used to be missing from this hand-maintained copy).
   const data: Record<string, unknown> = {};
-  keys.forEach((k: string) => {
+  SETTING_STORAGE_KEYS.forEach((k: string) => {
     data[k] = storage.get(k);
   });
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -192,44 +125,85 @@ export function exportSettings(): void {
   showToast(__('success'), 'success');
 }
 
-/** Allowlist of valid setting keys for import validation. Exported for testing. */
-export const ALLOWED_SETTINGS_KEYS: Set<string> = new Set([
+/**
+ * N-13: single source of truth for every persisted user setting.
+ *
+ * The reset, export, and import allowlists used to be three hand-maintained
+ * lists that drifted apart: "reset all" left deep_night_mode active after
+ * the reload, export/import silently dropped hifz_curtain_reveal,
+ * auto_play_next, pitch_freq, tafsir_* layout keys, tv_mode and
+ * pointer_mode, and the tv_mode validator was dead because the allowlist
+ * never contained its key. All three lists now derive from this constant.
+ *
+ * Membership rule: user-facing preferences and reading position only.
+ * Caches (cached_prayer_times, offline-pack indexes), one-time markers
+ * (onboarding_seen, hint-seen flags) and hifz-room plan data stay out — reset
+ * must not resurrect first-run hints, and export/import never carried them.
+ * night_mode_set_by_user is retained for imports from older versions.
+ */
+const SETTING_STORAGE_KEYS: readonly string[] = [
+  // Reader & fonts
   'font_size',
-  'mushaf_zoom',
-  'night_mode',
-  'city',
-  'country',
-  'method',
-  'azan_enabled',
-  'azan_fajr_enabled',
-  'auto_save',
-  'reciter',
-  'tafsir_edition',
-  'bar_collapsed',
-  'player_collapsed',
-  'playback_speed',
-  'lang',
-  'translation_enabled',
-  'translation_edition',
-  'favorites',
-  'bookmark',
-  'last_position',
-  'mushaf_mode',
-  'current_page',
-  'adhkar_settings',
-  'search_history',
   'font_type',
   'line_spacing',
   'reader_surface_transparency',
-  'tajweed_enabled',
+  // Themes & navigation modes
+  'night_mode',
+  'deep_night_mode',
+  'sepia_mode',
   'night_mode_set_by_user',
+  'tv_mode',
+  'pointer_mode',
+  // Reading position & user data
+  'last_position',
+  'bookmark',
+  'favorites',
+  'search_history',
+  'reading_stats',
   'surah_list',
+  // Translation & tafsir
+  'translation_enabled',
+  'translation_edition',
+  'tafsir_edition',
+  'tafsir_curtain_reveal',
+  'tafsir_sheet_height',
+  'tafsir_text_size',
+  // Mushaf mode
+  'mushaf_mode',
+  'mushaf_zoom',
+  'current_page',
+  // Audio
+  'reciter',
+  'playback_speed',
+  'pitch_freq',
+  'auto_play_next',
+  'player_collapsed',
+  'bar_collapsed',
+  // Adhkar
+  'adhkar_settings',
+  // Prayer & location
+  'city',
+  'country',
+  'method',
+  'auto_location',
+  'azan_enabled',
+  'azan_fajr_enabled',
+  // Tajweed
+  'tajweed_enabled',
+  // Presentation backgrounds
   'pres_bg_mode',
   'pres_bg_scene',
   'pres_bg_nature',
-  'sepia_mode',
-  'reading_stats',
-]);
+  'pres_bg_video',
+  // Interface language & misc
+  'lang',
+  'auto_save',
+  // Hifz-room layout
+  'hifz_curtain_reveal',
+];
+
+/** Allowlist of valid setting keys for import validation. Exported for testing. */
+export const ALLOWED_SETTINGS_KEYS: Set<string> = new Set(SETTING_STORAGE_KEYS);
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -360,6 +334,23 @@ export const SETTING_TYPE_VALIDATORS: Record<string, (v: unknown) => boolean> = 
   pres_bg_nature: (v) => typeof v === 'string' && ['dawn', 'morning', 'afternoon', 'sunset', 'night'].includes(v),
   sepia_mode: (v) => typeof v === 'boolean',
   reading_stats: (v) => typeof v === 'object' && v !== null,
+  // N-13: validators for the keys that were missing from the allowlist while
+  // their SETTING_TYPE_VALIDATORS entry (tv_mode) or the persisted setting
+  // itself existed. Every key in SETTING_STORAGE_KEYS now has one, and the
+  // import path below refuses keys without a validator (defense in depth
+  // against future list additions forgetting their validator).
+  deep_night_mode: (v) => typeof v === 'boolean',
+  auto_play_next: (v) => typeof v === 'boolean',
+  auto_location: (v) => typeof v === 'boolean',
+  pointer_mode: (v) => typeof v === 'boolean',
+  // Range mirrors PITCH_MIN_FREQ/PITCH_MAX_FREQ in features/audio/audio-pitch.ts.
+  pitch_freq: (v) => typeof v === 'number' && Number.isFinite(v) && v >= 400 && v <= 600,
+  pres_bg_video: (v) => typeof v === 'string' && v.length > 0 && v.length <= 500,
+  tafsir_curtain_reveal: (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0,
+  tafsir_sheet_height: (v) => typeof v === 'number' && Number.isFinite(v) && v > 0,
+  // Range mirrors textLimits in events/media-events.ts (tafsir sheet).
+  tafsir_text_size: (v) => typeof v === 'number' && Number.isFinite(v) && v >= 14 && v <= 28,
+  hifz_curtain_reveal: (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0,
 };
 
 /** Import settings from a JSON file. */
@@ -380,7 +371,9 @@ export function importSettings(): void {
         Object.entries(data).forEach(([k, v]: [string, unknown]) => {
           if (v !== null && v !== undefined && ALLOWED_SETTINGS_KEYS.has(k)) {
             const validator = SETTING_TYPE_VALIDATORS[k];
-            if (validator && !validator(v)) {
+            // N-13: an allowlisted key without a validator is a bug in the
+            // single-source list — refuse it instead of importing it raw.
+            if (!validator || !validator(v)) {
               return;
             }
             storage.set(k, v);
