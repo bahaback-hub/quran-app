@@ -7,6 +7,7 @@ import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from '../
 import { __ } from '../../i18n.js';
 import { Capacitor } from '@capacitor/core';
 import { startNativeQiblaCompass } from './qibla-compass.js';
+import { getMagneticDeclination } from './magnetic-declination.js';
 import { Geolocation } from '@capacitor/geolocation';
 
 /** DeviceOrientationEvent with iOS-specific webkitCompassHeading. */
@@ -128,10 +129,17 @@ export function showQiblaCompass(): void {
 
   const applyCoordinates = ({ latitude, longitude, altitude = 0 }: QiblaCoordinates): void => {
     const qiblaAngle = calculateQibla(latitude, longitude);
+    // NEW-11: the web DeviceOrientation API returns a MAGNETIC heading, but
+    // qiblaAngle is a TRUE bearing. The local magnetic declination bridges the
+    // two so the needle points at the Kaaba instead of declination degrees off
+    // it (~3° in the Gulf, ~13° in New York, ~15° in Seattle). The native
+    // Android plugin already applies declination and reports a true heading,
+    // so setNeedle consistently receives a TRUE heading from both paths.
+    const declination = getMagneticDeclination(latitude, longitude);
 
-    const setNeedle = (heading: number): void => {
+    const setNeedle = (trueHeading: number): void => {
       if (needle) {
-        needle.style.transform = `translateX(-50%) rotate(${normalizeQiblaAngle(qiblaAngle - heading)}deg)`;
+        needle.style.transform = `translateX(-50%) rotate(${normalizeQiblaAngle(qiblaAngle - trueHeading)}deg)`;
       }
     };
     const showStaticBearing = (message: string): void => {
@@ -154,12 +162,15 @@ export function showQiblaCompass(): void {
     removeQiblaSources();
 
     const handleOrientation = (e: DeviceOrientationEventiOS): void => {
-      const heading = getWebQiblaHeading(e, e.type === 'deviceorientationabsolute');
-      if (heading === null) {
+      const magneticHeading = getWebQiblaHeading(e, e.type === 'deviceorientationabsolute');
+      if (magneticHeading === null) {
         showStaticBearing(__('qibla_static_mode'));
         return;
       }
-      setNeedle(heading);
+      // Convert magnetic → true heading so it lives in the same frame as
+      // qiblaAngle (true bearing to the Kaaba).
+      const trueHeading = normalizeQiblaAngle(magneticHeading + declination);
+      setNeedle(trueHeading);
       if (status) {
         const iOSAccuracy = e.webkitCompassAccuracy;
         status.textContent =
