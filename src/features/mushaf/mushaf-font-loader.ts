@@ -78,13 +78,41 @@ function fetchFontViaXHR(url: string): Promise<ArrayBuffer> {
 }
 
 /**
+ * ARC-12 / N-06: the font-loading dance used to write ~45 console.warn
+ * lines per mushaf page — attempts, strategy announcements, byte counts and
+ * success confirmations included — drowning the warnings that matter in
+ * production. Progress goes through this DEV-gated debug sink; genuine
+ * failures (strategy exceptions, corrupted data, degraded verification
+ * acceptances, terminal errors) stay on console.warn/error.
+ */
+const debug: (typeof console)['debug'] = import.meta.env.DEV ? console.debug.bind(console) : () => {};
+
+/**
+ * N-06: every load attempt/retry used to install a NEW FontFace (~800KB per
+ * family) into document.fonts without ever deleting the previous one, so
+ * canvas-verification flapping accumulated several parallel copies of the
+ * same family in memory. Track the installed face per family and remove the
+ * superseded one before adding its replacement.
+ */
+const installedFaces = new Map<string, FontFace>();
+
+function installFontFace(face: FontFace): void {
+  const previous = installedFaces.get(face.family);
+  if (previous && previous !== face) {
+    document.fonts.delete(previous);
+  }
+  document.fonts.add(face);
+  installedFaces.set(face.family, face);
+}
+
+/**
  * Fetch font binary data. In Capacitor, uses XHR to avoid CapacitorHttp
  * interception. In browsers, uses standard fetch().
  */
 async function fetchFontBinary(url: string): Promise<ArrayBuffer> {
   if (isCapacitor()) {
     // Use XHR in Capacitor to avoid CapacitorHttp interception
-    console.warn(`[Mushaf] Using XHR for font binary (bypassing CapacitorHttp): ${url}`);
+    debug(`[Mushaf] Using XHR for font binary (bypassing CapacitorHttp): ${url}`);
     return fetchFontViaXHR(url);
   }
   // Use standard fetch in browser
@@ -109,7 +137,7 @@ function verifyFontOnCanvas(fontName: string): boolean {
     // because it's unreliable — trust document.fonts API instead
     if (isCapacitor()) {
       const fontsCheck = document.fonts.check(`40px "${fontName}"`);
-      console.warn(`[Mushaf] Capacitor: document.fonts.check for "${fontName}": ${fontsCheck}`);
+      debug(`[Mushaf] Capacitor: document.fonts.check for "${fontName}": ${fontsCheck}`);
       return fontsCheck;
     }
 
@@ -246,15 +274,15 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
   const waitMs = capMode ? 1200 : 200;
 
   for (let attempt = 1; attempt <= (capMode ? 2 : 3); attempt++) {
-    console.warn(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})...`);
+    debug(`[Mushaf] Loading font "${fontName}" (attempt ${attempt})...`);
 
     // --- Strategy 1: Capacitor-only ArrayBuffer → FontFace ---
     // Browsers use the URL strategy below to avoid an unnecessary binary copy.
     if (capMode) {
       try {
-        console.warn(`[Mushaf] Strategy 1: ArrayBuffer for "${fontName}" from ${fontUrl}`);
+        debug(`[Mushaf] Strategy 1: ArrayBuffer for "${fontName}" from ${fontUrl}`);
         const buffer = await fetchFontBinary(fontUrl);
-        console.warn(`[Mushaf] Font "${fontName}" downloaded: ${buffer.byteLength} bytes`);
+        debug(`[Mushaf] Font "${fontName}" downloaded: ${buffer.byteLength} bytes`);
 
         // Validate: woff2 files should be at least 10KB
         if (buffer.byteLength < 10000) {
@@ -264,16 +292,16 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
 
         const fontFace = new FontFace(fontName, buffer, { display: 'block' });
         const loaded = await fontFace.load();
-        document.fonts.add(loaded);
+        installFontFace(loaded);
 
         await document.fonts.ready;
         createFontPreloadElement(fontName);
         await new Promise<void>((r) => setTimeout(r, waitMs));
 
         const verified = verifyFontOnCanvas(fontName);
-        console.warn(`[Mushaf] Strategy 1 verify for "${fontName}": ${verified}`);
+        debug(`[Mushaf] Strategy 1 verify for "${fontName}": ${verified}`);
         if (verified) {
-          console.warn(`[Mushaf] Font "${fontName}" loaded successfully via ArrayBuffer`);
+          debug(`[Mushaf] Font "${fontName}" loaded successfully via ArrayBuffer`);
           return true;
         }
 
@@ -295,19 +323,19 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
 
     // --- Strategy 2: FontFace with URL (browser handles download) ---
     try {
-      console.warn(`[Mushaf] Strategy 2: FontFace URL for "${fontName}"`);
+      debug(`[Mushaf] Strategy 2: FontFace URL for "${fontName}"`);
       const fontFace = new FontFace(fontName, `url('${fontUrl}')`, { display: 'block' });
       const loaded = await fontFace.load();
-      document.fonts.add(loaded);
+      installFontFace(loaded);
 
       await document.fonts.ready;
       createFontPreloadElement(fontName);
       await new Promise<void>((r) => setTimeout(r, waitMs));
 
       const verified = verifyFontOnCanvas(fontName);
-      console.warn(`[Mushaf] Strategy 2 verify for "${fontName}": ${verified}`);
+      debug(`[Mushaf] Strategy 2 verify for "${fontName}": ${verified}`);
       if (verified) {
-        console.warn(`[Mushaf] Font "${fontName}" loaded successfully via FontFace URL`);
+        debug(`[Mushaf] Font "${fontName}" loaded successfully via FontFace URL`);
         return true;
       }
 
@@ -327,7 +355,7 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
     // once via link. No style element injection, so this works with
     // style-src 'self' and without 'unsafe-inline'.
     try {
-      console.warn(`[Mushaf] Strategy 3: static @font-face sheet for "${fontName}"`);
+      debug(`[Mushaf] Strategy 3: static @font-face sheet for "${fontName}"`);
       ensureQcfFontFaceSheet();
 
       createFontPreloadElement(fontName);
@@ -343,9 +371,9 @@ async function _doLoadFont(fontName: string): Promise<boolean> {
       await new Promise<void>((r) => setTimeout(r, cssWaitMs));
 
       const verified = verifyFontOnCanvas(fontName);
-      console.warn(`[Mushaf] Strategy 3 verify for "${fontName}": ${verified}`);
+      debug(`[Mushaf] Strategy 3 verify for "${fontName}": ${verified}`);
       if (verified) {
-        console.warn(`[Mushaf] Font "${fontName}" loaded successfully via CSS @font-face`);
+        debug(`[Mushaf] Font "${fontName}" loaded successfully via CSS @font-face`);
         return true;
       }
 

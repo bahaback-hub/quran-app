@@ -57,6 +57,14 @@ interface PageColors {
 /* ===================== CONSTANTS ===================== */
 const BSML_FONT = 'QCF4_QBSML';
 
+/**
+ * ARC-12: per-page progress (lines loaded, fonts needed, Capacitor re-render
+ * steps) used to log as console.warn on every page draw — dozens of lines per
+ * navigation in production. Genuine failures stay on warn/error; progress is
+ * visible in development only.
+ */
+const debugLog: (typeof console)['debug'] = import.meta.env.DEV ? console.debug.bind(console) : () => {};
+
 /** Canvas pool — reuse canvases to avoid GC pressure and memory allocation.
  * On mobile, keep pool size small (1) to save memory.
  * On desktop, keep 3 for smoother page navigation. */
@@ -228,7 +236,9 @@ async function _renderPageInternal(
     console.error(`[Mushaf] Failed to load page data for page ${pageNum}`);
     return { canvas: null, layout: null };
   }
-  console.warn(`[Mushaf] Page ${pageNum} data loaded: ${data.lines?.length || 0} lines`);
+  // ARC-12: per-page progress used to log as console.warn on every draw;
+  // debug keeps it visible in development only.
+  debugLog(`[Mushaf] Page ${pageNum} data loaded: ${data.lines?.length || 0} lines`);
 
   const pageFont = data.font || getPageFont(pageNum, null);
 
@@ -244,7 +254,7 @@ async function _renderPageInternal(
     }
   }
 
-  console.warn(`[Mushaf] Page ${pageNum} needs fonts: ${[...pageFonts].join(', ')}`);
+  debugLog(`[Mushaf] Page ${pageNum} needs fonts: ${[...pageFonts].join(', ')}`);
 
   // Load all fonts in parallel with individual timeouts
   const fontPromises = [...pageFonts].map((fn) =>
@@ -301,7 +311,7 @@ async function _renderPageInternal(
   if (capMode) {
     const renderData = { data, pageFont, colors, pageNum };
     setTimeout(() => {
-      console.warn(`[Mushaf] Capacitor: Re-rendering page ${renderData.pageNum} after 3s delay`);
+      debugLog(`[Mushaf] Capacitor: Re-rendering page ${renderData.pageNum} after 3s delay`);
       try {
         const c = targetCanvas || (document.querySelector('.mushaf-page-canvas') as HTMLCanvasElement);
         if (c && c.width === CANVAS_W && c.dataset['renderToken'] === renderToken) {
@@ -311,7 +321,7 @@ async function _renderPageInternal(
             renderPageContent(ctx2, renderData.data, renderData.pageFont, renderData.colors, renderData.pageNum);
             drawPageFrame(ctx2, renderData.colors);
             drawPageNumber(ctx2, renderData.pageNum, renderData.colors);
-            console.warn(`[Mushaf] Capacitor: Re-render of page ${renderData.pageNum} complete`);
+            debugLog(`[Mushaf] Capacitor: Re-render of page ${renderData.pageNum} complete`);
           }
         }
       } catch (e) {

@@ -4,7 +4,7 @@ import { dom } from './dom.js';
 import { showToast, loadingBar } from './ui.js';
 import { __ } from './i18n.js';
 import { skeletonLoading, surahLoadError, escapeHtml } from './templates.js';
-import { state, batch, immutableMapDelete, SurahInfo } from './state.js';
+import { state, batch, immutableMapDelete, immutableMapSet, SurahInfo } from './state.js';
 import { getReciterById, buildAudioUrl } from './reciters.js';
 import { loadTajweedAnnotationsForSurah } from './tajweed-data.js';
 import { prepareAudioForNewSurah, playCurrentAyah } from './features/audio/audio.js';
@@ -155,6 +155,12 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     if (!isCurrentLoad(currentLoad)) {
       return;
     }
+    // ARC-10: a pure memory hit must refresh recency too (delete + re-insert,
+    // same as setSurahCacheEntry) — otherwise the CACHE_LIMIT eviction is LRU
+    // for writes but FIFO for reads, and the 20 most-read surahs can be evicted
+    // by write churn of surahs nobody reopened.
+    immutableMapDelete(state, 'surahCache', cacheKey);
+    immutableMapSet(state, 'surahCache', cacheKey, cached);
     state.surahData = cached.text as unknown as SurahData;
     if (isMp3quran) {
       state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');

@@ -469,6 +469,34 @@ describe('surah-loader-full', () => {
       expect(apiFetch).not.toHaveBeenCalled();
     });
 
+    // ARC-10: writes already refreshed recency via setSurahCacheEntry, but a
+    // pure memory hit did not — so the CACHE_LIMIT eviction stayed FIFO for
+    // reads and the most-read surahs could be evicted by write churn.
+    it('refreshes recency on a pure memory cache hit (ARC-10)', async () => {
+      const older = {
+        text: SAMPLE_SURAH_DATA,
+        audios: ['https://audio/1.mp3'],
+        timings: [],
+        translation: null,
+      };
+      const newer = {
+        text: { ...SAMPLE_SURAH_DATA, number: 2 },
+        audios: ['https://audio/2.mp3'],
+        timings: [],
+        translation: null,
+      };
+      state.surahCache.set('1_ar.alafasy_notr', older as any); // inserted first
+      state.surahCache.set('2_ar.alafasy_notr', newer as any);
+      state.surahList = SAMPLE_SURAH_LIST;
+
+      await loadSurah(1); // memory hit for the OLDER key
+
+      // Map iteration order now ends with the re-read key: it is the most
+      // recently used, so the FIFO eviction victim is the other one.
+      const keys = [...state.surahCache.keys()];
+      expect(keys[keys.length - 1]).toBe('1_ar.alafasy_notr');
+    });
+
     it('should try IDB cache when not in memory cache', async () => {
       vi.mocked(getCachedSurahFromIDB).mockResolvedValueOnce({
         text: SAMPLE_SURAH_DATA,
