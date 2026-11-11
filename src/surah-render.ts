@@ -13,6 +13,7 @@ import { dom } from './dom.js';
 import { storage } from './storage.js';
 import { __, getLang, toArabicDigits } from './i18n.js';
 import { escapeHtml, collapsedPlayerInfo } from './templates.js';
+import { hideSequentialTanweenMeem } from './uthmani-display.js';
 import { tajweedColorWord, buildColorMap } from './tajweed.js';
 import type { TajweedRule } from './tajweed.js';
 import { getAyahAnnotations } from './tajweed-data.js';
@@ -367,7 +368,13 @@ function buildAyahWordsHtml(text: string, ayahIdx: number, colorMap: Map<number,
   let outputPos = 0;
   return words
     .map((word: string, wIdx: number) => {
-      const wordHtml = useTajweed ? tajweedColorWord(word, outputPos, colorMap!) : escapeHtml(word);
+      // Plain reading view matches the printed King Fahd Complex mushaf:
+      // hide the sequential-tanween meem (display only — see the helper doc).
+      // Tajweed mode keeps the full Uthmani notation because the mark is
+      // tajweed information there, color-coded with the ikhfa/idgham rule.
+      const wordHtml = useTajweed
+        ? tajweedColorWord(word, outputPos, colorMap!)
+        : escapeHtml(hideSequentialTanweenMeem(word));
       outputPos += word.length + (wIdx < words.length - 1 ? 1 : 0); // +1 for space between words
       return `<span class="word" data-ayah-index="${ayahIdx}" data-word-index="${wIdx}">${wordHtml}</span>`;
     })
