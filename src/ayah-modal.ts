@@ -1,6 +1,7 @@
 import { state, immutablePush, immutableSplice } from './state.js';
 import { showToast } from './ui.js';
 import { stripTashkeel, copyToClipboard } from './utils.js';
+import { hideSequentialTanweenMeem } from './uthmani-display.js';
 import { qariOption, tafsirLoading, tafsirContent, tafsirErrorMessage } from './templates.js';
 import { CONFIG } from './config.js';
 import { loadSurah } from './surah-loader.js';
@@ -200,7 +201,7 @@ export function openAyahModal(data: ModalAyahData): void {
   refreshLocalizedModalText();
   const localizedSurahName = getLocalizedModalSurahName(data.surah, data.surahName);
   M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(data.ayah), localizedSurahName)}`;
-  M.ayahModalText!.textContent = data.text;
+  M.ayahModalText!.textContent = hideSequentialTanweenMeem(data.text);
   M.ayahModalSurahAyah!.textContent = `${localizedSurahName} — ${__('ayah')} ${data.ayah}`;
   const contemplationButton = M.ayahModalContemplationBtn;
   if (contemplationButton) {
@@ -324,7 +325,7 @@ function goToNextAyah(): void {
   current = { surah: next.surah, ayah: next.ayah, text: next.text, surahName: next.surahName, index: idx };
   const localizedSurahName = getLocalizedModalSurahName(next.surah, next.surahName);
   M.ayahModalTitle!.textContent = `${__('ayah_modal_title', String(next.ayah), localizedSurahName)}`;
-  M.ayahModalText!.textContent = next.text;
+  M.ayahModalText!.textContent = hideSequentialTanweenMeem(next.text);
   M.ayahModalSurahAyah!.textContent = `${localizedSurahName} — ${__('ayah')} ${next.ayah}`;
   if (M.ayahModalContemplationBtn) {
     M.ayahModalContemplationBtn.textContent = `✦ ${__('contemplation')}`;
