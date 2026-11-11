@@ -216,7 +216,10 @@ export async function saveOfflineAudioUrls(reciterId: string, surahNum: number, 
     const now = Date.now();
     const tx = db.transaction(['surahs', 'meta'], 'readwrite');
     tx.objectStore('surahs').put({ key: offlineUrlsKey(reciterId, surahNum), urls, lastAccessed: now });
-    tx.objectStore('meta').put({ key: offlineUrlsKey(reciterId, surahNum), lastAccessed: now } satisfies SurahMetaRecord);
+    tx.objectStore('meta').put({
+      key: offlineUrlsKey(reciterId, surahNum),
+      lastAccessed: now,
+    } satisfies SurahMetaRecord);
     await new Promise<void>((resolve, reject) => {
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error || new Error('IDB transaction failed'));

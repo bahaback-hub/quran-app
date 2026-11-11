@@ -819,8 +819,14 @@ describe('surah-cache', () => {
         open.onsuccess = () => {
           const db = open.result;
           const req = db.transaction(store, 'readonly').objectStore(store).get(key);
-          req.onsuccess = () => { db.close(); resolve(req.result as T | undefined); };
-          req.onerror = () => { db.close(); reject(req.error); };
+          req.onsuccess = () => {
+            db.close();
+            resolve(req.result as T | undefined);
+          };
+          req.onerror = () => {
+            db.close();
+            reject(req.error);
+          };
         };
         open.onerror = () => reject(open.error);
       });
@@ -849,9 +855,16 @@ describe('surah-cache', () => {
      * simulating an IndexedDB-editing extension or bitwise disk corruption
      * that changes the payload without recomputing the integrity hash.
      */
-    function mutateStoredRecord(storeName: string, key: string, mutate: (value: Record<string, unknown>) => void): void {
+    function mutateStoredRecord(
+      storeName: string,
+      key: string,
+      mutate: (value: Record<string, unknown>) => void,
+    ): void {
       const mockIDB = indexedDB as unknown as {
-        databases: Map<string, { stores: Map<string, { records: Map<unknown, { key: unknown; value: Record<string, unknown> }> }> }>;
+        databases: Map<
+          string,
+          { stores: Map<string, { records: Map<unknown, { key: unknown; value: Record<string, unknown> }> }> }
+        >;
       };
       const db = mockIDB.databases.get('QuranSurahDB');
       const store = db?.stores.get(storeName);

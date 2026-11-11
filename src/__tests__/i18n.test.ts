@@ -491,12 +491,7 @@ describe('getTafsirName', () => {
   });
 
   it('covers every tafsir edition the ayah-modal tabs offer (UXS-02)', () => {
-    for (const edition of [
-      'ar-tafsir-muyassar',
-      'ar-tafsir-as-saadi',
-      'ar-tafsir-ibn-kathir',
-      'ar-tafsir-al-tabari',
-    ]) {
+    for (const edition of ['ar-tafsir-muyassar', 'ar-tafsir-as-saadi', 'ar-tafsir-ibn-kathir', 'ar-tafsir-al-tabari']) {
       expect(getTafsirName(edition), edition).not.toBe(edition);
     }
   });

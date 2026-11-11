@@ -47,11 +47,7 @@ import { magvar } from 'magvar';
  * @param altitudeKm Altitude above mean sea level in kilometers (optional, default 0;
  *                   effect on declination is <0.1° at normal altitudes)
  */
-export function getMagneticDeclination(
-  latitude: number,
-  longitude: number,
-  altitudeKm: number = 0,
-): number {
+export function getMagneticDeclination(latitude: number, longitude: number, altitudeKm: number = 0): number {
   try {
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
       return 0;

@@ -130,8 +130,7 @@ vi.mock('../i18n.js', () => ({
     });
     return val;
   },
-  __n: (key: string, count?: number) =>
-    count !== undefined ? key.replace('{count}', String(count)) : key,
+  __n: (key: string, count?: number) => (count !== undefined ? key.replace('{count}', String(count)) : key),
   getLang: vi.fn(() => 'ar'),
   applyTranslations: vi.fn(),
   setLocale: vi.fn(),

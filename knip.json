@@ -5,7 +5,6 @@
     "src/features/prayer/prayer-local.ts",
     "src/reciters.ts",
     "src/web-vitals.ts",
-    "src/memory-manager.ts",
     "src/offline-pack.ts",
     "src/features/mushaf/mushaf-renderer.ts",
     "src/state/types.ts",

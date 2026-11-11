@@ -26,13 +26,17 @@ test.describe('TV remote control', () => {
     await page.locator('#settingsCloseBtn').evaluate((el) => el.click());
     // The settings panel slides out over a 0.4s transition and stays
     // hit-testable while moving — wait until it is fully off-screen
-    // (fixed at right:-420px, so its left edge leaves the viewport),
-    // otherwise elementFromPoint probes can land on it (CI flake).
-    await page.waitForFunction(() => {
-      const panel = document.getElementById('settingsPanel');
-      if (!panel) return true;
-      return panel.getBoundingClientRect().left >= window.innerWidth;
-    }, undefined, { timeout: 10000 });
+    // (left-anchored now: fixed at left:-420px, so its right edge leaves
+    // the viewport), otherwise elementFromPoint probes can land on it.
+    await page.waitForFunction(
+      () => {
+        const panel = document.getElementById('settingsPanel');
+        if (!panel) return true;
+        return panel.getBoundingClientRect().right <= 0;
+      },
+      undefined,
+      { timeout: 10000 },
+    );
   });
 
   async function focusedId(page) {
@@ -74,10 +78,15 @@ test.describe('TV remote control', () => {
       () => {
         const text = document.getElementById('presentationAyahText');
         const counter = document.getElementById('presentationCounter');
-        return !!text && text.textContent.trim().length > 0 && !!counter && !/^\s*٠\s*\/\s*٠\s*$/.test(counter.textContent || '');
+        return (
+          !!text &&
+          text.textContent.trim().length > 0 &&
+          !!counter &&
+          !/^\s*٠\s*\/\s*٠\s*$/.test(counter.textContent || '')
+        );
       },
       undefined,
-      { timeout: 15000 }
+      { timeout: 15000 },
     );
   }
 
@@ -278,10 +287,8 @@ test.describe('TV remote control', () => {
     await page.locator('#viewPresBtn').evaluate((el) => el.focus());
     await page.keyboard.press('Enter');
     await expect(page.locator('#presentationOverlay')).toBeVisible({ timeout: 15000 });
-    await page.waitForFunction(
-      () => document.fonts.check('40px "KFGQPC HAFS Uthmanic Script"'),
-      undefined,
-      { timeout: 15000 },
-    );
+    await page.waitForFunction(() => document.fonts.check('40px "KFGQPC HAFS Uthmanic Script"'), undefined, {
+      timeout: 15000,
+    });
   });
 });

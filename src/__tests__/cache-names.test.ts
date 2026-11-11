@@ -9,12 +9,7 @@
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import {
-  CACHE_NAMES,
-  LEGACY_CACHE_NAMES,
-  deleteLegacyCaches,
-  deleteLegacyQcf4FontEntries,
-} from '../cache-names.js';
+import { CACHE_NAMES, LEGACY_CACHE_NAMES, deleteLegacyCaches, deleteLegacyQcf4FontEntries } from '../cache-names.js';
 
 describe('cache-names (ARC-03, NEW-03)', () => {
   afterEach(() => {

@@ -275,13 +275,6 @@
       "reason": "native SplashScreen hide is best-effort"
     },
     {
-      "file": "src/memory-manager.ts",
-      "fn": "cleanup",
-      "anchor": "// Already removed",
-      "kind": "catch-empty-block",
-      "reason": "the listener was already removed — ignore"
-    },
-    {
       "file": "src/pointer-nav.ts",
       "fn": "activateEl",
       "anchor": "/* fall through to click fallback below */",
@@ -518,6 +511,13 @@
       "anchor": "#1",
       "kind": "catch-return-empty-array",
       "reason": "stored audio-url list unreadable → return [] (no offline URLs); caller falls back to the network fetch"
+    },
+    {
+      "file": "src/surah-cache.ts",
+      "fn": "computeEntryHash",
+      "anchor": "#1",
+      "kind": "catch-return-null",
+      "reason": "Web Crypto unavailable or throws (insecure context / old browser) → null → the integrity check is skipped and the structural shape-guard still applies"
     },
     {
       "file": "src/surah-audio.ts",
