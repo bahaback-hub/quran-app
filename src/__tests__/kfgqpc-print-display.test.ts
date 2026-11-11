@@ -67,9 +67,7 @@ describe('surah reading view matches the printed mushaf (display only)', () => {
       number: 86,
       name: 'سُورَةُ الطَّارِقِ',
       englishName: 'At-Tariq',
-      ayahs: [
-        { numberInSurah: 13, text: AT_TARIQ_13, juz: 30, page: 591, number: 5917 },
-      ],
+      ayahs: [{ numberInSurah: 13, text: AT_TARIQ_13, juz: 30, page: 591, number: 5917 }],
     } as unknown as SurahTextData;
     state.surahData = surah as unknown as typeof state.surahData;
     renderSurah(surah);
@@ -84,9 +82,7 @@ describe('surah reading view matches the printed mushaf (display only)', () => {
       number: 86,
       name: 'سُورَةُ الطَّارِقِ',
       englishName: 'At-Tariq',
-      ayahs: [
-        { numberInSurah: 13, text: AT_TARIQ_13, juz: 30, page: 591, number: 5917 },
-      ],
+      ayahs: [{ numberInSurah: 13, text: AT_TARIQ_13, juz: 30, page: 591, number: 5917 }],
     } as unknown as SurahTextData;
     state.surahData = surah as unknown as typeof state.surahData;
     renderSurah(surah);
@@ -101,9 +97,7 @@ describe('surah reading view matches the printed mushaf (display only)', () => {
       number: 86,
       name: 'سُورَةُ الطَّارِقِ',
       englishName: 'At-Tariq',
-      ayahs: [
-        { numberInSurah: 13, text: AT_TARIQ_13, juz: 30, page: 591, number: 5917 },
-      ],
+      ayahs: [{ numberInSurah: 13, text: AT_TARIQ_13, juz: 30, page: 591, number: 5917 }],
     } as unknown as SurahTextData;
     state.surahData = surah as unknown as typeof state.surahData;
     renderSurah(surah);
