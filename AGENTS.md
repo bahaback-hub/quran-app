@@ -1,6 +1,6 @@
 # Quran App — Project Guide for AI Agents
 
-> **Honest snapshot of the codebase as of v3.1.28.** Read this BEFORE making changes.
+> **Honest snapshot of the codebase as of v3.1.29.** Read this BEFORE making changes.
 
 ## Commands
 
@@ -246,7 +246,7 @@ retry, and dedup. IndexedDB caches reduce network dependence for offline use.
 ## Documentation Files
 
 - `README.md` — comprehensive bilingual (ar/en) project overview
-- `CHANGELOG.md` — Keep a Changelog format, v1.0.0 → v3.1.28
+- `CHANGELOG.md` — Keep a Changelog format, v1.0.0 → v3.1.29
 - `CONTRIBUTING.md` — contributor guide
 - `SECURITY.md` — security policy
 - `CODE_OF_CONDUCT.md` — community code of conduct
