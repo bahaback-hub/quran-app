@@ -91,7 +91,7 @@
     "@types/node": "^26.6.2",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.71.1",
-    "@vitest/coverage-v8": "5.0.5",
+    "@vitest/coverage-v8": "5.1.0",
     "axe-core": "4.14.0",
     "esbuild": "^0.28.0",
     "eslint": "^10.14.0",
