@@ -75,9 +75,7 @@ function run(cmd, cmdArgs, { allowFailure = false, shell = false } = {}) {
     fail(`cannot run "${cmd} ${cmdArgs.join(' ')}": ${res.error.message}`);
   }
   if (res.status !== 0 && !allowFailure) {
-    fail(
-      `"${cmd} ${cmdArgs.join(' ')}" failed (exit ${res.status}):\n${res.stderr || res.stdout}`,
-    );
+    fail(`"${cmd} ${cmdArgs.join(' ')}" failed (exit ${res.status}):\n${res.stderr || res.stdout}`);
   }
   return { code: res.status, stdout: res.stdout ?? '', stderr: res.stderr ?? '' };
 }
@@ -99,10 +97,7 @@ function sleep(ms) {
 async function waitForRun(runId, label, { timeoutMs = 25 * 60_000 } = {}) {
   const started = Date.now();
   for (;;) {
-    const { stdout } = gh(
-      ['run', 'view', String(runId), '--json', 'status,conclusion'],
-      true,
-    );
+    const { stdout } = gh(['run', 'view', String(runId), '--json', 'status,conclusion'], true);
     let info = null;
     try {
       info = JSON.parse(stdout);
@@ -120,11 +115,16 @@ async function waitForRun(runId, label, { timeoutMs = 25 * 60_000 } = {}) {
   }
 }
 
-/** Find the workflow_dispatch run started after `sinceMs` for a workflow name. */
+/**
+ * Find the workflow_dispatch run started after `sinceMs` for a workflow name.
+ *
+ * `run list --json` has no `id` field (only `databaseId`); asking for `id`
+ * makes gh print "Unknown JSON field" on stderr and emit no JSON at all, which
+ * is why this used to spin forever on "not visible yet".
+ */
 async function findDispatchRun(workflowFile, sinceMs) {
   const { stdout } = gh(
-    ['run', 'list', `--workflow=${workflowFile}`, '--limit', '5', '--json',
-      'id,status,createdAt,event'],
+    ['run', 'list', `--workflow=${workflowFile}`, '--limit', '5', '--json', 'databaseId,status,createdAt,event'],
     true,
   );
   let runs = [];
@@ -138,7 +138,7 @@ async function findDispatchRun(workflowFile, sinceMs) {
     const created = Date.parse(r.createdAt);
     return Number.isFinite(created) && created >= sinceMs;
   });
-  return match ? match.id : null;
+  return match ? match.databaseId : null;
 }
 
 async function main() {
@@ -156,10 +156,7 @@ async function main() {
   need(!dirty, `working tree is not clean:\n${dirty}`);
 
   const fetched = run('git', ['fetch', 'origin', 'main'], { allowFailure: true });
-  need(
-    fetched.code === 0,
-    `git fetch origin main failed: ${fetched.stderr || fetched.stdout || 'unknown error'}`,
-  );
+  need(fetched.code === 0, `git fetch origin main failed: ${fetched.stderr || fetched.stdout || 'unknown error'}`);
   const local = run('git', ['rev-parse', 'HEAD']).stdout.trim();
   const remote = run('git', ['rev-parse', 'origin/main']).stdout.trim();
   need(local === remote, 'local main is not in sync with origin/main — push (or pull) first');
@@ -175,9 +172,14 @@ async function main() {
   }
 
   // ---- 3. tag (skip if it already exists) ----------------------------------
-  const tagExists = run('git', ['rev-parse', '-q', '--verify', `refs/tags/${tag}`], {
-    allowFailure: true,
-  }).code === 0;
+  const tagExists =
+    run('git', ['rev-parse', '-q', '--verify', `refs/tags/${tag}`], {
+      allowFailure: true,
+    }).code === 0;
+
+  // A re-run (e.g. the Android build failed after the tag was pushed) must not
+  // sit in step 4 waiting for a release.yml run that already happened.
+  const releaseExists = gh(['release', 'view', tag, '--json', 'tagName'], true).code === 0;
 
   if (args['dry-run']) {
     log(`plan: ${tag} -> release.yml (web zip + GitHub Release)`);
@@ -206,32 +208,56 @@ async function main() {
     run('git', ['push', 'origin', tag]);
   } else {
     log(`tag ${tag} already exists — reusing it`);
-    if (run('git', ['ls-remote', '--exit-code', 'origin', `refs/tags/${tag}`], {
-      allowFailure: true,
-    }).code !== 0) {
+    if (
+      run('git', ['ls-remote', '--exit-code', 'origin', `refs/tags/${tag}`], {
+        allowFailure: true,
+      }).code !== 0
+    ) {
       run('git', ['push', 'origin', tag]);
     }
   }
 
   // ---- 4. wait for the Release workflow (creates the GitHub Release + zip) --
   const dispatchSince = Date.now();
-  log('waiting for the Release workflow (release.yml) ...');
-  for (;;) {
-    const { stdout } = gh(
-      ['run', 'list', '--workflow=release.yml', '--limit', '5', '--json',
-        'id,status,conclusion,event,createdAt'],
-      true,
-    );
-    let runs = [];
-    try { runs = JSON.parse(stdout); } catch { runs = []; }
-    const runInfo = runs.find((r) => r.event === 'push' && Number.isFinite(Date.parse(r.createdAt))
-      && Date.parse(r.createdAt) >= dispatchSince - 5000);
-    if (runInfo) {
-      await waitForRun(runInfo.id, 'Release (release.yml)');
-      break;
+  if (releaseExists) {
+    log(`release ${tag} already exists — skipping the release.yml wait`);
+  } else {
+    log('waiting for the Release workflow (release.yml) ...');
+    for (;;) {
+      const { stdout } = gh(
+        [
+          'run',
+          'list',
+          '--workflow=release.yml',
+          '--limit',
+          '5',
+          '--json',
+          'databaseId,status,conclusion,event,createdAt',
+        ],
+        true,
+      );
+      let runs = [];
+      try {
+        runs = JSON.parse(stdout);
+      } catch {
+        runs = [];
+      }
+      const runInfo = runs.find(
+        (r) =>
+          r.event === 'push' &&
+          Number.isFinite(Date.parse(r.createdAt)) &&
+          Date.parse(r.createdAt) >= dispatchSince - 5000,
+      );
+      if (runInfo) {
+        await waitForRun(runInfo.databaseId, 'Release (release.yml)');
+        break;
+      }
+      if (Date.now() - dispatchSince > 10 * 60_000) {
+        fail('release.yml run never appeared within 10min after pushing the tag');
+      }
+      log('release.yml run not visible yet ... waiting 10s');
+      await sleep(10_000);
     }
-    log('release.yml run not visible yet ... waiting 10s');
-    await sleep(10_000);
   }
 
   // ---- 5. dispatch the signed Android build --------------------------------
@@ -271,7 +297,9 @@ async function main() {
 
   // ---- 7. verify ------------------------------------------------------------
   const assets = gh(['release', 'view', tag, '--json', 'assets', '--jq', '.assets[].name'], true)
-    .stdout.trim().split('\n').filter(Boolean);
+    .stdout.trim()
+    .split('\n')
+    .filter(Boolean);
   log(`release ${tag} assets: ${assets.join(', ') || '(none)'}`);
   if (!args['skip-android'] && !assets.includes(`${assetBase}-release.apk`)) {
     fail(`${assetBase}-release.apk is missing from the release`);
