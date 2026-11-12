@@ -21,6 +21,7 @@ import { state, SurahInfo, SurahOffset } from './state.js';
 import { RECITERS, getReciterDisplayName } from './reciters.js';
 import { apiFetch } from './api-client.js';
 import { loadLocalSurahList } from './api-fallback.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /** Reciter info from reciters module. */
 interface ReciterInfo {
@@ -79,7 +80,7 @@ export async function loadSurahList(): Promise<void> {
     return;
   }
   if (dom.surahSelect) {
-    dom.surahSelect.innerHTML = surahSelectLoading();
+    setTrustedHtml(dom.surahSelect, surahSelectLoading());
   }
   try {
     const data: { data?: SurahInfo[] } = (await apiFetch('/surah', { silent: true })) as { data?: SurahInfo[] };
@@ -94,7 +95,7 @@ export async function loadSurahList(): Promise<void> {
     /* last resort error state */
   }
   if (dom.surahSelect) {
-    dom.surahSelect.innerHTML = surahSelectError();
+    setTrustedHtml(dom.surahSelect, surahSelectError());
   }
 }
 
@@ -123,7 +124,7 @@ function populateSurahSelect(): void {
   if (!dom.surahSelect) {
     return;
   }
-  dom.surahSelect.innerHTML = surahSelectDefault();
+  setTrustedHtml(dom.surahSelect, surahSelectDefault());
   for (const s of state.surahList) {
     const opt = document.createElement('option');
     opt.value = String(s.number);
@@ -141,9 +142,12 @@ export function populateReciterSelect(): void {
   if (!dom.reciterSelect) {
     return;
   }
-  dom.reciterSelect.innerHTML = reciterOptions(
-    RECITERS.map((r: ReciterInfo) => ({ id: r.id, name: getReciterDisplayName(r) })),
-    state.currentReciter || CONFIG.DEFAULT_RECITER,
+  setTrustedHtml(
+    dom.reciterSelect,
+    reciterOptions(
+      RECITERS.map((r: ReciterInfo) => ({ id: r.id, name: getReciterDisplayName(r) })),
+      state.currentReciter || CONFIG.DEFAULT_RECITER,
+    ),
   );
 }
 

@@ -55,6 +55,7 @@ import { closeFavorites } from './favorites.js';
 import { closeSettings } from './settings.js';
 import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from './a11y.js';
 import { hideQiblaCompass, togglePrayerBar } from './features/prayer/prayer.js';
+import { setTrustedHtml } from './safe-html.js';
 
 const ROOM_ID = 'hifzRoom';
 const TOGGLE_ID = 'hifzRoomToggle';
@@ -594,7 +595,9 @@ export function initHifzRoom(): void {
   room.dir = 'rtl';
   room.setAttribute('aria-hidden', 'true');
   room.setAttribute('inert', '');
-  room.innerHTML = `
+  setTrustedHtml(
+    room,
+    `
     <div class="hifz-room-scene" aria-hidden="true"></div>
     <section class="hifz-room-panel" aria-labelledby="hifzRoomTitle">
       <header class="hifz-room-header"><div><p class="hifz-room-eyebrow" data-hifz-key="hifz_room_eyebrow"></p><h2 id="hifzRoomTitle" data-hifz-key="hifz_room"></h2></div><button class="hifz-room-close" id="hifzRoomClose" type="button" data-hifz-key="close"></button></header>
@@ -615,7 +618,8 @@ export function initHifzRoom(): void {
         <button class="hifz-room-download" id="hifzRoomFocusDownload" type="button" data-hifz-key="hifz_room_download"></button><p class="hifz-room-download-status" id="hifzRoomFocusDownloadStatus" aria-live="polite"></p>
         <button class="hifz-room-return" id="hifzRoomEnd" type="button"></button>
       </section>
-    </section>`;
+    </section>`,
+  );
   const toggle = document.createElement('button');
   const backdrop = document.createElement('div');
   backdrop.id = 'hifzRoomBackdrop';
@@ -625,8 +629,10 @@ export function initHifzRoom(): void {
   stage.id = STAGE_ID;
   stage.className = 'hifz-room-stage';
   stage.setAttribute('aria-hidden', 'true');
-  stage.innerHTML =
-    '<p id="hifzRoomStageMeta" class="hifz-room-stage-meta"></p><p id="hifzRoomStageText" class="hifz-room-stage-text" aria-live="polite"></p>';
+  setTrustedHtml(
+    stage,
+    '<p id="hifzRoomStageMeta" class="hifz-room-stage-meta"></p><p id="hifzRoomStageText" class="hifz-room-stage-text" aria-live="polite"></p>',
+  );
   toggle.id = TOGGLE_ID;
   toggle.className = 'hifz-room-toggle hifz-curtain-handle hifz-room-toggle--rtl prayer-bar reader-side-tool';
   toggle.type = 'button';
@@ -634,9 +640,11 @@ export function initHifzRoom(): void {
   toggle.setAttribute('aria-expanded', 'false');
   toggle.setAttribute('title', label('hifz_room'));
   toggle.setAttribute('aria-label', label('hifz_room'));
-  toggle.innerHTML =
+  setTrustedHtml(
+    toggle,
     '<svg class="icon reader-side-tool-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7c0-1.7-3.1-3-7-3V18c3.9 0 7 1.3 7 3 0-1.7 3.1-3 7-3V4c-3.9 0-7 1.3-7 3z"/><path d="M12 7v14"/></svg>' +
-    '<span data-hifz-toggle-label></span>';
+      '<span data-hifz-toggle-label></span>',
+  );
   document.body.append(backdrop, stage, room);
   const sideTools = document.getElementById('readerSideTools');
   const toggleSlot = document.getElementById('hifzRoomToggleSlot');

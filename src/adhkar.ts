@@ -27,6 +27,7 @@ import {
   stopAdhkarNotificationScheduler,
 } from './adhkar-notifications.js';
 import type { AdhkarSettings, AdhkarCategorySettings } from './types.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /* ===================== INIT ===================== */
 
@@ -112,7 +113,7 @@ function renderAdhkarTabs(): void {
     html += adhkarTab(cat.id, cat.icon + ' ' + cat.name, state.adhkarActiveTab === cat.id);
   }
   html += adhkarTab('personal', __('adhkar_personal'), state.adhkarActiveTab === 'personal');
-  dom.adhkarTabs.innerHTML = html;
+  setTrustedHtml(dom.adhkarTabs, html);
   dom.adhkarTabs.querySelectorAll('.adhkar-tab').forEach((btn: Element) => {
     btn.addEventListener('click', () => switchAdhkarTab((btn as HTMLElement).dataset['tab'] as string));
   });
@@ -199,7 +200,7 @@ function renderAdhkarCategory(categoryId: string): void {
     <button class="adhkar-reset-btn" data-action="reset" data-category="${categoryId}">${__('adhkar_reset')}</button>
     <button class="adhkar-restore-btn" data-action="reset-custom" data-category="${categoryId}" title="${__('adhkar_reset_defaults_desc')}">🔄 ${__('adhkar_reset_defaults')}</button>
   </div>`;
-  dom.adhkarContent.innerHTML = html;
+  setTrustedHtml(dom.adhkarContent, html);
   // CSP-safe: apply progress widths through the CSSOM (no inline style attributes).
   hydrateProgressFills(dom.adhkarContent);
 
@@ -401,7 +402,7 @@ export function renderAdhkarSettingsList(): void {
       </div>
     </div>`;
   }
-  dom.adhkarSettingsList.innerHTML = html;
+  setTrustedHtml(dom.adhkarSettingsList, html);
 
   dom.adhkarSettingsList.querySelectorAll('[data-adhkar-toggle]').forEach((el: Element) => {
     const htmlEl = el as HTMLElement;

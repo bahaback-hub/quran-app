@@ -6,6 +6,7 @@
 
 import { dom } from '../dom.js';
 import { helpPanelHTML } from '../templates.js';
+import { setTrustedHtml } from '../safe-html.js';
 
 /** Open the help/guide panel. */
 export function openHelp(): void {
@@ -54,7 +55,7 @@ function refreshHelpPanelForLanguage(): void {
     .map((item) => item.getAttribute('data-section'))
     .filter((section): section is string => Boolean(section));
   const wrapper = document.createElement('div');
-  wrapper.innerHTML = helpPanelHTML();
+  setTrustedHtml(wrapper, helpPanelHTML());
   const next = wrapper.firstElementChild as HTMLElement | null;
   if (!next) {
     return;

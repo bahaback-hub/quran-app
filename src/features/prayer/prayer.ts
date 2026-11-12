@@ -11,6 +11,7 @@ import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from '../
 import { setStoppedState } from '../audio/audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
 import { cancelAzanNotifications, notifyAzanNow, scheduleAzanNotifications } from './azan-notifications.js';
+import { setTrustedHtml } from '../../safe-html.js';
 
 /* ===================== LOCAL OFFLINE PRAYER TIMES (1448 H) ===================== */
 
@@ -534,7 +535,7 @@ function renderPrayerTimes(): void {
     return { name: getPrayerName(key), time: formatTime12(time24), isNext: key === next };
   });
   getPrayerTimesContainers().forEach((container) => {
-    container.innerHTML = prayerTimesRows(times);
+    setTrustedHtml(container, prayerTimesRows(times));
   });
   updatePrayerCurtainContext(prayerTimesLastUpdatedAt);
   updateCountdowns();
@@ -847,11 +848,11 @@ export function initPrayerBarQuickSelect(): void {
     return;
   }
   if (countrySel.options.length === 0) {
-    countrySel.innerHTML = barCountryOptions();
+    setTrustedHtml(countrySel, barCountryOptions());
   }
   syncPrayerBarQuickSelect();
   countrySel.addEventListener('change', () => {
-    citySel.innerHTML = barCityOptions(countrySel.value);
+    setTrustedHtml(citySel, barCityOptions(countrySel.value));
     applyPrayerBarQuickSelect();
   });
   citySel.addEventListener('change', applyPrayerBarQuickSelect);
@@ -866,7 +867,7 @@ function syncPrayerBarQuickSelect(): void {
   }
   const country = (dom.countryInput?.value.trim() || state.country || 'SA').toUpperCase();
   countrySel.value = PRAYER_BAR_LOCATIONS.some((g) => g.code === country) ? country : 'SA';
-  citySel.innerHTML = barCityOptions(countrySel.value);
+  setTrustedHtml(citySel, barCityOptions(countrySel.value));
   const city = dom.cityInput?.value.trim() || state.city;
   const match = Array.from(citySel.options).find((o) => o.value.split('|')[0] === city);
   citySel.value = match ? match.value : (citySel.options[0]?.value ?? '');

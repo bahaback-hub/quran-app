@@ -23,6 +23,7 @@ import { playCurrentAyah } from './features/audio/audio.js';
 import { isPointerMode } from './pointer-nav.js';
 import { loadTafsirForCurrentAyah } from './tafsir.js';
 import type { SurahData, AyahEntry } from './types.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /** Surah text data returned from the API. */
 export interface SurahTextData {
@@ -209,7 +210,7 @@ export function renderSurah(textData: SurahTextData): void {
   }
 
   html += `</div>`;
-  dom.surahContent.innerHTML = html;
+  setTrustedHtml(dom.surahContent, html);
   // CSP-safe: set the font-size variable through the CSSOM instead of an inline style attribute.
   const ayahsContainer = dom.surahContent.querySelector('.ayahs-container') as HTMLElement | null;
   ayahsContainer?.style.setProperty('--ayah-font-size', `${state.fontSize}px`);
@@ -553,7 +554,7 @@ export function updatePlayerInfo(): void {
     dom.playerCurrentAyah.textContent = `﴿${preview}﴾ — ${__('ayah')} ${a.numberInSurah}`;
   }
   if (dom.collapsedInfo) {
-    dom.collapsedInfo.innerHTML = collapsedPlayerInfo(surahData.name);
+    setTrustedHtml(dom.collapsedInfo, collapsedPlayerInfo(surahData.name));
   }
 }
 

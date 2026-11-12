@@ -33,6 +33,7 @@ import {
 import { isTvNavActive } from '../../tv-nav.js';
 import { applyPresBgMode, applyPresBgScene, applyPresBgVideo, registerSyncPresentation } from '../../settings.js';
 import { setPresentationSyncAdapter } from '../../surah-render.js';
+import { setTrustedHtml } from '../../safe-html.js';
 
 // Register the presentation sync hook so settings.ts and surah-render.ts can
 // refresh the presentation without importing this module (breaks import cycles).
@@ -320,11 +321,9 @@ function updateDisplay(): void {
     // tajweed spans in fullscreen. Render a single uninterrupted text run
     // there; normal presentation mode keeps its local tajweed colours.
     const usePresentationTajweed = _presTajweedEnabled && !isFullscreen() && !_presFullscreenRequested;
-    dom.presentationAyahText.innerHTML = buildAyahHtml(
-      ayah.text,
-      state.currentSurah,
-      ayah.numberInSurah,
-      usePresentationTajweed,
+    setTrustedHtml(
+      dom.presentationAyahText,
+      buildAyahHtml(ayah.text, state.currentSurah, ayah.numberInSurah, usePresentationTajweed),
     );
   }
 

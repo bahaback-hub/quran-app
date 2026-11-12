@@ -5,6 +5,7 @@ import { dismissSplashOnReady } from './splash.js';
 import { afterFirstPaint } from './scheduler.js';
 import { updateBanner } from './templates.js';
 import { CHECK_UPDATES_EVENT, UPDATE_AVAILABLE_EVENT, checkForAppUpdates } from './app-updates.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /**
  * Performance: Load non-critical modules lazily after initial render.
@@ -126,7 +127,7 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
       'font-size:14px;font-weight:bold;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);' +
       'display:flex;align-items:center;gap:8px;';
     banner.classList.add('update-banner');
-    banner.innerHTML = updateBanner();
+    setTrustedHtml(banner, updateBanner());
     document.body.appendChild(banner);
 
     // Attach click handler to the update button (NOT inline onclick)

@@ -16,6 +16,7 @@
 
 import { settingsPanelHTML, floatingPlayerHTML, arabicKeyboardHTML, helpPanelHTML } from './templates.js';
 import { readingPlansPanelHTML } from './templates-reading-plans.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /* ===================== ADHKAR NOTIFICATION ===================== */
 
@@ -312,13 +313,13 @@ export function injectOverlays(): void {
 
   const bodyWrapper = document.createElement('div');
   bodyWrapper.id = 'injected-panels';
-  bodyWrapper.innerHTML = bodyFragments.join('\n');
+  setTrustedHtml(bodyWrapper, bodyFragments.join('\n'));
   document.body.appendChild(bodyWrapper);
 
   // Inject the Arabic keyboard into its mount point in the search input group
   const kbdMount = document.getElementById('arabicKeyboardMount');
   if (kbdMount) {
-    kbdMount.innerHTML = arabicKeyboardHTML();
+    setTrustedHtml(kbdMount, arabicKeyboardHTML());
   }
 
   // Existing overlay fragments (dialogs, modals, notifications)
@@ -337,6 +338,6 @@ export function injectOverlays(): void {
 
   const wrapper = document.createElement('div');
   wrapper.id = 'injected-overlays';
-  wrapper.innerHTML = overlayFragments.join('\n');
+  setTrustedHtml(wrapper, overlayFragments.join('\n'));
   document.body.appendChild(wrapper);
 }

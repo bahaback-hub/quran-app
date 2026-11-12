@@ -15,6 +15,7 @@ import { loadSurah } from './surah-loader.js';
 import { openReadingPlanPanel } from './reading-plans.js';
 import { toArabicNumeral, escapeHtml } from './utils.js';
 import type { SurahInfo } from './state.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /** DOM id of the launcher root element. */
 const HOME_ID = 'homeScreen';
@@ -135,7 +136,9 @@ export function refreshHomeGrid(): void {
 function showHomeIn(container: HTMLElement): void {
   const grid = state.surahList.length > 0 ? renderSurahGrid(state.surahList) : renderEmptyGrid();
 
-  container.innerHTML = `
+  setTrustedHtml(
+    container,
+    `
     <section class="home-screen" id="${HOME_ID}" role="region" aria-label="${escapeHtml(__('home_welcome'))}">
       <div class="home-hero">
         <div class="home-bismillah" aria-hidden="true">بِسْمِ اللهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
@@ -160,7 +163,8 @@ function showHomeIn(container: HTMLElement): void {
       </div>
       <h2 class="home-browse-title" data-i18n="home_browse">${escapeHtml(__('home_browse'))}</h2>
       <ul class="home-surah-grid"${state.surahList.length > 0 ? ' data-filled="true"' : ''}>${grid}</ul>
-    </section>`;
+    </section>`,
+  );
 
   bindHomeSurahCards(container);
   container.querySelectorAll<HTMLElement>('.home-action-btn').forEach((btn) => {

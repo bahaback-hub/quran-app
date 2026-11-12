@@ -9,6 +9,7 @@
  */
 
 import { AVAILABLE_LANGUAGES, getLang, setLang, type LangCode } from './i18n.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /**
  * Country whose flag represents each language. Real SVG flags are served from
@@ -65,7 +66,7 @@ function updateButtonState(): void {
   const flag = document.getElementById('langCurrentFlag');
   const current = getLang();
   if (flag) {
-    flag.innerHTML = flagMarkup(current);
+    setTrustedHtml(flag, flagMarkup(current));
     wireFlagFallback(flag);
   }
 }
@@ -124,7 +125,10 @@ function buildDropdown(): void {
     item.className = 'lang-option';
     item.dataset['lang'] = lang.code;
     item.setAttribute('role', 'option');
-    item.innerHTML = `<span class="lang-option-flag" aria-hidden="true">${flagMarkup(lang.code)}</span><span class="lang-option-name">${lang.nativeName}</span>`;
+    setTrustedHtml(
+      item,
+      `<span class="lang-option-flag" aria-hidden="true">${flagMarkup(lang.code)}</span><span class="lang-option-name">${lang.nativeName}</span>`,
+    );
     wireFlagFallback(item);
     item.addEventListener('click', () => {
       closeDropdown();

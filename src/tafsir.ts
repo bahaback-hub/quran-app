@@ -8,6 +8,7 @@ import { loadLocalTafsirMuyassar } from './api-fallback.js';
 import { __ } from './i18n.js';
 import { tryValidate } from './schemas-validate.js';
 import { TafsirApiResponseSchema } from './api-schemas.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /* ===================== LOCAL TYPES ===================== */
 
@@ -152,12 +153,12 @@ function setTafsirHeader(surahName: string, ayahNum: number): void {
 }
 
 function showTafsirLoading(): void {
-  requireDom('tafsirCurtainBody').innerHTML = tafsirLoading();
+  setTrustedHtml(requireDom('tafsirCurtainBody'), tafsirLoading());
   requireDom('tafsirCurtainBody').scrollTop = 0;
 }
 
 function showTafsirError(): void {
-  requireDom('tafsirCurtainBody').innerHTML = tafsirErrorMessage(__('tafsir_error'));
+  setTrustedHtml(requireDom('tafsirCurtainBody'), tafsirErrorMessage(__('tafsir_error')));
   requireDom('tafsirCurtainBody').scrollTop = 0;
 }
 

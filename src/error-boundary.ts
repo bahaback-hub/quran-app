@@ -17,6 +17,7 @@ import { __ } from './i18n.js';
 import { errorRecoveryOverlay } from './templates.js';
 // Use namespace import for ui so mocks can swap implementations per-test
 import * as ui from './ui.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /** Local alias that resolves at call time (allows mocks to work).
  *  Named differently from the showToast OPTION to avoid shadowing. */
@@ -223,7 +224,7 @@ function showRecoveryOverlay(errorMsg: string): void {
   overlay.id = 'errorRecoveryOverlay';
   overlay.setAttribute('role', 'alertdialog');
   overlay.setAttribute('aria-label', __('error_title'));
-  overlay.innerHTML = errorRecoveryOverlay(errorMsg, errorMsg);
+  setTrustedHtml(overlay, errorRecoveryOverlay(errorMsg, errorMsg));
 
   document.body.appendChild(overlay);
 

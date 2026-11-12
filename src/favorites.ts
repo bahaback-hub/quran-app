@@ -15,6 +15,7 @@ import { __ } from './i18n.js';
 import { loadSurah } from './surah-loader.js';
 import { favoritesEmptyMessage, favoriteMeta, favoritesCountMessage } from './templates.js';
 import { shareText } from './share.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -63,7 +64,7 @@ export function renderFavorites(): void {
     return;
   }
   if (!state.favorites.length) {
-    dom.favoritesList.innerHTML = favoritesEmptyMessage();
+    setTrustedHtml(dom.favoritesList, favoritesEmptyMessage());
     return;
   }
 
@@ -79,7 +80,7 @@ export function renderFavorites(): void {
     item.dataset['key'] = f.key || '';
     const meta = document.createElement('div');
     meta.className = 'favorite-meta';
-    meta.innerHTML = favoriteMeta(f.surahName || '', f.ayah || '');
+    setTrustedHtml(meta, favoriteMeta(f.surahName || '', f.ayah || ''));
     const textDiv = document.createElement('div');
     textDiv.className = 'favorite-text';
     textDiv.textContent = f.text || '';
@@ -157,7 +158,7 @@ export function renderFavorites(): void {
             item.remove();
           }
           if (!state.favorites.length && dom.favoritesList) {
-            dom.favoritesList.innerHTML = favoritesEmptyMessage();
+            setTrustedHtml(dom.favoritesList, favoritesEmptyMessage());
           }
           showToast(__('removed_from_favorites'), '');
         }

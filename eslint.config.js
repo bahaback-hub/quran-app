@@ -3,37 +3,12 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 /**
- * Files that still assign HTML through `.innerHTML`. They are grandfathered so
- * the ban can land without a 61-site refactor in one go; every other source
- * file gets the error. Remove a file from this list when it stops using it —
- * new code should build DOM nodes (`createElement`/`textContent`) or go through
- * the escaped templates in `src/templates*`.
+ * `src/safe-html.ts` is the one audited place where trusted template markup is
+ * parsed into DOM. Every other source file must build nodes
+ * (`createElement`/`textContent`) or call `setTrustedHtml()` from that module.
+ * The exemption is deliberately narrow: one file, one property assignment.
  */
-const INNERHTML_LEGACY = [
-  'src/adhkar.ts',
-  'src/adhkar-personal.ts',
-  'src/ayah-modal.ts',
-  'src/error-boundary.ts',
-  'src/events/help-events.ts',
-  'src/favorites.ts',
-  'src/features/audio/audio.ts',
-  'src/features/mushaf/mushaf.ts',
-  'src/features/prayer/prayer.ts',
-  'src/features/presentation/presentation.ts',
-  'src/features/search/search-ui.ts',
-  'src/hifz-room.ts',
-  'src/home.ts',
-  'src/lang-switcher.ts',
-  'src/main.ts',
-  'src/overlays.ts',
-  'src/reading-plans.ts',
-  'src/reading-stats.ts',
-  'src/surah-list.ts',
-  'src/surah-loader.ts',
-  'src/surah-render.ts',
-  'src/tafsir.ts',
-  'src/tajweed.ts',
-];
+const SAFE_HTML_MODULE = ['src/safe-html.ts'];
 
 export default tseslint.config(
   js.configs.recommended,
@@ -101,9 +76,10 @@ export default tseslint.config(
     },
   },
   {
-    files: INNERHTML_LEGACY,
+    files: SAFE_HTML_MODULE,
     rules: {
-      // Grandfathered: these files predate the ban. Do not add new sinks here.
+      // The single audited HTML sink: parsing trusted template output into a
+      // detached scratch element. Never add another file to this override.
       'no-restricted-properties': 'off',
     },
   },

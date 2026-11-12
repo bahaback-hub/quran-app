@@ -4,6 +4,7 @@ import { storage } from './storage.js';
 import { dom } from './dom.js';
 import { hydrateProgressFills } from './ui.js';
 import { toArabicNumeral, escapeHtml } from './utils.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /**
  * Reading plans (khatma schedules): pick a completion target (7/30/60/90/180
@@ -180,38 +181,42 @@ export function renderReadingPlans(today: Date = new Date()): void {
   }
   const plan = getPlan();
   if (!plan) {
-    container.innerHTML =
+    setTrustedHtml(
+      container,
       `<p class="reading-plan-intro">${escapeHtml(__('reading_plan_intro'))}</p>` +
-      `<p class="reading-plan-label">${escapeHtml(__('reading_plan_pick'))}</p>` +
-      `<div class="reading-plan-grid" id="readingPlanPicker">` +
-      READING_PLANS.map((p) => {
-        const label = __('reading_plan_days', toArabicNumeral(String(p.days)));
-        return (
-          `<button type="button" class="reading-plan-option" data-plan-id="${escapeHtml(p.id)}">` +
-          `<span class="reading-plan-option-days">${escapeHtml(label)}</span>` +
-          `<span class="reading-plan-option-note">${escapeHtml(__('reading_plan_whole_quran'))}</span>` +
-          `</button>`
-        );
-      }).join('') +
-      `</div>`;
+        `<p class="reading-plan-label">${escapeHtml(__('reading_plan_pick'))}</p>` +
+        `<div class="reading-plan-grid" id="readingPlanPicker">` +
+        READING_PLANS.map((p) => {
+          const label = __('reading_plan_days', toArabicNumeral(String(p.days)));
+          return (
+            `<button type="button" class="reading-plan-option" data-plan-id="${escapeHtml(p.id)}">` +
+            `<span class="reading-plan-option-days">${escapeHtml(label)}</span>` +
+            `<span class="reading-plan-option-note">${escapeHtml(__('reading_plan_whole_quran'))}</span>` +
+            `</button>`
+          );
+        }).join('') +
+        `</div>`,
+    );
     bindPicker();
     return;
   }
   const s = getPlanSummary(plan, today);
   const statusKey = s.completed ? 'reading_plan_done' : s.onTrack ? 'reading_plan_on_track' : 'reading_plan_behind';
   const todayRange = `${toArabicNumeral(String(s.dueFrom))} - ${toArabicNumeral(String(s.dueTo))}`;
-  container.innerHTML =
+  setTrustedHtml(
+    container,
     `<div class="reading-plan-progress-bar"><div class="reading-plan-progress-fill" data-progress="${s.progressPercent}"></div></div>` +
-    `<p class="reading-plan-status ${statusKey === 'reading_plan_on_track' ? 'on-track' : statusKey === 'reading_plan_done' ? 'done' : 'behind'}">${escapeHtml(__(statusKey))}</p>` +
-    `<div class="reading-stats-grid">` +
-    `<div class="stat-card"><div class="stat-number">${toArabicNumeral(String(s.progressPercent))}%</div><div class="stat-label">${escapeHtml(__('reading_plan_progress'))}</div></div>` +
-    `<div class="stat-card"><div class="stat-number">${toArabicNumeral(String(s.dailyTarget))}</div><div class="stat-label">${escapeHtml(__('reading_plan_today_target'))}</div></div>` +
-    `<div class="stat-card"><div class="stat-number">${toArabicNumeral(String(s.remaining))}</div><div class="stat-label">${escapeHtml(__('reading_plan_remaining'))}</div></div>` +
-    `</div>` +
-    `<p class="reading-plan-range">${escapeHtml(__('reading_plan_day', toArabicNumeral(String(s.elapsedDay)), toArabicNumeral(String(s.days))))} — ${escapeHtml(__('reading_plan_ayahs_range', todayRange))}</p>` +
-    `<div class="reading-plan-actions">` +
-    `<button type="button" id="readingPlanResetBtn" class="adhkar-close reading-plan-reset">${escapeHtml(__('reading_plan_reset'))}</button>` +
-    `</div>`;
+      `<p class="reading-plan-status ${statusKey === 'reading_plan_on_track' ? 'on-track' : statusKey === 'reading_plan_done' ? 'done' : 'behind'}">${escapeHtml(__(statusKey))}</p>` +
+      `<div class="reading-stats-grid">` +
+      `<div class="stat-card"><div class="stat-number">${toArabicNumeral(String(s.progressPercent))}%</div><div class="stat-label">${escapeHtml(__('reading_plan_progress'))}</div></div>` +
+      `<div class="stat-card"><div class="stat-number">${toArabicNumeral(String(s.dailyTarget))}</div><div class="stat-label">${escapeHtml(__('reading_plan_today_target'))}</div></div>` +
+      `<div class="stat-card"><div class="stat-number">${toArabicNumeral(String(s.remaining))}</div><div class="stat-label">${escapeHtml(__('reading_plan_remaining'))}</div></div>` +
+      `</div>` +
+      `<p class="reading-plan-range">${escapeHtml(__('reading_plan_day', toArabicNumeral(String(s.elapsedDay)), toArabicNumeral(String(s.days))))} — ${escapeHtml(__('reading_plan_ayahs_range', todayRange))}</p>` +
+      `<div class="reading-plan-actions">` +
+      `<button type="button" id="readingPlanResetBtn" class="adhkar-close reading-plan-reset">${escapeHtml(__('reading_plan_reset'))}</button>` +
+      `</div>`,
+  );
   // CSP-safe: apply the progress width through the CSSOM (no inline style attribute).
   hydrateProgressFills(container);
   const resetBtn = document.getElementById('readingPlanResetBtn');

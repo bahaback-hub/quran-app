@@ -14,6 +14,7 @@ import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from './a
 import { shareText } from './share.js';
 import { initContemplation, openContemplation, syncContemplationAction } from './contemplation.js';
 import { setAyahModalAdapter } from './surah-render.js';
+import { setTrustedHtml } from './safe-html.js';
 
 /* ===================== TYPES ===================== */
 
@@ -465,8 +466,9 @@ function populateQaris(): void {
   if (!M.ayahModalQariSelect) {
     return;
   }
-  M.ayahModalQariSelect.innerHTML = RECITERS.map((r: ReciterEntry) => qariOption(r.id, getReciterDisplayName(r))).join(
-    '',
+  setTrustedHtml(
+    M.ayahModalQariSelect,
+    RECITERS.map((r: ReciterEntry) => qariOption(r.id, getReciterDisplayName(r))).join(''),
   );
 }
 
@@ -644,16 +646,16 @@ async function loadTafsirTab(edition: string): Promise<void> {
     return;
   }
   activateTab(edition);
-  M.ayahModalTafsirBody!.innerHTML = tafsirLoading();
+  setTrustedHtml(M.ayahModalTafsirBody!, tafsirLoading());
   try {
     const text: string | null = await fetchTafsirText(edition, current.surah, current.ayah);
     if (text) {
-      M.ayahModalTafsirBody!.innerHTML = tafsirContent(text);
+      setTrustedHtml(M.ayahModalTafsirBody!, tafsirContent(text));
     } else {
-      M.ayahModalTafsirBody!.innerHTML = tafsirErrorMessage(__('no_tafsir_available'));
+      setTrustedHtml(M.ayahModalTafsirBody!, tafsirErrorMessage(__('no_tafsir_available')));
     }
   } catch {
-    M.ayahModalTafsirBody!.innerHTML = tafsirErrorMessage(__('tafsir_error'));
+    setTrustedHtml(M.ayahModalTafsirBody!, tafsirErrorMessage(__('tafsir_error')));
   }
 }
 

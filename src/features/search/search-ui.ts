@@ -47,6 +47,7 @@ import {
 import { __ } from '../../i18n.js';
 import { shareText } from '../../share.js';
 import { isTvNavActive } from '../../tv-nav.js';
+import { setTrustedHtml } from '../../safe-html.js';
 
 /** Data shape for opening the ayah modal. */
 interface ModalAyahData {
@@ -186,9 +187,9 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
   if (!dom.searchResults) {
     return;
   }
-  dom.searchResults.innerHTML = '';
+  dom.searchResults.replaceChildren();
   if (!matches.length) {
-    dom.searchResults.innerHTML = searchEmptyResults();
+    setTrustedHtml(dom.searchResults, searchEmptyResults());
     dom.searchResults.style.display = 'block';
     return;
   }
@@ -208,7 +209,7 @@ function renderSearchResults(matches: QuranTextEntry[], query: string, hasMore: 
   if (hasMore) {
     html += searchLoadMoreButton(Math.min(SEARCH_PAGE_SIZE, totalResults - matches.length));
   }
-  dom.searchResults.innerHTML = html;
+  setTrustedHtml(dom.searchResults, html);
   dom.searchResults.style.display = 'block';
 
   if (!_delegationBoundElements.has(dom.searchResults)) {
@@ -356,7 +357,7 @@ function showSearchHistory(): void {
   for (let i = 0; i < history.length; i++) {
     html += searchHistoryItem(history[i]!, i);
   }
-  dropdown.innerHTML = html;
+  setTrustedHtml(dropdown, html);
   dropdown.style.display = 'block';
   _acIndex = -1;
   dropdown.querySelectorAll('.search-autocomplete-item').forEach((el: Element) => {
@@ -435,7 +436,7 @@ export function initSearchAutocomplete(): void {
       for (let i = 0; i < suggestions.length; i++) {
         html += searchAutocompleteItem(suggestions[i]!.word, suggestions[i]!.count, i);
       }
-      dropdown.innerHTML = html;
+      setTrustedHtml(dropdown, html);
       dropdown.style.display = 'block';
       _acIndex = -1;
 

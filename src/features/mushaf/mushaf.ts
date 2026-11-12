@@ -27,6 +27,7 @@ import { __ } from '../../i18n.js';
 import { setMushafAdapters } from '../../surah-render.js';
 import { registerMushafPageReload } from '../../settings.js';
 import type { SurahData, AyahPageResponse } from '../../types.js';
+import { setTrustedHtml } from '../../safe-html.js';
 
 /* ===================== INTERFACES ===================== */
 
@@ -105,7 +106,7 @@ export async function toggleMushafMode(): Promise<void> {
 
     // Show immediate loading state in surahContent
     if (dom.surahContent) {
-      dom.surahContent.innerHTML = mushafLoadingState();
+      setTrustedHtml(dom.surahContent, mushafLoadingState());
     }
 
     if (dom.pageIndicator) {
@@ -159,7 +160,7 @@ export async function toggleMushafMode(): Promise<void> {
       updatePlayerInfo();
     } else {
       const surahToLoad = state.currentSurah && state.currentSurah > 0 ? state.currentSurah : 1;
-      requireDom('surahContent').innerHTML = surahLoadingMessage();
+      setTrustedHtml(requireDom('surahContent'), surahLoadingMessage());
       setTimeout(() => loadSurah(surahToLoad), 50);
     }
   }
@@ -173,7 +174,7 @@ function populatePageSelect(): void {
   if (!dom.pageSelect) {
     return;
   }
-  dom.pageSelect.innerHTML = '';
+  dom.pageSelect.replaceChildren();
   for (let i = 1; i <= 604; i++) {
     const opt = document.createElement('option');
     opt.value = String(i);
@@ -301,7 +302,7 @@ export function buildMushafTextBlocks(layout: PageLayoutData | null): MushafText
 
 /** Render the screen-reader region: one paragraph per verse, with its ayah number. */
 function renderMushafTextAlternative(region: HTMLElement, layout: PageLayoutData | null): void {
-  region.innerHTML = '';
+  region.replaceChildren();
   for (const block of buildMushafTextBlocks(layout)) {
     const paragraph = document.createElement('p');
     paragraph.textContent = block.text;
@@ -345,7 +346,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
 
   const header = document.createElement('div');
   header.className = 'mushaf-header';
-  header.innerHTML = mushafHeaderRow(__('mushaf_juz', toArabicNumeral(juz)));
+  setTrustedHtml(header, mushafHeaderRow(__('mushaf_juz', toArabicNumeral(juz))));
 
   const canvasWrapper = document.createElement('div');
   canvasWrapper.className = 'mushaf-image-wrapper';
@@ -393,7 +394,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
 
   const footer = document.createElement('div');
   footer.className = 'mushaf-footer';
-  footer.innerHTML = `${toArabicNumeral(pageNum)}`;
+  setTrustedHtml(footer, `${toArabicNumeral(pageNum)}`);
 
   const navPrev = document.createElement('button');
   navPrev.className = 'mushaf-page-nav-btn mushaf-page-nav-prev';
@@ -423,7 +424,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   container.appendChild(navPrev);
   container.appendChild(navNext);
 
-  dom.surahContent.innerHTML = '';
+  dom.surahContent.replaceChildren();
   dom.surahContent.appendChild(container);
   dom.surahContent.appendChild(buildTajweedLegend());
 
@@ -446,7 +447,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
         // Show fallback error message in the container
         const errorDiv = document.createElement('div');
         errorDiv.className = 'mushaf-error-fallback';
-        errorDiv.innerHTML = mushafErrorFallback();
+        setTrustedHtml(errorDiv, mushafErrorFallback());
         canvasWrapper.appendChild(errorDiv);
         // Inline onclick handlers are blocked by CSP; wire the retry button here.
         errorDiv.querySelector<HTMLElement>('[data-action="reload"]')?.addEventListener('click', () => {
@@ -491,9 +492,12 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
             seen[a.surah.number] = a.surah.name;
           }
         });
-        surahNamesEl.innerHTML = Object.values(seen)
-          .map((n) => mushafSurahNameSpan(n))
-          .join(' ');
+        setTrustedHtml(
+          surahNamesEl,
+          Object.values(seen)
+            .map((n) => mushafSurahNameSpan(n))
+            .join(' '),
+        );
       }
     })
     .catch((err) => {
@@ -528,7 +532,7 @@ export function populateSurahOverlay(): void {
   if (!dom.mushafSurahOverlayList || !state.surahList.length) {
     return;
   }
-  dom.mushafSurahOverlayList.innerHTML = '';
+  dom.mushafSurahOverlayList.replaceChildren();
   for (const s of state.surahList as SurahListEntry[]) {
     const row = document.createElement('div');
     row.className = 'mushaf-surah-overlay-row';
@@ -609,7 +613,7 @@ export function showSurahSecret(surahNum: number, surahName?: string): void {
   }
   dom.surahSecretsSurahName.textContent = `ℹ️ ${surahNum}. ${surahName ?? ''}`;
   dom.surahSecretsTitle.textContent = __('mushaf_surah_info');
-  dom.surahSecretsBody.innerHTML = surahSecretsBody(secret);
+  setTrustedHtml(dom.surahSecretsBody, surahSecretsBody(secret));
   dom.surahSecretsOverlay.classList.remove('hidden');
   dom.surahSecretsOverlay.style.display = 'flex';
 }
@@ -721,7 +725,7 @@ export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
   overlay.style.width = `${rect.width}px`;
   overlay.style.height = `${rect.height}px`;
 
-  overlay.innerHTML = '';
+  overlay.replaceChildren();
   for (const r of rects) {
     const bar = document.createElement('div');
     bar.className = 'mushaf-ayah-highlight';

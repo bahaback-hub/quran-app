@@ -54,6 +54,7 @@ import {
   currentAudioMarkers,
   markCurrentAudio,
 } from './surah-audio.js';
+import { setTrustedHtml } from './safe-html.js';
 
 export { loadAudioUrlsForSession, reloadCurrentSurahAudio, calculateAyahTimings } from './surah-audio.js';
 
@@ -82,19 +83,28 @@ async function prepareTajweedForSurah(surahNum: number): Promise<void> {
 }
 
 /**
- * Load a surah (text + audio + translation), render it, finalize.
+ * Everything a load needs after the shared reset: the request signal, the
+ * cache identity, and the reciter flags each branch reads.
  */
-export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): Promise<void> {
-  if (!surahNum) {
-    return;
-  }
-  const currentLoad = nextLoadGeneration();
-  const surahLabel = state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || String(surahNum);
-  const loadingMessage = `${__('loading_surah')} ${surahLabel}`;
-  // Clear stale audio/translation before new load (batched to avoid intermediate notifications).
-  // Also null out surahData and reset currentAyahIndex so consumers reading
-  // state.currentSurah + state.surahData during the await below see a consistent
-  // "loading" state (null surahData) rather than a stale previous surah.
+interface SurahLoadContext {
+  signal: AbortSignal;
+  cacheKey: string;
+  reciterInfo: ReciterInfo;
+  isMp3quran: boolean;
+  currentLoad: number;
+}
+
+/**
+ * Shared prologue for every surah load: reset stale audio/translation state,
+ * leave hifdh/repeat modes, cancel the previous request, and derive the cache
+ * key for this surah + reciter + translation.
+ */
+function beginSurahLoad(surahNum: number, currentLoad: number): SurahLoadContext {
+  // Clear stale audio/translation before the new load (batched to avoid
+  // intermediate notifications). Also null out surahData and reset
+  // currentAyahIndex so consumers reading state.currentSurah + state.surahData
+  // during the await below see a consistent "loading" state (null surahData)
+  // rather than a stale previous surah.
   // Audio lists survive a reload of the SAME surah+reciter (e.g. toggling
   // translation) so the player is never left silent while the new list loads.
   const keepAudio = surahNum === currentAudioMarkers().surah && state.currentReciter === currentAudioMarkers().reciter;
@@ -145,134 +155,321 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     currentSurahController.abort();
   }
   currentSurahController = new AbortController();
-  const signal = currentSurahController.signal;
 
   const cacheKey = `${surahNum}_${state.currentReciter}_${state.currentTranslation || 'notr'}`;
   const reciterInfo = getReciterById(state.currentReciter) as ReciterInfo;
-  const isMp3quran = reciterInfo.source === 'mp3quran';
-  if (state.surahCache.has(cacheKey)) {
-    const cached = state.surahCache.get(cacheKey) as unknown as CachedSurahEntry;
-    if (!isCurrentLoad(currentLoad)) {
-      return;
-    }
-    // ARC-10: a pure memory hit must refresh recency too (delete + re-insert,
-    // same as setSurahCacheEntry) — otherwise the CACHE_LIMIT eviction is LRU
-    // for writes but FIFO for reads, and the 20 most-read surahs can be evicted
-    // by write churn of surahs nobody reopened.
-    immutableMapDelete(state, 'surahCache', cacheKey);
-    immutableMapSet(state, 'surahCache', cacheKey, cached);
-    state.surahData = cached.text as unknown as SurahData;
-    if (isMp3quran) {
-      state.ayahsAudios = cached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');
-      state.ayahTimings = cached.timings || calculateAyahTimings(cached.text.ayahs, surahNum);
-    } else {
-      state.ayahsAudios = Array.isArray(cached.audios)
-        ? (cached.audios as string[])
-        : cached.audio?.ayahs?.map((a: AyahEntry) => a.audio || '') || [];
-      state.ayahTimings = [];
-    }
-    state.translationData = cached.translation || null;
-    await prepareTajweedForSurah(surahNum);
-    if (!isCurrentLoad(currentLoad)) {
-      return;
-    }
-    renderSurah(cached.text);
-    finalizeSurahLoad(opts);
-    state.loadingSurah = null;
-    dom.surahContent?.classList.remove('is-loading');
-    dom.surahContent?.setAttribute('aria-busy', 'false');
+  return {
+    signal: currentSurahController.signal,
+    cacheKey,
+    reciterInfo,
+    isMp3quran: reciterInfo.source === 'mp3quran',
+    currentLoad,
+  };
+}
+
+/**
+ * Assign the audio list and translation that came with a cached surah.
+ * MP3QURAN sources rebuild per-ayah URLs from the reciter template; API
+ * sources keep the per-ayah URLs the provider returned.
+ */
+function applyCachedSurahData(entry: CachedSurahEntry, surahNum: number, ctx: SurahLoadContext): void {
+  state.surahData = entry.text as unknown as SurahData;
+  if (ctx.isMp3quran) {
+    state.ayahsAudios = entry.text.ayahs.map(() => buildAudioUrl(ctx.reciterInfo, surahNum) || '');
+    state.ayahTimings = entry.timings || calculateAyahTimings(entry.text.ayahs, surahNum);
+  } else {
+    state.ayahsAudios = Array.isArray(entry.audios)
+      ? (entry.audios as string[])
+      : entry.audio?.ayahs?.map((a: AyahEntry) => a.audio || '') || [];
+    state.ayahTimings = [];
+  }
+  state.translationData = entry.translation || null;
+}
+
+/**
+ * Memory-cache path. Returns true when the load was satisfied (or superseded),
+ * so the caller can stop; false when there is no entry and the caller should
+ * try IndexedDB.
+ */
+async function tryMemoryCache(surahNum: number, opts: LoadSurahOptions, ctx: SurahLoadContext): Promise<boolean> {
+  if (!state.surahCache.has(ctx.cacheKey)) {
+    return false;
+  }
+  const cached = state.surahCache.get(ctx.cacheKey) as unknown as CachedSurahEntry;
+  if (!isCurrentLoad(ctx.currentLoad)) {
+    return true;
+  }
+  // ARC-10: a pure memory hit must refresh recency too (delete + re-insert,
+  // same as setSurahCacheEntry) — otherwise the CACHE_LIMIT eviction is LRU
+  // for writes but FIFO for reads, and the 20 most-read surahs can be evicted
+  // by write churn of surahs nobody reopened.
+  immutableMapDelete(state, 'surahCache', ctx.cacheKey);
+  immutableMapSet(state, 'surahCache', ctx.cacheKey, cached);
+  applyCachedSurahData(cached, surahNum, ctx);
+  await prepareTajweedForSurah(surahNum);
+  if (!isCurrentLoad(ctx.currentLoad)) {
+    return true;
+  }
+  renderSurah(cached.text);
+  finalizeSurahLoad(opts);
+  clearSurahLoadingState();
+  return true;
+}
+
+/**
+ * IndexedDB-cache path (offline support). Returns true when an entry was found
+ * and rendered — the caller then stops. When online, a debounced background
+ * refresh keeps the cached copy fresh (stale-while-revalidate).
+ */
+async function tryIdbCache(surahNum: number, opts: LoadSurahOptions, ctx: SurahLoadContext): Promise<boolean> {
+  const idbCached = await getCachedSurahFromIDB(ctx.cacheKey);
+  if (!idbCached) {
+    return false;
+  }
+  if (!isCurrentLoad(ctx.currentLoad)) {
+    return true;
+  }
+  // Also store in memory cache
+  setSurahCacheEntry(ctx.cacheKey, idbCached);
+  applyCachedSurahData(idbCached, surahNum, ctx);
+  markCurrentAudio(surahNum, state.currentReciter);
+  await prepareTajweedForSurah(surahNum);
+  if (!isCurrentLoad(ctx.currentLoad)) {
+    return true;
+  }
+  renderSurah(idbCached.text);
+  finalizeSurahLoad(opts);
+  clearSurahLoadingState();
+  scheduleBackgroundRefresh(surahNum, ctx);
+  return true;
+}
+
+/**
+ * Queue one trailing re-fetch of the surah that was just served from cache.
+ * Uses a SEPARATE AbortController so the refresh isn't cancelled when the user
+ * loads a different surah, and debounces so fast navigation coalesces into at
+ * most one request for the most recently opened surah.
+ */
+function scheduleBackgroundRefresh(surahNum: number, ctx: SurahLoadContext): void {
+  if (!navigator.onLine) {
     return;
   }
-
-  // Try IndexedDB cache for offline support before fetching from API
-  const idbCached = await getCachedSurahFromIDB(cacheKey);
-  if (idbCached) {
-    if (!isCurrentLoad(currentLoad)) {
-      return;
-    }
-    // Also store in memory cache
-    setSurahCacheEntry(cacheKey, idbCached);
-    state.surahData = idbCached.text as unknown as SurahData;
-    if (isMp3quran) {
-      state.ayahsAudios = idbCached.text.ayahs.map(() => buildAudioUrl(reciterInfo, surahNum) || '');
-      state.ayahTimings = idbCached.timings || calculateAyahTimings(idbCached.text.ayahs, surahNum);
-    } else {
-      state.ayahsAudios = Array.isArray(idbCached.audios)
-        ? (idbCached.audios as string[])
-        : idbCached.audio?.ayahs?.map((a: AyahEntry) => a.audio || '') || [];
-      state.ayahTimings = [];
-    }
-    markCurrentAudio(surahNum, state.currentReciter);
-    state.translationData = idbCached.translation || null;
-    await prepareTajweedForSurah(surahNum);
-    if (!isCurrentLoad(currentLoad)) {
-      return;
-    }
-    renderSurah(idbCached.text);
-    finalizeSurahLoad(opts);
-    state.loadingSurah = null;
-    dom.surahContent?.classList.remove('is-loading');
-    dom.surahContent?.setAttribute('aria-busy', 'false');
-    // If online, still try to refresh the data in background (stale-while-revalidate)
-    // Use a SEPARATE AbortController so the refresh isn't cancelled when the user loads a different surah.
-    // Debounce so fast navigation across cached surahs coalesces into at most one
-    // refresh for the most recently opened surah, instead of one request per surah.
-    if (navigator.onLine) {
-      if (_refreshDebounceTimer) {
-        clearTimeout(_refreshDebounceTimer);
-      }
-      const debouncedSurahNum = surahNum;
-      const debouncedCacheKey = cacheKey;
-      const debouncedReciterInfo = reciterInfo;
-      const debouncedIsMp3quran = isMp3quran;
-      const debouncedCurrentLoad = currentLoad;
-      _refreshDebounceTimer = setTimeout(() => {
-        _refreshDebounceTimer = null;
-        if (_refreshController) {
-          _refreshController.abort();
-        }
-        _refreshController = new AbortController();
-        void _refreshSurahFromAPI(
-          debouncedSurahNum,
-          debouncedCacheKey,
-          debouncedReciterInfo,
-          debouncedIsMp3quran,
-          debouncedCurrentLoad,
-          _refreshController.signal,
-        );
-      }, REFRESH_DEBOUNCE_MS);
-    }
-    return;
+  if (_refreshDebounceTimer) {
+    clearTimeout(_refreshDebounceTimer);
   }
+  _refreshDebounceTimer = setTimeout(() => {
+    _refreshDebounceTimer = null;
+    if (_refreshController) {
+      _refreshController.abort();
+    }
+    _refreshController = new AbortController();
+    void _refreshSurahFromAPI(
+      surahNum,
+      ctx.cacheKey,
+      ctx.reciterInfo,
+      ctx.isMp3quran,
+      ctx.currentLoad,
+      _refreshController.signal,
+    );
+  }, REFRESH_DEBOUNCE_MS);
+}
 
-  loadingBar.show(`${loadingMessage}...`);
+/** Immediate loading affordance shown while the network fetch is in flight. */
+function showSurahLoadingNotice(message: string): void {
+  loadingBar.show(`${message}...`);
   if (dom.surahContent) {
-    dom.surahContent.innerHTML = `<div class="surah-loading-notice" role="status"><span class="surah-loading-orb" aria-hidden="true"></span>${escapeHtml(loadingMessage)}</div>${skeletonLoading()}`;
+    setTrustedHtml(
+      dom.surahContent,
+      `<div class="surah-loading-notice" role="status"><span class="surah-loading-orb" aria-hidden="true"></span>${escapeHtml(message)}</div>${skeletonLoading()}`,
+    );
   }
+}
+
+/**
+ * Download the surah text: bundled local JSON first (no network wait), then the
+ * API. Throws when neither yields a usable ayah list.
+ */
+async function fetchSurahTextData(surahNum: number, signal: AbortSignal): Promise<SurahTextData> {
+  // Bundled local text first (data/surah-{n}.json) — a tiny file served with
+  // NO network wait, keeping the first-surah text off the LCP critical path.
+  // Served from the service worker's runtime cache on repeat visits. Any
+  // surah without a bundle falls straight through to the API.
+  let textJson: { data?: SurahTextData } | null = null;
+  try {
+    textJson = (await jsonFetch(`data/surah-${surahNum}.json`, { silent: true })) as {
+      data?: SurahTextData;
+    };
+  } catch {
+    /* no local bundle — fall back to API */
+  }
+  if (!textJson?.data?.ayahs?.length) {
+    textJson = (await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
+      signal,
+      errorMsg: __('failed_load_surah'),
+    })) as { data?: SurahTextData };
+  }
+  const textData: SurahTextData = textJson?.data as SurahTextData;
+  if (!textData?.ayahs?.length) {
+    throw new Error(__('invalid_surah_data'));
+  }
+  return textData;
+}
+
+/**
+ * Fetch audio + translation in parallel and apply them to the freshly rendered
+ * surah. Returns false when a newer load superseded this one, so the caller
+ * must stop before caching the stale result.
+ */
+async function loadNetworkAudioAndTranslation(
+  surahNum: number,
+  textData: SurahTextData,
+  autoPlay: boolean | undefined,
+  ctx: SurahLoadContext,
+): Promise<boolean> {
+  const audioPromise = ctx.isMp3quran
+    ? loadMp3quranAudio(surahNum, textData, ctx.reciterInfo, ctx.currentLoad)
+    : loadApiAudio(surahNum, state.currentReciter, ctx.currentLoad, ctx.signal);
+  const transPromise =
+    state.translationEnabled && state.currentTranslation
+      ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal: ctx.signal, silent: true })
+          .then((d: unknown) => (d as { data?: Record<string, unknown> })?.data || null)
+          // When the edition endpoint is unreachable, serve the bundled
+          // translation file instead of dropping to Arabic-only silence.
+          .catch(() => loadLocalTranslation(surahNum, state.currentTranslation as string))
+      : Promise.resolve(null);
+
+  const [audioResult, transResult]: [AudioResult | null, Record<string, unknown> | null] = await Promise.all([
+    audioPromise,
+    transPromise,
+  ]);
+  if (!isCurrentLoad(ctx.currentLoad)) {
+    return false;
+  }
+  if (audioResult) {
+    // Preserve array indices — replace nulls with empty strings instead of filtering
+    state.ayahsAudios = audioResult.audios.map((a): string => a ?? '');
+    state.ayahTimings = audioResult.timings;
+  } else {
+    // Audio fetch failed (rate-limit, flake): reuse the last good list for
+    // this surah+reciter instead of leaving the reader permanently silent.
+    const fallback = findFallbackAudio(surahNum, state.currentReciter);
+    if (fallback) {
+      state.ayahsAudios = fallback.audios;
+      state.ayahTimings = fallback.timings;
+    }
+  }
+  markCurrentAudio(surahNum, state.currentReciter);
+  state.translationData = transResult;
+  if (transResult && state.surahData && !state.mushafMode) {
+    // N-02: while the mushaf canvas is open, the reader DOM is not mounted,
+    // so patchTranslations() would report failure and its full-render
+    // fallback would replace the open canvas with the ayah list. The
+    // translation is already in state; leaving mushaf mode re-renders
+    // from it (mushaf.ts exit path).
+    // Translation arrived after the text render: patch the missing spans in
+    // place instead of rebuilding ~6,300 word spans. Falls back to a full
+    // render if the DOM no longer matches the surah.
+    if (!patchTranslations()) {
+      renderSurah(state.surahData);
+    }
+    highlightCurrentAyah();
+  }
+
+  if (autoPlay && state.ayahsAudios.length) {
+    playCurrentAyah();
+  }
+  return true;
+}
+
+/**
+ * Offline/failure fallbacks, in order: the in-memory full Quran, then the
+ * bundled local text. Returns true when one of them produced a rendered surah.
+ */
+async function renderOfflineFallback(
+  error: unknown,
+  surahNum: number,
+  opts: LoadSurahOptions,
+  ctx: SurahLoadContext,
+): Promise<boolean> {
+  // Only treat an abort as "user navigated to another surah" when THIS load's
+  // controller was actually cancelled. The internal per-attempt timeout also
+  // surfaces as an AbortError (15s stall = real outage); bailing silently there
+  // would leave the reader stuck on the loading notice and skip the offline
+  // fallback, so those must still fall through to the local text.
+  if ((error as Error).name === 'AbortError' && ctx.signal.aborted) {
+    return true;
+  }
+  if (state.fullQuranLoaded && state.fullQuranText) {
+    if (!isCurrentLoad(ctx.currentLoad)) {
+      return true;
+    }
+    const ayahs = state.fullQuranText.filter((a: { surah: number }) => a.surah === surahNum);
+    if (ayahs.length) {
+      const firstAyah = ayahs[0]!;
+      state.surahData = {
+        number: surahNum,
+        name: firstAyah.surahName,
+        englishName: state.surahList.find((s: SurahInfo) => s.number === surahNum)?.englishName || '',
+        ayahs: ayahs.map((a: { ayah: number; text: string }) => ({ numberInSurah: a.ayah, text: a.text })),
+      };
+      const offlineAudio = await getOfflinePackAudioResult(surahNum, state.surahData);
+      state.ayahsAudios = offlineAudio?.audios.map((audio) => audio ?? '') ?? [];
+      state.ayahTimings = offlineAudio?.timings ?? [];
+      renderSurah(state.surahData!);
+      finalizeSurahLoad(opts);
+      loadingBar.hide();
+      state.loadingSurah = null;
+      return true;
+    }
+  }
+  // Final fallback: try the local bundled Quran text (public/data/quran-uthmani.json).
+  // This works even when fully offline because the file is bundled with the app
+  // and precached by the PWA service worker.
+  try {
+    const localSurah = await loadLocalSurahText(surahNum);
+    if (localSurah && isCurrentLoad(ctx.currentLoad)) {
+      state.surahData = localSurah;
+      const offlineAudio = await getOfflinePackAudioResult(surahNum, localSurah);
+      state.ayahsAudios = offlineAudio?.audios.map((audio) => audio ?? '') ?? [];
+      state.ayahTimings = offlineAudio?.timings ?? [];
+      renderSurah(localSurah);
+      finalizeSurahLoad(opts);
+      loadingBar.hide();
+      showToast(__('offline_mode'), 'success');
+      state.loadingSurah = null;
+      return true;
+    }
+  } catch {
+    /* local fallback also failed — fall through to error display */
+  }
+  return false;
+}
+
+/**
+ * Load a surah (text + audio + translation), render it, finalize.
+ *
+ * The body is a small orchestrator over the paths above: memory cache →
+ * IndexedDB cache → network, with the offline fallbacks on failure.
+ */
+export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): Promise<void> {
+  if (!surahNum) {
+    return;
+  }
+  const currentLoad = nextLoadGeneration();
+  const ctx = beginSurahLoad(surahNum, currentLoad);
+
+  if (await tryMemoryCache(surahNum, opts, ctx)) {
+    return;
+  }
+  if (await tryIdbCache(surahNum, opts, ctx)) {
+    return;
+  }
+
+  const surahLabel = state.surahList.find((s: SurahInfo) => s.number === surahNum)?.name || String(surahNum);
+  showSurahLoadingNotice(`${__('loading_surah')} ${surahLabel}`);
 
   try {
-    // Bundled local text first (data/surah-{n}.json) — a tiny file served with
-    // NO network wait, keeping the first-surah text off the LCP critical path.
-    // Served from the service worker's runtime cache on repeat visits. Any
-    // surah without a bundle falls straight through to the API.
-    let textJson: { data?: SurahTextData } | null = null;
-    try {
-      textJson = (await jsonFetch(`data/surah-${surahNum}.json`, { silent: true })) as {
-        data?: SurahTextData;
-      };
-    } catch {
-      /* no local bundle — fall back to API */
-    }
-    if (!textJson?.data?.ayahs?.length) {
-      textJson = (await apiFetch(`/surah/${surahNum}/quran-uthmani`, {
-        signal,
-        errorMsg: __('failed_load_surah'),
-      })) as { data?: SurahTextData };
-    }
-    const textData: SurahTextData = textJson?.data as SurahTextData;
-    if (!textData?.ayahs?.length) {
-      throw new Error(__('invalid_surah_data'));
-    }
+    const textData = await fetchSurahTextData(surahNum, ctx.signal);
     if (!isCurrentLoad(currentLoad)) {
       return;
     }
@@ -289,57 +486,8 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
     loadingBar.hide();
 
     // Load audio and translation independently (don't block render)
-    const audioPromise = isMp3quran
-      ? loadMp3quranAudio(surahNum, textData, reciterInfo, currentLoad)
-      : loadApiAudio(surahNum, state.currentReciter, currentLoad, signal);
-    const transPromise =
-      state.translationEnabled && state.currentTranslation
-        ? apiFetch(`/surah/${surahNum}/${state.currentTranslation}`, { signal, silent: true })
-            .then((d: unknown) => (d as { data?: Record<string, unknown> })?.data || null)
-            // When the edition endpoint is unreachable, serve the bundled
-            // translation file instead of dropping to Arabic-only silence.
-            .catch(() => loadLocalTranslation(surahNum, state.currentTranslation as string))
-        : Promise.resolve(null);
-
-    const [audioResult, transResult]: [AudioResult | null, Record<string, unknown> | null] = await Promise.all([
-      audioPromise,
-      transPromise,
-    ]);
-    if (!isCurrentLoad(currentLoad)) {
+    if (!(await loadNetworkAudioAndTranslation(surahNum, textData, autoPlay, ctx))) {
       return;
-    }
-    if (audioResult) {
-      // Preserve array indices — replace nulls with empty strings instead of filtering
-      state.ayahsAudios = audioResult.audios.map((a): string => a ?? '');
-      state.ayahTimings = audioResult.timings;
-    } else {
-      // Audio fetch failed (rate-limit, flake): reuse the last good list for
-      // this surah+reciter instead of leaving the reader permanently silent.
-      const fallback = findFallbackAudio(surahNum, state.currentReciter);
-      if (fallback) {
-        state.ayahsAudios = fallback.audios;
-        state.ayahTimings = fallback.timings;
-      }
-    }
-    markCurrentAudio(surahNum, state.currentReciter);
-    state.translationData = transResult;
-    if (transResult && state.surahData && !state.mushafMode) {
-      // N-02: while the mushaf canvas is open, the reader DOM is not mounted,
-      // so patchTranslations() would report failure and its full-render
-      // fallback would replace the open canvas with the ayah list. The
-      // translation is already in state; leaving mushaf mode re-renders
-      // from it (mushaf.ts exit path).
-      // Translation arrived after the text render: patch the missing spans in
-      // place instead of rebuilding ~6,300 word spans. Falls back to a full
-      // render if the DOM no longer matches the surah.
-      if (!patchTranslations()) {
-        renderSurah(state.surahData);
-      }
-      highlightCurrentAyah();
-    }
-
-    if (autoPlay && state.ayahsAudios.length) {
-      playCurrentAyah();
     }
 
     if (state.surahCache.size >= CONFIG.CACHE_LIMIT) {
@@ -354,66 +502,18 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
       timings: state.ayahTimings,
       translation: state.translationData,
     };
-    setSurahCacheEntry(cacheKey, cacheEntry);
+    setSurahCacheEntry(ctx.cacheKey, cacheEntry);
     // Also persist to IndexedDB for offline access
-    cacheSurahToIDB(cacheKey, cacheEntry);
+    cacheSurahToIDB(ctx.cacheKey, cacheEntry);
   } catch (e: unknown) {
-    // Only treat an abort as "user navigated to another surah" when THIS load's
-    // controller was actually cancelled. The internal per-attempt timeout also
-    // surfaces as an AbortError (15s stall = real outage); bailing silently there
-    // would leave the reader stuck on the loading notice and skip the offline
-    // fallback, so those must still fall through to the local text.
-    if ((e as Error).name === 'AbortError' && signal.aborted) {
+    if (await renderOfflineFallback(e, surahNum, opts, ctx)) {
       return;
-    }
-    if (state.fullQuranLoaded && state.fullQuranText) {
-      if (!isCurrentLoad(currentLoad)) {
-        return;
-      }
-      const ayahs = state.fullQuranText.filter((a: { surah: number }) => a.surah === surahNum);
-      if (ayahs.length) {
-        const firstAyah = ayahs[0]!;
-        state.surahData = {
-          number: surahNum,
-          name: firstAyah.surahName,
-          englishName: state.surahList.find((s: SurahInfo) => s.number === surahNum)?.englishName || '',
-          ayahs: ayahs.map((a: { ayah: number; text: string }) => ({ numberInSurah: a.ayah, text: a.text })),
-        };
-        const offlineAudio = await getOfflinePackAudioResult(surahNum, state.surahData);
-        state.ayahsAudios = offlineAudio?.audios.map((audio) => audio ?? '') ?? [];
-        state.ayahTimings = offlineAudio?.timings ?? [];
-        renderSurah(state.surahData!);
-        finalizeSurahLoad(opts);
-        loadingBar.hide();
-        state.loadingSurah = null;
-        return;
-      }
-    }
-    // Final fallback: try the local bundled Quran text (public/data/quran-uthmani.json).
-    // This works even when fully offline because the file is bundled with the app
-    // and precached by the PWA service worker.
-    try {
-      const localSurah = await loadLocalSurahText(surahNum);
-      if (localSurah && isCurrentLoad(currentLoad)) {
-        state.surahData = localSurah;
-        const offlineAudio = await getOfflinePackAudioResult(surahNum, localSurah);
-        state.ayahsAudios = offlineAudio?.audios.map((audio) => audio ?? '') ?? [];
-        state.ayahTimings = offlineAudio?.timings ?? [];
-        renderSurah(localSurah);
-        finalizeSurahLoad(opts);
-        loadingBar.hide();
-        showToast(__('offline_mode'), 'success');
-        state.loadingSurah = null;
-        return;
-      }
-    } catch {
-      /* local fallback also failed — fall through to error display */
     }
     if (!isCurrentLoad(currentLoad)) {
       return;
     }
     if (dom.surahContent) {
-      dom.surahContent.innerHTML = surahLoadError();
+      setTrustedHtml(dom.surahContent, surahLoadError());
     }
     loadingBar.hide();
   } finally {
@@ -427,10 +527,13 @@ export async function loadSurah(surahNum: number, opts: LoadSurahOptions = {}): 
   }
 }
 
-/**
- * Background refresh: re-fetch surah data from API and update caches.
- * Used when the surah was loaded from IDB cache but we want fresh data.
- */
+/** Clear the loading affordances once a cached surah has been rendered. */
+function clearSurahLoadingState(): void {
+  state.loadingSurah = null;
+  dom.surahContent?.classList.remove('is-loading');
+  dom.surahContent?.setAttribute('aria-busy', 'false');
+}
+
 async function _refreshSurahFromAPI(
   surahNum: number,
   cacheKey: string,

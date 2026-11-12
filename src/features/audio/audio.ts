@@ -80,6 +80,7 @@ export type { RepeatRange } from './audio-types.js';
 // Navigation + highlight injection live in ./audio-navigation.ts; re-exported here
 // so existing import sites (app.ts, keyboard.ts, navigation.ts, tests) keep working.
 import { initAudioNavigationHost, nextAyah, prevAyah, nextSurah, highlightCurrentAyah } from './audio-navigation.js';
+import { setTrustedHtml } from '../../safe-html.js';
 
 /** Inject the reloadCurrentSurahAudio callback from app.ts (avoids circular import). */
 let _reloadSurahAudio: ReloadAudioFn | null = null;
@@ -682,7 +683,7 @@ export function updatePlayPauseBtn(): void {
     dom.playPauseBtn.textContent = state.isPlaying ? __('pause') : __('play');
   }
   if (dom.collapsedPlayBtn) {
-    dom.collapsedPlayBtn.innerHTML = state.isPlaying ? PAUSE_SVG : PLAY_SVG;
+    setTrustedHtml(dom.collapsedPlayBtn, state.isPlaying ? PAUSE_SVG : PLAY_SVG);
   }
 }
 

@@ -11,6 +11,7 @@ import { __ } from './i18n.js';
 import { initDialogAccessibility } from './a11y.js';
 import { cloneAdhkarSettings, saveAdhkarSettings } from './adhkar-store.js';
 import type { PersonalAdhkarEntry } from './types.js';
+import { setTrustedHtml } from './safe-html.js';
 
 export function renderPersonalAdhkar(): void {
   if (!dom.adhkarContent) {
@@ -46,7 +47,7 @@ export function renderPersonalAdhkar(): void {
       </div>`;
     }
   }
-  dom.adhkarContent.innerHTML = html;
+  setTrustedHtml(dom.adhkarContent, html);
   // CSP-safe: apply progress widths through the CSSOM (no inline style attributes).
   hydrateProgressFills(dom.adhkarContent);
 

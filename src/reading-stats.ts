@@ -8,6 +8,7 @@
 import { __ } from './i18n.js';
 import { storage } from './storage.js';
 import { readingStatsGrid } from './templates.js';
+import { setTrustedHtml } from './safe-html.js';
 
 const STATS_KEY = 'reading_stats';
 
@@ -124,12 +125,15 @@ export function renderReadingStats(container: HTMLElement | null): void {
     return;
   }
   const stats = getFormattedStats();
-  container.innerHTML = readingStatsGrid([
-    { icon: '', label: __('stats_ayahs_read'), value: stats.totalAyahs },
-    { icon: '', label: __('stats_reading_time'), value: stats.formattedTime },
-    { icon: '', label: __('stats_surahs_read'), value: stats.uniqueSurahs },
-    { icon: '', label: __('stats_streak_days'), value: stats.streakDays },
-    { icon: '', label: __('stats_sessions'), value: stats.sessionsCount },
-    { icon: '', label: __('stats_last_read'), value: stats.lastSession },
-  ]);
+  setTrustedHtml(
+    container,
+    readingStatsGrid([
+      { icon: '', label: __('stats_ayahs_read'), value: stats.totalAyahs },
+      { icon: '', label: __('stats_reading_time'), value: stats.formattedTime },
+      { icon: '', label: __('stats_surahs_read'), value: stats.uniqueSurahs },
+      { icon: '', label: __('stats_streak_days'), value: stats.streakDays },
+      { icon: '', label: __('stats_sessions'), value: stats.sessionsCount },
+      { icon: '', label: __('stats_last_read'), value: stats.lastSession },
+    ]),
+  );
 }

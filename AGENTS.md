@@ -186,8 +186,9 @@ These files are large and would benefit from being split by feature:
 - All HTML output goes through `escapeHtml()` (XSS-safe)
 - No `any` types — strict TS enforced
 - ESLint rules: `eqeqeq`, `curly: all`, `no-cond-assign`, `default-case`,
-  `no-restricted-properties` (no new `.innerHTML` — new code builds DOM nodes;
-  the 23 legacy files are listed by name in `eslint.config.js`)
+  `no-restricted-properties` (no `.innerHTML` anywhere except the single audited
+  helper `src/safe-html.ts` — use `setTrustedHtml()` for trusted template markup,
+  or build DOM nodes with `createElement`/`textContent`)
 - Translations: one file per locale (`src/translations/<locale>.ts`). A file whose
   stem contains a dot (`ru.help.ts`) is an internal part spread into its locale
   bundle, **not** a locale — the parity guard skips it. Keep every part under the
