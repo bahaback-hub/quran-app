@@ -288,7 +288,7 @@ export function createDefaultState(): AppState {
     presentationMode: false,
     currentPageLayout: null,
     searchPrefixMap: null,
-    fontType: 'amiri',
+    fontType: "'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif",
     lineSpacing: '1.8',
     tajweedEnabled: true,
     presBgMode: 'video',

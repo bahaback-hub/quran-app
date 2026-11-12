@@ -262,4 +262,25 @@ describe('quran data integrity', () => {
     }
     expect(seenJuz.size).toBe(JUZ_COUNT);
   });
+
+  it('ships the Madani mushaf rasm and diacritics, not a Tanzil transcription', async () => {
+    const quran = await readJson<QuranSource>('quran-uthmani.json');
+    const all = quran.data.surahs.flatMap((s) => s.ayahs.map((a) => a.text)).join('');
+    const count = (ch: string): number => [...all].filter((c) => c === ch).length;
+
+    // Mark census of the printed-mushaf text (quran.com `text_uthmani`): the
+    // iqlab/silent-letter marks U+06E2 and U+06ED are rare there, while the
+    // dagger-alif mark U+06E7 and the combining hamza U+0654 are common. A
+    // different upstream transcription changes these counts immediately.
+    expect(count('\u06E2')).toBe(510);
+    expect(count('\u06E7')).toBe(38);
+    expect(count('\u06ED')).toBe(99);
+    expect(count('\u0654')).toBe(773);
+
+    // الطارق ١٣ — the owner-reported verse: the mushaf prints هُۥ (U+06E5,
+    // small high waw) after the ه, which the old source omitted.
+    expect(quran.data.surahs[85]?.ayahs[12]?.text).toContain('\u06E5');
+    // البقرة ٤ — the alif of «الآخرة» is carried by U+0640 with U+0654 above it.
+    expect(quran.data.surahs[1]?.ayahs[3]?.text).toContain('\u0640');
+  });
 });

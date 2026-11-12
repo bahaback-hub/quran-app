@@ -301,6 +301,64 @@ async function verifyFirstSurahPayload(quranSurahs) {
   }
 }
 
+const TAJWEED_CLUSTERS = /\P{M}\p{M}*|\p{M}+/gu;
+
+/**
+ * Every tajweed span must name a known rule and stay inside its ayah, non-empty
+ * and on whole grapheme clusters. The shards are generated from an external
+ * annotation set whose offsets use a different transcription, so a mapping bug
+ * would otherwise surface as a mark coloured on its own — invisible, but wrong.
+ */
+async function verifyTajweedSpans(quranSurahs) {
+  const manifest = await loadJson('tajweed/manifest.json');
+  const rules = manifest?.rules;
+  check(Array.isArray(rules) && rules.length > 0, 'tajweed manifest has no rule table', 'tajweed/manifest.json');
+  if (!Array.isArray(rules)) {
+    return;
+  }
+
+  for (let i = 0; i < SURAH_COUNT; i++) {
+    const file = `tajweed/${String(i + 1).padStart(3, '0')}.json`;
+    const entries = await loadJson(file);
+    const ayahs = quranSurahs?.[i]?.ayahs;
+    check(Array.isArray(entries), 'shard is not an array', file);
+    check(entries?.length === ayahs?.length, `${entries?.length} entries, expected ${ayahs?.length} ayahs`, file);
+    if (!Array.isArray(entries) || !ayahs) {
+      continue;
+    }
+
+    let reported = 0;
+    for (const [ayahNum, spans] of entries) {
+      const text = ayahs[ayahNum - 1]?.text;
+      check(typeof text === 'string', `ayah ${ayahNum} has no matching text`, file);
+      if (typeof text !== 'string' || !Array.isArray(spans)) {
+        continue;
+      }
+
+      const boundaries = new Set([0, text.length]);
+      TAJWEED_CLUSTERS.lastIndex = 0;
+      let match;
+      while ((match = TAJWEED_CLUSTERS.exec(text))) {
+        boundaries.add(match.index);
+        boundaries.add(match.index + match[0].length);
+      }
+
+      for (const [ruleId, start, end] of spans) {
+        if (reported >= 20) {
+          break;
+        }
+        const validRule = Number.isInteger(ruleId) && ruleId >= 0 && ruleId < rules.length;
+        const validBounds = Number.isInteger(start) && Number.isInteger(end) && start >= 0 && end <= text.length && start < end;
+        const validEdges = validBounds && boundaries.has(start) && boundaries.has(end);
+        if (!validRule || !validBounds || !validEdges) {
+          check(false, `ayah ${ayahNum} has an invalid span ${ruleId}:${start}-${end}`, file);
+          reported++;
+        }
+      }
+    }
+  }
+}
+
 async function loadCanon() {
   return JSON.parse(await readFile(resolve(projectRoot, 'scripts', CANON_FILE), 'utf8'));
 }
@@ -430,6 +488,7 @@ async function main() {
   await verifyTafsir(surahList, seenAyahKeys);
   await verifyTranslation(surahList);
   await verifyFirstSurahPayload(surahs);
+  await verifyTajweedSpans(surahs);
   await verifyCanonicalAyahs(canon, surahs);
   await verifyCanonicalSurahCounts(canon, surahList, surahs);
   await verifyJuzBoundaries(canon, surahs);

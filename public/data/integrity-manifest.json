@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T17:12:00.767Z",
+  "generatedAt": "2026-11-12T10:16:47.859Z",
   "description": "SHA-256 digests of bundled Quran datasets enforced at build/verify time.",
   "files": {
     "quran-uthmani.json": {
-      "sha256": "9b0eb0ea0f297d12276645f3bac0b352eefb9b4228d5e19bed3026763205a237"
+      "sha256": "cefb89d52b6291fe5a70f37a149cee8004b758bba57250f3d92d6d11d4001e35"
     },
     "surah-list.json": {
       "sha256": "c477d14de7150f7d64da3dad8a4e11adb20efc8fa7bc4dc42f3904fc9661ca9d"
@@ -13,7 +13,7 @@
       "sha256": "34acefa4cd07ede096ec74212590c1ae1eb6901fcaea185051e51e7833505efa"
     },
     "surah-1.json": {
-      "sha256": "a2c2adb2a816683a407982e602a046f6fce2f22c7158ec01b05e33c39d6197b0"
+      "sha256": "3c310a73dd2290119a10c782e60bc8d0f5b2924d7942db54e52021666ecb5212"
     },
     "translations/en.sahih.json": {
       "sha256": "496ff9f8f5cafa6619c6605e0f3d7a30138cabad9a71976c3f8308c082a96454"
@@ -31,346 +31,346 @@
       "sha256": "0fb319f2f22931b9aa773221710d0c6e03ca078b24e6822591987a33147a67f7"
     },
     "tajweed/001.json": {
-      "sha256": "08d78e96a24c2203d4d32182f19669eef4669a441b9c4a5f2b6333f509d72bdc"
+      "sha256": "23aab9aa8abc2670c24d88692f4f1dd507871199eeb1d6dea5c8c75998f2dbfb"
     },
     "tajweed/002.json": {
-      "sha256": "ba74e9a5abef8d0f6dde407070fde83bcd663428fbb688ca613db82ad45051ed"
+      "sha256": "8bd3f39780df5653384287a897f0a3c8f589f62b667d4a7e87c7be934b9beec4"
     },
     "tajweed/003.json": {
-      "sha256": "02a52b2e89f4b6a80fedd54403776f4f976f21e9c532f8dd00fd675fb8fc57b3"
+      "sha256": "8dfa19cf072cfb8dd01e48402fa84521bee2e07491c15fbfe80450e78856461f"
     },
     "tajweed/004.json": {
-      "sha256": "dc9e5bb924b87f5f14cde1f11823bfe85e5700e213f46d42f45932d2b0b9ae8b"
+      "sha256": "74e54cd25010e1c392619b74ca3c3e80d733746e945d436045dab3efd04b6f80"
     },
     "tajweed/005.json": {
-      "sha256": "f6bdbcc12b1897efe36b870435e4b2cf668858eeb594305c95a8992771b561e5"
+      "sha256": "70b30341e4f47a140be33f0d79f2d3e69aecbbaa95c46848ef24b8154e779ef3"
     },
     "tajweed/006.json": {
-      "sha256": "dcfe4483f253edb5214ad454b469cef69d34912706a50d3dc9b499b6b4adac82"
+      "sha256": "5278fae274c8dc7f763da05592b31d78c8ec3ccf2a72230edac4e60cf0269d1c"
     },
     "tajweed/007.json": {
-      "sha256": "69d7c65538e82f72cbc2c869a2875724bfb52de293dcb5cfcabec8888877bd58"
+      "sha256": "e7ff84eca488d1c959eba5d963500e1fdc9c744ade0e87c89fe589f3307db1e9"
     },
     "tajweed/008.json": {
-      "sha256": "90f5ba220da5072025e865ef06dc73812bc7a959eeaf5f6e578738d363683805"
+      "sha256": "299494d57fe1e5f4296c6d12b3d6ed3db6d1907ac97a45c621a7756f8ed20b20"
     },
     "tajweed/009.json": {
-      "sha256": "a5e5e73ec0e3de06ce8130d56f2f25914dd38b8a976d428aa78971b005151e2b"
+      "sha256": "f4703c356574061ebec538bab2bc86ca9550694d1dc386601be99f03654c7a1d"
     },
     "tajweed/010.json": {
-      "sha256": "01829a201aecdec0323dfb5ef8a1225ef01511aa66f982ec0cbec02c88a5346e"
+      "sha256": "bf7055f9091345657f46e914f984368e71616eaaa83375b14bf62ed995df4435"
     },
     "tajweed/011.json": {
-      "sha256": "956b6c986ea3c6f955e5682b6672123092508f639df05a6c56fb0c9ecc9808e9"
+      "sha256": "e651fec3cb994aaa8aabd961215709a8d158d4ef517259f9220948211a5e0a84"
     },
     "tajweed/012.json": {
-      "sha256": "144753e966ade2b5475b044b3b2e289561480c08eabd3cc6fc1a7b80a628f81c"
+      "sha256": "dceb996e2077e85168003fe752e025243e93388c0b6cc54e2ae15c2683760031"
     },
     "tajweed/013.json": {
-      "sha256": "3037e8d780c6164dc8ff221d5e5e669032828c06ad8a1554f7930d4a78bb29e1"
+      "sha256": "93bdb7546e6508a52419907ff11225d8fb46d3be74df3e876cb635218f57ce8a"
     },
     "tajweed/014.json": {
-      "sha256": "6298120f560f8c12c243dc4f6a9a9661b194424f69660269d75f8bd2e88bce55"
+      "sha256": "3efc20388d5ed89f17d8767d1343ce889eb8d9518d56d300d9593fd6c4513e3e"
     },
     "tajweed/015.json": {
-      "sha256": "9929c150226068984793a1ce656492e53a41f003a0cd83e213e1483d08e30c53"
+      "sha256": "3700fd0857c01187528b621158bec780f425bc6600f87f63cc524451900d0e96"
     },
     "tajweed/016.json": {
-      "sha256": "918ed6dc0fb2aa56703ff7c0548ddbf3d0a52ffbaf13a850bcb9b85d123b755b"
+      "sha256": "988df4c93dc1e02372aac732c9cbced4d2b44572cd78261a4edd35965b12d73f"
     },
     "tajweed/017.json": {
-      "sha256": "66575157062073471956f1b07e8eb5338ade65d178230d7c0f34170fd0e3a39a"
+      "sha256": "616c9b9bc54af58e3d5963a5420c6de713605c430d3f529fb082ffd3bb7a3e36"
     },
     "tajweed/018.json": {
-      "sha256": "d862104f6bfc111ba36edaf03935dedf1a4c5365ef521b5669fe6429fa756524"
+      "sha256": "306e5782b47aa6b3c6c153e7f77cacccdd55bfb87af96508de55fc7c079c7f04"
     },
     "tajweed/019.json": {
-      "sha256": "1a81370f32b135ae0f319c2a891ff1c4de7ee9817571fb2ac39c9e66fb7a3ee8"
+      "sha256": "b893d96d1968cdce3478344c498370e50b90082fdfcacc9a1651ae0ce3a5f257"
     },
     "tajweed/020.json": {
-      "sha256": "c78f1d56393e9d30f46040cd50ce86eaf544fa6a71ddb3162b484e6b458bfb88"
+      "sha256": "379640ac61169d64cbafc7919bfeb9937124b2b4a6b844b147fbcec1c9d8a3f2"
     },
     "tajweed/021.json": {
-      "sha256": "d80f0b4b764714395a3447ea1a9c860845066546316206537b692c37bf2ebaf6"
+      "sha256": "108924c7ffeffddddd89b98c2c46d2377f81d352ece2d767713da1280976a370"
     },
     "tajweed/022.json": {
-      "sha256": "27796a0c9bdf28c0266c005e964b2cc151c1c499c0af631304bcef34fb744a8c"
+      "sha256": "cb78d67e6785d0fed5b01d7cbbae99654bb496bc5c1ded1f4e533b89ff673742"
     },
     "tajweed/023.json": {
-      "sha256": "57fdb859e35134f6e3245297df7967f6aab443cde587264cbb47e5e5e1104678"
+      "sha256": "81ce260af9b06d73f7b03f679d9b62142c4da7431f6c4272cfedd0678534cf6a"
     },
     "tajweed/024.json": {
-      "sha256": "58ae79454df123d44c037c929fb96052fc3151b66256b41f8b71b1afe340506d"
+      "sha256": "0999fb1ffa91d0c5657978e0a898fb98f5dd1a9b07348a98d72fa190a26a49d0"
     },
     "tajweed/025.json": {
-      "sha256": "c84333e82e33a7928ae202bbb385231e96f30a7365f20c30ab101f07d50c1ca7"
+      "sha256": "6bd344adabccf264288eff79a2dab861ae79eb7f9cc520c24a33a968abe869b7"
     },
     "tajweed/026.json": {
-      "sha256": "215299766cca4b68b5f4e3093f3748482bc428c63c3d901284a2cecf253956ad"
+      "sha256": "0e0c06ca8582fe9f1bd068309f3164d61b169029069dd03412a3a81bf531b910"
     },
     "tajweed/027.json": {
-      "sha256": "89487f07dd9011908ae46e5c87a71d84267f80bb52b549770a054c97fa3b8dea"
+      "sha256": "7985a74c982f25d0347e16c3cb62ab8e8e8ed15f30699e335a05405fb6ff4b96"
     },
     "tajweed/028.json": {
-      "sha256": "e28c25e2a4c1aecaefad59c7a26930b52c8360bc915414d6a57c2265ed03b688"
+      "sha256": "95920ccc8aab087662c1cf153ccc2cb7cb7e0ff132037cc794ec3aca8586908d"
     },
     "tajweed/029.json": {
-      "sha256": "332368d6c8d9adc673aa5980d193254c65dc6576fb5bece63e746b9d7f4be564"
+      "sha256": "87030273803dc923e2c126cbafb7146eafdf681425859666d60d85dc32c70929"
     },
     "tajweed/030.json": {
-      "sha256": "f692a5f9894b12407cde9600798d94a4695f967f5e0f7c7a2efc705fbba2bfd4"
+      "sha256": "bfeb71fe14abe535c7cc5b6fbe9dff3285316bfb1396a0ce6d08c4eedf82ed03"
     },
     "tajweed/031.json": {
-      "sha256": "52bffa3417aa4c27faff98b7958ef7869a4d3ffcac74ae93087dcacef7d39723"
+      "sha256": "b04beaf8e1be6b43248eb37d523084bc180bf10e7301eec9d0e7d4cec7c36f61"
     },
     "tajweed/032.json": {
-      "sha256": "4eacf62fd0f21f2afd7e17fc4183f58bfddc2b638cc96ddaced640280f33f144"
+      "sha256": "a30760d8744b16d09fc4c0f0b2d8493c322b1d0b967d03ce8863b73c621ce0ae"
     },
     "tajweed/033.json": {
-      "sha256": "3ae33ce963f2a2c8f0b64179e3bbb039f92e3bc6829b40018cac56292ef92111"
+      "sha256": "e489dc60e19cd47f04a82bb54b126acf930b25205f520c4032d0e64e4a23a819"
     },
     "tajweed/034.json": {
-      "sha256": "fbebf31825073a362fecabee7fcda3fe38ffa379c27d893e9f2466e8ce968e76"
+      "sha256": "ac8bcaa8e90805eb1e4c7987b1854e34ac7c9f71bc669a51d531fa898f7702be"
     },
     "tajweed/035.json": {
-      "sha256": "0e551fb1bc9dd362c48deceab3d75fdea8d53dc963904d8e7961be976593d73c"
+      "sha256": "f79d134af5a441905243ce59485bca704f9c75b250ca7d7f5cddd1a1018e9687"
     },
     "tajweed/036.json": {
-      "sha256": "69248eb12a7205948b039a1b8d95a420727eff0b1cdc6a8b30afd3a4c0916ebf"
+      "sha256": "c57e6d85880e96f2eff84b07a3355bf22493e666f55b357036ef545d4d26b444"
     },
     "tajweed/037.json": {
-      "sha256": "7de625d180a75b410145e195325018bafc9f83d8009f95e330d39a871738fb40"
+      "sha256": "eefba6e01ecf3e66b3e180130dd803828e11f773595830c289fa92b9f45e7627"
     },
     "tajweed/038.json": {
-      "sha256": "4fe865f5b360779c885f3f31bd33b6693ee4d6cf4d0487d70b0cdaaa5ccc8f53"
+      "sha256": "8c3dbd6049c01db8d4277a5e832b1730f3ebff2e4039149eb4ea76fcc2a3cff0"
     },
     "tajweed/039.json": {
-      "sha256": "372501fda781b39a01e91ffda990641764d2e7d1685c1dacdf53fb8dc589e812"
+      "sha256": "110531f6780c7a1319a8cd207d8633f14a143d538580203a38ab4efdd14906b6"
     },
     "tajweed/040.json": {
-      "sha256": "c69daa2b1366949393546a36cb67c69459971dfe15db260d55936da3e887afed"
+      "sha256": "85d2e37ee330af909f7d5f8bb0d1a339df2363aa6017c833aa9256699f4ac0c0"
     },
     "tajweed/041.json": {
-      "sha256": "e029965947ea4154f8b40ad844dd7c6eb600c84ebedc68f0b253e57384dd7e90"
+      "sha256": "bff92deb2f1640e96605f5623d7ff47ddd77b6c4d8ba47b42a7a485a84bf9559"
     },
     "tajweed/042.json": {
-      "sha256": "e76b22e053f5f6b1104dff50d6dff2b19aad38f41039a0015a9d45e6c617cd9d"
+      "sha256": "1de782882285bfc28bd4f1b5dcc06f98fa6cb04747048533b8bc280e6cc061b8"
     },
     "tajweed/043.json": {
-      "sha256": "4e07446bd391c6597dfda927401615d553c59b0e5b8fc8dd46b44d524b393a34"
+      "sha256": "cc143db27925a8044ba41354cea88698453c4097dbc7181368eb5121d1d5cebd"
     },
     "tajweed/044.json": {
-      "sha256": "714682a2bd7f7727b262b2950eb49739bc2b0f2224356480c9fa657fe84cf50f"
+      "sha256": "cc199a903ade317e5dd17e222d96275a9b2a311f7a4288fd1d75844e6f59e3d2"
     },
     "tajweed/045.json": {
-      "sha256": "62b1fa7a22ef4810383147e4ad70ca75c216df535a47f6bbcf4f50480f098a62"
+      "sha256": "592158d22100587bd4c87f8f8581778d68b6b37c1045d26c614bcc4110284c53"
     },
     "tajweed/046.json": {
-      "sha256": "a1036b0e759877e4e7e05ee8366d20d75dd3295b5d90e08cbed88ae060c4ede2"
+      "sha256": "eafafeaf9eb8f63230f6d298c09103cd501ac3f4e2daecba6dafa5751cd34d13"
     },
     "tajweed/047.json": {
-      "sha256": "d499a4ad3867a099a6cb47692facfd06bab48f429180ec0e259682f1478d3ab3"
+      "sha256": "e51a219cda4d7052e677753cd404f51dc7d6e022af561ca325011a8b570c3d0a"
     },
     "tajweed/048.json": {
-      "sha256": "f84bd956471840655d391b473e8633634aff2a4d8622205b09e0d5c6c5b9ca8e"
+      "sha256": "cf52fcd885a6f8352c6d026d844b81af71bb8cf9623f1d0a3acb35f9fd3a2e2c"
     },
     "tajweed/049.json": {
-      "sha256": "98fef86e0091aee07a80c7a01b539fcbfd9d51eacda399fa7c9b24abc0efac13"
+      "sha256": "313731db153deb72002ced981a93bac76af132bb418309311cab9ba62c72d2e1"
     },
     "tajweed/050.json": {
-      "sha256": "73a4cd5832012cc74d632536d2d0071501adb5e088d079c16d5310a4136e8eb7"
+      "sha256": "4246caea9816c6f6b0342abb953e03850aca6e271cc9026e196a5eec00c05c7c"
     },
     "tajweed/051.json": {
-      "sha256": "75ca3b241cf0feb843915a3d6e1269dd07b9a9dc150653bdf1f299041007c897"
+      "sha256": "2ec42e41088b6d7e1a7db14deec4ca742dd88f3a1c27abbdbcd1bc3cf4e611a9"
     },
     "tajweed/052.json": {
-      "sha256": "614e4aba6c734ecebb623ead198aa9c2c9e03287771bc79980e887e48541d2f4"
+      "sha256": "b19f34df6b6b5fd234a5aaace85704fae28e89725183897814e505b924c20992"
     },
     "tajweed/053.json": {
-      "sha256": "b0e28abb8038401cde747d585eb3453556d7067164d121b47263f09b275e8416"
+      "sha256": "ccf960938461e7ec775afd9c664d2a5514f53c44db08d6c7e838657f2ba9a771"
     },
     "tajweed/054.json": {
-      "sha256": "de9d5f2dd552d78f6098bd06da717eb5d67f4e9bb50395f93dd4fd3119ad8710"
+      "sha256": "cdcffcc121023404112f6246f247397593279002053693bbe0c651144f762464"
     },
     "tajweed/055.json": {
-      "sha256": "42832628934be057c5335ca6a05cfba2742bc17556056c775473dab7b9b73dfe"
+      "sha256": "fa32fec15630489e98022c0076aed7c251a9da90c25eadbff07be6bbaa45a013"
     },
     "tajweed/056.json": {
-      "sha256": "072e011a1a924e7e073c2518ffbe773b50baebdc50e3cde81e79cf5c8d8cba58"
+      "sha256": "1955093a111e6430811f21ecebd7b264ee1d2153f8885f7f1e242df3ecefc7db"
     },
     "tajweed/057.json": {
-      "sha256": "650e6030b0d4f5795de855ec31651da9a779fda221ede33ab9b68b0fa163c608"
+      "sha256": "4bce35b688e30dac7d734bcb6413cba1811912e7c85058fb441d0ff07900b0d9"
     },
     "tajweed/058.json": {
-      "sha256": "aa81cded01d821179bca79762f0749af15649cc47ffedb0fce8adb00bc4b7a6b"
+      "sha256": "e4e811347092fa4cfdc4e31760781cba667908806430d0ed5f000d8c28a2bacb"
     },
     "tajweed/059.json": {
-      "sha256": "b3b128db872b71e0e727d82a403ee8ce392a59186f2c1c0eaa288fbe91520422"
+      "sha256": "2b7189dc4d624e263ac455503c236edb1eb74675e94adf597ed502e9ca0fc774"
     },
     "tajweed/060.json": {
-      "sha256": "ff4f1b95c28f9122052d72937e242eac62c9cb000769b4a59e7bbbc41e7bacb4"
+      "sha256": "b8ca244e5762ed7af3388c056321a94ba7019052e8592470552bcef86c35a998"
     },
     "tajweed/061.json": {
-      "sha256": "26a860985c7890d3b9d976650d9a096973163bb9b9d1b4ff9f0f2fd97ca95969"
+      "sha256": "689bbced89ffd996f223727982af6d4ddef88c6407826742d642415feba06bf3"
     },
     "tajweed/062.json": {
-      "sha256": "48581883b807a5793a84a526e7b389f1ef6e95cf5f3ba0ed4da185161394ccc6"
+      "sha256": "31e53bbfb799d8ae14aa8e1fdd01d60d2c77d02b1e1f8d48c1b85e79c9f62a84"
     },
     "tajweed/063.json": {
-      "sha256": "98aae8b57d2f86093bfadaaaa75f02d0f113d7a4f71ed0ff0b171649dc3d7841"
+      "sha256": "e99893cd49305838e7e3eb1ca9448527bc3aef974c08a7a14847c7012e92129f"
     },
     "tajweed/064.json": {
-      "sha256": "c5b73db3b2a0178f3859cca68ffccac3e386abb7f4d8d752da5dbc920a7616a6"
+      "sha256": "1bf72820c4ebeced9518ab8c0ee15dccba1c7dbe8d18d016cd0260e6fb60a224"
     },
     "tajweed/065.json": {
-      "sha256": "3c33fae011d2fd8e5c37668f9b2003064a7f24e14b759d97be06fb444cfcaf24"
+      "sha256": "5bcdf3c95536041b0e08b230b1ca66c3b6e253f227cc65b33687f76b121fed25"
     },
     "tajweed/066.json": {
-      "sha256": "028f1823eb1f4a9388739d6e0f069e83ca0dd9e2845ab90ff16ee07a6d32958c"
+      "sha256": "e1d2ee1c893f2730315bce95b3742a804d45938298be29a7a99664b051fc3d9d"
     },
     "tajweed/067.json": {
-      "sha256": "269097908e626e6ad05937e9c28b313723e332483008e669ea97d947dd622a60"
+      "sha256": "7047d6b249b13bbc5959c9f3cd012ab8ecd1d7e97d5c4f44509d252d3614ff6f"
     },
     "tajweed/068.json": {
-      "sha256": "d36839c2da2e46e31012d0ddba0c5d8168dbd8243582f09a5f75acfb277f9121"
+      "sha256": "84cfa6b3cd2a2842b72177af051d258079fba88cca8f6cacfe305342ab2861e1"
     },
     "tajweed/069.json": {
-      "sha256": "d5171c69e009598bc786faf755c11dedc5566f68958c689b8f717c3819ccdf57"
+      "sha256": "ad7c39470fc841e3ef93b5a414b5ec57250e4a5f830825a4add4cb7e0a6089fe"
     },
     "tajweed/070.json": {
-      "sha256": "6385497280cb2598dc105374d928eb794584756b6751446c9af3933d3c40bfc5"
+      "sha256": "c8294e50073c4ffa91ee42d7c651df3b2206ee5d4023b867a2122b234d3abcf5"
     },
     "tajweed/071.json": {
-      "sha256": "6afc578f385ee6ab68e3daec048ae6c5a32a844b8e36f8fe66214d02d6a9ebd1"
+      "sha256": "b6880b51ab1e5076f267be3e6ae0c35db0c40a731a801b924c39b161829d4cea"
     },
     "tajweed/072.json": {
-      "sha256": "33cca0ec672eeba85d6378a451bab738066e2e843242e7dd560943f07d61292b"
+      "sha256": "c81b9b7ae16ef24e595a7218bada2e96774b1ab835072bda68c7da602f06c6f2"
     },
     "tajweed/073.json": {
-      "sha256": "9aca4219f7fd66ccbe33b3fb6f327ef2a46739a484ffa8ac340599b3627b8190"
+      "sha256": "ed2a26aa38e96acf6c4674eb7c6fcc3e8220dfe8b86a8e6718da410bd723acec"
     },
     "tajweed/074.json": {
-      "sha256": "7dd9e0c9e6a5ec0ebf6a601d0a6f1a9f307c4de8860cbadbba3f148491f5b25a"
+      "sha256": "cb7eece8035dfca140db93fba98e2553e5e81561ac181b0017e1199315ab0d2e"
     },
     "tajweed/075.json": {
-      "sha256": "11d7511a6e89297a338bdc467e65bbf7e18eca783eb932b67e9832b01a82508a"
+      "sha256": "a849b0d81c3240ff4eed0a254ca5109f7dd365131a61103082019c7a2c7932f2"
     },
     "tajweed/076.json": {
-      "sha256": "0e912e7cb46aff66a75c6c8d246e4eda84e2393dd3adb4b2380e9b1e2c8dc357"
+      "sha256": "1926a5602a252684944c67cbbee83d1d37ed853c3fb17e8ba2f7ce7e7295039e"
     },
     "tajweed/077.json": {
-      "sha256": "c65e3484a7bffe9e4b074c00e9f9c9373eae7981a169704a9bc37b2f7442b989"
+      "sha256": "b5c99c841b8daeccc39ae05f5f0209bd4133bc414b873e67f4decec8247baffb"
     },
     "tajweed/078.json": {
-      "sha256": "a37cf7b0ffb465c1e9605ea4c504471c1b6f26f0b864887d1eb350de7b80e69f"
+      "sha256": "8b712629d316c9d27bda65170056a1bcee812c1470f100428ad6abb069d73120"
     },
     "tajweed/079.json": {
-      "sha256": "2ec98d843d0aac0764d3cb0aeb790732832ae9d626dd54dccd93955daa85c9e4"
+      "sha256": "6442608b473bfb3c46a29a6f2e7f338c349ed7c48ff9f49c82931f36ff0094f5"
     },
     "tajweed/080.json": {
-      "sha256": "ffec9419da70f8118fdb32237f9a3f464358e503fc8f17d0afe4646646a0dfce"
+      "sha256": "e977bcbcfa64dd7f20a7f831ec9a44483544810e18a215399f997c5876df9be3"
     },
     "tajweed/081.json": {
-      "sha256": "5ad7a4ece178a6a3883bbb4740f4efe586cc7fc436dfacb33f6b00cc550fb651"
+      "sha256": "10aac96adacceb21a847781dfcc2a094029bbfcafc967a064df76bd94c7a74f6"
     },
     "tajweed/082.json": {
-      "sha256": "848ff290add13661a353247d850edc282bca202e0da29ce6b9c9039d034b31c5"
+      "sha256": "8c01245aaa2d9b992557beaf8b1ff00ea22150b3062880b0fd74fc594b86ac19"
     },
     "tajweed/083.json": {
-      "sha256": "8fe46de487faddcb2edc8cb95752ec4660383e40739dce74479b8c62a47389cc"
+      "sha256": "c5afbe14aadc33a42c877c1a9dee09411ecbecc982f15e1857f3deb1a30689d3"
     },
     "tajweed/084.json": {
-      "sha256": "0f77540ba1c50b53c36f65431f31715068d01110358b4ec62794b6645e809f66"
+      "sha256": "c5b53076d33a33f8a88ac82de215f27aeb41f215622bd0a531ba28f19e869799"
     },
     "tajweed/085.json": {
-      "sha256": "4fec7116912b0e98a4951067aa0c052bc86ec21f9e3e473db9fc612f91df01a8"
+      "sha256": "bae22b743cfcec963ce5e51f048e2af5dad785462d7ee615b1b00570e1dc6e72"
     },
     "tajweed/086.json": {
-      "sha256": "6fe6753a844f43e4a7d1cfa671fc9fff0d82a873a7e0ae132edaffd38791e1c1"
+      "sha256": "c8749d31f7120b28c9f185820b66d4500154fc1289d54bf52319f3bf5f006896"
     },
     "tajweed/087.json": {
-      "sha256": "31ddd191ec0ed907883c3173312ba9c32d746fe85f462608147547848b473e5b"
+      "sha256": "020f23ee52d8c15c965eb4a271c135c0e5b5b07601421ec3e17d7ea67d0e609a"
     },
     "tajweed/088.json": {
-      "sha256": "d705f64be1f12f2dff42b8d70dc538261f212485953e7db1549d2ad558899011"
+      "sha256": "6af20a2ee34175fb7ef65bb430852831305cc474ce85007b5824a35b898f83f4"
     },
     "tajweed/089.json": {
-      "sha256": "9bbc73f5494c9582a1f44bb6f11a2ca265dc8ac4e541e6d121290f7127dd5804"
+      "sha256": "02b0625c46e890406c30f9b24f81a7033d72333029eec32e5bb0687be3656277"
     },
     "tajweed/090.json": {
-      "sha256": "b191bce7dca9fb2b4d949fe999b65d2a343ac14b73240d028525228f4cbcbf6a"
+      "sha256": "9056e8e298832be9af01365462f36524bf2d09a1e92c2bc3e0a9e7b4c712e2ba"
     },
     "tajweed/091.json": {
-      "sha256": "f37e6acb3594c84b2473469ea16fcbf96202a129ab28f2153c5cdb22beaf7357"
+      "sha256": "cf2622c04c8c6b8423bf2a90ec3d5f3c82de0577828b5e432da6ae3d5cae200a"
     },
     "tajweed/092.json": {
-      "sha256": "afc495ef870c304a719baa0f9b4d0886bb298d4453a7ecd6617bddf77df9d0c2"
+      "sha256": "75ade1ae913fb9d38f6e79a326edce3f05797ce6019ea2f01373092ab26128a3"
     },
     "tajweed/093.json": {
-      "sha256": "43471936ee9bf9205f908c89e53bd7463dd5b5921a0e96eb1f758c37b0c55be2"
+      "sha256": "0a327ea4fdc7877a379a1a49c2144f53b4b4774c2edce3af5da3a5b84de3174a"
     },
     "tajweed/094.json": {
-      "sha256": "ad8acd59433167a9c99615e5b26e6d6033055af19add7b40770c0ba271d04dd7"
+      "sha256": "cbb88a25dde42e1c0c2d2a7e3a09bbca91c351c08055ea5e9b6b10b9c8adf8fb"
     },
     "tajweed/095.json": {
-      "sha256": "2e7d8f4cd21e121ee9ba2dd37a2959f9a295bdee59dd0b2a3c33264661873652"
+      "sha256": "0ee5b14d7adeb09b1438c82dc118b5863b953b734bd5ab554130563424bb1f93"
     },
     "tajweed/096.json": {
-      "sha256": "c697c8143dac075bde880527f08629ea59fac71654679a6747616225292d3caf"
+      "sha256": "5db416a23596b9a16d8870815f16beab48e472d2608cb521302fcc7020ce13a7"
     },
     "tajweed/097.json": {
-      "sha256": "c1061f4d190df2aa41209f0dba500735fd5a72fbb60981762d2ded355c2c0621"
+      "sha256": "b69fe7076186609b9aec5ea1d836d8e1e4796282976b02f4923294c77b78646a"
     },
     "tajweed/098.json": {
-      "sha256": "792d802b93480f67f577d320a6869eadadf4bb7ce4c72e5c1ef986e243b59cbc"
+      "sha256": "f1c542eb7e59b6d60d1340c1be46d574a756094b7b67faa3c8d1737c3c0f83a4"
     },
     "tajweed/099.json": {
-      "sha256": "8c5712d45a5ea7718eaa31727939d9a859334c36b631655d4ceaa80578842d1d"
+      "sha256": "34c290aa02486b3889c77da64ef1aa2e128c529405ea1a04f82af469a47fd04d"
     },
     "tajweed/100.json": {
-      "sha256": "453920111107d4f45de7e9d76ffc893f4e6966b7893880c54b87a83a67628952"
+      "sha256": "6c731fbfd20785238f4a1b1ff8a4734595d440ce441db941ad0e5f08ca0192bd"
     },
     "tajweed/101.json": {
-      "sha256": "3252d687a1433229c8f8de097269eebc709c1022d2e6221a34456c5f8dd556ff"
+      "sha256": "2d01999704a1f3af623cd3337ac807b1194148644a9af5ddaed0243ab364dbf3"
     },
     "tajweed/102.json": {
-      "sha256": "698bac8be5d904bef453447ae0fe40a20559696980cfa2029eaaaff53a28e63a"
+      "sha256": "70cc7a9d37378d9d4233580d6227c6360947bbed112151e32f3cc666a933c9c5"
     },
     "tajweed/103.json": {
-      "sha256": "592ed6f094843a56324314cc89851dd4d121cddc39634ffd5f636898d5a0778c"
+      "sha256": "b97031777c64fefef95c6682c025d0fbec807970f37780ea0788786edbe16012"
     },
     "tajweed/104.json": {
-      "sha256": "265e2070b04dffba27ce90c158ec065637af5f51e91ba2293e53702a215bc32b"
+      "sha256": "44fab46177bac0e9789d7aee460be56f2eb02a07b4dca1c8b054ceea9ed3dd56"
     },
     "tajweed/105.json": {
-      "sha256": "14b89bba0264ab4e1af3b0c810c53cf3d1955c19df120166f0a0a512af2fcae6"
+      "sha256": "edadb6379be70bf3aa5a84c61f00bae1c08102c23073231359f85b93143d383f"
     },
     "tajweed/106.json": {
-      "sha256": "bceba54ead8a78640621a9dc5e0a5522e3e4ffd8c1efc455e7e224c469bbeabd"
+      "sha256": "e52775daa2551594d850c44567416bcb14b4c12de75179baa7b93e520019c827"
     },
     "tajweed/107.json": {
-      "sha256": "398b7a4623a05e8af86f208cf906cea215b3c8ae9d50a94254bd778727d48496"
+      "sha256": "3a84c1b6c74798acca599e482f247265bbe2103499e30fbf32b051bf454b4976"
     },
     "tajweed/108.json": {
-      "sha256": "6f7fcdc7cc24100cc0332ca38e7d023d51748fb495603c8dd3c0773ca100d1f2"
+      "sha256": "9ddf6eb9aa40c49a02338223baba92ad45cfbaf1af66869fd5ec716907fc8811"
     },
     "tajweed/109.json": {
-      "sha256": "8763fea7b601a142587ef6528875ea814fabe03bfd1f542eee44ca9dbf701232"
+      "sha256": "8e6bf6e9c5eb22a84cdd3eb833977f89622191969b1e06785486f18d3b0b1c64"
     },
     "tajweed/110.json": {
-      "sha256": "69edee1e59c61d90b6de465e203f149917a1018652e76f0e04ca7f702335fb7a"
+      "sha256": "7af5ed5f66486e5a5810f6442a48a81265c344525f5c5ef4330813f0aeacf558"
     },
     "tajweed/111.json": {
-      "sha256": "312f99aab5833de60bdb274ded9c484e9a8ff7d1278bea6f5a4a96d832e0d18a"
+      "sha256": "91bb1816cc90ca3f3a61c8c1a86f3402f2772de2dfc39d1993947fc1eb0311c1"
     },
     "tajweed/112.json": {
-      "sha256": "7a08f986d8232a3c69abb3997c6fa1a0fdac1d803500960adf37763ff162f029"
+      "sha256": "fa55ed7f2a5d945a8d0e2aa62558d857b6a0d6d9eeabb48270da0e1f9ea5ce65"
     },
     "tajweed/113.json": {
-      "sha256": "d184dd5ae449433ed5d60008ce55db55affccc9b0d0f40ac465027700f7c2f71"
+      "sha256": "fd053d8226f0364de72e130bb5620691c539a37ad2aaddba370c04e3b45c205e"
     },
     "tajweed/114.json": {
-      "sha256": "7f155aa98f47c3bc8e8fa66973b545c739f317e1d3291e0e106da50e7583791d"
+      "sha256": "9808347954b05e20a3e6527112e02b2695d8862b4c20563ad4cded27adb3ccd1"
     },
     "tajweed/manifest.json": {
       "sha256": "3f382e028c0cf16b9bbf2684e5cab31916b61ea18c48490fc8b96ff48167b022"

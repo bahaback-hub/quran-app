@@ -56,34 +56,26 @@ describe('official Uthmanic Hafs font', () => {
   });
 
   it('keeps the Quran-script font off the critical path', () => {
-    // 'KFGQPC HAFS Uthmanic Script' is a 291KB TTF, and the only CSS that asks
-    // for it is src/css/hifz-room.css — a panel that sits off-screen at
-    // translateX(-110%) and is closed on arrival. Preloading it from index.html
-    // put 144KB on the critical path of every visit for glyphs nobody could
-    // see, which is nearly four times what the whole stylesheet costs on the
-    // wire. The @font-face stays, so the browser fetches it when the room is
-    // actually built, and font-display: swap covers the gap.
+    // The reading view now asks for this face, but it is only fetched once the
+    // reader opens. Preloading the 291KB TTF from index.html would put it on
+    // the critical path of every visit — including the home screen, which uses
+    // the small Amiri subset — so the preload list stays as it is.
     const html = readFileSync(resolve(root, 'index.html'), 'utf8');
     expect(html).not.toMatch(/<link[^>]+UthmanicHafs[^>]*>/);
     // The body font is used on the first screen, so it stays preloaded.
     expect(html).toContain('href="fonts/amiri-regular-400.woff2"');
   });
 
-  it('is the only family that needs the TTF, and it is the room', () => {
-    // If a second stylesheet starts asking for this family, the preload
-    // decision above no longer holds and this is the test that should say so.
-    const hifzRoom = readFileSync(resolve(root, 'src/css/hifz-room.css'), 'utf8');
-    expect(hifzRoom).toContain('KFGQPC HAFS Uthmanic Script');
-    for (const rel of [
-      'src/css/layout.css',
-      'src/css/surah.css',
-      'src/css/variables.css',
-      'src/css/panels.css',
-      'src/css/modals.css',
-      'src/css/reader-rail.css',
-    ]) {
-      expect(readFileSync(resolve(root, rel), 'utf8')).not.toContain('KFGQPC HAFS Uthmanic Script');
-    }
+  it('is the default face of the Quran text, so the reader matches the printed mushaf', () => {
+    const surahCss = readFileSync(resolve(root, 'src/css/surah.css'), 'utf8');
+    expect(surahCss).toMatch(/\.ayahs-container \{[^}]*font-family: 'KFGQPC HAFS Uthmanic Script'/);
+    expect(surahCss).toMatch(/\.bismillah \{[^}]*font-family: 'KFGQPC HAFS Uthmanic Script'/);
+
+    const template = readFileSync(templatePath, 'utf8');
+    expect(template).toMatch(/value="'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif" selected/);
+
+    const stateTypes = readFileSync(resolve(root, 'src/state/types.ts'), 'utf8');
+    expect(stateTypes).toContain("fontType: \"'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif\"");
   });
 
   it('does not reference the dead Uthmanic Hafs Official alias', () => {

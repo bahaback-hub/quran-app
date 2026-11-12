@@ -113,10 +113,10 @@ export function settingsPanelHTML(): string {
           <div class="settings-row">
             <label for="fontTypeSelect" data-i18n="font_type">نوع الخط:</label>
             <select id="fontTypeSelect">
-              <option value="'Amiri','Traditional Arabic',serif" selected data-i18n="font_amiri">أميري</option>
+              <option value="'Amiri','Traditional Arabic',serif" data-i18n="font_amiri">أميري</option>
               <option value="${QURAN_FONT_STACK}" data-i18n="font_mushaf_naskh">شهرزاد</option>
               <option value="'Traditional Arabic',serif" data-i18n="font_traditional">عربي تقليدي</option>
-              <option value="'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif" data-i18n="font_uthmanic_hafs">حفص عثماني رسمي</option>
+              <option value="'KFGQPC HAFS Uthmanic Script','Traditional Arabic',serif" selected data-i18n="font_uthmanic_hafs">حفص عثماني رسمي</option>
               <option value="'Al Qalam','Traditional Arabic',serif" data-i18n="font_al_qalam">القلم</option>
             </select>
           </div>

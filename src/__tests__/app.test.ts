@@ -84,19 +84,22 @@ describe('renderSurah', () => {
 
   it('should not render bismillah for surah 1', () => {
     renderSurah(sampleSurah);
-    expect(dom.surahContent!.innerHTML).not.toContain('بِسْمِ اللَّهِ');
+    expect(dom.surahContent!.querySelector('.bismillah')).toBeNull();
   });
 
-  it('should render bismillah for surah 2', () => {
+  it('should render the mushaf bismillah header for surah 2', () => {
     const surah2: SurahData = { ...sampleSurah, number: 2 };
     renderSurah(surah2);
-    expect(dom.surahContent!.innerHTML).toContain('بِسْمِ اللَّهِ');
+    const header = dom.surahContent!.querySelector('.bismillah');
+    expect(header).not.toBeNull();
+    // Alef wasla (U+0671), exactly as the printed Madani mushaf writes it.
+    expect(header!.textContent).toContain('\u0671');
   });
 
   it('should not render bismillah for surah 9', () => {
     const surah9: SurahData = { ...sampleSurah, number: 9 };
     renderSurah(surah9);
-    expect(dom.surahContent!.innerHTML).not.toContain('بِسْمِ اللَّهِ');
+    expect(dom.surahContent!.querySelector('.bismillah')).toBeNull();
   });
 
   it('should include ayah numbers', () => {

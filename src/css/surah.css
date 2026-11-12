@@ -93,7 +93,7 @@ body.night-mode .surah-title {
   font-size: 34px;
   color: var(--bismillah-color);
   font-weight: bold;
-  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-family: 'KFGQPC HAFS Uthmanic Script', 'Traditional Arabic', serif;
   margin: 0;
 }
 .bismillah-wrapper {
@@ -115,7 +115,7 @@ body.night-mode .surah-title {
   line-height: 2.4;
   text-align: justify;
   color: var(--text-primary);
-  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-family: 'KFGQPC HAFS Uthmanic Script', 'Traditional Arabic', serif;
   transition: font-size 0.2s ease;
 }
 .ayah {
