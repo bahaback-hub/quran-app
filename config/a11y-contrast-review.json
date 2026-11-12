@@ -8,18 +8,23 @@
     "Evidence: pixel-level measurement over the real rendering (temp scripts),",
     "CSS compositing math for rgba review values, and an isolation run with",
     "background-image stripped. Category values must match what the audit",
-    "script understands: 'decorative-glyph' | 'glass-surface' | 'obsfuscated'."
+    "script understands: 'decorative-glyph' | 'glass-surface' | 'obsfuscated'.",
+    "Entries flagged \"belowAA\": true measure under the 4.5:1 text threshold",
+    "and were accepted by the owner to keep the visual identity; the audit",
+    "prints their count so they are never reported as a clean pass."
   ],
   "decisionDate": "2026-11-06",
   "entries": [
     {
       "selector": ".header-action-label",
       "category": "glass-surface",
+      "belowAA": true,
       "note": "white label over the daytime parchment texture; measured ≈2.9–3.0:1 — accepted, identity preserved"
     },
     {
       "selector": "#readerSurfaceValue",
       "category": "glass-surface",
+      "belowAA": true,
       "note": "amber 65% chip on light glass; measured ≈3.2–3.4:1 — accepted, identity preserved"
     },
     {

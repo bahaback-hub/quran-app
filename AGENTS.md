@@ -185,7 +185,9 @@ These files are large and would benefit from being split by feature:
 - All mutable module state lives on `state` (the Proxy) — not on local `let`s
 - All HTML output goes through `escapeHtml()` (XSS-safe)
 - No `any` types — strict TS enforced
-- ESLint rules: `eqeqeq`, `curly: all`, `no-cond-assign`, `default-case`
+- ESLint rules: `eqeqeq`, `curly: all`, `no-cond-assign`, `default-case`,
+  `no-restricted-properties` (no new `.innerHTML` — new code builds DOM nodes;
+  the 23 legacy files are listed by name in `eslint.config.js`)
 
 ## Testing
 

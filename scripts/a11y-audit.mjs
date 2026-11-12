@@ -125,6 +125,8 @@ function isDecorativeGlyphReason(node, entry) {
 function filterDocumentedContrasts(perState, review) {
   let exempted = 0;
   let withheld = 0;
+  const exemptedSelectors = new Set();
+  const belowAaSelectors = new Set();
   const keptPerState = perState.map(({ state, results }) => {
     const incomplete = (results.incomplete || []).map((item) => {
       if (item.id !== 'color-contrast') {
@@ -147,6 +149,10 @@ function filterDocumentedContrasts(perState, review) {
           continue;
         }
         exempted++;
+        exemptedSelectors.add(entry?.selector ?? node.target.join(' '));
+        if (entry?.belowAA === true) {
+          belowAaSelectors.add(entry.selector);
+        }
         console.log(`   · exempted (documented ${review.decisionDate}): [${state}] ${node.target.join(' ')}`);
       }
       return { ...item, nodes: kept };
@@ -154,7 +160,7 @@ function filterDocumentedContrasts(perState, review) {
     return { state, results: { ...results, incomplete } };
   });
   console.log(`   · color-contrast review: ${exempted} documented exemption(s), ${withheld} withheld`);
-  return { keptPerState, exempted };
+  return { keptPerState, exempted, exemptedSelectors, belowAaSelectors };
 }
 
 async function runAxe(page) {
@@ -205,7 +211,7 @@ async function runAudit() {
   // Apply the documented manual-review exemptions (config/a11y-contrast-review.json)
   // to the axe "incomplete" list, keeping raw results intact on disk.
   const review = loadContrastReview();
-  const { keptPerState } = filterDocumentedContrasts(perState, review);
+  const { keptPerState, exemptedSelectors, belowAaSelectors } = filterDocumentedContrasts(perState, review);
   const reportStates = keptPerState;
 
   // Write full results
@@ -242,7 +248,20 @@ async function runAudit() {
   console.log(`   Incomplete: ${totalIncomplete}`);
 
   if (totalViolations === 0) {
-    console.log('\n✅ No WCAG 2.1 AA violations found in any scanned state!');
+    console.log('\n✅ No WCAG 2.1 AA violations found in any scanned state.');
+    // Never present the tracked incompletes as a clean pass: say out loud how
+    // many nodes the audit could not measure and how many of those are
+    // documented as below the 4.5:1 text threshold.
+    if (exemptedSelectors.size > 0) {
+      console.log(
+        `   Exempted by the documented manual review (${review.decisionDate}): ${exemptedSelectors.size} selector(s) — see config/a11y-contrast-review.json.`,
+      );
+    }
+    if (belowAaSelectors.size > 0) {
+      console.log(
+        `   Of those, ${belowAaSelectors.size} selector(s) measure below 4.5:1 (${[...belowAaSelectors].join(', ')}) and are accepted by that owner decision.`,
+      );
+    }
   }
 
   if (totalIncomplete > 0) {

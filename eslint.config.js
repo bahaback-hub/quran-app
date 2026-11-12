@@ -2,6 +2,39 @@ import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+/**
+ * Files that still assign HTML through `.innerHTML`. They are grandfathered so
+ * the ban can land without a 61-site refactor in one go; every other source
+ * file gets the error. Remove a file from this list when it stops using it —
+ * new code should build DOM nodes (`createElement`/`textContent`) or go through
+ * the escaped templates in `src/templates*`.
+ */
+const INNERHTML_LEGACY = [
+  'src/adhkar.ts',
+  'src/adhkar-personal.ts',
+  'src/ayah-modal.ts',
+  'src/error-boundary.ts',
+  'src/events/help-events.ts',
+  'src/favorites.ts',
+  'src/features/audio/audio.ts',
+  'src/features/mushaf/mushaf.ts',
+  'src/features/prayer/prayer.ts',
+  'src/features/presentation/presentation.ts',
+  'src/features/search/search-ui.ts',
+  'src/hifz-room.ts',
+  'src/home.ts',
+  'src/lang-switcher.ts',
+  'src/main.ts',
+  'src/overlays.ts',
+  'src/reading-plans.ts',
+  'src/reading-stats.ts',
+  'src/surah-list.ts',
+  'src/surah-loader.ts',
+  'src/surah-render.ts',
+  'src/tafsir.ts',
+  'src/tajweed.ts',
+];
+
 export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -41,6 +74,16 @@ export default tseslint.config(
       'no-useless-concat': 'warn',
       // Disallow unnecessary escape characters
       'no-useless-escape': 'warn',
+      // No new HTML injection sinks: an unescaped `.innerHTML` is the shortest
+      // path from user data to XSS. Build nodes instead (see AGENTS.md).
+      'no-restricted-properties': [
+        'error',
+        {
+          property: 'innerHTML',
+          message:
+            'Do not assign HTML strings to .innerHTML. Build DOM nodes (createElement/textContent) or use the escaped templates in src/templates*.',
+        },
+      ],
     },
   },
   {
@@ -55,6 +98,13 @@ export default tseslint.config(
     rules: {
       'no-console': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: INNERHTML_LEGACY,
+    rules: {
+      // Grandfathered: these files predate the ban. Do not add new sinks here.
+      'no-restricted-properties': 'off',
     },
   },
   {
