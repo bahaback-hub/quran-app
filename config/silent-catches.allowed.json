@@ -311,14 +311,14 @@
     },
     {
       "file": "src/surah-loader.ts",
-      "fn": "loadSurah",
+      "fn": "fetchSurahTextData",
       "anchor": "/* no local bundle — fall back to API */",
       "kind": "catch-empty-block",
       "reason": "no local text bundle — fall back to the API text"
     },
     {
       "file": "src/surah-loader.ts",
-      "fn": "loadSurah",
+      "fn": "renderOfflineFallback",
       "anchor": "/* local fallback also failed — fall through to error display */",
       "kind": "catch-empty-block",
       "reason": "the local fallback also failed — fall through to the error display"
