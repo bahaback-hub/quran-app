@@ -1,6 +1,7 @@
 {
   "//": [
-    "Documented manual-review exemptions for the axe color-contrast 'incomplete' list.",
+    "Manual-review registry for axe items this project accepts after human review.",
+    "Contrast: entries below replace the color-contrast 'incomplete' list.",
     "On 2026-11-06 the project owner reviewed all axe 'incomplete' color-contrast",
     "items (the tool cannot measure over the decorative background images /",
     "blur-glass surfaces, and cannot measure lone decorative glyphs) and decided",
@@ -11,9 +12,27 @@
     "script understands: 'decorative-glyph' | 'glass-surface' | 'obsfuscated'.",
     "Entries flagged \"belowAA\": true measure under the 4.5:1 text threshold",
     "and were accepted by the owner to keep the visual identity; the audit",
-    "prints their count so they are never reported as a clean pass."
+    "prints their count so they are never reported as a clean pass.",
+    "The file name is historical: it now also holds the labelInName list."
   ],
   "decisionDate": "2026-11-06",
+  "labelInName": {
+    "//": [
+      "Icon-only controls that axe cannot decide for WCAG 2.5.3 (Label in Name).",
+      "Each one has no visible text at all: every glyph inside is aria-hidden and",
+      "the accessible name comes from aria-label / title, so there is no visible",
+      "label that the name could omit. Reviewed with the contrast list and kept."
+    ],
+    "selectors": [
+      "#themeMenuBtn",
+      "#readerToolbarPinBtn",
+      "#searchToggleBtn",
+      "#tajweedInlineBtn",
+      "#collapsedPrevAyahBtn",
+      "#collapsedNextAyahBtn",
+      "#settingsCloseBtn"
+    ]
+  },
   "entries": [
     {
       "selector": ".header-action-label",

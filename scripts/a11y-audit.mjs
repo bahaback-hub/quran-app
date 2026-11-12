@@ -100,17 +100,65 @@ function loadContrastReview() {
   return {
     entries: raw.entries || [],
     decisionDate: raw.decisionDate || 'n/a',
+    labelInName: raw.labelInName?.selectors || [],
   };
+}
+
+/** Strip attribute qualifiers and pseudo-classes from one CSS selector step. */
+function baseSelector(step) {
+  return step
+    .replace(/\[[^\]]*\]/g, '')
+    .replace(/::?[a-z-]+(\([^)]*\))?/gi, '')
+    .trim();
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Find the documented entry for an axe node, or undefined.
+ *
+ * axe chooses a different "unique" selector per page state — `.footer-link`,
+ * `.footer-link[target="_blank"]:nth-child(2)`, `a[href$="quran.com/"]` can all
+ * name the same element. Matching the literal string therefore reported already
+ * documented nodes as un-reviewed. Compare the normalised last selector step
+ * instead, and fall back to the node's own markup for pure class/id selectors.
+ */
+function matchReviewEntry(node, entries) {
+  const targets = node.target || [];
+  const steps = targets
+    .flatMap((t) => t.split('>'))
+    .map((s) => baseSelector(s))
+    .filter(Boolean);
+  const html = node.html || '';
+  return entries.find((entry) => {
+    if (
+      targets.some(
+        (t) => t === entry.selector || t.endsWith(` > ${entry.selector}`) || t.startsWith(`${entry.selector}`),
+      )
+    ) {
+      return true;
+    }
+    const selector = baseSelector(entry.selector);
+    // Only class/id steps are compared unqualified: a bare tag name (e.g.
+    // `h2`) would exempt every heading, so those must match the literal target.
+    if ((selector.startsWith('.') || selector.startsWith('#')) && steps.includes(selector)) {
+      return true;
+    }
+    if (selector.startsWith('.')) {
+      return new RegExp(`class="[^"]*\\b${escapeRegExp(selector.slice(1))}\\b`).test(html);
+    }
+    if (selector.startsWith('#')) {
+      return html.includes(`id="${selector.slice(1)}"`);
+    }
+    return false;
+  });
 }
 
 /** True when a node's last CSS target matches a documented selector. */
 function nodeMatchesReview(node, entries) {
-  const targets = node.target || [];
-  return entries.some((entry) =>
-    targets.some(
-      (t) => t === entry.selector || t.endsWith(` > ${entry.selector}`) || t.startsWith(`${entry.selector}`),
-    ),
-  );
+  return matchReviewEntry(node, entries) !== undefined;
 }
 
 /** True when the reason is one axe attributes to decorative lone glyphs. */
@@ -125,10 +173,27 @@ function isDecorativeGlyphReason(node, entry) {
 function filterDocumentedContrasts(perState, review) {
   let exempted = 0;
   let withheld = 0;
+  let exemptedLabelInName = 0;
   const exemptedSelectors = new Set();
   const belowAaSelectors = new Set();
+  const labelInNameSelectors = new Set(review.labelInName);
+  const exemptedLabelInNameSelectors = new Set();
   const keptPerState = perState.map(({ state, results }) => {
     const incomplete = (results.incomplete || []).map((item) => {
+      if (item.id === 'label-content-name-mismatch') {
+        const kept = [];
+        for (const node of item.nodes || []) {
+          const targets = node.target || [];
+          const last = baseSelector(targets[targets.length - 1] || '');
+          if (labelInNameSelectors.has(last)) {
+            exemptedLabelInName++;
+            exemptedLabelInNameSelectors.add(last);
+            continue;
+          }
+          kept.push(node);
+        }
+        return { ...item, nodes: kept };
+      }
       if (item.id !== 'color-contrast') {
         return item;
       }
@@ -139,7 +204,7 @@ function filterDocumentedContrasts(perState, review) {
           kept.push(node);
           continue;
         }
-        const entry = review.entries.find((e) => (node.target || []).includes(e.selector));
+        const entry = matchReviewEntry(node, review.entries);
         const withhold = (entry && entry.category) === 'decorative-glyph' && !isDecorativeGlyphReason(node, entry);
         if (withhold) {
           // Documented as glyph, but the reason says otherwise (e.g. real text
@@ -160,7 +225,19 @@ function filterDocumentedContrasts(perState, review) {
     return { state, results: { ...results, incomplete } };
   });
   console.log(`   · color-contrast review: ${exempted} documented exemption(s), ${withheld} withheld`);
-  return { keptPerState, exempted, exemptedSelectors, belowAaSelectors };
+  if (exemptedLabelInName > 0) {
+    console.log(
+      `   · label-in-name review: ${exemptedLabelInName} icon-only control node(s) exempted (${[...exemptedLabelInNameSelectors].join(', ')})`,
+    );
+  }
+  return {
+    keptPerState,
+    exempted,
+    exemptedSelectors,
+    belowAaSelectors,
+    exemptedLabelInName,
+    exemptedLabelInNameSelectors,
+  };
 }
 
 async function runAxe(page) {
@@ -211,7 +288,8 @@ async function runAudit() {
   // Apply the documented manual-review exemptions (config/a11y-contrast-review.json)
   // to the axe "incomplete" list, keeping raw results intact on disk.
   const review = loadContrastReview();
-  const { keptPerState, exemptedSelectors, belowAaSelectors } = filterDocumentedContrasts(perState, review);
+  const { keptPerState, exemptedSelectors, belowAaSelectors, exemptedLabelInName, exemptedLabelInNameSelectors } =
+    filterDocumentedContrasts(perState, review);
   const reportStates = keptPerState;
 
   // Write full results
@@ -260,6 +338,11 @@ async function runAudit() {
     if (belowAaSelectors.size > 0) {
       console.log(
         `   Of those, ${belowAaSelectors.size} selector(s) measure below 4.5:1 (${[...belowAaSelectors].join(', ')}) and are accepted by that owner decision.`,
+      );
+    }
+    if (exemptedLabelInName > 0) {
+      console.log(
+        `   Icon-only controls reviewed for 2.5.3: ${exemptedLabelInNameSelectors.size} selector(s) with no visible text at all (${[...exemptedLabelInNameSelectors].join(', ')}); each glyph is aria-hidden and the name comes from aria-label.`,
       );
     }
   }

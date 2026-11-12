@@ -8,7 +8,7 @@ export function settingsPanelHTML(): string {
   return `<div class="settings-panel" id="settingsPanel" role="dialog" aria-modal="true" aria-label="لوحة الإعدادات">
       <div class="settings-header">
         <h2 data-i18n="settings">⚙️ الإعدادات</h2>
-        <button class="settings-close" id="settingsCloseBtn" aria-label="إغلاق الإعدادات">✖</button>
+        <button class="settings-close" id="settingsCloseBtn" aria-label="إغلاق الإعدادات"><span aria-hidden="true">✖</span></button>
       </div>
 
       <div class="big-clock">
@@ -252,8 +252,8 @@ export function settingsPanelHTML(): string {
             <button class="btn" id="importSettingsBtn">📥 <span data-i18n="import_settings">استيراد الإعدادات</span></button>
           </div>
           <div class="settings-row">
-            <button class="btn" id="helpFromSettingsBtn" data-i18n-aria-label="help_guide" aria-label="دليل الاستخدام">
-              📖 <span data-i18n="help_guide">دليل الاستخدام</span>
+            <button class="btn" id="helpFromSettingsBtn">
+              <span aria-hidden="true">📖</span> <span data-i18n="help_guide">دليل الاستخدام</span>
             </button>
           </div>
           <div class="settings-section mushaf-data-pack" id="mushafDataPackSection">

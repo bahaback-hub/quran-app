@@ -6,13 +6,13 @@ export function floatingPlayerHTML(): string {
       <div class="collapsed-content" id="collapsedContent">
         <span class="collapse-chevron" aria-hidden="true">▲</span>
         <div class="collapsed-controls">
-          <button class="collapsed-nav-btn" id="collapsedPrevAyahBtn" aria-label="الآية السابقة" title="الآية السابقة">◀</button>
+          <button class="collapsed-nav-btn" id="collapsedPrevAyahBtn" aria-label="الآية السابقة" title="الآية السابقة"><span aria-hidden="true">◀</span></button>
           <button class="floating-play-btn" id="collapsedPlayBtn" aria-label="تشغيل/إيقاف">
             <svg class="icon icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
           </button>
-          <button class="collapsed-nav-btn" id="collapsedNextAyahBtn" aria-label="الآية التالية" title="الآية التالية">▶</button>
+          <button class="collapsed-nav-btn" id="collapsedNextAyahBtn" aria-label="الآية التالية" title="الآية التالية"><span aria-hidden="true">▶</span></button>
         </div>
         <div class="floating-info" id="collapsedInfo">—</div>
       </div>
