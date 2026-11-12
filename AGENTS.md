@@ -188,6 +188,10 @@ These files are large and would benefit from being split by feature:
 - ESLint rules: `eqeqeq`, `curly: all`, `no-cond-assign`, `default-case`,
   `no-restricted-properties` (no new `.innerHTML` — new code builds DOM nodes;
   the 23 legacy files are listed by name in `eslint.config.js`)
+- Translations: one file per locale (`src/translations/<locale>.ts`). A file whose
+  stem contains a dot (`ru.help.ts`) is an internal part spread into its locale
+  bundle, **not** a locale — the parity guard skips it. Keep every part under the
+  50 KB source budget (enforced by `npm run check:file-size`).
 
 ## Testing
 

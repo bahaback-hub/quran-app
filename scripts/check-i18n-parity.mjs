@@ -18,6 +18,7 @@
  */
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { build } from 'esbuild';
 import ts from 'typescript';
 
 const ROOT = process.cwd();
@@ -40,12 +41,31 @@ function flatten(value, prefix = '', out = new Set()) {
   return out;
 }
 
+/**
+ * Load one locale bundle and flatten its key paths.
+ *
+ * A locale may be split across modules (e.g. `ru.ts` spreads `ru.help.ts` to
+ * stay inside the source-size budget). Those relative imports cannot resolve
+ * from a `data:` URL, so the entry is bundled first and the bundle is imported.
+ */
 async function loadLocale(file) {
   const source = readFileSync(file, 'utf8');
-  const { outputText } = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 },
-    fileName: file,
-  });
+  const outputText = /from\s+'\.{1,2}\//.test(source)
+    ? (
+        await build({
+          entryPoints: [file],
+          bundle: true,
+          write: false,
+          format: 'esm',
+          platform: 'neutral',
+          target: 'es2020',
+          logLevel: 'silent',
+        })
+      ).outputFiles[0].text
+    : ts.transpileModule(source, {
+        compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 },
+        fileName: file,
+      }).outputText;
   const url = `data:text/javascript;base64,${Buffer.from(outputText, 'utf8').toString('base64')}`;
   const mod = await import(url);
   const dict = mod.default;
@@ -62,8 +82,13 @@ function readAllowlist() {
   return JSON.parse(readFileSync(ALLOWLIST_PATH, 'utf8')).entries || [];
 }
 
+/**
+ * Locale bundles are `src/translations/<locale>.ts`. A file whose stem contains
+ * a dot (`ru.help.ts`) is an internal part spread into a locale bundle, not a
+ * locale of its own, so it is not compared against the source locale.
+ */
 const files = readdirSync(LOCALES_DIR)
-  .filter((name) => name.endsWith('.ts'))
+  .filter((name) => name.endsWith('.ts') && !name.slice(0, -3).includes('.'))
   .sort();
 
 if (!files.some((name) => localeFromFile(name) === SOURCE_LOCALE)) {

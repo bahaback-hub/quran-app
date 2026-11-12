@@ -37,8 +37,8 @@ jobs:
         # makes the UI show the raw key for that language.
       - name: Source file size budget
         run: npm run check:file-size
-        # Keeps the known 40-50 KB modules from growing and blocks new giants.
-        # Ratchet FILE_SIZE_BUDGET_KB down as the giants get split.
+        # Keeps the known 35-47 KB modules from growing and blocks new giants.
+        # Lowered from 55 to 50 after `ru.ts` was split, so the win is locked in.
       - name: Release version consistency
         run: npm run check:version
         # package.json feeds the in-app version label; build.gradle ships the
