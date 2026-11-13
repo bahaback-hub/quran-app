@@ -515,14 +515,17 @@ describe('presentation image sharing', () => {
     await mocks.driveToReady();
 
     document.getElementById('presentationShareNativeBtn')?.click();
-    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    expect(filesystemMock.writeFile).toHaveBeenCalledWith(
-      expect.objectContaining({
-        path: 'shared/quran-1-1-alafasy-hd.webm',
-        directory: 'CACHE',
-        recursive: true,
-      }),
+    await vi.waitFor(
+      () =>
+        expect(filesystemMock.writeFile).toHaveBeenCalledWith(
+          expect.objectContaining({
+            path: 'shared/quran-1-1-alafasy-hd.webm',
+            directory: 'CACHE',
+            recursive: true,
+          }),
+        ),
+      { timeout: 5000 },
     );
     expect(capacitorShareMock.share).toHaveBeenCalledWith(expect.objectContaining({ files: [expect.any(String)] }));
   });
@@ -542,8 +545,8 @@ describe('presentation image sharing', () => {
     await mocks.driveToReady();
 
     document.getElementById('presentationShareNativeBtn')?.click();
-    await new Promise((resolve) => setTimeout(resolve, 100));
 
+    await vi.waitFor(() => expect(anchorClick).toHaveBeenCalled(), { timeout: 5000 });
     expect(document.getElementById('presentationShareStatus')?.dataset['state']).toBe('video-download');
     expect(filesystemMock.writeFile).not.toHaveBeenCalled();
     expect(anchorClick).toHaveBeenCalled();

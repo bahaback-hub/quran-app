@@ -205,14 +205,14 @@
       "reason": "background paint is best-effort — the surface is decorative only"
     },
     {
-      "file": "src/features/presentation/presentation-share.ts",
+      "file": "src/features/presentation/presentation-share-export.ts",
       "fn": "drawVideoFrame",
       "anchor": "// Keep the fallback if an animated source changes while the video is exporting.",
       "kind": "catch-empty-block",
       "reason": "keep the fallback if an animated source changes while the video is exporting"
     },
     {
-      "file": "src/features/presentation/presentation-share.ts",
+      "file": "src/features/presentation/presentation-share-export.ts",
       "fn": "renderShareImage",
       "anchor": "// The refined fallback background keeps sharing available when an image cannot be read.",
       "kind": "catch-empty-block",

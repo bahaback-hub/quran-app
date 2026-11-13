@@ -79,7 +79,11 @@ describe('official Uthmanic Hafs font', () => {
   });
 
   it('does not reference the dead Uthmanic Hafs Official alias', () => {
-    for (const rel of ['src/css/hifz-room.css', 'src/features/presentation/presentation-share.ts']) {
+    for (const rel of [
+      'src/css/hifz-room.css',
+      'src/features/presentation/presentation-share.ts',
+      'src/features/presentation/presentation-share-export.ts',
+    ]) {
       const content = readFileSync(resolve(root, rel), 'utf8');
       expect(content).not.toContain('Uthmanic Hafs Official');
     }

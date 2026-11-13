@@ -355,8 +355,7 @@ describe('app.ts — initApp', () => {
     it('should call initAutoPlayNextButton', async () => {
       const { initAutoPlayNextButton } = await import('../app-events.js');
       await initApp();
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      expect(initAutoPlayNextButton).toHaveBeenCalled();
+      await vi.waitFor(() => expect(initAutoPlayNextButton).toHaveBeenCalled(), { timeout: 3000 });
     });
 
     it('should call initNavigation', async () => {
@@ -368,8 +367,7 @@ describe('app.ts — initApp', () => {
     it('should call initKeyboardShortcuts', async () => {
       const { initKeyboardShortcuts } = await import('../keyboard.js');
       await initApp();
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      expect(initKeyboardShortcuts).toHaveBeenCalled();
+      await vi.waitFor(() => expect(initKeyboardShortcuts).toHaveBeenCalled(), { timeout: 3000 });
     });
 
     it('should call initCapacitorBackButton', async () => {
@@ -514,10 +512,13 @@ describe('app.ts — initApp', () => {
     it('should call loadingBar.init and hide via requestIdleCallback', async () => {
       const { loadingBar } = await import('../ui.js');
       await initApp();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(loadingBar.init).toHaveBeenCalled();
-      expect(loadingBar.hide).toHaveBeenCalled();
+      await vi.waitFor(
+        () => {
+          expect(loadingBar.init).toHaveBeenCalled();
+          expect(loadingBar.hide).toHaveBeenCalled();
+        },
+        { timeout: 5000 },
+      );
     });
 
     it('should call initAdhkarState and loadAdhkarSettings', async () => {
@@ -541,18 +542,19 @@ describe('app.ts — initApp', () => {
     it('should call loadFavorites', async () => {
       const { loadFavorites } = await import('../favorites.js');
       await initApp();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(loadFavorites).toHaveBeenCalled();
+      await vi.waitFor(() => expect(loadFavorites).toHaveBeenCalled(), { timeout: 5000 });
     });
 
     it('should call startClock and scheduleNextAzanCheck', async () => {
       const { startClock, scheduleNextAzanCheck } = await import('../features/prayer/prayer.js');
       await initApp();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(startClock).toHaveBeenCalled();
-      expect(scheduleNextAzanCheck).toHaveBeenCalled();
+      await vi.waitFor(
+        () => {
+          expect(startClock).toHaveBeenCalled();
+          expect(scheduleNextAzanCheck).toHaveBeenCalled();
+        },
+        { timeout: 5000 },
+      );
     });
   });
 

@@ -1819,10 +1819,14 @@ describe('app-events', () => {
       await waitUntil(() => expect(cacheSurahAudio).toHaveBeenCalled());
       await waitUntil(() => expect(dom.downloadAudioBtn!.textContent).toBe('✅'), { timeout: 10000, interval: 20 });
       const { showToast } = await import('../ui.js');
-      expect(showToast).toHaveBeenCalledWith('download_audio_done', 'success');
+      await waitUntil(() => expect(showToast).toHaveBeenCalledWith('download_audio_done', 'success'));
       expect(dom.downloadAudioBtn!.classList.contains('active')).toBe(true);
-      await new Promise((resolve) => setTimeout(resolve, 2100));
-      expect(dom.downloadAudioBtn!.textContent).toBe('download_audio');
+      // The button resets to its idle label 2s later; poll instead of sleeping a
+      // fixed 2.1s so a loaded CI machine cannot win the race.
+      await waitUntil(() => expect(dom.downloadAudioBtn!.textContent).toBe('download_audio'), {
+        timeout: 6000,
+        interval: 50,
+      });
     });
 
     it('should toast and reset the button when the download fails', async () => {
