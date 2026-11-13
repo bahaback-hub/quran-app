@@ -240,14 +240,14 @@
       "reason": "Escape key exits fullscreen as best-effort"
     },
     {
-      "file": "src/features/search/search-ui.ts",
+      "file": "src/features/search/search-ui-voice.ts",
       "fn": "stopVoiceSearch",
       "anchor": "// Recognition may already have ended after returning a final match.",
       "kind": "catch-empty-block",
       "reason": "SpeechRecognition.stop() may fail when recognition already ended after a final match"
     },
     {
-      "file": "src/features/search/search-ui.ts",
+      "file": "src/features/search/search-ui-voice.ts",
       "fn": "stopVoiceSearch",
       "anchor": "/* noop */",
       "kind": "catch-empty-block",

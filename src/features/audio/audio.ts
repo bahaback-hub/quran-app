@@ -64,7 +64,6 @@ export {
 import { state } from '../../state.js';
 import { dom } from '../../dom.js';
 import { requireDom } from '../../dom-require.js';
-import { storage } from '../../storage.js';
 import { showToast } from '../../ui.js';
 import { hapticFeedback } from '../../utils.js';
 import { __ } from '../../i18n.js';
@@ -80,7 +79,25 @@ export type { RepeatRange } from './audio-types.js';
 // Navigation + highlight injection live in ./audio-navigation.ts; re-exported here
 // so existing import sites (app.ts, keyboard.ts, navigation.ts, tests) keep working.
 import { initAudioNavigationHost, nextAyah, prevAyah, nextSurah, highlightCurrentAyah } from './audio-navigation.js';
-import { setTrustedHtml } from '../../safe-html.js';
+import {
+  beginPlaybackWatchdog,
+  endPlaybackWatchdog,
+  maybeShowExpandHint,
+  resetAudioElement,
+  resetAudioPlayerUI,
+  setPendingMetaHandler,
+  setPlayingState,
+  setStoppedState,
+} from './audio-player-ui.js';
+
+export {
+  collapsePlayer,
+  expandPlayer,
+  resetAudioElement,
+  resetAudioPlayerUI,
+  setStoppedState,
+  updatePlayPauseBtn,
+} from './audio-player-ui.js';
 
 /** Inject the reloadCurrentSurahAudio callback from app.ts (avoids circular import). */
 let _reloadSurahAudio: ReloadAudioFn | null = null;
@@ -109,14 +126,7 @@ let _audioRetryTimer: ReturnType<typeof setTimeout> | null = null;
 /** True while an on-demand audio-list reload is in flight (re-entrancy guard). */
 let _audioReloading = false;
 const MAX_AUDIO_RETRIES = 2;
-const PLAY_START_TIMEOUT_MS = 10000;
-/** Watchdog for playback requests that never start (silent network hangs). */
-let _playWatchdog: ReturnType<typeof setTimeout> | null = null;
-/** Pending mp3quran metadata listener, tracked so a timeout can detach it. */
-let _pendingMetaHandler: (() => void) | null = null;
 let _autoAdvanceSafetyTimer: ReturnType<typeof setTimeout> | null = null;
-const EXPAND_HINT_KEY = 'player_expand_hint_seen';
-const PLAYER_HINT_DURATION = 6000;
 
 /**
  * Reset audio state when switching surahs.
@@ -142,36 +152,6 @@ export function prepareAudioForNewSurah(): void {
   resetAudioPlayerUI();
   resetAudioElement(dom.audioPlayer);
   resetAudioElement(dom.audioPlayer2);
-}
-
-/**
- * Reset the audio player UI to the stopped state.
- * Separated from prepareAudioForNewSurah for testability.
- */
-export function resetAudioPlayerUI(): void {
-  document.body.classList.remove('audio-playing');
-  updatePlayPauseBtn();
-}
-
-/**
- * Reset a single audio element — pause, remove src, and reload.
- * Pure DOM operation, separated for testability.
- *
- * Revokes any blob: URL currently assigned to the player's src before clearing
- * it, to prevent Blob memory leaks when switching surahs while audio is loaded
- * from the offline cache (resolveAudioUrl returns blob: URLs).
- */
-export function resetAudioElement(player: HTMLAudioElement | null): void {
-  if (!player) {
-    return;
-  }
-  const oldSrc = player.src;
-  if (oldSrc && oldSrc.startsWith('blob:')) {
-    URL.revokeObjectURL(oldSrc);
-  }
-  player.pause();
-  player.removeAttribute('src');
-  player.load();
 }
 
 /* ===================== MP3QURAN SEEK HELPERS ===================== */
@@ -226,62 +206,6 @@ function handleAyahBoundary(): void {
       _autoAdvancing = false;
     }
   }, 5000);
-}
-
-/* ===================== PLAYBACK STATE HELPERS ===================== */
-
-/** Set playback state to playing and update UI. */
-function setPlayingState(): void {
-  state.isPlaying = true;
-  document.body.classList.add('audio-playing');
-  updatePlayPauseBtn();
-}
-
-/** Set playback state to stopped and update UI. */
-export function setStoppedState(): void {
-  endPlaybackWatchdog();
-  state.isPlaying = false;
-  document.body.classList.remove('audio-playing');
-  updatePlayPauseBtn();
-}
-
-/**
- * Mark the play button as busy and arm a watchdog while a fresh playback
- * request is loading. If playback never starts within the timeout (silent
- * network hang), the watchdog stops the attempt and surfaces an error toast.
- */
-function beginPlaybackWatchdog(): void {
-  endPlaybackWatchdog();
-  dom.playPauseBtn?.classList.add('is-loading');
-  dom.playPauseBtn?.setAttribute('aria-busy', 'true');
-  _playWatchdog = setTimeout(() => {
-    _playWatchdog = null;
-    if (_pendingMetaHandler && dom.audioPlayer) {
-      dom.audioPlayer.removeEventListener('loadedmetadata', _pendingMetaHandler);
-    }
-    _pendingMetaHandler = null;
-    try {
-      dom.audioPlayer?.pause();
-    } catch (e) {
-      console.warn(e);
-    }
-    setStoppedState();
-    showToast(__('audio_error'), 'error');
-  }, PLAY_START_TIMEOUT_MS);
-}
-
-/** Clear the busy indicator and cancel any pending playback watchdog. */
-function endPlaybackWatchdog(): void {
-  if (_playWatchdog) {
-    clearTimeout(_playWatchdog);
-    _playWatchdog = null;
-  }
-  if (_pendingMetaHandler && dom.audioPlayer) {
-    dom.audioPlayer.removeEventListener('loadedmetadata', _pendingMetaHandler);
-  }
-  _pendingMetaHandler = null;
-  dom.playPauseBtn?.classList.remove('is-loading');
-  dom.playPauseBtn?.removeAttribute('aria-busy');
 }
 
 /* ===================== PLAYER ===================== */
@@ -399,7 +323,7 @@ export async function playCurrentAyah(): Promise<void> {
       dom.audioPlayer.src = resolvedUrl;
       const onMeta = function onMeta(): void {
         requireDom('audioPlayer').removeEventListener('loadedmetadata', onMeta);
-        _pendingMetaHandler = null;
+        setPendingMetaHandler(null);
         requireDom('audioPlayer').currentTime = _getAyahStartTime();
         requireDom('audioPlayer')
           .play()
@@ -409,7 +333,7 @@ export async function playCurrentAyah(): Promise<void> {
             showToast(__('audio_error'), 'error');
           });
       };
-      _pendingMetaHandler = onMeta;
+      setPendingMetaHandler(onMeta);
       dom.audioPlayer.addEventListener('loadedmetadata', onMeta, { once: true });
     } else {
       dom.audioPlayer.src = resolvedUrl;
@@ -472,23 +396,6 @@ function preloadNextAyah(): void {
 }
 
 /* ===================== AUDIO EVENTS ===================== */
-
-/**
- * Expand the collapsed audio player and persist the preference to localStorage.
- * Removes the 'collapsed' CSS class from the player element.
- */
-export function expandPlayer(): void {
-  dom.player?.classList.remove('collapsed');
-  document.body.classList.add('player-expanded');
-  storage.set('player_collapsed', false);
-}
-
-/** Collapse the player and restore the mobile reading controls around it. */
-export function collapsePlayer(): void {
-  dom.player?.classList.add('collapsed');
-  document.body.classList.remove('player-expanded');
-  storage.set('player_collapsed', true);
-}
 
 /**
  * Toggle audio play/pause.
@@ -557,26 +464,6 @@ export function bindAudioEvents(): void {
       nextAyah(false);
     });
   }
-}
-
-/** Show a one-time hint (arrow pulse + message) the first time playback starts. */
-function maybeShowExpandHint(): void {
-  if (storage.get(EXPAND_HINT_KEY)) {
-    return;
-  }
-  storage.set(EXPAND_HINT_KEY, '1');
-  dom.player?.classList.add('first-play-glow');
-  const hint = document.getElementById('playerExpandHint');
-  if (hint) {
-    hint.hidden = false;
-  }
-  window.setTimeout(() => {
-    dom.player?.classList.remove('first-play-glow');
-    const el = document.getElementById('playerExpandHint');
-    if (el) {
-      el.hidden = true;
-    }
-  }, PLAYER_HINT_DURATION);
 }
 
 function onAudioPlay(): void {
@@ -667,24 +554,6 @@ function onAudioError(): void {
   // Can't skip — full stop
   setStoppedState();
   showToast(__('audio_error'), 'error');
-}
-
-/**
- * Update the play/pause button text to reflect current playback state.
- * Reads state.isPlaying and updates the button label accordingly.
- * Also swaps the collapsed floating button icon (it had no pause state).
- */
-const PLAY_SVG =
-  '<svg class="icon icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>';
-const PAUSE_SVG =
-  '<svg class="icon icon-pause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" /><rect x="15" y="4" width="4" height="16" /></svg>';
-export function updatePlayPauseBtn(): void {
-  if (dom.playPauseBtn) {
-    dom.playPauseBtn.textContent = state.isPlaying ? __('pause') : __('play');
-  }
-  if (dom.collapsedPlayBtn) {
-    setTrustedHtml(dom.collapsedPlayBtn, state.isPlaying ? PAUSE_SVG : PLAY_SVG);
-  }
 }
 
 /* ===================== REPEAT LOGIC (extracted from onAudioEnded) ===================== */
@@ -792,37 +661,9 @@ function onAudioEnded(): void {
   nextAyah(true);
 }
 
-/* ===================== HIFDH & REPEAT ===================== */
+/* ===================== HIFDH ===================== */
 
-/**
- * Apply hifdh mode CSS classes to all ayah elements in the DOM.
- * Separated from toggleHifdh for testability — pure DOM operation.
- * @param enabled Whether hifdh mode is active
- */
-export function applyHifdhUI(enabled: boolean): void {
-  dom.hifdhBtn?.classList.toggle('active', enabled);
-  document.querySelectorAll('.ayah').forEach((el: Element) => {
-    if (enabled) {
-      el.classList.add('hifdh-mode');
-    } else {
-      el.classList.remove('hifdh-mode', 'revealed');
-    }
-  });
-}
-
-/**
- * Toggle hifdh (memorization) mode.
- * State change is separated from DOM update for testability.
- */
-export function toggleHifdh(): void {
-  hapticFeedback();
-  state.hifdhMode = !state.hifdhMode;
-  applyHifdhUI(state.hifdhMode);
-  if (state.hifdhMode) {
-    highlightCurrentAyah();
-  }
-  showToast(state.hifdhMode ? __('hifdh_on') : __('hifdh_off'), state.hifdhMode ? 'success' : '');
-}
+export { applyHifdhUI, toggleHifdh } from './audio-hifdh.js';
 
 /* ===================== HOST WIRING ===================== */
 
