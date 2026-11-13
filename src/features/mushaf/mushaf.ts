@@ -23,10 +23,16 @@ import {
 } from '../../templates.js';
 import { SURAH_SECRETS } from '../../surahs-data.js';
 import { loadSurah, updatePlayerInfo, renderSurah, highlightCurrentAyah } from '../../surah-loader.js';
-import { prepareAudioForNewSurah, playCurrentAyah, setStoppedState, updatePlayPauseBtn } from '../audio/audio.js';
-import { handlePageClick, getAyahHighlightRects } from '../../ayah-click.js';
-import { renderPage, loadPageData, releaseCanvas, getCanvas, computeMushafPageGeometry } from './mushaf-renderer.js';
-import type { PageLayoutData, MushafLineLayout } from './mushaf-renderer.js';
+import { setStoppedState, updatePlayPauseBtn } from '../audio/audio.js';
+import { handlePageClick } from '../../ayah-click.js';
+import { renderPage, loadPageData, releaseCanvas, getCanvas } from './mushaf-renderer.js';
+import type { PageLayoutData } from './mushaf-renderer.js';
+import {
+  clearMushafGeomCache,
+  getMushafPageGeometry,
+  highlightMushafAyahImpl,
+  playMushafAyah,
+} from './mushaf-highlight.js';
 import { loadTafsirForSurahAyah } from '../../tafsir.js';
 import { apiFetch } from '../../api-client.js';
 import { __ } from '../../i18n.js';
@@ -41,14 +47,6 @@ import { setTrustedHtml } from '../../safe-html.js';
 interface AyahClickResult {
   surah: number;
   ayah: number;
-}
-
-/** Highlight rect for a single line segment of an ayah. */
-interface AyahHighlightRect {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
 }
 
 /** Shape of surah list entry (subset used in mushaf). */
@@ -267,7 +265,7 @@ function renderMushafPageImage(pageNum: number, currentLoad: number, skipNav?: b
   if (!dom.surahContent) {
     return;
   }
-  _mushafGeomCache.clear();
+  clearMushafGeomCache();
   const juz = getJuzForPage(pageNum);
 
   const container = document.createElement('div');
@@ -547,142 +545,11 @@ export function showSurahSecret(surahNum: number, surahName?: string): void {
   dom.surahSecretsOverlay.style.display = 'flex';
 }
 
-/* ===================== HIGHLIGHT MUSHAF AYAH ===================== */
-
-/** Cached measured page geometry keyed by `${pageNum}:${renderToken}`. */
-const _mushafGeomCache = new Map<string, MushafLineLayout>();
-
-/**
- * Return the measured geometry of the current page (exact pixel layout), or
- * null when it cannot be measured (no canvas context / mocked renderer).
- */
-function getMushafPageGeometry(canvasEl: HTMLCanvasElement, pageNum: number): MushafLineLayout | null {
-  const layout = state.currentPageLayout;
-  if (!layout || typeof computeMushafPageGeometry !== 'function') {
-    return null;
-  }
-  const key = `${pageNum}:${canvasEl.dataset['renderToken'] ?? ''}`;
-  const cached = _mushafGeomCache.get(key);
-  if (cached) {
-    return cached;
-  }
-  const ctx = canvasEl.getContext('2d');
-  if (!ctx) {
-    return null;
-  }
-  const geometry = computeMushafPageGeometry(ctx, layout, pageNum);
-  if (geometry && geometry.lines.length) {
-    _mushafGeomCache.set(key, geometry);
-  }
-  return geometry;
-}
+/* ===================== HIGHLIGHT / PLAY MUSHAF AYAH ===================== */
 
 /** Update the mushaf page highlight overlay to mark the current ayah. */
 export async function highlightMushafAyah(skipNav?: boolean): Promise<void> {
-  if (!state.mushafMode) {
-    return;
-  }
-  const wrapper = dom.surahContent?.querySelector('.mushaf-image-wrapper') as HTMLElement | null;
-  const canvasEl = wrapper?.querySelector('.mushaf-page-canvas') as HTMLCanvasElement | null;
-  if (!wrapper || !canvasEl || !canvasEl.width) {
-    return;
-  }
-
-  const surahData: SurahData | null = state.surahData;
-  const surah = surahData?.number;
-  const ayah = surahData?.ayahs?.[state.currentAyahIndex]?.numberInSurah;
-  if (!surah || !ayah) {
-    return;
-  }
-
-  if (!skipNav) {
-    const layout: PageLayoutData | null = state.currentPageLayout;
-    if (layout) {
-      const isOnPage = layout.lines.some((line) =>
-        line.words?.some((w) => {
-          const key = w.verse_key || w.location || '';
-          const parts = key.split(':');
-          return parts.length >= 2 && parseInt(parts[0]!, 10) === surah && parseInt(parts[1]!, 10) === ayah;
-        }),
-      );
-      if (!isOnPage) {
-        try {
-          const data = await apiFetch<AyahPageResponse>(`/ayah/${surah}:${ayah}/quran-uthmani`, { silent: true });
-          const page = data?.data?.page;
-          if (page && page !== state.currentPage) {
-            loadPage(page);
-            return;
-          }
-        } catch (e: unknown) {
-          console.warn('Failed to find page for ayah:', e);
-        }
-      }
-    }
-  }
-
-  const rect = canvasEl.getBoundingClientRect();
-  if (!rect.width || !rect.height) {
-    return;
-  }
-
-  const rects = (await getAyahHighlightRects(
-    state.currentPage,
-    surah,
-    ayah,
-    rect.width,
-    rect.height,
-    state.currentPageLayout,
-    getMushafPageGeometry(canvasEl, state.currentPage),
-  )) as AyahHighlightRect[];
-  if (!rects.length) {
-    return;
-  }
-
-  const wrapperRect = wrapper.getBoundingClientRect();
-  const imgLeft = rect.left - wrapperRect.left;
-  const imgTop = rect.top - wrapperRect.top;
-
-  let overlay = wrapper.querySelector('.mushaf-highlight-overlay') as HTMLElement | null;
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.className = 'mushaf-highlight-overlay';
-    overlay.style.cssText = 'position:absolute;pointer-events:none;z-index:5;';
-    wrapper.appendChild(overlay);
-  }
-  overlay.style.left = `${imgLeft}px`;
-  overlay.style.top = `${imgTop}px`;
-  overlay.style.width = `${rect.width}px`;
-  overlay.style.height = `${rect.height}px`;
-
-  overlay.replaceChildren();
-  for (const r of rects) {
-    const bar = document.createElement('div');
-    bar.className = 'mushaf-ayah-highlight';
-    bar.style.cssText = `position:absolute;top:${r.top}px;left:${r.left}px;width:${r.width}px;height:${r.height}px;`;
-    overlay.appendChild(bar);
-  }
-}
-
-/* ===================== PLAY MUSHAF AYAH ===================== */
-
-function playMushafAyah(surahNum: number, ayahNum: number): void {
-  if (state.currentSurah !== surahNum || !state.surahData) {
-    loadSurah(surahNum, { startAyah: ayahNum, autoPlay: true });
-    return;
-  }
-  if (state.isPlaying) {
-    prepareAudioForNewSurah();
-  }
-  const surahData: SurahData | null = state.surahData;
-  if (!surahData) {
-    return;
-  }
-  const idx = surahData.ayahs.findIndex((a) => a.numberInSurah === ayahNum);
-  if (idx !== -1) {
-    state.currentAyahIndex = idx;
-    updatePlayerInfo();
-    playCurrentAyah();
-  }
+  return highlightMushafAyahImpl(skipNav, loadPage);
 }
 
 /* ===================== TAJWEED LEGEND ===================== */
