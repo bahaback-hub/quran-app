@@ -177,7 +177,7 @@
       "reason": "fonts.ready wait is best-effort — the canvas paints when fonts are ready anyway"
     },
     {
-      "file": "src/features/mushaf/mushaf.ts",
+      "file": "src/features/mushaf/mushaf-page-view.ts",
       "fn": "preloadAdjacentLayouts",
       "anchor": "/* noop */",
       "kind": "catch-empty-block",
