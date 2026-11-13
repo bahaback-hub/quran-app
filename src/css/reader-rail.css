@@ -371,6 +371,21 @@ body.hifz-room-active .hifz-room.is-open {
   -webkit-backdrop-filter: blur(14px) saturate(120%);
 }
 
+/* The rail floats at z-index 1100, above every sliding panel (settings,
+ * favourites, adhkar, help sit at 1000–1002). Its 78px edge therefore covered
+ * the leftmost controls of an open panel: the "adhkar" settings tab starts at
+ * x≈42, inside the rail, so the click landed on #expandBarBtn and the tab could
+ * never be activated — WebKit's click retry loop then timed out.
+ *
+ * Hide the rail whenever a panel other than the tafsir curtain is open. The
+ * curtain already moves the rail aside (`body.tafsir-curtain-active`) instead
+ * of covering it, so "tafsir only" keeps the rail visible and reachable. */
+body.panel-open:not(.tafsir-only-open) #readerSideTools {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* Short viewports: the rail must never be taller than the screen.
  *
  * A phone held sideways reported a CSS viewport far taller than its physical

@@ -24,6 +24,10 @@ async function openSettings(page: import('@playwright/test').Page): Promise<void
   await expect(page.locator('.ayah[data-surah="1"]').first()).toBeVisible({ timeout: 30000 });
   await page.locator('#settingsToggleBtn').click();
   await expect(page.locator('#settingsPanel')).toHaveClass(/open/);
+  // The rail floats at z-index 1100, above the panel (1000). While it stays
+  // visible it covers the leftmost tab ("adhkar", x≈42), so the browser retries
+  // the click on #expandBarBtn until the test times out.
+  await expect(page.locator('#readerSideTools')).toBeHidden();
 }
 
 test.describe('Quran App — Settings Panel', () => {
@@ -31,6 +35,7 @@ test.describe('Quran App — Settings Panel', () => {
     await openSettings(page);
     await page.locator('#settingsCloseBtn').click();
     await expect(page.locator('#settingsPanel')).not.toHaveClass(/open/);
+    await expect(page.locator('#readerSideTools')).toBeVisible();
   });
 
   test('every tab switches its own content', async ({ page }) => {
