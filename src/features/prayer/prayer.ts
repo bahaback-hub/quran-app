@@ -1,191 +1,31 @@
+/**
+ * Prayer times orchestration, the clock/date surfaces and the prayer-bar UI.
+ *
+ * The offline tables live in `prayer-times-local.ts` and the azan pipeline in
+ * `prayer-azan.ts`; both are re-exported here so import sites do not change.
+ */
 import { state } from '../../state.js';
-import { CONFIG, PRAYER_ORDER, PRAYER_DISPLAY_ORDER } from '../../config.js';
+import { PRAYER_DISPLAY_ORDER } from '../../config.js';
 import { dom } from '../../dom.js';
 import { storage } from '../../storage.js';
 import { showToast } from '../../ui.js';
 import { pad2, formatTime12, timeStrToMinutes } from '../../utils.js';
-import { prayerFetch, jsonFetch } from '../../api-client.js';
+import { prayerFetch } from '../../api-client.js';
 import { __, getCityName, getPrayerName, getLang } from '../../i18n.js';
 import { prayerTimesRows, PRAYER_BAR_LOCATIONS, barCountryOptions, barCityOptions } from '../../templates.js';
 import { trapFocus, manageFocusOnPanelOpen, restoreFocusOnPanelClose } from '../../a11y.js';
-import { setStoppedState } from '../audio/audio.js';
 import { calculatePrayerTimesLocally } from './prayer-local.js';
-import { cancelAzanNotifications, notifyAzanNow, scheduleAzanNotifications } from './azan-notifications.js';
 import { setTrustedHtml } from '../../safe-html.js';
-
-/* ===================== LOCAL OFFLINE PRAYER TIMES (1448 H) ===================== */
-
-/** Map English/Arabic city names to the keys in prayer-times-1448.json */
-const LOCAL_CITY_MAP: Record<string, string> = {
-  makkah: 'مكة المكرمة',
-  mecca: 'مكة المكرمة',
-  مكة: 'مكة المكرمة',
-  'مكة المكرمة': 'مكة المكرمة',
-  madinah: 'المدينة المنورة',
-  medina: 'المدينة المنورة',
-  المدينة: 'المدينة المنورة',
-  'المدينة المنورة': 'المدينة المنورة',
-  riyadh: 'الرياض',
-  الرياض: 'الرياض',
-  jeddah: 'جدة',
-  جدة: 'جدة',
-  dammam: 'الدمام',
-  الدمام: 'الدمام',
-  abha: 'أبها',
-  أبها: 'أبها',
-  tabuk: 'تبوك',
-  تبوك: 'تبوك',
-  buraydah: 'بريدة',
-  buraidah: 'بريدة',
-  بريدة: 'بريدة',
-  hail: 'حائل',
-  حائل: 'حائل',
-  taif: 'الطائف',
-  الطائف: 'الطائف',
-};
-
-/**
- * Maximum delay (seconds) past a prayer minute within which the azan still
- * fires. Mobile WebView timers are throttled in background tabs; without this
- * grace a single deferred tick would permanently skip that day's adhan.
- */
-const AZAN_GRACE_SECONDS = 300;
-
-/** Get today's Hijri date in YYYY-MM-DD format (Umm Al-Qura calendar) */
-function getTodayHijriISO(): string {
-  try {
-    const parts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).formatToParts(new Date());
-    let day = '',
-      month = '',
-      year = '';
-    for (const p of parts) {
-      if (p.type === 'day') {
-        day = p.value;
-      } else if (p.type === 'month') {
-        month = p.value;
-      } else if (p.type === 'year') {
-        year = p.value;
-      }
-    }
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-  } catch {
-    return '';
-  }
-}
-
-/** Local prayer times JSON cache (loaded once per session) */
-let _localPrayerJSON: Record<string, unknown> | null = null;
-
-/**
- * Load prayer times from the local offline JSON file (prayer-times-1448.json).
- * Returns PrayerTimes if the city is found and today's date matches.
- * This is instant (no network) and works fully offline.
- */
-/** @internal exported for unit testing the offline-table guard */
-export async function loadPrayerTimesFromLocalJSON(city: string): Promise<Record<string, string> | null> {
-  try {
-    // Normalize city name to match JSON keys
-    const norm = city.trim().toLowerCase();
-    const jsonCity = LOCAL_CITY_MAP[norm] || LOCAL_CITY_MAP[city.trim()];
-    if (!jsonCity) {
-      // City is not covered by the offline table — do NOT fetch the ~975 KB
-      // JSON just to discover it is unsupported. Return early and let the
-      // caller fall through to the Aladhan API instead.
-      return null;
-    }
-
-    // Load JSON file (cached after first load).
-    // NOTE: the file is ~975 KB; we only parse it when we already know the
-    // requested city is covered, so we never load it for unsupported cities.
-    if (!_localPrayerJSON) {
-      const url = `${import.meta.env.BASE_URL}data/prayer-times-1448.json`;
-      // Throws on failure → the outer catch returns null and the caller
-      // falls back to cached/API timings.
-      _localPrayerJSON = await jsonFetch<Record<string, unknown>>(url, { silent: true });
-    }
-
-    const cities = (_localPrayerJSON as Record<string, unknown>)['cities'] as Record<
-      string,
-      { days: Array<Record<string, string>> }
-    >;
-    if (!cities || !cities[jsonCity]) {
-      return null;
-    }
-
-    // Get today's GREGORIAN date in YYYY-MM-DD format
-    // The JSON `date` field is Gregorian (e.g., "2026-08-30"), NOT Hijri
-    const today = new Date();
-    const todayGreg = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-    // Also get today's Hijri date in DD-MM-YYYY format to match the `hijri` field
-    const todayHijri = getTodayHijriISO(); // Returns YYYY-MM-DD
-    let todayHijriDDMMYYYY = '';
-    if (todayHijri) {
-      const parts = todayHijri.split('-');
-      todayHijriDDMMYYYY = `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-
-    // Find today's entry — match by GREGORIAN date (primary) or Hijri date (fallback)
-    const days = cities[jsonCity].days;
-    let todayData = days.find((d: Record<string, string>) => d['date'] === todayGreg);
-
-    // Fallback: match by Hijri date field (DD-MM-YYYY)
-    if (!todayData && todayHijriDDMMYYYY) {
-      todayData = days.find((d: Record<string, string>) => d['hijri'] === todayHijriDDMMYYYY);
-    }
-
-    // Last fallback: match by month-day of Gregorian date
-    if (!todayData) {
-      const monthDay = todayGreg.substring(5); // "MM-DD"
-      todayData = days.find((d: Record<string, string>) => {
-        const dDate = d['date'];
-        return typeof dDate === 'string' && dDate.endsWith(monthDay);
-      });
-    }
-
-    if (!todayData) {
-      return null;
-    }
-
-    // Return in the same format as Aladhan API timings
-    return {
-      Fajr: todayData['Fajr'] || '00:00',
-      Sunrise: todayData['Sunrise'] || '00:00',
-      Dhuhr: todayData['Dhuhr'] || '00:00',
-      Asr: todayData['Asr'] || '00:00',
-      Maghrib: todayData['Maghrib'] || '00:00',
-      Isha: todayData['Isha'] || '00:00',
-    };
-  } catch {
-    return null;
-  }
-}
-
-/* ===================== INTERFACES ===================== */
-
-/** Shape of cached prayer times stored in localStorage. */
-interface CachedPrayerTimes {
-  date: string;
-  timings: import('../../types.js').PrayerTimes;
-  city: string;
-  country: string;
-  method: string;
-}
-
-/** Device-derived times are deliberately kept separate from an explicitly selected city. */
-interface CachedLocalPrayerTimes {
-  date: string;
-  timings: import('../../types.js').PrayerTimes;
-  method: string;
-  source: 'device-location';
-}
-
-const LOCAL_PRAYER_CACHE_KEY = 'cached_local_prayer_times';
-const PRAYER_CACHE_MAX_AGE_DAYS = 3;
+import {
+  getUnderwrittenPrayerTimes,
+  isSaudiCity,
+  loadPrayerTimesFromLocalJSON,
+  LOCAL_PRAYER_CACHE_KEY,
+  PRAYER_CACHE_MAX_AGE_DAYS,
+  type CachedLocalPrayerTimes,
+  type CachedPrayerTimes,
+} from './prayer-times-local.js';
+import { checkAzanTime, scheduleNextAzanCheck } from './prayer-azan.js';
 
 /* ===================== CLOCK ===================== */
 
@@ -309,49 +149,6 @@ function updatePrayerCurtainContext(now: Date): void {
 
 /* ===================== PRAYER TIMES ===================== */
 
-/* Official Umm Al-Qura (رئاسة الحرمين) times for major Saudi cities.
- * Loaded once from public/data/prayer-times-underwritten.json. It is a date-less
- * static snapshot, so it is only a last-resort fallback (Strategy 0.5) for dates
- * the date-aware prayer-times-1448.json does not cover — never the primary source,
- * which would freeze summer values onto the whole year. */
-let underwrittenTable: Record<string, Record<string, string>> | null = null;
-let underwrittenLoaded = false;
-
-export async function loadUnderwrittenPrayerTable(): Promise<void> {
-  if (underwrittenLoaded) {
-    return;
-  }
-  underwrittenLoaded = true;
-  try {
-    const json = await jsonFetch<Record<string, Record<string, string>>>(
-      `${import.meta.env.BASE_URL}data/prayer-times-underwritten.json`,
-      { silent: true },
-    );
-    delete (json as Record<string, unknown>)['_comment'];
-    underwrittenTable = json;
-  } catch {
-    underwrittenTable = null;
-  }
-}
-
-function getUnderwrittenPrayerTimes(city: string): Record<string, string> | null {
-  if (!underwrittenTable) {
-    return null;
-  }
-  const norm = (s: string): string => s.trim().toLowerCase().replace(/\s+/g, '');
-  const c = norm(city);
-  for (const [key, val] of Object.entries(underwrittenTable)) {
-    if (norm(key) === c) {
-      return val;
-    }
-    const label = val['label'];
-    if (label && norm(label) === c) {
-      return val;
-    }
-  }
-  return null;
-}
-
 export async function loadPrayerTimes(): Promise<void> {
   const city = dom.cityInput?.value.trim() || state.city;
   const country = dom.countryInput?.value.trim() || state.country;
@@ -402,8 +199,7 @@ export async function loadPrayerTimes(): Promise<void> {
   // sourced from the KACST/ummulqura.org.sa API) must NEVER fall back to Aladhan,
   // whose method=4 times diverge from the official calendar by ~1 min. Only consult
   // Aladhan for cities NOT present in the official Saudi table.
-  const isSaudiCity = Boolean(LOCAL_CITY_MAP[city.trim().toLowerCase()] || LOCAL_CITY_MAP[city.trim()]);
-  if (!isSaudiCity) {
+  if (!isSaudiCity(city)) {
     const query = `?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=${encodeURIComponent(method)}`;
     try {
       const data: import('../../types.js').AladhanTimingsResponse = await prayerFetch(query, {
@@ -586,220 +382,6 @@ function updateCountdowns(): void {
   }
 }
 
-/* ===================== AZAN ===================== */
-
-export function hideAzanNotification(): void {
-  if (dom.azanNotification) {
-    dom.azanNotification.classList.add('hidden');
-    dom.azanNotification.style.display = 'none';
-  }
-}
-
-export function stopAzan(): void {
-  if (!dom.azanPlayer) {
-    return;
-  }
-  dom.azanPlayer.pause();
-  dom.azanPlayer.currentTime = 0;
-  dom.azanPlayer.removeAttribute('src');
-  dom.azanPlayer.load();
-  state.azanPlaying = false;
-  if (dom.testAzanBtn) {
-    dom.testAzanBtn.textContent = __('test_azan');
-  }
-  hideAzanNotification();
-}
-
-function getAzanSource(): string {
-  const supportsOpus = dom.azanPlayer?.canPlayType('audio/ogg; codecs="opus"');
-  return supportsOpus ? `${import.meta.env.BASE_URL}azan.opus` : CONFIG.AZAN_FILE;
-}
-
-export function testAzan(): void {
-  if (!dom.azanPlayer) {
-    return;
-  }
-  if (state.azanPlaying) {
-    stopAzan();
-    showToast(__('azan_stopped'), '');
-  } else {
-    // Pause Quran audio before playing azan
-    if (dom.audioPlayer && !dom.audioPlayer.paused) {
-      dom.audioPlayer.pause();
-      setStoppedState();
-    }
-    dom.azanPlayer.src = getAzanSource();
-    dom.azanPlayer.load();
-    dom.azanPlayer
-      .play()
-      .then(() => {
-        state.azanPlaying = true;
-        if (dom.testAzanBtn) {
-          dom.testAzanBtn.textContent = __('stop_azan');
-        }
-        if (dom.azanNotification && dom.azanNotifPrayer) {
-          dom.azanNotifPrayer.textContent = __('test_azan');
-          dom.azanNotification.classList.remove('hidden');
-          dom.azanNotification.style.display = 'flex';
-        }
-      })
-      .catch(() => showToast(__('azan_failed'), 'error'));
-  }
-}
-
-function showAzanNotification(prayerKey: string): void {
-  if (!dom.azanNotification || !dom.azanNotifPrayer) {
-    return;
-  }
-  dom.azanNotifPrayer.textContent = `🕋 ${__('prayer')} ${getPrayerName(prayerKey)}`;
-  dom.azanNotification.classList.remove('hidden');
-  dom.azanNotification.style.display = 'flex';
-
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification(__('prayer_time_come'), {
-      body: `${__('prayer')} ${getPrayerName(prayerKey)}`,
-      icon: `${import.meta.env.BASE_URL}icon-192.png`,
-      tag: 'azan-' + prayerKey,
-    });
-  }
-  // UXS-04: no requestPermission() here. Azan time arrives from a timer, not a
-  // user gesture — browsers block or silently drop the ask, and the project's
-  // own policy (adhkar-notifications.ts) reserves it for the toggle click,
-  // which routes through ensureAzanNotificationPermission(). Without the grant
-  // the in-page banner above still fires.
-
-  // The Web Notification API is unavailable inside an Android WebView, so the
-  // phone relies on a real scheduled notification instead.
-  void notifyAzanNow(__('prayer_time_come'), `${__('prayer')} ${getPrayerName(prayerKey)}`);
-}
-
-export function checkAzanTime(): void {
-  if (!state.prayerTimes || !state.azanEnabled) {
-    return;
-  }
-  const now = new Date();
-  const cur = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
-  const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-  const todayStamp = now.toDateString();
-  for (const key of PRAYER_ORDER) {
-    if (key === 'Fajr' && !state.azanFajrEnabled) {
-      continue;
-    }
-    const raw = (state.prayerTimes[key] || '').split(' ')[0];
-    if (!raw) {
-      continue;
-    }
-    const [h, m] = raw.split(':') as [string, string];
-    const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
-    // Fire when the current minute matches the prayer OR when the scheduler
-    // delivered this tick late (throttled background-tab timer) but still within
-    // the grace window. Without the grace, any deferral past the minute boundary
-    // silently dropped that day's adhan.
-    const withinGrace = prayerSec <= nowSec && nowSec - prayerSec <= AZAN_GRACE_SECONDS;
-    if (raw === cur || withinGrace) {
-      const stamp = key + '_' + todayStamp + '_' + cur;
-      if (state.lastAzanFired?.startsWith(key + '_' + todayStamp)) {
-        continue; // Skip already-fired prayer today, check remaining ones
-      }
-      state.lastAzanFired = stamp;
-      if (dom.azanPlayer) {
-        // Pause Quran audio before playing azan
-        if (dom.audioPlayer && !dom.audioPlayer.paused) {
-          dom.audioPlayer.pause();
-          setStoppedState();
-        }
-        dom.azanPlayer.src = getAzanSource();
-        dom.azanPlayer.currentTime = 0;
-        dom.azanPlayer
-          .play()
-          .then(() => {
-            state.azanPlaying = true;
-            if (dom.testAzanBtn) {
-              dom.testAzanBtn.textContent = __('stop_azan');
-            }
-            showAzanNotification(key);
-          })
-          .catch((e: unknown) => console.warn(e));
-      }
-      return;
-    }
-  }
-}
-
-let azanTimer: ReturnType<typeof setTimeout> | null = null;
-
-/**
- * Mirror the in-app azan schedule into the Android notification shade.
- *
- * The in-page timer below only runs while the app is alive, so on a phone the
- * alert was invisible whenever the app was closed. Native notifications are
- * scheduled by the OS instead, which fires regardless.
- */
-function syncAzanNotifications(): void {
-  if (!state.azanEnabled || !state.prayerTimes) {
-    void cancelAzanNotifications();
-    return;
-  }
-  void scheduleAzanNotifications({
-    times: state.prayerTimes as unknown as Record<string, string | undefined>,
-    label: (key) => getPrayerName(key),
-    title: __('prayer_time_come'),
-    includeFajr: state.azanFajrEnabled,
-  });
-}
-
-export function scheduleNextAzanCheck(): void {
-  syncAzanNotifications();
-  if (azanTimer) {
-    clearTimeout(azanTimer);
-  }
-  if (!state.prayerTimes || !state.azanEnabled) {
-    // Nothing to schedule. Do NOT re-poll forever: the toggle handlers call
-    // scheduleNextAzanCheck() again the moment azan is re-enabled or prayer
-    // times finish loading, so there is no need for a background wake-up loop.
-    azanTimer = null;
-    return;
-  }
-  const now = new Date();
-  const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-  let nextSec: number | null = null;
-  for (const key of PRAYER_ORDER) {
-    if (key === 'Fajr' && !state.azanFajrEnabled) {
-      continue;
-    }
-    const raw = (state.prayerTimes[key] || '').split(' ')[0];
-    if (!raw) {
-      continue;
-    }
-    const [h, m] = raw.split(':') as [string, string];
-    const prayerSec = parseInt(h, 10) * 3600 + parseInt(m, 10) * 60;
-    if (prayerSec > nowSec) {
-      nextSec = prayerSec;
-      break;
-    }
-  }
-  // If all prayers have passed today, schedule for tomorrow's Fajr
-  if (nextSec === null) {
-    const fajrRaw = (state.prayerTimes['Fajr'] || '').split(' ')[0];
-    if (fajrRaw) {
-      const [fh, fm] = fajrRaw.split(':') as [string, string];
-      const fajrSec = parseInt(fh, 10) * 3600 + parseInt(fm, 10) * 60;
-      nextSec = fajrSec + 86400; // Tomorrow's Fajr
-    } else {
-      nextSec = nowSec + 10 * 60; // Fallback: check again in 10 minutes
-    }
-  }
-  const delayMs = (nextSec - nowSec) * 1000;
-  azanTimer = setTimeout(() => {
-    try {
-      checkAzanTime();
-    } catch (e) {
-      console.warn('[Azan] checkAzanTime error:', e);
-    }
-    scheduleNextAzanCheck();
-  }, delayMs);
-}
-
 /* ===================== PRAYER BAR TOGGLE ===================== */
 
 /** Cleanup for the focus trap installed while the prayer bar is expanded. */
@@ -895,6 +477,11 @@ function applyPrayerBarQuickSelect(): void {
   }
   void loadPrayerTimes();
 }
+
+/* Offline tables and azan moved to sibling modules — re-export so existing
+   import sites (app, events, tests) keep working unchanged. */
+export { loadPrayerTimesFromLocalJSON, loadUnderwrittenPrayerTable } from './prayer-times-local.js';
+export { checkAzanTime, hideAzanNotification, scheduleNextAzanCheck, stopAzan, testAzan } from './prayer-azan.js';
 
 /* Qibla compass moved to ./qibla.js — re-export so existing import sites
    (events, hifz-room, tests) keep working unchanged. */

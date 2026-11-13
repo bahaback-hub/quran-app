@@ -184,7 +184,7 @@
       "reason": "page-data preload is best-effort — the real page load fetches on demand"
     },
     {
-      "file": "src/features/prayer/prayer.ts",
+      "file": "src/features/prayer/prayer-times-local.ts",
       "fn": "loadPrayerTimesFromLocalJSON",
       "anchor": "#1",
       "kind": "catch-return-null",
@@ -492,7 +492,7 @@
       "reason": "native plugin probe failed → treat as web; azan uses the web notification path"
     },
     {
-      "file": "src/features/prayer/prayer.ts",
+      "file": "src/features/prayer/prayer-times-local.ts",
       "fn": "getTodayHijriISO",
       "anchor": "#1",
       "kind": "catch-return-empty-string",

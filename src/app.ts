@@ -321,23 +321,36 @@ export async function initApp(): Promise<void> {
     // path. They are loaded by the shared after-paint scheduler below.
 
     // Group 2: Clock & prayer (lightweight, starts intervals)
-    const prayer = await import('./features/prayer/prayer.js');
-    prayer.startClock();
-    prayer.scheduleNextAzanCheck();
+    // The idle callback's promise is discarded, so a failed chunk load (or a
+    // test environment tearing down mid-import) must be handled here instead of
+    // surfacing as an unhandled rejection.
+    try {
+      const prayer = await import('./features/prayer/prayer.js');
+      prayer.startClock();
+      prayer.scheduleNextAzanCheck();
+    } catch (error) {
+      console.warn('[App] Clock and prayer initialization skipped:', error);
+    }
 
     // Group 3: Network-dependent (non-blocking) — defer to next idle period
     scheduleIdle(() => {
-      void import('./adhkar.js').then(
-        ({ initAdhkarState, loadAdhkarSettings, wireAdhkarEvents, startAdhkarNotificationScheduler }) => {
+      void import('./adhkar.js')
+        .then(({ initAdhkarState, loadAdhkarSettings, wireAdhkarEvents, startAdhkarNotificationScheduler }) => {
           initAdhkarState();
           loadAdhkarSettings();
           wireAdhkarEvents();
           startAdhkarNotificationScheduler();
-        },
-      );
-      void import('./features/prayer/prayer.js').then(({ loadUnderwrittenPrayerTable, loadPrayerTimes }) =>
-        loadUnderwrittenPrayerTable().then(() => loadPrayerTimes()),
-      );
+        })
+        .catch((error: unknown) => {
+          console.warn('[App] Adhkar initialization skipped:', error);
+        });
+      void import('./features/prayer/prayer.js')
+        .then(({ loadUnderwrittenPrayerTable, loadPrayerTimes }) =>
+          loadUnderwrittenPrayerTable().then(() => loadPrayerTimes()),
+        )
+        .catch((error: unknown) => {
+          console.warn('[App] Prayer-times loading skipped:', error);
+        });
     });
 
     // Group 4: Heavy feature modules — lazy-import, lowest priority

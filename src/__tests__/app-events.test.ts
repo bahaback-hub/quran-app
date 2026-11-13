@@ -1815,9 +1815,22 @@ describe('app-events', () => {
       });
       const { bindSearchEvents } = await import('../app-events.js');
       bindSearchEvents();
+      // '✅' is shown for only two seconds. Polling for it can miss the window
+      // when a loaded machine delays the awaits above past the reset timer, so
+      // record every label change with a MutationObserver and assert on the
+      // history instead of the transient current value.
+      const seenLabels: string[] = [];
+      const observer = new MutationObserver(() => {
+        const label = dom.downloadAudioBtn?.textContent ?? '';
+        if (seenLabels[seenLabels.length - 1] !== label) {
+          seenLabels.push(label);
+        }
+      });
+      observer.observe(dom.downloadAudioBtn!, { childList: true, characterData: true, subtree: true });
       dom.downloadAudioBtn!.click();
       await waitUntil(() => expect(cacheSurahAudio).toHaveBeenCalled());
-      await waitUntil(() => expect(dom.downloadAudioBtn!.textContent).toBe('✅'), { timeout: 10000, interval: 20 });
+      await waitUntil(() => expect(seenLabels).toContain('✅'), { timeout: 10000 });
+      observer.disconnect();
       const { showToast } = await import('../ui.js');
       await waitUntil(() => expect(showToast).toHaveBeenCalledWith('download_audio_done', 'success'));
       expect(dom.downloadAudioBtn!.classList.contains('active')).toBe(true);
