@@ -894,16 +894,16 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-field select,
 .hifz-room-custom-repeat input,
 .hifz-room-review-time input {
-  border-color: rgb(215 187 129 / 30%);
-  color: #f7f3e8;
-  background: #1b1f24;
+  border-color: var(--border-soft);
+  color: var(--text-primary);
+  background: var(--select-bg);
   color-scheme: dark;
 }
 
 .hifz-room-field select option,
 .hifz-room-field select option:checked {
-  color: #f7f3e8;
-  background-color: #1b1f24;
+  color: var(--text-primary);
+  background-color: var(--select-bg);
 }
 
 .hifz-room-choice-row button,
