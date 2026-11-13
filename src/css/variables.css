@@ -85,6 +85,7 @@
 }
 
 body.night-mode {
+  color-scheme: dark;
   --bg-gradient: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
   --container-bg: #161a26;
   --header-bg: linear-gradient(135deg, #1a1f2e, #232838);
@@ -125,6 +126,7 @@ body.night-mode {
 
 /* ========== وضع السيبيا — خلفية بيج دافئة مريحة للعين ========== */
 body.sepia-mode {
+  color-scheme: light;
   --bg-gradient: linear-gradient(135deg, #f0e6d2 0%, #e8dbc4 100%);
   --container-bg: #f5edd8;
   --header-bg: linear-gradient(135deg, #6b4e2e, #8a6840);
