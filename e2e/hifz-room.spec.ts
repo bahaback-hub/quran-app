@@ -74,6 +74,13 @@ test.describe('Hifz Room — side drawer', () => {
   });
 
   test('runs the selected portion inside the focused room with text and audio controls', async ({ page }) => {
+    // Headless WebKit on the CI runner paints the focused room at only a few
+    // frames per second (glass panel + screencast recording, no GPU). Playwright
+    // needs two identical frames before every click, and measured waits reached
+    // 5.9s, 3.3s, 1.7s, 2.8s and 7.2s for the six clicks below — the flow passed
+    // the 30s budget while its elements stayed put. Give this heavy-but-correct
+    // flow the standard 3× slow-test budget instead of failing on frame cadence.
+    test.slow();
     await page.locator('#hifzRoomToggle').click();
     const room = page.locator('#hifzRoom');
     await room.locator('#hifzRoomFrom').selectOption('1');
