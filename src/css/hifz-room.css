@@ -897,6 +897,12 @@ body.hifz-room-active .hifz-room-toggle {
   border-color: var(--border-soft);
   color: var(--text-primary);
   background: var(--select-bg);
+  color-scheme: dark;
+}
+
+.hifz-room-field select option {
+  color: var(--text-primary);
+  background: var(--select-bg);
 }
 
 .hifz-room-choice-row button,
