@@ -144,6 +144,55 @@ export function saveSessionDownload(plan: HifzPlan, urls: string[]): void {
   storage.set(DOWNLOAD_STORAGE_KEY, records);
 }
 
+const SESSION_PROGRESS_STORAGE_KEY = 'hifz_session_progress_v1';
+
+/** Unfinished session state, so a reload can continue instead of restarting. */
+export interface HifzSessionProgress {
+  version: 1;
+  plan: HifzPlan;
+  /** Ayah (numberInSurah) the reader was on. */
+  ayah: number;
+  /** Completed repetitions of the range (0-based). */
+  repeat: number;
+  updatedAt: number;
+}
+
+/** How long an unfinished session stays resumable. */
+export const SESSION_PROGRESS_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Persist the in-progress position of a focused hifz session. */
+export function saveSessionProgress(plan: HifzPlan, ayah: number, repeat: number): void {
+  const normalized = normalizePlan(plan);
+  const record: HifzSessionProgress = {
+    version: 1,
+    plan: normalized,
+    ayah: Math.min(Math.max(normalized.from, Math.trunc(ayah) || normalized.from), normalized.to),
+    repeat: Math.min(Math.max(0, Math.trunc(repeat) || 0), normalized.times - 1),
+    updatedAt: Date.now(),
+  };
+  storage.set(SESSION_PROGRESS_STORAGE_KEY, record);
+}
+
+/** Read a resumable session, ignoring stale or malformed records. */
+export function getSavedSessionProgress(now = Date.now()): HifzSessionProgress | null {
+  const stored = storage.get<HifzSessionProgress>(SESSION_PROGRESS_STORAGE_KEY);
+  if (stored?.version !== 1 || !stored.plan) {
+    return null;
+  }
+  const updatedAt = Number(stored.updatedAt);
+  if (!Number.isFinite(updatedAt) || now - updatedAt > SESSION_PROGRESS_TTL_MS) {
+    return null;
+  }
+  const plan = normalizePlan(stored.plan);
+  const ayah = Math.min(Math.max(plan.from, Math.trunc(stored.ayah) || plan.from), plan.to);
+  const repeat = Math.min(Math.max(0, Math.trunc(stored.repeat) || 0), plan.times - 1);
+  return { version: 1, plan, ayah, repeat, updatedAt };
+}
+
+export function clearSessionProgress(): void {
+  storage.remove(SESSION_PROGRESS_STORAGE_KEY);
+}
+
 export function getPlanAyahs(plan: HifzPlan): { numberInSurah: number; text: string }[] {
   if (state.currentSurah !== plan.surah || !state.surahData) {
     return [];

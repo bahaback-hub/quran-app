@@ -220,6 +220,45 @@ body.hifz-room-active .hifz-room-toggle {
   transform: scale(0.98);
 }
 
+/* Offered only while an unfinished session is still fresh; the label carries
+   the surah, ayah and repeat count so the reader knows what will resume. */
+.hifz-room-resume {
+  width: 100%;
+  margin: 0 0 0.6rem;
+  border: 1px solid var(--hifz-curtain-accent);
+  border-radius: 12px;
+  padding: 0.78rem 1rem;
+  color: var(--hifz-curtain-accent-strong);
+  background: rgb(255 255 255 / 62%);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: start;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out, ease-out), background 160ms ease-out;
+}
+
+.hifz-room-resume:hover,
+.hifz-room-resume:focus-visible {
+  background: rgb(255 255 255 / 88%);
+  outline: 3px solid rgb(165 132 82 / 54%);
+  outline-offset: 3px;
+}
+
+.hifz-room-resume:active {
+  transform: scale(0.98);
+}
+
+.hifz-room-resume:disabled {
+  cursor: progress;
+  opacity: 0.62;
+}
+
+.hifz-room-resume[hidden] {
+  display: none;
+}
+
 .hifz-room-review {
   display: flex;
   gap: 0.72rem;
@@ -925,6 +964,7 @@ body.night-mode.deep-night-mode .hifz-room--rtl {
 .hifz-room-choice-row button,
 .hifz-room-repeat-options button,
 .hifz-room-download,
+.hifz-room-resume,
 .hifz-room-focus-actions-secondary button {
   border-color: var(--border-soft);
   color: var(--text-secondary);
@@ -934,6 +974,7 @@ body.night-mode.deep-night-mode .hifz-room--rtl {
 .hifz-room-field select:focus-visible,
 .hifz-room-choice-row button:focus-visible,
 .hifz-room-return:focus-visible,
+.hifz-room-resume:focus-visible,
 .hifz-room-download:focus-visible,
 .hifz-room-focus-actions button:focus-visible {
   outline-color: var(--accent);
@@ -951,6 +992,8 @@ body.night-mode.deep-night-mode .hifz-room--rtl {
 
 .hifz-room-start:hover,
 .hifz-room-start:focus-visible,
+.hifz-room-resume:hover,
+.hifz-room-resume:focus-visible,
 .hifz-room-download:hover,
 .hifz-room-download:focus-visible,
 .hifz-room-focus-actions button:hover,

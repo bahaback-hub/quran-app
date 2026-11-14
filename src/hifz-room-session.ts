@@ -5,18 +5,21 @@
  */
 import { toLatinDigits } from './i18n.js';
 import {
+  clearSessionProgress,
   currentPlanAyah,
   getAyahCount,
   getCurrentAyah,
   getDefaultPlan,
   getPlanAyahs,
   getSavedSessionDownload,
+  getSavedSessionProgress,
   getSurahName,
   label,
   normalizePlan,
   normalizeReviewAt,
   savePlan,
   saveSessionDownload,
+  saveSessionProgress,
   type HifzPlan,
   type ReviewChoice,
 } from './hifz-room-plan.js';
@@ -206,6 +209,20 @@ export async function downloadSessionAudio(room: HTMLElement): Promise<void> {
   }
 }
 
+/** Save (or retire) the resumable state of the focused session. */
+function persistFocusedSession(room: HTMLElement, plan: HifzPlan): void {
+  if (!room.classList.contains('hifz-room-focused')) {
+    return;
+  }
+  // `completeRepeat()` clears both flags when the range is finished; the reader
+  // should not be offered a session that no longer exists.
+  if (!state.repeatMode || !state.hifdhMode) {
+    clearSessionProgress();
+    return;
+  }
+  saveSessionProgress(plan, getCurrentAyah(), state.repeatCounter);
+}
+
 export function updateFocusedSession(room: HTMLElement, plan: HifzPlan): void {
   const controls = getFocusedControls(room);
   if (!controls) {
@@ -236,6 +253,7 @@ export function updateFocusedSession(room: HTMLElement, plan: HifzPlan): void {
   controls.end.textContent = label('hifz_room_end');
   fillReciterOptions(controls.reciter, plan.reciter);
   fillSpeedOptions(controls.speed, plan.speed);
+  persistFocusedSession(room, plan);
 }
 
 function applyReaderAyahDisplay(room: HTMLElement): void {
@@ -290,6 +308,12 @@ function enterFocusedSession(room: HTMLElement, plan: HifzPlan): void {
 
 export function leaveFocusedSession(room: HTMLElement, restoreSetup = true): void {
   const focused = getFocusedControls(room);
+  // Ending the session on purpose retires the resume offer. Closing the whole
+  // room (or the curtain hiding it) keeps the saved position, so a later visit
+  // or reload can continue where the reader stopped.
+  if (restoreSetup) {
+    clearSessionProgress();
+  }
   room.classList.remove('hifz-room-focused', 'hifz-room-text-hidden', 'hifz-room-show-range');
   document.body.classList.remove('hifz-room-focused-active', 'hifz-room-tools-hidden');
   room.setAttribute('aria-hidden', 'false');
@@ -374,6 +398,81 @@ export function refreshForm(room: HTMLElement, plan = getDefaultPlan()): void {
   }
   updateSummary(room);
   void refreshSessionDownloadStatus(room, normalized);
+  refreshResumeButton(room);
+}
+
+/** Show the resume action only while an unfinished session is still fresh. */
+export function refreshResumeButton(room: HTMLElement): void {
+  const button = room.querySelector<HTMLButtonElement>('#hifzRoomResume');
+  if (!button) {
+    return;
+  }
+  const progress = getSavedSessionProgress();
+  if (!progress) {
+    button.hidden = true;
+    button.removeAttribute('aria-label');
+    return;
+  }
+  const text = label(
+    'hifz_room_resume_detail',
+    getSurahName(progress.plan.surah),
+    String(progress.ayah),
+    String(Math.min(progress.repeat + 1, progress.plan.times)),
+    String(progress.plan.times),
+  );
+  button.textContent = text;
+  button.setAttribute('aria-label', text);
+  button.hidden = false;
+}
+
+/**
+ * Continue an unfinished session from the saved ayah and repeat count.
+ * The plan is re-applied first so the reader, repeat range, reciter and speed
+ * all match what the user left behind.
+ */
+export async function resumeHifzSession(room: HTMLElement): Promise<void> {
+  const progress = getSavedSessionProgress();
+  const controls = getControls(room);
+  if (!progress || !controls) {
+    refreshResumeButton(room);
+    return;
+  }
+  const plan = progress.plan;
+  const resumeButton = room.querySelector<HTMLButtonElement>('#hifzRoomResume');
+  savePlan(plan);
+  refreshForm(room, plan);
+  controls.start.disabled = true;
+  if (resumeButton) {
+    resumeButton.disabled = true;
+  }
+  controls.status.textContent = label('hifz_room_loading');
+  try {
+    await prepareSurahForHifz(plan);
+    await hydrateDownloadedSessionAudio(plan);
+    const mainSelect = document.getElementById('surahSelect') as HTMLSelectElement | null;
+    if (mainSelect) {
+      mainSelect.value = String(plan.surah);
+    }
+    applySessionAudioPreferences(plan);
+    activateCurrentHifzTools(plan);
+    const index = state.surahData?.ayahs.findIndex((ayah) => ayah.numberInSurah === progress.ayah) ?? -1;
+    if (index >= 0) {
+      state.currentAyahIndex = index;
+    }
+    state.repeatCounter = progress.repeat;
+    highlightCurrentAyah();
+    controls.status.textContent = label('hifz_room_session_active');
+    room.classList.add('hifz-room-session-active');
+    enterFocusedSession(room, plan);
+    await playCurrentAyah();
+  } catch {
+    controls.status.textContent = label('hifz_room_load_failed');
+  } finally {
+    controls.start.disabled = false;
+    if (resumeButton) {
+      resumeButton.disabled = false;
+    }
+  }
 }
 
 function applyExistingRepeatRange(plan: HifzPlan): void {

@@ -33,6 +33,7 @@ export default {
   hifz_room_repeat: 'عدد التكرارات',
   hifz_room_custom_repeat: 'عدد مخصص (1–100)',
   hifz_room_summary: '{0} — الآيات {1}–{2} — {3} مرات',
+  hifz_room_resume_detail: 'متابعة {0} — الآية {1} — التكرار {2} من {3}',
   hifz_room_return_reader: 'العودة إلى القراءة',
   hifz_room_review_today: 'مساء اليوم',
   hifz_room_review_tomorrow: 'غداً',

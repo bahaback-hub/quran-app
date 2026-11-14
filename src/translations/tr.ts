@@ -33,6 +33,7 @@ export default {
   hifz_room_repeat: 'Tekrar sayısı',
   hifz_room_custom_repeat: 'Özel sayı (1–100)',
   hifz_room_summary: '{0} — {1}–{2}. ayetler — {3} tekrar',
+  hifz_room_resume_detail: '{0} — {1}. ayetten devam et — tekrar {2}/{3}',
   hifz_room_return_reader: 'Okumaya dön',
   hifz_room_review_today: 'Bu akşam',
   hifz_room_review_tomorrow: 'Yarın',

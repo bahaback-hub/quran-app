@@ -4,7 +4,12 @@ import { isCapacitorNative } from './types.js';
 import { dismissSplashOnReady } from './splash.js';
 import { afterFirstPaint } from './scheduler.js';
 import { updateBanner } from './templates.js';
-import { CHECK_UPDATES_EVENT, UPDATE_AVAILABLE_EVENT, checkForAppUpdates } from './app-updates.js';
+import {
+  CHECK_UPDATES_EVENT,
+  UPDATE_AVAILABLE_EVENT,
+  checkForAppUpdates,
+  checkForUpdatesOnResume,
+} from './app-updates.js';
 import { setTrustedHtml } from './safe-html.js';
 
 /**
@@ -190,6 +195,16 @@ if (!isCapNative && !isAndroidWebView && 'serviceWorker' in navigator) {
   });
   window.addEventListener(UPDATE_AVAILABLE_EVENT, () => {
     showUpdateNotification();
+  });
+
+  // Readers keep the app open for hours and installed PWAs are resumed from
+  // the background, so a tab can outlive several releases. Check quietly when
+  // it becomes visible again (throttled to once an hour) and let the banner
+  // above ask before applying anything.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      void checkForUpdatesOnResume();
+    }
   });
 
   navigator.serviceWorker.ready

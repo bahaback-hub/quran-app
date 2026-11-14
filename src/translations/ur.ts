@@ -33,6 +33,7 @@ export default {
   hifz_room_repeat: 'دہرائی کی تعداد',
   hifz_room_custom_repeat: 'اپنی تعداد (1–100)',
   hifz_room_summary: '{0} — آیات {1}–{2} — {3} بار',
+  hifz_room_resume_detail: '{0} سے جاری رکھیں — آیت {1} — تکرار {2} از {3}',
   hifz_room_return_reader: 'قراءت پر واپس جائیں',
   hifz_room_review_today: 'آج شام',
   hifz_room_review_tomorrow: 'کل',

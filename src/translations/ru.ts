@@ -35,6 +35,7 @@ export default {
   hifz_room_repeat: 'Количество повторов',
   hifz_room_custom_repeat: 'Пользовательское число (1–100)',
   hifz_room_summary: '{0} — аяты {1}–{2} — {3} раз',
+  hifz_room_resume_detail: 'Продолжить {0} — аят {1} — повтор {2} из {3}',
   hifz_room_return_reader: 'Вернуться к чтению',
   hifz_room_review_today: 'Сегодня вечером',
   hifz_room_review_tomorrow: 'Завтра',

@@ -127,4 +127,40 @@ test.describe('Hifz Room — side drawer', () => {
     await expect(page.locator('#hifzRoom')).toHaveClass(/is-open/);
     await expect(page.locator('#hifzRoom')).toHaveAttribute('aria-hidden', 'false');
   });
+
+  test('matches the app theme surface colors in all four modes', async ({ page }) => {
+    await page.locator('#hifzRoomToggle').click();
+    const room = page.locator('#hifzRoom');
+    await expect(room).toHaveClass(/is-open/);
+
+    const readRoomBackground = () =>
+      room.evaluate((el) => getComputedStyle(el).backgroundColor);
+
+    await page.evaluate(() => {
+      document.body.classList.remove('night-mode', 'deep-night-mode', 'sepia-mode');
+    });
+    await page.waitForTimeout(450);
+    await expect.poll(readRoomBackground).toBe('rgba(254, 253, 248, 0.85)');
+
+    await page.evaluate(() => {
+      document.body.classList.remove('night-mode', 'deep-night-mode');
+      document.body.classList.add('sepia-mode');
+    });
+    await page.waitForTimeout(450);
+    await expect.poll(readRoomBackground).toBe('rgba(242, 232, 212, 0.85)');
+
+    await page.evaluate(() => {
+      document.body.classList.remove('sepia-mode', 'deep-night-mode');
+      document.body.classList.add('night-mode');
+    });
+    await page.waitForTimeout(450);
+    await expect.poll(readRoomBackground).toBe('rgba(12, 16, 28, 0.88)');
+
+    await page.evaluate(() => {
+      document.body.classList.remove('sepia-mode');
+      document.body.classList.add('night-mode', 'deep-night-mode');
+    });
+    await page.waitForTimeout(450);
+    await expect.poll(readRoomBackground).toBe('rgb(0, 0, 0)');
+  });
 });

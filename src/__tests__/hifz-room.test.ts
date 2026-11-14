@@ -21,6 +21,7 @@ const translations: Record<string, string> = {
   hifz_room_repeat: 'عدد التكرارات',
   hifz_room_custom_repeat: 'عدد مخصص (1–100)',
   hifz_room_summary: '{0} — الآيات {1}–{2} — {3} مرات',
+  hifz_room_resume_detail: 'متابعة {0} — الآية {1} — التكرار {2} من {3}',
   hifz_room_return_reader: 'العودة إلى القراءة',
   hifz_room_review_today: 'مساء اليوم',
   hifz_room_review_tomorrow: 'غداً',
@@ -170,6 +171,53 @@ function addPlayerControls(): { hifdhClick: ReturnType<typeof vi.fn>; repeatClic
   return { hifdhClick, repeatClick };
 }
 
+interface TestProgress {
+  version: 1;
+  plan: Record<string, unknown>;
+  ayah: number;
+  repeat: number;
+  updatedAt: number;
+}
+
+function progressFixture(overrides: Partial<TestProgress> = {}): TestProgress {
+  return {
+    version: 1,
+    plan: {
+      version: 1,
+      surah: 1,
+      from: 2,
+      to: 5,
+      times: 3,
+      review: 'today',
+      reciter: 'ar.alafasy',
+      speed: 1,
+      updatedAt: Date.now(),
+    },
+    ayah: 3,
+    repeat: 1,
+    updatedAt: Date.now(),
+    ...overrides,
+  };
+}
+
+/** In-memory `hifz_session_progress_v1` so save/clear round-trips behave. */
+function useProgressStore(initial: TestProgress | null = null): { read: () => TestProgress | null } {
+  let saved = initial;
+  mockStorage.get.mockImplementation((key: string) => (key === 'hifz_session_progress_v1' ? saved : null));
+  mockStorage.set.mockImplementation((key: string, value: unknown) => {
+    if (key === 'hifz_session_progress_v1') {
+      saved = value as TestProgress;
+    }
+    return true;
+  });
+  mockStorage.remove.mockImplementation((key: string) => {
+    if (key === 'hifz_session_progress_v1') {
+      saved = null;
+    }
+  });
+  return { read: () => saved };
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
   document.body.innerHTML = '';
@@ -275,6 +323,93 @@ describe('Hifz Room', () => {
     expect(mockHideQiblaCompass).toHaveBeenCalledTimes(1);
     expect(mockTogglePrayerBar).toHaveBeenCalledTimes(1);
     expect(isHifzRoomOpen()).toBe(true);
+  });
+
+  it('offers to resume the unfinished session with its position', () => {
+    useProgressStore(progressFixture());
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    const resume = room.querySelector<HTMLButtonElement>('#hifzRoomResume')!;
+    expect(resume.hidden).toBe(false);
+    expect(resume.textContent).toContain('الفاتحة');
+    expect(resume.textContent).toContain('الآية 3');
+    expect(resume.textContent).toContain('التكرار 2 من 3');
+    expect(resume.getAttribute('aria-label')).toBe(resume.textContent);
+  });
+
+  it('hides the resume action when there is no unfinished session', () => {
+    useProgressStore(null);
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    expect(room.querySelector<HTMLButtonElement>('#hifzRoomResume')!.hidden).toBe(true);
+  });
+
+  it('resumes from the saved ayah and repeat count', async () => {
+    const { hifdhClick, repeatClick } = addPlayerControls();
+    const store = useProgressStore(progressFixture());
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    mockState.hifdhMode = true;
+    mockState.repeatMode = true;
+
+    room.querySelector<HTMLButtonElement>('#hifzRoomResume')!.click();
+    await vi.waitFor(() => expect(room.classList.contains('hifz-room-focused')).toBe(true));
+
+    expect(mockState.currentAyahIndex).toBe(2);
+    expect(mockState.repeatCounter).toBe(1);
+    expect(hifdhClick).not.toHaveBeenCalled();
+    expect(repeatClick).not.toHaveBeenCalled();
+    expect(mockPlayCurrentAyah).toHaveBeenCalledTimes(1);
+    expect(store.read()).toMatchObject({ ayah: 3, repeat: 1 });
+    expect(room.querySelector('#hifzRoomStatus')!.textContent).toContain('فُعّل الحفظ والتكرار.');
+  });
+
+  it('saves the focused position so a reload can continue', async () => {
+    addPlayerControls();
+    const store = useProgressStore();
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    mockState.hifdhMode = true;
+    mockState.repeatMode = true;
+
+    room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
+    await vi.waitFor(() => expect(room.classList.contains('hifz-room-focused')).toBe(true));
+
+    expect(store.read()).toMatchObject({ ayah: 2, repeat: 0 });
+  });
+
+  it('clears the saved session when the reader ends it explicitly', async () => {
+    addPlayerControls();
+    const store = useProgressStore();
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    mockState.hifdhMode = true;
+    mockState.repeatMode = true;
+    room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
+    await vi.waitFor(() => expect(room.classList.contains('hifz-room-focused')).toBe(true));
+    expect(store.read()).not.toBeNull();
+
+    room.querySelector<HTMLButtonElement>('#hifzRoomEnd')!.click();
+
+    expect(store.read()).toBeNull();
+    expect(room.querySelector<HTMLButtonElement>('#hifzRoomResume')!.hidden).toBe(true);
+  });
+
+  it('keeps the saved position when the room is only hidden', async () => {
+    addPlayerControls();
+    const store = useProgressStore();
+    initHifzRoom();
+    const room = document.getElementById('hifzRoom')!;
+    mockState.hifdhMode = true;
+    mockState.repeatMode = true;
+    room.querySelector<HTMLButtonElement>('#hifzRoomStart')!.click();
+    await vi.waitFor(() => expect(room.classList.contains('hifz-room-focused')).toBe(true));
+
+    closeHifzRoom();
+    expect(store.read()).not.toBeNull();
+    openHifzRoom();
+
+    expect(room.querySelector<HTMLButtonElement>('#hifzRoomResume')!.hidden).toBe(false);
   });
 
   it('uses H and Escape without capturing editable field input', () => {

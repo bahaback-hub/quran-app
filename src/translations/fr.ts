@@ -33,6 +33,7 @@ export default {
   hifz_room_repeat: 'Nombre de répétitions',
   hifz_room_custom_repeat: 'Nombre personnalisé (1–100)',
   hifz_room_summary: '{0} — ayahs {1}–{2} — {3} fois',
+  hifz_room_resume_detail: 'Reprendre {0} — verset {1} — répétition {2} sur {3}',
   hifz_room_return_reader: 'Retour à la lecture',
   hifz_room_review_today: 'Ce soir',
   hifz_room_review_tomorrow: 'Demain',

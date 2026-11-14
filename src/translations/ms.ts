@@ -33,6 +33,7 @@ export default {
   hifz_room_repeat: 'Bilangan ulangan',
   hifz_room_custom_repeat: 'Bilangan tersuai (1–100)',
   hifz_room_summary: '{0} — ayat {1}–{2} — {3} kali',
+  hifz_room_resume_detail: 'Sambung {0} — ayat {1} — ulangan {2} daripada {3}',
   hifz_room_return_reader: 'Kembali membaca',
   hifz_room_review_today: 'Petang ini',
   hifz_room_review_tomorrow: 'Esok',

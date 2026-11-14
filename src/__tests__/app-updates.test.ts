@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CHECK_UPDATES_EVENT, UPDATE_AVAILABLE_EVENT, checkForAppUpdates } from '../app-updates.js';
+import {
+  AUTO_UPDATE_CHECK_INTERVAL_MS,
+  CHECK_UPDATES_EVENT,
+  UPDATE_AVAILABLE_EVENT,
+  checkForAppUpdates,
+  checkForUpdatesOnResume,
+  resetAutoUpdateCheckClock,
+} from '../app-updates.js';
 
 function stubServiceWorker(value: unknown): void {
   Object.defineProperty(window.navigator, 'serviceWorker', {
@@ -126,5 +133,40 @@ describe('app-updates', () => {
     handlers.statechange();
     const result = await pending;
     expect(result).toBe('up-to-date');
+  });
+
+  describe('on resume', () => {
+    const base = 1_700_000_000_000;
+
+    it('runs the first check after the window and then skips requests inside it', async () => {
+      resetAutoUpdateCheckClock(base);
+      const getRegistration = vi.fn().mockResolvedValue({ waiting: null, installing: null, update: vi.fn() });
+      stubServiceWorker({ getRegistration });
+
+      expect(await checkForUpdatesOnResume(base + AUTO_UPDATE_CHECK_INTERVAL_MS)).toBe('up-to-date');
+      expect(getRegistration).toHaveBeenCalledTimes(1);
+
+      expect(await checkForUpdatesOnResume(base + AUTO_UPDATE_CHECK_INTERVAL_MS + 5 * 60 * 1000)).toBe('skipped');
+      expect(getRegistration).toHaveBeenCalledTimes(1);
+    });
+
+    it('checks again once the interval has elapsed and reuses the banner event', async () => {
+      resetAutoUpdateCheckClock(base);
+      const dispatch = vi.spyOn(window, 'dispatchEvent');
+      stubServiceWorker({
+        getRegistration: vi.fn().mockResolvedValue({ waiting: {}, installing: null, update: vi.fn() }),
+      });
+
+      const result = await checkForUpdatesOnResume(base + AUTO_UPDATE_CHECK_INTERVAL_MS);
+      expect(result).toBe('updated');
+      const names = dispatch.mock.calls.map((call) => (call[0] as Event).type);
+      expect(names).toContain(UPDATE_AVAILABLE_EVENT);
+    });
+
+    it('reports unsupported without a service worker', async () => {
+      resetAutoUpdateCheckClock(base);
+      clearServiceWorkerStub();
+      expect(await checkForUpdatesOnResume(base + AUTO_UPDATE_CHECK_INTERVAL_MS)).toBe('unsupported');
+    });
   });
 });

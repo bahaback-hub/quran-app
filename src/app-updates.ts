@@ -23,6 +23,20 @@ export const UPDATE_AVAILABLE_EVENT = 'app:update-available';
 /** How long to wait for a downloading worker before giving up. */
 const INSTALL_TIMEOUT_MS = 20_000;
 
+/**
+ * Minimum gap between automatic checks triggered by returning to the app.
+ * Long-lived tabs and installed PWAs can otherwise keep serving the worker
+ * they booted with for days.
+ */
+export const AUTO_UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000;
+
+let lastAutoCheckAt = Date.now();
+
+/** Reset the automatic-check throttle (tests, and first boot). */
+export function resetAutoUpdateCheckClock(now = Date.now()): void {
+  lastAutoCheckAt = now;
+}
+
 /** Wait until the installing worker reaches `installed` (or fails/times out). */
 function waitForInstalled(reg: ServiceWorkerRegistration): Promise<boolean> {
   return new Promise((resolve) => {
@@ -86,4 +100,20 @@ export async function checkForAppUpdates(statusEl: HTMLElement | null): Promise<
     setStatus('update_check_failed');
     return 'failed';
   }
+}
+
+/**
+ * Quietly check for a newer worker when the user returns to the app, at most
+ * once per {@link AUTO_UPDATE_CHECK_INTERVAL_MS}. The existing banner listener
+ * in `main.ts` handles the visible notification, so nothing is shown when the
+ * app is already current.
+ */
+export async function checkForUpdatesOnResume(
+  now = Date.now(),
+): Promise<UpdateCheckResult | 'skipped'> {
+  if (now - lastAutoCheckAt < AUTO_UPDATE_CHECK_INTERVAL_MS) {
+    return 'skipped';
+  }
+  lastAutoCheckAt = now;
+  return checkForAppUpdates(null);
 }
