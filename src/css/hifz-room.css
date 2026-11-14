@@ -268,7 +268,7 @@ body.hifz-room-active .hifz-room-toggle {
   min-height: 2.05rem;
   padding: 0.35rem 0.3rem;
   border-top: 2px solid rgb(165 132 82 / 55%);
-  color: #526158;
+  color: var(--text-secondary);
   font-size: 0.66rem;
   font-weight: 700;
   line-height: 1.35;
@@ -802,6 +802,8 @@ body.hifz-room-active .hifz-room-toggle {
 
 .hifz-room,
 .hifz-room--rtl {
+  /* سطح الغرفة يتبع الثيم مثل لوحة الأذكار بدل أسود ثابت */
+  --hifz-room-label: var(--primary);
   z-index: 940;
   top: 1rem;
   left: 0;
@@ -811,13 +813,24 @@ body.hifz-room-active .hifz-room-toggle {
   width: min(360px, 88vw);
   min-width: 0;
   height: auto;
-  color: #f7f3e8;
-  background: #090a09;
-  border: 1px solid rgb(215 187 129 / 42%);
+  color: var(--text-primary);
+  background: var(--container-bg);
+  border: 1px solid var(--border-soft);
   border-left: 0;
   border-radius: 0 18px 18px 0;
-  box-shadow: 12px 0 34px rgb(0 0 0 / 42%);
+  box-shadow: var(--shadow);
   transform: translateX(calc(-100% - 1rem));
+}
+
+body.night-mode .hifz-room,
+body.night-mode .hifz-room--rtl {
+  --hifz-room-label: var(--accent);
+}
+
+/* في الوضع الليلي القاتم تصبح لوحة الأذكار سوداء صافية؛ نطابقها */
+body.night-mode.deep-night-mode .hifz-room,
+body.night-mode.deep-night-mode .hifz-room--rtl {
+  background: #000;
 }
 
 .hifz-room.is-open {
@@ -831,10 +844,12 @@ body.hifz-room-active .hifz-room-toggle {
   padding: 1.05rem;
   border: 0;
   border-radius: 0 18px 18px 0;
-  color: #f7f3e8;
-  background: #090a09;
+  color: var(--text-primary);
+  background: transparent;
   box-shadow: none;
+  /* الغرفة نفسها هي طبقة الزجاج الوحيدة؛ لا نضاعف الضباب داخل اللوحة */
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .hifz-room-eyebrow,
@@ -843,12 +858,12 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-field,
 .hifz-room-custom-repeat,
 .hifz-room-review-time {
-  color: #d7bb81;
+  color: var(--hifz-room-label);
 }
 
 .hifz-room h2,
 .hifz-room-summary {
-  color: #fff8e8;
+  color: var(--text-primary);
 }
 
 .hifz-room-lede,
@@ -858,18 +873,20 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-review strong,
 .hifz-room-choice-row button,
 .hifz-room-repeat-options button {
-  color: rgb(247 243 232 / 78%);
+  color: var(--text-secondary);
 }
 
 .hifz-room-close {
-  color: #f7f3e8;
-  background: rgb(215 187 129 / 12%);
+  color: var(--error-text);
+  background: var(--error-bg);
 }
 
 .hifz-room-close:hover,
 .hifz-room-close:focus-visible {
-  color: #090a09;
-  background: #d7bb81;
+  color: var(--error-text);
+  background: var(--error-bg);
+  transform: rotate(90deg);
+  outline: none;
 }
 
 /* وضع الستارة: الغرفة تُفتح من يمين الشاشة وقد تُكشف جزئياً على الجوال،
@@ -888,7 +905,7 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-repeat,
 .hifz-room-review,
 .hifz-room-audio-grid {
-  border-color: rgb(215 187 129 / 18%);
+  border-color: var(--border-soft);
 }
 
 .hifz-room-field select,
@@ -897,7 +914,6 @@ body.hifz-room-active .hifz-room-toggle {
   border-color: var(--border-soft);
   color: var(--text-primary);
   background: var(--select-bg);
-  color-scheme: dark;
 }
 
 .hifz-room-field select option,
@@ -910,9 +926,9 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-repeat-options button,
 .hifz-room-download,
 .hifz-room-focus-actions-secondary button {
-  border-color: rgb(215 187 129 / 30%);
-  color: #f7f3e8;
-  background: #151714;
+  border-color: var(--border-soft);
+  color: var(--text-secondary);
+  background: var(--controls-bg);
 }
 
 .hifz-room-field select:focus-visible,
@@ -920,16 +936,16 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-return:focus-visible,
 .hifz-room-download:focus-visible,
 .hifz-room-focus-actions button:focus-visible {
-  outline-color: rgb(215 187 129 / 78%);
+  outline-color: var(--accent);
 }
 
 .hifz-room-choice-row button.is-selected,
 .hifz-room-repeat-options button.is-selected,
 .hifz-room-start,
 .hifz-room-focus-actions button {
-  border-color: #d7bb81;
-  color: #090a09;
-  background: #d7bb81;
+  border-color: var(--accent);
+  color: #101010;
+  background: var(--accent);
   box-shadow: none;
 }
 
@@ -939,15 +955,23 @@ body.hifz-room-active .hifz-room-toggle {
 .hifz-room-download:focus-visible,
 .hifz-room-focus-actions button:hover,
 .hifz-room-focus-actions button:focus-visible {
-  color: #090a09;
-  background: #f5dfab;
+  color: #fff;
+  background: var(--accent-dark);
 }
 
 .hifz-room-download-status[data-state='ready'],
 body.night-mode .hifz-room-download-status[data-state='ready'] {
-  border-color: rgb(215 187 129 / 34%);
-  color: #f5dfab;
-  background: rgb(215 187 129 / 10%);
+  border-color: var(--border-soft);
+  color: var(--accent-dark);
+  background: var(--hover-bg);
+}
+
+body.night-mode .hifz-room-download-status[data-state='ready'] {
+  color: var(--accent);
+}
+
+.hifz-room-download-status[data-state='error'] {
+  color: var(--error-text);
 }
 
 .hifz-room-focused .hifz-room-focus-controls {

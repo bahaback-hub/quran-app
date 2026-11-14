@@ -110,7 +110,8 @@ body:not(.night-mode):not(.sepia-mode) .favorites-panel {
   box-shadow: 10px 0 40px rgba(60, 40, 20, 0.12);
 }
 
-body:not(.night-mode):not(.sepia-mode) .adhkar-panel {
+body:not(.night-mode):not(.sepia-mode) .adhkar-panel,
+body:not(.night-mode):not(.sepia-mode) .hifz-room {
   background: rgba(254, 253, 248, 0.85);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);

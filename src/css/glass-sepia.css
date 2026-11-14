@@ -104,7 +104,8 @@ body.sepia-mode .favorites-panel {
   box-shadow: 10px 0 40px rgba(80, 60, 30, 0.12);
 }
 
-body.sepia-mode .adhkar-panel {
+body.sepia-mode .adhkar-panel,
+body.sepia-mode .hifz-room {
   background: rgba(242, 232, 212, 0.85);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -346,7 +347,8 @@ body.sepia-mode .adhkar-close:hover {
   body.sepia-mode .settings-panel,
 body.sepia-mode .favorites-panel,
 body.sepia-mode .tafsir-curtain,
-body.sepia-mode .adhkar-panel {
+body.sepia-mode .adhkar-panel,
+body.sepia-mode .hifz-room {
     -webkit-backdrop-filter: blur(18px) saturate(180%);
     backdrop-filter: blur(18px) saturate(180%);
   }

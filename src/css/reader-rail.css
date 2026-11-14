@@ -158,9 +158,10 @@ body.hifz-room-active #readerSideTools .hifz-room-toggle {
 
 .hifz-room,
 .hifz-room--rtl {
-  color: var(--hifz-curtain-text);
-  background: var(--hifz-curtain-bg);
-  border-color: var(--hifz-curtain-border);
+  /* Same surface tokens as the adhkar panel so both curtains match. */
+  color: var(--text-primary);
+  background: var(--container-bg);
+  border-color: var(--border-soft);
 }
 
 body.hifz-room-active .hifz-room.is-open {
@@ -168,8 +169,8 @@ body.hifz-room-active .hifz-room.is-open {
 }
 
 .hifz-room-panel {
-  color: var(--hifz-curtain-text);
-  background: var(--hifz-curtain-surface);
+  color: var(--text-primary);
+  background: transparent;
 }
 
 .hifz-room-eyebrow,

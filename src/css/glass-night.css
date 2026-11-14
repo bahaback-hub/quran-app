@@ -221,7 +221,8 @@ body.night-mode .favorites-panel {
   box-shadow: 10px 0 40px rgba(0, 0, 0, 0.45);
 }
 
-body.night-mode .adhkar-panel {
+body.night-mode .adhkar-panel,
+body.night-mode .hifz-room {
   background: rgba(12, 16, 28, 0.88);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -493,7 +494,8 @@ body.night-mode .adhkar-close:hover {
   body.night-mode .settings-panel,
 body.night-mode .favorites-panel,
 body.night-mode .tafsir-curtain,
-body.night-mode .adhkar-panel {
+body.night-mode .adhkar-panel,
+body.night-mode .hifz-room {
     -webkit-backdrop-filter: blur(18px) saturate(180%);
     backdrop-filter: blur(18px) saturate(180%);
   }
