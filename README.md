@@ -10,6 +10,10 @@
 [![حالة الفحوصات](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml/badge.svg)](https://github.com/bahaback-hub/quran-app/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+**Open-source Quran app for web & Android** — reading, recitation with tajweed, tafsir, search, adhkar, prayer times & qibla, and a focused hifz room. Offline-first, privacy-respecting, and available in 9 languages.
+
+![المصحف السليماني — وضع القراءة](screenshots/reading-mode.png)
+
 > للمراجعين والمهندسين وأدوات الذكاء الاصطناعي: اقرأ [دليل التقييم التقني](EVALUATION_GUIDE.md) قبل إصدار حكم على المشروع. يوضح ما يجب فحصه، وما يعمل محليًا دون إنترنت، والقيود المعروفة بوضوح.
 
 ---
