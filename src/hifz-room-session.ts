@@ -238,7 +238,7 @@ export function updateFocusedSession(room: HTMLElement, plan: HifzPlan): void {
   fillSpeedOptions(controls.speed, plan.speed);
 }
 
-export function applyReaderAyahDisplay(room: HTMLElement): void {
+function applyReaderAyahDisplay(room: HTMLElement): void {
   if (!room.classList.contains('hifz-room-focused')) {
     return;
   }
@@ -256,7 +256,7 @@ export function applyReaderAyahDisplay(room: HTMLElement): void {
   }
 }
 
-export function applySessionAudioPreferences(plan: HifzPlan): void {
+function applySessionAudioPreferences(plan: HifzPlan): void {
   state.currentReciter = plan.reciter;
   storage.set('reciter', plan.reciter);
   storage.set('playback_speed', String(plan.speed));
@@ -274,7 +274,7 @@ export function applySessionAudioPreferences(plan: HifzPlan): void {
   }
 }
 
-export function enterFocusedSession(room: HTMLElement, plan: HifzPlan): void {
+function enterFocusedSession(room: HTMLElement, plan: HifzPlan): void {
   const focused = getFocusedControls(room);
   if (!focused) {
     return;
@@ -376,7 +376,7 @@ export function refreshForm(room: HTMLElement, plan = getDefaultPlan()): void {
   void refreshSessionDownloadStatus(room, normalized);
 }
 
-export function applyExistingRepeatRange(plan: HifzPlan): void {
+function applyExistingRepeatRange(plan: HifzPlan): void {
   const from = document.getElementById('repeatFrom') as HTMLSelectElement | null;
   const to = document.getElementById('repeatTo') as HTMLSelectElement | null;
   const times = document.getElementById('repeatTimes') as HTMLSelectElement | null;
@@ -394,7 +394,7 @@ export function applyExistingRepeatRange(plan: HifzPlan): void {
   times.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-export function activateCurrentHifzTools(plan: HifzPlan): void {
+function activateCurrentHifzTools(plan: HifzPlan): void {
   const hifdhButton = document.getElementById('hifdhBtn') as HTMLButtonElement | null;
   const repeatButton = document.getElementById('repeatBtn') as HTMLButtonElement | null;
   // A completed prior session can leave the visual button state stale while the
@@ -417,7 +417,7 @@ export function activateCurrentHifzTools(plan: HifzPlan): void {
  * already displayed. This is especially important on WebKit, where waiting
  * for the full text/audio refresh can make the Start action appear stuck.
  */
-export async function prepareSurahForHifz(plan: HifzPlan): Promise<void> {
+async function prepareSurahForHifz(plan: HifzPlan): Promise<void> {
   const currentSurahIsReady =
     state.currentSurah === plan.surah && state.currentReciter === plan.reciter && state.surahData?.ayahs?.length;
 

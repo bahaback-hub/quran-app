@@ -30,7 +30,7 @@ type IsCurrentLoadFn = (currentLoad: number) => boolean;
 /** AbortController for the surah-names fetch — cancelled when navigating to a new page. */
 let _surahNamesController: AbortController | null = null;
 
-export function preloadAdjacentLayouts(pageNum: number): void {
+function preloadAdjacentLayouts(pageNum: number): void {
   const toPreload: number[] = [];
   if (pageNum > 1) {
     toPreload.push(pageNum - 1);
