@@ -402,7 +402,7 @@ export function refreshForm(room: HTMLElement, plan = getDefaultPlan()): void {
 }
 
 /** Show the resume action only while an unfinished session is still fresh. */
-export function refreshResumeButton(room: HTMLElement): void {
+function refreshResumeButton(room: HTMLElement): void {
   const button = room.querySelector<HTMLButtonElement>('#hifzRoomResume');
   if (!button) {
     return;
