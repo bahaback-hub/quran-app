@@ -496,12 +496,13 @@
   pointer-events: none;
 }
 .header-action-label {
-  color: inherit;
+  color: #fff;
   font-size: 10px;
   font-weight: 700;
   line-height: 1.1;
   pointer-events: none;
   white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 .header-action-btn:hover {
   background: var(--accent);
@@ -922,7 +923,7 @@ body.night-mode .control-group label {
 /* ========== التذييل ========== */
 .footer {
   background: var(--footer-bg);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.96);
   text-align: center;
   padding: 14px;
   font-size: 13px;
@@ -932,7 +933,7 @@ body.night-mode .control-group label {
   overflow-wrap: anywhere;
 }
 .footer a {
-  color: #ffd866;
+  color: #ffec9e;
   text-decoration: none;
   font-weight: bold;
   /* السماح بكسر الرابط الطويل (مثل "AlQuran.cloud API") على شاشات الجوال الضيقة */
@@ -1160,7 +1161,7 @@ html {
 .reader-surface-inline output {
   font-size: 12px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text-primary);
   min-width: 38px;
   text-align: center;
   white-space: nowrap;

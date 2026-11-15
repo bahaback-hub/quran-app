@@ -35,18 +35,6 @@
   },
   "entries": [
     {
-      "selector": ".header-action-label",
-      "category": "glass-surface",
-      "belowAA": true,
-      "note": "white label over the daytime parchment texture; measured ≈2.9–3.0:1 — accepted, identity preserved"
-    },
-    {
-      "selector": "#readerSurfaceValue",
-      "category": "glass-surface",
-      "belowAA": true,
-      "note": "amber 65% chip on light glass; measured ≈3.2–3.4:1 — accepted, identity preserved"
-    },
-    {
       "selector": "#readerZoomValue",
       "category": "glass-surface",
       "note": "measured ≈12.7:1 — passes on its isolated background; gauge chip only"
@@ -54,12 +42,12 @@
     {
       "selector": "footer",
       "category": "glass-surface",
-      "note": "rgba(92,68,48,.85) blur-glass over parchment; composited ratios ≈4.5:1 — borderline pass, monitored"
+      "note": "footer text color strengthened to rgba(255,255,255,0.96) over themed footer surfaces; passes ≥4.5:1"
     },
     {
       "selector": ".footer-link",
       "category": "glass-surface",
-      "note": "#ffd866 links on the glass footer; composited ≈4.5:1 — borderline pass, monitored"
+      "note": "footer link color strengthened to #ffec9e over themed footer surfaces; passes ≥4.5:1"
     },
     {
       "selector": "#bigClockTime2",
