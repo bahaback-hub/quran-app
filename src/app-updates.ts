@@ -108,9 +108,7 @@ export async function checkForAppUpdates(statusEl: HTMLElement | null): Promise<
  * in `main.ts` handles the visible notification, so nothing is shown when the
  * app is already current.
  */
-export async function checkForUpdatesOnResume(
-  now = Date.now(),
-): Promise<UpdateCheckResult | 'skipped'> {
+export async function checkForUpdatesOnResume(now = Date.now()): Promise<UpdateCheckResult | 'skipped'> {
   if (now - lastAutoCheckAt < AUTO_UPDATE_CHECK_INTERVAL_MS) {
     return 'skipped';
   }
