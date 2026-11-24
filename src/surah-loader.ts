@@ -27,7 +27,7 @@ import type { SurahTextData, LoadSurahOptions } from './surah-render.js';
 // populateReciterSelect / buildSurahOffsets continue to work without changing import paths.
 // The functions are imported lazily inside surah-loader where needed (via dynamic import
 // or direct calls through the surah-list module).
-export { loadSurahList, populateReciterSelect, buildSurahOffsets, absToSurahAyah, getAbsNumber } from './surah-list.js';
+export { loadSurahList, populateReciterSelect, buildSurahOffsets } from './surah-list.js';
 
 // Re-export the render cluster (now in surah-render.ts) so existing callers of
 // surah-loader.renderSurah / highlightCurrentAyah / updatePlayerInfo /
@@ -37,8 +37,6 @@ export {
   highlightCurrentAyah,
   updatePlayerInfo,
   updateCurrentSurahLocale,
-  patchTranslations,
-  renderSurahIfChanged,
 } from './surah-render.js';
 import {
   AudioResult,

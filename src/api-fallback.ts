@@ -317,6 +317,7 @@ export async function loadLocalTranslation(
  * Clear the local fallback caches. Useful for testing or when the user
  * requests a fresh load (e.g., after a PWA update).
  */
+/** @public - used by tests and diagnostic/manual cache reset flows */
 export function clearLocalFallbackCache(): void {
   _localQuranCache = null;
   _localTranslationCache.clear();

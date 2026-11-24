@@ -1,7 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
-    "src/main.ts",
     "src/features/prayer/prayer-local.ts",
     "src/reciters.ts",
     "src/web-vitals.ts",
