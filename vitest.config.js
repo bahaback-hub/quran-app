@@ -40,9 +40,12 @@ export default defineConfig({
         'src/**/index.js',
         'src/features/search/search.ts',
         'src/types.ts',
-        // Re-export wrappers — they have no logic to test
+        // Re-export wrappers / pure data — no runtime logic to cover
         'src/schemas-validate.ts',
         'src/templates.ts',
+        'src/templates-panels.ts',
+        'src/state.ts',
+        'src/surahs-data.ts',
         // Stylesheets are not JavaScript. Feature modules import them since
         // the CSS split, and the v8 instrumenter lists them with 0 statements.
         '**/*.css',
