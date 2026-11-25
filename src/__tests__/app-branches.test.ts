@@ -144,5 +144,24 @@ describe('app init branches', () => {
     window.dispatchEvent(new Event('offline'));
     window.dispatchEvent(new Event('focus'));
     expect(h.updateNetworkBanner).toHaveBeenCalled();
+    expect(h.refreshRecentExternalData).toHaveBeenCalled();
+  });
+
+  it('handles langchange hint, visibility banner refresh, and hashchange page link', async () => {
+    document.body.innerHTML = '<span id="keyboardHint">old</span>';
+    await initApp();
+
+    window.dispatchEvent(new CustomEvent('app:langchange'));
+    expect(document.getElementById('keyboardHint')?.textContent).toBe('');
+
+    Object.defineProperty(document, 'hidden', { value: false, configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(h.updateNetworkBanner).toHaveBeenCalled();
+
+    window.location.hash = '#page=10';
+    h.parseDeepLink.mockReturnValue({ kind: 'page', page: 10 } as any);
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    expect(h.state.currentPage).toBe(10);
+    window.location.hash = '';
   });
 });
