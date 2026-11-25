@@ -164,4 +164,23 @@ describe('app init branches', () => {
     expect(h.state.currentPage).toBe(10);
     window.location.hash = '';
   });
+
+  it('handles deferred init success and safe-load failure paths', async () => {
+    const { safeLoad } = await import('../error-boundary.js');
+    const initAyahModal = vi.fn();
+    const initPresentation = vi.fn();
+    const populateSurahOverlay = vi.fn();
+    (safeLoad as any)
+      .mockResolvedValueOnce({ success: true, module: { initAyahModal } })
+      .mockResolvedValueOnce({ success: true, module: { initPresentation } })
+      .mockResolvedValueOnce({ success: true, module: { populateSurahOverlay } });
+
+    await initApp();
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(initAyahModal).toHaveBeenCalled();
+    expect(initPresentation).toHaveBeenCalled();
+    expect(populateSurahOverlay).toHaveBeenCalled();
+  });
 });
