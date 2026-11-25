@@ -44,6 +44,7 @@ import { refreshRecentExternalData } from './external-data-cache.js';
 import { deleteLegacyCaches, deleteLegacyQcf4FontEntries } from './cache-names.js';
 import { initLangSwitcher } from './lang-switcher.js';
 import { initCspReporting } from './csp-report.js';
+import { initSessionGuards } from './session-guards.js';
 import { scheduleAfterPaint } from './scheduler.js';
 
 export {
@@ -245,6 +246,7 @@ export async function initApp(): Promise<void> {
   });
   initToggleSwitchAccessibility();
   initReducedMotionDetection();
+  initSessionGuards();
 
   // Set language selector to current language
   if (dom.langSelect) {

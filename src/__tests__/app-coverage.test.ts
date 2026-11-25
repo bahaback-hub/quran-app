@@ -91,12 +91,17 @@ vi.mock('../state.js', () => ({
   },
   resetState: (...args: unknown[]) => mockResetState(...args),
   setState: vi.fn(),
+  subscribe: vi.fn(),
   batch: vi.fn((fn: () => void) => fn()),
 }));
 
 vi.mock('../internal-state.js', () => ({
   setUpdateReadingProgress: vi.fn(),
   resetInternalState: vi.fn(),
+}));
+
+vi.mock('../session-guards.js', () => ({
+  initSessionGuards: vi.fn(),
 }));
 
 vi.mock('../features/prayer/prayer.js', () => ({

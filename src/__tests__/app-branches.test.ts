@@ -56,7 +56,7 @@ vi.mock('@capacitor/app', () => ({ App: { addListener: vi.fn(), exitApp: vi.fn()
 vi.mock('../dom.js', () => ({ dom: h.dom, cacheDom: h.cacheDom }));
 vi.mock('../ui.js', () => ({ loadingBar: h.loadingBar }));
 vi.mock('../i18n.js', () => ({ getLang: h.getLang, applyTranslations: h.applyTranslations }));
-vi.mock('../state.js', () => ({ state: h.state, resetState: h.resetState }));
+vi.mock('../state.js', () => ({ state: h.state, resetState: h.resetState, subscribe: vi.fn() }));
 vi.mock('../internal-state.js', () => ({ setUpdateReadingProgress: h.setUpdateReadingProgress }));
 vi.mock('../favorites.js', () => ({ loadFavorites: h.loadFavorites }));
 vi.mock('../features/audio/audio.js', () => ({ bindAudioEvents: h.bindAudioEvents, setLoadSurah: h.setLoadSurah, setReloadAudio: h.setReloadAudio, setHighlightAyah: h.setHighlightAyah }));
@@ -81,6 +81,7 @@ vi.mock('../cache-names.js', () => ({ deleteLegacyCaches: h.deleteLegacyCaches, 
 vi.mock('../lang-switcher.js', () => ({ initLangSwitcher: h.initLangSwitcher }));
 vi.mock('../csp-report.js', () => ({ initCspReporting: h.initCspReporting }));
 vi.mock('../scheduler.js', () => ({ scheduleAfterPaint: h.scheduleAfterPaint }));
+vi.mock('../session-guards.js', () => ({ initSessionGuards: vi.fn() }));
 vi.mock('../features/search/search-ui.js', () => ({ loadFullQuranText: vi.fn(async () => {}) }));
 vi.mock('../hifz-room.js', () => ({ initHifzRoom: vi.fn(async () => {}) }));
 vi.mock('../adhkar.js', () => ({ initAdhkarState: vi.fn(), loadAdhkarSettings: vi.fn(), wireAdhkarEvents: vi.fn(), startAdhkarNotificationScheduler: vi.fn() }));
