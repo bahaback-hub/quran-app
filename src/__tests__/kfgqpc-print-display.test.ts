@@ -38,9 +38,7 @@ describe('hideSequentialTanweenMeem (helper)', () => {
   });
 
   it('is a no-op for text without the mark', () => {
-    expect(hideSequentialTanweenMeem('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ')).toBe(
-      'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',
-    );
+    expect(hideSequentialTanweenMeem('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ')).toBe('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ');
     expect(hideSequentialTanweenMeem('')).toBe('');
   });
 

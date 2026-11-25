@@ -32,12 +32,7 @@ export { loadSurahList, populateReciterSelect, buildSurahOffsets } from './surah
 // Re-export the render cluster (now in surah-render.ts) so existing callers of
 // surah-loader.renderSurah / highlightCurrentAyah / updatePlayerInfo /
 // updateCurrentSurahLocale continue to work without changing import paths.
-export {
-  renderSurah,
-  highlightCurrentAyah,
-  updatePlayerInfo,
-  updateCurrentSurahLocale,
-} from './surah-render.js';
+export { renderSurah, highlightCurrentAyah, updatePlayerInfo, updateCurrentSurahLocale } from './surah-render.js';
 import {
   AudioResult,
   ReciterInfo,

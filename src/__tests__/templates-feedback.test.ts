@@ -8,7 +8,17 @@ vi.mock('../templates/escape.js', () => ({
   escapeHtml: (s: string) => `ESC(${s})`,
 }));
 
-import { errorOverlay, errorRecoveryOverlay, loadingSkeleton, qariOption, tafsirLoading, tafsirContent, tafsirErrorMessage, updateBanner, readingStatsGrid } from '../templates-feedback.js';
+import {
+  errorOverlay,
+  errorRecoveryOverlay,
+  loadingSkeleton,
+  qariOption,
+  tafsirLoading,
+  tafsirContent,
+  tafsirErrorMessage,
+  updateBanner,
+  readingStatsGrid,
+} from '../templates-feedback.js';
 
 describe('templates-feedback', () => {
   it('renders templates with translated strings', () => {

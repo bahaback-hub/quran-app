@@ -1,8 +1,14 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
 const {
-  trapFocusMock, manageFocusMock, restoreFocusMock, i18nMock,
-  capacitorMock, startNativeMock, declinationMock, geoMock,
+  trapFocusMock,
+  manageFocusMock,
+  restoreFocusMock,
+  i18nMock,
+  capacitorMock,
+  startNativeMock,
+  declinationMock,
+  geoMock,
 } = vi.hoisted(() => ({
   trapFocusMock: vi.fn(() => vi.fn()),
   manageFocusMock: vi.fn(),
@@ -14,14 +20,29 @@ const {
   geoMock: { requestPermissions: vi.fn(), getCurrentPosition: vi.fn() },
 }));
 
-vi.mock('../a11y.js', () => ({ trapFocus: trapFocusMock, manageFocusOnPanelOpen: manageFocusMock, restoreFocusOnPanelClose: restoreFocusMock }));
+vi.mock('../a11y.js', () => ({
+  trapFocus: trapFocusMock,
+  manageFocusOnPanelOpen: manageFocusMock,
+  restoreFocusOnPanelClose: restoreFocusMock,
+}));
 vi.mock('../i18n.js', () => ({ __: (...a: any[]) => (i18nMock as any)(...a) }));
 vi.mock('@capacitor/core', () => ({ Capacitor: capacitorMock }));
-vi.mock('../features/prayer/qibla-compass.js', () => ({ startNativeQiblaCompass: (...a: any[]) => (startNativeMock as any)(...a) }));
-vi.mock('../features/prayer/magnetic-declination.js', () => ({ getMagneticDeclination: (...a: any[]) => (declinationMock as any)(...a) }));
+vi.mock('../features/prayer/qibla-compass.js', () => ({
+  startNativeQiblaCompass: (...a: any[]) => (startNativeMock as any)(...a),
+}));
+vi.mock('../features/prayer/magnetic-declination.js', () => ({
+  getMagneticDeclination: (...a: any[]) => (declinationMock as any)(...a),
+}));
 vi.mock('@capacitor/geolocation', () => ({ Geolocation: geoMock }));
 
-import { normalizeQiblaAngle, circularQiblaDifference, getWebQiblaHeading, calculateQibla, showQiblaCompass, hideQiblaCompass } from '../features/prayer/qibla.js';
+import {
+  normalizeQiblaAngle,
+  circularQiblaDifference,
+  getWebQiblaHeading,
+  calculateQibla,
+  showQiblaCompass,
+  hideQiblaCompass,
+} from '../features/prayer/qibla.js';
 
 function setupDom() {
   document.body.innerHTML = `
@@ -33,7 +54,11 @@ function setupDom() {
     </div>`;
 }
 
-const flush = async () => { await Promise.resolve(); await Promise.resolve(); await new Promise((r) => setTimeout(r, 0)); };
+const flush = async () => {
+  await Promise.resolve();
+  await Promise.resolve();
+  await new Promise((r) => setTimeout(r, 0));
+};
 
 describe('qibla', () => {
   beforeEach(() => {
@@ -45,7 +70,9 @@ describe('qibla', () => {
     (navigator as any).geolocation = {
       getCurrentPosition: vi.fn((ok: any) => ok({ coords: { latitude: 21.4225, longitude: 39.8262, altitude: 0 } })),
     };
-    (window as any).DeviceOrientationEvent = class { static requestPermission?: any };
+    (window as any).DeviceOrientationEvent = class {
+      static requestPermission?: any;
+    };
     delete (window.DeviceOrientationEvent as any).requestPermission;
   });
 
@@ -78,7 +105,8 @@ describe('qibla', () => {
     expect(document.body.classList.contains('qibla-curtain-active')).toBe(true);
 
     const ev = new Event('deviceorientationabsolute') as any;
-    ev.alpha = 0; ev.absolute = true;
+    ev.alpha = 0;
+    ev.absolute = true;
     window.dispatchEvent(ev);
     await flush();
     expect(document.getElementById('qiblaStatus')?.textContent).toContain('qibla_compass');

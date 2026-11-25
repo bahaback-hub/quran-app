@@ -59,33 +59,72 @@ vi.mock('../i18n.js', () => ({ getLang: h.getLang, applyTranslations: h.applyTra
 vi.mock('../state.js', () => ({ state: h.state, resetState: h.resetState, subscribe: vi.fn() }));
 vi.mock('../internal-state.js', () => ({ setUpdateReadingProgress: h.setUpdateReadingProgress }));
 vi.mock('../favorites.js', () => ({ loadFavorites: h.loadFavorites }));
-vi.mock('../features/audio/audio.js', () => ({ bindAudioEvents: h.bindAudioEvents, setLoadSurah: h.setLoadSurah, setReloadAudio: h.setReloadAudio, setHighlightAyah: h.setHighlightAyah }));
+vi.mock('../features/audio/audio.js', () => ({
+  bindAudioEvents: h.bindAudioEvents,
+  setLoadSurah: h.setLoadSurah,
+  setReloadAudio: h.setReloadAudio,
+  setHighlightAyah: h.setHighlightAyah,
+}));
 vi.mock('../keyboard.js', () => ({ initKeyboardShortcuts: h.initKeyboardShortcuts }));
 vi.mock('../capacitor-back.js', () => ({ initCapacitorBackButton: h.initCapacitorBackButton }));
 vi.mock('../navigation.js', () => ({ initNavigation: h.initNavigation }));
-vi.mock('../a11y.js', () => ({ initToggleSwitchAccessibility: h.initToggleSwitchAccessibility, initReducedMotionDetection: h.initReducedMotionDetection }));
+vi.mock('../a11y.js', () => ({
+  initToggleSwitchAccessibility: h.initToggleSwitchAccessibility,
+  initReducedMotionDetection: h.initReducedMotionDetection,
+}));
 vi.mock('../surah-loader.js', () => ({
-  loadSurah: h.loadSurah, reloadCurrentSurahAudio: h.reloadCurrentSurahAudio, loadSurahList: h.loadSurahList,
-  buildSurahOffsets: h.buildSurahOffsets, populateReciterSelect: h.populateReciterSelect, updateCurrentSurahLocale: h.updateCurrentSurahLocale,
-  highlightCurrentAyah: h.highlightCurrentAyah, renderSurah: vi.fn(), updatePlayerInfo: vi.fn(),
+  loadSurah: h.loadSurah,
+  reloadCurrentSurahAudio: h.reloadCurrentSurahAudio,
+  loadSurahList: h.loadSurahList,
+  buildSurahOffsets: h.buildSurahOffsets,
+  populateReciterSelect: h.populateReciterSelect,
+  updateCurrentSurahLocale: h.updateCurrentSurahLocale,
+  highlightCurrentAyah: h.highlightCurrentAyah,
+  renderSurah: vi.fn(),
+  updatePlayerInfo: vi.fn(),
 }));
 vi.mock('../deep-link.js', () => ({ parseDeepLink: h.parseDeepLink, clearDeepLinkHash: h.clearDeepLinkHash }));
 vi.mock('../home.js', () => ({ refreshHomeGrid: h.refreshHomeGrid, showHome: h.showHome }));
-vi.mock('../ui-extras.js', () => ({ handleVisibilityChange: h.handleVisibilityChange, showContinueWidget: h.showContinueWidget, updateNetworkBanner: h.updateNetworkBanner, updateReadingProgress: h.updateReadingProgress }));
-vi.mock('../settings.js', () => ({ restoreSettings: h.restoreSettings, initSystemThemeDetection: h.initSystemThemeDetection }));
-vi.mock('../app-events.js', () => ({ bindCriticalEvents: h.bindCriticalEvents, bindDeferredEvents: h.bindDeferredEvents, initAutoPlayNextButton: h.initAutoPlayNextButton }));
+vi.mock('../ui-extras.js', () => ({
+  handleVisibilityChange: h.handleVisibilityChange,
+  showContinueWidget: h.showContinueWidget,
+  updateNetworkBanner: h.updateNetworkBanner,
+  updateReadingProgress: h.updateReadingProgress,
+}));
+vi.mock('../settings.js', () => ({
+  restoreSettings: h.restoreSettings,
+  initSystemThemeDetection: h.initSystemThemeDetection,
+}));
+vi.mock('../app-events.js', () => ({
+  bindCriticalEvents: h.bindCriticalEvents,
+  bindDeferredEvents: h.bindDeferredEvents,
+  initAutoPlayNextButton: h.initAutoPlayNextButton,
+}));
 vi.mock('../overlays.js', () => ({ injectOverlays: h.injectOverlays }));
 vi.mock('../tajweed-data.js', () => ({ preloadTajweedIfNeeded: h.preloadTajweedIfNeeded }));
 vi.mock('../external-data-cache.js', () => ({ refreshRecentExternalData: h.refreshRecentExternalData }));
-vi.mock('../cache-names.js', () => ({ deleteLegacyCaches: h.deleteLegacyCaches, deleteLegacyQcf4FontEntries: h.deleteLegacyQcf4FontEntries }));
+vi.mock('../cache-names.js', () => ({
+  deleteLegacyCaches: h.deleteLegacyCaches,
+  deleteLegacyQcf4FontEntries: h.deleteLegacyQcf4FontEntries,
+}));
 vi.mock('../lang-switcher.js', () => ({ initLangSwitcher: h.initLangSwitcher }));
 vi.mock('../csp-report.js', () => ({ initCspReporting: h.initCspReporting }));
 vi.mock('../scheduler.js', () => ({ scheduleAfterPaint: h.scheduleAfterPaint }));
 vi.mock('../session-guards.js', () => ({ initSessionGuards: vi.fn() }));
 vi.mock('../features/search/search-ui.js', () => ({ loadFullQuranText: vi.fn(async () => {}) }));
 vi.mock('../hifz-room.js', () => ({ initHifzRoom: vi.fn(async () => {}) }));
-vi.mock('../adhkar.js', () => ({ initAdhkarState: vi.fn(), loadAdhkarSettings: vi.fn(), wireAdhkarEvents: vi.fn(), startAdhkarNotificationScheduler: vi.fn() }));
-vi.mock('../features/prayer/prayer.js', () => ({ startClock: vi.fn(), scheduleNextAzanCheck: vi.fn(), loadUnderwrittenPrayerTable: vi.fn(async () => {}), loadPrayerTimes: vi.fn(async () => {}) }));
+vi.mock('../adhkar.js', () => ({
+  initAdhkarState: vi.fn(),
+  loadAdhkarSettings: vi.fn(),
+  wireAdhkarEvents: vi.fn(),
+  startAdhkarNotificationScheduler: vi.fn(),
+}));
+vi.mock('../features/prayer/prayer.js', () => ({
+  startClock: vi.fn(),
+  scheduleNextAzanCheck: vi.fn(),
+  loadUnderwrittenPrayerTable: vi.fn(async () => {}),
+  loadPrayerTimes: vi.fn(async () => {}),
+}));
 vi.mock('../error-boundary.js', () => ({ safeLoad: vi.fn(async () => ({ success: false })) }));
 
 import { initApp } from '../app.js';
@@ -103,12 +142,17 @@ describe('app init branches', () => {
     h.dom.player = document.createElement('div');
     h.dom.surahSelect = document.createElement('select');
     // requestIdleCallback fallback
-    (globalThis as any).requestIdleCallback = (cb: any) => { cb(); return 1; };
+    (globalThis as any).requestIdleCallback = (cb: any) => {
+      cb();
+      return 1;
+    };
   });
 
   it('handles deep link surah with startAyah and hashchange', async () => {
     window.location.hash = '#surah=2/5';
-    h.parseDeepLink.mockImplementation((hash: string) => hash.includes('2/5') ? { kind: 'surah', number: 2, startAyah: 5 } : null);
+    h.parseDeepLink.mockImplementation((hash: string) =>
+      hash.includes('2/5') ? { kind: 'surah', number: 2, startAyah: 5 } : null,
+    );
     await initApp();
     expect(h.loadSurah).toHaveBeenCalledWith(2, { startAyah: 5 });
     window.dispatchEvent(new HashChangeEvent('hashchange'));
@@ -125,7 +169,9 @@ describe('app init branches', () => {
 
   it('restores last position and shows continue widget', async () => {
     vi.useFakeTimers();
-    h.storageGet.mockImplementation((k: string) => k === 'last_position' ? { surah: 3, surahName: 'آل عمران', ayahNumberInSurah: 7, timestamp: 1 } : null);
+    h.storageGet.mockImplementation((k: string) =>
+      k === 'last_position' ? { surah: 3, surahName: 'آل عمران', ayahNumberInSurah: 7, timestamp: 1 } : null,
+    );
     h.state.surahData = { name: 'آل عمران', englishName: 'Ali Imran' };
     await initApp();
     expect(h.loadSurah).toHaveBeenCalledWith(3, { startAyah: 7 });
@@ -136,7 +182,7 @@ describe('app init branches', () => {
 
   it('handles first visit, player collapsed restore, offline search, and network events', async () => {
     h.dom.player.classList.add('collapsed');
-    h.storageGet.mockImplementation((k: string) => k === 'player_collapsed' ? false : null);
+    h.storageGet.mockImplementation((k: string) => (k === 'player_collapsed' ? false : null));
     Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
     await initApp();
     expect(h.showHome).toHaveBeenCalled();
@@ -187,9 +233,11 @@ describe('app init branches', () => {
 
   it('covers simple remaining app branches', async () => {
     window.location.hash = '#surah=5';
-    h.parseDeepLink.mockImplementation((hash: string) => hash.includes('surah=5') ? { kind: 'surah', number: 5 } : null);
+    h.parseDeepLink.mockImplementation((hash: string) =>
+      hash.includes('surah=5') ? { kind: 'surah', number: 5 } : null,
+    );
     h.dom.player.classList.remove('collapsed');
-    h.storageGet.mockImplementation((k: string) => k === 'player_collapsed' ? true : null);
+    h.storageGet.mockImplementation((k: string) => (k === 'player_collapsed' ? true : null));
     await initApp();
     expect(h.loadSurah).toHaveBeenCalledWith(5, { startAyah: undefined });
     expect(h.dom.player.classList.contains('collapsed')).toBe(false);

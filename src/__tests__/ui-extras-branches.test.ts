@@ -1,9 +1,15 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
-const domMock = { networkBanner: null as HTMLElement | null, surahContent: null as HTMLElement | null, surahSelect: null as HTMLSelectElement | null };
+const domMock = {
+  networkBanner: null as HTMLElement | null,
+  surahContent: null as HTMLElement | null,
+  surahSelect: null as HTMLSelectElement | null,
+};
 const stateMock = { mushafMode: false, currentAyahIndex: 0, surahData: null as any, currentPage: 1, currentSurah: 1 };
 let adhkarInterval: any = null;
-const setAdhkarInterval = vi.fn((v: any) => { adhkarInterval = v; });
+const setAdhkarInterval = vi.fn((v: any) => {
+  adhkarInterval = v;
+});
 const getAdhkarInterval = vi.fn(() => adhkarInterval);
 const loadSurahMock = vi.fn();
 const stopClockMock = vi.fn();
@@ -15,11 +21,22 @@ let lang = 'ar';
 
 vi.mock('../dom.js', () => ({ dom: domMock }));
 vi.mock('../state.js', () => ({ state: stateMock }));
-vi.mock('../i18n.js', () => ({ __: (k: string, ...a: any[]) => (a.length ? `${k}:${a.join(',')}` : k), getLang: () => lang }));
-vi.mock('../internal-state.js', () => ({ getAdhkarIntervalId: () => getAdhkarInterval(), setAdhkarIntervalId: (v: any) => setAdhkarInterval(v) }));
+vi.mock('../i18n.js', () => ({
+  __: (k: string, ...a: any[]) => (a.length ? `${k}:${a.join(',')}` : k),
+  getLang: () => lang,
+}));
+vi.mock('../internal-state.js', () => ({
+  getAdhkarIntervalId: () => getAdhkarInterval(),
+  setAdhkarIntervalId: (v: any) => setAdhkarInterval(v),
+}));
 vi.mock('../surah-loader.js', () => ({ loadSurah: (...a: any[]) => (loadSurahMock as any)(...a) }));
-vi.mock('../features/prayer/prayer.js', () => ({ stopClock: (...a: any[]) => (stopClockMock as any)(...a), startClock: (...a: any[]) => (startClockMock as any)(...a) }));
-vi.mock('../adhkar-notifications.js', () => ({ checkAdhkarNotifications: (...a: any[]) => (checkAdhkarMock as any)(...a) }));
+vi.mock('../features/prayer/prayer.js', () => ({
+  stopClock: (...a: any[]) => (stopClockMock as any)(...a),
+  startClock: (...a: any[]) => (startClockMock as any)(...a),
+}));
+vi.mock('../adhkar-notifications.js', () => ({
+  checkAdhkarNotifications: (...a: any[]) => (checkAdhkarMock as any)(...a),
+}));
 vi.mock('../a11y.js', () => ({ announceToScreenReader: (...a: any[]) => (announceMock as any)(...a) }));
 vi.mock('../reading-plans.js', () => ({ recordReading: (...a: any[]) => (recordReadingMock as any)(...a) }));
 
@@ -54,7 +71,13 @@ describe('ui-extras branches', () => {
     domMock.surahSelect.innerHTML = '<option value="2">2</option>';
 
     lang = 'en';
-    showContinueWidget({ surah: 2, surahName: 'البقرة', englishSurahName: 'Al-Baqarah', ayahNumberInSurah: 3, timestamp: Date.now() });
+    showContinueWidget({
+      surah: 2,
+      surahName: 'البقرة',
+      englishSurahName: 'Al-Baqarah',
+      ayahNumberInSurah: 3,
+      timestamp: Date.now(),
+    });
     let widget = document.getElementById('continueWidget')!;
     expect(widget.dir).toBe('ltr');
     expect(widget.textContent).toContain('Al-Baqarah');
@@ -63,7 +86,13 @@ describe('ui-extras branches', () => {
     expect(document.getElementById('continueWidget')).toBeNull();
     expect(loadSurahMock).not.toHaveBeenCalled();
 
-    showContinueWidget({ surah: 2, surahName: 'البقرة', englishSurahName: 'Al-Baqarah', ayahNumberInSurah: 3, restored: true });
+    showContinueWidget({
+      surah: 2,
+      surahName: 'البقرة',
+      englishSurahName: 'Al-Baqarah',
+      ayahNumberInSurah: 3,
+      restored: true,
+    });
     document.getElementById('continueWidget')!.click();
     expect(loadSurahMock).not.toHaveBeenCalled();
 
@@ -98,7 +127,9 @@ describe('ui-extras branches', () => {
     updateNetworkBanner();
     expect(announceMock).not.toHaveBeenCalled();
 
-    announceMock.mockImplementationOnce(() => { throw new Error('boom'); });
+    announceMock.mockImplementationOnce(() => {
+      throw new Error('boom');
+    });
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
     expect(() => updateNetworkBanner()).not.toThrow();
     expect(banner.hidden).toBe(false);

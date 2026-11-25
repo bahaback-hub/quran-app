@@ -33,21 +33,36 @@ const {
 vi.mock('../dom.js', () => ({ dom: domMock }));
 vi.mock('../state.js', () => ({ state: stateMock }));
 vi.mock('../api-client.js', () => ({ apiFetch: apiFetchMock }));
-vi.mock('../ayah-click.js', () => ({ getAyahHighlightRects: (...a: any[]) => (getAyahHighlightRectsMock as any)(...a) }));
-vi.mock('../surah-loader.js', () => ({ loadSurah: (...a: any[]) => (loadSurahMock as any)(...a), updatePlayerInfo: (...a: any[]) => (updatePlayerInfoMock as any)(...a) }));
-vi.mock('../features/audio/audio.js', () => ({ prepareAudioForNewSurah: (...a: any[]) => (prepareAudioForNewSurahMock as any)(...a), playCurrentAyah: (...a: any[]) => (playCurrentAyahMock as any)(...a) }));
-vi.mock('../features/mushaf/mushaf-renderer.js', () => ({ computeMushafPageGeometry: (...a: any[]) => (computeMushafPageGeometryMock as any)(...a) }));
+vi.mock('../ayah-click.js', () => ({
+  getAyahHighlightRects: (...a: any[]) => (getAyahHighlightRectsMock as any)(...a),
+}));
+vi.mock('../surah-loader.js', () => ({
+  loadSurah: (...a: any[]) => (loadSurahMock as any)(...a),
+  updatePlayerInfo: (...a: any[]) => (updatePlayerInfoMock as any)(...a),
+}));
+vi.mock('../features/audio/audio.js', () => ({
+  prepareAudioForNewSurah: (...a: any[]) => (prepareAudioForNewSurahMock as any)(...a),
+  playCurrentAyah: (...a: any[]) => (playCurrentAyahMock as any)(...a),
+}));
+vi.mock('../features/mushaf/mushaf-renderer.js', () => ({
+  computeMushafPageGeometry: (...a: any[]) => (computeMushafPageGeometryMock as any)(...a),
+}));
 
-import { clearMushafGeomCache, getMushafPageGeometry, highlightMushafAyahImpl, playMushafAyah } from '../features/mushaf/mushaf-highlight.js';
+import {
+  clearMushafGeomCache,
+  getMushafPageGeometry,
+  highlightMushafAyahImpl,
+  playMushafAyah,
+} from '../features/mushaf/mushaf-highlight.js';
 
 function makeWrapper() {
   const wrapper = document.createElement('div');
   wrapper.className = 'mushaf-image-wrapper';
-  wrapper.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 200 } as DOMRect);
+  wrapper.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 200 }) as DOMRect;
   const canvas = document.createElement('canvas');
   canvas.className = 'mushaf-page-canvas';
   Object.defineProperty(canvas, 'width', { value: 300, configurable: true });
-  canvas.getBoundingClientRect = () => ({ left: 5, top: 10, width: 100, height: 200 } as DOMRect);
+  canvas.getBoundingClientRect = () => ({ left: 5, top: 10, width: 100, height: 200 }) as DOMRect;
   canvas.getContext = vi.fn(() => ({})) as any;
   wrapper.appendChild(canvas);
   const root = document.createElement('div');

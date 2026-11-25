@@ -44,7 +44,9 @@ describe('audio-cache branches', () => {
     let resolveFetch: any;
     const fetchMock = vi.fn().mockImplementation((_url: string, init?: any) => {
       if (init?.mode === 'no-cors') return Promise.resolve({ type: 'opaque', clone: () => ({}) } as any);
-      return new Promise((resolve) => { resolveFetch = resolve; });
+      return new Promise((resolve) => {
+        resolveFetch = resolve;
+      });
     });
     vi.stubGlobal('fetch', fetchMock);
 

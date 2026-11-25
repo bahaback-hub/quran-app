@@ -17,7 +17,7 @@ jobs:
     # Browser executables and system dependencies are preinstalled in the
     # version-matched image, keeping the mandatory Axe audit deterministic.
     container:
-      image: mcr.microsoft.com/playwright:v1.65.0-noble
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
       options: --user 1001
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

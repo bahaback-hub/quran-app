@@ -1,6 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const { stateMock, labelMock, getAyahCountMock, getSurahNameMock, getSavedSessionDownloadMock, isSurahCachedMock, loadAudioUrlsForSessionMock } = vi.hoisted(() => ({
+const {
+  stateMock,
+  labelMock,
+  getAyahCountMock,
+  getSurahNameMock,
+  getSavedSessionDownloadMock,
+  isSurahCachedMock,
+  loadAudioUrlsForSessionMock,
+} = vi.hoisted(() => ({
   stateMock: {
     currentSurah: 1,
     currentReciter: 'ar.alafasy',
@@ -21,8 +29,12 @@ vi.mock('../hifz-room-plan.js', () => ({
   getSurahName: (...a: any[]) => (getSurahNameMock as any)(...a),
   getSavedSessionDownload: (...a: any[]) => (getSavedSessionDownloadMock as any)(...a),
 }));
-vi.mock('../features/audio/audio-cache.js', () => ({ isSurahCached: (...a: any[]) => (isSurahCachedMock as any)(...a) }));
-vi.mock('../surah-loader.js', () => ({ loadAudioUrlsForSession: (...a: any[]) => (loadAudioUrlsForSessionMock as any)(...a) }));
+vi.mock('../features/audio/audio-cache.js', () => ({
+  isSurahCached: (...a: any[]) => (isSurahCachedMock as any)(...a),
+}));
+vi.mock('../surah-loader.js', () => ({
+  loadAudioUrlsForSession: (...a: any[]) => (loadAudioUrlsForSessionMock as any)(...a),
+}));
 vi.mock('../state.js', () => ({ state: stateMock }));
 
 import {
@@ -34,7 +46,17 @@ import {
   hydrateDownloadedSessionAudio,
 } from '../hifz-room-download.js';
 
-const plan = { version: 1, surah: 1, from: 1, to: 3, times: 5, review: 'today', reciter: 'ar.alafasy', speed: 1, updatedAt: 0 } as any;
+const plan = {
+  version: 1,
+  surah: 1,
+  from: 1,
+  to: 3,
+  times: 5,
+  review: 'today',
+  reciter: 'ar.alafasy',
+  speed: 1,
+  updatedAt: 0,
+} as any;
 
 describe('hifz-room-download', () => {
   beforeEach(() => {

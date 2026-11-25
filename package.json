@@ -32,7 +32,7 @@
     "build:analyze": "vite build && node scripts/generate-csp-hashes.mjs",
     "test:a11y": "vite build --base=/ --outDir dist-a11y && (npx vite preview --outDir dist-a11y --port 4173 --base=/ &) && sleep 3 && node scripts/a11y-audit.mjs",
     "test:all": "npm run lint && npm run lint:zero-style && npm run typecheck && npm test && npm run test:e2e",
-    "docs": "typedoc",
+    "docs": "node scripts/docs.mjs",
     "lighthouse:badge": "node scripts/update-lighthouse-badge.mjs",
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "measure:surah": "node scripts/measure-surah-render.mjs",

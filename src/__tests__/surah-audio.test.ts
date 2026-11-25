@@ -77,7 +77,10 @@ describe('surah-audio', () => {
     const fatiha = calculateAyahTimings([{ numberInSurah: 1, text: 'abc' } as any], 1);
     expect(fatiha).toEqual([0]);
 
-    const empty = calculateAyahTimings([{ numberInSurah: 1, text: '---' } as any, { numberInSurah: 2, text: '...' } as any], 1);
+    const empty = calculateAyahTimings(
+      [{ numberInSurah: 1, text: '---' } as any, { numberInSurah: 2, text: '...' } as any],
+      1,
+    );
     expect(empty).toHaveLength(2);
   });
 

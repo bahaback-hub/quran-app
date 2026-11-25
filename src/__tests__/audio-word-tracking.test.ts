@@ -18,7 +18,9 @@ import {
   onSeeking,
 } from '../features/audio/audio-word-tracking.js';
 
-function makeHost(overrides: Partial<{ advancing: boolean; timings: boolean; start: number; end: number; onBoundary: any }> = {}) {
+function makeHost(
+  overrides: Partial<{ advancing: boolean; timings: boolean; start: number; end: number; onBoundary: any }> = {},
+) {
   const onBoundary = overrides.onBoundary || vi.fn();
   initWordTrackingHost({
     isAutoAdvancing: () => overrides.advancing ?? false,

@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **إغلاق ثغرات تدقيق npm التطويرية**: إضافة overrides لـ `minimatch`/`glob` وتحديث `package-lock.json` ليصبح `npm audit` بلا ثغرات.
+- **إصلاح فحوصات CI بعد ترقية الأدوات**: تنسيق ملفات المصدر مع Prettier 3.10، ومطابقة صورة Playwright في كل سير العمل للإصدار 1.65.1، وإضافة غلاف توافق صغير لـ TypeDoc يعمل مع `minimatch` 11 المُحدَّث أمنيًا.}
 - **ترقية ESLint إلى الإصدار 10**: تحديث `eslint` و`@eslint/js` إلى ESLint 10، ومعالجة تنبيهات `no-useless-assignment` الجديدة في ملفات المصدر.
 - **تحديث الاعتمادات وميزانية الأداء**: تحديث `actions/setup-java` إلى 6.3.0، و`@capacitor/cli`/`@capacitor/android` إلى 8.6.2، و`knip` إلى 6.45.1، و`@typescript-eslint/parser` إلى 8.72.2، و`fake-indexeddb` إلى 6.2.8. وتحديث `performance-budget.json` لتعكس واقع البناء الحالي بعد توليد صفحات SEO/FAQ (رفع حد `document` إلى 1500KB، و`total` إلى 56000KB، وحدود عدد `script/stylesheet`) مع إبقاء فحص الميزانية فعّالًا.
 - **تفكيك ملفَي المشاركة والصلاة وتثبيت الاختبارات الزمنية**: نُقل رسم الصورة وتسجيل الفيديو وكاشّاته إلى `src/features/presentation/presentation-share-export.ts` (بقيت واجهة المعاينة وربط الأزرار في `presentation-share.ts`)، ونُقلت الجداول المحلية إلى `prayer-times-local.ts` والأذان إلى `prayer-azan.ts` مع إعادة تصدير الواجهة نفسها. واستُبدلت الانتظارات الزمنية الثابتة في الاختبارات بانتظار شرطي (`vi.waitFor`)، فلا يفشل الاختبار على جهاز بطيء. لا تغيير في النص القرآني.
