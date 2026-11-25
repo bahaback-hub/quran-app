@@ -184,4 +184,19 @@ describe('app init branches', () => {
     expect(initPresentation).toHaveBeenCalled();
     expect(populateSurahOverlay).toHaveBeenCalled();
   });
+
+  it('covers simple remaining app branches', async () => {
+    window.location.hash = '#surah=5';
+    h.parseDeepLink.mockImplementation((hash: string) => hash.includes('surah=5') ? { kind: 'surah', number: 5 } : null);
+    h.dom.player.classList.remove('collapsed');
+    h.storageGet.mockImplementation((k: string) => k === 'player_collapsed' ? true : null);
+    await initApp();
+    expect(h.loadSurah).toHaveBeenCalledWith(5, { startAyah: undefined });
+    expect(h.dom.player.classList.contains('collapsed')).toBe(false);
+
+    window.dispatchEvent(new CustomEvent('app:langchange'));
+    Object.defineProperty(document, 'hidden', { value: true, configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    window.location.hash = '';
+  });
 });
