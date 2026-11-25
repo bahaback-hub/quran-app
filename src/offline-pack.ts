@@ -125,7 +125,7 @@ async function saveOfflineAudioUrls(reciterId: string, surahNum: number, urls: s
  * and repeated calls simply re-import the same data instead of going stale.
  */
 async function migrateLegacyAudioUrls(): Promise<void> {
-  let raw: string | null = null;
+  let raw: string | null;
   try {
     raw = localStorage.getItem(OFFLINE_AUDIO_URLS_KEY);
   } catch (err) {
@@ -135,7 +135,7 @@ async function migrateLegacyAudioUrls(): Promise<void> {
   if (!raw) {
     return;
   }
-  let saved: OfflineAudioUrls | null = null;
+  let saved: OfflineAudioUrls;
   try {
     saved = JSON.parse(raw) as OfflineAudioUrls;
   } catch (err) {

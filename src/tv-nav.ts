@@ -205,8 +205,8 @@ export function pickTvTarget(
     const cy = c.box.y + c.box.height / 2;
     const dx = cx - fx;
     const dy = cy - fy;
-    let primary = 0;
-    let secondary = 0;
+    let primary: number;
+    let secondary: number;
     if (direction === 'ArrowUp') {
       if (cy >= fy - 2) {
         continue;

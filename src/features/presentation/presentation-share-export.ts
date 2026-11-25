@@ -280,7 +280,7 @@ function drawShareText(
       : ayahText.length > 115
         ? 112
         : 140;
-  let lines: string[] = [];
+  let lines: string[];
   do {
     ctx.font = `${fontSize}px "KFGQPC HAFS Uthmanic Script", "Amiri", "Traditional Arabic", serif`;
     lines = wrapText(ctx, ayahText, maxTextWidth);
