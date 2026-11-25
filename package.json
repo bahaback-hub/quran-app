@@ -94,7 +94,7 @@
     "@vitest/coverage-v8": "5.1.0",
     "axe-core": "4.14.0",
     "esbuild": "^0.28.0",
-    "eslint": "^10.14.0",
+    "eslint": "^10.15.0",
     "fake-indexeddb": "6.2.8",
     "fontverter": "2.0.0",
     "globals": "^17.12.0",
